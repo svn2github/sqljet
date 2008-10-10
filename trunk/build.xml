@@ -1,0 +1,39 @@
+<project name="sqljet" default="deploy">
+    <target name="clean">
+
+        <delete verbose="true" includeemptydirs="true" failonerror="true">
+            <fileset dir="build">
+                <include name="**/**" />
+            </fileset>
+        </delete>
+
+        <delete verbose="true" includeemptydirs="true" failonerror="false">
+            <fileset dir="sqljet/bin">
+                <include name="**/**" />
+            </fileset>
+            <fileset dir="sqljet-test/bin">
+                <include name="**/**" />
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="sqljet/bin" />
+        <mkdir dir="sqljet-test/bin" />
+
+        <javac destdir="sqljet/bin" srcdir="sqljet/src" />
+        <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src">
+            <classpath path="sqljet/bin" />
+        </javac>
+    </target>
+
+    <target name="deploy" depends="clean, compile">
+        <mkdir dir="build" />
+        <jar destfile="build/sqljet.jar">
+            <fileset dir="sqljet/bin">
+                <include name="**/**"/>
+            </fileset>
+        </jar>
+    </target>
+
+</project>

@@ -14,11 +14,20 @@
 package org.tmatesoft.sqljet.core;
 
 /**
+ * This header file defines the interface that the sqlite page cache
+ * subsystem.  The page cache subsystem reads and writes a file a page
+ * at a time and provides a journal for rollback.
+ * 
  * @author TMate Software Ltd.
+ * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
 public interface IPager {
 
+    /*
+    ** If defined as non-zero, auto-vacuum is enabled by default. Otherwise
+    ** it must be turned on for each database using "PRAGMA auto_vacuum = 1".
+    */
     int SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
 
     /*
@@ -49,7 +58,7 @@ public interface IPager {
    */
 
     void open(
-        String filename,        /* Name of the database file to open */
+        String fileName,        /* Name of the database file to open */
         IPageDestructor xDesc,  /* Page destructor function */
         int nExtra,             /* Extra bytes append to each in-memory page */
         int flags               /* flags controlling this file */

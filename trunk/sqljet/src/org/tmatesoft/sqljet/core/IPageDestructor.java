@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core;
 
 /**
  * @author TMate Software Ltd.
+ * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
 public interface IPageDestructor {

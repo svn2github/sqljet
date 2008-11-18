@@ -186,8 +186,8 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
     public void open(String fileName, IPageDestructor xDesc, int extra, int flags) {
 
         nExtra = extra;
-        pageSize = SQLITE_DEFAULT_PAGE_SIZE;
-        pTmpSpace = new byte[SQLITE_DEFAULT_PAGE_SIZE];
+        pageSize = SQLJET_DEFAULT_PAGE_SIZE;
+        pTmpSpace = new byte[SQLJET_DEFAULT_PAGE_SIZE];
 
         tempFile = null == fileName || "".equals(fileName);
         memDb = !this.tempFile && ":memory:".equals(fileName);
@@ -214,7 +214,7 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
 
         dbSize = memDb ? 0 : -1;
         mxPage = 100;
-        mxPgno = SQLITE_MAX_PAGE_COUNT;
+        mxPgno = SQLJET_MAX_PAGE_COUNT;
         assert (state == (tempFile ? PAGER_EXCLUSIVE : PAGER_UNLOCK));
         exclusiveMode = tempFile;
         noSync = tempFile || !useJournal;

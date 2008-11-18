@@ -14,28 +14,24 @@
 package org.tmatesoft.sqljet.core;
 
 /**
+ * This file defines various limits of what SqlJet can process.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
 public interface ISqlJetLimits {
 
-    /*
-    ** 
-    ** This file defines various limits of what SQLite can process.
-    **
-    */
-
-    /*
+    /**
     ** The maximum length of a TEXT or BLOB in bytes.   This also
     ** limits the size of a row in a table or index.
     **
     ** The hard limit is the ability of a 32-bit signed integer
     ** to count the size: 2^31-1 or 2147483647.
     */
-    int SQLITE_MAX_LENGTH = 1000000000;
+    int SQLJET_MAX_LENGTH = 1000000000;
 
-    /*
+    /**
     ** This is the maximum number of
     **
     **    * Columns in a table
@@ -52,20 +48,20 @@ public interface ISqlJetLimits {
     ** that is the case, there is no point in having more than a few
     ** dozen values in any of the other situations described above.
     */
-    int SQLITE_MAX_COLUMN = 2000;
+    int SQLJET_MAX_COLUMN = 2000;
 
-    /*
+    /**
     ** The maximum length of a single SQL statement in bytes.
     **
     ** It used to be the case that setting this value to zero would
     ** turn the limit off.  That is no longer true.  It is not possible
     ** to turn this limit off.
     */
-    int SQLITE_MAX_SQL_LENGTH = 1000000000;
+    int SQLJET_MAX_SQL_LENGTH = 1000000000;
 
-    /*
+    /**
     ** The maximum depth of an expression tree. This is limited to 
-    ** some extent by SQLITE_MAX_SQL_LENGTH. But sometime you might 
+    ** some extent by SqlJet_MAX_SQL_LENGTH. But sometime you might 
     ** want to place more severe limits on the complexity of an 
     ** expression.
     **
@@ -73,9 +69,9 @@ public interface ISqlJetLimits {
     ** But that is no longer true.  The limit is now strictly enforced
     ** at all times.
     */
-    int SQLITE_MAX_EXPR_DEPTH = 1000;
+    int SQLJET_MAX_EXPR_DEPTH = 1000;
 
-    /*
+    /**
     ** The maximum number of terms in a compound SELECT statement.
     ** The code generator for compound SELECT statements does one
     ** level of recursion for each term.  A stack overflow can result
@@ -83,75 +79,75 @@ public interface ISqlJetLimits {
     ** never has more than 3 or 4 terms.  Use a value of 0 to disable
     ** any limit on the number of terms in a compount SELECT.
     */
-    int SQLITE_MAX_COMPOUND_SELECT = 500;
+    int SQLJET_MAX_COMPOUND_SELECT = 500;
 
-    /*
+    /**
     ** The maximum number of opcodes in a VDBE program.
     ** Not currently enforced.
     */
-    int SQLITE_MAX_VDBE_OP = 25000;
+    int SQLJET_MAX_VDBE_OP = 25000;
 
-    /*
+    /**
     ** The maximum number of arguments to an SQL function.
     */
-    int SQLITE_MAX_FUNCTION_ARG = 100;
+    int SQLJET_MAX_FUNCTION_ARG = 100;
 
-    /*
+    /**
     ** The maximum number of in-memory pages to use for the main database
-    ** table and for temporary tables.  The SQLITE_DEFAULT_CACHE_SIZE
+    ** table and for temporary tables.  The SQLJET_DEFAULT_CACHE_SIZE
     */
-    int SQLITE_DEFAULT_CACHE_SIZE = 2000;
+    int SQLJET_DEFAULT_CACHE_SIZE = 2000;
 
-    int SQLITE_DEFAULT_TEMP_CACHE_SIZE = 500;
+    int SQLJET_DEFAULT_TEMP_CACHE_SIZE = 500;
 
-    /*
+    /**
     ** The maximum number of attached databases.  This must be between 0
     ** and 30.  The upper bound on 30 is because a 32-bit integer bitmap
     ** is used internally to track attached databases.
     */
-    int SQLITE_MAX_ATTACHED = 10;
+    int SQLJET_MAX_ATTACHED = 10;
 
 
-    /*
+    /**
     ** The maximum value of a ?nnn wildcard that the parser will accept.
     */
-    int SQLITE_MAX_VARIABLE_NUMBER = 999;
+    int SQLJET_MAX_VARIABLE_NUMBER = 999;
 
-    /* Maximum page size.  The upper bound on this value is 32768.  This a limit
+    /** Maximum page size.  The upper bound on this value is 32768.  This a limit
     ** imposed by the necessity of storing the value in a 2-byte unsigned integer
     ** and the fact that the page size must be a power of 2.
     */
-    int SQLITE_MAX_PAGE_SIZE = 32768;
+    int SQLJET_MAX_PAGE_SIZE = 32768;
 
 
-    /*
+    /**
     ** The default size of a database page.
     */
-    int SQLITE_DEFAULT_PAGE_SIZE = 1024;
+    int SQLJET_DEFAULT_PAGE_SIZE = 1024;
 
-    /*
-    ** Ordinarily, if no value is explicitly provided, SQLite creates databases
-    ** with page size SQLITE_DEFAULT_PAGE_SIZE. However, based on certain
+    /**
+    ** Ordinarily, if no value is explicitly provided, SqlJet creates databases
+    ** with page size SQLJET_DEFAULT_PAGE_SIZE. However, based on certain
     ** device characteristics (sector-size and atomic write() support),
-    ** SQLite may choose a larger value. This constant is the maximum value
-    ** SQLite will choose on its own.
+    ** SqlJet may choose a larger value. This constant is the maximum value
+    ** SqlJet will choose on its own.
     */
-    int SQLITE_MAX_DEFAULT_PAGE_SIZE = 8192;
+    int SQLJET_MAX_DEFAULT_PAGE_SIZE = 8192;
 
 
-    /*
+    /**
     ** Maximum number of pages in one database file.
     **
     ** This is really just the default value for the max_page_count pragma.
     ** This value can be lowered (or raised) at run-time using that the
     ** max_page_count macro.
     */
-    int SQLITE_MAX_PAGE_COUNT = 1073741823;
+    int SQLJET_MAX_PAGE_COUNT = 1073741823;
 
-    /*
+    /**
     ** Maximum length (in bytes) of the pattern in a LIKE or GLOB
     ** operator.
     */
-    int SQLITE_MAX_LIKE_PATTERN_LENGTH = 50000;
+    int SQLJET_MAX_LIKE_PATTERN_LENGTH = 50000;
     
 }

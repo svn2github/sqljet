@@ -1,6 +1,14 @@
 <project name="sqljet" default="deploy">
-    <target name="clean">
 
+	<target name="clean">
+
+		<!-- First, create directories, which will be removed, 
+			otherwise the removal may not be able to 
+			if directories don't exist yet -->
+		<mkdir dir="build"/>
+		<mkdir dir="sqljet/bin"/>
+		<mkdir dir="sqljet-test/bin"/>
+		
         <delete verbose="true" includeemptydirs="true" failonerror="true">
             <fileset dir="build">
                 <include name="**/**" />
@@ -15,6 +23,7 @@
                 <include name="**/**" />
             </fileset>
         </delete>
+		
     </target>
 
     <target name="compile">
@@ -24,6 +33,9 @@
         <javac destdir="sqljet/bin" srcdir="sqljet/src" />
         <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src">
             <classpath path="sqljet/bin" />
+            <classpath>
+            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
+            </classpath>
         </javac>
     </target>
 
@@ -36,4 +48,20 @@
         </jar>
     </target>
 
+	<target name="test" depends="deploy">
+		<junit>
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+            <classpath path="sqljet-test/bin" />
+            <classpath>
+            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
+            </classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+			    <fileset dir="sqljet-test/src">
+			      <include name="**/*Test*.java"/>
+			    </fileset>
+			 </batchtest>
+		</junit>
+	</target>
+	
 </project>

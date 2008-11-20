@@ -1,5 +1,7 @@
 <project name="sqljet" default="deploy">
 
+    <property name="build.vcs.number.1" value="local" />
+
 	<target name="clean">
 
 		<!-- First, create directories, which will be removed, 
@@ -38,10 +40,10 @@
             </classpath>
         </javac>
     </target>
-
+    
     <target name="deploy" depends="clean, compile">
         <mkdir dir="build" />
-        <jar destfile="build/sqljet.jar">
+        <jar destfile="build/sqljet.${build.vcs.number.1}.jar">
             <fileset dir="sqljet/bin">
                 <include name="**/**"/>
             </fileset>

@@ -31,6 +31,11 @@ import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 public class SqlJetFileSystemMockTest {
 
     /**
+     * 
+     */
+    public static final String MOCK_FILE_SYSTEM = "MockFileSystem";
+
+    /**
      * Permissions for read only access
      */
     public static final EnumSet<SqlJetFileOpenPermission> PERM_READONLY = EnumSet
@@ -218,10 +223,16 @@ public class SqlJetFileSystemMockTest {
     @SuppressWarnings("unchecked")
     protected void setUpInstances() throws Exception {
 
-        final SqlJetException cantOpen = new SqlJetException(SqlJetErrorCode.CANTOPEN);
-
         fileSystem = EasyMock.createMock(ISqlJetFileSystem.class);
         file = EasyMock.createMock(ISqlJetFile.class);
+
+        /* Setup mocks rules */
+        
+        EasyMock.expect(fileSystem.getName()).andReturn(MOCK_FILE_SYSTEM);
+        
+        // open()
+
+        final SqlJetException cantOpen = new SqlJetException(SqlJetErrorCode.CANTOPEN);
         
         EasyMock.expect(fileSystem.open(null, null)).andThrow(cantOpen);
 
@@ -254,6 +265,29 @@ public class SqlJetFileSystemMockTest {
 
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
                 EasyMock.eq(PERM_EXCLUSIVE_CREATE))).andReturn(file);
+
+        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+                EasyMock.eq(PERM_EXCLUSIVE_CREATE))).andReturn(file);
+
+        // delete()
+
+        final SqlJetException cantDelete = new SqlJetIOException(SqlJetIOErrorCode.IOERR_DELETE);
+
+        EasyMock.expect(fileSystem.delete( 
+                (File) EasyMock.isNull(), EasyMock.anyBoolean() )
+            ).andThrow(cantDelete);
+        
+        EasyMock.expect(fileSystem.delete( EasyMock.eq(path), 
+                EasyMock.anyBoolean() )).andReturn(true);
+
+        EasyMock.expect(fileSystem.delete( EasyMock.eq(pathNew), 
+                EasyMock.anyBoolean() )).andReturn(false);
+        
+        // access()
+
+        
+        
+        // Run mocks
         
         EasyMock.replay(fileSystem);
         EasyMock.replay(file);
@@ -268,6 +302,17 @@ public class SqlJetFileSystemMockTest {
         file = null;
     }
 
+    // Tests
+    
+    @Test
+    public void testName(){
+        final String name = fileSystem.getName();
+        Assert.assertTrue("File system should have some unempty name",
+                null!=name && !"".equals(name.trim()));
+    }
+    
+    // open()
+    
     @Test(expected = SqlJetException.class)
     public void testOpenFileNullPermNull() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, null);
@@ -304,7 +349,7 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = SqlJetException.class)
     public void testOpenNewReadonly() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_READONLY);
         Assert.fail("File which doesn't exists shouldn't be opened with permission READONLY");
     }
@@ -320,7 +365,7 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = SqlJetException.class)
     public void testOpenCreateOnly() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_CREATE_ONLY );
         Assert.fail("File shouldn't be opened with permission CREATE only");
     }
@@ -328,7 +373,7 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = SqlJetException.class)
     public void testOpenCreateReadonly() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_CREATE_READONLY );
         Assert.fail("File shouldn't be opened with permissions CREATE and READONLY");
     }
@@ -336,7 +381,7 @@ public class SqlJetFileSystemMockTest {
     @Test
     public void testOpenCreate() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_CREATE);
         Assert.assertNotNull("File should be created with permission CREATE and READWRITE", f);
     }
@@ -344,7 +389,7 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = SqlJetException.class)
     public void testOpenExclusiveOnly() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_EXCLUSIVE_ONLY );
         Assert.fail("File shouldn't be created with permission EXCLUSIVE only");
     }
@@ -352,9 +397,38 @@ public class SqlJetFileSystemMockTest {
     @Test
     public void testOpenExclusiveCreate() throws Exception {
         Assert.assertNotNull(pathNew);
-        Assert.assertTrue(!pathNew.exists());
+        Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, PERM_EXCLUSIVE_CREATE);
         Assert.assertNotNull("File should be created with permission EXCLUSIVE, CREATE and READWRITE", f);
+    }
+
+    // delete()
+    
+    @Test(expected = SqlJetException.class)
+    public void testDeleteNull() throws Exception {
+
+        final boolean d = fileSystem.delete(null, false);
+        Assert.fail("It shouldn't delete unknown files denoted by null");
+    }
+    
+    @Test
+    public void testDelete() throws Exception {
+
+        {
+            Assert.assertNotNull(path);
+            Assert.assertTrue(path.exists());
+            final boolean d = fileSystem.delete(path, false);
+            Assert.assertTrue("If file exists then delete() should return true" +
+            		" when success deletes file", d);
+        }
+        
+        {
+            Assert.assertNotNull(pathNew);
+            Assert.assertFalse(pathNew.exists());
+            final boolean d = fileSystem.delete(pathNew, false);
+            Assert.assertFalse("If file exists then delete() should return false", d);
+        }
+        
     }
     
 }

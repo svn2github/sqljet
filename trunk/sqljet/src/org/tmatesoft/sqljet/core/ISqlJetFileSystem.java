@@ -91,10 +91,25 @@ public interface ISqlJetFileSystem {
      * for the main database file.
      * 
      *
-     * @param path
-     * @param permissions
-     * @return
+     * @param path      {@link File} or NULL. If NULL then open()
+     *              must invite its own temporary name for the file. Whenever the 
+     *              filename parameter is NULL it will also be the case that the
+     *              flags parameter will include {@link SqlJetFileOpenPermission#DELETEONCLOSE}.
+     *              
+     * @param permissions   Exactly one of the {@link SqlJetFileOpenPermission#READWRITE} and 
+     *   {@link SqlJetFileOpenPermission#READONLY} flags must be set, and 
+     *   if {@link SqlJetFileOpenPermission#CREATE} is set, 
+     *   then {@link SqlJetFileOpenPermission#READWRITE} must also be set, and
+     *   if {@link SqlJetFileOpenPermission#EXCLUSIVE} is set, 
+     *   then {@link SqlJetFileOpenPermission#CREATE} must also be set.
+     *   if {@link SqlJetFileOpenPermission#DELETEONCLOSE} is set, 
+     *   then {@link SqlJetFileOpenPermission#CREATE} must also be set.
+     *   
+     * @return  Opened file.
+     * 
      * @throws SqlJetException
+     *          If it is impossible to open file.
+     *          
      */
     ISqlJetFile open(final File path, final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
     

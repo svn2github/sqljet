@@ -28,18 +28,18 @@ import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetFileSystemTest {
+public class SqlJetFileSystemMockTest {
 
     /**
      * Permissions for read only access
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_READONLY = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_READONLY = EnumSet
             .of(SqlJetFileOpenPermission.READONLY);
     
     /**
      * Permissions for temporary file
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_TEMPORARY = 
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_TEMPORARY = 
         EnumSet.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.READWRITE, 
                 SqlJetFileOpenPermission.DELETEONCLOSE);
@@ -47,51 +47,51 @@ public class SqlJetFileSystemTest {
     /**
      * Permissions for both read only and write access - one wrong combination
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_READONLY_AND_WRITE = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_READONLY_AND_WRITE = EnumSet
             .of(SqlJetFileOpenPermission.READONLY, SqlJetFileOpenPermission.READWRITE);
 
     /**
      * Permissions for only create access - other wrong combination
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE_ONLY = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE_ONLY = EnumSet
             .of(SqlJetFileOpenPermission.CREATE);
 
     /**
      * Permissions for create and readonly access - wrong
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE_READONLY = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE_READONLY = EnumSet
             .of(SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READONLY);
     
     /**
      * Permissions for create and write access - right
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_CREATE = EnumSet
             .of(SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE);
 
     /**
      * Permissions for exclusive, create and write access - right
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_EXCLUSIVE_CREATE = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_EXCLUSIVE_CREATE = EnumSet
             .of( SqlJetFileOpenPermission.EXCLUSIVE, SqlJetFileOpenPermission.CREATE, 
                     SqlJetFileOpenPermission.READWRITE);
 
     /**
      * Permissions for exclusive, create and write access - right
      */
-    private static final EnumSet<SqlJetFileOpenPermission> PERM_EXCLUSIVE_ONLY = EnumSet
+    public static final EnumSet<SqlJetFileOpenPermission> PERM_EXCLUSIVE_ONLY = EnumSet
             .of( SqlJetFileOpenPermission.EXCLUSIVE);
     
     
     /**
      * Test file path;
      */
-    private static final String TEST_FILE = "SqlJetFileSystemTest";
+    public static final String TEST_FILE = "SqlJetFileSystemTest";
 
-    private File path;
-    private File pathNew;
+    protected File path;
+    protected File pathNew;
 
-    private ISqlJetFileSystem fileSystem;
-    private ISqlJetFile file;
+    protected ISqlJetFileSystem fileSystem;
+    protected ISqlJetFile file;
 
     /**
      * @return the pathPrivateExists

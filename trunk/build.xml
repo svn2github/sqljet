@@ -61,6 +61,7 @@
 			<batchtest fork="yes" todir="sqljet-test/bin">
 			    <fileset dir="sqljet-test/src">
 			      <include name="**/*Test*.java"/>
+			      <exclude name="**/*Mock*.java"/>
 			    </fileset>
 			 </batchtest>
 		</junit>

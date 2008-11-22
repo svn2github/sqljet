@@ -94,6 +94,7 @@ public class SqlJetFileSystemMockTest {
 
     protected File path;
     protected File pathNew;
+    protected File pathReadonly;
 
     protected ISqlJetFileSystem fileSystem;
     protected ISqlJetFile file;
@@ -195,6 +196,12 @@ public class SqlJetFileSystemMockTest {
         pathNew.deleteOnExit();
         pathNew.delete();
         
+        pathReadonly = File.createTempFile(TEST_FILE, null);
+        if (null == pathReadonly)
+            throw cantCreate;
+        pathReadonly.deleteOnExit();
+        pathReadonly.setReadOnly();;
+        
     }
 
     /**
@@ -210,6 +217,12 @@ public class SqlJetFileSystemMockTest {
         if (null != pathNew)
             pathNew.delete();
         pathNew = null;
+
+        if (null != pathReadonly){
+            pathReadonly.setWritable(true);
+            pathReadonly.delete();
+        }
+        pathReadonly = null;
         
     }
 
@@ -280,12 +293,43 @@ public class SqlJetFileSystemMockTest {
         EasyMock.expect(fileSystem.delete( EasyMock.eq(path), 
                 EasyMock.anyBoolean() )).andReturn(true);
 
-        EasyMock.expect(fileSystem.delete( EasyMock.eq(pathNew), 
+        EasyMock.expect(fileSystem.delete( 
+                (File) EasyMock.or( EasyMock.eq(pathNew), EasyMock.eq(pathReadonly) ), 
                 EasyMock.anyBoolean() )).andReturn(false);
         
         // access()
 
+        final SqlJetException cantAccess = new SqlJetIOException(SqlJetIOErrorCode.IOERR_ACCESS);
+
+        EasyMock.expect(fileSystem.access(null,null)).andThrow(cantAccess);
         
+        EasyMock.expect(fileSystem.access(
+                (File) EasyMock.isNull(), (SqlJetFileAccesPermission) EasyMock.anyObject() )
+            ).andThrow(cantAccess);
+
+        EasyMock.expect(fileSystem.access(
+                (File) EasyMock.anyObject(), (SqlJetFileAccesPermission) EasyMock.isNull() )
+            ).andThrow(cantAccess);
+
+        EasyMock.expect(fileSystem.access( 
+                EasyMock.eq(path), (SqlJetFileAccesPermission) EasyMock.anyObject() ) 
+            ).andReturn(true);
+
+        EasyMock.expect(fileSystem.access( 
+                EasyMock.eq(pathNew), (SqlJetFileAccesPermission) EasyMock.anyObject() ) 
+            ).andReturn(false);
+
+        EasyMock.expect(fileSystem.access( 
+                pathReadonly, SqlJetFileAccesPermission.EXISTS ) 
+            ).andReturn(true);
+
+        EasyMock.expect(fileSystem.access( 
+                pathReadonly, SqlJetFileAccesPermission.READONLY ) 
+            ).andReturn(true);
+        
+        EasyMock.expect(fileSystem.access( 
+                pathReadonly, SqlJetFileAccesPermission.READWRITE ) 
+            ).andReturn(false);
         
         // Run mocks
         
@@ -406,29 +450,102 @@ public class SqlJetFileSystemMockTest {
     
     @Test(expected = SqlJetException.class)
     public void testDeleteNull() throws Exception {
-
         final boolean d = fileSystem.delete(null, false);
         Assert.fail("It shouldn't delete unknown files denoted by null");
     }
     
     @Test
-    public void testDelete() throws Exception {
+    public void testDeleteExist() throws Exception {
+        Assert.assertNotNull(path);
+        Assert.assertTrue(path.exists());
+        final boolean d = fileSystem.delete(path, false);
+        Assert.assertTrue("If file exists then delete() should return true" +
+                " when success deletes file", d);
+    }
+        
+    @Test
+    public void testDeleteNotExist() throws Exception {
+        Assert.assertNotNull(pathNew);
+        Assert.assertFalse(pathNew.exists());
+        final boolean d = fileSystem.delete(pathNew, false);
+        Assert.assertFalse("If file exists then delete() should return false", d);
+    }
 
-        {
-            Assert.assertNotNull(path);
-            Assert.assertTrue(path.exists());
-            final boolean d = fileSystem.delete(path, false);
-            Assert.assertTrue("If file exists then delete() should return true" +
-            		" when success deletes file", d);
-        }
-        
-        {
-            Assert.assertNotNull(pathNew);
-            Assert.assertFalse(pathNew.exists());
-            final boolean d = fileSystem.delete(pathNew, false);
-            Assert.assertFalse("If file exists then delete() should return false", d);
-        }
-        
+    @Test
+    public void testDeleteReadonly() throws Exception {
+        Assert.assertNotNull(pathReadonly);
+        Assert.assertFalse(pathReadonly.canWrite());
+        final boolean d = fileSystem.delete(pathReadonly, false);
+        Assert.assertFalse("If file can't be deleted then delete() should return false", d);
+    }
+    
+    // TODO delete() with sync true
+    
+    // access()
+    
+    @Test(expected = SqlJetException.class)
+    public void testAccessNull() throws Exception {
+        Assert.assertNotNull(path);
+        fileSystem.access(null, null);
+        fileSystem.access(path, null);
+        fileSystem.access(null, SqlJetFileAccesPermission.EXISTS);
+        Assert.fail("It shouldn't access unknown files or permissions denoted by nulls");
+    }
+
+    @Test
+    public void testAccessExists() throws Exception {
+        Assert.assertNotNull(path);
+        Assert.assertTrue(path.exists());
+        final boolean a = fileSystem.access(path, SqlJetFileAccesPermission.EXISTS);
+        Assert.assertTrue("It should be able to access file which exists", a);
+    }
+
+    @Test
+    public void testAccessExistsNew() throws Exception {
+        Assert.assertNotNull(pathNew);
+        Assert.assertFalse(pathNew.exists());
+        final boolean a = fileSystem.access(pathNew, SqlJetFileAccesPermission.EXISTS);
+        Assert.assertFalse("It should be unable to access file which doesnt exist", a);        
+    }
+
+    @Test
+    public void testAccessExistsReadonly() throws Exception {
+        Assert.assertNotNull(pathReadonly);
+        Assert.assertFalse(pathReadonly.canWrite());
+        final boolean a = fileSystem.access(pathReadonly, SqlJetFileAccesPermission.EXISTS);
+        Assert.assertTrue("It should be able to access file which is readonly", a);
+    }
+    
+    @Test
+    public void testAccessReadonly() throws Exception {
+        Assert.assertNotNull(pathReadonly);
+        Assert.assertFalse(pathReadonly.canWrite());
+        final boolean a = fileSystem.access(pathReadonly, SqlJetFileAccesPermission.READONLY);
+        Assert.assertTrue("It should be unable to access file which doesnt exist", a);        
+    }
+
+    @Test
+    public void testAccessReadwrite() throws Exception {
+        Assert.assertNotNull(path);
+        Assert.assertTrue(path.canWrite());
+        final boolean a = fileSystem.access(path, SqlJetFileAccesPermission.READWRITE);
+        Assert.assertTrue("It should be able to write access to plain file", a);        
+    }
+
+    @Test
+    public void testAccessReadwriteNew() throws Exception {
+        Assert.assertNotNull(pathNew);
+        Assert.assertFalse(pathNew.exists());
+        final boolean a = fileSystem.access(pathNew, SqlJetFileAccesPermission.READWRITE);
+        Assert.assertFalse("It should be unable to write access file which doesnt exist", a);        
+    }
+    
+    @Test
+    public void testAccessReadwriteReadonly() throws Exception {
+        Assert.assertNotNull(pathReadonly);
+        Assert.assertFalse(pathReadonly.canWrite());
+        final boolean a = fileSystem.access(pathReadonly, SqlJetFileAccesPermission.READWRITE);
+        Assert.assertFalse("It should be unable to write access file which is readonly", a);        
     }
     
 }

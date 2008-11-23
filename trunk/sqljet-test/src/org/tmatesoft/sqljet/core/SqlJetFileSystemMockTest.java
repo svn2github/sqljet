@@ -200,7 +200,7 @@ public class SqlJetFileSystemMockTest {
         if (null == pathReadonly)
             throw cantCreate;
         pathReadonly.deleteOnExit();
-        pathReadonly.setReadOnly();;
+        pathReadonly.setReadOnly();
         
     }
 
@@ -218,10 +218,8 @@ public class SqlJetFileSystemMockTest {
             pathNew.delete();
         pathNew = null;
 
-        if (null != pathReadonly){
-            pathReadonly.setWritable(true);
+        if (null != pathReadonly)
             pathReadonly.delete();
-        }
         pathReadonly = null;
         
     }

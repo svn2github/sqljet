@@ -14,9 +14,11 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
+import java.security.SecureRandom;
 import java.util.EnumSet;
 
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -329,10 +331,33 @@ public class SqlJetFileSystemMockTest {
                 pathReadonly, SqlJetFileAccesPermission.READWRITE ) 
             ).andReturn(false);
         
+        // randomness()
+        
+        EasyMock.expect( fileSystem.randomness(EasyMock.anyInt()) ).andAnswer(
+                new IAnswer<byte[]>() {
+                    final SqlJetException misuse = new SqlJetException(SqlJetErrorCode.MISUSE);
+                    final SecureRandom random = new SecureRandom();
+                    public byte[] answer() throws Throwable {
+                        final Object[] args = EasyMock.getCurrentArguments();
+                        if(null==args||0==args.length) throw misuse;
+                        final Object arg = args[0];
+                        if(null==arg)  throw misuse;
+                        if( arg instanceof Integer ){
+                            final Integer numBytes = (Integer) arg;
+                            if( 0>=numBytes ) throw misuse;
+                            final byte[] bytes = new byte[numBytes];
+                            random.nextBytes(bytes);
+                            return bytes;
+                        } else throw misuse;
+                    }
+                }
+            );
+
+        
         // Run mocks
         
         EasyMock.replay(fileSystem);
-        EasyMock.replay(file);
+        //EasyMock.replay(file);
 
     }
 
@@ -544,6 +569,36 @@ public class SqlJetFileSystemMockTest {
         Assert.assertFalse(pathReadonly.canWrite());
         final boolean a = fileSystem.access(pathReadonly, SqlJetFileAccesPermission.READWRITE);
         Assert.assertFalse("It should be unable to write access file which is readonly", a);        
+    }
+    
+    // randomness()
+    
+    @Test(expected = SqlJetException.class)
+    public void testRandomnessZero() throws Exception {
+        final byte[] zero = fileSystem.randomness(0);
+        Assert.fail("It should be not allowed to call get zero bytes count from randomness() function");
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void testRandomnessNegativ() throws Exception {
+        final byte[] negativ = fileSystem.randomness(-1);
+        Assert.fail("It should be not allowed to call get negativ bytes count from randomness() function");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testRandomnessOne() throws Exception {
+        final byte[] one1 = fileSystem.randomness(1);
+        final byte[] one2 = fileSystem.randomness(1);
+        Assert.assertArrayEquals(one1, one2);
+        Assert.fail("The function randomness() should return at least different values on each call");
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testRandomnessTwo() throws Exception {
+        final byte[] two1 = fileSystem.randomness(2);
+        final byte[] two2 = fileSystem.randomness(2);
+        Assert.assertArrayEquals(two1, two2);
+        Assert.fail("The function randomness() should return at least different values on each call");
     }
     
 }

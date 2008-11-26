@@ -332,10 +332,11 @@ public class SqlJetFileSystemMockTest {
             ).andReturn(false);
         
         // randomness()
+
+        final SqlJetException misuse = new SqlJetException(SqlJetErrorCode.MISUSE);
         
         EasyMock.expect( fileSystem.randomness(EasyMock.anyInt()) ).andAnswer(
                 new IAnswer<byte[]>() {
-                    final SqlJetException misuse = new SqlJetException(SqlJetErrorCode.MISUSE);
                     final SecureRandom random = new SecureRandom();
                     public byte[] answer() throws Throwable {
                         final Object[] args = EasyMock.getCurrentArguments();
@@ -348,6 +349,31 @@ public class SqlJetFileSystemMockTest {
                             final byte[] bytes = new byte[numBytes];
                             random.nextBytes(bytes);
                             return bytes;
+                        } else throw misuse;
+                    }
+                }
+            );
+
+        // sleep()
+        
+        EasyMock.expect( fileSystem.sleep(EasyMock.anyInt()) ).andAnswer(
+                new IAnswer<Integer>(){
+                    public Integer answer() throws Throwable {
+                        final Object[] args = EasyMock.getCurrentArguments();
+                        if(null==args||0==args.length) throw misuse;
+                        final Object arg = args[0];
+                        if(null==arg)  throw misuse;
+                        if( arg instanceof Integer ){
+                            final Integer microseconds = (Integer) arg;
+                            if( 0>=microseconds ) throw misuse;
+                            final long t1 = System.currentTimeMillis();
+                            try {
+                                Thread.sleep(microseconds);
+                            } catch (InterruptedException e) {
+                            } finally{
+                                final long t2 = System.currentTimeMillis();
+                                return (new Long(t2 - t1)).intValue();
+                            }
                         } else throw misuse;
                     }
                 }
@@ -580,9 +606,9 @@ public class SqlJetFileSystemMockTest {
     }
 
     @Test(expected = SqlJetException.class)
-    public void testRandomnessNegativ() throws Exception {
+    public void testRandomnessNegative() throws Exception {
         final byte[] negativ = fileSystem.randomness(-1);
-        Assert.fail("It should be not allowed to call get negativ bytes count from randomness() function");
+        Assert.fail("It should be not allowed to call get negative bytes count from randomness() function");
     }
 
     @Test(expected = AssertionError.class)
@@ -603,6 +629,29 @@ public class SqlJetFileSystemMockTest {
         Assert.assertTrue( "Result size is wrong", 2==two1.length );
         Assert.assertArrayEquals(two1, two2);
         Assert.fail("The function randomness() should return at least different values on each call");
+    }
+
+    // sleep()
+    
+    @Test(expected = SqlJetException.class)
+    public void testSleepZero() throws Exception {
+        final int s = fileSystem.sleep(0);
+        Assert.fail("Sleeping to zero time is impossible");
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void testSleepNegative() throws Exception {
+        final int s = fileSystem.sleep(-1);
+        Assert.fail("Sleeping to negative time is impossible");
+    }
+    
+    @Test
+    public void testSleepOne() throws Exception {
+        final long t1 = System.currentTimeMillis();
+        final int s = fileSystem.sleep(1);
+        final long t2 = System.currentTimeMillis();
+        Assert.assertTrue("sleep() should return sleeped time", 0<s);
+        Assert.assertTrue("Sleeping shoulds take some time", 0<(t2-t1));
     }
     
 }

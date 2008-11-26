@@ -588,7 +588,9 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = AssertionError.class)
     public void testRandomnessOne() throws Exception {
         final byte[] one1 = fileSystem.randomness(1);
+        Assert.assertTrue( "Result size is wrong", 1==one1.length );
         final byte[] one2 = fileSystem.randomness(1);
+        Assert.assertTrue( "Result size is wrong", 1==one2.length );
         Assert.assertArrayEquals(one1, one2);
         Assert.fail("The function randomness() should return at least different values on each call");
     }
@@ -596,7 +598,9 @@ public class SqlJetFileSystemMockTest {
     @Test(expected = AssertionError.class)
     public void testRandomnessTwo() throws Exception {
         final byte[] two1 = fileSystem.randomness(2);
+        Assert.assertTrue( "Result size is wrong", 2==two1.length );
         final byte[] two2 = fileSystem.randomness(2);
+        Assert.assertTrue( "Result size is wrong", 2==two1.length );
         Assert.assertArrayEquals(two1, two2);
         Assert.fail("The function randomness() should return at least different values on each call");
     }

@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import org.junit.Before;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
 
@@ -27,6 +28,7 @@ public class SqlJetFileTest extends SqlJetFileMockTest {
      * @see org.tmatesoft.sqljet.core.SqlJetFileSystemMockTest#setUpInstances()
      */
     @Override
+    @Before
     public void setUp() throws Exception {
         file = new SqlJetFile();
     }

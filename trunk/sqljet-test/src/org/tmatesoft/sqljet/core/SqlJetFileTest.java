@@ -27,8 +27,7 @@ public class SqlJetFileTest extends SqlJetFileMockTest {
      * @see org.tmatesoft.sqljet.core.SqlJetFileSystemMockTest#setUpInstances()
      */
     @Override
-    protected void setUpInstances() throws Exception {
-        fileSystem = new SqlJetFileSystem();
+    public void setUp() throws Exception {
         file = new SqlJetFile();
     }
     

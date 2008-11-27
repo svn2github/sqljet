@@ -26,14 +26,19 @@ import org.junit.Test;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetFileMockTest extends SqlJetFileSystemMockTest {
+public class SqlJetFileMockTest {
 
+    protected SqlJetFileSystemMockTest fileSystemTest;
+    protected ISqlJetFile file;
+    
     /**
      * @throws java.lang.Exception
      */
     @Before
     public void setUp() throws Exception {
-        super.setUp();
+        fileSystemTest = new SqlJetFileSystemMockTest();
+        fileSystemTest.setUp();
+        file = fileSystemTest.getFile();
     }
 
     /**
@@ -41,7 +46,7 @@ public class SqlJetFileMockTest extends SqlJetFileSystemMockTest {
      */
     @After
     public void tearDown() throws Exception {
-        super.tearDown();
+        if(null!=fileSystemTest) fileSystemTest.tearDown();
     }
 
     /**

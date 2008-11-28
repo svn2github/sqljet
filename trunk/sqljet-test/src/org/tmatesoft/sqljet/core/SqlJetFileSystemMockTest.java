@@ -30,7 +30,7 @@ import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetFileSystemMockTest {
+public class SqlJetFileSystemMockTest extends SqlJetAbstractMockTest {
 
     /**
      * 
@@ -99,7 +99,6 @@ public class SqlJetFileSystemMockTest {
     protected File pathReadonly;
 
     protected ISqlJetFileSystem fileSystem;
-    protected ISqlJetFile file;
 
     /**
      * @return the pathPrivateExists
@@ -146,44 +145,12 @@ public class SqlJetFileSystemMockTest {
     }
 
     /**
-     * @return the file
-     */
-    public ISqlJetFile getFile() {
-        return file;
-    }
-
-    /**
-     * @param file
-     *            the file to set
-     */
-    public void setFile(ISqlJetFile file) {
-        this.file = file;
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        setUpEnvironment();
-        setUpInstances();
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        cleanUpInstances();
-        cleanUpEnvironment();
-    }
-
-    /**
      * Set up external environment for testing. For example creates files.
      * 
      * @throws Exception
      */
     protected void setUpEnvironment() throws Exception {
+        super.setUpEnvironment();
 
         final Exception cantCreate = new Exception("Can't create temporary file for test");
 
@@ -211,6 +178,7 @@ public class SqlJetFileSystemMockTest {
      * 
      */
     protected void cleanUpEnvironment() throws Exception {
+        super.cleanUpEnvironment();
 
         if (null != path)
             path.delete();
@@ -235,9 +203,10 @@ public class SqlJetFileSystemMockTest {
      */
     @SuppressWarnings("unchecked")
     protected void setUpInstances() throws Exception {
+        super.setUpInstances();
 
         fileSystem = EasyMock.createMock(ISqlJetFileSystem.class);
-        file = EasyMock.createMock(ISqlJetFile.class);
+        final ISqlJetFile file = EasyMock.createMock(ISqlJetFile.class);
 
         /* Setup mocks rules */
         
@@ -386,7 +355,6 @@ public class SqlJetFileSystemMockTest {
         // Run mocks
         
         EasyMock.replay(fileSystem);
-        //EasyMock.replay(file);
 
     }
 
@@ -394,8 +362,8 @@ public class SqlJetFileSystemMockTest {
      * Clean up instances of tested classes.
      */
     protected void cleanUpInstances() throws Exception {
+        super.cleanUpInstances();
         fileSystem = null;
-        file = null;
     }
 
     // Tests

@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core;
 
 import org.junit.Before;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
-import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
 
 /**
  * @author TMate Software Ltd.

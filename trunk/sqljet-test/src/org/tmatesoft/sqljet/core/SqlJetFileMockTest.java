@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 
 import java.util.EnumSet;
 
+import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,27 +27,28 @@ import org.junit.Test;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetFileMockTest {
+public class SqlJetFileMockTest extends SqlJetAbstractMockTest {
 
-    protected SqlJetFileSystemMockTest fileSystemTest;
     protected ISqlJetFile file;
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        fileSystemTest = new SqlJetFileSystemMockTest();
-        fileSystemTest.setUp();
-        file = fileSystemTest.getFile();
-    }
 
-    /**
-     * @throws java.lang.Exception
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.SqlJetAbstractMockTest#setUpInstances()
      */
-    @After
-    public void tearDown() throws Exception {
-        if(null!=fileSystemTest) fileSystemTest.tearDown();
+    @Override
+    protected void setUpInstances() throws Exception {
+        super.setUpInstances();
+        
+        file = EasyMock.createMock(ISqlJetFile.class);
+        
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.SqlJetAbstractMockTest#cleanUpInstances()
+     */
+    @Override
+    protected void cleanUpInstances() throws Exception {
+        super.cleanUpInstances();
+        file = null;
     }
 
     /**

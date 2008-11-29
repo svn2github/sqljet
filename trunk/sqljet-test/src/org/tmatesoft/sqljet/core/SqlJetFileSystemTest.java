@@ -28,6 +28,7 @@ public class SqlJetFileSystemTest extends SqlJetFileSystemMockTest {
     @Override
     protected void setUpInstances() throws Exception {
         fileSystem = new SqlJetFileSystem();
+        super.setUpInstances();
     }
     
 }

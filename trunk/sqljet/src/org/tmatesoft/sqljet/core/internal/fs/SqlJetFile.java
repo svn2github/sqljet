@@ -127,9 +127,8 @@ public class SqlJetFile implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public int write(byte[] buffer, int amount, long offset) throws SqlJetException {
+    public void write(byte[] buffer, int amount, long offset) throws SqlJetException {
         // TODO Auto-generated method stub
-        return 0;
     }
 
 }

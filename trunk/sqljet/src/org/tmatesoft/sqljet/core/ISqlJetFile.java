@@ -63,7 +63,7 @@ public interface ISqlJetFile {
      * @return
      * @throws SqlJetException
      */
-    int write(final byte[] buffer, final int amount, final long offset) throws SqlJetException;
+    void write(final byte[] buffer, final int amount, final long offset) throws SqlJetException;
 
     /**
      * Truncate an open file to a specified size
@@ -85,7 +85,7 @@ public interface ISqlJetFile {
      * has been created by fsync-ing the directory that contains the file.
      * If we do not do this and we encounter a power failure, the directory
      * entry for the journal might not exist after we reboot.  The next
-     * SQLite to access the file will not know that the journal exists (because
+     * SqlJet to access the file will not know that the journal exists (because
      * the directory entry for the journal was never created) and the transaction
      * will not roll back - possibly leading to database corruption.
      *

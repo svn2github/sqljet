@@ -13,13 +13,9 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import static org.junit.Assert.*;
-
 import java.util.EnumSet;
 
-import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -27,171 +23,85 @@ import org.junit.Test;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetFileMockTest extends SqlJetAbstractMockTest {
+public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     protected ISqlJetFile file;
-
+    
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.SqlJetAbstractMockTest#setUpInstances()
+     * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#setUpInstances()
      */
     @Override
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
-        
-        file = EasyMock.createMock(ISqlJetFile.class);
-        
+        file = fileSystem.open(path, PERM_CREATE);
     }
     
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.SqlJetAbstractMockTest#cleanUpInstances()
+     * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#cleanUpInstances()
      */
     @Override
     protected void cleanUpInstances() throws Exception {
-        super.cleanUpInstances();
-        file = null;
+        try{ 
+            if(file!=null) 
+                file.close(); 
+        } finally { 
+            super.cleanUpInstances(); 
+        }
     }
 
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#checkReservedLock()}.
-     */
+    
     @Test
-    public final void testCheckReservedLock() {
-        boolean c = file.checkReservedLock();
-        fail("Not yet implemented");
+    public void testPermissions() throws Exception {
+        final String msg = "File must have permissions to which was opened";
+        final EnumSet<SqlJetFileOpenPermission> p = file.getPermissions();
+        Assert.assertNotNull(msg, p);
+        Assert.assertTrue(msg, p.containsAll(PERM_CREATE));
+        
     }
 
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#close()}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testClose() throws Exception {
+    @Test(expected=SqlJetException.class)
+    public void testClose() throws Exception {
         file.close();
-        fail("Not yet implemented");
+        file.sync(false, false);
+        Assert.fail("Closed file should not allow perform any input-output");
+        
     }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#deviceCharacteristics()}.
-     */
+    
     @Test
-    public final void testDeviceCharacteristics() {
-        EnumSet<SqlJetDeviceCharacteristics> c = file.deviceCharacteristics();
-        fail("Not yet implemented");
+    public void testReadEmpty() throws Exception {
+        Assert.assertTrue(0==path.length());
+        final byte[] b = { 0 };
+        final int r = file.read(b, 1, 0);
+        Assert.assertEquals("Read empty file should return empty data",r,0);
     }
 
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#fileSize()}.
-     * @throws Exception 
-     */
     @Test
-    public final void testFileSize() throws Exception {
-        long s = file.fileSize();
-        fail("Not yet implemented");
+    public void testWriteRead() throws Exception {
+        Assert.assertTrue(0==path.length());
+        final byte[] wb = { 1 };
+        file.write(wb, 1, 0);
+        final byte[] rb = { 0 };
+        final int r = file.read(rb, 1, 0);
+        Assert.assertArrayEquals("Reading should get the same data as it was written",wb,rb);
     }
 
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#getPermissions()}.
-     */
     @Test
-    public final void testGetPermissions() {
-        EnumSet<SqlJetFileOpenPermission> p = file.getPermissions();
-        fail("Not yet implemented");
+    public void testSize() throws Exception {
+        final long fileSize = file.fileSize();
+        final byte[] wb = { 1 };
+        file.write(wb, wb.length, fileSize);
+        Assert.assertTrue("File size should be increased after writing after end of file",
+                file.fileSize()>fileSize );
     }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#lock(org.tmatesoft.sqljet.core.SqlJetLockType)}.
-     * @throws Exception 
-     */
+    
     @Test
-    public final void testLock() throws Exception {
-        file.lock(SqlJetLockType.NONE);
-        file.lock(SqlJetLockType.SHARED);
-        file.lock(SqlJetLockType.RESERVED);
-        file.lock(SqlJetLockType.PENDING);
-        file.lock(SqlJetLockType.EXCLUSIVE);
-        fail("Not yet implemented");
+    public void testTruncate() throws Exception {
+        Assert.assertTrue(0==path.length());
+        final byte[] wb = { 1 };
+        file.write(wb, wb.length, file.fileSize());
+        file.truncate(0);
+        Assert.assertTrue("File size should be decreased after truncating",
+                0==file.fileSize() );
     }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#lockType()}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testLockType() throws Exception {
-        SqlJetLockType lockType = file.lockType();
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#read(byte[], int, long)}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testRead() throws Exception {
-        int amount = 10;
-        long offset = 0;
-        byte[] buffer = new byte[amount];
-        int read = file.read(buffer, amount, offset);
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#sectorSize()}.
-     */
-    @Test
-    public final void testSectorSize() {
-        int s = file.sectorSize();
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#sync(boolean, boolean)}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testSync() throws Exception {
-        boolean dataOnly = false;
-        boolean full = false;
-        file.sync(dataOnly, full);
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#truncate(long)}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testTruncate() throws Exception {
-        long size = 0;
-        file.truncate(size);
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#unlock(org.tmatesoft.sqljet.core.SqlJetLockType)}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testUnlock() throws Exception {
-        file.unlock(SqlJetLockType.EXCLUSIVE);
-        file.unlock(SqlJetLockType.PENDING);
-        file.unlock(SqlJetLockType.RESERVED);
-        file.unlock(SqlJetLockType.SHARED);
-        file.unlock(SqlJetLockType.NONE);
-        fail("Not yet implemented");
-    }
-
-    /**
-     * Test method for {@link org.tmatesoft.sqljet.core.internal.fs.SqlJetFile#write(byte[], int, long)}.
-     * @throws Exception 
-     */
-    @Test
-    public final void testWrite() throws Exception {
-        int amount = 10;
-        long offset = 0;
-        byte[] buffer = new byte[amount];
-        file.write(buffer, amount, offset);
-        fail("Not yet implemented");
-    }
-
+    
 }

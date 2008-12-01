@@ -128,9 +128,10 @@ public interface ISqlJetFile {
      * 
      * 
      * @param lockType
+     * @return TODO
      * @throws SqlJetException
      */
-    void lock(final SqlJetLockType lockType) throws SqlJetException;
+    boolean lock(final SqlJetLockType lockType) throws SqlJetException;
 
     /**
      * Lower the locking level on file descriptor pFile to locktype.  locktype
@@ -140,9 +141,10 @@ public interface ISqlJetFile {
      * the requested locking level, this routine is a no-op.
      * 
      * @param lockType
+     * @return TODO
      * @throws SqlJetException
      */
-    void unlock(final SqlJetLockType lockType) throws SqlJetException;
+    boolean unlock(final SqlJetLockType lockType) throws SqlJetException;
 
     /**
      * This routine checks if there is a RESERVED lock held on the specified

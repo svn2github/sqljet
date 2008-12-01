@@ -26,6 +26,7 @@ import org.junit.Test;
 public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     protected ISqlJetFile file;
+    protected ISqlJetFile file2;
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#setUpInstances()
@@ -34,6 +35,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
         file = fileSystem.open(path, PERM_CREATE);
+        file2 = fileSystem.open(path, PERM_CREATE);
     }
     
     /* (non-Javadoc)
@@ -42,8 +44,13 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Override
     protected void cleanUpInstances() throws Exception {
         try{ 
-            if(file!=null) 
-                file.close(); 
+            try{ 
+                if(file!=null) 
+                    file.close(); 
+            } finally {
+                if(file2!=null) 
+                    file2.close(); 
+            }
         } finally { 
             super.cleanUpInstances(); 
         }
@@ -103,5 +110,37 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue("File size should be decreased after truncating",
                 0==file.fileSize() );
     }
+    
+    @Test
+    public void testLockShared() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
+    }
+
+    @Test
+    public void testLockReserved() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
+        Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
+        Assert.assertFalse(file2.lock(SqlJetLockType.RESERVED));
+    }
+
+    @Test
+    public void testLockPending() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
+        Assert.assertTrue(file.lock(SqlJetLockType.PENDING));
+        Assert.assertFalse(file2.lock(SqlJetLockType.SHARED));
+    }
+    
+    @Test
+    public void testLockExclusive() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
+        Assert.assertTrue(file.lock(SqlJetLockType.PENDING));
+        Assert.assertFalse(file.lock(SqlJetLockType.EXCLUSIVE));
+    }
+    
     
 }

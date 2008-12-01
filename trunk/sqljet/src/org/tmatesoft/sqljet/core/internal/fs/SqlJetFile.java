@@ -71,9 +71,9 @@ public class SqlJetFile implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#lock(org.tmatesoft.sqljet.core.SqlJetLockType)
      */
-    public void lock(SqlJetLockType lockType) throws SqlJetException {
+    public boolean lock(SqlJetLockType lockType) throws SqlJetException {
         // TODO Auto-generated method stub
-
+        return false;
     }
 
     /* (non-Javadoc)
@@ -119,9 +119,9 @@ public class SqlJetFile implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#unlock(org.tmatesoft.sqljet.core.SqlJetLockType)
      */
-    public void unlock(SqlJetLockType lockType) throws SqlJetException {
+    public boolean unlock(SqlJetLockType lockType) throws SqlJetException {
         // TODO Auto-generated method stub
-
+        return false;
     }
 
     /* (non-Javadoc)

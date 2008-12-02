@@ -20,6 +20,8 @@ import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager;
 
 /**
+ * Singleton implementation of {@link ISqlJetFileSystemsManager}.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
@@ -29,6 +31,23 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
     private Object lock = new Object();
     private ISqlJetFileSystem defaultFileSystem = null;
     private Map<String, ISqlJetFileSystem> fileSystems = new ConcurrentHashMap<String, ISqlJetFileSystem>();
+
+    private static SqlJetFileSystemsManager manager = new SqlJetFileSystemsManager(); 
+    
+    /**
+     * Protected constructor 
+     */
+    protected SqlJetFileSystemsManager() {
+    }
+    
+    /**
+     * Singleton accessor.
+     * 
+     * @return the manager
+     */
+    public static SqlJetFileSystemsManager getManager() {
+        return manager;
+    }
 
     /*
      * (non-Javadoc)

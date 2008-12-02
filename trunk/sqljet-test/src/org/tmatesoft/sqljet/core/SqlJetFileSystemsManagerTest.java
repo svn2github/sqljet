@@ -27,7 +27,7 @@ public class SqlJetFileSystemsManagerTest extends SqlJetFileSystemsManagerMockTe
      */
     @Override
     protected void setUpInstances() throws Exception {
-        fileSystemsManager = new SqlJetFileSystemsManager();
+        fileSystemsManager = SqlJetFileSystemsManager.getManager();
         super.setUpInstances();
     }
     

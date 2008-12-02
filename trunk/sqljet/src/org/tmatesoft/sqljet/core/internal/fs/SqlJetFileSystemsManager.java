@@ -13,38 +13,72 @@
  */
 package org.tmatesoft.sqljet.core.internal.fs;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#find(java.lang.String)
+    private Object lock = new Object();
+    private ISqlJetFileSystem defaultFileSystem = null;
+    private Map<String, ISqlJetFileSystem> fileSystems = new ConcurrentHashMap<String, ISqlJetFileSystem>();
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#find(java.lang.String
+     * )
      */
-    public ISqlJetFileSystem find(String name) {
-        // TODO Auto-generated method stub
-        return null;
+    public ISqlJetFileSystem find(final String name) {
+        if (null != name)
+            return fileSystems.get(name);
+        else
+            synchronized (lock) {
+                return defaultFileSystem;
+            }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#register(org.tmatesoft.sqljet.core.ISqlJetFileSystem, boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#register(org.tmatesoft
+     * .sqljet.core.ISqlJetFileSystem, boolean)
      */
-    public void register(ISqlJetFileSystem fs, boolean isDefault) {
-        // TODO Auto-generated method stub
-
+    public void register(final ISqlJetFileSystem fs, final boolean isDefault) {
+        fileSystems.put(fs.getName(), fs);
+        if (isDefault || null == defaultFileSystem)
+            synchronized (lock) {
+                defaultFileSystem = fs;
+            }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#unregister(org.tmatesoft.sqljet.core.ISqlJetFileSystem)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#unregister(org.tmatesoft
+     * .sqljet.core.ISqlJetFileSystem)
      */
-    public void unregister(ISqlJetFileSystem fs) {
-        // TODO Auto-generated method stub
-
+    public void unregister(final ISqlJetFileSystem fs) {
+        fileSystems.remove(fs.getName());
+        if (fs == defaultFileSystem) {
+            synchronized (lock) {
+                defaultFileSystem = null;
+                if (fileSystems.size() > 0) {
+                    defaultFileSystem = fileSystems.values().iterator().next();
+                } else
+                    defaultFileSystem = null;
+            }
+        }
     }
 
 }

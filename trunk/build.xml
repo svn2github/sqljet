@@ -32,8 +32,8 @@
         <mkdir dir="sqljet/bin" />
         <mkdir dir="sqljet-test/bin" />
 
-        <javac destdir="sqljet/bin" srcdir="sqljet/src" />
-        <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src">
+        <javac destdir="sqljet/bin" srcdir="sqljet/src" debug="true"/>
+        <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src" debug="true">
             <classpath path="sqljet/bin" />
             <classpath>
             	<fileset dir="sqljet-test/lib" includes="*.jar"/>

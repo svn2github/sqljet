@@ -20,7 +20,7 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetFileSystemManagerTest extends SqlJetFileSystemsManagerMockTest {
+public class SqlJetFileSystemsManagerTest extends SqlJetFileSystemsManagerMockTest {
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#setUpInstances()

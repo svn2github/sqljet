@@ -81,6 +81,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
     protected File pathNew;
     protected File pathReadonly;
     protected ISqlJetFileSystem fileSystem;
+    protected ISqlJetFileSystemsManager fileSystemsManager;    
 
     /**
      * @return the pathPrivateExists
@@ -126,6 +127,20 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
         this.fileSystem = fileSystem;
     }
 
+    /**
+     * @return the fileSystemsManager
+     */
+    public ISqlJetFileSystemsManager getFileSystemsManager() {
+        return fileSystemsManager;
+    }
+
+    /**
+     * @param fileSystemsManager the fileSystemsManager to set
+     */
+    public void setFileSystemsManager(ISqlJetFileSystemsManager fileSystemsManager) {
+        this.fileSystemsManager = fileSystemsManager;
+    }
+    
     /**
      * Set up external environment for testing. For example creates files.
      * 
@@ -186,9 +201,14 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
     @SuppressWarnings("unchecked")
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
+
+        if(null==fileSystem) fileSystemsManager = 
+            EasyMock.createMock(ISqlJetFileSystemsManager.class);
         
         if(null!=fileSystem) return;
     
+        fileSystemsManager = EasyMock.createMock(ISqlJetFileSystemsManager.class);
+        
         fileSystem = EasyMock.createMock(ISqlJetFileSystem.class);
         final ISqlJetFile file = EasyMock.createMock(ISqlJetFile.class);
     
@@ -347,6 +367,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
      */
     protected void cleanUpInstances() throws Exception {
         super.cleanUpInstances();
+        fileSystemsManager = null;
         fileSystem = null;
     }
 

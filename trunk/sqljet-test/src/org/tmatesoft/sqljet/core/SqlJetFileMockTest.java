@@ -34,8 +34,8 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Override
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
-        file = fileSystem.open(path, PERM_CREATE);
-        file2 = fileSystem.open(path, PERM_CREATE);
+        file = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
+        file2 = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
     }
     
     /* (non-Javadoc)

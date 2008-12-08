@@ -111,7 +111,8 @@ public interface ISqlJetFileSystem {
      *          If it is impossible to open file.
      *          
      */
-    ISqlJetFile open(final File path, final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
+    ISqlJetFile open(final File path, final SqlJetFileType type,
+            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
     
 
     /**
@@ -166,7 +167,7 @@ public interface ISqlJetFileSystem {
      * @return
      * @throws SqlJetException
      */
-    int sleep(final int microseconds) throws SqlJetException;
+    long sleep(final long microseconds) throws SqlJetException;
 
     /**
      *  The currentTime() method returns a Julian Day Number for the current date and time.
@@ -174,6 +175,6 @@ public interface ISqlJetFileSystem {
      * @return
      * @throws SqlJetException
      */
-    double currentTime() throws SqlJetException;
+    long currentTime() throws SqlJetException;
 
 }

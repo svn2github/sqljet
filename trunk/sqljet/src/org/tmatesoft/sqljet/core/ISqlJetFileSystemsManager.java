@@ -39,15 +39,17 @@ public interface ISqlJetFileSystemsManager {
      * 
      * @param fs
      * @param isDefault
+     * @throws SqlJetException 
      */
-    void register(final ISqlJetFileSystem fs, final boolean isDefault);
+    void register(final ISqlJetFileSystem fs, final boolean isDefault) throws SqlJetException;
 
     /**
      * Unregister a {@link ISqlJetFileSystem} so that it is no longer accessible.
      * 
      * 
      * @param fs
+     * @throws SqlJetException 
      */
-    void unregister(final ISqlJetFileSystem fs);
+    void unregister(final ISqlJetFileSystem fs) throws SqlJetException;
 
 }

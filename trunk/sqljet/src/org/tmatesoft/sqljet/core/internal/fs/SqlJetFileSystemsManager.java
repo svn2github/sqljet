@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * Singleton implementation of {@link ISqlJetFileSystemsManager}.
@@ -72,7 +74,8 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
      * org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#register(org.tmatesoft
      * .sqljet.core.ISqlJetFileSystem, boolean)
      */
-    public void register(final ISqlJetFileSystem fs, final boolean isDefault) {
+    public void register(final ISqlJetFileSystem fs, final boolean isDefault) throws SqlJetException {
+        checkFS(fs);
         fileSystems.put(fs.getName(), fs);
         if (isDefault || null == defaultFileSystem)
             synchronized (lock) {
@@ -87,7 +90,8 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
      * org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager#unregister(org.tmatesoft
      * .sqljet.core.ISqlJetFileSystem)
      */
-    public void unregister(final ISqlJetFileSystem fs) {
+    public void unregister(final ISqlJetFileSystem fs) throws SqlJetException {
+        checkFS(fs);
         fileSystems.remove(fs.getName());
         if (fs == defaultFileSystem) {
             synchronized (lock) {
@@ -100,4 +104,19 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
         }
     }
 
+    /**
+     * Check FS parameter
+     * 
+     * @param fs
+     * @throws SqlJetException
+     */
+    private void checkFS(final ISqlJetFileSystem fs) throws SqlJetException {
+        if(null==fs) 
+            throw new SqlJetException(SqlJetErrorCode.BAD_PARAMETER,
+                "Prameter 'fs' must be not null");
+        if(null==fs.getName()) 
+            throw new SqlJetException(SqlJetErrorCode.BAD_PARAMETER,
+                "fs.getName() must return not null value");
+    }
+    
 }

@@ -218,39 +218,56 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
     
         final SqlJetException cantOpen = new SqlJetException(SqlJetErrorCode.CANTOPEN);
         
-        EasyMock.expect(fileSystem.open(null, null)).andStubThrow(cantOpen);
+        EasyMock.expect(fileSystem.open(null, null, null)).andStubThrow(cantOpen);
+
+        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class),(SqlJetFileType)EasyMock.isNull(),
+                (EnumSet)EasyMock.isNull())).andStubThrow(cantOpen);
+        
+        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), EasyMock.isA(SqlJetFileType.class),
+                (EnumSet)EasyMock.isNull())).andStubThrow(cantOpen);
+
+        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), (SqlJetFileType)EasyMock.isNull(),
+                EasyMock.isA(EnumSet.class))).andStubThrow(cantOpen);
+        
+        
+        EasyMock.expect(fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_TEMPORARY)).andStubReturn(file);
     
-        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
-                (EnumSet<SqlJetFileOpenPermission>)EasyMock.isNull())).andStubThrow(cantOpen);
+        EasyMock.expect(fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_READONLY)).andStubThrow(cantOpen);
     
-        EasyMock.expect(fileSystem.open(null, PERM_TEMPORARY)).andStubReturn(file);
+        EasyMock.expect(fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_READONLY)).andStubReturn(file);
     
-        EasyMock.expect(fileSystem.open(null, PERM_READONLY)).andStubThrow(cantOpen);
-    
-        EasyMock.expect(fileSystem.open(path,PERM_READONLY)).andStubReturn(file);
-    
-        EasyMock.expect(fileSystem.open(pathNew,PERM_READONLY)).andStubThrow(cantOpen);
+        EasyMock.expect(fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_READONLY)).andStubThrow(cantOpen);
     
         EasyMock.expect(fileSystem.open(
                 EasyMock.or((File)EasyMock.isNull(),EasyMock.isA(File.class)), 
+                EasyMock.or((SqlJetFileType)EasyMock.isNull(),EasyMock.isA(SqlJetFileType.class)), 
                 EasyMock.eq(PERM_READONLY_AND_WRITE))).andStubThrow(cantOpen);
     
-        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+        EasyMock.expect(fileSystem.open(
+                EasyMock.or((File)EasyMock.isNull(),EasyMock.isA(File.class)), 
+                EasyMock.or((SqlJetFileType)EasyMock.isNull(),EasyMock.isA(SqlJetFileType.class)), 
                 EasyMock.eq(PERM_CREATE_ONLY))).andStubThrow(cantOpen);
         
-        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+        EasyMock.expect(fileSystem.open(
+                EasyMock.or((File)EasyMock.isNull(),EasyMock.isA(File.class)), 
+                EasyMock.or((SqlJetFileType)EasyMock.isNull(),EasyMock.isA(SqlJetFileType.class)), 
                 EasyMock.eq(PERM_CREATE_READONLY))).andStubThrow(cantOpen);
     
-        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class),
+                EasyMock.eq(SqlJetFileType.MAIN_DB),
                 EasyMock.eq(PERM_CREATE))).andStubReturn(file);
     
-        EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+        EasyMock.expect(fileSystem.open(
+                EasyMock.or((File)EasyMock.isNull(),EasyMock.isA(File.class)), 
+                EasyMock.or((SqlJetFileType)EasyMock.isNull(),EasyMock.isA(SqlJetFileType.class)), 
                 EasyMock.eq(PERM_EXCLUSIVE_ONLY))).andStubThrow(cantOpen);
     
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+                EasyMock.eq(SqlJetFileType.MAIN_DB),
                 EasyMock.eq(PERM_EXCLUSIVE_CREATE))).andStubReturn(file);
     
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), 
+                EasyMock.eq(SqlJetFileType.MAIN_DB),
                 EasyMock.eq(PERM_EXCLUSIVE_CREATE))).andStubReturn(file);
     
         // delete()
@@ -328,8 +345,8 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
         // sleep()
         
         EasyMock.expect( fileSystem.sleep(EasyMock.anyInt()) ).andStubAnswer(
-                new IAnswer<Integer>(){
-                    public Integer answer() throws Throwable {
+                new IAnswer<Long>(){
+                    public Long answer() throws Throwable {
                         final Object[] args = EasyMock.getCurrentArguments();
                         if(null==args||0==args.length) throw misuse;
                         final Object arg = args[0];
@@ -343,7 +360,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
                             } catch (InterruptedException e) {
                             } finally{
                                 final long t2 = System.currentTimeMillis();
-                                return (new Long(t2 - t1)).intValue();
+                                return t2 - t1;
                             }
                         } else throw misuse;
                     }
@@ -352,7 +369,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
     
         // currentTime()
         
-        EasyMock.expect( fileSystem.currentTime() ).andStubReturn(1.);
+        EasyMock.expect( fileSystem.currentTime() ).andStubReturn(1L);
         
         // Run mocks
         

@@ -24,21 +24,21 @@ import org.junit.Test;
 public class SqlJetFileSystemsManagerMockTest extends SqlJetAbstractFileSystemMockTest {
 
     @Test
-    public void testFindDefault(){
+    public void testFindDefault() throws SqlJetException{
         fileSystemsManager.register(fileSystem, true);
         final ISqlJetFileSystem fs = fileSystemsManager.find(null);
         Assert.assertSame(fileSystem, fs);
     }
 
     @Test
-    public void testFindByName(){
+    public void testFindByName() throws SqlJetException{
         fileSystemsManager.register(fileSystem, false);
         final ISqlJetFileSystem fs = fileSystemsManager.find(fileSystem.getName());
         Assert.assertSame(fileSystem, fs);
     }
 
     @Test
-    public void testUnregister(){
+    public void testUnregister() throws SqlJetException{
         fileSystemsManager.register(fileSystem, false);
         Assert.assertNotNull(fileSystemsManager.find(fileSystem.getName()));
         fileSystemsManager.unregister(fileSystem);

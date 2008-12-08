@@ -25,6 +25,15 @@ public class SqlJetException extends Exception {
     private static final long serialVersionUID = -7132771040442635370L;
 
     private SqlJetErrorCode errorCode;
+    
+    private String description;
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * @return the errorCode
@@ -42,4 +51,29 @@ public class SqlJetException extends Exception {
     public SqlJetException(final SqlJetErrorCode errorCode) {
         this.errorCode = errorCode;
     }
+    
+    public SqlJetException(final SqlJetErrorCode errorCode, 
+            final String description) 
+    {
+        this.errorCode = errorCode;
+        this.description = description;
+    }
+
+    public static void assertion(final boolean assertion) throws SqlJetException 
+    {
+        if(!assertion) throw new SqlJetException(SqlJetErrorCode.MISUSE);
+    }
+    
+    public static void assertion(final boolean assertion, 
+            final SqlJetErrorCode errorCode) throws SqlJetException 
+    {
+        if(!assertion) throw new SqlJetException(errorCode);
+    }
+
+    public static void assertion(final boolean assertion, 
+            final SqlJetErrorCode errorCode, final String description) throws SqlJetException 
+    {
+        if(!assertion) throw new SqlJetException(errorCode,description);        
+    }
+    
 }

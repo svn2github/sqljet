@@ -30,6 +30,13 @@ import java.util.EnumSet;
 public interface ISqlJetFile {
 
     /**
+     * Returns file type.
+     * 
+     * @return {@link SqlJetFileType}
+     */
+    SqlJetFileType getFileType();
+    
+    /**
      * Returns assiciated permissions.
      * 
      * @return {@link SqlJetFileOpenPermission}

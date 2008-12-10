@@ -79,7 +79,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(0==path.length());
         final byte[] b = { 0 };
         final int r = file.read(b, 1, 0);
-        Assert.assertEquals("Read empty file should return empty data",r,0);
+        Assert.assertEquals("Read empty file should return empty data",0,r);
     }
 
     @Test
@@ -105,7 +105,8 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     public void testTruncate() throws Exception {
         Assert.assertTrue(0==path.length());
         final byte[] wb = { 1 };
-        file.write(wb, wb.length, file.fileSize());
+        final long fileSize = file.fileSize();
+        file.write(wb, wb.length, fileSize);
         file.truncate(0);
         Assert.assertTrue("File size should be decreased after truncating",
                 0==file.fileSize() );

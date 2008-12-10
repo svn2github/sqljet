@@ -76,10 +76,9 @@ public interface ISqlJetFile {
      * Truncate an open file to a specified size
      * 
      * @param size
-     * @return
      * @throws SqlJetException
      */
-    boolean truncate(final long size) throws SqlJetException;
+    void truncate(final long size) throws SqlJetException;
 
     /**
      * Make sure all writes to a particular file are committed to disk.
@@ -168,7 +167,7 @@ public interface ISqlJetFile {
      * @return
      * @throws SqlJetException
      */
-    SqlJetLockType lockType() throws SqlJetException;
+    SqlJetLockType getLockType() throws SqlJetException;
 
     /**
      * Return the sector size in bytes of the underlying block device for

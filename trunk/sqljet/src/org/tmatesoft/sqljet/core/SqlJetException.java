@@ -26,15 +26,6 @@ public class SqlJetException extends Exception {
 
     private SqlJetErrorCode errorCode;
     
-    private String description;
-
-    /**
-     * @return the description
-     */
-    public String getDescription() {
-        return description;
-    }
-
     /**
      * @return the errorCode
      */
@@ -53,11 +44,32 @@ public class SqlJetException extends Exception {
     }
     
     public SqlJetException(final SqlJetErrorCode errorCode, 
-            final String description) 
+            final String message) 
     {
+        super(message);
         this.errorCode = errorCode;
-        this.description = description;
     }
+
+    public SqlJetException(final SqlJetErrorCode errorCode,
+            final Throwable cause ) {
+        super(cause);
+        this.errorCode = errorCode;
+    }
+
+    public SqlJetException(final SqlJetErrorCode errorCode, 
+            final String message, final Throwable cause  ) 
+    {
+        super(message, cause);
+        this.errorCode = errorCode;
+    }
+    
+    
+    /**
+     * Assertions
+     * 
+     * @param assertion
+     * @throws SqlJetException
+     */
 
     public static void assertion(final boolean assertion) throws SqlJetException 
     {
@@ -74,6 +86,23 @@ public class SqlJetException extends Exception {
             final SqlJetErrorCode errorCode, final String description) throws SqlJetException 
     {
         if(!assertion) throw new SqlJetException(errorCode,description);        
+    }
+
+    public static void assertion(final Object assertion) throws SqlJetException 
+    {
+        if(null==assertion) throw new SqlJetException(SqlJetErrorCode.MISUSE);
+    }
+
+    public static void assertion(final Object assertion, 
+            final SqlJetErrorCode errorCode) throws SqlJetException 
+    {
+        if(null==assertion) throw new SqlJetException(errorCode);
+    }
+
+    public static void assertion(final Object assertion, 
+            final SqlJetErrorCode errorCode, final String description) throws SqlJetException 
+    {
+        if(null==assertion) throw new SqlJetException(errorCode,description);        
     }
     
 }

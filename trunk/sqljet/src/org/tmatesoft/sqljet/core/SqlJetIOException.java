@@ -43,4 +43,24 @@ public class SqlJetIOException extends SqlJetException {
         this.ioErrorCode = ioErrorCode;
     }
     
+    public SqlJetIOException(final SqlJetIOErrorCode ioErrorCode, 
+            final String message) 
+    {
+        super(SqlJetErrorCode.IOERR,message);
+        this.ioErrorCode = ioErrorCode;
+    }
+
+    public SqlJetIOException(final SqlJetIOErrorCode ioErrorCode,
+            final Throwable cause ) {
+        super(SqlJetErrorCode.IOERR,cause);
+        this.ioErrorCode = ioErrorCode;
+    }
+
+    public SqlJetIOException(final SqlJetIOErrorCode ioErrorCode, 
+            final String message, final Throwable cause  ) 
+    {
+        super(SqlJetErrorCode.IOERR,message, cause);
+        this.ioErrorCode = ioErrorCode;
+    }
+    
 }

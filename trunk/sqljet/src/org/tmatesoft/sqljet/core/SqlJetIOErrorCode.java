@@ -36,6 +36,6 @@ public enum SqlJetIOErrorCode {
     IOERR_NOMEM,
     IOERR_ACCESS,
     IOERR_CHECKRESERVEDLOCK,
-    SQLITE_IOERR_LOCK
+    IOERR_LOCK
     
 }

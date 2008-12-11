@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -50,6 +51,7 @@ public class SqlJetFile implements ISqlJetFile {
     private boolean noLock;
 
     private SqlJetLockType lockType = SqlJetLockType.NONE;
+    private int sharedLockCount = 0;
 
     /**
      * @param fileSystem
@@ -97,16 +99,25 @@ public class SqlJetFile implements ISqlJetFile {
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#close()
      */
     public synchronized void close() throws SqlJetException {
-        if (SqlJetLockType.NONE != lockType)
+        if (null == file)
+            return;
+
+        if (!noLock && SqlJetLockType.NONE != lockType) {
             unlock(SqlJetLockType.NONE);
-        if (null != file) {
-            try {
-                file.close();
-            } catch (IOException e) {
-                throw new SqlJetException(SqlJetErrorCode.IOERR, e);
-            } finally {
-                file = null;
-            }
+            /*
+             * If there are outstanding locks, do not actually close the file
+             * just yet because that would clear those locks.
+             */
+            if (sharedLockCount > 0)
+                return;
+        }
+
+        try {
+            file.close();
+        } catch (IOException e) {
+            throw new SqlJetException(SqlJetErrorCode.IOERR, e);
+        } finally {
+            file = null;
         }
     }
 
@@ -125,8 +136,8 @@ public class SqlJetFile implements ISqlJetFile {
             final ByteBuffer dst = ByteBuffer.wrap(buffer, 0, amount);
             final int read = file.getChannel().position(offset).read(dst);
             if (amount > read)
-                Arrays.fill(buffer, read<0?0:read, amount, (byte) 0);
-            return read<0?0:read;
+                Arrays.fill(buffer, read < 0 ? 0 : read, amount, (byte) 0);
+            return read < 0 ? 0 : read;
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_READ, e);
         }
@@ -216,6 +227,50 @@ public class SqlJetFile implements ISqlJetFile {
         assertion(file);
 
         /*
+         * The following describes the implementation of the various locks and
+         * lock transitions in terms of the POSIX advisory shared and exclusive
+         * lock primitives (called read-locks and write-locks below, to avoid
+         * confusion with SQLite lock names). The algorithms are complicated
+         * slightly in order to be compatible with windows systems
+         * simultaneously accessing the same database file, in case that is ever
+         * required.
+         * 
+         * Symbols defined in os.h indentify the 'pending byte' and the
+         * 'reserved byte', each single bytes at well known offsets, and the
+         * 'shared byte range', a range of 510 bytes at a well known offset.
+         * 
+         * To obtain a SHARED lock, a read-lock is obtained on the 'pending
+         * byte'. If this is successful, a random byte from the 'shared byte
+         * range' is read-locked and the lock on the 'pending byte' released.
+         * 
+         * A process may only obtain a RESERVED lock after it has a SHARED lock.
+         * A RESERVED lock is implemented by grabbing a write-lock on the
+         * 'reserved byte'.
+         * 
+         * A process may only obtain a PENDING lock after it has obtained a
+         * SHARED lock. A PENDING lock is implemented by obtaining a write-lock
+         * on the 'pending byte'. This ensures that no new SHARED locks can be
+         * obtained, but existing SHARED locks are allowed to persist. A process
+         * does not have to obtain a RESERVED lock on the way to a PENDING lock.
+         * This property is used by the algorithm for rolling back a journal
+         * file after a crash.
+         * 
+         * An EXCLUSIVE lock, obtained after a PENDING lock is held, is
+         * implemented by obtaining a write-lock on the entire 'shared byte
+         * range'. Since all other locks require a read-lock on one of the bytes
+         * within this range, this ensures that no other locks are held on the
+         * database.
+         * 
+         * The reason a single byte cannot be used instead of the 'shared byte
+         * range' is that some versions of windows do not support read-locks. By
+         * locking a random byte from a range, concurrent SHARED locks may exist
+         * even if the locking primitive used is always a write-lock.
+         */
+        
+        if (noLock)
+            return false;
+
+        /*
          * If there is already a lock of this type or more restrictive on the
          * file then do nothing.
          */
@@ -223,12 +278,97 @@ public class SqlJetFile implements ISqlJetFile {
             return false;
 
         /* Make sure the locking sequence is correct */
-        assert (lockType != SqlJetLockType.PENDING);
-        assert (this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
-        assert (lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
+        assertion(lockType != SqlJetLockType.PENDING);
+        assertion(this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
+        assertion(lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
 
-        // TODO Auto-generated method stub
-        return false;
+         /* If a SHARED lock is requested, and some thread using this PID already
+         ** has a SHARED or RESERVED lock, then increment reference counts and
+         ** return SQLITE_OK.
+         */
+         if( lockType == SqlJetLockType.SHARED && 
+             ( this.lockType == SqlJetLockType.SHARED || 
+               this.lockType == SqlJetLockType.RESERVED) )
+         {
+           //pFile->locktype = SHARED_LOCK;
+           this.sharedLockCount++;
+           return true;
+         }
+
+        try {
+
+            final FileChannel channel = file.getChannel();
+
+            /*
+             * A PENDING lock is needed before acquiring a SHARED lock and
+             * before acquiring an EXCLUSIVE lock. For the SHARED lock, the
+             * PENDING will be released.
+             */
+            FileLock pendingLock = null;
+            
+            if (lockType == SqlJetLockType.SHARED
+                    || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
+                pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
+                if(null==pendingLock) return false;
+            }
+            
+            /* If control gets to this point, then actually go ahead and make
+             ** operating system calls for the specified lock.
+             */
+             if( lockType == SqlJetLockType.SHARED ){
+
+               /* Now get the read-lock */
+               final FileLock sharedLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, true);
+               
+               /* Drop the temporary PENDING lock */
+               if(null!=pendingLock) pendingLock.release();
+
+               if(null==sharedLock) return false;
+               
+               this.lockType = SqlJetLockType.SHARED;
+               sharedLockCount++;
+               
+             }else if( lockType == SqlJetLockType.EXCLUSIVE && sharedLockCount>1 ){
+               /* We are trying for an exclusive lock but another thread in this
+               ** same process is still holding a shared lock. */
+               return false;
+               
+             }else{
+               /* The request was for a RESERVED or EXCLUSIVE lock.  It is
+               ** assumed that there is a SHARED or greater lock on the file
+               ** already.
+               */
+               assertion(SqlJetLockType.NONE!=this.lockType);
+               
+               switch( lockType ){
+                 case RESERVED:
+                   final FileLock reservedLock = 
+                       channel.tryLock(RESERVED_BYTE, 1, false);
+                   if(null==reservedLock) return false;
+                   break;
+                 case EXCLUSIVE:
+                   final FileLock exclusiveLock = 
+                       channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
+                   if(null==exclusiveLock) {
+                       this.lockType = SqlJetLockType.PENDING;
+                       return false;
+                   }
+                   break;
+                 default:
+                   assertion(false);
+               }
+
+               
+             }
+             
+             this.lockType = lockType;
+
+        } catch (IOException e) {
+            throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
+        }
+
+        return true;
+        
     }
 
     /*
@@ -239,6 +379,12 @@ public class SqlJetFile implements ISqlJetFile {
      * .SqlJetLockType)
      */
     public boolean unlock(SqlJetLockType lockType) throws SqlJetException {
+        assertion(lockType);
+        assertion(file);
+
+        if (noLock)
+            return false;
+
         // TODO Auto-generated method stub
         return false;
     }
@@ -249,6 +395,9 @@ public class SqlJetFile implements ISqlJetFile {
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#checkReservedLock()
      */
     public boolean checkReservedLock() {
+        if (noLock)
+            return false;
+
         // TODO Auto-generated method stub
         return false;
     }

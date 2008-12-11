@@ -23,6 +23,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
@@ -52,6 +55,8 @@ public class SqlJetFile implements ISqlJetFile {
 
     private SqlJetLockType lockType = SqlJetLockType.NONE;
     private int sharedLockCount = 0;
+    private Map<SqlJetLockType,FileLock> locks = 
+        new ConcurrentHashMap<SqlJetLockType, FileLock>(); 
 
     /**
      * @param fileSystem
@@ -304,11 +309,11 @@ public class SqlJetFile implements ISqlJetFile {
              * before acquiring an EXCLUSIVE lock. For the SHARED lock, the
              * PENDING will be released.
              */
-            FileLock pendingLock = null;
             
             if (lockType == SqlJetLockType.SHARED
                     || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
-                pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
+                final FileLock pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
+                locks.put(SqlJetLockType.PENDING, pendingLock);
                 if(null==pendingLock) return false;
             }
             
@@ -319,9 +324,14 @@ public class SqlJetFile implements ISqlJetFile {
 
                /* Now get the read-lock */
                final FileLock sharedLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, true);
+               locks.put(SqlJetLockType.SHARED, sharedLock);
                
                /* Drop the temporary PENDING lock */
-               if(null!=pendingLock) pendingLock.release();
+               final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
+               if(null!=pendingLock) {
+                   pendingLock.release();
+                   locks.remove(SqlJetLockType.PENDING);
+               }
 
                if(null==sharedLock) return false;
                
@@ -344,11 +354,13 @@ public class SqlJetFile implements ISqlJetFile {
                  case RESERVED:
                    final FileLock reservedLock = 
                        channel.tryLock(RESERVED_BYTE, 1, false);
+                   locks.put(SqlJetLockType.RESERVED, reservedLock);
                    if(null==reservedLock) return false;
                    break;
                  case EXCLUSIVE:
                    final FileLock exclusiveLock = 
                        channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
+                   locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
                    if(null==exclusiveLock) {
                        this.lockType = SqlJetLockType.PENDING;
                        return false;
@@ -357,7 +369,6 @@ public class SqlJetFile implements ISqlJetFile {
                  default:
                    assertion(false);
                }
-
                
              }
              
@@ -378,15 +389,84 @@ public class SqlJetFile implements ISqlJetFile {
      * org.tmatesoft.sqljet.core.ISqlJetFile#unlock(org.tmatesoft.sqljet.core
      * .SqlJetLockType)
      */
-    public boolean unlock(SqlJetLockType lockType) throws SqlJetException {
+    public synchronized boolean unlock(final SqlJetLockType lockType) throws SqlJetException {
         assertion(lockType);
         assertion(file);
 
+        /*
+        ** Lower the locking level on file descriptor pFile to locktype.  locktype
+        ** must be either NONE or SHARED.
+        **
+        ** If the locking level of the file descriptor is already at or below
+        ** the requested locking level, this routine is a no-op.
+        */       
+        
         if (noLock)
             return false;
 
-        // TODO Auto-generated method stub
-        return false;
+        assertion( SqlJetLockType.SHARED.compareTo(lockType)>=0 );
+        if( this.lockType.compareTo(lockType)<=0 )
+          return true;
+
+        assertion( sharedLockCount >0 );
+        
+        try {
+
+            final FileChannel channel = file.getChannel();
+        
+        if( SqlJetLockType.SHARED.compareTo(this.lockType)<0 ){
+
+            if( SqlJetLockType.SHARED == lockType ){
+                
+                final FileLock sharedLock = 
+                    channel.lock(SHARED_FIRST,SHARED_SIZE,true);
+                if(null==sharedLock) 
+                    return false;
+                locks.put(SqlJetLockType.SHARED, sharedLock);
+                
+            }
+
+            final FileLock reservedLock = locks.get(SqlJetLockType.RESERVED);
+            if(null!=reservedLock) {
+                if(reservedLock.isValid())
+                    reservedLock.release();
+                locks.remove(SqlJetLockType.PENDING);
+            }
+
+            final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
+            if(null!=pendingLock) {
+                if(pendingLock.isValid())
+                    pendingLock.release();
+                locks.remove(SqlJetLockType.PENDING);
+            }
+
+            this.lockType = SqlJetLockType.SHARED;
+
+          }
+          if( lockType==SqlJetLockType.NONE ){
+            /* Decrement the shared lock counter.  Release the lock using an
+            ** OS call only when all threads in this same process have released
+            ** the lock.
+            */
+            sharedLockCount--;
+            if(sharedLockCount==0 ){
+              sharedLockCount=1;
+              for (final FileLock l : locks.values()) {
+                  if(l.isValid()) l.release();
+              }
+              locks.clear();
+              sharedLockCount = 0;
+              this.lockType = SqlJetLockType.NONE;
+            }
+           }
+
+          this.lockType = lockType;
+
+        } catch (IOException e) {
+            throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
+        }
+        
+        return true;
     }
 
     /*

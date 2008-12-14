@@ -55,8 +55,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     private SqlJetLockType lockType = SqlJetLockType.NONE;
     private int sharedLockCount = 0;
-    private Map<SqlJetLockType,FileLock> locks = 
-        new ConcurrentHashMap<SqlJetLockType, FileLock>(); 
+    private Map<SqlJetLockType, FileLock> locks = new ConcurrentHashMap<SqlJetLockType, FileLock>();
 
     /**
      * @param fileSystem
@@ -271,7 +270,7 @@ public class SqlJetFile implements ISqlJetFile {
          * locking a random byte from a range, concurrent SHARED locks may exist
          * even if the locking primitive used is always a write-lock.
          */
-        
+
         if (noLock)
             return false;
 
@@ -287,18 +286,17 @@ public class SqlJetFile implements ISqlJetFile {
         assertion(this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
         assertion(lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
 
-         /* If a SHARED lock is requested, and some thread using this PID already
-         ** has a SHARED or RESERVED lock, then increment reference counts and
-         ** return SQLITE_OK.
+        /*
+         * If a SHARED lock is requested, and some thread using this PID already
+         * has a SHARED or RESERVED lock, then increment reference counts and
+         * return SQLITE_OK.
          */
-         if( lockType == SqlJetLockType.SHARED && 
-             ( this.lockType == SqlJetLockType.SHARED || 
-               this.lockType == SqlJetLockType.RESERVED) )
-         {
-           //pFile->locktype = SHARED_LOCK;
-           this.sharedLockCount++;
-           return true;
-         }
+        if (lockType == SqlJetLockType.SHARED
+                && (this.lockType == SqlJetLockType.SHARED || this.lockType == SqlJetLockType.RESERVED)) {
+            // pFile->locktype = SHARED_LOCK;
+            this.sharedLockCount++;
+            return true;
+        }
 
         try {
 
@@ -309,77 +307,82 @@ public class SqlJetFile implements ISqlJetFile {
              * before acquiring an EXCLUSIVE lock. For the SHARED lock, the
              * PENDING will be released.
              */
-            
+
             if (lockType == SqlJetLockType.SHARED
                     || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
                 final FileLock pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
                 locks.put(SqlJetLockType.PENDING, pendingLock);
-                if(null==pendingLock) return false;
+                if (null == pendingLock)
+                    return false;
             }
-            
-            /* If control gets to this point, then actually go ahead and make
-             ** operating system calls for the specified lock.
+
+            /*
+             * If control gets to this point, then actually go ahead and make
+             * operating system calls for the specified lock.
              */
-             if( lockType == SqlJetLockType.SHARED ){
+            if (lockType == SqlJetLockType.SHARED) {
 
-               /* Now get the read-lock */
-               final FileLock sharedLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, true);
-               locks.put(SqlJetLockType.SHARED, sharedLock);
-               
-               /* Drop the temporary PENDING lock */
-               final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
-               if(null!=pendingLock) {
-                   pendingLock.release();
-                   locks.remove(SqlJetLockType.PENDING);
-               }
+                /* Now get the read-lock */
+                final FileLock sharedLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, true);
+                locks.put(SqlJetLockType.SHARED, sharedLock);
 
-               if(null==sharedLock) return false;
-               
-               this.lockType = SqlJetLockType.SHARED;
-               sharedLockCount++;
-               
-             }else if( lockType == SqlJetLockType.EXCLUSIVE && sharedLockCount>1 ){
-               /* We are trying for an exclusive lock but another thread in this
-               ** same process is still holding a shared lock. */
-               return false;
-               
-             }else{
-               /* The request was for a RESERVED or EXCLUSIVE lock.  It is
-               ** assumed that there is a SHARED or greater lock on the file
-               ** already.
-               */
-               assertion(SqlJetLockType.NONE!=this.lockType);
-               
-               switch( lockType ){
-                 case RESERVED:
-                   final FileLock reservedLock = 
-                       channel.tryLock(RESERVED_BYTE, 1, false);
-                   locks.put(SqlJetLockType.RESERVED, reservedLock);
-                   if(null==reservedLock) return false;
-                   break;
-                 case EXCLUSIVE:
-                   final FileLock exclusiveLock = 
-                       channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
-                   locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
-                   if(null==exclusiveLock) {
-                       this.lockType = SqlJetLockType.PENDING;
-                       return false;
-                   }
-                   break;
-                 default:
-                   assertion(false);
-               }
-               
-             }
-             
-             this.lockType = lockType;
+                /* Drop the temporary PENDING lock */
+                final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
+                if (null != pendingLock) {
+                    pendingLock.release();
+                    locks.remove(SqlJetLockType.PENDING);
+                }
+
+                if (null == sharedLock)
+                    return false;
+
+                this.lockType = SqlJetLockType.SHARED;
+                sharedLockCount++;
+
+            } else if (lockType == SqlJetLockType.EXCLUSIVE && sharedLockCount > 1) {
+                /*
+                 * We are trying for an exclusive lock but another thread in
+                 * this same process is still holding a shared lock.
+                 */
+                return false;
+
+            } else {
+                /*
+                 * The request was for a RESERVED or EXCLUSIVE lock. It is
+                 * assumed that there is a SHARED or greater lock on the file
+                 * already.
+                 */
+                assertion(SqlJetLockType.NONE != this.lockType);
+
+                switch (lockType) {
+                case RESERVED:
+                    final FileLock reservedLock = channel.tryLock(RESERVED_BYTE, 1, false);
+                    locks.put(SqlJetLockType.RESERVED, reservedLock);
+                    if (null == reservedLock)
+                        return false;
+                    break;
+                case EXCLUSIVE:
+                    final FileLock exclusiveLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
+                    locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
+                    if (null == exclusiveLock) {
+                        this.lockType = SqlJetLockType.PENDING;
+                        return false;
+                    }
+                    break;
+                default:
+                    assertion(false);
+                }
+
+            }
+
+            this.lockType = lockType;
 
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
         }
 
         return true;
-        
+
     }
 
     /*
@@ -394,78 +397,79 @@ public class SqlJetFile implements ISqlJetFile {
         assertion(file);
 
         /*
-        ** Lower the locking level on file descriptor pFile to locktype.  locktype
-        ** must be either NONE or SHARED.
-        **
-        ** If the locking level of the file descriptor is already at or below
-        ** the requested locking level, this routine is a no-op.
-        */       
-        
+         * Lower the locking level on file descriptor pFile to locktype.
+         * locktype must be either NONE or SHARED.
+         * 
+         * If the locking level of the file descriptor is already at or below
+         * the requested locking level, this routine is a no-op.
+         */
+
         if (noLock)
             return false;
 
-        assertion( SqlJetLockType.SHARED.compareTo(lockType)>=0 );
-        if( this.lockType.compareTo(lockType)<=0 )
-          return true;
+        assertion(SqlJetLockType.SHARED.compareTo(lockType) >= 0);
+        if (this.lockType.compareTo(lockType) <= 0)
+            return true;
 
-        assertion( sharedLockCount >0 );
-        
+        assertion(sharedLockCount > 0);
+
         try {
 
             final FileChannel channel = file.getChannel();
-        
-        if( SqlJetLockType.SHARED.compareTo(this.lockType)<0 ){
 
-            if( SqlJetLockType.SHARED == lockType ){
-                
-                final FileLock sharedLock = 
-                    channel.lock(SHARED_FIRST,SHARED_SIZE,true);
-                if(null==sharedLock) 
-                    return false;
-                locks.put(SqlJetLockType.SHARED, sharedLock);
-                
+            if (SqlJetLockType.SHARED.compareTo(this.lockType) < 0) {
+
+                if (SqlJetLockType.SHARED == lockType) {
+
+                    final FileLock sharedLock = channel.lock(SHARED_FIRST, SHARED_SIZE, true);
+                    if (null == sharedLock)
+                        return false;
+                    locks.put(SqlJetLockType.SHARED, sharedLock);
+
+                }
+
+                final FileLock reservedLock = locks.get(SqlJetLockType.RESERVED);
+                if (null != reservedLock) {
+                    if (reservedLock.isValid())
+                        reservedLock.release();
+                    locks.remove(SqlJetLockType.PENDING);
+                }
+
+                final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
+                if (null != pendingLock) {
+                    if (pendingLock.isValid())
+                        pendingLock.release();
+                    locks.remove(SqlJetLockType.PENDING);
+                }
+
+                this.lockType = SqlJetLockType.SHARED;
+
+            }
+            if (lockType == SqlJetLockType.NONE) {
+                /*
+                 * Decrement the shared lock counter. Release the lock using an
+                 * OS call only when all threads in this same process have
+                 * released the lock.
+                 */
+                sharedLockCount--;
+                if (sharedLockCount == 0) {
+                    sharedLockCount = 1;
+                    for (final FileLock l : locks.values()) {
+                        if (l.isValid())
+                            l.release();
+                    }
+                    locks.clear();
+                    sharedLockCount = 0;
+                    this.lockType = SqlJetLockType.NONE;
+                }
             }
 
-            final FileLock reservedLock = locks.get(SqlJetLockType.RESERVED);
-            if(null!=reservedLock) {
-                if(reservedLock.isValid())
-                    reservedLock.release();
-                locks.remove(SqlJetLockType.PENDING);
-            }
-
-            final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
-            if(null!=pendingLock) {
-                if(pendingLock.isValid())
-                    pendingLock.release();
-                locks.remove(SqlJetLockType.PENDING);
-            }
-
-            this.lockType = SqlJetLockType.SHARED;
-
-          }
-          if( lockType==SqlJetLockType.NONE ){
-            /* Decrement the shared lock counter.  Release the lock using an
-            ** OS call only when all threads in this same process have released
-            ** the lock.
-            */
-            sharedLockCount--;
-            if(sharedLockCount==0 ){
-              sharedLockCount=1;
-              for (final FileLock l : locks.values()) {
-                  if(l.isValid()) l.release();
-              }
-              locks.clear();
-              sharedLockCount = 0;
-              this.lockType = SqlJetLockType.NONE;
-            }
-           }
-
-          this.lockType = lockType;
+            this.lockType = lockType;
 
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
         }
-        
+
         return true;
     }
 
@@ -474,12 +478,34 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#checkReservedLock()
      */
-    public boolean checkReservedLock() {
+    public synchronized boolean checkReservedLock() {
+
+        if (null == file)
+            return false;
+
         if (noLock)
             return false;
 
-        // TODO Auto-generated method stub
+        /* Check if a thread in this process holds such a lock */
+        if (SqlJetLockType.SHARED.compareTo(this.lockType) < 0)
+
+            return true;
+
+        /* Otherwise see if some other process holds it. */
+        try {
+
+            final FileLock reservedLock = file.getChannel().tryLock(RESERVED_BYTE, 1, false);
+
+            if (null == reservedLock)
+                return true;
+
+            reservedLock.release();
+
+        } catch (IOException e) {
+        }
+
         return false;
+
     }
 
     /*

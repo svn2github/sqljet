@@ -125,22 +125,22 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
         Assert.assertFalse(file2.lock(SqlJetLockType.RESERVED));
     }
-
-    @Test
-    public void testLockPending() throws Exception {
-        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
-        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
-        Assert.assertTrue(file.lock(SqlJetLockType.PENDING));
-        Assert.assertFalse(file2.lock(SqlJetLockType.SHARED));
-    }
     
     @Test
     public void testLockExclusive() throws Exception {
         Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
         Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
         Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
-        Assert.assertTrue(file.lock(SqlJetLockType.PENDING));
         Assert.assertFalse(file.lock(SqlJetLockType.EXCLUSIVE));
+    }
+
+    @Test
+    public void testCheckReserved() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
+        Assert.assertTrue(file.checkReservedLock());
+        Assert.assertFalse(file.lock(SqlJetLockType.EXCLUSIVE));
+        Assert.assertTrue(file.checkReservedLock());
     }
     
     

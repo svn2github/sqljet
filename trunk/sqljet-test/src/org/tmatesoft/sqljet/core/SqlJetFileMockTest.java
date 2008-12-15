@@ -139,7 +139,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
         Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
         Assert.assertTrue(file.checkReservedLock());
-        Assert.assertFalse(file.lock(SqlJetLockType.EXCLUSIVE));
+        Assert.assertTrue(file.lock(SqlJetLockType.EXCLUSIVE));
         Assert.assertTrue(file.checkReservedLock());
     }
     

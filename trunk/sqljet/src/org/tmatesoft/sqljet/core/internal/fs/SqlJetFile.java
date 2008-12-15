@@ -203,7 +203,7 @@ public class SqlJetFile implements ISqlJetFile {
     public long fileSize() throws SqlJetException {
         assertion(file);
         try {
-            return file.length();
+            return file.getChannel().size();
         } catch (IOException e) {
             throw new SqlJetException(SqlJetErrorCode.IOERR, e);
         }
@@ -362,6 +362,11 @@ public class SqlJetFile implements ISqlJetFile {
                         return false;
                     break;
                 case EXCLUSIVE:
+                    final FileLock sharedLock = locks.get(SqlJetLockType.SHARED);
+                    if(null!=sharedLock){
+                        sharedLock.release();
+                        locks.remove(SqlJetLockType.SHARED);
+                    }
                     final FileLock exclusiveLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
                     locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
                     if (null == exclusiveLock) {

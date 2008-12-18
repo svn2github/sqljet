@@ -548,15 +548,17 @@ public class SqlJetFile implements ISqlJetFile {
      */
     public synchronized boolean checkReservedLock() {
 
+        if (noLock)
+            return false;
+        
         if (null == file)
             return false;
 
-        if (noLock)
+        if (null==lockInfo)
             return false;
-
+        
         /* Check if a thread in this process holds such a lock */
-        if (SqlJetLockType.SHARED.compareTo(this.lockType) < 0)
-
+        if (SqlJetLockType.SHARED.compareTo(lockInfo.lockType) < 0)
             return true;
 
         /* Otherwise see if some other process holds it. */

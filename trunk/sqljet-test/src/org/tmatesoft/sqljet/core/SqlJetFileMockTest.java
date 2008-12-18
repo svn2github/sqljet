@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core;
 
 import java.util.EnumSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,15 +23,19 @@ import org.junit.Test;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     protected ISqlJetFile file;
     protected ISqlJetFile file2;
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#setUpInstances()
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#setUpInstances
+     * ()
      */
     @Override
     protected void setUpInstances() throws Exception {
@@ -37,59 +43,62 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         file = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
         file2 = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#cleanUpInstances()
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.SqlJetAbstractFileSystemMockTest#cleanUpInstances
+     * ()
      */
     @Override
     protected void cleanUpInstances() throws Exception {
-        try{ 
-            try{ 
-                if(file!=null) 
-                    file.close(); 
+        try {
+            try {
+                if (file != null)
+                    file.close();
             } finally {
-                if(file2!=null) 
-                    file2.close(); 
+                if (file2 != null)
+                    file2.close();
             }
-        } finally { 
-            super.cleanUpInstances(); 
+        } finally {
+            super.cleanUpInstances();
         }
     }
 
-    
     @Test
     public void testPermissions() throws Exception {
         final String msg = "File must have permissions to which was opened";
         final EnumSet<SqlJetFileOpenPermission> p = file.getPermissions();
         Assert.assertNotNull(msg, p);
         Assert.assertTrue(msg, p.containsAll(PERM_CREATE));
-        
+
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void testClose() throws Exception {
         file.close();
         file.sync(false, false);
         Assert.fail("Closed file should not allow perform any input-output");
-        
+
     }
-    
+
     @Test
     public void testReadEmpty() throws Exception {
-        Assert.assertTrue(0==path.length());
+        Assert.assertTrue(0 == path.length());
         final byte[] b = { 0 };
         final int r = file.read(b, 1, 0);
-        Assert.assertEquals("Read empty file should return empty data",0,r);
+        Assert.assertEquals("Read empty file should return empty data", 0, r);
     }
 
     @Test
     public void testWriteRead() throws Exception {
-        Assert.assertTrue(0==path.length());
+        Assert.assertTrue(0 == path.length());
         final byte[] wb = { 1 };
         file.write(wb, 1, 0);
         final byte[] rb = { 0 };
         final int r = file.read(rb, 1, 0);
-        Assert.assertArrayEquals("Reading should get the same data as it was written",wb,rb);
+        Assert.assertArrayEquals("Reading should get the same data as it was written", wb, rb);
     }
 
     @Test
@@ -97,21 +106,19 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         final long fileSize = file.fileSize();
         final byte[] wb = { 1 };
         file.write(wb, wb.length, fileSize);
-        Assert.assertTrue("File size should be increased after writing after end of file",
-                file.fileSize()>fileSize );
+        Assert.assertTrue("File size should be increased after writing after end of file", file.fileSize() > fileSize);
     }
-    
+
     @Test
     public void testTruncate() throws Exception {
-        Assert.assertTrue(0==path.length());
+        Assert.assertTrue(0 == path.length());
         final byte[] wb = { 1 };
         final long fileSize = file.fileSize();
         file.write(wb, wb.length, fileSize);
         file.truncate(0);
-        Assert.assertTrue("File size should be decreased after truncating",
-                0==file.fileSize() );
+        Assert.assertTrue("File size should be decreased after truncating", 0 == file.fileSize());
     }
-    
+
     @Test
     public void testLockShared() throws Exception {
         Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
@@ -125,7 +132,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(file2.lock(SqlJetLockType.SHARED));
         Assert.assertFalse(file2.lock(SqlJetLockType.RESERVED));
     }
-    
+
     @Test
     public void testLockExclusive() throws Exception {
         Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
@@ -142,6 +149,70 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(file.lock(SqlJetLockType.EXCLUSIVE));
         Assert.assertTrue(file.checkReservedLock());
     }
-    
+
+    @Test
+    public void testLockSharedThreads() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file2.lock(SqlJetLockType.SHARED);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertTrue(lock2.get());
+    }
+
+    @Test
+    public void testLockReservedThreads() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertFalse(lock2.get());
+    }
+
+    @Test
+    public void testLockExclusiveThreads() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
+                    file2.lock(SqlJetLockType.EXCLUSIVE);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertFalse(lock2.get());
+    }
+
+    @Test
+    public void testLockCheckReservedThreads() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file2.checkReservedLock();
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertTrue(lock2.get());
+    }
     
 }

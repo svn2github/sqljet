@@ -14,6 +14,10 @@
 package org.tmatesoft.sqljet.core;
 
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -78,6 +82,10 @@ public abstract class SqlJetAbstractMockTest {
      */
     protected void cleanUpInstances() throws Exception {
         
+    }
+
+    protected <T> Future<T> execThread(final Callable<T> thread) {
+        return Executors.newSingleThreadExecutor().submit(thread);
     }
 
 }

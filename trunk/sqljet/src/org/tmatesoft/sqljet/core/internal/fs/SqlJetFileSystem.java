@@ -130,7 +130,11 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         final File filePath;
 
         if (null != path) {
-            filePath = path;
+            try {
+                filePath = path.getCanonicalFile();
+            } catch (IOException e) {
+                throw new SqlJetException(SqlJetErrorCode.CANTOPEN,e);
+            }
         } else {
 
             assertion(isDelete
@@ -138,7 +142,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             try {
                 filePath = getTempFile();
             } catch (IOException e) {
-                throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
+                throw new SqlJetException(SqlJetErrorCode.CANTOPEN,e);
             }
 
             assertion(null != filePath);
@@ -176,7 +180,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * @return
      * @throws IOException
      */
-    private File getTempFile() throws IOException {
+    public static File getTempFile() throws IOException {
         return File.createTempFile(SQLJET_TEMP_FILE_PREFIX, null);
     }
 

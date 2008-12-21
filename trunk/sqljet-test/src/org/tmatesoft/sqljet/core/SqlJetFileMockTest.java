@@ -29,6 +29,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     protected ISqlJetFile file;
     protected ISqlJetFile file2;
+    protected ISqlJetFile file3;
 
     /*
      * (non-Javadoc)
@@ -42,6 +43,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         super.setUpInstances();
         file = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
         file2 = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
+        file3 = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_CREATE);
     }
 
     /*
@@ -58,8 +60,13 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 if (file != null)
                     file.close();
             } finally {
-                if (file2 != null)
-                    file2.close();
+                try{
+                    if (file2 != null)
+                        file2.close();
+                } finally {
+                    if (file3 != null)
+                        file3.close();
+                }
             }
         } finally {
             super.cleanUpInstances();
@@ -215,4 +222,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(lock2.get());
     }
     
+    @Test
+    public void testLockClose() throws Exception {
+        Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.lock(SqlJetLockType.RESERVED));
+        Assert.assertTrue(file.lock(SqlJetLockType.EXCLUSIVE));
+        file2.close();
+        Assert.assertFalse(file3.lock(SqlJetLockType.SHARED));
+    }
 }

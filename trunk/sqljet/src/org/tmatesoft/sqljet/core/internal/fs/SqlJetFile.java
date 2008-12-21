@@ -148,19 +148,17 @@ public class SqlJetFile implements ISqlJetFile {
         if (null == file)
             return;
 
-        if (!noLock && SqlJetLockType.NONE != lockType) {
-            unlock(SqlJetLockType.NONE);
+        unlock(SqlJetLockType.NONE);
 
-            /*
-             * If there are outstanding locks, do not actually close the file
-             * just yet because that would clear those locks. Instead, add the
-             * file descriptor to pOpen->aPending. It will be automatically
-             * closed when the last lock is cleared.
-             */
-            if (null != openCount && null != lockInfo && lockInfo.sharedLockCount > 0) {
-                openCount.pending.add(file);
-                return;
-            }
+        /*
+         * If there are outstanding locks, do not actually close the file just
+         * yet because that would clear those locks. Instead, add the file
+         * descriptor to pOpen->aPending. It will be automatically closed when
+         * the last lock is cleared.
+         */
+        if (null != openCount && null != lockInfo && lockInfo.sharedLockCount > 0) {
+            openCount.pending.add(file);
+            return;
         }
 
         try {
@@ -398,8 +396,8 @@ public class SqlJetFile implements ISqlJetFile {
 
                 this.lockType = SqlJetLockType.SHARED;
                 openCount.numLock++;
-                lockInfo.sharedLockCount=1;
-                
+                lockInfo.sharedLockCount = 1;
+
             } else if (lockType == SqlJetLockType.EXCLUSIVE && lockInfo.sharedLockCount > 1) {
                 /*
                  * We are trying for an exclusive lock but another thread in
@@ -445,7 +443,7 @@ public class SqlJetFile implements ISqlJetFile {
             this.lockType = lockType;
             lockInfo.lockType = lockType;
             return true;
-            
+
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
         }
@@ -532,6 +530,20 @@ public class SqlJetFile implements ISqlJetFile {
                 }
             }
 
+            /*
+             * Decrement the count of locks against this same file. When the
+             * count reaches zero, close any other file descriptors whose close
+             * was deferred because of outstanding locks.
+             */
+            openCount.numLock--;
+            assertion(openCount.numLock >= 0);
+            if (openCount.numLock == 0 && null != openCount.pending && openCount.pending.size() > 0) {
+                for (final RandomAccessFile f : openCount.pending) {
+                    f.close();
+                }
+                openCount.pending.clear();
+            }
+
             this.lockType = lockType;
 
         } catch (IOException e) {
@@ -550,13 +562,13 @@ public class SqlJetFile implements ISqlJetFile {
 
         if (noLock)
             return false;
-        
+
         if (null == file)
             return false;
 
-        if (null==lockInfo)
+        if (null == lockInfo)
             return false;
-        
+
         /* Check if a thread in this process holds such a lock */
         if (SqlJetLockType.SHARED.compareTo(lockInfo.lockType) < 0)
             return true;

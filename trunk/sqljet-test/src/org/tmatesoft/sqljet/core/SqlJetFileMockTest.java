@@ -295,4 +295,11 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         file2.close();
         Assert.assertFalse(file3.lock(SqlJetLockType.SHARED));
     }
+
+    @Test
+    public void testUnlock() throws Exception {
+        Assert.assertTrue(file.unlock(SqlJetLockType.SHARED));
+        Assert.assertTrue(file.unlock(SqlJetLockType.NONE));
+    }
+    
 }

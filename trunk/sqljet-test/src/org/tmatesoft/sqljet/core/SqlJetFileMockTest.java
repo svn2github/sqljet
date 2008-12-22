@@ -221,6 +221,71 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(lock.get());
         Assert.assertTrue(lock2.get());
     }
+
+    @Test
+    public void testLockSharedThreads2() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertTrue(lock2.get());
+    }
+
+    @Test
+    public void testLockReservedThreads2() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertFalse(lock2.get());
+    }
+
+    @Test
+    public void testLockExclusiveThreads2() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
+                    file.lock(SqlJetLockType.EXCLUSIVE);
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertFalse(lock2.get());
+    }
+
+    @Test
+    public void testLockCheckReservedThreads2() throws Exception {
+        final Future<Boolean> lock = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
+            }
+        });
+        final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
+            public Boolean call() throws Exception {
+                return file.checkReservedLock();
+            }
+        });
+        Assert.assertTrue(lock.get());
+        Assert.assertTrue(lock2.get());
+    }
     
     @Test
     public void testLockClose() throws Exception {

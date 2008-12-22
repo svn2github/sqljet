@@ -161,6 +161,8 @@ public class SqlJetFile implements ISqlJetFile {
             return;
         }
 
+        releaseLockInfo();
+        
         try {
             file.close();
         } catch (IOException e) {
@@ -629,4 +631,28 @@ public class SqlJetFile implements ISqlJetFile {
             openCount.threadsLockInfo.put(currentThread, lockInfo);
         }
     }
+    
+    /**
+     * 
+     */
+    private void releaseLockInfo() {
+        if( null!=lockInfo ){
+            lockInfo.numRef--;
+            if( 0==lockInfo.numRef){
+                if(null!=openCount){
+                    final Thread currentThread = Thread.currentThread();
+                    openCount.threadsLockInfo.remove(currentThread);
+                }
+                this.lockInfo=null;
+            }
+          }
+        if( null!=openCount ){
+            openCount.numRef--;
+            if( 0==openCount.numRef ){
+                filesOpenCounts.remove(filePathAbsolute);
+                this.openCount=null;
+            }
+        }
+    }
+    
 }

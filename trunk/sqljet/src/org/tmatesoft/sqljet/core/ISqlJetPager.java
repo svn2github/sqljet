@@ -22,7 +22,7 @@ package org.tmatesoft.sqljet.core;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface IPager {
+public interface ISqlJetPager {
 
     /*
     ** If defined as non-zero, auto-vacuum is enabled by default. Otherwise
@@ -59,7 +59,7 @@ public interface IPager {
 
     void open(
         String fileName,        /* Name of the database file to open */
-        IPageDestructor xDesc,  /* Page destructor function */
+        ISqlJetPageDestructor xDesc,  /* Page destructor function */
         int nExtra,             /* Extra bytes append to each in-memory page */
         int flags               /* flags controlling this file */
     );

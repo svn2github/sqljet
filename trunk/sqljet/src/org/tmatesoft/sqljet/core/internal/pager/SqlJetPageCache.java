@@ -16,7 +16,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 import java.util.List;
 import java.util.Map;
 
-import org.tmatesoft.sqljet.core.IPageDestructor;
+import org.tmatesoft.sqljet.core.ISqlJetPageDestructor;
 
 /**
  * A complete page cache is an instance of this structure.
@@ -29,15 +29,15 @@ import org.tmatesoft.sqljet.core.IPageDestructor;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class PCache {
+public class SqlJetPageCache {
 
     /*********************************************************************
      ** The first group of elements may be read or written at any time by the
      * cache owner without holding the mutex. No thread other than the cache
      * owner is permitted to access these elements at any time.
      */
-    Page pDirty, pDirtyTail; /* List of dirty pages in LRU order */
-    Page pSynced; /* Last synced page in dirty page list */
+    SqlJetPage pDirty, pDirtyTail; /* List of dirty pages in LRU order */
+    SqlJetPage pSynced; /* Last synced page in dirty page list */
     int nRef; /* Number of pinned pages */
     int nPinned; /* Number of pinned and/or dirty pages */
     int nMax; /* Configured cache size */
@@ -52,10 +52,10 @@ public class PCache {
     int szPage; /* Size of every page in this cache */
     int szExtra; /* Size of extra space for each page */
     boolean bPurgeable; /* True if pages are on backing store */
-    IPageDestructor xDestroy; /* Called when refcnt goes 1->0 */
+    ISqlJetPageDestructor xDestroy; /* Called when refcnt goes 1->0 */
     // int (*xStress)(void*,PgHdr*); /* Call to try make a page clean */
     // void *pStress; /* Argument to xStress */
-    IPageDestructor xStress;
+    ISqlJetPageDestructor xStress;
     /**********************************************************************
      ** The final group of elements can only be accessed while holding the mutex.
      * Both the cache owner and any other thread must hold the mutex to read or
@@ -63,8 +63,8 @@ public class PCache {
      */
     int nPage; /* Total number of pages in apHash */
     int nHash; /* Number of slots in apHash[] */
-    Map<Integer, Page> apHash; /* Hash table for fast lookup by pgno */
-    List<Page> pClean; /* List of clean pages in use */
+    Map<Integer, SqlJetPage> apHash; /* Hash table for fast lookup by pgno */
+    List<SqlJetPage> pClean; /* List of clean pages in use */
 
     static class PCacheGlobal {
         boolean isInit; /* True when initialized */
@@ -73,7 +73,7 @@ public class PCache {
         int nMaxPage; /* Sum of nMaxPage for purgeable caches */
         int nMinPage; /* Sum of nMinPage for purgeable caches */
         int nCurrentPage; /* Number of purgeable pages allocated */
-        Page pLruHead, pLruTail; /* LRU list of unused clean pgs */
+        SqlJetPage pLruHead, pLruTail; /* LRU list of unused clean pgs */
 
         /* Variables related to SQLITE_CONFIG_PAGECACHE settings. */
         int szSlot; /* Size of each free slot */
@@ -83,13 +83,13 @@ public class PCache {
 
     static PCacheGlobal pcache_g = new PCacheGlobal();
 
-    public PCache(int szPage, /* Size of every page */
+    public SqlJetPageCache(int szPage, /* Size of every page */
     int szExtra, /* Extra space associated with each page */
     boolean bPurgeable, /* True if pages are on backing store */
-    IPageDestructor xDestroy, /* Called to destroy a page */
+    ISqlJetPageDestructor xDestroy, /* Called to destroy a page */
     // int (*xStress)(void*,PgHdr*),/* Call to try to make pages clean */
             // void *pStress, /* Argument to xStress */
-            IPageDestructor xStress) {
+            ISqlJetPageDestructor xStress) {
         assert (pcache_g.isInit);
         this.szPage = szPage;
         this.szExtra = szExtra;

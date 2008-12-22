@@ -14,10 +14,11 @@
 package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.io.File;
+import java.util.BitSet;
 
-import org.tmatesoft.sqljet.core.IPage;
-import org.tmatesoft.sqljet.core.IPageDestructor;
-import org.tmatesoft.sqljet.core.IPager;
+import org.tmatesoft.sqljet.core.ISqlJetPage;
+import org.tmatesoft.sqljet.core.ISqlJetPageDestructor;
+import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
 
 /**
@@ -25,7 +26,7 @@ import org.tmatesoft.sqljet.core.ISqlJetLimits;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
+public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDestructor {
 
     /*
      * The page cache as a whole is always in one of the following states:
@@ -156,26 +157,26 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
     int nPage; /* Total number of in-memory pages */
     int mxPage; /* Maximum number of pages to hold in cache */
     int mxPgno; /* Maximum allowed size of the database */
-    Bitvec pInJournal; /* One bit for each page in the database file */
-    Bitvec pInStmt; /* One bit for each page in the database */
-    Bitvec pAlwaysRollback; /* One bit for each page marked always-rollback */
+    BitSet pInJournal; /* One bit for each page in the database file */
+    BitSet pInStmt; /* One bit for each page in the database */
+    BitSet pAlwaysRollback; /* One bit for each page marked always-rollback */
     String zFilename; /* Name of the database file */
     String zJournal; /* Name of the journal file */
     String zDirectory; /* Directory hold database and journal files */
     File fd, jfd; /* File descriptors for database and journal */
     File stfd; /* File descriptor for the statement subjournal */
-    BusyHandler pBusyHandler; /* Pointer to sqlite.busyHandler */
+    SqlJetBusyHandler pBusyHandler; /* Pointer to sqlite.busyHandler */
     long journalOff; /* Current byte offset in the journal file */
     long journalHdr; /* Byte offset to previous journal header */
     long stmtHdrOff; /* First journal header written this statement */
     long stmtCksum; /* cksumInit when statement was started */
     long stmtJSize; /* Size of journal at stmt_begin() */
     int sectorSize; /* Assumed sector size during rollback */
-    IPageDestructor xReiniter; /* Call this routine when reloading pages */
+    ISqlJetPageDestructor xReiniter; /* Call this routine when reloading pages */
     byte[] pTmpSpace; /* Pager.pageSize bytes of space for tmp use */
     byte[] dbFileVers = new byte[16]; /* Changes whenever database file changes */
     long journalSizeLimit; /* Size limit for persistent journal files */
-    PCache pPCache; /* Pointer to page cache object */
+    SqlJetPageCache pPCache; /* Pointer to page cache object */
 
     /*
      * (non-Javadoc)
@@ -183,7 +184,7 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
      * @see org.tmatesoft.sqljet.core.IPager#open(java.lang.String,
      * org.tmatesoft.sqljet.core.IPageDestructor, int, int)
      */
-    public void open(String fileName, IPageDestructor xDesc, int extra, int flags) {
+    public void open(String fileName, ISqlJetPageDestructor xDesc, int extra, int flags) {
 
         nExtra = extra;
         pageSize = SQLJET_DEFAULT_PAGE_SIZE;
@@ -226,7 +227,7 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
 
         // sqlite3PcacheOpen(szPageDflt, nExtra, !memDb, xDesc,
         // !memDb?pagerStress:0, (void *)pPager, pPager->pPCache);
-        pPCache = new PCache(pageSize, nExtra, !memDb, xDesc, !memDb ? this : null);
+        pPCache = new SqlJetPageCache(pageSize, nExtra, !memDb, xDesc, !memDb ? this : null);
 
     }
 
@@ -237,7 +238,7 @@ public class Pager implements IPager, ISqlJetLimits, IPageDestructor {
      * org.tmatesoft.sqljet.core.IPageDestructor#pageDestructor(org.tmatesoft
      * .sqljet.core.IPage)
      */
-    public void pageDestructor(IPage page) {
+    public void pageDestructor(ISqlJetPage page) {
         /*
         ** This function is called by the pcache layer when it has reached some
         ** soft memory limit. The argument is a pointer to a purgeable Pager 

@@ -15,20 +15,20 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.IPage;
+import org.tmatesoft.sqljet.core.ISqlJetPage;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class Page implements IPage {
+public class SqlJetPage implements ISqlJetPage {
 
     byte[] pData;                   /* Content of this page */
     byte[] pExtra;                  /* Extra content */
-    List<Page> pDirty;                 /* Transient list of dirty pages */
+    List<SqlJetPage> pDirty;                 /* Transient list of dirty pages */
     long pgno;                     /* Page number for this page */
-    Pager pPager;                 /* The pager this page is part of */
+    SqlJetPager pPager;                 /* The pager this page is part of */
     long pageHash;                  /* Hash of page content */
     int flags;                     /* PGHDR flags defined below */
     /**********************************************************************
@@ -36,16 +36,16 @@ public class Page implements IPage {
     ** and should not be accessed by other modules.
     */
     int nRef;                      /* Number of users of this page */
-    PCache pCache;                /* Cache that owns this page */
+    SqlJetPageCache pCache;                /* Cache that owns this page */
     Object[] apSave = new Object[2];               /* Journal entries for in-memory databases */
     /**********************************************************************
     ** Elements above are accessible at any time by the owner of the cache
     ** without the need for a mutex.  The elements that follow can only be
     ** accessed while holding the SQLITE_MUTEX_STATIC_LRU mutex.
     */
-    Page pNextHash, pPrevHash;  /* Hash collision chain for PgHdr.pgno */
-    Page pNext, pPrev;          /* List of clean or dirty pages */
-    Page pNextLru, pPrevLru;    /* Part of global LRU list */
+    SqlJetPage pNextHash, pPrevHash;  /* Hash collision chain for PgHdr.pgno */
+    SqlJetPage pNext, pPrev;          /* List of clean or dirty pages */
+    SqlJetPage pNextLru, pPrevLru;    /* Part of global LRU list */
     
     
 }

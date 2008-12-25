@@ -1,5 +1,5 @@
 /**
- * BusyHandler.java
+ * SqlJetPagerFlags.java
  * Copyright (C) 2008 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,15 +11,23 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.pager;
-
-import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
+package org.tmatesoft.sqljet.core;
 
 /**
+ * Allowed values for the flags parameter to {@link ISqlJetPager#open()}.
+ * 
+ * NOTE: This values must match the corresponding BTREE_ values in btree.h.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
-public class SqlJetBusyHandler implements ISqlJetBusyHandler {
+public enum SqlJetPagerFlags {
+
+    /** Do not use a rollback journal */
+    OMIT_JOURNAL,
+
+    /** Omit readlocks on readonly files */
+    NO_READLOCK
 
 }

@@ -39,16 +39,36 @@ package org.tmatesoft.sqljet.core;
  */
 public enum SqlJetDeviceCharacteristics {
 
-    IOCAP_ATOMIC,
-    IOCAP_ATOMIC512,
-    IOCAP_ATOMIC1K,
-    IOCAP_ATOMIC2K,
-    IOCAP_ATOMIC4K,
-    IOCAP_ATOMIC8K,
-    IOCAP_ATOMIC16K,
-    IOCAP_ATOMIC32K,
-    IOCAP_ATOMIC64K,
+    IOCAP_ATOMIC512(512),
+    IOCAP_ATOMIC1K(1024),
+    IOCAP_ATOMIC2K(2*1024),
+    IOCAP_ATOMIC4K(4*1024),
+    IOCAP_ATOMIC8K(8*1024),
+    IOCAP_ATOMIC16K(16*1024),
+    IOCAP_ATOMIC32K(32*1024),
+    IOCAP_ATOMIC64K(64*1024),
     IOCAP_SAFE_APPEND,
-    IOCAP_SEQUENTIAL
+    IOCAP_SEQUENTIAL;
+
+    private int ioCapAtomicSize = 0;
     
+    /**
+     * @return the ioCapAtomicSize
+     */
+    public int getIoCapAtomicSize() {
+        return ioCapAtomicSize;
+    }
+    
+    /**
+     * Set ioCapAtomicSize
+     */
+    private SqlJetDeviceCharacteristics(final int ioCapAtomicSize) {
+        this.ioCapAtomicSize = ioCapAtomicSize;
+    }
+
+    /**
+     * 
+     */
+    private SqlJetDeviceCharacteristics() {
+    }
 }

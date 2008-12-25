@@ -13,55 +13,492 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.io.File;
+import java.util.EnumSet;
+
+import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
+import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
+
 /**
- * This header file defines the interface that the sqlite page cache
- * subsystem.  The page cache subsystem reads and writes a file a page
- * at a time and provides a journal for rollback.
+ * The pages cache subsystem reads and writes a file a page at a time and
+ * provides a journal for rollback.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetPager {
 
-    /*
-    ** If defined as non-zero, auto-vacuum is enabled by default. Otherwise
-    ** it must be turned on for each database using "PRAGMA auto_vacuum = 1".
-    */
-    int SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
+    /**
+     * If defined as non-zero, auto-vacuum is enabled by default. Otherwise it
+     * must be turned on for each database using "PRAGMA auto_vacuum = 1".
+     */
+    int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
 
-    /*
-    ** Allowed values for the flags parameter to sqlite3PagerOpen().
-    **
-    ** NOTE: This values must match the corresponding BTREE_ values in btree.h.
-    */
-    int PAGER_OMIT_JOURNAL =  0x0001;    /* Do not use a rollback journal */
-    int PAGER_NO_READLOCK =   0x0002;    /* Omit readlocks on readonly files */
+    /**
+     * In-memory database's "file-name".
+     */
+    String MEMORY_DB = ":memory:";
 
-    /*
-    ** Valid values for the second argument to sqlite3PagerLockingMode().
-    */
-    int PAGER_LOCKINGMODE_QUERY     =  -1;
-    int PAGER_LOCKINGMODE_NORMAL    =  0;
-    int PAGER_LOCKINGMODE_EXCLUSIVE =  1;
+    /**
+     * Open a new page cache.
+     * 
+     * The file to be cached need not exist. The file is not locked until the
+     * first call to {@link #getPage(int)} and is only held open until the last page
+     * is released using {@link #unref(ISqlJetPage)}.
+     * 
+     * If fileName is null then a randomly-named temporary file is created and
+     * used as the file to be cached. The file will be deleted automatically
+     * when it is closed.
+     * 
+     * If fileName is {@link #MEMORY_DB} then all information is held in cache.
+     * It is never written to disk. This can be used to implement an in-memory
+     * database.
+     * 
+     * @param fs
+     *            The file system to use
+     * @param fileName
+     *            Name of the database file to open
+     * @param xDesc
+     *            Page destructor function
+     * @param nExtra
+     *            Extra bytes append to each in-memory page
+     * @param flags
+     *            flags controlling this file
+     * @param type
+     *            file type passed through to
+     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
+     * @param permissions
+     *            permissions passed through to
+     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
+     * @throws SqlJetException
+     */
+    void open(final ISqlJetFileSystem fs, final File fileName, final ISqlJetPageDestructor xDesc, final int nExtra,
+            final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
+            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
-    /*
-    ** Valid values for the second argument to sqlite3PagerJournalMode().
-    */
-    int PAGER_JOURNALMODE_QUERY    =  -1;
-    int PAGER_JOURNALMODE_DELETE   =   0;   /* Commit by deleting journal file */
-    int PAGER_JOURNALMODE_PERSIST  =   1;   /* Commit by zeroing journal header */
-    int PAGER_JOURNALMODE_OFF      =   2;   /* Journal omitted.  */
+    /**
+     * Return the path of the database file.
+     * 
+     * @return
+     */
+    File getFileName();
+
+    /**
+     * Return the file system for the pager.
+     * 
+     * @return
+     */
+    SqlJetFileSystem getFileSystem();
+
+    /**
+     * Return the file handle for the database file associated with the pager.
+     * This might return NULL if the file has not yet been opened.
+     * 
+     * 
+     * @return
+     */
+    SqlJetFile getFile();
+
+    /**
+     * Return the directory of the database file.
+     * 
+     * @return
+     */
+    File getDirectoryName();
+
+    /**
+     * Return the path of the journal file.
+     * 
+     * @return
+     */
+    File getJournalName();
+
+    /**
+     * Return TRUE if the database file is opened read-only. Return FALSE if the
+     * database is (in theory) writable.
+     * 
+     * @return
+     */
+    boolean isReadOnly();
     
-   /*    
-   * int sqlite3PagerOpen(sqlite3_vfs *, Pager **ppPager, const char*, void(*)(DbPage*), int,int,int);
-   */
+    /**
+     * Return true if fsync() calls are disabled for this pager. Return FALSE if
+     * fsync()s are executed normally.
+     * 
+     * @return
+     */
+    boolean isNoSync();
 
-    void open(
-        String fileName,        /* Name of the database file to open */
-        ISqlJetPageDestructor xDesc,  /* Page destructor function */
-        int nExtra,             /* Extra bytes append to each in-memory page */
-        int flags               /* flags controlling this file */
-    );
+    /**
+     * Get the locking-mode for this pager.
+     *  
+     * @return
+     */
+    SqlJetPagerLockingMode getLockingMode();
+
+    /**
+     * Set the locking-mode for this pager.
+     *  
+     * @param lockingMode
+     * @throws SqlJetException
+     */
+    void setLockingMode(final SqlJetPagerLockingMode lockingMode) throws SqlJetException;
     
+    /**
+     * Get the journal-mode for this pager.
+     * 
+     * @param journalMode
+     * @return
+     */
+    SqlJetPagerJournalMode getJournalMode();
+
+    /**
+     * Set the journal-mode for this pager.
+     *  
+     * @param journalMode
+     * @return
+     */
+    void setJournalMode(final SqlJetPagerJournalMode journalMode) throws SqlJetException;
+    
+    /**
+     * Get the size-limit used for persistent journal files.
+     * 
+     * @return
+     */
+    long getJournalSizeLimit();
+
+    /**
+     * Set the size-limit used for persistent journal files.
+     * 
+     * @param limit
+     * @throws SqlJetException
+     */
+    void setJournalSizeLimit(final long limit) throws SqlJetException;
+    
+    /**
+     * Set safety level
+     * 
+     * @param safetyLevel
+     */
+    void setSafetyLevel(final SqlJetPagerSafetyLevel safetyLevel);
+    
+    /**
+     * Get safety level
+     * 
+     * @return
+     */
+    SqlJetPagerSafetyLevel getSafetyLevel();
+    
+    /**
+     * Return a pointer to the "temporary page" buffer held internally by the
+     * pager. This is a buffer that is big enough to hold the entire content of
+     * a database page. This buffer is used internally during rollback and will
+     * be overwritten whenever a rollback occurs. But other modules are free to
+     * use it too, as long as no rollbacks are happening.
+     * 
+     * @return
+     */
+    byte[] getTempSpace();
+    
+    /**
+     * Set the busy handler function.
+     * 
+     * @param busyHandler
+     */
+    void setBusyhandler(final ISqlJetBusyHandler busyHandler) throws SqlJetException;
+
+    /**
+     * Set the reinitializer for this pager. If not NULL, the reinitializer is
+     * called when the content of a page in cache is restored to its original
+     * value as a result of a rollback. The callback gives higher-level code an
+     * opportunity to restore the EXTRA section to agree with the restored page
+     * data.
+     * 
+     * @param reinitier
+     */
+    void setReiniter(final ISqlJetPageDestructor reinitier) throws SqlJetException;
+
+    /**
+     * 
+     * Set the page size to pageSize. If the suggest new page size is
+     * inappropriate, then an alternative page size is set to that value before
+     * returning.
+     * 
+     * @param pageSize
+     * @return
+     * @throws SqlJetException
+     */
+    int setPageSize(final int pageSize) throws SqlJetException;
+
+    /**
+     * Attempt to set the maximum database page count if mxPage is positive.
+     * Make no changes if mxPage is zero or negative. And never reduce the
+     * maximum page count below the current size of the database.
+     * 
+     * Regardless of mxPage, return the current maximum page count.
+     * 
+     * @param maxPageCount
+     * @return
+     */
+    int setMaxPageCount(final int maxPageCount) throws SqlJetException;
+
+    /**
+     * Change the maximum number of in-memory pages that are allowed.
+     * 
+     * @param cacheSize
+     */
+    void setCacheSize(final int cacheSize) throws SqlJetException;
+    
+    /**
+     * Read the first N bytes from the beginning of the file into memory that
+     * buffer points to.
+     * 
+     * No error checking is done. The rational for this is that this function
+     * may be called even if the file does not exist or contain a header. In
+     * these cases sqlite3OsRead() will return an error, to which the correct
+     * response is to zero the memory at pDest and continue. A real IO error
+     * will presumably recur and be picked up later (Todo: Think about this).
+     * 
+     * @param count
+     * @param buffer
+     */
+    void readFileHeader(final int count, final byte[] buffer) throws SqlJetException;
+
+    /**
+     * Return the total number of pages in the disk file associated with pager.
+     * 
+     * If the PENDING_BYTE lies on the page directly after the end of the file,
+     * then consider this page part of the file too. For example, if
+     * PENDING_BYTE is byte 4096 (the first byte of page 5) and the size of the
+     * file is 4096 bytes, 5 is returned instead of 4.
+     * 
+     * @return pages count
+     * @throws SqlJetException
+     *             if pager is in error state.
+     */
+    int getPageCount() throws SqlJetException;
+    
+    /**
+     * Shutdown the page cache. Free all memory and close all files.
+     * 
+     * If a transaction was in progress when this routine is called, that
+     * transaction is rolled back. All outstanding pages are invalidated and
+     * their memory is freed. Any attempt to use a page associated with this
+     * page cache after this function returns will likely result in a coredump.
+     * 
+     * This function always succeeds. If a transaction is active an attempt is
+     * made to roll it back. If an error occurs during the rollback a hot
+     * journal may be left in the filesystem but no error is returned to the
+     * caller.
+     * 
+     * @throws SqlJetException
+     */
+    void close() throws SqlJetException;
+
+    /**
+     * Acquire a page.
+     * 
+     * A read lock on the disk file is obtained when the first page is acquired.
+     * This read lock is dropped when the last page is released.
+     * 
+     * This routine works for any page number greater than 0. If the database
+     * file is smaller than the requested page, then no actual disk read occurs
+     * and the memory image of the page is initialized to all zeros. The extra
+     * data appended to a page is always initialized to zeros the first time a
+     * page is loaded into memory.
+     * 
+     * The acquisition might fail for several reasons. In all cases, an
+     * appropriate error code is returned and *ppPage is set to NULL.
+     * 
+     * See also {@link #lookupPage(int)}. Both this routine and {@link #lookupPage(int)}
+     * attempt to find a page in the in-memory cache first. If the page is not
+     * already in memory, this routine goes to disk to read it in whereas
+     * {@link #lookupPage(int)} just returns 0. This routine acquires a read-lock
+     * the first time it has to go to disk, and could also playback an old
+     * journal if necessary. Since {@link #lookupPage(int)} never goes to disk, it
+     * never has to deal with locks or journal files.
+     * 
+     * If noContent is false, the page contents are actually read from disk. If
+     * noContent is true, it means that we do not care about the contents of the
+     * page at this time, so do not do a disk read. Just fill in the page
+     * content with zeros. But mark the fact that we have not read the content
+     * by setting the PgHdr.needRead flag. Later on, if sqlite3PagerWrite() is
+     * called on this page or if this routine is called again with noContent==0,
+     * that means that the content is needed and the disk read should occur at
+     * that point.
+     * 
+     * @param pageNumber
+     *            Page number to fetch
+     * @param read
+     *            Do not bother reading content from disk if false
+     * 
+     * @return
+     * 
+     * @throws SqlJetException
+     * 
+     */
+    ISqlJetPage acquirePage(final int pageNumber, final boolean read) throws SqlJetException;
+
+    /**
+     * Just call acquire( pageNumber, true);
+     * 
+     * @param pageNumber
+     *            Page number to fetch
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetPage getPage(final int pageNumber) throws SqlJetException;
+
+    /**
+     * Acquire a page if it is already in the in-memory cache. Do not read the
+     * page from disk. Return a pointer to the page, or null if the page is not
+     * in cache.
+     * 
+     * See also {@link #getPage(int)}. The difference between this routine and
+     * {@link #getPage(int)} is that {@link #getPage(int)} will go to the disk and read
+     * in the page if the page is not already in cache. This routine returns
+     * null if the page is not in cache or if a disk I/O error has ever
+     * happened.
+     * 
+     * @param pageNumber
+     *            Page number to lookup
+     * @return
+     */
+    ISqlJetPage lookupPage(final int pageNumber) throws SqlJetException;
+
+    /**
+     * Truncate the file to the number of pages specified.
+     * 
+     * @param pageNumber
+     * @throws SqlJetException
+     */
+    void truncate(final int pagesNumber) throws SqlJetException;
+
+    /**
+     * Acquire a write-lock on the database. The lock is removed when the any of
+     * the following happen:
+     * 
+     * <ul>
+     * <li>commitPhaseTwo() is called.</li>
+     * <li>rollback() is called.</li>
+     * <li>close() is called.</li>
+     * <li>unref() is called to on every outstanding page.</li>
+     * </ul>
+     * 
+     * The parameter indicates how much space in bytes to reserve for a
+     * master journal file-name at the start of the journal when it is created.
+     * 
+     * A journal file is opened if this is not a temporary file. For temporary
+     * files, the opening of the journal file is deferred until there is an
+     * actual need to write to the journal.
+     * 
+     * If the database is already reserved for writing, this routine is a no-op.
+     * 
+     * If exclusive is true, go ahead and get an EXCLUSIVE lock on the file
+     * immediately instead of waiting until we try to flush the cache. The
+     * exclusive is ignored if a transaction is already active.
+     * 
+     * @param exclusive
+     * @throws SqlJetException
+     */
+    void begin(boolean exclusive) throws SqlJetException;
+
+    /**
+     * Sync the database file for the pager pPager. zMaster points to the name
+     * of a master journal file that should be written into the individual
+     * journal file. zMaster may be NULL, which is interpreted as no master
+     * journal (a single database transaction).
+     * 
+     * This routine ensures that the journal is synced, all dirty pages written
+     * to the database file and the database file synced. The only thing that
+     * remains to commit the transaction is to delete the journal file (or
+     * master journal file if specified).
+     * 
+     * Note that if zMaster==NULL, this does not overwrite a previous value
+     * passed to an sqlite3PagerCommitPhaseOne() call.
+     * 
+     * If parameter nTrunc is non-zero, then the pager file is truncated to
+     * nTrunc pages (this is used by auto-vacuum databases).
+     * 
+     * If the final parameter - noSync - is true, then the database file itself
+     * is not synced. The caller must call sqlite3PagerSync() directly to sync
+     * the database file before calling CommitPhaseTwo() to delete the journal
+     * file in this case.
+     * 
+     * 
+     * @param master
+     * @param pageNumberTrunc
+     * @param noSync
+     * @throws SqlJetException
+     */
+    void commitPhaseOne(final String master, int pageNumberTrunc, boolean noSync) throws SqlJetException;
+
+    /**
+     * Commit all changes to the database and release the write lock.
+     * 
+     * If the commit fails for any reason, a rollback attempt is made and an
+     * error code is returned. If the commit worked, SQLITE_OK is returned.
+     * 
+     * @throws SqlJetException
+     */
+    void commitPhaseTwo() throws SqlJetException;
+
+    /**
+     * Rollback all changes. The database falls back to PAGER_SHARED mode. All
+     * in-memory cache pages revert to their original data contents. The journal
+     * is deleted.
+     * 
+     * This routine cannot fail unless some other process is not following the
+     * correct locking protocol or unless some other process is writing trash
+     * into the journal file (SQLITE_CORRUPT) or unless a prior malloc() failed
+     * (SQLITE_NOMEM). Appropriate error codes are returned for all these
+     * occasions. Otherwise, SQLITE_OK is returned.
+     * 
+     * @throws SqlJetException
+     */
+    void rollback() throws SqlJetException;
+
+    /**
+     * Set the statement rollback point.
+     * 
+     * This routine should be called with the transaction journal already open.
+     * A new statement journal is created that can be used to rollback changes
+     * of a single SQL command within a larger transaction.
+     * 
+     * @throws SqlJetException
+     */
+    void stmtBegin() throws SqlJetException;
+
+    /**
+     * Commit a statement.
+     * 
+     * @throws SqlJetException
+     */
+    void stmtCommit() throws SqlJetException;
+
+    /**
+     * Rollback a statement.
+     * 
+     * @throws SqlJetException
+     */
+    void stmtRollback() throws SqlJetException;
+
+
+    /**
+     * Return the number of references to the pager.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    int refCount() throws SqlJetException;
+
+
+    /**
+     * Sync the pager file to disk.
+     * 
+     * @throws SqlJetException
+     */
+    void sync() throws SqlJetException;
+
 }

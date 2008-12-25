@@ -180,7 +180,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * @return
      * @throws IOException
      */
-    public static File getTempFile() throws IOException {
+    public File getTempFile() throws IOException {
         return File.createTempFile(SQLJET_TEMP_FILE_PREFIX, null);
     }
 

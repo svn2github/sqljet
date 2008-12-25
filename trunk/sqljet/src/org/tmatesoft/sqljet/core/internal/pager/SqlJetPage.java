@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetPage;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
@@ -47,5 +48,61 @@ public class SqlJetPage implements ISqlJetPage {
     SqlJetPage pNext, pPrev;          /* List of clean or dirty pages */
     SqlJetPage pNextLru, pPrevLru;    /* Part of global LRU list */
     
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#dontRollback()
+     */
+    public void dontRollback() throws SqlJetException {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#dontWrite()
+     */
+    public void dontWrite() throws SqlJetException {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getData()
+     */
+    public byte[] getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getExtra()
+     */
+    public byte[] getExtra() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#move(int, boolean)
+     */
+    public void move(int pageNumber, boolean isCommit) throws SqlJetException {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#ref()
+     */
+    public void ref() {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#unref()
+     */
+    public void unref() {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#write()
+     */
+    public void write() throws SqlJetException {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

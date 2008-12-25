@@ -1,5 +1,5 @@
 /**
- * BusyHandler.java
+ * ISqlJetBusyHandler.java
  * Copyright (C) 2008 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,15 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.pager;
-
-import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
+package org.tmatesoft.sqljet.core;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetBusyHandler implements ISqlJetBusyHandler {
+public interface ISqlJetBusyHandler {
 
 }

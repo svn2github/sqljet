@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.EnumSet;
 
 /**
@@ -177,4 +178,5 @@ public interface ISqlJetFileSystem {
      */
     long currentTime() throws SqlJetException;
 
+    File getTempFile() throws IOException;    
 }

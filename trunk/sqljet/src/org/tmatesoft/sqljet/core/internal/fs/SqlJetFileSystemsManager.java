@@ -40,6 +40,11 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
      * Protected constructor 
      */
     protected SqlJetFileSystemsManager() {
+        try {
+            register(new SqlJetFileSystem(), true);
+        } catch (SqlJetException e) {
+            e.printStackTrace();
+        }
     }
     
     /**

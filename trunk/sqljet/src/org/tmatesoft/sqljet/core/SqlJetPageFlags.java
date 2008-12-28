@@ -1,5 +1,5 @@
 /**
- * IPageDestructor.java
+ * SqlJetPageFlags.java
  * Copyright (C) 2008 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,18 +13,34 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import org.tmatesoft.sqljet.core.internal.pager.SqlJetPage;
+
 /**
+ * Bit values for {@link SqlJetPage#flags}
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetPageDestructor {
+public enum SqlJetPageFlags {
 
-    /*
-    ** This routine is called when the reference count for a page
-    ** reaches zero.  We need to unref the pParent pointer when that
-    ** happens.
-    */
-    void pageDestructor(ISqlJetPage page);
+    /** Page is in rollback journal */
+    IN_JOURNAL,
+    
+    /** Page has changed */
+    DIRTY,  
+    
+    /** Fsync the rollback journal before
+     * writing this page to the database */
+    NEED_SYNC,  
+    
+    /** Content is unread */
+    NEED_READ,  
+    
+    /** A hint that reuse is unlikely */
+    REUSE_UNLIKELY,  
+    
+    /** Do not write content to disk */
+    DONT_WRITE  
     
 }

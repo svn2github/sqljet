@@ -23,7 +23,7 @@ import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetPageDestructor;
+import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
@@ -42,7 +42,7 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDestructor {
+public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
 
     /**
      * The minimum sector size is 512
@@ -153,7 +153,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDest
     long stmtCksum; /* cksumInit when statement was started */
     long stmtJSize; /* Size of journal at stmt_begin() */
     int sectorSize; /* Assumed sector size during rollback */
-    ISqlJetPageDestructor xReiniter; /* Call this routine when reloading pages */
+    ISqlJetPageCallback xReiniter; /* Call this routine when reloading pages */
     byte[] tmpSpace; /* Pager.pageSize bytes of space for tmp use */
     byte[] dbFileVers = new byte[16]; /* Changes whenever database file changes */
     long journalSizeLimit; /* Size limit for persistent journal files */
@@ -168,7 +168,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDest
      * org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet,
      * org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)
      */
-    public void open(final ISqlJetFileSystem fileSystem, final File fileName, final ISqlJetPageDestructor xDesc,
+    public void open(final ISqlJetFileSystem fileSystem, final File fileName, final ISqlJetPageCallback xDesc,
             final int nExtra, final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
@@ -243,7 +243,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDest
 
         this.tmpSpace = new byte[szPageDflt];
 
-        pPCache = new SqlJetPageCache(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
+        pPCache = new SqlJetPageCache();
+        pPCache.open(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
 
         this.useJournal = null == flags || !flags.contains(SqlJetPagerFlags.OMIT_JOURNAL);
         this.noReadlock = null != flags && flags.contains(SqlJetPagerFlags.NO_READLOCK) && this.readOnly;
@@ -293,7 +294,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDest
      * org.tmatesoft.sqljet.core.ISqlJetPageDestructor#pageDestructor(org.tmatesoft
      * .sqljet.core.ISqlJetPage)
      */
-    public void pageDestructor(final ISqlJetPage page) {
+    public void pageCallback(final ISqlJetPage page) {
         /*
          * This function is called by the pcache layer when it has reached some
          * soft memory limit. The argument is a pointer to a purgeable Pager
@@ -539,7 +540,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageDest
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setReiniter(org.tmatesoft.sqljet.core.ISqlJetPageDestructor)
      */
-    public void setReiniter(ISqlJetPageDestructor reinitier) throws SqlJetException {
+    public void setReiniter(ISqlJetPageCallback reinitier) throws SqlJetException {
         // TODO Auto-generated method stub
         
     }

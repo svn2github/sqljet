@@ -73,7 +73,7 @@ public interface ISqlJetPager {
      *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
      * @throws SqlJetException
      */
-    void open(final ISqlJetFileSystem fs, final File fileName, final ISqlJetPageDestructor xDesc, final int nExtra,
+    void open(final ISqlJetFileSystem fs, final File fileName, final ISqlJetPageCallback xDesc, final int nExtra,
             final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
@@ -217,7 +217,7 @@ public interface ISqlJetPager {
      * 
      * @param reinitier
      */
-    void setReiniter(final ISqlJetPageDestructor reinitier) throws SqlJetException;
+    void setReiniter(final ISqlJetPageCallback reinitier) throws SqlJetException;
 
     /**
      * 

@@ -13,10 +13,13 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetPage;
+import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetPageFlags;
 
 /**
  * @author TMate Software Ltd.
@@ -29,9 +32,9 @@ public class SqlJetPage implements ISqlJetPage {
     byte[] pExtra;                  /* Extra content */
     List<SqlJetPage> pDirty;                 /* Transient list of dirty pages */
     long pgno;                     /* Page number for this page */
-    SqlJetPager pPager;                 /* The pager this page is part of */
+    ISqlJetPager pPager;                 /* The pager this page is part of */
     long pageHash;                  /* Hash of page content */
-    int flags;                     /* PGHDR flags defined below */
+    EnumSet<SqlJetPageFlags> flags; /* PGHDR flags defined below */
     /**********************************************************************
     ** Elements above are public.  All that follows is private to pcache.c
     ** and should not be accessed by other modules.

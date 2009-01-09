@@ -266,7 +266,7 @@ public interface ISqlJetPageCache {
      * 
      * @param cacheSize
      */
-    void setCachesize(final int cacheSize);
+    void setCacheSize(final int cacheSize);
 
     /* Try to return memory used by the pcache module to the main memory heap */
     // int ReleaseMemory(int);

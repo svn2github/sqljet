@@ -113,12 +113,15 @@ public interface ISqlJetLimits {
     */
     int SQLJET_MAX_VARIABLE_NUMBER = 999;
 
+
     /** Maximum page size.  The upper bound on this value is 32768.  This a limit
     ** imposed by the necessity of storing the value in a 2-byte unsigned integer
     ** and the fact that the page size must be a power of 2.
     */
     int SQLJET_MAX_PAGE_SIZE = 32768;
 
+    int SQLJET_MIN_PAGE_SIZE = 512;
+    
 
     /**
     ** The default size of a database page.

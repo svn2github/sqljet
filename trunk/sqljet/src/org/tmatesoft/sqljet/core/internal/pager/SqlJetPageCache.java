@@ -389,7 +389,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#setCachesize(int)
      */
-    public void setCachesize(int cacheSize) {
+    public void setCacheSize(int cacheSize) {
         // TODO Auto-generated method stub
 
     }

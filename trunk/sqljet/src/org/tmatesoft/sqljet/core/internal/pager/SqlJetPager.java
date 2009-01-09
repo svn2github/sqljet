@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
 
@@ -27,15 +28,18 @@ import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.SqlJetFileType;
+import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
+import org.tmatesoft.sqljet.core.SqlJetIOException;
+import org.tmatesoft.sqljet.core.SqlJetLockType;
 import org.tmatesoft.sqljet.core.SqlJetPagerFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.SqlJetPagerLockingMode;
 import org.tmatesoft.sqljet.core.SqlJetPagerSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
-import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
 
 /**
  * @author TMate Software Ltd.
@@ -43,59 +47,6 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
  * 
  */
 public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
-
-    /**
-     * The minimum sector size is 512
-     */
-    private static final int SQLJET_MIN_SECTOR_SIZE = 512;
-
-    final static String JOURNAL = "-journal";
-
-    /*
-     * If the SQLJET_BUSY_RESERVED_LOCK poperty is set to true at compile-time,
-     * then failed attempts to get a reserved lock will invoke the busy
-     * callback. This is off by default. To see why, consider the following
-     * scenario:
-     * 
-     * Suppose thread A already has a shared lock and wants a reserved lock.
-     * Thread B already has a reserved lock and wants an exclusive lock. If both
-     * threads are using their busy callbacks, it might be a long time be for
-     * one of the threads give up and allows the other to proceed. But if the
-     * thread trying to get the reserved lock gives up quickly (if it never
-     * invokes its busy callback) then the contention will be resolved quickly.
-     */
-
-    public static int SQLJET_BUSY_RESERVED_LOCK = 0;
-
-    /*
-     * Journal files begin with the following magic string. The data was
-     * obtained from /dev/random. It is used only as a sanity check.
-     * 
-     * Since version 2.8.0, the journal format contains additional sanity
-     * checking information. If the power fails while the journal is begin
-     * written, semi-random garbage data might appear in the journal file after
-     * power is restored. If an attempt is then made to roll the journal back,
-     * the database could be corrupted. The additional sanity checking data is
-     * an attempt to discover the garbage in the journal and ignore it.
-     * 
-     * The sanity checking information for the new journal format consists of a
-     * 32-bit checksum on each page of data. The checksum covers both the page
-     * number and the pPager->pageSize bytes of data for the page. This cksum is
-     * initialized to a 32-bit random value that appears in the journal file
-     * right after the header. The random initializer is important, because
-     * garbage data that appears at the end of a journal is likely data that was
-     * once in other files that have now been deleted. If the garbage data came
-     * from an obsolete journal file, the checksums might be correct. But by
-     * initializing the checksum to random value which is different for every
-     * journal, we minimize that risk.
-     */
-    static final byte[] aJournalMagic = { (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1,
-            (byte) 0x63, (byte) 0xd7 };
-
-    /*
-     * The maximum legal page number is (2^31 - 1).
-     */
-    public static final int PAGER_MAX_PGNO = 2147483647;
 
     ISqlJetFileSystem fileSystem;
     SqlJetFileType type;
@@ -126,7 +77,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     boolean dbModified; /* True if there are any changes to the Db */
     boolean changeCountDone; /* Set after incrementing the change-counter */
 
-    int errCode; /* One of several kinds of errors */
     int dbSize; /* Number of pages in the file */
     int origDbSize; /* dbSize before the current change */
     int stmtSize; /* Size of database (in pages) at stmt_begin() */
@@ -144,20 +94,28 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     File fileName; /* Name of the database file */
     File journal; /* Name of the journal file */
     File directory; /* Directory hold database and journal files */
-    ISqlJetFile fd, jfd; /* File descriptors for database and journal */
+    ISqlJetFile file, jfd; /* File descriptors for database and journal */
     ISqlJetFile stfd; /* File descriptor for the statement subjournal */
-    SqlJetBusyHandler pBusyHandler; /* Pointer to sqlite.busyHandler */
     long journalOff; /* Current byte offset in the journal file */
     long journalHdr; /* Byte offset to previous journal header */
     long stmtHdrOff; /* First journal header written this statement */
     long stmtCksum; /* cksumInit when statement was started */
     long stmtJSize; /* Size of journal at stmt_begin() */
     int sectorSize; /* Assumed sector size during rollback */
-    ISqlJetPageCallback xReiniter; /* Call this routine when reloading pages */
     byte[] tmpSpace; /* Pager.pageSize bytes of space for tmp use */
     byte[] dbFileVers = new byte[16]; /* Changes whenever database file changes */
     long journalSizeLimit; /* Size limit for persistent journal files */
-    SqlJetPageCache pPCache; /* Pointer to page cache object */
+    SqlJetPageCache pCache; /* Pointer to page cache object */
+
+    private SqlJetPagerSafetyLevel safetyLevel;
+
+    private ISqlJetPageCallback reiniter; /*
+                                           * Call this routine when reloading
+                                           * pages
+                                           */
+    private ISqlJetBusyHandler busyHandler;
+
+    private SqlJetErrorCode errCode; /* One of several kinds of errors */
 
     /*
      * (non-Javadoc)
@@ -198,8 +156,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             this.directory = this.fileName.getParentFile();
             this.journal = new File(this.directory, this.fileName.getName() + JOURNAL);
 
-            this.fd = this.fileSystem.open(this.fileName, this.type, this.permissions);
-            this.readOnly = this.fd.getPermissions().contains(SqlJetFileOpenPermission.READONLY);
+            this.file = this.fileSystem.open(this.fileName, this.type, this.permissions);
+            this.readOnly = this.file.getPermissions().contains(SqlJetFileOpenPermission.READONLY);
 
             /*
              * If the file was successfully opened for read/write access, choose
@@ -212,12 +170,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              */
             if (!this.readOnly) {
 
-                int iSectorSize = this.fd.sectorSize();
+                int iSectorSize = this.file.sectorSize();
                 if (szPageDflt < iSectorSize) {
                     szPageDflt = iSectorSize;
                 }
 
-                final EnumSet<SqlJetDeviceCharacteristics> dcs = this.fd.deviceCharacteristics();
+                final EnumSet<SqlJetDeviceCharacteristics> dcs = this.file.deviceCharacteristics();
                 if (null != dcs) {
                     for (final SqlJetDeviceCharacteristics dc : dcs) {
                         if (dc.getIoCapAtomicSize() > 0)
@@ -243,8 +201,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         this.tmpSpace = new byte[szPageDflt];
 
-        pPCache = new SqlJetPageCache();
-        pPCache.open(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
+        pCache = new SqlJetPageCache();
+        pCache.open(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
 
         this.useJournal = null == flags || !flags.contains(SqlJetPagerFlags.OMIT_JOURNAL);
         this.noReadlock = null != flags && flags.contains(SqlJetPagerFlags.NO_READLOCK) && this.readOnly;
@@ -263,7 +221,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         this.nExtra = nExtra;
         this.journalSizeLimit = SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT;
 
-        assertion(null != this.fd || this.memDb || this.tempFile);
+        assertion(null != this.file || this.memDb || this.tempFile);
         if (!this.memDb) {
             setSectorSize();
         }
@@ -277,14 +235,449 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * {@link SqlJetFile#sectorSize()}.
      */
     private void setSectorSize() throws SqlJetException {
-        assertion(null != this.fd || this.tempFile);
-        if ( !this.tempFile && null != this.fd ) {
+        assertion(null != this.file || this.tempFile);
+        if (!this.tempFile && null != this.file) {
             /* Sector size doesn't matter for temporary files. */
-            this.sectorSize = this.fd.sectorSize();
+            this.sectorSize = this.file.sectorSize();
         }
         if (this.sectorSize < SQLJET_MIN_SECTOR_SIZE) {
             this.sectorSize = SQLJET_MIN_SECTOR_SIZE;
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getDirectoryName()
+     */
+    public File getDirectoryName() {
+        return directory;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileName()
+     */
+    public File getFileName() {
+        return fileName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileSystem()
+     */
+    public ISqlJetFileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFile()
+     */
+    public ISqlJetFile getFile() {
+        return file;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalName()
+     */
+    public File getJournalName() {
+        return journal;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#isNoSync()
+     */
+    public boolean isNoSync() {
+        return noSync;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#isReadOnly()
+     */
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getLockingMode()
+     */
+    public SqlJetPagerLockingMode getLockingMode() {
+        return lockingMode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#setLockingMode(org.tmatesoft.sqljet
+     * .core.SqlJetPagerLockingMode)
+     */
+    public void setLockingMode(final SqlJetPagerLockingMode lockingMode) throws SqlJetException {
+        this.lockingMode = lockingMode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalMode()
+     */
+    public SqlJetPagerJournalMode getJournalMode() {
+        return journalMode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#setJournalMode(org.tmatesoft.sqljet
+     * .core.SqlJetPagerJournalMode)
+     */
+    public void setJournalMode(final SqlJetPagerJournalMode journalMode) throws SqlJetException {
+        this.journalMode = journalMode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalSizeLimit()
+     */
+    public long getJournalSizeLimit() {
+        return journalSizeLimit;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setJournalSizeLimit(long)
+     */
+    public void setJournalSizeLimit(final long limit) throws SqlJetException {
+        if (limit >= -1)
+            journalSizeLimit = limit;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getSafetyLevel()
+     */
+    public SqlJetPagerSafetyLevel getSafetyLevel() {
+        return safetyLevel;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#setSafetyLevel(org.tmatesoft.sqljet
+     * .core.SqlJetPagerSafetyLevel)
+     */
+    public void setSafetyLevel(final SqlJetPagerSafetyLevel safetyLevel) {
+        this.safetyLevel = safetyLevel;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getTempSpace()
+     */
+    public byte[] getTempSpace() {
+        return tmpSpace;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#setBusyhandler(org.tmatesoft.sqljet
+     * .core.ISqlJetBusyHandler)
+     */
+    public void setBusyhandler(final ISqlJetBusyHandler busyHandler) throws SqlJetException {
+        this.busyHandler = busyHandler;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#setReiniter(org.tmatesoft.sqljet
+     * .core.ISqlJetPageDestructor)
+     */
+    public void setReiniter(final ISqlJetPageCallback reinitier) throws SqlJetException {
+        this.reiniter = reinitier;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setPagesize(int)
+     */
+    public void setPageSize(final int pageSize) throws SqlJetException {
+        checkErrorCode();
+        assertion(pageSize >= SQLJET_MIN_PAGE_SIZE && pageSize <= SQLJET_MAX_PAGE_SIZE);
+        if (pageSize != this.pageSize && (!this.memDb || this.dbSize == 0) && pCache.getRefCount() == 0) {
+            reset();
+            this.pageSize = pageSize;
+            if (!this.memDb)
+                setSectorSize();
+            this.tmpSpace = new byte[pageSize];
+            pCache.setPageSize(pageSize);
+        }
+
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void checkErrorCode() throws SqlJetException {
+        if (null != errCode)
+            throw new SqlJetException(errCode);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getPagesize()
+     */
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    /**
+     * Clear the in-memory cache. This routine sets the state of the pager back
+     * to what it was when it was first opened. Any outstanding pages are
+     * invalidated and subsequent attempts to access those pages will likely
+     * result in a coredump.
+     * 
+     * @throws SqlJetException
+     */
+    private void reset() {
+        if (null != errCode)
+            return;
+        try {
+            pCache.clear();
+        } catch (final SqlJetException e) {
+            // e.printStackTrace();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setMaxPageCount(int)
+     */
+    public void setMaxPageCount(int maxPageCount) throws SqlJetException {
+        if (maxPageCount > 0) {
+            this.mxPgno = maxPageCount;
+        }
+        getPageCount();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setMaxPageCount()
+     */
+    public int getMaxPageCount() {
+        return mxPgno;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setCacheSize(int)
+     */
+    public void setCacheSize(int cacheSize) throws SqlJetException {
+        pCache.setCacheSize(cacheSize);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#readFileHeader(int, byte[])
+     */
+    public void readFileHeader(final int count, final byte[] buffer) throws SqlJetException {
+        Arrays.fill(buffer, 0, count, (byte) 0);
+        assertion(memDb || null != file || tempFile);
+        if (null != file) {
+            try {
+                file.read(buffer, count, 0);
+            } catch (final SqlJetIOException e) {
+                if (SqlJetIOErrorCode.IOERR_SHORT_READ != e.getIoErrorCode())
+                    throw e;
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getPageCount()
+     */
+    public int getPageCount() throws SqlJetException {
+        checkErrorCode();
+
+        int n = 0;
+
+        if (dbSize >= 0) {
+            n = dbSize;
+        } else {
+            assertion(null != file || tempFile);
+            long l = 0;
+            if (null != file) {
+                try {
+                    l = file.fileSize();
+                } catch (SqlJetException e) {
+                    error(e);
+                    throw e;
+                }
+            }
+            if (l > 0 && l < pageSize) {
+                n = 1;
+            } else {
+                l /= pageSize;
+                n = (new Long(l)).intValue();
+            }
+            if (SqlJetPagerState.UNLOCK != state) {
+                dbSize = n;
+            }
+        }
+        if (n == (ISqlJetFile.PENDING_BYTE / pageSize)) {
+            n++;
+        }
+        if (n > mxPgno) {
+            mxPgno = n;
+        }
+        return n;
+    }
+
+    /**
+     * This function should be called when an error occurs within the pager
+     * code. The first argument is a pointer to the pager structure, the second
+     * the error-code about to be returned by a pager API function. The value
+     * returned is a copy of the second argument to this function.
+     * 
+     * If the second argument is SQLITE_IOERR, SQLITE_CORRUPT, or SQLITE_FULL
+     * the error becomes persistent. Until the persisten error is cleared,
+     * subsequent API calls on this Pager will immediately return the same error
+     * code.
+     * 
+     * A persistent error indicates that the contents of the pager-cache cannot
+     * be trusted. This state can be cleared by completely discarding the
+     * contents of the pager-cache. If a transaction was active when the
+     * persistent error occured, then the rollback journal may need to be
+     * replayed.
+     * 
+     * @param e
+     */
+    private void error(final SqlJetException e) {
+        final SqlJetErrorCode c = e.getErrorCode();
+        if (SqlJetErrorCode.FULL == c || SqlJetErrorCode.IOERR == c || SqlJetErrorCode.CORRUPT == c) {
+            errCode = c;
+            if (SqlJetPagerState.UNLOCK == state && pCache.getRefCount() == 0) {
+                /*
+                 * If the pager is already unlocked, call pager_unlock() now to
+                 * clear the error state and ensure that the pager-cache is
+                 * completely empty.
+                 */
+                unlock();
+            }
+        }
+    }
+
+    /**
+     * Unlock the database file.
+     * 
+     * If the pager is currently in error state, discard the contents of the
+     * cache and reset the Pager structure internal state. If there is an open
+     * journal-file, then the next time a shared-lock is obtained on the pager
+     * file (by this or any other process), it will be treated as a hot-journal
+     * and rolled back.
+     * 
+     */
+    private void unlock() {
+        if (SqlJetPagerLockingMode.EXCLUSIVE != lockingMode) {
+            if (!memDb) {
+
+                errCode = null;
+                try {
+                    if (null != file)
+                        file.unlock(SqlJetLockType.NONE);
+                } catch (final SqlJetException e) {
+                    errCode = e.getErrorCode();
+                }
+
+                dbSize = -1;
+
+                /*
+                 * Always close the journal file when dropping the database
+                 * lock. Otherwise, another connection with journal_mode=delete
+                 * might delete the file out from under us.
+                 */
+                if (journalOpen) {
+                    if (null != jfd)
+                        try {
+                            jfd.close();
+                        } catch (final SqlJetException e) {
+                            // e.printStackTrace();
+                        }
+                    journalOpen = false;
+                    if (null != pInJournal) {
+                        pInJournal.clear();
+                    } else {
+                        pInJournal = new BitSet();
+                    }
+                    if (null != pAlwaysRollback) {
+                        pAlwaysRollback.clear();
+                    } else {
+                        pAlwaysRollback = new BitSet();
+                    }
+                }
+
+                /*
+                 * If Pager.errCode is set, the contents of the pager cache
+                 * cannot be trusted. Now that the pager file is unlocked, the
+                 * contents of the cache can be discarded and the error code
+                 * safely cleared.
+                 */
+                if (null != errCode) {
+                    errCode = null;
+                    reset();
+                    if (stmtOpen) {
+                        if (null != stfd)
+                            try {
+                                stfd.close();
+                            } catch (final SqlJetException e) {
+                                // e.printStackTrace();
+                            }
+                        pInStmt.clear();
+                    }
+                    stmtOpen = false;
+                    stmtInUse = false;
+                    journalOff = 0;
+                    journalStarted = false;
+                    stmtAutoopen = false;
+                    origDbSize = 0;
+                }
+            }
+
+            if (!memDb || null == errCode) {
+                state = SqlJetPagerState.UNLOCK;
+                changeCountDone = false;
+            }
+        }
+
     }
 
     /*
@@ -305,7 +698,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         // TODO Auto-generated method stub
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#acquire(int, boolean)
      */
     public ISqlJetPage acquirePage(int pageNumber, boolean read) throws SqlJetException {
@@ -313,39 +708,51 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         return null;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#begin(boolean)
      */
     public void begin(boolean exclusive) throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#close()
      */
     public void close() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#commitPhaseOne(java.lang.String, int, boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetPager#commitPhaseOne(java.lang.String,
+     * int, boolean)
      */
     public void commitPhaseOne(String master, int pageNumberTrunc, boolean noSync) throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#commitPhaseTwo()
      */
     public void commitPhaseTwo() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#get(int)
      */
     public ISqlJetPage getPage(int pageNumber) throws SqlJetException {
@@ -353,103 +760,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getDirectoryName()
-     */
-    public File getDirectoryName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFile()
-     */
-    public SqlJetFile getFile() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileName()
-     */
-    public File getFileName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileSystem()
-     */
-    public SqlJetFileSystem getFileSystem() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalMode()
-     */
-    public SqlJetPagerJournalMode getJournalMode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalName()
-     */
-    public File getJournalName() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalSizeLimit()
-     */
-    public long getJournalSizeLimit() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getLockingMode()
-     */
-    public SqlJetPagerLockingMode getLockingMode() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getPageCount()
-     */
-    public int getPageCount() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getTempSpace()
-     */
-    public byte[] getTempSpace() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#isNoSync()
-     */
-    public boolean isNoSync() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#isReadOnly()
-     */
-    public boolean isReadOnly() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#lookup(int)
      */
     public ISqlJetPage lookupPage(int pageNumber) throws SqlJetException {
@@ -457,15 +770,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#readFileHeader(int, byte[])
-     */
-    public void readFileHeader(int count, byte[] buffer) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#refCount()
      */
     public int refCount() throws SqlJetException {
@@ -473,131 +780,64 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         return 0;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#rollback()
      */
     public void rollback() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setBusyhandler(org.tmatesoft.sqljet.core.ISqlJetBusyHandler)
-     */
-    public void setBusyhandler(ISqlJetBusyHandler busyHandler) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setCacheSize(int)
-     */
-    public void setCacheSize(int cacheSize) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setJournalMode(org.tmatesoft.sqljet.core.SqlJetPagerJournalMode)
-     */
-    public void setJournalMode(SqlJetPagerJournalMode journalMode) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setJournalSizeLimit(long)
-     */
-    public void setJournalSizeLimit(long limit) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setLockingMode(org.tmatesoft.sqljet.core.SqlJetPagerLockingMode)
-     */
-    public void setLockingMode(SqlJetPagerLockingMode lockingMode) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setMaxPageCount(int)
-     */
-    public int setMaxPageCount(int maxPageCount) throws SqlJetException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setPagesize(int)
-     */
-    public int setPageSize(int pageSize) throws SqlJetException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setReiniter(org.tmatesoft.sqljet.core.ISqlJetPageDestructor)
-     */
-    public void setReiniter(ISqlJetPageCallback reinitier) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#stmtBegin()
      */
     public void stmtBegin() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#stmtCommit()
      */
     public void stmtCommit() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#stmtRollback()
      */
     public void stmtRollback() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#sync()
      */
     public void sync() throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#truncate(int)
      */
     public void truncate(int pagesNumber) throws SqlJetException {
         // TODO Auto-generated method stub
-        
+
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#getSafetyLevel()
-     */
-    public SqlJetPagerSafetyLevel getSafetyLevel() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#setSafetyLevel(org.tmatesoft.sqljet.core.SqlJetPagerSafetyLevel)
-     */
-    public void setSafetyLevel(SqlJetPagerSafetyLevel safetyLevel) {
-        // TODO Auto-generated method stub
-        
-    }
 }

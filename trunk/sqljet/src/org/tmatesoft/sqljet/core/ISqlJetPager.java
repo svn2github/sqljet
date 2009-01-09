@@ -16,8 +16,6 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
-import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
 
 /**
  * The pages cache subsystem reads and writes a file a page at a time and
@@ -28,6 +26,58 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystem;
  * 
  */
 public interface ISqlJetPager {
+
+    /**
+     * The minimum sector size is 512
+     */
+    int SQLJET_MIN_SECTOR_SIZE = 512;
+
+    String JOURNAL = "-journal";
+
+    /**
+     * If the SQLJET_BUSY_RESERVED_LOCK poperty is set to true at compile-time,
+     * then failed attempts to get a reserved lock will invoke the busy
+     * callback. This is off by default. To see why, consider the following
+     * scenario:
+     * 
+     * Suppose thread A already has a shared lock and wants a reserved lock.
+     * Thread B already has a reserved lock and wants an exclusive lock. If both
+     * threads are using their busy callbacks, it might be a long time be for
+     * one of the threads give up and allows the other to proceed. But if the
+     * thread trying to get the reserved lock gives up quickly (if it never
+     * invokes its busy callback) then the contention will be resolved quickly.
+     */
+    int SQLJET_BUSY_RESERVED_LOCK = 0;
+
+    /**
+     * Journal files begin with the following magic string. The data was
+     * obtained from /dev/random. It is used only as a sanity check.
+     * 
+     * Since version 2.8.0, the journal format contains additional sanity
+     * checking information. If the power fails while the journal is begin
+     * written, semi-random garbage data might appear in the journal file after
+     * power is restored. If an attempt is then made to roll the journal back,
+     * the database could be corrupted. The additional sanity checking data is
+     * an attempt to discover the garbage in the journal and ignore it.
+     * 
+     * The sanity checking information for the new journal format consists of a
+     * 32-bit checksum on each page of data. The checksum covers both the page
+     * number and the pPager->pageSize bytes of data for the page. This cksum is
+     * initialized to a 32-bit random value that appears in the journal file
+     * right after the header. The random initializer is important, because
+     * garbage data that appears at the end of a journal is likely data that was
+     * once in other files that have now been deleted. If the garbage data came
+     * from an obsolete journal file, the checksums might be correct. But by
+     * initializing the checksum to random value which is different for every
+     * journal, we minimize that risk.
+     */
+    byte[] aJournalMagic = { (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1,
+                (byte) 0x63, (byte) 0xd7 };
+
+    /**
+     * The maximum legal page number is (2^31 - 1).
+     */
+    int PAGER_MAX_PGNO = 2147483647;
 
     /**
      * If defined as non-zero, auto-vacuum is enabled by default. Otherwise it
@@ -85,22 +135,6 @@ public interface ISqlJetPager {
     File getFileName();
 
     /**
-     * Return the file system for the pager.
-     * 
-     * @return
-     */
-    SqlJetFileSystem getFileSystem();
-
-    /**
-     * Return the file handle for the database file associated with the pager.
-     * This might return NULL if the file has not yet been opened.
-     * 
-     * 
-     * @return
-     */
-    SqlJetFile getFile();
-
-    /**
      * Return the directory of the database file.
      * 
      * @return
@@ -113,6 +147,22 @@ public interface ISqlJetPager {
      * @return
      */
     File getJournalName();
+    
+    /**
+     * Return the file system for the pager.
+     * 
+     * @return
+     */
+    ISqlJetFileSystem getFileSystem();
+
+    /**
+     * Return the file handle for the database file associated with the pager.
+     * This might return NULL if the file has not yet been opened.
+     * 
+     * 
+     * @return
+     */
+    ISqlJetFile getFile();
 
     /**
      * Return TRUE if the database file is opened read-only. Return FALSE if the
@@ -229,20 +279,31 @@ public interface ISqlJetPager {
      * @return
      * @throws SqlJetException
      */
-    int setPageSize(final int pageSize) throws SqlJetException;
+    void setPageSize(final int pageSize) throws SqlJetException;
 
+    /**
+     * Get the page size.
+     * 
+     * @return
+     */
+    int getPageSize();
+    
     /**
      * Attempt to set the maximum database page count if mxPage is positive.
      * Make no changes if mxPage is zero or negative. And never reduce the
      * maximum page count below the current size of the database.
      * 
-     * Regardless of mxPage, return the current maximum page count.
-     * 
      * @param maxPageCount
+     */
+    void setMaxPageCount(final int maxPageCount) throws SqlJetException;
+
+    /**
+     * Return the current maximum page count.
+     * 
      * @return
      */
-    int setMaxPageCount(final int maxPageCount) throws SqlJetException;
-
+    int getMaxPageCount();
+    
     /**
      * Change the maximum number of in-memory pages that are allowed.
      * 

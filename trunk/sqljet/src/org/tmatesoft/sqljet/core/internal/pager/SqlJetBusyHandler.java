@@ -22,4 +22,12 @@ import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
  */
 public class SqlJetBusyHandler implements ISqlJetBusyHandler {
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBusyHandler#call(int)
+     */
+    public boolean call(int number) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
 }

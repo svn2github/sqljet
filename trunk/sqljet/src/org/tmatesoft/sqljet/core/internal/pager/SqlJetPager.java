@@ -30,11 +30,13 @@ import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetFileAccesPermission;
 import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
+import org.tmatesoft.sqljet.core.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.SqlJetPagerLockingMode;
@@ -683,6 +685,499 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#close()
+     */
+    public void close() throws SqlJetException {
+        errCode = null;
+        lockingMode = SqlJetPagerLockingMode.NORMAL;
+        reset();
+        rollback();
+        if (journalOpen) {
+            if (null != jfd)
+                jfd.close();
+        }
+        if (pInJournal != null)
+            pInJournal.clear();
+        if (pAlwaysRollback != null)
+            pAlwaysRollback.clear();
+        if (stmtOpen) {
+            if (null != stfd)
+                stfd.close();
+        }
+        if (null != file)
+            file.close();
+
+        /*
+         * Temp files are automatically deleted by the OS if( pPager->tempFile
+         * ){ sqlite3OsDelete(pPager->zFilename); }
+         */
+
+        tmpSpace = null;
+        pCache.close();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetPager#acquire(int, boolean)
+     */
+    public ISqlJetPage acquirePage(final int pageNumber, final boolean read) throws SqlJetException {
+
+        assertion(state == SqlJetPagerState.UNLOCK || pCache.getRefCount() > 0 || pageNumber == 1);
+
+        if (pageNumber > PAGER_MAX_PGNO || pageNumber == 0
+                || pageNumber == ((ISqlJetFile.PENDING_BYTE / (pageSize)) + 1)) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+        }
+
+        /*
+         * If this is the first page accessed, then get a SHARED lock on the
+         * database file. pagerSharedLock() is a no-op if a database lock is
+         * already held.
+         */
+        sharedLock();
+        assertion(state != SqlJetPagerState.UNLOCK);
+
+        final ISqlJetPage page = pCache.fetch(pageNumber, true);
+
+        if (null == page.getPager()) {
+            /*
+             * The pager cache has created a new page. Its content needs to be
+             * initialized.
+             */
+            page.setPager(this);
+            
+            if(pInJournal.get(pageNumber)){
+                assertion(!memDb);
+                if(null==page.getFlags()) page.setFlags(EnumSet.noneOf(SqlJetPageFlags.class));
+                page.getFlags().add(SqlJetPageFlags.IN_JOURNAL);
+            }
+
+            Arrays.fill(page.getExtra(), (byte)0);
+
+            int nMax;
+            try{
+                nMax = getPageCount();
+            } catch (SqlJetException e) {
+                page.unref();
+                throw e;
+            }
+
+            if( nMax<pageNumber || memDb || !read ){
+                
+                if(pageNumber>mxPgno){
+                    page.unref();
+                    throw new SqlJetException(SqlJetErrorCode.FULL);
+                }
+                
+                Arrays.fill(page.getData(), (byte)0 );
+                
+                if(!read){
+                    if(null==page.getFlags()) page.setFlags(EnumSet.noneOf(SqlJetPageFlags.class));
+                    page.getFlags().add(SqlJetPageFlags.NEED_READ);
+                }
+                
+            }else{
+                try{
+                    readDbPage(page, pageNumber);
+                } catch( SqlJetIOException e ) {
+                    if( SqlJetIOErrorCode.IOERR_SHORT_READ != e.getIoErrorCode() ){
+                        dropPage(page);
+                        throw e;
+                    }
+                }
+            }
+            //#ifdef SQLITE_CHECK_PAGES
+            page.setHash(pageHash(page));
+            //#endif
+          }else{
+            /* The requested page is in the page cache. */
+            assert( pCache.getRefCount()>0 || 1==pageNumber);
+            if( read ){
+                try{
+                    get_content(page);
+                } catch( SqlJetException e ) {
+                    page.unref();
+                    throw e;
+                }
+            }
+        }
+
+        // TODO Auto-generated method stub
+        return null;
+
+    }
+
+    /**
+     * @param page
+     */
+    private void get_content(ISqlJetPage page) throws SqlJetException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * @param page
+     * @return
+     */
+    private long pageHash(ISqlJetPage page) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    /**
+     * @param page
+     */
+    private void dropPage(ISqlJetPage page) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * @param page
+     * @param pageNumber
+     */
+    private void readDbPage(ISqlJetPage page, int pageNumber) throws SqlJetIOException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * This function is called to obtain the shared lock required before data
+     * may be read from the pager cache. If the shared lock has already been
+     * obtained, this function is a no-op.
+     * 
+     * Immediately after obtaining the shared lock (if required), this function
+     * checks for a hot-journal file. If one is found, an emergency rollback is
+     * performed immediately.
+     * 
+     * @throws SqlJetException
+     */
+    private void sharedLock() throws SqlJetException {
+
+        boolean isErrorReset = false;
+
+        /*
+         * If this database is opened for exclusive access, has no outstanding
+         * page references and is in an error-state, now is the chance to clear
+         * the error. Discard the contents of the pager-cache and treat any open
+         * journal file as a hot-journal.
+         */
+        if (!memDb && lockingMode == SqlJetPagerLockingMode.EXCLUSIVE && pCache.getRefCount() == 0 && null != errCode) {
+            if (journalOpen) {
+                isErrorReset = true;
+            }
+            errCode = null;
+            reset();
+        }
+
+        /*
+         * If the pager is still in an error state, do not proceed. The error
+         * state will be cleared at some point in the future when all page
+         * references are dropped and the cache can be discarded.
+         */
+        if (null != errCode && errCode != SqlJetErrorCode.FULL) {
+            throw new SqlJetException(errCode);
+        }
+
+        if (SqlJetPagerState.UNLOCK == state || isErrorReset)
+            try {
+                if (!memDb) {
+
+                    boolean isHotJournal = false;
+                    assertion(pCache.getRefCount() == 0);
+
+                    if (!noReadlock) {
+                        try {
+                            waitOnLock(SqlJetLockType.SHARED);
+                        } catch (SqlJetException e) {
+                            error(e);
+                            throw e;
+                        }
+                        assertion(SqlJetPagerState.SHARED == state);
+                    }
+
+                    /*
+                     * If a journal file exists, and there is no RESERVED lock
+                     * on the database file, then it either needs to be played
+                     * back or deleted.
+                     */
+                    if (!isErrorReset) {
+                        isHotJournal = hasHotJournal();
+                    }
+
+                    if (isErrorReset || isHotJournal) {
+                        /*
+                         * Get an EXCLUSIVE lock on the database file. At this
+                         * point it is important that a RESERVED lock is not
+                         * obtained on the way to the EXCLUSIVE lock. If it
+                         * were, another process might open the database file,
+                         * detect the RESERVED lock, and conclude that the
+                         * database is safe to read while this process is still
+                         * rolling it back.
+                         * 
+                         * Because the intermediate RESERVED lock is not
+                         * requested, the second process will get to this point
+                         * in the code and fail to obtain its own EXCLUSIVE lock
+                         * on the database file.
+                         */
+                        if (SqlJetPagerState.EXCLUSIVE.compareTo(state) > 0) {
+                            try {
+                                file.lock(SqlJetLockType.EXCLUSIVE);
+                            } catch (SqlJetException e) {
+                                error(e);
+                                throw e;
+                            }
+                            state = SqlJetPagerState.EXCLUSIVE;
+                        }
+
+                        /*
+                         * Open the journal for read/write access. This is
+                         * because in exclusive-access mode the file descriptor
+                         * will be kept open and possibly used for a transaction
+                         * later on. On some systems, the OsTruncate() call used
+                         * in exclusive-access mode also requires a read/write
+                         * file handle.
+                         */
+                        if (!isErrorReset && !journalOpen) {
+
+                            try {
+                                if (fileSystem.access(journal, SqlJetFileAccesPermission.EXISTS)) {
+
+                                    assertion(!tempFile);
+
+                                    jfd = fileSystem.open(journal, SqlJetFileType.MAIN_JOURNAL, EnumSet
+                                            .of(SqlJetFileOpenPermission.READWRITE));
+                                    if (null != jfd) {
+                                        try {
+                                            final EnumSet<SqlJetFileOpenPermission> p = jfd.getPermissions();
+                                            if (p.contains(SqlJetFileOpenPermission.READONLY))
+                                                throw new SqlJetException(SqlJetErrorCode.BUSY);
+                                        } finally {
+                                            jfd.close();
+                                        }
+                                    }
+
+                                } else {
+                                    /*
+                                     * If the journal does not exist, that means
+                                     * some other process has already rolled it
+                                     * back
+                                     */
+                                    throw new SqlJetException(SqlJetErrorCode.BUSY);
+                                }
+
+                            } catch (SqlJetIOException e) {
+                                if (SqlJetIOErrorCode.IOERR_UNLOCK != e.getIoErrorCode()) {
+                                    throw new SqlJetException(SqlJetErrorCode.BUSY);
+                                }
+                                throw e;
+                            }
+
+                            journalOpen = true;
+                            journalStarted = false;
+                            journalOff = 0;
+                            setMaster = false;
+                            journalHdr = 0;
+
+                            /*
+                             * Playback and delete the journal. Drop the
+                             * database write lock and reacquire the read lock.
+                             */
+                            try {
+                                playback(true);
+                            } catch (SqlJetException e) {
+                                error(e);
+                                throw e;
+                            }
+                            assertion(SqlJetPagerState.SHARED == state
+                                    || (SqlJetPagerLockingMode.EXCLUSIVE == lockingMode && SqlJetPagerState.SHARED
+                                            .compareTo(state) < 0));
+
+                        }
+
+                    }
+
+                    if (pCache.getPageCount() > 0) {
+                        /*
+                         * The shared-lock has just been acquired on the
+                         * database file and there are already pages in the
+                         * cache (from a previous read or write transaction).
+                         * Check to see if the database has been modified. If
+                         * the database has changed, flush the cache.
+                         * 
+                         * Database changes is detected by looking at 15 bytes
+                         * beginning at offset 24 into the file. The first 4 of
+                         * these 16 bytes are a 32-bit counter that is
+                         * incremented with each change. The other bytes change
+                         * randomly with each file change when a codec is in
+                         * use.
+                         * 
+                         * There is a vanishingly small chance that a change
+                         * will not be detected. The chance of an undetected
+                         * change is so small that it can be neglected.
+                         */
+                        getPageCount();
+
+                        if (null != errCode) {
+                            throw new SqlJetException(errCode);
+                        }
+
+                        if (dbSize > 0) {
+                            file.read(dbFileVers, dbFileVers.length, 24);
+                        } else {
+                            Arrays.fill(dbFileVers, (byte) 0);
+                        }
+
+                    }
+
+                }
+
+                assert (SqlJetPagerLockingMode.EXCLUSIVE == lockingMode || SqlJetPagerState.SHARED.compareTo(state) >= 0);
+                if (SqlJetPagerState.UNLOCK == state) {
+                    state = SqlJetPagerState.SHARED;
+                }
+
+            } catch (SqlJetException e) {
+                unlock();
+                throw e;
+            }
+
+    }
+
+    /**
+     * 
+     * Playback the journal and thus restore the database file to the state it
+     * was in before we started making changes.
+     * 
+     * The journal file format is as follows:
+     * 
+     * (1) 8 byte prefix. A copy of aJournalMagic[]. (2) 4 byte big-endian
+     * integer which is the number of valid page records in the journal. If this
+     * value is 0xffffffff, then compute the number of page records from the
+     * journal size. (3) 4 byte big-endian integer which is the initial value
+     * for the sanity checksum. (4) 4 byte integer which is the number of pages
+     * to truncate the database to during a rollback. (5) 4 byte big-endian
+     * integer which is the sector size. The header is this many bytes in size.
+     * (6) 4 byte big-endian integer which is the page case. (7) 4 byte integer
+     * which is the number of bytes in the master journal name. The value may be
+     * zero (indicate that there is no master journal.) (8) N bytes of the
+     * master journal name. The name will be nul-terminated and might be shorter
+     * than the value read from (5). If the first byte of the name is \000 then
+     * there is no master journal. The master journal name is stored in UTF-8.
+     * (9) Zero or more pages instances, each as follows: + 4 byte page number.
+     * + pPager->pageSize bytes of data. + 4 byte checksum
+     * 
+     * When we speak of the journal header, we mean the first 8 items above.
+     * Each entry in the journal is an instance of the 9th item.
+     * 
+     * Call the value from the second bullet "nRec". nRec is the number of valid
+     * page entries in the journal. In most cases, you can compute the value of
+     * nRec from the size of the journal file. But if a power failure occurred
+     * while the journal was being written, it could be the case that the size
+     * of the journal file had already been increased but the extra entries had
+     * not yet made it safely to disk. In such a case, the value of nRec
+     * computed from the file size would be too large. For that reason, we
+     * always use the nRec value in the header.
+     * 
+     * If the nRec value is 0xffffffff it means that nRec should be computed
+     * from the file size. This value is used when the user selects the no-sync
+     * option for the journal. A power failure could lead to corruption in this
+     * case. But for things like temporary table (which will be deleted when the
+     * power is restored) we don't care.
+     * 
+     * If the file opened as the journal file is not a well-formed journal file
+     * then all pages up to the first corrupted page are rolled back (or no
+     * pages if the journal header is corrupted). The journal file is then
+     * deleted and SQLITE_OK returned, just as if no corruption had been
+     * encountered.
+     * 
+     * If an I/O or malloc() error occurs, the journal-file is not deleted and
+     * an error code is returned.
+     * 
+     * @param b
+     */
+    private void playback(boolean b) throws SqlJetException {
+        
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * Return true if there is a hot journal on the given pager. A hot journal
+     * is one that needs to be played back.
+     * 
+     * If the current size of the database file is 0 but a journal file exists,
+     * that is probably an old journal left over from a prior database with the
+     * same name. Just delete the journal.
+     * 
+     * Return false if unable to determine the status of the journal.
+     * 
+     * This routine does not open the journal file to examine its content.
+     * Hence, the journal might contain the name of a master journal file that
+     * has been deleted, and hence not be hot. Or the header of the journal
+     * might be zeroed out. This routine does not discover these cases of a
+     * non-hot journal - if the journal file exists and is not empty this
+     * routine assumes it is hot. The pager_playback() routine will discover
+     * that the journal file is not really hot and will no-op.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    private boolean hasHotJournal() throws SqlJetException {
+        boolean exists = false;
+        boolean locked = false;
+        assertion(useJournal);
+        assertion(null != file);
+        exists = fileSystem.access(journal, SqlJetFileAccesPermission.EXISTS);
+        if (exists) {
+            locked = file.checkReservedLock();
+        }
+        if (exists && !locked) {
+            if (0 == getPageCount()) {
+                fileSystem.delete(journal, false);
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Try to obtain a lock on a file. Invoke the busy callback if the lock is
+     * currently not available. Repeat until the busy callback returns false or
+     * until the lock succeeds.
+     * 
+     * Return SQLITE_OK on success and an error code if we cannot obtain the
+     * lock.
+     * 
+     * @param lockType
+     * @throws SqlJetException
+     */
+    private void waitOnLock(final SqlJetLockType lockType) throws SqlJetException {
+
+        /* If the file is currently unlocked then the size must be unknown */
+        assertion(SqlJetPagerState.SHARED.compareTo(state) <= 0 || dbSize < 0 || !memDb);
+
+        if (state.getLockType().compareTo(lockType) < 0) {
+            boolean lock = false;
+            int n = 0;
+            do {
+                lock = file.lock(lockType);
+                if (!lock && null != busyHandler) {
+                    if (!busyHandler.call(n++))
+                        break;
+                }
+            } while (lock != true);
+            if (lock) {
+                state = SqlJetPagerState.getPagerState(lockType);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPageDestructor#pageDestructor(org.tmatesoft
      * .sqljet.core.ISqlJetPage)
@@ -701,29 +1196,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#acquire(int, boolean)
-     */
-    public ISqlJetPage acquirePage(int pageNumber, boolean read) throws SqlJetException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#begin(boolean)
      */
     public void begin(boolean exclusive) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetPager#close()
-     */
-    public void close() throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

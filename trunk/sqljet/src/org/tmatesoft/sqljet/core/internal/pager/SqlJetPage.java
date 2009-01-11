@@ -107,5 +107,47 @@ public class SqlJetPage implements ISqlJetPage {
         // TODO Auto-generated method stub
         
     }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getFlags()
+     */
+    public EnumSet<SqlJetPageFlags> getFlags() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getHash()
+     */
+    public long getHash() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getPager()
+     */
+    public ISqlJetPager getPager() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setFlags(java.util.EnumSet)
+     */
+    public void setFlags(EnumSet<SqlJetPageFlags> flags) {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setHash(long)
+     */
+    public void setHash(long hash) {
+        // TODO Auto-generated method stub
+        
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setPager(org.tmatesoft.sqljet.core.ISqlJetPager)
+     */
+    public void setPager(ISqlJetPager pager) {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

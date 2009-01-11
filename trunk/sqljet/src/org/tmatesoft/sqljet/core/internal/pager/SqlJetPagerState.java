@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
+import org.tmatesoft.sqljet.core.SqlJetLockType;
+
 /**
  * The page cache as a whole is always in one of the following states:
  * 
@@ -57,17 +59,45 @@ package org.tmatesoft.sqljet.core.internal.pager;
  */
 public enum SqlJetPagerState {
 
-    UNLOCK,
+    UNLOCK(SqlJetLockType.NONE),
 
     /* same as SHARED_LOCK */
-    SHARED,
+    SHARED(SqlJetLockType.SHARED),
 
     /* same as RESERVED_LOCK */
-    RESERVED,
+    RESERVED(SqlJetLockType.RESERVED),
 
     /* same as EXCLUSIVE_LOCK */
-    EXCLUSIVE,
+    EXCLUSIVE(SqlJetLockType.EXCLUSIVE),
 
-    SYNCED,
+    SYNCED(SqlJetLockType.EXCLUSIVE);
+
+    private SqlJetLockType lockType;
+
+    /**
+     * @return the lock
+     */
+    public SqlJetLockType getLockType() {
+        return lockType;
+    }
+
+    /**
+     * 
+     */
+    private SqlJetPagerState(final SqlJetLockType lockType) {
+        this.lockType = lockType;
+    }
+
+    /**
+     * @param lockType
+     * @return
+     */
+    public static SqlJetPagerState getPagerState(final SqlJetLockType lockType) {
+        for (final SqlJetPagerState state : values()) {
+            if (state.getLockType().equals(lockType))
+                return state;
+        }
+        return null;
+    }
 
 }

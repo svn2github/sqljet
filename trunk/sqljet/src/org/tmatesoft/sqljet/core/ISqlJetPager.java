@@ -83,7 +83,9 @@ public interface ISqlJetPager {
      * If defined as non-zero, auto-vacuum is enabled by default. Otherwise it
      * must be turned on for each database using "PRAGMA auto_vacuum = 1".
      */
-    int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
+    //int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
+    int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = 
+        Integer.valueOf(System.getProperty("SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT", "-1"));
 
     /**
      * In-memory database's "file-name".

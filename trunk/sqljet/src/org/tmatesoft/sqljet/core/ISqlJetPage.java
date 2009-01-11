@@ -13,12 +13,20 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.util.EnumSet;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
 public interface ISqlJetPage {
+    
+    ISqlJetPager getPager();
+    void setPager(final ISqlJetPager pager);
+    
+    EnumSet<SqlJetPageFlags> getFlags();
+    void setFlags(final EnumSet<SqlJetPageFlags> flags);
 
     /**
      * Increment the reference count for a page.
@@ -134,4 +142,12 @@ public interface ISqlJetPage {
      */
     byte[] getExtra();
 
+    
+    /**
+     * Hash of page content
+     * 
+     * @return
+     */
+    long getHash();
+    void setHash(long hash);
 }

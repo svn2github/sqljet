@@ -20,4 +20,6 @@ package org.tmatesoft.sqljet.core;
  */
 public interface ISqlJetBusyHandler {
 
+    boolean call( int number );
+    
 }

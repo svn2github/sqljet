@@ -149,5 +149,19 @@ public class SqlJetPage implements ISqlJetPage {
         // TODO Auto-generated method stub
         
     }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getPageNumber()
+     */
+    public int getPageNumber() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setPageNumber(long)
+     */
+    public void setPageNumber(int pageNumber) {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

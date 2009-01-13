@@ -809,37 +809,100 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     }
 
     /**
+     * Make sure we have the content for a page.  If the page was
+     * previously acquired with noContent==1, then the content was
+     * just initialized to zeros instead of being read from disk.
+     * But now we need the real data off of disk.  So make sure we
+     * have it.  Read it in if we do not have it already.
+     * 
      * @param page
      */
-    private void get_content(ISqlJetPage page) throws SqlJetException {
-        // TODO Auto-generated method stub
-        
+    private void get_content(final ISqlJetPage page) throws SqlJetException {
+        final EnumSet<SqlJetPageFlags> flags = page.getFlags();
+        if( null!=flags && flags.contains(SqlJetPageFlags.NEED_READ) ){
+           readDbPage( page, page.getPageNumber() );
+           flags.remove(SqlJetPageFlags.NEED_READ);
+        }
     }
-
+        
     /**
+     * Return a 32-bit hash of the page data for pPage
+     * 
      * @param page
      * @return
      */
     private long pageHash(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-        return 0;
+        return dataHash(pageSize,page.getData());
+    }
+    
+    /**
+     * @param numByte
+     * @param data
+     * @return
+     */
+    private long dataHash(int numByte, byte[] data) {
+        long hash = 0;
+        int i;
+        for(i=0; i<numByte; i++){
+          hash = (hash*1039) + data[i];
+        }
+        return hash;
     }
 
     /**
      * @param page
+     * @throws SqlJetException 
      */
-    private void dropPage(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-        
+    private void dropPage(final ISqlJetPage page) throws SqlJetException {
+        pCache.drop(page);
+        unlockIfUnused();
     }
+    
+    /**
+    * If the reference count has reached zero, and the pager is not in the
+    * middle of a write transaction or opened in exclusive mode, unlock it.
+     * @throws SqlJetException 
+    */ 
+    private void unlockIfUnused() throws SqlJetException{
+      if( (pCache.getRefCount()==0)
+        && (SqlJetPagerLockingMode.EXCLUSIVE!=lockingMode || journalOff>0) 
+      ){
+        unlockAndRollback();
+      }
+    }
+    
+    /**
+    * Execute a rollback if a transaction is active and unlock the 
+    * database file. If the pager has already entered the error state, 
+    * do not attempt the rollback.
+     * @throws SqlJetException 
+    */
+    private void unlockAndRollback() throws SqlJetException{
+      if( errCode==null && SqlJetPagerState.RESERVED.compareTo(state) <= 0){
+        rollback();
+      }
+      unlock();
+    }
+    
 
     /**
+     * Read the content of page pPg out of the database file.
+     * 
      * @param page
      * @param pageNumber
      */
-    private void readDbPage(ISqlJetPage page, int pageNumber) throws SqlJetIOException {
-        // TODO Auto-generated method stub
-        
+    private void readDbPage(final ISqlJetPage page, int pageNumber) throws SqlJetException {
+        assertion(!memDb);
+        assertion(null!=file||tempFile);
+        if(null==file){
+            throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_SHORT_READ);
+        }
+        long offset = (pageNumber-1)*pageSize;
+        final byte[] data = page.getData();
+        file.read(data, pageSize, offset);
+        if(1==pageNumber){
+            System.arraycopy( dbFileVers, 0, data, 2, dbFileVers.length );
+        }
     }
 
     /**

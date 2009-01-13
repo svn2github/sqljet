@@ -150,4 +150,7 @@ public interface ISqlJetPage {
      */
     long getHash();
     void setHash(long hash);
+    
+    int getPageNumber();
+    void setPageNumber(final int pageNumber);
 }

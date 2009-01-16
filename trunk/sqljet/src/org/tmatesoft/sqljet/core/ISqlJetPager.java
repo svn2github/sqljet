@@ -30,7 +30,8 @@ public interface ISqlJetPager {
     /**
      * The minimum sector size is 512
      */
-    int SQLJET_MIN_SECTOR_SIZE = 512;
+    int SQLJET_MIN_SECTOR_SIZE = SqlJetUtility.getIntSysProp(
+            "SQLJET_MIN_SECTOR_SIZE", 512 );
 
     String JOURNAL = "-journal";
 

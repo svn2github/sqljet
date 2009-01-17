@@ -139,7 +139,7 @@ public interface ISqlJetFile {
      * @param full
      * @throws SqlJetException
      */
-    void sync(final boolean dataOnly, final boolean full) throws SqlJetException;
+    void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException;
 
     /**
      * Determine the current size of a file in bytes

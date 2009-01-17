@@ -37,6 +37,7 @@ import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
+import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
 
 /**
  * @author TMate Software Ltd.
@@ -237,10 +238,12 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(boolean, boolean)
      */
-    public synchronized void sync(boolean dataOnly, boolean full) throws SqlJetException {
+    public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException {
         assertion(file);
         try {
-            file.getChannel().force(!dataOnly || full);
+            boolean syncMetaData = syncFlags!=null && 
+                syncFlags.contains(SqlJetSyncFlags.NORMAL);
+            file.getChannel().force(syncMetaData);
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_FSYNC, e);
         }

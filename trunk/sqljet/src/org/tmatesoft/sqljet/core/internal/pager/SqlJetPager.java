@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
@@ -98,7 +99,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     File journal; /* Name of the journal file */
     File directory; /* Directory hold database and journal files */
     ISqlJetFile fd, jfd; /* File descriptors for database and journal */
-    ISqlJetFile stfd; /* File descriptor for the statement subjournal */
+    ISqlJetFile stfd; /* File descriptor for the sub-journal */
     long journalOff; /* Current byte offset in the journal file */
     long journalHdr; /* Byte offset to previous journal header */
     long stmtHdrOff; /* First journal header written this statement */
@@ -119,6 +120,36 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private ISqlJetBusyHandler busyHandler;
 
     private SqlJetErrorCode errCode; /* One of several kinds of errors */
+
+    /**
+     * The size of the header and of each page in the journal is determined by
+     * the following macros.
+     */
+    private int JOURNAL_PG_SZ() {
+        return pageSize + 8;
+    }
+
+    /**
+     * The journal header size for this pager. In the future, this could be set
+     * to some value read from the disk controller. The important characteristic
+     * is that it is the same size as a disk sector.
+     */
+    private int JOURNAL_HDR_SZ() {
+        return sectorSize;
+    }
+
+    /**
+     * Page number PAGER_MJ_PGNO is never used in an SQLite database (it is
+     * reserved for working around a windows/posix incompatibility). It is used
+     * in the journal to signify that the remainder of the journal file is
+     * devoted to storing a master journal name - there are no more pages to
+     * roll back. See comments for function writeMasterJournal() for details.
+     * 
+     * @return
+     */
+    private long PAGER_MJ_PGNO() {
+        return (ISqlJetFile.PENDING_BYTE / pageSize) + 1;
+    }
 
     /*
      * (non-Javadoc)
@@ -455,6 +486,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     public int getPageSize() {
         return pageSize;
+    }
+
+    /**
+     ** Find a page in the hash table given its page number. Return a pointer to
+     * the page or NULL if not found.
+     * 
+     * @throws SqlJetException
+     */
+    private ISqlJetPage lookup(int pageNumber) throws SqlJetException {
+        return pCache.fetch(pageNumber, false);
     }
 
     /**
@@ -806,7 +847,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             }
         }
 
-        // TODO Auto-generated method stub
         return null;
 
     }
@@ -1160,12 +1200,692 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * If an I/O or malloc() error occurs, the journal-file is not deleted and
      * an error code is returned.
      * 
-     * @param b
+     * @param isHot
      */
-    private void playback(boolean b) throws SqlJetException {
+    private void playback(boolean isHot) throws SqlJetException {
 
+        SqlJetException rc = null;
+
+        long szJ; /* Size of the journal file in bytes */
+        int nRec = -1; /* Number of Records in the journal */
+        int u; /* Unsigned loop counter */
+        int mxPg = 0; /* Size of the original file in pages */
+        boolean res = true; /* Value returned by sqlite3OsAccess() */
+        String zMaster = null; /* Name of master journal file if any */
+
+        /*
+         * Figure out how many records are in the journal. Abort early if the
+         * journal is empty.
+         */
+        assertion(journalOpen);
+
+        try {
+            szJ = jfd.fileSize();
+            if (szJ == 0) {
+                return;
+            }
+
+            /*
+             * Read the master journal name from the journal, if it is present.
+             * If a master journal file name is specified, but the file is not
+             * present on disk, then the journal is not hot and does not need to
+             * be played back.
+             */
+            zMaster = readMasterJournal(jfd);
+            if (null != zMaster) {
+                res = fileSystem.access(new File(zMaster), SqlJetFileAccesPermission.EXISTS);
+            }
+            if (!res) {
+                return;
+            }
+            journalOff = 0;
+
+            /*
+             * This loop terminates either when the readJournalHdr() call
+             * returns SQLITE_DONE or an IO error occurs.
+             */
+            while (true) {
+
+                /*
+                 * Read the next journal header from the journal file. If there
+                 * are not enough bytes left in the journal file for a complete
+                 * header, or it is corrupted, then a process must of failed
+                 * while writing it. This indicates nothing more needs to be
+                 * rolled back.
+                 */
+                try {
+                    final int[] readJournalHdr = readJournalHdr(szJ);
+                    nRec = readJournalHdr[0];
+                    mxPg = readJournalHdr[1];
+                } catch (SqlJetException e) {
+                    if (SqlJetErrorCode.DONE == e.getErrorCode())
+                        return;
+                }
+
+                /*
+                 * If nRec is 0xffffffff, then this journal was created by a
+                 * process working in no-sync mode. This means that the rest of
+                 * the journal file consists of pages, there are no more journal
+                 * headers. Compute the value of nRec based on this assumption.
+                 */
+                if (nRec == 0xffffffff) {
+                    assertion(journalOff == JOURNAL_HDR_SZ());
+                    nRec = (int) ((szJ - JOURNAL_HDR_SZ()) / JOURNAL_PG_SZ());
+                }
+
+                /*
+                 * If nRec is 0 and this rollback is of a transaction created by
+                 * this process and if this is the final header in the journal,
+                 * then it means that this part of the journal was being filled
+                 * but has not yet been synced to disk. Compute the number of
+                 * pages based on the remaining size of the file.
+                 * 
+                 * The third term of the test was added to fix ticket #2565.
+                 * When rolling back a hot journal, nRec==0 always means that
+                 * the next chunk of the journal contains zero pages to be
+                 * rolled back. But when doing a ROLLBACK and the nRec==0 chunk
+                 * is the last chunk in the journal, it means that the journal
+                 * might contain additional pages that need to be rolled back
+                 * and that the number of pages should be computed based on the
+                 * journal file size.
+                 */
+                if (nRec == 0 && !isHot && journalHdr + JOURNAL_HDR_SZ() == journalOff) {
+                    nRec = (int) ((szJ - journalOff) / JOURNAL_PG_SZ());
+                }
+
+                /*
+                 * If this is the first header read from the journal, truncate
+                 * the database file back to its original size.
+                 */
+                if (journalOff == JOURNAL_HDR_SZ()) {
+                    doTruncate(mxPg);
+                    dbSize = mxPg;
+                }
+
+                /*
+                 * Copy original pages out of the journal and back into the
+                 * database file.
+                 */
+                for (u = 0; u < nRec; u++) {
+
+                    try {
+                        playbackOnePage(jfd, journalOff, true);
+                    } catch (SqlJetException e) {
+                        if (e.getErrorCode() == SqlJetErrorCode.DONE) {
+                            journalOff = szJ;
+                            break;
+                        } else {
+                            /*
+                             * If we are unable to rollback, then the database
+                             * is probably going to end up being corrupt. It is
+                             * corrupt to us, anyhow. Perhaps the next process
+                             * to come along can fix it....
+                             */
+                            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                        }
+                    }
+
+                }
+            }
+
+        } catch (SqlJetException e) {
+            rc = e;
+        } finally {
+
+            // end_playback:
+
+            if (rc == null) {
+                try {
+                    zMaster = readMasterJournal(jfd);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            }
+
+            if (rc == null) {
+                try {
+                    endTransaction(zMaster != null);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            }
+
+            if (rc == null && zMaster != null) {
+                /*
+                 * If there was a master journal and this routine will return
+                 * success, see if it is possible to delete the master journal.
+                 */
+                try {
+                    deleteMaster(zMaster);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            }
+        }
+
+        /*
+         * The Pager.sectorSize variable may have been updated while rolling
+         * back a journal created by a process with a different sector size
+         * value. Reset it to the correct value for this process.
+         */
+        setSectorSize();
+        if (rc != null)
+            throw rc;
+    }
+
+    /**
+     * @param master
+     */
+    private void deleteMaster(String master) throws SqlJetException {
         // TODO Auto-generated method stub
 
+    }
+
+    /**
+     * This routine ends a transaction. A transaction is ended by either a
+     * COMMIT or a ROLLBACK.
+     * 
+     * When this routine is called, the pager has the journal file open and a
+     * RESERVED or EXCLUSIVE lock on the database. This routine will release the
+     * database lock and acquires a SHARED lock in its place if that is the
+     * appropriate thing to do. Release locks usually is appropriate, unless we
+     * are in exclusive access mode or unless this is a COMMIT AND BEGIN or
+     * ROLLBACK AND BEGIN operation.
+     * 
+     * The journal file is either deleted or truncated.
+     * 
+     * TODO: Consider keeping the journal file open for temporary databases.
+     * This might give a performance improvement on windows where opening a file
+     * is an expensive operation.
+     * 
+     * @param hasMaster
+     */
+    private void endTransaction(boolean hasMaster) throws SqlJetException {
+
+        SqlJetException rc = null;
+        SqlJetException rc2 = null;
+
+        assertion(!memDb);
+
+        if (state.compareTo(SqlJetPagerState.RESERVED) < 0) {
+            return;
+        }
+
+        stmtCommit();
+
+        if (stmtOpen && !exclusiveMode()) {
+            stfd.close();
+            stmtOpen = false;
+        }
+        if (journalOpen) {
+            if (exclusiveMode() || journalMode == SqlJetPagerJournalMode.PERSIST) {
+                try {
+                    zeroJournalHdr(hasMaster);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+                if (rc != null)
+                    error(rc);
+                journalOff = 0;
+                journalStarted = false;
+            } else {
+                jfd.close();
+                journalOpen = false;
+                if (rc == null && !tempFile) {
+                    try {
+                        fileSystem.delete(journal, false);
+                    } catch (SqlJetException e) {
+                        rc = e;
+                    }
+                }
+            }
+            pInJournal.clear();
+            // pInJournal = null;
+            pAlwaysRollback.clear();
+            // pAlwaysRollback = null;
+            pCache.cleanAll();
+            // sqlite3PcacheIterate(pPager->pPCache, pager_set_pagehash);
+            // pCache.iterate(setPageHash)
+            pCache.clearFlags(EnumSet.of(SqlJetPageFlags.IN_JOURNAL, SqlJetPageFlags.NEED_SYNC));
+            dirtyCache = false;
+            nRec = 0;
+
+        } else {
+
+            assertion(null == pInJournal || pInJournal.isEmpty());
+
+        }
+
+        if (!exclusiveMode()) {
+            if (null != fd) {
+                try {
+                    fd.unlock(SqlJetLockType.SHARED);
+                } catch (SqlJetException e) {
+                    rc2 = e;
+                }
+            }
+            state = SqlJetPagerState.SHARED;
+        } else if (state == SqlJetPagerState.SYNCED) {
+            state = SqlJetPagerState.EXCLUSIVE;
+        }
+        origDbSize = 0;
+        setMaster = false;
+        needSync = false;
+        dbSize = -1;
+        dbModified = false;
+
+        if (rc != null)
+            throw rc;
+        if (rc2 != null)
+            throw rc2;
+
+    }
+
+    /**
+     * Write zeros over the header of the journal file. This has the effect of
+     * invalidating the journal file and committing the transaction.
+     * 
+     * @param doTruncate
+     */
+    private void zeroJournalHdr(boolean doTruncate) throws SqlJetException {
+
+        SqlJetException rc = null;
+        byte[] zeroHdr = new byte[28];
+        Arrays.fill(zeroHdr, (byte) 0);
+
+        if (journalOff > 0) {
+
+            long iLimit = journalSizeLimit;
+
+            if (doTruncate || iLimit == 0) {
+                try {
+                    jfd.truncate(0);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            } else {
+                try {
+                    jfd.write(zeroHdr, zeroHdr.length, 0);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            }
+            if (rc == null && !noSync) {
+                jfd.sync(true, false);
+            }
+
+            /*
+             * At this point the transaction is committed but the write lock is
+             * still held on the file. If there is a size limit configured for
+             * the persistent journal and the journal file currently consumes
+             * more space than that limit allows for, truncate it now. There is
+             * no need to sync the file following this operation.
+             */
+            if (rc == null && iLimit > 0) {
+                long sz = 0;
+
+                try {
+                    sz = jfd.fileSize();
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+
+                if (rc == null && sz > iLimit) {
+                    try {
+                        jfd.truncate(iLimit);
+                    } catch (SqlJetException e) {
+                        rc = e;
+                    }
+                }
+            }
+        }
+
+        if (null != rc)
+            throw rc;
+
+    }
+
+    /**
+     * @return
+     */
+    private boolean exclusiveMode() {
+        return lockingMode != SqlJetPagerLockingMode.EXCLUSIVE;
+    }
+
+    /**
+     * Read a single page from the journal file opened on file descriptor jfd.
+     * Playback this one page.
+     * 
+     * The isMainJrnl flag is true if this is the main rollback journal and
+     * false for the statement journal. The main rollback journal uses checksums
+     * - the statement journal does not.
+     * 
+     * @param jfd
+     *            The file that is the journal being rolled back
+     * @param pOffset
+     *            Offset of the page within the journal
+     * @param isMainJrnl
+     *            True for main rollback journal. False for Stmt jrnl
+     * @throws SqlJetException
+     */
+    private void playbackOnePage(ISqlJetFile jfd, long pOffset, boolean isMainJrnl) throws SqlJetException {
+        ISqlJetPage pPg; /* An existing page in the cache */
+        int pgno; /* The page number of a page in journal */
+        int cksum; /* Checksum used for sanity checking */
+        byte[] aData; /* Temporary storage for the page */
+
+        aData = tmpSpace;
+        assertion(aData); /* Temp storage must have already been allocated */
+
+        assertion(jfd == (isMainJrnl ? this.jfd : this.stfd));
+
+        pgno = read32bits(jfd, pOffset);
+        jfd.read(aData, pageSize, pOffset + 4);
+        journalOff += pageSize + 4;
+
+        /*
+         * Sanity checking on the page. This is more important that I originally
+         * thought. If a power failure occurs while the journal is being
+         * written, it could cause invalid data to be written into the journal.
+         * We need to detect this invalid data (with high probability) and
+         * ignore it.
+         */
+        if (pgno == 0 || pgno == PAGER_MJ_PGNO()) {
+            throw new SqlJetException(SqlJetErrorCode.DONE);
+        }
+        if (pgno > dbSize) {
+            return;
+        }
+        if (isMainJrnl) {
+            cksum = read32bits(jfd, pOffset - 4);
+            journalOff += 4;
+            if (cksum(aData) != cksum) {
+                throw new SqlJetException(SqlJetErrorCode.DONE);
+            }
+        }
+
+        assertion(state == SqlJetPagerState.RESERVED || state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0);
+
+        /*
+         * If the pager is in RESERVED state, then there must be a copy of this
+         * page in the pager cache. In this case just update the pager cache,
+         * not the database file. The page is left marked dirty in this case.
+         * 
+         * An exception to the above rule: If the database is in no-sync mode
+         * and a page is moved during an incremental vacuum then the page may
+         * not be in the pager cache. Later: if a malloc() or IO error occurs
+         * during a Movepage() call, then the page may not be in the cache
+         * either. So the condition described in the above paragraph is not
+         * assert()able.
+         * 
+         * If in EXCLUSIVE state, then we update the pager cache if it exists
+         * and the main file. The page is then marked not dirty.
+         * 
+         * Ticket #1171: The statement journal might contain page content that
+         * is different from the page content at the start of the transaction.
+         * This occurs when a page is changed prior to the start of a statement
+         * then changed again within the statement. When rolling back such a
+         * statement we must not write to the original database unless we know
+         * for certain that original page contents are synced into the main
+         * rollback journal. Otherwise, a power loss might leave modified data
+         * in the database file without an entry in the rollback journal that
+         * can restore the database to its original form. Two conditions must be
+         * met before writing to the database files. (1) the database must be
+         * locked. (2) we know that the original page content is fully synced in
+         * the main journal either because the page is not in cache or else the
+         * page is marked as needSync==0.
+         * 
+         * 2008-04-14: When attempting to vacuum a corrupt database file, it is
+         * possible to fail a statement on a database that does not yet exist.
+         * Do not attempt to write if database file has never been opened.
+         */
+        pPg = lookup(pgno);
+        if (state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0
+                && (pPg == null || !pPg.getFlags().contains(SqlJetPageFlags.NEED_SYNC)) && null != fd) {
+            long ofst = (pgno - 1) * pageSize;
+            fd.write(aData, pageSize, ofst);
+        }
+        if (null != pPg) {
+            /*
+             * No page should ever be explicitly rolled back that is in use,
+             * except for page 1 which is held in use in order to keep the lock
+             * on the database active. However such a page may be rolled back as
+             * a result of an internal error resulting in an automatic call to
+             * sqlite3PagerRollback().
+             */
+            final byte[] pData = pPg.getData();
+            System.arraycopy(pData, 0, aData, 0, pageSize);
+
+            if (null != reiniter) {
+                reiniter.pageCallback(pPg);
+            }
+            if (isMainJrnl)
+                pCache.makeClean(pPg);
+            pPg.setHash(pageHash(pPg));
+            /*
+             * If this was page 1, then restore the value of Pager.dbFileVers.
+             * Do this before any decoding.
+             */
+            if (pgno == 1) {
+                System.arraycopy(dbFileVers, 0, pData, 24, dbFileVers.length);
+            }
+
+            pCache.release(pPg);
+        }
+    }
+
+    /**
+     * Compute and return a checksum for the page of data.
+     * 
+     * This is not a real checksum. It is really just the sum of the random
+     * initial value and the page number. We experimented with a checksum of the
+     * entire data, but that was found to be too slow.
+     * 
+     * Note that the page number is stored at the beginning of data and the
+     * checksum is stored at the end. This is important. If journal corruption
+     * occurs due to a power failure, the most likely scenario is that one end
+     * or the other of the record will be changed. It is much less likely that
+     * the two ends of the journal record will be correct and the middle be
+     * corrupt. Thus, this "checksum" scheme, though fast and simple, catches
+     * the mostly likely kind of corruption.
+     * 
+     * FIX ME: Consider adding every 200th (or so) byte of the data to the
+     * checksum. That way if a single page spans 3 or more disk sectors and only
+     * the middle sector is corrupt, we will still have a reasonable chance of
+     * failing the checksum and thus detecting the problem.
+     * 
+     * @param data
+     * @return
+     */
+    private int cksum(byte[] data) {
+        int cksum = cksumInit;
+        int i = pageSize - 200;
+        while (i > 0) {
+            cksum += data[i];
+            i -= 200;
+        }
+        return cksum;
+    }
+
+    /**
+     * When this is called the journal file for pager pPager must be open. The
+     * master journal file name is read from the end of the file and written
+     * into memory supplied by the caller.
+     * 
+     * zMaster must point to a buffer of at least nMaster bytes allocated by the
+     * caller. This should be sqlite3_vfs.mxPathname+1 (to ensure there is
+     * enough space to write the master journal name). If the master journal
+     * name in the journal is longer than nMaster bytes (including a
+     * nul-terminator), then this is handled as if no master journal name were
+     * present in the journal.
+     * 
+     * If no master journal file name is present zMaster[0] is set to 0 and
+     * SQLITE_OK returned.
+     * 
+     * @throws SqlJetException
+     */
+    private String readMasterJournal(final ISqlJetFile journal) throws SqlJetException {
+        int len;
+        long szJ;
+        int cksum;
+        int u; /* Unsigned loop counter */
+        byte[] aMagic = new byte[8]; /* A buffer to hold the magic header */
+
+        szJ = journal.fileSize();
+        if (szJ < 16)
+            return null;
+
+        len = read32bits(journal, szJ - 16);
+        cksum = read32bits(journal, szJ - 12);
+
+        journal.read(aMagic, aMagic.length, szJ - 8);
+        if (!Arrays.equals(aMagic, aJournalMagic))
+            return null;
+
+        byte[] zMaster = new byte[len];
+        journal.read(zMaster, len, szJ - 16 - len);
+
+        /* See if the checksum matches the master journal name */
+        for (u = 0; u < len; u++) {
+            cksum -= zMaster[u];
+        }
+        if (cksum > 0) {
+            /*
+             * If the checksum doesn't add up, then one or more of the disk
+             * sectors containing the master journal filename is corrupted. This
+             * means definitely roll back, so just return SQLITE_OK and report a
+             * (nul) master-journal filename.
+             */
+            return null;
+        }
+
+        return new String(zMaster);
+    }
+
+    /**
+     * @param fd
+     * @param offset
+     * @return
+     * @throws SqlJetException
+     */
+    private int read32bits(final ISqlJetFile fd, final long offset) throws SqlJetException {
+        byte[] ac = new byte[4];
+        fd.read(ac, ac.length, offset);
+        return SqlJetUtility.get4byte(ac);
+    }
+
+    /*
+     * The journal file must be open when this is called. A journal header file
+     * (JOURNAL_HDR_SZ bytes) is read from the current location in the journal
+     * file. The current location in the journal file is given by
+     * pPager->journalOff. See comments above function writeJournalHdr() for a
+     * description of the journal header format.
+     * 
+     * If the header is read successfully,nRec is set to the number of page
+     * records following this header anddbSize is set to the size of the
+     * database before the transaction began, in pages. Also, pPager->cksumInit
+     * is set to the value read from the journal header. SQLITE_OK is returned
+     * in this case.
+     * 
+     * If the journal header file appears to be corrupted, SQLITE_DONE is
+     * returned andnRec anddbSize are undefined. If JOURNAL_HDR_SZ bytes cannot
+     * be read from the journal file an error code is returned.
+     */
+    private int[] readJournalHdr(long journalSize) throws SqlJetException {
+
+        int[] result = new int[2];
+
+        byte[] aMagic = new byte[8]; /* A buffer to hold the magic header */
+        long jrnlOff;
+        int iPageSize;
+        int iSectorSize;
+
+        seekJournalHdr();
+        if (journalOff + JOURNAL_HDR_SZ() > journalSize) {
+            throw new SqlJetException(SqlJetErrorCode.DONE);
+        }
+        jrnlOff = journalOff;
+
+        jfd.read(aMagic, aMagic.length, jrnlOff);
+        jrnlOff += aMagic.length;
+
+        if (!Arrays.equals(aMagic, aJournalMagic)) {
+            throw new SqlJetException(SqlJetErrorCode.DONE);
+        }
+
+        int pNRec = read32bits(jfd, jrnlOff);
+        cksumInit = read32bits(jfd, jrnlOff + 4);
+        int pDbSize = read32bits(jfd, jrnlOff + 8);
+
+        result[0] = pNRec;
+        result[1] = pDbSize;
+
+        if (journalOff == 0) {
+            iPageSize = read32bits(jfd, jrnlOff + 16);
+
+            if (iPageSize < SQLJET_MIN_PAGE_SIZE || iPageSize > SQLJET_MAX_PAGE_SIZE
+                    || ((iPageSize - 1) & iPageSize) != 0) {
+                /*
+                 * If the page-size in the journal-header is invalid, then the
+                 * process that wrote the journal-header must have crashed
+                 * before the header was synced. In this case stop reading the
+                 * journal file here.
+                 */
+                throw new SqlJetException(SqlJetErrorCode.DONE);
+            } else {
+                setPageSize(iPageSize);
+                assertion(pageSize == iPageSize);
+            }
+
+            /*
+             * Update the assumed sector-size to match the value used by the
+             * process that created this journal. If this journal was created by
+             * a process other than this one, then this routine is being called
+             * from within pager_playback(). The local value of Pager.sectorSize
+             * is restored at the end of that routine.
+             */
+
+            iSectorSize = read32bits(jfd, jrnlOff + 12);
+
+            if ((iSectorSize & (iSectorSize - 1)) != 0 || iSectorSize < SQLJET_MIN_PAGE_SIZE
+                    || iSectorSize > SQLJET_MAX_PAGE_SIZE) {
+                throw new SqlJetException(SqlJetErrorCode.DONE);
+            }
+            sectorSize = iSectorSize;
+        }
+
+        journalOff += JOURNAL_HDR_SZ();
+
+        return result;
+    }
+
+    /**
+     * Seek the journal file descriptor to the next sector boundary where a
+     * journal header may be read or written. Pager.journalOff is updated with
+     * the new seek offset.
+     * 
+     * i.e for a sector size of 512:
+     * 
+     * Input Offset Output Offset --------------------------------------- 0 0
+     * 512 512 100 512 2000 2048
+     * 
+     * @throws SqlJetException
+     * 
+     */
+    private long journalHdrOffset() throws SqlJetException {
+        long offset = 0;
+        long c = journalOff;
+        if (c > 0) {
+            offset = ((c - 1) / JOURNAL_HDR_SZ() + 1) * JOURNAL_HDR_SZ();
+        }
+        assertion(offset % JOURNAL_HDR_SZ() == 0);
+        assertion(offset >= c);
+        assertion((offset - c) < JOURNAL_HDR_SZ());
+        return offset;
+    }
+
+    private void seekJournalHdr() throws SqlJetException {
+        journalOff = journalHdrOffset();
     }
 
     /**

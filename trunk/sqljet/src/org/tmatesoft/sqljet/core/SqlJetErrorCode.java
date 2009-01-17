@@ -100,6 +100,8 @@ public enum SqlJetErrorCode {
     /** File opened that is not a database file */
     NOTADB,
     
+    DONE,
+    
     /** Bad parameter value in function call wich impossible to execute */
     BAD_PARAMETER
 

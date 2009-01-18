@@ -2474,6 +2474,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 }
             }
             if (rc != null) {
+                rc = null;
                 try {
                     endTransaction(false);
                 } catch (SqlJetException e) {

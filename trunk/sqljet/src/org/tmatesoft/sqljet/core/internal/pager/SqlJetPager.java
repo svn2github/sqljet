@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.ISqlJetFile;
@@ -246,6 +247,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     private long PAGER_MJ_PGNO() {
         return (ISqlJetFile.PENDING_BYTE / pageSize) + 1;
+    }
+
+    private int int_PAGER_MJ_PGNO() {
+        return Long.valueOf(PAGER_MJ_PGNO()).intValue();
     }
 
     /**
@@ -2293,84 +2298,80 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * The journal file must be open when this routine is called. A journal
      * header (JOURNAL_HDR_SZ bytes) is written into the journal file at the
      * current location.
-     *
-     * The format for the journal header is as follows:
-     * - 8 bytes: Magic identifying journal format.
-     * - 4 bytes: Number of records in journal, or -1 no-sync mode is on.
-     * - 4 bytes: Random number used for page hash.
-     * - 4 bytes: Initial database page count.
-     * - 4 bytes: Sector size used by the process that wrote this journal.
-     * - 4 bytes: Database page size.
-     *
+     * 
+     * The format for the journal header is as follows: - 8 bytes: Magic
+     * identifying journal format. - 4 bytes: Number of records in journal, or
+     * -1 no-sync mode is on. - 4 bytes: Random number used for page hash. - 4
+     * bytes: Initial database page count. - 4 bytes: Sector size used by the
+     * process that wrote this journal. - 4 bytes: Database page size.
+     * 
      * Followed by (JOURNAL_HDR_SZ - 28) bytes of unused space.
      * 
      */
     private void writeJournalHdr() throws SqlJetException {
-        
+
         SqlJetException rc = null;
-        
+
         byte[] zHeader = tmpSpace;
         int nHeader = pageSize;
         int nWrite;
 
-        if( nHeader>JOURNAL_HDR_SZ() ){
-          nHeader = JOURNAL_HDR_SZ();
+        if (nHeader > JOURNAL_HDR_SZ()) {
+            nHeader = JOURNAL_HDR_SZ();
         }
-        
-        if( stmtHdrOff==0 ){
-          stmtHdrOff = journalOff;
+
+        if (stmtHdrOff == 0) {
+            stmtHdrOff = journalOff;
         }
 
         seekJournalHdr();
         journalHdr = journalOff;
-        
-        SqlJetUtility.memcpy(zHeader, aJournalMagic, aJournalMagic.length );
 
-        /* 
-        ** Write the nRec Field - the number of page records that follow this
-        ** journal header. Normally, zero is written to this value at this time.
-        ** After the records are added to the journal (and the journal synced, 
-        ** if in full-sync mode), the zero is overwritten with the true number
-        ** of records (see syncJournal()).
-        **
-        ** A faster alternative is to write 0xFFFFFFFF to the nRec field. When
-        ** reading the journal this value tells SQLite to assume that the
-        ** rest of the journal file contains valid page records. This assumption
-        ** is dangerous, as if a failure occured whilst writing to the journal
-        ** file it may contain some garbage data. There are two scenarios
-        ** where this risk can be ignored:
-        **
-        **   * When the pager is in no-sync mode. Corruption can follow a
-        **     power failure in this case anyway.
-        **
-        **   * When the SQLITE_IOCAP_SAFE_APPEND flag is set. This guarantees
-        **     that garbage data is never appended to the journal file.
-        */
-        assertion(fd!=null||noSync);
-        if( noSync || fd.deviceCharacteristics().contains(
-               SqlJetDeviceCharacteristics.IOCAP_SAFE_APPEND))
-        {
-          put32bits(zHeader,aJournalMagic.length, 0xffffffff);
-        }else{
-          put32bits(zHeader,aJournalMagic.length, 0);
+        SqlJetUtility.memcpy(zHeader, aJournalMagic, aJournalMagic.length);
+
+        /*
+         * Write the nRec Field - the number of page records that follow this
+         * journal header. Normally, zero is written to this value at this time.
+         * After the records are added to the journal (and the journal synced,
+         * if in full-sync mode), the zero is overwritten with the true number
+         * of records (see syncJournal()).
+         * 
+         * A faster alternative is to write 0xFFFFFFFF to the nRec field. When
+         * reading the journal this value tells SQLite to assume that the rest
+         * of the journal file contains valid page records. This assumption is
+         * dangerous, as if a failure occured whilst writing to the journal file
+         * it may contain some garbage data. There are two scenarios where this
+         * risk can be ignored:
+         * 
+         * When the pager is in no-sync mode. Corruption can follow a power
+         * failure in this case anyway.
+         * 
+         * When the SQLITE_IOCAP_SAFE_APPEND flag is set. This guarantees that
+         * garbage data is never appended to the journal file.
+         */
+        assertion(fd != null || noSync);
+        if (noSync || fd.deviceCharacteristics().contains(SqlJetDeviceCharacteristics.IOCAP_SAFE_APPEND)) {
+            put32bits(zHeader, aJournalMagic.length, 0xffffffff);
+        } else {
+            put32bits(zHeader, aJournalMagic.length, 0);
         }
 
-        /* The random check-hash initialiser */ 
+        /* The random check-hash initialiser */
         cksumInit = randomnessInt();
-        put32bits(zHeader, aJournalMagic.length+4, cksumInit);
-        
+        put32bits(zHeader, aJournalMagic.length + 4, cksumInit);
+
         /* The initial database size */
-        put32bits(zHeader, aJournalMagic.length+8, dbSize);
-        
+        put32bits(zHeader, aJournalMagic.length + 8, dbSize);
+
         /* The assumed sector size for this process */
-        put32bits(zHeader, aJournalMagic.length+8, sectorSize);
-        
-        if( journalHdr==0 ){
-          /* The page size */
-          put32bits(zHeader, aJournalMagic.length+8, pageSize);
+        put32bits(zHeader, aJournalMagic.length + 8, sectorSize);
+
+        if (journalHdr == 0) {
+            /* The page size */
+            put32bits(zHeader, aJournalMagic.length + 8, pageSize);
         }
 
-        for(nWrite=0; rc==null && nWrite<JOURNAL_HDR_SZ(); nWrite+=nHeader){
+        for (nWrite = 0; rc == null && nWrite < JOURNAL_HDR_SZ(); nWrite += nHeader) {
             try {
                 jfd.write(zHeader, nHeader, journalOff);
             } catch (SqlJetException e) {
@@ -2379,12 +2380,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             journalOff += nHeader;
         }
 
-        if(rc!=null) throw rc;
+        if (rc != null)
+            throw rc;
     }
 
     /**
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     private int randomnessInt() throws SqlJetException {
         return SqlJetUtility.get4byte(fileSystem.randomness(4));
@@ -2399,6 +2401,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     private void put32bits(byte[] p, int pos, int v) {
         SqlJetUtility.put4byte(p, pos, v);
+    }
+
+    private void put32bits(byte[] p, int v) {
+        put32bits(p, 0, v);
     }
 
     /**
@@ -2504,7 +2510,308 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * int, boolean)
      */
     public void commitPhaseOne(String master, int pageNumberTrunc, boolean noSync) throws SqlJetException {
-        // TODO Auto-generated method stub
+
+        SqlJetException rc = null;
+
+        if (errCode != null) {
+            throw new SqlJetException(errCode);
+        }
+
+        /*
+         * If no changes have been made, we can leave the transaction early.
+         */
+        if (!dbModified && (journalMode != SqlJetPagerJournalMode.DELETE || exclusiveMode())) {
+            assertion(!dirtyCache || !journalOpen);
+            return;
+        }
+
+        /*
+         * If this is an in-memory db, or no pages have been written to, or this
+         * function has already been called, it is a no-op.
+         */
+        try {
+            if (state != SqlJetPagerState.SYNCED && !memDb && dirtyCache) {
+
+                /*
+                 * If a master journal file name has already been written to the
+                 * journal file, then no sync is required. This happens when it
+                 * is written, then the process fails to upgrade from a RESERVED
+                 * to an EXCLUSIVE lock. The next time the process tries to
+                 * commit the transaction the m-j name will have already been
+                 * written.
+                 */
+                if (!setMaster) {
+
+                    incrChangeCounter();
+
+                    if (journalMode != SqlJetPagerJournalMode.OFF) {
+
+                        if (pageNumberTrunc != 0) {
+                            /*
+                             * If this transaction has made the database
+                             * smaller, then all pages being discarded by the
+                             * truncation must be written to the journal file.
+                             */
+                            int i;
+                            long iSkip = PAGER_MJ_PGNO();
+                            for (i = pageNumberTrunc + 1; i <= origDbSize; i++) {
+                                if (!bitSetTest(pagesInJournal, i) && i != iSkip) {
+                                    final ISqlJetPage pg = getPage(i);
+                                    pg.write();
+                                    pg.unref();
+                                }
+                            }
+                        }
+
+                        writeMasterJournal(master);
+                        syncJournal();
+                    }
+                }
+
+                if (pageNumberTrunc != 0) {
+                    truncate(pageNumberTrunc);
+                }
+
+                /* Write all dirty pages to the database file */
+                final List<ISqlJetPage> dirtyList = pageCache.getDirtyList();
+                writePageList(dirtyList);
+                /*
+                 * The error might have left the dirty list all fouled up here,
+                 * but that does not matter because if the if the dirty list did
+                 * get corrupted, then the transaction will roll back and
+                 * discard the dirty list. There is an assert in
+                 * pager_get_all_dirty_pages() that verifies that no attempt is
+                 * made to use an invalid dirty list.
+                 */
+                pageCache.cleanAll();
+
+                /* Sync the database file. */
+                if (!this.noSync && !noSync) {
+                    fd.sync(syncFlags);
+                }
+
+                state = SqlJetPagerState.SYNCED;
+
+            } else if (memDb && pageNumberTrunc != 0) {
+                truncate(pageNumberTrunc);
+            }
+
+        } catch (SqlJetIOException e) {
+            if (e.getIoErrorCode() == SqlJetIOErrorCode.IOERR_BLOCKED) {
+                /*
+                 * pager_incr_changecounter() may attempt to obtain an exclusive
+                 * lock to spill the cache and return IOERR_BLOCKED. But since
+                 * there is no chance the cache is inconsistent, it is better to
+                 * return SQLITE_BUSY.
+                 */
+                throw new SqlJetException(SqlJetErrorCode.BUSY);
+            }
+        }
+    }
+
+    /**
+     * Given a list of pages (connected by the PgHdr.pDirty pointer) write every
+     * one of those pages out to the database file. No calls are made to the
+     * page-cache to mark the pages as clean. It is the responsibility of the
+     * caller to use PcacheCleanAll() or PcacheMakeClean() to mark the pages as
+     * clean.
+     * 
+     * @param pList
+     */
+    private void writePageList(List<ISqlJetPage> pList) throws SqlJetException {
+
+        if (pList == null)
+            return;
+
+        /*
+         * At this point there may be either a RESERVED or EXCLUSIVE lock on the
+         * database file. If there is already an EXCLUSIVE lock, the following
+         * calls to sqlite3OsLock() are no-ops.
+         * 
+         * Moving the lock from RESERVED to EXCLUSIVE actually involves going
+         * through an intermediate state PENDING. A PENDING lock prevents new
+         * readers from attaching to the database but is unsufficient for us to
+         * write. The idea of a PENDING lock is to prevent new readers from
+         * coming in while we wait for existing readers to clear.
+         * 
+         * While the pager is in the RESERVED state, the original database file
+         * is unchanged and we can rollback without having to playback the
+         * journal into the original database file. Once we transition to
+         * EXCLUSIVE, it means the database file has been changed and any
+         * rollback will require a journal playback.
+         */
+        waitOnLock(SqlJetLockType.EXCLUSIVE);
+
+        for (final ISqlJetPage page : pList) {
+
+            /* If the file has not yet been opened, open it now. */
+            if (null == fd) {
+                assertion(tempFile);
+                fd = openTemp(type, permissions);
+            }
+
+            /*
+             * If there are dirty pages in the page cache with page numbers
+             * greater than Pager.dbSize, this means sqlite3PagerTruncate() was
+             * called to make the file smaller (presumably by auto-vacuum code).
+             * Do not write any such pages to the file.
+             */
+            if (page.getPageNumber() <= dbSize && !page.getFlags().contains(SqlJetPageFlags.DONT_WRITE)) {
+
+                long offset = (page.getPageNumber() - 1) * pageSize;
+
+                byte[] pData = page.getData();
+
+                fd.write(pData, pageSize, offset);
+                if (page.getPageNumber() == 1) {
+                    SqlJetUtility.memcpy(dbFileVers, 0, pData, 24, dbFileVers.length);
+                }
+            }
+
+            page.setHash(pageHash(page));
+        }
+
+    }
+
+    /**
+     * Open a temporary file. 
+     *
+     * Write the file descriptor into *fd.  Return SQLITE_OK on success or some
+     * other error code if we fail. The OS will automatically delete the temporary
+     * file when it is closed.
+     * 
+     * @param fd2
+     * @param type2
+     * @param permissions2
+     */
+    private ISqlJetFile openTemp(SqlJetFileType type, EnumSet<SqlJetFileOpenPermission> permissions)
+            throws SqlJetException {
+
+        final EnumSet<SqlJetFileOpenPermission> flags = EnumSet.copyOf(permissions);
+        flags.add(SqlJetFileOpenPermission.READWRITE);
+        flags.add(SqlJetFileOpenPermission.CREATE);
+        flags.add(SqlJetFileOpenPermission.EXCLUSIVE);
+        flags.add(SqlJetFileOpenPermission.DELETEONCLOSE);
+        return fileSystem.open(null, type, flags);
+
+    }
+
+    /**
+     * Write the supplied master journal name into the journal file for pager
+     * pPager at the current location. The master journal name must be the last
+     * thing written to a journal file. If the pager is in full-sync mode, the
+     * journal file descriptor is advanced to the next sector boundary before
+     * anything is written. The format is:
+     * 
+     * + 4 bytes: PAGER_MJ_PGNO. + N bytes: length of master journal name. + 4
+     * bytes: N + 4 bytes: Master journal name checksum. + 8 bytes:
+     * aJournalMagic[].
+     * 
+     * The master journal page checksum is the sum of the bytes in the master
+     * journal name.
+     * 
+     * If zMaster is a NULL pointer (occurs for a single database transaction),
+     * this call is a no-op.
+     * 
+     * @param master
+     */
+    private void writeMasterJournal(String master) throws SqlJetException {
+
+        int len;
+        int i;
+        long jrnlOff;
+        long jrnlSize;
+        int cksum = 0;
+        byte[] zBuf = new byte[aJournalMagic.length + 2 * 4];
+
+        if (null == master || setMaster)
+            return;
+
+        setMaster = true;
+
+        final byte[] zMaster = master.getBytes();
+
+        len = zMaster.length;
+        for (i = 0; i < len; i++) {
+            cksum += zMaster[i];
+        }
+
+        /*
+         * If in full-sync mode, advance to the next disk sector before writing
+         * the master journal name. This is in case the previous page written to
+         * the journal has already been synced.
+         */
+        if (fullSync) {
+            seekJournalHdr();
+        }
+        jrnlOff = journalOff;
+        journalOff += (len + 20);
+
+        write32bits(jfd, jrnlOff, int_PAGER_MJ_PGNO());
+        jrnlOff += 4;
+
+        jfd.write(zMaster, len, jrnlOff);
+        jrnlOff += len;
+
+        put32bits(zBuf, len);
+        put32bits(zBuf, 4, cksum);
+        SqlJetUtility.memcpy(zBuf, 8, aJournalMagic, 0, aJournalMagic.length);
+
+        try {
+            jfd.write(zBuf, zBuf.length, jrnlOff);
+        } finally {
+            jrnlOff += zBuf.length;
+            needSync = !noSync;
+        }
+
+        /*
+         * If the pager is in peristent-journal mode, then the physical
+         * journal-file may extend past the end of the master-journal name and 8
+         * bytes of magic data just written to the file. This is dangerous
+         * because the code to rollback a hot-journal file will not be able to
+         * find the master-journal name to determine whether or not the journal
+         * is hot.
+         * 
+         * Easiest thing to do in this scenario is to truncate the journal file
+         * to the required size.
+         */
+        jrnlSize = jfd.fileSize();
+        if (jrnlSize > jrnlOff) {
+            jfd.truncate(jrnlOff);
+        }
+    }
+
+    /**
+     * This routine is called to increment the database file change-counter,
+     * stored at byte 24 of the pager file.
+     * 
+     * @param b
+     */
+    private void incrChangeCounter() throws SqlJetException {
+
+        ISqlJetPage page;
+        int change_counter;
+
+        if (!changeCountDone) {
+            /* Open page 1 of the file for writing. */
+            page = getPage(1);
+
+            try {
+                page.write();
+            } catch (SqlJetException e) {
+                page.unref();
+                throw e;
+            }
+
+            /* Increment the value just read and write it back to byte 24. */
+            change_counter = SqlJetUtility.get4byte(dbFileVers);
+            change_counter++;
+            put32bits(page.getData(), 24, change_counter);
+
+            /* Release the page reference. */
+            page.unref();
+            changeCountDone = true;
+        }
 
     }
 

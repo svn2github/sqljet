@@ -47,4 +47,23 @@ public class SqlJetUtility {
         return ByteBuffer.wrap(new byte[4]).putInt(0, v).array();
     }
 
+    public static void put4byte(byte[] p, int pos, int v) {
+        if(null==p||(p.length-pos)<4) 
+            throw new SqlJetError("Wrong destination");
+        ByteBuffer.wrap(p).putInt(pos, v);
+    }
+    
+    /**
+     * @param dest
+     * @param src
+     * @param length
+     */
+    public static void memcpy(byte[] dest, byte[] src, int length) {
+        System.arraycopy(src, 0, dest, 0, length);
+    }
+
+    public static void memcpy(byte[] dest, int dstPos, byte[] src, int srcPos, int length) {
+        System.arraycopy(src, dstPos, dest, srcPos, length);
+    }
+    
 }

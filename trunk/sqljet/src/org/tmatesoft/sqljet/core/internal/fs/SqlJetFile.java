@@ -624,8 +624,10 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
+    final static EnumSet<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = 
+        EnumSet.noneOf(SqlJetDeviceCharacteristics.class);
     public EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics() {
-        return null;
+        return noDeviceCharacteristircs;
     }
 
     private synchronized void findLockInfo() {

@@ -249,21 +249,22 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     }
 
     /**
-     * Check to see if the i-th bit is set.  Return true or false.
-     * If p is NULL (if the bitmap has not been created) or if
-     * i is out of range, then return false.
+     * Check to see if the i-th bit is set. Return true or false. If p is NULL
+     * (if the bitmap has not been created) or if i is out of range, then return
+     * false.
      * 
      * @param bitSet
      * @param index
      * @return
      */
-    private boolean bitSetTest(BitSet bitSet, int index){
-        if( bitSet==null ) return false;
-        if( index<0 ) return false;
+    private boolean bitSetTest(BitSet bitSet, int index) {
+        if (bitSet == null)
+            return false;
+        if (index < 0)
+            return false;
         return bitSet.get(index);
     }
-        
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -531,13 +532,14 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * .core.SqlJetPagerSafetyLevel)
      */
     public void setSafetyLevel(final SqlJetPagerSafetyLevel safetyLevel) {
-        
+
         this.safetyLevel = safetyLevel;
-        
-        noSync =  safetyLevel==SqlJetPagerSafetyLevel.OFF || tempFile || memDb;
-        fullSync = safetyLevel==SqlJetPagerSafetyLevel.FULL && !tempFile;
-        if( noSync ) needSync = false;
-        
+
+        noSync = safetyLevel == SqlJetPagerSafetyLevel.OFF || tempFile || memDb;
+        fullSync = safetyLevel == SqlJetPagerSafetyLevel.FULL && !tempFile;
+        if (noSync)
+            needSync = false;
+
     }
 
     /*
@@ -796,8 +798,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                             // e.printStackTrace();
                         }
                     journalOpen = false;
-                    pagesInJournal=null;
-                    pagesAlwaysRollback=null;
+                    pagesInJournal = null;
+                    pagesAlwaysRollback = null;
                 }
 
                 /*
@@ -816,7 +818,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                             } catch (final SqlJetException e) {
                                 // e.printStackTrace();
                             }
-                        pagesInStmt=null;
+                        pagesInStmt = null;
                     }
                     stmtOpen = false;
                     stmtInUse = false;
@@ -849,8 +851,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             if (null != jfd)
                 jfd.close();
         }
-        pagesInJournal=null;
-        pagesAlwaysRollback=null;
+        pagesInJournal = null;
+        pagesAlwaysRollback = null;
         if (stmtOpen) {
             if (null != stfd)
                 stfd.close();
@@ -1050,7 +1052,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         final byte[] data = page.getData();
         fd.read(data, pageSize, offset);
         if (1 == pageNumber) {
-            System.arraycopy(dbFileVers, 0, data, 2, dbFileVers.length);
+            SqlJetUtility.memcpy(dbFileVers, 0, data, 24, dbFileVers.length);
         }
     }
 
@@ -1075,7 +1077,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * the error. Discard the contents of the pager-cache and treat any open
          * journal file as a hot-journal.
          */
-        if (!memDb && lockingMode == SqlJetPagerLockingMode.EXCLUSIVE && pageCache.getRefCount() == 0 && null != errCode) {
+        if (!memDb && lockingMode == SqlJetPagerLockingMode.EXCLUSIVE && pageCache.getRefCount() == 0
+                && null != errCode) {
             if (journalOpen) {
                 isErrorReset = true;
             }
@@ -1759,7 +1762,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * sqlite3PagerRollback().
              */
             final byte[] pData = pPg.getData();
-            System.arraycopy(pData, 0, aData, 0, pageSize);
+            SqlJetUtility.memcpy(pData, aData, pageSize);
 
             if (null != reiniter) {
                 reiniter.pageCallback(pPg);
@@ -1772,7 +1775,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * Do this before any decoding.
              */
             if (pgno == 1) {
-                System.arraycopy(dbFileVers, 0, pData, 24, dbFileVers.length);
+                SqlJetUtility.memcpy(dbFileVers, 0, pData, 24, dbFileVers.length);
             }
 
             pageCache.release(pPg);
@@ -2287,23 +2290,209 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     }
 
     /**
+     * The journal file must be open when this routine is called. A journal
+     * header (JOURNAL_HDR_SZ bytes) is written into the journal file at the
+     * current location.
+     *
+     * The format for the journal header is as follows:
+     * - 8 bytes: Magic identifying journal format.
+     * - 4 bytes: Number of records in journal, or -1 no-sync mode is on.
+     * - 4 bytes: Random number used for page hash.
+     * - 4 bytes: Initial database page count.
+     * - 4 bytes: Sector size used by the process that wrote this journal.
+     * - 4 bytes: Database page size.
+     *
+     * Followed by (JOURNAL_HDR_SZ - 28) bytes of unused space.
      * 
      */
-    private void writeJournalHdr() {
-        // TODO Auto-generated method stub
+    private void writeJournalHdr() throws SqlJetException {
         
+        SqlJetException rc = null;
+        
+        byte[] zHeader = tmpSpace;
+        int nHeader = pageSize;
+        int nWrite;
+
+        if( nHeader>JOURNAL_HDR_SZ() ){
+          nHeader = JOURNAL_HDR_SZ();
+        }
+        
+        if( stmtHdrOff==0 ){
+          stmtHdrOff = journalOff;
+        }
+
+        seekJournalHdr();
+        journalHdr = journalOff;
+        
+        SqlJetUtility.memcpy(zHeader, aJournalMagic, aJournalMagic.length );
+
+        /* 
+        ** Write the nRec Field - the number of page records that follow this
+        ** journal header. Normally, zero is written to this value at this time.
+        ** After the records are added to the journal (and the journal synced, 
+        ** if in full-sync mode), the zero is overwritten with the true number
+        ** of records (see syncJournal()).
+        **
+        ** A faster alternative is to write 0xFFFFFFFF to the nRec field. When
+        ** reading the journal this value tells SQLite to assume that the
+        ** rest of the journal file contains valid page records. This assumption
+        ** is dangerous, as if a failure occured whilst writing to the journal
+        ** file it may contain some garbage data. There are two scenarios
+        ** where this risk can be ignored:
+        **
+        **   * When the pager is in no-sync mode. Corruption can follow a
+        **     power failure in this case anyway.
+        **
+        **   * When the SQLITE_IOCAP_SAFE_APPEND flag is set. This guarantees
+        **     that garbage data is never appended to the journal file.
+        */
+        assertion(fd!=null||noSync);
+        if( noSync || fd.deviceCharacteristics().contains(
+               SqlJetDeviceCharacteristics.IOCAP_SAFE_APPEND))
+        {
+          put32bits(zHeader,aJournalMagic.length, 0xffffffff);
+        }else{
+          put32bits(zHeader,aJournalMagic.length, 0);
+        }
+
+        /* The random check-hash initialiser */ 
+        cksumInit = randomnessInt();
+        put32bits(zHeader, aJournalMagic.length+4, cksumInit);
+        
+        /* The initial database size */
+        put32bits(zHeader, aJournalMagic.length+8, dbSize);
+        
+        /* The assumed sector size for this process */
+        put32bits(zHeader, aJournalMagic.length+8, sectorSize);
+        
+        if( journalHdr==0 ){
+          /* The page size */
+          put32bits(zHeader, aJournalMagic.length+8, pageSize);
+        }
+
+        for(nWrite=0; rc==null && nWrite<JOURNAL_HDR_SZ(); nWrite+=nHeader){
+            try {
+                jfd.write(zHeader, nHeader, journalOff);
+            } catch (SqlJetException e) {
+                rc = e;
+            }
+            journalOff += nHeader;
+        }
+
+        if(rc!=null) throw rc;
     }
 
     /**
-     * Create a journal file for pPager.  There should already be a RESERVED
-     * or EXCLUSIVE lock on the database file when this routine is called.
-     *
-     * Return SQLITE_OK if everything.  Return an error code and release the
+     * @return
+     * @throws SqlJetException 
+     */
+    private int randomnessInt() throws SqlJetException {
+        return SqlJetUtility.get4byte(fileSystem.randomness(4));
+    }
+
+    /**
+     * Write a 32-bit integer into a buffer in big-endian byte order.
+     * 
+     * @param p
+     * @param pos
+     * @param v
+     */
+    private void put32bits(byte[] p, int pos, int v) {
+        SqlJetUtility.put4byte(p, pos, v);
+    }
+
+    /**
+     * Create a journal file for pPager. There should already be a RESERVED or
+     * EXCLUSIVE lock on the database file when this routine is called.
+     * 
+     * Return SQLITE_OK if everything. Return an error code and release the
      * write lock if anything goes wrong.
      */
-    private void openJournal() {
-        // TODO Auto-generated method stub
-        
+    private void openJournal() throws SqlJetException {
+
+        SqlJetFileType fileType = null;
+
+        EnumSet<SqlJetFileOpenPermission> flags = EnumSet.of(SqlJetFileOpenPermission.READWRITE,
+                SqlJetFileOpenPermission.EXCLUSIVE, SqlJetFileOpenPermission.CREATE);
+
+        SqlJetException rc = null;
+
+        assertion(!memDb);
+        assertion(state.compareTo(SqlJetPagerState.RESERVED) >= 0);
+        assertion(useJournal);
+        assertion(pagesInJournal == null);
+
+        getPageCount();
+        pagesInJournal = new BitSet(dbSize);
+
+        try {
+
+            if (!journalOpen) {
+                if (tempFile) {
+                    flags.add(SqlJetFileOpenPermission.DELETEONCLOSE);
+                    fileType = SqlJetFileType.TEMP_JOURNAL;
+                } else {
+                    fileType = SqlJetFileType.MAIN_JOURNAL;
+                }
+                try {
+                    jfd = fileSystem.open(journal, fileType, flags);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+                assertion(rc != null || jfd != null);
+                journalOff = 0;
+                setMaster = false;
+                journalHdr = 0;
+
+                if (rc != null) {
+                    fileSystem.delete(journal, false);
+                    throw rc;
+                }
+
+            }
+            journalOpen = true;
+            journalStarted = false;
+            needSync = false;
+            nRec = 0;
+            if (errCode != null) {
+                rc = new SqlJetException(errCode);
+                throw rc;
+            }
+            origDbSize = dbSize;
+
+            try {
+                writeJournalHdr();
+            } catch (SqlJetException e) {
+                rc = e;
+            }
+
+            if (stmtAutoopen && rc == null) {
+                try {
+                    stmtBegin();
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+            }
+            if (rc != null) {
+                try {
+                    endTransaction(false);
+                } catch (SqlJetException e) {
+                    rc = e;
+                }
+                if (rc == null) {
+                    rc = new SqlJetException(SqlJetErrorCode.FULL);
+                    throw rc;
+                }
+            }
+
+        } finally {
+            // failed_to_open_journal:
+            if (rc != null) {
+                pagesInJournal = null;
+                throw rc;
+            }
+
+        }
     }
 
     /*

@@ -555,7 +555,7 @@ public interface ISqlJetPager {
      * @return
      * @throws SqlJetException
      */
-    int refCount() throws SqlJetException;
+    int getRefCount() throws SqlJetException;
 
 
     /**

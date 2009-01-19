@@ -20,6 +20,6 @@ package org.tmatesoft.sqljet.core;
  */
 public interface ISqlJetPageCallback {
 
-    void pageCallback(final ISqlJetPage page);
+    void pageCallback(final ISqlJetPage page) throws SqlJetException;
     
 }

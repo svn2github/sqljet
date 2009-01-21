@@ -28,7 +28,7 @@ public interface ISqlJetPageCache {
     /**
      * Initialize the page cache subsystem
      */
-    int initialize();
+    void initialize() throws SqlJetException;
 
     /**
      * Shutdown the page cache subsystem
@@ -87,8 +87,9 @@ public interface ISqlJetPageCache {
      * size for PCache object. This can only happen when the cache is empty.
      * 
      * @param pageSize
+     * @throws SqlJetException 
      */
-    void setPageSize(final int pageSize);
+    void setPageSize(final int pageSize) throws SqlJetException;
 
     /**
      * Try to obtain a page from the cache.
@@ -119,8 +120,9 @@ public interface ISqlJetPageCache {
      * pointed to by p is invalid.
      * 
      * @param page
+     * @throws SqlJetException 
      */
-    void drop(final ISqlJetPage page);
+    void drop(final ISqlJetPage page) throws SqlJetException;
 
     /**
      * Make sure the page is marked as dirty. If it isn't dirty already, make it
@@ -140,9 +142,10 @@ public interface ISqlJetPageCache {
 
     /**
      * Mark all dirty list pages as clean Make every page in the cache clean.
+     * @throws SqlJetException 
      * 
      */
-    void cleanAll();
+    void cleanAll() throws SqlJetException;
 
     /**
      * Change a page number. Used by incr-vacuum.
@@ -212,16 +215,18 @@ public interface ISqlJetPageCache {
 
     /**
      * Reset and close the cache object
+     * @throws SqlJetException 
      * 
      */
-    void close();
+    void close() throws SqlJetException;
 
     /**
      * Clear flags from pages of the page cache
      * 
      * @param flags
+     * @throws SqlJetException 
      */
-    void clearFlags(final EnumSet<SqlJetPageFlags> flags);
+    void clearFlags(final EnumSet<SqlJetPageFlags> flags) throws SqlJetException;
 
     /**
      * Return true if the number of dirty pages is 0 or 1

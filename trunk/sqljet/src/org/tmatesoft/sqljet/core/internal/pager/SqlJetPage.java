@@ -31,10 +31,10 @@ public class SqlJetPage implements ISqlJetPage {
     byte[] pData;                   /* Content of this page */
     byte[] pExtra;                  /* Extra content */
     List<SqlJetPage> pDirty;                 /* Transient list of dirty pages */
-    long pgno;                     /* Page number for this page */
+    int pgno;                     /* Page number for this page */
     ISqlJetPager pPager;                 /* The pager this page is part of */
     long pageHash;                  /* Hash of page content */
-    EnumSet<SqlJetPageFlags> flags; /* PGHDR flags defined below */
+    EnumSet<SqlJetPageFlags> flags = EnumSet.noneOf(SqlJetPageFlags.class); /* PGHDR flags defined below */
     /**********************************************************************
     ** Elements above are public.  All that follows is private to pcache.c
     ** and should not be accessed by other modules.

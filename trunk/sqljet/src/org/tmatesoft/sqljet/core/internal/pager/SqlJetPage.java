@@ -30,7 +30,7 @@ public class SqlJetPage implements ISqlJetPage {
 
     byte[] pData;                   /* Content of this page */
     byte[] pExtra;                  /* Extra content */
-    List<SqlJetPage> pDirty;                 /* Transient list of dirty pages */
+    SqlJetPage pDirty;                 /* Transient list of dirty pages */
     int pgno;                     /* Page number for this page */
     ISqlJetPager pPager;                 /* The pager this page is part of */
     long pageHash;                  /* Hash of page content */
@@ -41,7 +41,7 @@ public class SqlJetPage implements ISqlJetPage {
     */
     int nRef;                      /* Number of users of this page */
     SqlJetPageCache pCache;                /* Cache that owns this page */
-    Object[] apSave = new Object[2];               /* Journal entries for in-memory databases */
+    byte[][] apSave = new byte[2][];               /* Journal entries for in-memory databases */
     /**********************************************************************
     ** Elements above are accessible at any time by the owner of the cache
     ** without the need for a mutex.  The elements that follow can only be
@@ -162,6 +162,18 @@ public class SqlJetPage implements ISqlJetPage {
     public void setPageNumber(int pageNumber) {
         // TODO Auto-generated method stub
         
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getNext()
+     */
+    public ISqlJetPage getNext() {
+        return pNext;
+    }
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getPrev()
+     */
+    public ISqlJetPage getPrev() {
+        return pPrev;
     }
     
 }

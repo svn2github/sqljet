@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * @author TMate Software Ltd.
@@ -64,6 +65,15 @@ public class SqlJetUtility {
 
     public static void memcpy(byte[] dest, int dstPos, byte[] src, int srcPos, int length) {
         System.arraycopy(src, dstPos, dest, srcPos, length);
+    }
+
+    /**
+     * @param data
+     * @param i
+     * @param szPage
+     */
+    public static void memset(byte[] data, byte value, int count) {
+        Arrays.fill(data,0,count, value);
     }
     
 }

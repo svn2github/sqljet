@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import static org.tmatesoft.sqljet.core.SqlJetException.*;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPageCache;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetPageFlags;
+import org.tmatesoft.sqljet.core.SqlJetUtility;
 
 /**
  * A complete page cache is an instance of this structure.
@@ -41,6 +43,8 @@ import org.tmatesoft.sqljet.core.SqlJetPageFlags;
  */
 public class SqlJetPageCache implements ISqlJetPageCache {
 
+    private static final int N_SORT_BUCKET_ALLOC = 25;
+    private static final int N_SORT_BUCKET = 25;
     /*
      * The first group of elements may be read or written at any time by the
      * cache owner without holding the mutex. No thread other than the cache
@@ -604,9 +608,9 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     public void drop(ISqlJetPage page) throws SqlJetException {
         assertion(page instanceof SqlJetPage);
         final SqlJetPage p = (SqlJetPage) page;
-        assertion( p.nRef==1 );
-        assertion( !p.flags.contains(SqlJetPageFlags.DIRTY) );
-        
+        assertion(p.nRef == 1);
+        assertion(!p.flags.contains(SqlJetPageFlags.DIRTY));
+
         nRef--;
         nPinned--;
         synchronized (pcache_g) {
@@ -622,8 +626,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#getCachesize()
      */
     public int getCachesize() {
-        // TODO Auto-generated method stub
-        return 0;
+        return nMax;
     }
 
     /*
@@ -631,9 +634,85 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#getDirtyList()
      */
-    public List<ISqlJetPage> getDirtyList() {
-        // TODO Auto-generated method stub
-        return null;
+    public ISqlJetPage getDirtyList() {
+        SqlJetPage p;
+        for (p = pDirty; p != null; p = p.pNext) {
+            p.pDirty = p.pNext;
+        }
+        return sortDirtyList(pDirty);
+    }
+
+    /**
+     * Sort the list of pages in accending order by pgno. Pages are connected by
+     * pDirty pointers. The pPrevDirty pointers are corrupted by this sort.
+     * 
+     * @param dirty
+     * @return
+     */
+    private ISqlJetPage sortDirtyList(SqlJetPage pIn) {
+        SqlJetPage p;
+        SqlJetPage[] a = new SqlJetPage[N_SORT_BUCKET_ALLOC];
+        int i;
+        Arrays.fill(a, null);
+        while (pIn != null) {
+            p = pIn;
+            pIn = p.pDirty;
+            p.pDirty = null;
+            for (i = 0; i < N_SORT_BUCKET - 1; i++) {
+                if (a[i] == null) {
+                    a[i] = p;
+                    break;
+                } else {
+                    p = mergeDirtyList(a[i], p);
+                    a[i] = null;
+                }
+            }
+            if (i == N_SORT_BUCKET - 1) {
+                /*
+                 * Coverage: To get here, there need to be 2^(N_SORT_BUCKET)
+                 * elements in the input list. This is possible, but
+                 * impractical. Testing this line is the point of global
+                 * variable sqlite3_pager_n_sort_bucket.
+                 */
+                a[i] = mergeDirtyList(a[i], p);
+            }
+        }
+        p = a[0];
+        for (i = 1; i < N_SORT_BUCKET; i++) {
+            p = mergeDirtyList(p, a[i]);
+        }
+        return p;
+    }
+
+    /**
+     * Merge two lists of pages connected by pDirty and in pgno order. Do not
+     * both fixing the pPrevDirty pointers.
+     * 
+     * @param p
+     * @param sqlJetPage
+     * @return
+     */
+    private SqlJetPage mergeDirtyList(SqlJetPage pA, SqlJetPage pB) {
+        SqlJetPage pTail = new SqlJetPage();
+        while (pA != null && pB != null) {
+            if (pA.pgno < pB.pgno) {
+                pTail.pDirty = pA;
+                pTail = pA;
+                pA = pA.pDirty;
+            } else {
+                pTail.pDirty = pB;
+                pTail = pB;
+                pB = pB.pDirty;
+            }
+        }
+        if (pA != null) {
+            pTail.pDirty = pA;
+        } else if (pB != null) {
+            pTail.pDirty = pB;
+        } else {
+            pTail.pDirty = null;
+        }
+        return pTail.pDirty;
     }
 
     /*
@@ -642,8 +721,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#getPageCount()
      */
     public int getPageCount() {
-        // TODO Auto-generated method stub
-        return 0;
+        return nPage;
     }
 
     /*
@@ -652,18 +730,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#getRefCount()
      */
     public int getRefCount() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#isZeroOrOneDirtyPages()
-     */
-    public boolean isZeroOrOneDirtyPages() {
-        // TODO Auto-generated method stub
-        return false;
+        return nRef;
     }
 
     /*
@@ -673,9 +740,14 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#iterate(org.tmatesoft.sqljet
      * .core.ISqlJetPageCallback)
      */
-    public void iterate(ISqlJetPageCallback iter) {
-        // TODO Auto-generated method stub
-
+    public void iterate(ISqlJetPageCallback iter) throws SqlJetException {
+        SqlJetPage p;
+        for (p = pClean; p != null; p = p.pNext) {
+            iter.pageCallback(p);
+        }
+        for (p = pDirty; p != null; p = p.pNext) {
+            iter.pageCallback(p);
+        }
     }
 
     /*
@@ -685,9 +757,22 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#makeClean(org.tmatesoft.sqljet
      * .core.ISqlJetPage)
      */
-    public void makeClean(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-
+    public void makeClean(ISqlJetPage page) throws SqlJetException {
+        if (page.getFlags().contains(SqlJetPageFlags.DIRTY)) {
+            // pcacheEnterMutex();
+            synchronized (pcache_g) {
+                SqlJetPage p = (SqlJetPage) page;
+                assert (p.apSave[0] == null && p.apSave[1] == null);
+                removeFromList(pDirty, p);
+                addToList(pClean, p);
+                p.flags.remove(SqlJetPageFlags.DIRTY);
+                if (nRef == 0) {
+                    addToLruList(p);
+                    nPinned--;
+                }
+            }
+            // pcacheExitMutex();
+        }
     }
 
     /*
@@ -697,9 +782,19 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#makeDirty(org.tmatesoft.sqljet
      * .core.ISqlJetPage)
      */
-    public void makeDirty(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-
+    public void makeDirty(ISqlJetPage page) throws SqlJetException {
+        SqlJetPage p = (SqlJetPage) page;
+        p.flags.remove(SqlJetPageFlags.DONT_WRITE);
+        if (p.flags.contains(SqlJetPageFlags.DIRTY))
+            return;
+        assert (p.nRef > 0);
+        // pcacheEnterMutex();
+        synchronized (pcache_g) {
+            removeFromList(pClean, p);
+            addToList(pDirty, p);
+        }
+        // pcacheExitMutex();
+        p.flags.add(SqlJetPageFlags.DIRTY);
     }
 
     /*
@@ -709,9 +804,24 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#move(org.tmatesoft.sqljet.
      * core.ISqlJetPage, int)
      */
-    public void move(ISqlJetPage page, int pageNumber) {
-        // TODO Auto-generated method stub
-
+    public void move(ISqlJetPage page, int pageNumber) throws SqlJetException {
+        SqlJetPage p = (SqlJetPage) page;
+        assertion(p.nRef > 0);
+        // pcacheEnterMutex();
+        synchronized (pcache_g) {
+            removeFromHash(p);
+            p.pgno = pageNumber;
+            if (pageNumber == 0) {
+                p.apSave[0] = null;
+                p.apSave[1] = null;
+                if ((p.flags.contains(SqlJetPageFlags.DIRTY))) {
+                    makeClean(p);
+                }
+                p.flags = EnumSet.of(SqlJetPageFlags.REUSE_UNLIKELY);
+            }
+            addToHash(p);
+        }
+        // pcacheExitMutex();
     }
 
     /*
@@ -722,8 +832,15 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * .core.ISqlJetPage, boolean)
      */
     public void preserve(ISqlJetPage page, boolean isStatementJournal) throws SqlJetException {
-        // TODO Auto-generated method stub
-
+        SqlJetPage p = (SqlJetPage) page;
+        assertion(!p.pCache.bPurgeable);
+        final int idJournal = isStatementJournal ? 1 : 0;
+        assert (p.apSave[idJournal] == null);
+        byte[] x;
+        int sz;
+        sz = p.pCache.szPage;
+        p.apSave[idJournal] = x = malloc(sz);
+        SqlJetUtility.memcpy(x, p.pData, sz);
     }
 
     /*
@@ -733,9 +850,35 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#release(org.tmatesoft.sqljet
      * .core.ISqlJetPage)
      */
-    public void release(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-
+    public void release(ISqlJetPage page) throws SqlJetException {
+        SqlJetPage p = (SqlJetPage) page;
+        assertion(p.nRef > 0);
+        p.nRef--;
+        if (p.nRef == 0) {
+            SqlJetPageCache pCache = p.pCache;
+            if (pCache.xDestroy != null) {
+                pCache.xDestroy.pageCallback(p);
+            }
+            pCache.nRef--;
+            if (!p.flags.contains(SqlJetPageFlags.DIRTY)) {
+                pCache.nPinned--;
+                // pcacheEnterMutex();
+                synchronized (pcache_g) {
+                    if (pcache_g.nCurrentPage > pcache_g.nMaxPage) {
+                        removeFromList(pCache.pClean, p);
+                        removeFromHash(p);
+                        pageFree(p);
+                    } else {
+                        addToLruList(p);
+                    }
+                }
+                // pcacheExitMutex();
+            } else {
+                /* Move the page to the head of the caches dirty list. */
+                removeFromList(pCache.pDirty, p);
+                addToList(pCache.pDirty, p);
+            }
+        }
     }
 
     /*
@@ -744,9 +887,25 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#rollback(boolean,
      * org.tmatesoft.sqljet.core.ISqlJetPageCallback)
      */
-    public void rollback(boolean isStatementJournal, ISqlJetPageCallback reiniter) {
-        // TODO Auto-generated method stub
-
+    public void rollback(boolean isStatementJournal, ISqlJetPageCallback reiniter) throws SqlJetException {
+        SqlJetPage p;
+        int sz;
+        // pcacheEnterMutex(); /* Mutex is required to call pcacheFree() */
+        synchronized (pcache_g) {
+            sz = szPage;
+            for (p = pDirty; p != null; p = p.pNext) {
+                if (p.apSave[isStatementJournal ? 1 : 0] != null) {
+                    SqlJetUtility.memcpy(p.pData, p.apSave[isStatementJournal ? 1 : 0], sz);
+                    p.apSave[isStatementJournal ? 1 : 0] = null;
+                    if (reiniter != null) {
+                        reiniter.pageCallback(p);
+                    }
+                }
+                if (isStatementJournal)
+                    p.flags.remove(SqlJetPageFlags.IN_JOURNAL);
+            }
+        }
+        // pcacheExitMutex();
     }
 
     /*
@@ -754,9 +913,20 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#setCachesize(int)
      */
-    public void setCacheSize(int cacheSize) {
-        // TODO Auto-generated method stub
-
+    public void setCacheSize(int cacheSize) throws SqlJetException {
+        if (cacheSize < 10) {
+            cacheSize = 10;
+        }
+        if (bPurgeable) {
+            // pcacheEnterMutex();
+            synchronized (pcache_g) {
+                pcache_g.nMaxPage -= nMax;
+                pcache_g.nMaxPage += cacheSize;
+                enforceMaxPage();
+            }
+            // pcacheExitMutex();
+        }
+        nMax = cacheSize;
     }
 
     /*
@@ -764,9 +934,39 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#truncate(int)
      */
-    public void truncate(int pageNumber) {
-        // TODO Auto-generated method stub
-
+    public void truncate(int pageNumber) throws SqlJetException {
+        SqlJetPage p, pNext;
+        SqlJetPage pDirty = this.pDirty;
+        //pcacheEnterMutex();
+        synchronized (pcache_g) {
+            
+        for(p=pClean; p!=null||pDirty!=null; p=pNext){
+          if( p==null ){
+            p = pDirty;
+            pDirty = null;
+          }
+          pNext = p.pNext;
+          if( p.pgno>pageNumber ){
+            if( p.nRef==0 ){
+              removeFromHash(p);
+              if( p.flags.contains(SqlJetPageFlags.DIRTY) ){
+                removeFromList(pDirty, p);
+                nPinned--;
+              }else{
+                removeFromList(pClean, p);
+                removeFromLruList(p);
+              }
+              pageFree(p);
+            }else{
+              /* If there are references to the page, it cannot be freed. In this
+              ** case, zero the page content instead.
+              */
+              SqlJetUtility.memset(p.pData,(byte)0, szPage);
+            }
+          }
+        }
+        }
+        //pcacheExitMutex();
     }
 
 }

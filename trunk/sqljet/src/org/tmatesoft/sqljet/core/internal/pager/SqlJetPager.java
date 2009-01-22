@@ -2164,8 +2164,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * have a referenced page. But rather than delete that page and guarantee a
      * subsequent segfault, it seems better to zero it and hope that we error
      * out sanely.
+     * @throws SqlJetException 
      */
-    private void truncateCache() {
+    private void truncateCache() throws SqlJetException {
         pageCache.truncate(dbSize);
     }
 
@@ -2575,7 +2576,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 }
 
                 /* Write all dirty pages to the database file */
-                final List<ISqlJetPage> dirtyList = pageCache.getDirtyList();
+                final ISqlJetPage dirtyList = pageCache.getDirtyList();
                 writePageList(dirtyList);
                 /*
                  * The error might have left the dirty list all fouled up here,
@@ -2620,7 +2621,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @param pList
      */
-    private void writePageList(List<ISqlJetPage> pList) throws SqlJetException {
+    private void writePageList(ISqlJetPage pList) throws SqlJetException {
 
         if (pList == null)
             return;
@@ -2644,7 +2645,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          */
         waitOnLock(SqlJetLockType.EXCLUSIVE);
 
-        for (final ISqlJetPage page : pList) {
+        for (ISqlJetPage page=pList;page!=null;page=page.getNext()) {
 
             /* If the file has not yet been opened, open it now. */
             if (null == fd) {
@@ -3116,9 +3117,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                         writeJournalHdr();
                     }
                 }
-                final List<ISqlJetPage> l = new ArrayList<ISqlJetPage>();
-                l.add(page);
-                writePageList(l);
+                writePageList(page);
             } catch (SqlJetException e) {
                 error(e);
             }

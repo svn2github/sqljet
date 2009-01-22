@@ -14,7 +14,6 @@
 package org.tmatesoft.sqljet.core;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * The page cache subsystem
@@ -109,8 +108,9 @@ public interface ISqlJetPageCache {
      * pinned until released. Reference counted.
      * 
      * @param page
+     * @throws SqlJetException 
      */
-    void release(final ISqlJetPage page);
+    void release(final ISqlJetPage page) throws SqlJetException;
 
     /**
      * Remove page from cache
@@ -129,16 +129,18 @@ public interface ISqlJetPageCache {
      * so.
      * 
      * @param page
+     * @throws SqlJetException 
      */
-    void makeDirty(final ISqlJetPage page);
+    void makeDirty(final ISqlJetPage page) throws SqlJetException;
 
     /**
      * Make sure the page is marked as clean. If it isn't clean already, make it
      * so.
      * 
      * @param page
+     * @throws SqlJetException 
      */
-    void makeClean(final ISqlJetPage page);
+    void makeClean(final ISqlJetPage page) throws SqlJetException;
 
     /**
      * Mark all dirty list pages as clean Make every page in the cache clean.
@@ -156,8 +158,9 @@ public interface ISqlJetPageCache {
      * 
      * @param page
      * @param pageNumber
+     * @throws SqlJetException 
      */
-    void move(final ISqlJetPage page, final int pageNumber);
+    void move(final ISqlJetPage page, final int pageNumber) throws SqlJetException;
 
     /**
      * Remove all pages with page numbers more than pageNumber. Reset the cache
@@ -166,8 +169,9 @@ public interface ISqlJetPageCache {
      * Drop every cache entry whose page number is greater than "pgno".
      * 
      * @param pageNumber
+     * @throws SqlJetException 
      */
-    void truncate(final int pageNumber);
+    void truncate(final int pageNumber) throws SqlJetException;
 
     /**
      * Preserve the content of the page. It is assumed that the content has not
@@ -203,15 +207,16 @@ public interface ISqlJetPageCache {
      *            Which copy to rollback to
      * @param xReiniter
      *            Called on each rolled back page
+     * @throws SqlJetException 
      */
-    void rollback(final boolean isStatementJournal, final ISqlJetPageCallback xReiniter);
+    void rollback(final boolean isStatementJournal, final ISqlJetPageCallback xReiniter) throws SqlJetException;
 
     /**
      * Get a list of all dirty pages in the cache, sorted by page number
      * 
      * @return
      */
-    List<ISqlJetPage> getDirtyList();
+    ISqlJetPage getDirtyList();
 
     /**
      * Reset and close the cache object
@@ -231,7 +236,7 @@ public interface ISqlJetPageCache {
     /**
      * Return true if the number of dirty pages is 0 or 1
      */
-    boolean isZeroOrOneDirtyPages();
+    //boolean isZeroOrOneDirtyPages();
 
     /**
      * Discard the contents of the cache
@@ -252,8 +257,9 @@ public interface ISqlJetPageCache {
      * Iterate through all pages currently stored in the cache.
      * 
      * @param xIter
+     * @throws SqlJetException 
      */
-    void iterate(final ISqlJetPageCallback xIter);
+    void iterate(final ISqlJetPageCallback xIter) throws SqlJetException;
 
     /**
      * Get the cache-size for the pager-cache.
@@ -270,8 +276,9 @@ public interface ISqlJetPageCache {
      * suggested cache-sizes.
      * 
      * @param cacheSize
+     * @throws SqlJetException 
      */
-    void setCacheSize(final int cacheSize);
+    void setCacheSize(final int cacheSize) throws SqlJetException;
 
     /* Try to return memory used by the pcache module to the main memory heap */
     // int ReleaseMemory(int);

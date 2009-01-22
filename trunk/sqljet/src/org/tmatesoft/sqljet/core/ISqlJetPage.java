@@ -153,4 +153,8 @@ public interface ISqlJetPage {
     
     int getPageNumber();
     void setPageNumber(final int pageNumber);
+    
+    ISqlJetPage getNext(); 
+    ISqlJetPage getPrev();
+    
 }

@@ -16,20 +16,17 @@ package org.tmatesoft.sqljet.core.internal.pager;
 import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
+import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
-import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -253,23 +250,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     private int int_PAGER_MJ_PGNO() {
         return Long.valueOf(PAGER_MJ_PGNO()).intValue();
-    }
-
-    /**
-     * Check to see if the i-th bit is set. Return true or false. If p is NULL
-     * (if the bitmap has not been created) or if i is out of range, then return
-     * false.
-     * 
-     * @param bitSet
-     * @param index
-     * @return
-     */
-    private boolean bitSetTest(BitSet bitSet, int index) {
-        if (bitSet == null)
-            return false;
-        if (index < 0)
-            return false;
-        return bitSet.get(index);
     }
 
     /*
@@ -622,7 +602,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @throws SqlJetException
      */
-    private ISqlJetPage lookup(int pageNumber) throws SqlJetException {
+    ISqlJetPage lookup(int pageNumber) throws SqlJetException {
         return pageCache.fetch(pageNumber, false);
     }
 
@@ -907,7 +887,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              */
             page.setPager(this);
 
-            if (bitSetTest(pagesInJournal, pageNumber)) {
+            if (SqlJetUtility.bitSetTest(pagesInJournal, pageNumber)) {
                 assertion(!memDb);
                 if (null == page.getFlags())
                     page.setFlags(EnumSet.noneOf(SqlJetPageFlags.class));
@@ -976,7 +956,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @param page
      */
-    private void getContent(final ISqlJetPage page) throws SqlJetException {
+    void getContent(final ISqlJetPage page) throws SqlJetException {
         final EnumSet<SqlJetPageFlags> flags = page.getFlags();
         if (null != flags && flags.contains(SqlJetPageFlags.NEED_READ)) {
             readDbPage(page, page.getPageNumber());
@@ -989,8 +969,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @param page
      * @return
+     * @throws SqlJetException 
      */
-    private long pageHash(ISqlJetPage page) {
+    long pageHash(ISqlJetPage page) throws SqlJetException {
         return dataHash(pageSize, page.getData());
     }
 
@@ -1023,7 +1004,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @throws SqlJetException
      */
-    private void unlockIfUnused() throws SqlJetException {
+    void unlockIfUnused() throws SqlJetException {
         if ((pageCache.getRefCount() == 0) && (SqlJetPagerLockingMode.EXCLUSIVE != lockingMode || journalOff > 0)) {
             unlockAndRollback();
         }
@@ -1491,11 +1472,93 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     }
 
     /**
+     * Parameter zMaster is the name of a master journal file. A single journal
+     * file that referred to the master journal file has just been rolled back.
+     * This routine checks if it is possible to delete the master journal file,
+     * and does so if it is.
+     * 
+     * Argument zMaster may point to Pager.pTmpSpace. So that buffer is not
+     * available for use within this function.
+     * 
+     * 
+     * The master journal file contains the names of all child journals. To tell
+     * if a master journal can be deleted, check to each of the children. If all
+     * children are either missing or do not refer to a different master
+     * journal, then this master journal can be deleted.
+     * 
      * @param master
      */
     private void deleteMaster(String master) throws SqlJetException {
-        // TODO Auto-generated method stub
 
+        boolean master_open = false;
+        ISqlJetFile pMaster = null;
+        byte[] zMasterJournal = null; /* Contents of master journal file */
+        int nMasterJournal; /* Size of master journal file */
+
+        try {
+
+            /*
+             * Open the master journal file exclusively in case some other
+             * process is running this routine also. Not that it makes too much
+             * difference.
+             */
+            pMaster = fileSystem.open(new File(master), SqlJetFileType.MASTER_JOURNAL, EnumSet
+                    .of(SqlJetFileOpenPermission.READONLY));
+            master_open = true;
+
+            nMasterJournal = Long.valueOf(pMaster.fileSize()).intValue();
+
+            if (nMasterJournal > 0) {
+
+                /*
+                 * Load the entire master journal file into space obtained from
+                 * sqlite3_malloc() and pointed to by zMasterJournal.
+                 */
+                zMasterJournal = new byte[nMasterJournal];
+                pMaster.read(zMasterJournal, nMasterJournal, 0);
+
+                int nMasterPtr = 0;
+                while (nMasterPtr < nMasterJournal) {
+
+                    int zMasterPtr = SqlJetUtility.strlen(zMasterJournal, nMasterPtr);
+                    String zJournal = new String(zMasterJournal, nMasterPtr, zMasterPtr);
+                    final File journalPath = new File(zJournal);
+                    boolean exists = fileSystem.access(journalPath, SqlJetFileAccesPermission.EXISTS);
+
+                    if (exists) {
+                        /*
+                         * One of the journals pointed to by the master journal
+                         * exists. Open it and check if it points at the master
+                         * journal. If so, return without deleting the master
+                         * journal file.
+                         */
+                        final ISqlJetFile pJournal = fileSystem.open(journalPath, SqlJetFileType.MAIN_JOURNAL, EnumSet
+                                .of(SqlJetFileOpenPermission.READONLY));
+                        try {
+                            final String readJournal = readMasterJournal(pJournal);
+                            if (readJournal != null && readJournal.equals(master)) {
+                                /*
+                                 * We have a match. Do not delete the master
+                                 * journal file.
+                                 */
+                                return;
+                            }
+                        } finally {
+                            pJournal.close();
+                        }
+                    }
+                    nMasterPtr += zMasterPtr + 1;
+                }
+            }
+
+            fileSystem.delete(new File(master), false);
+
+        } finally {
+            // delmaster_out:
+            if (master_open && pMaster != null) {
+                pMaster.close();
+            }
+        }
     }
 
     /**
@@ -2164,7 +2227,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * have a referenced page. But rather than delete that page and guarantee a
      * subsequent segfault, it seems better to zero it and hope that we error
      * out sanely.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     private void truncateCache() throws SqlJetException {
         pageCache.truncate(dbSize);
@@ -2558,7 +2622,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                             int i;
                             long iSkip = PAGER_MJ_PGNO();
                             for (i = pageNumberTrunc + 1; i <= origDbSize; i++) {
-                                if (!bitSetTest(pagesInJournal, i) && i != iSkip) {
+                                if (!SqlJetUtility.bitSetTest(pagesInJournal, i) && i != iSkip) {
                                     final ISqlJetPage pg = getPage(i);
                                     pg.write();
                                     pg.unref();
@@ -2645,7 +2709,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          */
         waitOnLock(SqlJetLockType.EXCLUSIVE);
 
-        for (ISqlJetPage page=pList;page!=null;page=page.getNext()) {
+        for (ISqlJetPage page = pList; page != null; page = page.getNext()) {
 
             /* If the file has not yet been opened, open it now. */
             if (null == fd) {

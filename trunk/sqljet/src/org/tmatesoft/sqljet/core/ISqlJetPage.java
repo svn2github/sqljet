@@ -30,9 +30,10 @@ public interface ISqlJetPage {
 
     /**
      * Increment the reference count for a page.
+     * @throws SqlJetException 
      * 
      */
-    void ref();
+    void ref() throws SqlJetException;
 
     /**
      * Release a page.
@@ -131,9 +132,10 @@ public interface ISqlJetPage {
 
     /**
      * Return a pointer to the data for the specified page.
+     * @throws SqlJetException 
      * 
      */
-    byte[] getData();
+    byte[] getData() throws SqlJetException;
 
     /**
      * Return a pointer to the Pager.nExtra bytes of "extra" space allocated

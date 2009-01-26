@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * @author TMate Software Ltd.
@@ -49,11 +50,11 @@ public class SqlJetUtility {
     }
 
     public static void put4byte(byte[] p, int pos, int v) {
-        if(null==p||(p.length-pos)<4) 
+        if (null == p || (p.length - pos) < 4)
             throw new SqlJetError("Wrong destination");
         ByteBuffer.wrap(p).putInt(pos, v);
     }
-    
+
     /**
      * @param dest
      * @param src
@@ -69,11 +70,41 @@ public class SqlJetUtility {
 
     /**
      * @param data
-     * @param i
-     * @param szPage
+     * @param value
+     * @param count
      */
     public static void memset(byte[] data, byte value, int count) {
-        Arrays.fill(data,0,count, value);
+        Arrays.fill(data, 0, count, value);
     }
-    
+
+    /**
+     * @param s
+     * @param from
+     * @return
+     */
+    public static int strlen(byte[] s, int from) {
+        int p = from;
+        /* Loop over the data in s. */
+        while (p < s.length && s[p] != 0)
+            p++;
+        return (p - from);
+    }
+
+    /**
+     * Check to see if the i-th bit is set. Return true or false. If p is NULL
+     * (if the bitmap has not been created) or if i is out of range, then return
+     * false.
+     * 
+     * @param bitSet
+     * @param index
+     * @return
+     */
+    public static boolean bitSetTest(BitSet bitSet, int index) {
+        if (bitSet == null)
+            return false;
+        if (index < 0)
+            return false;
+        return bitSet.get(index);
+    }
+
 }

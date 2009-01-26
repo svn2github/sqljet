@@ -13,19 +13,16 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.*;
+import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPageCache;
+import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.SqlJetUtility;

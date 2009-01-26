@@ -41,9 +41,10 @@ public interface ISqlJetPage {
      * If the number of references to the page drop to zero, then the page is
      * added to the LRU list. When all references to all pages are released, a
      * rollback occurs and the lock on the database is removed.
+     * @throws SqlJetException 
      * 
      */
-    void unref();
+    void unref() throws SqlJetException;
 
     /**
      * This function is used to mark a data-page as writable. It uses

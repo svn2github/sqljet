@@ -207,16 +207,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /** Pointer to page cache object */
     SqlJetPageCache pageCache;
 
-    private SqlJetPagerSafetyLevel safetyLevel;
+    SqlJetPagerSafetyLevel safetyLevel;
 
     /**
      * Call this routine when reloading pages
      */
-    private ISqlJetPageCallback reiniter;
-    private ISqlJetBusyHandler busyHandler;
+    ISqlJetPageCallback reiniter;
+    ISqlJetBusyHandler busyHandler;
 
     /** One of several kinds of errors */
-    private SqlJetErrorCode errCode;
+    SqlJetErrorCode errCode;
 
     /**
      * The size of the header and of each page in the journal is determined by
@@ -244,11 +244,11 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @return
      */
-    private long PAGER_MJ_PGNO() {
+    long PAGER_MJ_PGNO() {
         return (ISqlJetFile.PENDING_BYTE / pageSize) + 1;
     }
 
-    private int int_PAGER_MJ_PGNO() {
+    int int_PAGER_MJ_PGNO() {
         return Long.valueOf(PAGER_MJ_PGNO()).intValue();
     }
 
@@ -969,7 +969,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @param page
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     long pageHash(ISqlJetPage page) throws SqlJetException {
         return dataHash(pageSize, page.getData());
@@ -1875,7 +1875,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param data
      * @return
      */
-    private int cksum(byte[] data) {
+    int cksum(byte[] data) {
         int cksum = cksumInit;
         int i = pageSize - 200;
         while (i > 0) {
@@ -2313,7 +2313,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @throws SqlJetException
      */
-    private void write32bits(ISqlJetFile fd, long offset, int val) throws SqlJetException {
+    static void write32bits(ISqlJetFile fd, long offset, int val) throws SqlJetException {
         final byte[] b = SqlJetUtility.put4byte(val);
         fd.write(b, b.length, offset);
     }
@@ -2481,7 +2481,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * Return SQLITE_OK if everything. Return an error code and release the
      * write lock if anything goes wrong.
      */
-    private void openJournal() throws SqlJetException {
+    void openJournal() throws SqlJetException {
 
         SqlJetFileType fileType = null;
 

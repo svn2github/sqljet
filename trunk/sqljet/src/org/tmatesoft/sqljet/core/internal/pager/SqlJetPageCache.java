@@ -231,16 +231,15 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
 
             if (pPage == null && createFlag) {
-                pPage = new SqlJetPage();
+                pPage = new SqlJetPage(szPage,szExtra);
                 pPage.pPager = null;
-                pPage.flags = null;
                 pPage.pDirty = null;
                 pPage.pgno = pageNumber;
                 pPage.pCache = this;
                 pPage.nRef = 1;
                 nRef++;
                 nPinned++;
-                addToList(pClean, pPage);
+                pClean=addToList(pClean, pPage);
                 addToHash(pPage);
             }
 
@@ -271,7 +270,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @param page
      * @throws SqlJetException
      */
-    private void addToList(SqlJetPage ppHead, SqlJetPage pPage) throws SqlJetException {
+    private SqlJetPage addToList(SqlJetPage ppHead, SqlJetPage pPage) throws SqlJetException {
         boolean isDirtyList = (ppHead == pPage.pCache.pDirty);
         assertion(ppHead == pPage.pCache.pClean || ppHead == pPage.pCache.pDirty);
 
@@ -292,6 +291,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 pCache.pSynced = pPage;
             }
         }
+        return ppHead;
     }
 
     /**
@@ -331,9 +331,9 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         synchronized (pcache_g) {
             while ((p = pDirty) != null) {
                 assertion(p.apSave[0] == null && p.apSave[1] == null);
-                removeFromList(pDirty, p);
+                pDirty=removeFromList(pDirty, p);
                 p.flags.remove(SqlJetPageFlags.DIRTY);
-                addToList(pClean, p);
+                pClean=addToList(pClean, p);
                 if (p.nRef == 0) {
                     addToLruList(p);
                     nPinned--;
@@ -394,7 +394,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @param p
      * @throws SqlJetException
      */
-    private void removeFromList(SqlJetPage ppHead, SqlJetPage pPage) throws SqlJetException {
+    private SqlJetPage removeFromList(SqlJetPage ppHead, SqlJetPage pPage) throws SqlJetException {
         boolean isDirtyList = (ppHead == pPage.pCache.pDirty);
         assertion(ppHead == pPage.pCache.pClean || ppHead == pPage.pCache.pDirty);
 
@@ -422,6 +422,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 pCache.pSynced = pSynced;
             }
         }
+        return ppHead;
     }
 
     /*
@@ -559,7 +560,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             assertion(!p.flags.contains(SqlJetPageFlags.DIRTY));
             removeFromLruList(p);
             removeFromHash(p);
-            removeFromList(pClean, p);
+            pClean=removeFromList(pClean, p);
         }
 
         return p;
@@ -611,7 +612,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         nRef--;
         nPinned--;
         synchronized (pcache_g) {
-            removeFromList(pClean, p);
+            pClean=removeFromList(pClean, p);
             removeFromHash(p);
             pageFree(p);
         }
@@ -690,7 +691,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @return
      */
     private SqlJetPage mergeDirtyList(SqlJetPage pA, SqlJetPage pB) {
-        SqlJetPage pTail = new SqlJetPage();
+        SqlJetPage pTail = new SqlJetPage(szPage,szExtra);
         while (pA != null && pB != null) {
             if (pA.pgno < pB.pgno) {
                 pTail.pDirty = pA;
@@ -760,8 +761,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             synchronized (pcache_g) {
                 SqlJetPage p = (SqlJetPage) page;
                 assert (p.apSave[0] == null && p.apSave[1] == null);
-                removeFromList(pDirty, p);
-                addToList(pClean, p);
+                pDirty=removeFromList(pDirty, p);
+                pClean=addToList(pClean, p);
                 p.flags.remove(SqlJetPageFlags.DIRTY);
                 if (nRef == 0) {
                     addToLruList(p);
@@ -787,8 +788,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         assert (p.nRef > 0);
         // pcacheEnterMutex();
         synchronized (pcache_g) {
-            removeFromList(pClean, p);
-            addToList(pDirty, p);
+            pClean=removeFromList(pClean, p);
+            pDirty=addToList(pDirty, p);
         }
         // pcacheExitMutex();
         p.flags.add(SqlJetPageFlags.DIRTY);
@@ -862,7 +863,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 // pcacheEnterMutex();
                 synchronized (pcache_g) {
                     if (pcache_g.nCurrentPage > pcache_g.nMaxPage) {
-                        removeFromList(pCache.pClean, p);
+                        pCache.pClean=removeFromList(pCache.pClean, p);
                         removeFromHash(p);
                         pageFree(p);
                     } else {
@@ -873,7 +874,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             } else {
                 /* Move the page to the head of the caches dirty list. */
                 removeFromList(pCache.pDirty, p);
-                addToList(pCache.pDirty, p);
+                pCache.pDirty=addToList(pCache.pDirty, p);
             }
         }
     }
@@ -947,7 +948,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             if( p.nRef==0 ){
               removeFromHash(p);
               if( p.flags.contains(SqlJetPageFlags.DIRTY) ){
-                removeFromList(pDirty, p);
+                pDirty=removeFromList(pDirty, p);
                 nPinned--;
               }else{
                 removeFromList(pClean, p);

@@ -65,7 +65,7 @@ public class SqlJetUtility {
     }
 
     public static void memcpy(byte[] dest, int dstPos, byte[] src, int srcPos, int length) {
-        System.arraycopy(src, dstPos, dest, srcPos, length);
+        System.arraycopy(src, srcPos, dest, dstPos, length);
     }
 
     /**

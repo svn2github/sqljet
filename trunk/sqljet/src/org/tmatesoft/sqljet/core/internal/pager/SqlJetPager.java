@@ -943,7 +943,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             }
         }
 
-        return null;
+        return page;
 
     }
 

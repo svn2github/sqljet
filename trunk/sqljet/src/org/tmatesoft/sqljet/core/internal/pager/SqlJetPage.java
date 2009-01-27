@@ -63,6 +63,14 @@ public class SqlJetPage implements ISqlJetPage {
     SqlJetPage pNext, pPrev; /* List of clean or dirty pages */
     SqlJetPage pNextLru, pPrevLru; /* Part of global LRU list */
 
+    /**
+     * 
+     */
+    SqlJetPage(int szPage, int szExtra) {
+        pData = new byte[szPage];
+        pExtra = new byte[szExtra];
+    }
+    
     /*
      * (non-Javadoc)
      * 

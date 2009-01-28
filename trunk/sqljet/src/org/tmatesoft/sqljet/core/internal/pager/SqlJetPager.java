@@ -273,6 +273,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         this.memDb = false;
         this.readOnly = false;
         int szPageDflt = SQLJET_DEFAULT_PAGE_SIZE;
+        this.useJournal = null == flags || !flags.contains(SqlJetPagerFlags.OMIT_JOURNAL);
 
         this.fileName = null;
         if (null != fileName) {
@@ -339,7 +340,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         pageCache = new SqlJetPageCache();
         pageCache.open(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
 
-        this.useJournal = null == flags || !flags.contains(SqlJetPagerFlags.OMIT_JOURNAL);
         this.noReadlock = null != flags && flags.contains(SqlJetPagerFlags.NO_READLOCK) && this.readOnly;
 
         this.dbSize = this.memDb ? 0 : -1;

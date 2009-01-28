@@ -30,6 +30,8 @@ import org.junit.Before;
  */
 public abstract class SqlJetAbstractMockTest {
 
+    public static final String SQLJET_TEST_LOGGER = "SQLJET_TEST";
+    
     /**
      * @throws java.lang.Exception
      */

@@ -18,19 +18,29 @@ package org.tmatesoft.sqljet.core;
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetException extends Exception {
 
     private static final long serialVersionUID = -7132771040442635370L;
 
     private SqlJetErrorCode errorCode = SqlJetErrorCode.MISUSE;
-    
+
     /**
      * @return the errorCode
      */
     public SqlJetErrorCode getErrorCode() {
         return errorCode;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Throwable#toString()
+     */
+    @Override
+    public String toString() {
+        return super.toString() + ": error code is " + (errorCode != null ? errorCode.name() : "null");
     }
 
     /**
@@ -42,42 +52,34 @@ public class SqlJetException extends Exception {
     public SqlJetException(final SqlJetErrorCode errorCode) {
         this.errorCode = errorCode;
     }
-    
-    public SqlJetException(final SqlJetErrorCode errorCode, 
-            final String message) 
-    {
+
+    public SqlJetException(final SqlJetErrorCode errorCode, final String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public SqlJetException(final SqlJetErrorCode errorCode,
-            final Throwable cause ) {
+    public SqlJetException(final SqlJetErrorCode errorCode, final Throwable cause) {
         super(cause);
         this.errorCode = errorCode;
     }
 
-    public SqlJetException(final SqlJetErrorCode errorCode, 
-            final String message, final Throwable cause  ) 
-    {
+    public SqlJetException(final SqlJetErrorCode errorCode, final String message, final Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }
 
-    public SqlJetException(final String message) 
-    {
+    public SqlJetException(final String message) {
         super(message);
     }
 
-    public SqlJetException(final Throwable cause ) {
+    public SqlJetException(final Throwable cause) {
         super(cause);
     }
 
-    public SqlJetException( final String message, final Throwable cause  ) 
-    {
+    public SqlJetException(final String message, final Throwable cause) {
         super(message, cause);
     }
-    
-    
+
     /**
      * Assertions
      * 
@@ -85,38 +87,36 @@ public class SqlJetException extends Exception {
      * @throws SqlJetException
      */
 
-    public static void assertion(final boolean assertion) throws SqlJetException 
-    {
-        if(!assertion) throw new SqlJetException(SqlJetErrorCode.MISUSE);
-    }
-    
-    public static void assertion(final boolean assertion, 
-            final SqlJetErrorCode errorCode) throws SqlJetException 
-    {
-        if(!assertion) throw new SqlJetException(errorCode);
+    public static void assertion(final boolean assertion) throws SqlJetException {
+        if (!assertion)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
     }
 
-    public static void assertion(final boolean assertion, 
-            final SqlJetErrorCode errorCode, final String description) throws SqlJetException 
-    {
-        if(!assertion) throw new SqlJetException(errorCode,description);        
+    public static void assertion(final boolean assertion, final SqlJetErrorCode errorCode) throws SqlJetException {
+        if (!assertion)
+            throw new SqlJetException(errorCode);
     }
 
-    public static void assertion(final Object assertion) throws SqlJetException 
-    {
-        if(null==assertion) throw new SqlJetException(SqlJetErrorCode.MISUSE);
+    public static void assertion(final boolean assertion, final SqlJetErrorCode errorCode, final String description)
+            throws SqlJetException {
+        if (!assertion)
+            throw new SqlJetException(errorCode, description);
     }
 
-    public static void assertion(final Object assertion, 
-            final SqlJetErrorCode errorCode) throws SqlJetException 
-    {
-        if(null==assertion) throw new SqlJetException(errorCode);
+    public static void assertion(final Object assertion) throws SqlJetException {
+        if (null == assertion)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
     }
 
-    public static void assertion(final Object assertion, 
-            final SqlJetErrorCode errorCode, final String description) throws SqlJetException 
-    {
-        if(null==assertion) throw new SqlJetException(errorCode,description);        
+    public static void assertion(final Object assertion, final SqlJetErrorCode errorCode) throws SqlJetException {
+        if (null == assertion)
+            throw new SqlJetException(errorCode);
     }
-    
+
+    public static void assertion(final Object assertion, final SqlJetErrorCode errorCode, final String description)
+            throws SqlJetException {
+        if (null == assertion)
+            throw new SqlJetException(errorCode, description);
+    }
+
 }

@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +30,8 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  * 
  */
 public class SqlJetPagerTest {
+    
+    private Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
 
     private ISqlJetFileSystem fileSystem;
     private ISqlJetPager pager;
@@ -50,7 +53,13 @@ public class SqlJetPagerTest {
      */
     @After
     public void tearDown() throws Exception {
-        pager = null;
+        if(pager!=null) {
+            if(pager.getRefCount()>0) {
+                pager.rollback();
+            }
+            pager.close();
+            pager = null;
+        }
         fileSystem = null;
         if (null != file)
             file.delete();
@@ -104,7 +113,59 @@ public class SqlJetPagerTest {
         for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
             final ISqlJetPage page = pager.acquirePage(pageNumber, true);
             final byte[] data = page.getData();
-            System.out.println( Arrays.toString(data) );
+            logger.info("page#"+pageNumber+":"+Arrays.toString(data));
+            page.unref();
         }
     }
+    
+    @Test
+    public final void testWriteTemp() throws Exception {
+        pager.open(fileSystem, null, null, 0, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                SqlJetFileOpenPermission.DELETEONCLOSE, SqlJetFileOpenPermission.READWRITE));
+        final ISqlJetPage page = pager.acquirePage(1, true);
+        pager.begin(true);
+        page.write();
+        SqlJetUtility.memset(page.getData(), (byte)1, pager.getPageSize());
+        pager.commitPhaseOne(null, 0, false);
+        pager.commitPhaseTwo();
+        page.unref();
+    }
+
+    /**
+     * Test method for
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)}
+     * .
+     */
+    @Test
+    public final void testWriteMain() throws Exception {
+        pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
+                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                        SqlJetFileOpenPermission.READWRITE));
+        final ISqlJetPage page = pager.acquirePage(1, true);
+        pager.begin(true);
+        page.write();
+        SqlJetUtility.memset(page.getData(), (byte)1, pager.getPageSize());
+        pager.commitPhaseOne(null, 0, false);
+        pager.commitPhaseTwo();
+        page.unref();
+    }
+
+    /**
+     * Test method for
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)}
+     * .
+     */
+    @Test
+    public final void testWriteMemory() throws Exception {
+        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, 0, null, SqlJetFileType.MAIN_DB, EnumSet.of(
+                SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE));
+        final ISqlJetPage page = pager.acquirePage(1, true);
+        pager.begin(true);
+        page.write();
+        SqlJetUtility.memset(page.getData(), (byte)1, pager.getPageSize());
+        pager.commitPhaseOne(null, 0, false);
+        pager.commitPhaseTwo();
+        page.unref();
+    }
+    
 }

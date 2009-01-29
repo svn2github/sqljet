@@ -141,15 +141,19 @@ public class SqlJetPagerTest {
         pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
+        int pageSize = pager.getPageSize();
         final int pageNumber = 2;
         ISqlJetPage page = pager.acquirePage(pageNumber, true);
         pager.begin(true);
         page.write();
-        int pageSize = pager.getPageSize();
         SqlJetUtility.memset(page.getData(), (byte)1, pageSize);
+        ISqlJetPage page2 = pager.acquirePage(pageNumber+1, true);
+        page2.write();
+        SqlJetUtility.memset(page2.getData(), (byte)2, pageSize);
         pager.commitPhaseOne(null, 0, false);
         pager.commitPhaseTwo();
         page.unref();
+        page2.unref();
         pager.close();
         pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
@@ -162,6 +166,10 @@ public class SqlJetPagerTest {
         final byte[] data = page.getData();
         logger.info("page:"+Arrays.toString(data));
         page.unref();
+        page2 = pager.acquirePage(pageNumber+1, true);
+        final byte[] data2 = page2.getData();
+        logger.info("page:"+Arrays.toString(data2));
+        page2.unref();
     }
 
     /**

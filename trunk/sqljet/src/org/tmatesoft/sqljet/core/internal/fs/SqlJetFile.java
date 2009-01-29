@@ -18,6 +18,7 @@ import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -27,6 +28,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
@@ -38,6 +40,7 @@ import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
+import org.tmatesoft.sqljet.core.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -47,6 +50,67 @@ import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
 public class SqlJetFile implements ISqlJetFile {
 
     public static final int SQLJET_DEFAULT_SECTOR_SIZE = 512;
+
+    static final String SQLJET_FILE_LOGGER = "SQLJET_FILE";
+    private Logger logger = Logger.getLogger(SQLJET_FILE_LOGGER);
+
+    private static final boolean SQLJET_FILE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_LOG", false);
+    private static final boolean SQLJET_FILE_PERFORMANCE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_PERFORMANCE_LOG", false);
+
+    /**
+     * @param string
+     * @param filePath2
+     * @param read
+     * @param offset
+     * @param timer_elapsed
+     */
+    private void OSTRACE(String format, Object... args) {
+        if (SQLJET_FILE_LOG)
+            logger.info(String.format(format, args));
+    }
+
+    private long timer_start = 0;
+    private long timer_elapsed = 0;
+
+    /**
+     * @return
+     */
+    private long TIMER_ELAPSED() {
+        return timer_elapsed;
+    }
+
+    /**
+     * 
+     */
+    private void TIMER_END() {
+        if (SQLJET_FILE_PERFORMANCE_LOG)
+            timer_elapsed = System.nanoTime() - timer_start;
+    }
+
+    /**
+     * 
+     */
+    private void TIMER_START() {
+        if (SQLJET_FILE_PERFORMANCE_LOG)
+            timer_start = System.nanoTime();
+    }
+
+    private static String pid = ManagementFactory.getRuntimeMXBean().getName();
+
+    /**
+     * @return
+     */
+    private String getpid() {
+        return pid;
+    }
+
+    /**
+     * @param lockType2
+     * @return
+     */
+    private String locktypeName(SqlJetLockType lockType) {
+        return lockType != null ? lockType.name() : null;
+    }
 
     /**
      * An instance of the following structure is allocated for each open inode
@@ -119,6 +183,7 @@ public class SqlJetFile implements ISqlJetFile {
 
         findLockInfo();
 
+        OSTRACE("OPEN    %s\n", this.filePath);    
     }
 
     /*
@@ -175,6 +240,9 @@ public class SqlJetFile implements ISqlJetFile {
             }
 
         }
+
+        OSTRACE("CLOSE   %s\n", this.filePath);
+        
     }
 
     /*
@@ -190,7 +258,10 @@ public class SqlJetFile implements ISqlJetFile {
         assertion(file);
         try {
             final ByteBuffer dst = ByteBuffer.wrap(buffer, 0, amount);
+            TIMER_START();
             final int read = file.getChannel().position(offset).read(dst);
+            TIMER_END();
+            OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
             if (amount > read)
                 Arrays.fill(buffer, read < 0 ? 0 : read, amount, (byte) 0);
             return read < 0 ? 0 : read;
@@ -212,7 +283,10 @@ public class SqlJetFile implements ISqlJetFile {
         assertion(file);
         try {
             final ByteBuffer src = ByteBuffer.wrap(buffer, 0, amount);
-            file.getChannel().position(offset).write(src);
+            TIMER_START();
+            final int write = file.getChannel().position(offset).write(src);
+            TIMER_END();
+            OSTRACE("WRITE %s %5d %7d %d\n", this.filePath, write, offset, TIMER_ELAPSED());
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_WRITE, e);
         }
@@ -241,6 +315,7 @@ public class SqlJetFile implements ISqlJetFile {
     public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException {
         assertion(file);
         try {
+            OSTRACE("SYNC    %s\n", this.filePath);
             boolean syncMetaData = syncFlags != null && syncFlags.contains(SqlJetSyncFlags.NORMAL);
             file.getChannel().force(syncMetaData);
         } catch (IOException e) {
@@ -327,46 +402,50 @@ public class SqlJetFile implements ISqlJetFile {
         if (noLock)
             return false;
 
+        OSTRACE("LOCK    %s %s was %s(%s,%d) pid=%s\n", this.filePath, locktypeName(lockType),
+                locktypeName(this.lockType), locktypeName(lockInfo.lockType), lockInfo.sharedLockCount, getpid());
+
         /*
          * If there is already a lock of this type or more restrictive on the
          * file then do nothing.
          */
-        if (this.lockType.compareTo(lockType) > 0)
+        if (this.lockType.compareTo(lockType) > 0) {
+            OSTRACE("LOCK    %s %s ok (already held)\n", this.filePath, locktypeName(lockType));
             return false;
+        }
 
         /* Make sure the locking sequence is correct */
         assertion(lockType != SqlJetLockType.PENDING);
         assertion(this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
         assertion(lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
 
-        synchronized (openFiles) {
+        assertion(lockInfo);
+        try {
+            synchronized (openFiles) {
 
-            assertion(lockInfo);
+                /*
+                 * If some thread using this PID has a lock via a different
+                 * unixFile handle that precludes the requested lock, return
+                 * BUSY.
+                 */
+                if (this.lockType != lockInfo.lockType
+                        && (SqlJetLockType.PENDING.compareTo(lockInfo.lockType) <= 0 || SqlJetLockType.SHARED
+                                .compareTo(lockType) < 0)) {
+                    return false;
+                }
 
-            /*
-             * If some thread using this PID has a lock via a different unixFile
-             * handle that precludes the requested lock, return BUSY.
-             */
-            if (this.lockType != lockInfo.lockType
-                    && (SqlJetLockType.PENDING.compareTo(lockInfo.lockType) <= 0 || SqlJetLockType.SHARED
-                            .compareTo(lockType) < 0)) {
-                return false;
-            }
-
-            /*
-             * If a SHARED lock is requested, and some thread using this PID
-             * already has a SHARED or RESERVED lock, then increment reference
-             * counts and return SQLITE_OK.
-             */
-            if (lockType == SqlJetLockType.SHARED
-                    && (lockInfo.lockType == SqlJetLockType.SHARED || lockInfo.lockType == SqlJetLockType.RESERVED)) {
-                this.lockType = SqlJetLockType.SHARED;
-                lockInfo.sharedLockCount++;
-                openCount.numLock++;
-                return true;
-            }
-
-            try {
+                /*
+                 * If a SHARED lock is requested, and some thread using this PID
+                 * already has a SHARED or RESERVED lock, then increment
+                 * reference counts and return SQLITE_OK.
+                 */
+                if (lockType == SqlJetLockType.SHARED
+                        && (lockInfo.lockType == SqlJetLockType.SHARED || lockInfo.lockType == SqlJetLockType.RESERVED)) {
+                    this.lockType = SqlJetLockType.SHARED;
+                    lockInfo.sharedLockCount++;
+                    openCount.numLock++;
+                    return true;
+                }
 
                 final FileChannel channel = file.getChannel();
 
@@ -454,9 +533,13 @@ public class SqlJetFile implements ISqlJetFile {
                 lockInfo.lockType = lockType;
                 return true;
 
-            } catch (IOException e) {
-                throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
             }
+
+        } catch (IOException e) {
+            throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_LOCK, e);
+        } finally {
+            OSTRACE("LOCK    %s %s %s\n", this.filePath, locktypeName(lockType), this.lockType == lockType ? "ok"
+                    : "failed");
 
         }
 
@@ -483,6 +566,9 @@ public class SqlJetFile implements ISqlJetFile {
 
         if (noLock)
             return false;
+
+        OSTRACE("UNLOCK  %s %s was %s(%s,%s) pid=%s\n", this.filePath, locktypeName(lockType),
+                locktypeName(this.lockType), locktypeName(lockInfo.lockType), lockInfo.sharedLockCount, getpid());
 
         assertion(SqlJetLockType.SHARED.compareTo(lockType) >= 0);
         if (this.lockType.compareTo(lockType) <= 0)
@@ -582,37 +668,45 @@ public class SqlJetFile implements ISqlJetFile {
      */
     public synchronized boolean checkReservedLock() {
 
-        if (noLock)
-            return false;
+        boolean reserved = false;
+        try {
+            if (noLock)
+                return false;
 
-        if (null == file)
-            return false;
+            if (null == file)
+                return false;
 
-        if (null == lockInfo)
-            return false;
+            if (null == lockInfo)
+                return false;
 
-        synchronized (openFiles) {
+            synchronized (openFiles) {
 
-            /* Check if a thread in this process holds such a lock */
-            if (SqlJetLockType.SHARED.compareTo(lockInfo.lockType) < 0)
-                return true;
-
-            /* Otherwise see if some other process holds it. */
-            try {
-
-                final FileLock reservedLock = file.getChannel().tryLock(RESERVED_BYTE, 1, false);
-
-                if (null == reservedLock)
+                /* Check if a thread in this process holds such a lock */
+                if (SqlJetLockType.SHARED.compareTo(lockInfo.lockType) < 0)
                     return true;
 
-                reservedLock.release();
+                /* Otherwise see if some other process holds it. */
+                try {
 
-            } catch (IOException e) {
+                    final FileLock reservedLock = file.getChannel().tryLock(RESERVED_BYTE, 1, false);
+
+                    if (null == reservedLock) {
+                        reserved = true;
+                        return true;
+                    }
+
+                    reservedLock.release();
+
+                } catch (IOException e) {
+                }
+
             }
 
-        }
+            return false;
 
-        return false;
+        } finally {
+            OSTRACE("TEST WR-LOCK %s %b\n", this.filePath, reserved);
+        }
 
     }
 

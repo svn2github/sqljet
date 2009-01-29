@@ -164,12 +164,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file2.lock(SqlJetLockType.SHARED);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertTrue(lock2.get());
     }
 
@@ -180,12 +180,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertFalse(lock2.get());
     }
 
@@ -196,13 +196,13 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
                     file2.lock(SqlJetLockType.EXCLUSIVE);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertFalse(lock2.get());
     }
 
@@ -213,12 +213,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file2.checkReservedLock();
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertTrue(lock2.get());
     }
 
@@ -229,12 +229,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file.lock(SqlJetLockType.SHARED);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertTrue(lock2.get());
     }
 
@@ -245,12 +245,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertFalse(lock2.get());
     }
 
@@ -261,13 +261,13 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
                     file.lock(SqlJetLockType.EXCLUSIVE);
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertFalse(lock2.get());
     }
 
@@ -278,12 +278,12 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 return file.lock(SqlJetLockType.SHARED) && file.lock(SqlJetLockType.RESERVED);
             }
         });
+        Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 return file.checkReservedLock();
             }
         });
-        Assert.assertTrue(lock.get());
         Assert.assertTrue(lock2.get());
     }
     

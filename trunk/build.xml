@@ -64,6 +64,8 @@
 			      <exclude name="**/*Mock*.java"/>
 			    </fileset>
 			 </batchtest>
+			<sysproperty key="SQLJET_FILE_LOG" value="true"/>
+			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="true"/>
 		</junit>
 	</target>
 	

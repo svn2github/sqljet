@@ -35,6 +35,21 @@ public class SqlJetUtility {
     }
 
     /**
+     * @param string
+     * @param b
+     * @return
+     */
+    public static boolean getBoolSysProp(String propName, boolean defValue) {
+        if (null == propName)
+            throw new SqlJetError("Undefined property name");
+        try {
+            return Boolean.valueOf(System.getProperty(propName, Boolean.toString(defValue)));
+        } catch (Throwable t) {
+            throw new SqlJetError("Error while get int value for property " + propName, t);
+        }
+    }
+    
+    /**
      * Read a four-byte big-endian integer value.
      */
 

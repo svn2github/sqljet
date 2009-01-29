@@ -440,10 +440,12 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 pNext = p.pNext;
                 removeFromLruList(p);
                 pageFree(p);
+                if(p.pNext==p) break;
             }
             for (p = pDirty; p != null; p = pNext) {
                 pNext = p.pNext;
                 pageFree(p);
+                if(p.pNext==p) break;
             }
             pClean = null;
             pDirty = null;
@@ -487,9 +489,11 @@ public class SqlJetPageCache implements ISqlJetPageCache {
 
             for (p = pDirty; p != null; p = p.pNext) {
                 p.flags.removeAll(flags);
+                if(p==p.pNext) break;
             }
             for (p = pClean; p != null; p = p.pNext) {
                 p.flags.removeAll(flags);
+                if(p==p.pNext) break;
             }
 
             if (!flags.contains(SqlJetPageFlags.NEED_SYNC)) {
@@ -636,6 +640,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         SqlJetPage p;
         for (p = pDirty; p != null; p = p.pNext) {
             p.pDirty = p.pNext;
+            if(p==p.pNext) break;            
         }
         return sortDirtyList(pDirty);
     }

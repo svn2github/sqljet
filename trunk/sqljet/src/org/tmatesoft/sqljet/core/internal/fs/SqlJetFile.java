@@ -241,8 +241,7 @@ public class SqlJetFile implements ISqlJetFile {
     public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException {
         assertion(file);
         try {
-            boolean syncMetaData = syncFlags!=null && 
-                syncFlags.contains(SqlJetSyncFlags.NORMAL);
+            boolean syncMetaData = syncFlags != null && syncFlags.contains(SqlJetSyncFlags.NORMAL);
             file.getChannel().force(syncMetaData);
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_FSYNC, e);
@@ -502,6 +501,13 @@ public class SqlJetFile implements ISqlJetFile {
 
                     if (SqlJetLockType.SHARED == lockType) {
 
+                        final FileLock exclusiveLock = locks.get(SqlJetLockType.EXCLUSIVE);
+                        if (null != exclusiveLock) {
+                            if (exclusiveLock.isValid())
+                                exclusiveLock.release();
+                            locks.remove(SqlJetLockType.EXCLUSIVE);
+                        }
+
                         final FileLock sharedLock = channel.lock(SHARED_FIRST, SHARED_SIZE, true);
                         if (null == sharedLock)
                             return false;
@@ -543,22 +549,22 @@ public class SqlJetFile implements ISqlJetFile {
                         lockInfo.sharedLockCount = 0;
                         this.lockType = SqlJetLockType.NONE;
                     }
-                }
 
-                /*
-                 * Decrement the count of locks against this same file. When the
-                 * count reaches zero, close any other file descriptors whose
-                 * close was deferred because of outstanding locks.
-                 */
-                openCount.numLock--;
-                assertion(openCount.numLock >= 0);
-                if (openCount.numLock == 0 && null != openCount.pending && openCount.pending.size() > 0) {
-                    for (final RandomAccessFile f : openCount.pending) {
-                        f.close();
+                    /*
+                     * Decrement the count of locks against this same file. When
+                     * the count reaches zero, close any other file descriptors
+                     * whose close was deferred because of outstanding locks.
+                     */
+                    openCount.numLock--;
+                    assertion(openCount.numLock >= 0);
+                    if (openCount.numLock == 0 && null != openCount.pending && openCount.pending.size() > 0) {
+                        for (final RandomAccessFile f : openCount.pending) {
+                            f.close();
+                        }
+                        openCount.pending.clear();
                     }
-                    openCount.pending.clear();
-                }
 
+                }
                 this.lockType = lockType;
 
             } catch (IOException e) {
@@ -624,8 +630,9 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
-    final static EnumSet<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = 
-        EnumSet.noneOf(SqlJetDeviceCharacteristics.class);
+    final static EnumSet<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = EnumSet
+            .noneOf(SqlJetDeviceCharacteristics.class);
+
     public EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics() {
         return noDeviceCharacteristircs;
     }

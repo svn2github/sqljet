@@ -1727,7 +1727,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @return
      */
     private boolean exclusiveMode() {
-        return lockingMode != SqlJetPagerLockingMode.EXCLUSIVE;
+        return lockingMode == SqlJetPagerLockingMode.EXCLUSIVE;
     }
 
     /**

@@ -54,10 +54,10 @@ public class SqlJetPagerTest {
     @After
     public void tearDown() throws Exception {
         if(pager!=null) {
-            if(pager.getRefCount()>0) {
-                pager.rollback();
-            }
-            pager.close();
+//            if(pager.getRefCount()>0) {
+//                pager.rollback();
+//            }
+//            pager.close();
             pager = null;
         }
         fileSystem = null;
@@ -141,12 +141,26 @@ public class SqlJetPagerTest {
         pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
-        final ISqlJetPage page = pager.acquirePage(1, true);
+        final int pageNumber = 2;
+        ISqlJetPage page = pager.acquirePage(pageNumber, true);
         pager.begin(true);
         page.write();
-        SqlJetUtility.memset(page.getData(), (byte)1, pager.getPageSize());
+        int pageSize = pager.getPageSize();
+        SqlJetUtility.memset(page.getData(), (byte)1, pageSize);
         pager.commitPhaseOne(null, 0, false);
         pager.commitPhaseTwo();
+        page.unref();
+        pager.close();
+        pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
+                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                        SqlJetFileOpenPermission.READWRITE));
+        final int pageCount = pager.getPageCount();
+        final long fileSize = pager.getFile().fileSize();
+        logger.info("pages count "+Integer.toString(pageCount));
+        logger.info("file size "+Long.toString(fileSize));
+        page = pager.acquirePage(pageNumber, true);
+        final byte[] data = page.getData();
+        logger.info("page:"+Arrays.toString(data));
         page.unref();
     }
 

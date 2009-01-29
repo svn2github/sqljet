@@ -138,6 +138,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testWriteMain() throws Exception {
+        
         pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
@@ -155,21 +156,45 @@ public class SqlJetPagerTest {
         page.unref();
         page2.unref();
         pager.close();
+
         pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
-        final int pageCount = pager.getPageCount();
-        final long fileSize = pager.getFile().fileSize();
+        int pageCount = pager.getPageCount();
+        long fileSize = pager.getFile().fileSize();
         logger.info("pages count "+Integer.toString(pageCount));
         logger.info("file size "+Long.toString(fileSize));
         page = pager.acquirePage(pageNumber, true);
-        final byte[] data = page.getData();
-        logger.info("page:"+Arrays.toString(data));
-        page.unref();
+        byte[] data = page.getData();
+        logger.info("page#"+pageNumber+":"+Arrays.toString(data));
         page2 = pager.acquirePage(pageNumber+1, true);
-        final byte[] data2 = page2.getData();
-        logger.info("page:"+Arrays.toString(data2));
+        byte[] data2 = page2.getData();
+        logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(data2));
+
+        pager.begin(true);
+        page.write();
+        SqlJetUtility.memset(page.getData(), (byte)2, pageSize);
+        page2.write();
+        SqlJetUtility.memset(page2.getData(), (byte)1, pageSize);
+        pager.rollback();
+        page.unref();
         page2.unref();
+        pager.close();
+
+        pager.open(fileSystem, file, null, 0, null, SqlJetFileType.MAIN_DB, 
+                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                        SqlJetFileOpenPermission.READWRITE));
+        pageCount = pager.getPageCount();
+        fileSize = pager.getFile().fileSize();
+        logger.info("pages count "+Integer.toString(pageCount));
+        logger.info("file size "+Long.toString(fileSize));
+        page = pager.acquirePage(pageNumber, true);
+        data = page.getData();
+        logger.info("page#"+pageNumber+":"+Arrays.toString(data));
+        page2 = pager.acquirePage(pageNumber+1, true);
+        data2 = page2.getData();
+        logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(data2));
+        
     }
 
     /**

@@ -57,13 +57,6 @@ public class SqlJetFile implements ISqlJetFile {
     private static final boolean SQLJET_FILE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_LOG", false);
     private static final boolean SQLJET_FILE_PERFORMANCE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_PERFORMANCE_LOG", false);
 
-    /**
-     * @param string
-     * @param filePath2
-     * @param read
-     * @param offset
-     * @param timer_elapsed
-     */
     private void OSTRACE(String format, Object... args) {
         if (SQLJET_FILE_LOG)
             logger.info(String.format(format, args));

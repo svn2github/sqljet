@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.ISqlJetFile;
@@ -52,6 +53,27 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
  */
 public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
 
+    static final String SQLJET_PAGER_LOGGER = "SQLJET_PAGER";
+    private Logger logger = Logger.getLogger(SQLJET_PAGER_LOGGER);
+    private static final boolean SQLJET_PAGER_LOG = SqlJetUtility.getBoolSysProp("SQLJET_PAGER_LOG", false);
+
+    void PAGERTRACE(String format, Object... args) {
+        if (SQLJET_PAGER_LOG)
+            logger.info(String.format(format, args));
+    }
+    
+    /*
+    ** The following two macros are used within the PAGERTRACEX() macros above
+    ** to print out file-descriptors. 
+    **
+    ** PAGERID() takes a pointer to a Pager struct as its argument. The
+    ** associated file-descriptor is returned. FILEHANDLEID() takes an sqlite3_file
+    ** struct as its argument.
+    */
+    String PAGERID() {return fileName!=null?fileName.getPath():null;}
+    String FILEHANDLEID() {return PAGERID();}
+    
+    
     ISqlJetFileSystem fileSystem;
     SqlJetFileType type;
     EnumSet<SqlJetFileOpenPermission> permissions;
@@ -340,6 +362,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         pageCache = new SqlJetPageCache();
         pageCache.open(szPageDflt, nExtra, !memDb, xDesc, !memDb ? this : null);
 
+        PAGERTRACE("OPEN %s %s\n", FILEHANDLEID(), fileName);
+        
         this.noReadlock = null != flags && flags.contains(SqlJetPagerFlags.NO_READLOCK) && this.readOnly;
 
         this.dbSize = this.memDb ? 0 : -1;
@@ -834,6 +858,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         lockingMode = SqlJetPagerLockingMode.NORMAL;
         reset();
         rollback();
+        PAGERTRACE("CLOSE %s\n", PAGERID());
         if (journalOpen) {
             if (null != jfd)
                 jfd.close();
@@ -1042,6 +1067,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         if (1 == pageNumber) {
             SqlJetUtility.memcpy(dbFileVers, 0, data, 24, dbFileVers.length);
         }
+        PAGERTRACE("FETCH %s page %d hash(%08x)\n",
+                PAGERID(), page.getPageNumber(), pageHash(page));
     }
 
     /**
@@ -1818,6 +1845,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * Do not attempt to write if database file has never been opened.
          */
         pPg = lookup(pgno);
+        PAGERTRACE("PLAYBACK %s page %d hash(%08x)\n",
+                PAGERID(), pgno, dataHash(pageSize, aData));
         if (state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0
                 && (pPg == null || !pPg.getFlags().contains(SqlJetPageFlags.NEED_SYNC)) && null != fd) {
             long ofst = (pgno - 1) * pageSize;
@@ -2287,13 +2316,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      */
                     long jrnlOff;
                     if (fullSync && !dc.contains(SqlJetDeviceCharacteristics.IOCAP_SEQUENTIAL)) {
+                        PAGERTRACE("SYNC journal of %s\n", PAGERID());
                         jfd.sync(syncFlags);
                     }
 
                     jrnlOff = journalHdr + aJournalMagic.length;
+                    PAGERTRACE("JHDR %s %d %d\n", PAGERID(), jrnlOff, 4);
                     write32bits(jfd, jrnlOff, nRec);
                 }
                 if (!dc.contains(SqlJetDeviceCharacteristics.IOCAP_SEQUENTIAL)) {
+                    PAGERTRACE("SYNC journal of %s\n", PAGERID());
                     jfd.sync(syncFlags);
                 }
                 journalStarted = true;
@@ -2338,6 +2370,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                     waitOnLock(SqlJetLockType.EXCLUSIVE);
                 }
                 dirtyCache = false;
+                PAGERTRACE("TRANSACTION %s\n", PAGERID());
                 if (useJournal && !tempFile && journalMode != SqlJetPagerJournalMode.OFF) {
                     openJournal();
                 }
@@ -2592,6 +2625,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             return;
         }
 
+        PAGERTRACE("DATABASE SYNC: File=%s zMaster=%s nTrunc=%d\n", 
+                fileName, master, pageNumberTrunc);
+        
         /*
          * If this is an in-memory db, or no pages have been written to, or this
          * function has already been called, it is a no-op.
@@ -2727,12 +2763,17 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
                 long offset = (page.getPageNumber() - 1) * pageSize;
 
+                PAGERTRACE("STORE %s page %d hash(%08x)\n",
+                        PAGERID(), pList.getPageNumber(), pageHash(pList));
+                
                 byte[] pData = page.getData();
 
                 fd.write(pData, pageSize, offset);
                 if (page.getPageNumber() == 1) {
                     SqlJetUtility.memcpy(dbFileVers, 0, pData, 24, dbFileVers.length);
                 }
+            } else {
+                PAGERTRACE("NOSTORE %s page %d\n", PAGERID(), pList.getPageNumber());
             }
 
             page.setHash(pageHash(page));
@@ -2899,7 +2940,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             assertion(!dirtyCache || !journalOpen);
             return;
         }
-        // PAGERTRACE2("COMMIT %d\n", PAGERID(pPager));
+        PAGERTRACE("COMMIT %s\n", PAGERID());
         if (memDb) {
             pageCache.commit(false);
             pageCache.cleanAll();
@@ -2920,7 +2961,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#rollback()
      */
     public void rollback() throws SqlJetException {
-        // PAGERTRACE2("ROLLBACK %d\n", PAGERID(pPager));
+        PAGERTRACE("ROLLBACK %s\n", PAGERID());
         if (memDb) {
             pageCache.rollback(true, reiniter);
             pageCache.rollback(false, reiniter);
@@ -2968,7 +3009,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         assertion(!stmtInUse);
         assertion(state.compareTo(SqlJetPagerState.SHARED) >= 0);
         assertion(dbSize >= 0);
-        // PAGERTRACE2("STMT-BEGIN %d\n", PAGERID(pPager));
+        PAGERTRACE("STMT-BEGIN %s\n", PAGERID());
         if (memDb) {
             stmtInUse = true;
             stmtSize = dbSize;
@@ -3008,7 +3049,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     public void stmtCommit() throws SqlJetException {
         if (stmtInUse) {
-            // PAGERTRACE2("STMT-COMMIT %d\n", PAGERID(pPager));
+            PAGERTRACE("STMT-COMMIT %s\n", PAGERID());
             if (!memDb) {
                 pagesInStmt = null;
             } else {
@@ -3027,7 +3068,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     public void stmtRollback() throws SqlJetException {
         if (stmtInUse) {
-            // PAGERTRACE2("STMT-ROLLBACK %d\n", PAGERID(pPager));
+            PAGERTRACE("STMT-ROLLBACK %s\n", PAGERID());
             if (memDb) {
                 pageCache.rollback(true, reiniter);
                 dbSize = stmtSize;

@@ -121,8 +121,7 @@ public class SqlJetPage implements ISqlJetPage {
             pPager.pagesInStmt.set(pgno);
         }
 
-        // PAGERTRACE3("DONT_ROLLBACK page %d of %d\n", pPg->pgno,
-        // PAGERID(pPager));
+        pPager.PAGERTRACE("DONT_ROLLBACK page %d of %s\n", pgno, pPager.PAGERID());
         // IOTRACE(("GARBAGE %p %d\n", pPager, pPg->pgno))
 
     }
@@ -157,8 +156,7 @@ public class SqlJetPage implements ISqlJetPage {
                  * next transaction.
                  */
             } else {
-                // PAGERTRACE3("DONT_WRITE page %d of %d\n", pPg->pgno,
-                // PAGERID(pPager));
+                pPager.PAGERTRACE("DONT_WRITE page %d of %s\n", pgno, pPager.PAGERID());
                 // IOTRACE(("CLEAN %p %d\n", pPager, pPg->pgno))
                 flags.add(SqlJetPageFlags.DONT_WRITE);
                 pageHash = pPager.pageHash(this);
@@ -197,8 +195,8 @@ public class SqlJetPage implements ISqlJetPage {
 
         assertion(nRef > 0);
 
-        // PAGERTRACE5("MOVE %d page %d (needSync=%d) moves to %d\n",
-        // PAGERID(pPager), pPg->pgno, (pPg->flags&PGHDR_NEED_SYNC)?1:0, pgno);
+        pPager.PAGERTRACE("MOVE %s page %d (needSync=%b) moves to %d\n",
+           pPager.PAGERID(), this.pgno, flags.contains(SqlJetPageFlags.NEED_SYNC), pageNumber);
         // IOTRACE(("MOVE %p %d %d\n", pPager, pPg->pgno, pgno))
 
         pPager.getContent(this);
@@ -474,8 +472,7 @@ public class SqlJetPage implements ISqlJetPage {
             if (!flags.contains(SqlJetPageFlags.IN_JOURNAL) && (pPager.journalOpen || pPager.memDb)) {
                 if (pgno <= pPager.origDbSize) {
                     if (pPager.memDb) {
-                        // PAGERTRACE3("JOURNAL %d page %d\n", PAGERID(pPager),
-                        // pPg->pgno);
+                        pPager.PAGERTRACE("JOURNAL %s page %d\n", pPager.PAGERID(), pgno);
                         pPager.pageCache.preserve(this, false);
                     } else {
 
@@ -505,10 +502,10 @@ public class SqlJetPage implements ISqlJetPage {
                         // IOTRACE(("JOUT %p %d %lld %d\n", pPager, pPg->pgno,
                         // pPager->journalOff, pPager->pageSize));
                         // PAGER_INCR(sqlite3_pager_writej_count);
-                        // PAGERTRACE5("JOURNAL %d page %d needSync=%d hash(%08x)\n",
-                        // PAGERID(pPager), pPg->pgno,
-                        // ((pPg->flags&PGHDR_NEED_SYNC)?1:0),
-                        // pager_pagehash(pPg));
+                        pPager.PAGERTRACE("JOURNAL %s page %d needSync=%b hash(%08x)\n",
+                                pPager.PAGERID(), pgno,
+                                flags.contains(SqlJetPageFlags.NEED_SYNC),
+                                pPager.pageHash(this));
 
                         pPager.nRec++;
                         assertion(pPager.pagesInJournal != null);
@@ -524,9 +521,9 @@ public class SqlJetPage implements ISqlJetPage {
                     if (!pPager.journalStarted && !pPager.noSync) {
                         flags.add(SqlJetPageFlags.NEED_SYNC);
                     }
-                    // PAGERTRACE4("APPEND %d page %d needSync=%d\n",
-                    // PAGERID(pPager), pPg->pgno,
-                    // ((pPg->flags&PGHDR_NEED_SYNC)?1:0));
+                    pPager.PAGERTRACE("APPEND %s page %d needSync=%b\n",
+                            pPager.PAGERID(), pgno,
+                            flags.contains(SqlJetPageFlags.NEED_SYNC));
                 }
                 if (flags.contains(SqlJetPageFlags.NEED_SYNC)) {
                     pPager.needSync = true;
@@ -544,14 +541,12 @@ public class SqlJetPage implements ISqlJetPage {
                 assertion(flags.contains(SqlJetPageFlags.IN_JOURNAL) || pgno > pPager.origDbSize);
                 if (pPager.memDb) {
                     pPager.pageCache.preserve(this, true);
-                    // PAGERTRACE3("STMT-JOURNAL %d page %d\n", PAGERID(pPager),
-                    // pPg->pgno);
+                    pPager.PAGERTRACE("STMT-JOURNAL %s page %d\n", pPager.PAGERID(), pgno);
                 } else {
                     long offset = pPager.stmtNRec * (4 + pPager.pageSize);
                     pPager.write32bits(pPager.stfd, offset, pgno);
                     pPager.stfd.write(pData, pPager.pageSize, offset + 4);
-                    // PAGERTRACE3("STMT-JOURNAL %d page %d\n", PAGERID(pPager),
-                    // pPg->pgno);
+                    pPager.PAGERTRACE("STMT-JOURNAL %s page %d\n", pPager.PAGERID(), pgno);
                     pPager.stmtNRec++;
                     assertion(pPager.pagesInStmt);
                     pPager.pagesInStmt.set(pgno);

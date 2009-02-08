@@ -47,23 +47,6 @@ public interface ISqlJetPageCache {
     void bufferSetup(final byte[] buffer, final int sz, final int n);
 
     /**
-     ** Allocate a page cache line. Look in the page cache memory pool first and
-     * use an element from it first if available. If nothing is available in the
-     * page cache memory pool, go to the general purpose memory allocator.
-     * 
-     * @param sz
-     * @return
-     */
-    byte[] malloc(final int sz);
-
-    /**
-     * Release a pager memory allocation
-     * 
-     * @param p
-     */
-    void free(final byte[] p);
-
-    /**
      * Create a new pager cache. Under memory stress, invoke xStress to try to
      * make pages clean. Only clean and unpinned pages can be reclaimed.
      * 
@@ -78,7 +61,7 @@ public interface ISqlJetPageCache {
      * @param xStress
      *            Call to try to make pages clean
      */
-    void open(final int szPage, final int szExtra, final boolean bPurgeable, final ISqlJetPageCallback xDestroy,
+    void open(final int szPage, final int szExtra, final boolean bPurgeable,
             final ISqlJetPageCallback xStress);
 
     /**
@@ -174,44 +157,6 @@ public interface ISqlJetPageCache {
     void truncate(final int pageNumber) throws SqlJetException;
 
     /**
-     * Preserve the content of the page. It is assumed that the content has not
-     * been preserved already.
-     * 
-     * If isStatementJournal==false then this is for the overall transaction. If
-     * isStatementJournal==true then this is for the statement journal.
-     * 
-     * This routine is used for in-memory databases only. Routine used to
-     * implement transactions on memory-only databases.
-     * 
-     * @param page
-     * @param isStatementJournal
-     * @throws SqlJetException
-     */
-    void preserve(final ISqlJetPage page, final boolean isStatementJournal) throws SqlJetException;
-
-    /**
-     * Drop preserved copy. Commit a change previously preserved.
-     * 
-     * Routine used to implement transactions on memory-only databases.
-     * 
-     * @param isStatementJournal
-     */
-    void commit(final boolean isStatementJournal);
-
-    /**
-     * Rollback a change previously preserved.
-     * 
-     * Routine used to implement transactions on memory-only databases.
-     * 
-     * @param isStatementJournal
-     *            Which copy to rollback to
-     * @param xReiniter
-     *            Called on each rolled back page
-     * @throws SqlJetException 
-     */
-    void rollback(final boolean isStatementJournal, final ISqlJetPageCallback xReiniter) throws SqlJetException;
-
-    /**
      * Get a list of all dirty pages in the cache, sorted by page number
      * 
      * @return
@@ -228,10 +173,9 @@ public interface ISqlJetPageCache {
     /**
      * Clear flags from pages of the page cache
      * 
-     * @param flags
      * @throws SqlJetException 
      */
-    void clearFlags(final EnumSet<SqlJetPageFlags> flags) throws SqlJetException;
+    void clearSyncFlags() throws SqlJetException;
 
     /**
      * Return true if the number of dirty pages is 0 or 1
@@ -280,7 +224,4 @@ public interface ISqlJetPageCache {
      */
     void setCacheSize(final int cacheSize) throws SqlJetException;
 
-    /* Try to return memory used by the pcache module to the main memory heap */
-    // int ReleaseMemory(int);
-    // void Stats(int*,int*,int*,int*);
 }

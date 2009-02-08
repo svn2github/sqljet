@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 
 /**
  * @author TMate Software Ltd.
@@ -83,6 +84,10 @@ public class SqlJetUtility {
         System.arraycopy(src, srcPos, dest, dstPos, length);
     }
 
+    public static void memcpy(Object[] dest, Object[] src, int length) {
+        System.arraycopy(src, 0, dest, 0, length);
+    }
+    
     /**
      * @param data
      * @param value
@@ -92,6 +97,23 @@ public class SqlJetUtility {
         Arrays.fill(data, 0, count, value);
     }
 
+    /**
+     * @param data
+     * @param value
+     */
+    public static void memset(byte[] data, byte value) {
+        memset(data, value, data.length);
+    }
+    
+    /**
+     * @param data
+     * @param value
+     * @param count
+     */
+    public static void memset(byte[] data, int from, byte value, int count) {
+        Arrays.fill(data, from, count, value);
+    }
+    
     /**
      * @param s
      * @param from
@@ -120,6 +142,22 @@ public class SqlJetUtility {
         if (index < 0)
             return false;
         return bitSet.get(index);
+    }
+
+    /**
+     * @param magic
+     * @param journalMagic
+     * @param i
+     * @return
+     */
+    public static int memcmp(byte[] a1, byte[] a2, int count) {
+        for(int i = 0; i<count; i++) {
+            final Byte b1 = Byte.valueOf(a1[i]);
+            final Byte b2 = Byte.valueOf(a2[i]);
+            final int c = b1.compareTo(b2);
+            if(0!=c) return c;
+        }
+        return 0;
     }
 
 }

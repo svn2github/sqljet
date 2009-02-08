@@ -230,4 +230,10 @@ public interface ISqlJetFile {
      */
     EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics();
 
+    /**
+    * Return true if the file-handle passed as an argument is 
+    * an in-memory journal 
+    */
+    boolean isMemJournal();
+    
 }

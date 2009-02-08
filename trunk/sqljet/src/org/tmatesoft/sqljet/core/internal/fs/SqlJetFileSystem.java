@@ -261,4 +261,10 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         return System.currentTimeMillis() - t;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#memJournalOpen()
+     */
+    public ISqlJetFile memJournalOpen() {
+        return new SqlJetMemJournal();
+    }
 }

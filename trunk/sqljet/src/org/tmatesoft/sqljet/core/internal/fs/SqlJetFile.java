@@ -767,4 +767,11 @@ public class SqlJetFile implements ISqlJetFile {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetFile#isMemJournal()
+     */
+    public boolean isMemJournal() {
+        return false;
+    }
+    
 }

@@ -75,28 +75,30 @@ public interface ISqlJetPage {
     void dontRollback() throws SqlJetException;
 
     /**
-     * A call to this routine tells the pager that it is not necessary to write
-     * the information on page pPg back to the disk, even though that page might
-     * be marked as dirty.
-     * 
-     * The overlying software layer calls this routine when all of the data on
-     * the given page is unused. The pager marks the page as clean so that it
-     * does not get written to disk.
-     * 
+     * A call to this routine tells the pager that it is not necessary to
+     * write the information on page pPg back to the disk, even though
+     * that page might be marked as dirty.  This happens, for example, when
+     * the page has been added as a leaf of the freelist and so its
+     * content no longer matters.
+     *
+     * The overlying software layer calls this routine when all of the data
+     * on the given page is unused.  The pager marks the page as clean so
+     * that it does not get written to disk.
+     *
      * Tests show that this optimization, together with the
-     * sqlite3PagerDontRollback() below, more than double the speed of large
-     * INSERT operations and quadruple the speed of large DELETEs.
-     * 
-     * When this routine is called, set the alwaysRollback flag to true.
-     * Subsequent calls to sqlite3PagerDontRollback() for the same page will
-     * thereafter be ignored. This is necessary to avoid a problem where a page
-     * with data is added to the freelist during one part of a transaction then
-     * removed from the freelist during a later part of the same transaction and
-     * reused for some other purpose. When it is first added to the freelist,
-     * this routine is called. When reused, the sqlite3PagerDontRollback()
-     * routine is called. But because the page contains critical data, we still
-     * need to be sure it gets rolled back in spite of the
-     * sqlite3PagerDontRollback() call.
+     * sqlite3PagerDontRollback() below, more than double the speed
+     * of large INSERT operations and quadruple the speed of large DELETEs.
+     *
+     * When this routine is called, set the bit corresponding to pDbPage in
+     * the Pager.pAlwaysRollback bitvec.  Subsequent calls to
+     * sqlite3PagerDontRollback() for the same page will thereafter be ignored.
+     * This is necessary to avoid a problem where a page with data is added to
+     * the freelist during one part of a transaction then removed from the
+     * freelist during a later part of the same transaction and reused for some
+     * other purpose.  When it is first added to the freelist, this routine is
+     * called.  When reused, the sqlite3PagerDontRollback() routine is called.
+     * But because the page contains critical data, we still need to be sure it
+     * gets rolled back in spite of the sqlite3PagerDontRollback() call.
      * 
      * @throws SqlJetException
      */

@@ -1,6 +1,6 @@
 /**
- * SqlJetPagerJournalMode.java
- * Copyright (C) 2008 TMate Software Ltd
+ * SavepointOperation.java
+ * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,28 +14,19 @@
 package org.tmatesoft.sqljet.core;
 
 /**
- * Valid values for the second argument to {@link ISqlJetPager#setJournalMode()}
- * .
+ * The following are used as the second parameter to savepoint(), and as the P1
+ * argument to the OP_Savepoint instruction.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public enum SqlJetPagerJournalMode {
+public enum SavepointOperation {
 
-    /** Commit by deleting journal file */
-    DELETE,
+    BEGIN,
 
-    /** Commit by zeroing journal header */
-    PERSIST,
+    RELEASE,
 
-    /** Journal omitted. */
-    OFF,
+    ROLLBACK
 
-    /** Commit by truncating journal */
-    TRUNCATE,
-    
-    /** In-memory journal file */
-    MEMORY
-    
 }

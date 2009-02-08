@@ -167,15 +167,15 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * org.tmatesoft.sqljet.core.ISqlJetPageCallback,
      * org.tmatesoft.sqljet.core.ISqlJetPageCallback)
      */
-    public void open(final int szPage, final int szExtra, final boolean purgeable, final ISqlJetPageCallback destroy,
+    public void open(final int szPage, final int szExtra, final boolean purgeable, 
             final ISqlJetPageCallback stress) {
 
         assert (pcache_g.isInit);
         this.szPage = szPage;
         this.szExtra = szExtra;
         this.bPurgeable = bPurgeable;
-        this.xDestroy = xDestroy;
-        this.xStress = xStress;
+        //this.xDestroy = xDestroy;
+        this.xStress = stress;
         this.nMax = 100;
         this.nMin = 10;
 
@@ -554,7 +554,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPageCache#clearFlags(java.util.EnumSet)
      */
-    public void clearFlags(EnumSet<SqlJetPageFlags> flags) throws SqlJetException {
+    public void clearSyncFlags() throws SqlJetException {
         SqlJetPage p;
 
         /*
@@ -564,19 +564,14 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         synchronized (pcache_g) {
 
             for (p = pDirty; p != null; p = p.pNext) {
-                p.flags.removeAll(flags);
+                p.flags.remove(SqlJetPageFlags.NEED_SYNC);
                 if (p == p.pNext)
                     break;
             }
             for (p = pClean; p != null; p = p.pNext) {
-                p.flags.removeAll(flags);
+                p.flags.remove(SqlJetPageFlags.NEED_SYNC);
                 if (p == p.pNext)
                     break;
-            }
-
-            if (!flags.contains(SqlJetPageFlags.NEED_SYNC)) {
-                pSynced = pDirtyTail;
-                assertion(pSynced == null || !pSynced.flags.contains(SqlJetPageFlags.NEED_SYNC));
             }
 
         }

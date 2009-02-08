@@ -36,26 +36,11 @@ public interface ISqlJetPager {
     String JOURNAL = "-journal";
 
     /**
-     * If the SQLJET_BUSY_RESERVED_LOCK poperty is set to true at compile-time,
-     * then failed attempts to get a reserved lock will invoke the busy
-     * callback. This is off by default. To see why, consider the following
-     * scenario:
-     * 
-     * Suppose thread A already has a shared lock and wants a reserved lock.
-     * Thread B already has a reserved lock and wants an exclusive lock. If both
-     * threads are using their busy callbacks, it might be a long time be for
-     * one of the threads give up and allows the other to proceed. But if the
-     * thread trying to get the reserved lock gives up quickly (if it never
-     * invokes its busy callback) then the contention will be resolved quickly.
-     */
-    int SQLJET_BUSY_RESERVED_LOCK = 0;
-
-    /**
      * Journal files begin with the following magic string. The data was
      * obtained from /dev/random. It is used only as a sanity check.
      * 
      * Since version 2.8.0, the journal format contains additional sanity
-     * checking information. If the power fails while the journal is begin
+     * checking information. If the power fails while the journal is being
      * written, semi-random garbage data might appear in the journal file after
      * power is restored. If an attempt is then made to roll the journal back,
      * the database could be corrupted. The additional sanity checking data is
@@ -112,8 +97,6 @@ public interface ISqlJetPager {
      *            The file system to use
      * @param fileName
      *            Name of the database file to open
-     * @param xDesc
-     *            Page destructor function
      * @param nExtra
      *            Extra bytes append to each in-memory page
      * @param flags
@@ -126,7 +109,7 @@ public interface ISqlJetPager {
      *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
      * @throws SqlJetException
      */
-    void open(final ISqlJetFileSystem fs, final File fileName, final ISqlJetPageCallback xDesc, final int nExtra,
+    void open(final ISqlJetFileSystem fs, final File fileName, final int nExtra,
             final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
@@ -432,14 +415,6 @@ public interface ISqlJetPager {
     ISqlJetPage lookupPage(final int pageNumber) throws SqlJetException;
 
     /**
-     * Truncate the file to the number of pages specified.
-     * 
-     * @param pageNumber
-     * @throws SqlJetException
-     */
-    void truncate(final int pagesNumber) throws SqlJetException;
-
-    /**
      * Acquire a write-lock on the database. The lock is removed when the any of
      * the following happen:
      * 
@@ -482,9 +457,6 @@ public interface ISqlJetPager {
      * Note that if zMaster==NULL, this does not overwrite a previous value
      * passed to an sqlite3PagerCommitPhaseOne() call.
      * 
-     * If parameter nTrunc is non-zero, then the pager file is truncated to
-     * nTrunc pages (this is used by auto-vacuum databases).
-     * 
      * If the final parameter - noSync - is true, then the database file itself
      * is not synced. The caller must call sqlite3PagerSync() directly to sync
      * the database file before calling CommitPhaseTwo() to delete the journal
@@ -492,11 +464,10 @@ public interface ISqlJetPager {
      * 
      * 
      * @param master
-     * @param pageNumberTrunc
      * @param noSync
      * @throws SqlJetException
      */
-    void commitPhaseOne(final String master, int pageNumberTrunc, boolean noSync) throws SqlJetException;
+    void commitPhaseOne(final String master, boolean noSync) throws SqlJetException;
 
     /**
      * Commit all changes to the database and release the write lock.
@@ -524,32 +495,6 @@ public interface ISqlJetPager {
     void rollback() throws SqlJetException;
 
     /**
-     * Set the statement rollback point.
-     * 
-     * This routine should be called with the transaction journal already open.
-     * A new statement journal is created that can be used to rollback changes
-     * of a single SQL command within a larger transaction.
-     * 
-     * @throws SqlJetException
-     */
-    void stmtBegin() throws SqlJetException;
-
-    /**
-     * Commit a statement.
-     * 
-     * @throws SqlJetException
-     */
-    void stmtCommit() throws SqlJetException;
-
-    /**
-     * Rollback a statement.
-     * 
-     * @throws SqlJetException
-     */
-    void stmtRollback() throws SqlJetException;
-
-
-    /**
      * Return the number of references to the pager.
      * 
      * @return
@@ -565,4 +510,47 @@ public interface ISqlJetPager {
      */
     void sync() throws SqlJetException;
 
+    /**
+    * Ensure that there are at least nSavepoint savepoints open.
+    */
+    void openSavepoint(int nSavepoint) throws SqlJetException;
+
+    /**
+    * Parameter op is always either SAVEPOINT_ROLLBACK or SAVEPOINT_RELEASE.
+    * If it is SAVEPOINT_RELEASE, then release and destroy the savepoint with
+    * index iSavepoint. If it is SAVEPOINT_ROLLBACK, then rollback all changes
+    * that have occured since savepoint iSavepoint was created.
+    *
+    * In either case, all savepoints with an index greater than iSavepoint 
+    * are destroyed.
+    *
+    * If there are less than (iSavepoint+1) active savepoints when this 
+    * function is called it is a no-op.
+    */ 
+    void savepoint(SavepointOperation op, int iSavepoint) throws SqlJetException;
+    
+    /**
+     * Truncate the in-memory database file image to nPage pages. This 
+     * function does not actually modify the database file on disk. It 
+     * just sets the internal state of the pager object so that the 
+     * truncation will be done when the current transaction is committed.
+     * 
+     * @param pageNumber
+     * @throws SqlJetException
+     */
+    void truncateImage(final int pagesNumber) throws SqlJetException;
+
+    /**
+    * Return the current size of the database file image in pages. This
+    * function differs from sqlite3PagerPagecount() in two ways:
+    *
+    *  a) It may only be called when at least one reference to a database
+    *     page is held. This guarantees that the database size is already
+    *     known and a call to sqlite3OsFileSize() is not required.
+    *
+    *  b) The return value is not adjusted for the locking page.
+    *  
+    */
+    int imageSize() throws SqlJetException;
+    
 }

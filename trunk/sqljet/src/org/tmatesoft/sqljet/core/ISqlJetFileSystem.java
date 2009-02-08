@@ -114,7 +114,11 @@ public interface ISqlJetFileSystem {
      */
     ISqlJetFile open(final File path, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
-    
+
+    /** 
+    ** Open a memory journal file.
+    */
+    ISqlJetFile memJournalOpen();
 
     /**
      * Delete the file. If the sync argument is true, sync()

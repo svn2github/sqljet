@@ -36,7 +36,6 @@ import org.tmatesoft.sqljet.core.SqlJetUtility;
  */
 public class SqlJetPageCache implements ISqlJetPageCache {
 
-    private static final int N_SORT_BUCKET_ALLOC = 25;
     private static final int N_SORT_BUCKET = 25;
 
     /** List of dirty pages in LRU order */
@@ -45,12 +44,10 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     SqlJetPage pSynced;
     /** Number of pinned pages */
     int nRef;
-    /** Number of pinned and/or dirty pages */
-    int nPinned;
     /** Configured cache size */
-    int nMax;
+    int nMax = 100;
     /** Configured minimum cache size */
-    int nMin;
+    int nMin = 10;
     /** Size of every page in this cache */
     int szPage;
     /** Size of extra space for each page */
@@ -59,19 +56,10 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     boolean bPurgeable;
     /** Call to try make a page clean */
     ISqlJetPageCallback xStress;
-    ICache pCache;
+    PCache pCache = new PCache();
     ISqlJetPage pPage1;
 
     SqlJetPageCache() {
-    }
-
-    interface ICache {
-        int getPageCount();
-        SqlJetPage fetch(int key, boolean createFlag);
-        void unpin(ISqlJetPage page, boolean discard);
-        void rekey(ISqlJetPage page, int oldKey, int newKey);
-        void truncate(int iLimit);
-        void destroy();
     }
     
     /*
@@ -181,7 +169,6 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     public ISqlJetPage fetch(int pgno, boolean createFlag) throws SqlJetException {
 
         SqlJetPage pPage = null;
-        int eCreate;
 
         assertion( pgno>0 );
 
@@ -189,7 +176,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         ** allocate it now.
         */
         if( pCache==null && createFlag ){
-          pCache = new PCache1();
+          pCache = new PCache();
         }
 
         if( pCache!=null ){
@@ -407,7 +394,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     ** corrupted by this sort.
     */
     static SqlJetPage sortDirtyList(SqlJetPage pIn){
-      SqlJetPage[] a = new SqlJetPage[N_SORT_BUCKET_ALLOC]; 
+      SqlJetPage[] a = new SqlJetPage[N_SORT_BUCKET]; 
       SqlJetPage p;
       int i;
       while( pIn!=null ){
@@ -492,7 +479,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         }
     }
 
-    class PCache1 implements ICache {
+    class PCache {
 
         /** Hash table for fast lookup by key */
         private Map<Integer,SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>(){
@@ -589,12 +576,37 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             return fetch_out.go_to(pPage);
         }
         
-        /** Mark a page as unpinned (eligible for asynchronous recycling).
+        /** 
+         * Mark a page as unpinned (eligible for asynchronous recycling).
+         * 
+         * xUnpin() is called by SQLite with a pointer to a currently pinned page
+         * as its second argument. If the third parameter, discard, is non-zero,
+         * then the page should be evicted from the cache. In this case SQLite 
+         * assumes that the next time the page is retrieved from the cache using
+         * the xFetch() method, it will be zeroed. If the discard parameter is
+         * zero, then the page is considered to be unpinned. The cache implementation
+         * may choose to reclaim (free or recycle) unpinned pages at any time.
+         * SQLite assumes that next time the page is retrieved from the cache
+         * it will either be zeroed, or contain the same data that it did when it
+         * was unpinned.
+         *
+         * The cache is not required to perform any reference counting. A single 
+         * call to xUnpin() unpins the page regardless of the number of prior calls 
+         * to xFetch().
+         * 
          */
         public synchronized void unpin(ISqlJetPage page, boolean discard) {
             apHash.remove(page.getPageNumber());
         }
         
+        /**
+         * The xRekey() method is used to change the key value associated with the
+         * page passed as the second argument from oldKey to newKey. If the cache
+         * previously contains an entry associated with newKey, it should be
+         * discarded. Any prior cache entry associated with newKey is guaranteed not
+         * to be pinned.
+         * 
+         */
         public synchronized void rekey(ISqlJetPage page, int oldKey, int newKey) {
 
             SqlJetPage pPage = (SqlJetPage) page;
@@ -611,6 +623,14 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             
         }
         
+        /**
+         * When SQLite calls the xTruncate() method, the cache must discard all
+         * existing cache entries with page numbers (keys) greater than or equal
+         * to the value of the iLimit parameter passed to xTruncate(). If any
+         * of these pages are pinned, they are implicitly unpinned, meaning that
+         * they can be safely discarded.
+         * 
+         */
         public synchronized void truncate(int iLimit) {
             if( iLimit<=iMaxKey ){
                 List<Integer> l = new LinkedList<Integer>();
@@ -625,6 +645,13 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
         }
 
+        /**
+         * The xDestroy() method is used to delete a cache allocated by xCreate().
+         * All resources associated with the specified cache should be freed. After
+         * calling the xDestroy() method, SQLite considers the [sqlite3_pcache*]
+         * handle invalid, and will not use it with any other sqlite3_pcache_methods
+         * functions.
+         */
         public synchronized void destroy() {
             apHash.clear();
         }

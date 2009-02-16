@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -157,8 +157,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     public void open(int szPage, int szExtra, boolean purgeable, ISqlJetPageCallback stress) {
         this.szPage = szPage;
         this.szExtra = szExtra;
-        this.bPurgeable = bPurgeable;
-        this.xStress = xStress;
+        this.bPurgeable = purgeable;
+        this.xStress = stress;
         this.nMax = 100;
         this.nMin = 10;
     }
@@ -495,11 +495,17 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     class PCache1 implements ICache {
 
         /** Hash table for fast lookup by key */
-        Map<Integer,SqlJetPage> apHash = new HashMap<Integer, SqlJetPage>();
+        private Map<Integer,SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>(){
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Integer, SqlJetPage> eldest) {
+                return size() > nMax;
+            }
+        };
         
+        /** Largest key seen since xTruncate() */
         private int iMaxKey;
 
-        public int getPageCount() {
+        public synchronized int getPageCount() {
             return apHash.size();
         }
         
@@ -543,7 +549,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         *
         *   5. Otherwise, allocate and return a new page buffer.
         */
-        public SqlJetPage fetch(final int key, final boolean createFlag) {
+        public synchronized SqlJetPage fetch(final int key, final boolean createFlag) {
             
             class FetchOut {
                 SqlJetPage go_to(SqlJetPage pPage) {
@@ -585,11 +591,11 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         
         /** Mark a page as unpinned (eligible for asynchronous recycling).
          */
-        public void unpin(ISqlJetPage page, boolean discard) {
+        public synchronized void unpin(ISqlJetPage page, boolean discard) {
             apHash.remove(page.getPageNumber());
         }
         
-        public void rekey(ISqlJetPage page, int oldKey, int newKey) {
+        public synchronized void rekey(ISqlJetPage page, int oldKey, int newKey) {
 
             SqlJetPage pPage = (SqlJetPage) page;
 
@@ -605,7 +611,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             
         }
         
-        public void truncate(int iLimit) {
+        public synchronized void truncate(int iLimit) {
             if( iLimit<=iMaxKey ){
                 List<Integer> l = new LinkedList<Integer>();
                 for( Integer i : apHash.keySet() ){
@@ -619,7 +625,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
         }
 
-        public void destroy() {
+        public synchronized void destroy() {
             apHash.clear();
         }
         

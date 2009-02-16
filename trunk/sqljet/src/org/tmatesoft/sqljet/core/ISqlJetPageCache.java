@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import java.util.EnumSet;
 
 /**
  * The page cache subsystem
@@ -23,28 +22,6 @@ import java.util.EnumSet;
  * 
  */
 public interface ISqlJetPageCache {
-
-    /**
-     * Initialize the page cache subsystem
-     */
-    void initialize() throws SqlJetException;
-
-    /**
-     * Shutdown the page cache subsystem
-     */
-    void shutdown();
-
-    /**
-     * Initialize the page cache memory pool.
-     * 
-     * This must be called at start-time when no page cache lines are checked
-     * out. This function is not threadsafe.
-     * 
-     * @param buffer
-     * @param sz
-     * @param n
-     */
-    void bufferSetup(final byte[] buffer, final int sz, final int n);
 
     /**
      * Create a new pager cache. Under memory stress, invoke xStress to try to
@@ -223,5 +200,5 @@ public interface ISqlJetPageCache {
      * @throws SqlJetException 
      */
     void setCacheSize(final int cacheSize) throws SqlJetException;
-
+    
 }

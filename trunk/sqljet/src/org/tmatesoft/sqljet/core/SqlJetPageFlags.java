@@ -24,9 +24,6 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPage;
  */
 public enum SqlJetPageFlags {
 
-    /** Page is in rollback journal */
-    IN_JOURNAL,
-    
     /** Page has changed */
     DIRTY,  
     

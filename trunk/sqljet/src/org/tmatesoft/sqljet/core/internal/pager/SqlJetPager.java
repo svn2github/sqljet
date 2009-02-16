@@ -923,7 +923,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             } catch (final SqlJetException e) {
                 errCode = e.getErrorCode();
             }
-            dbSize = 0;
+            dbSizeValid = false;
             PAGERTRACE("UNLOCK %s\n", PAGERID());
 
             /*

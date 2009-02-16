@@ -48,16 +48,17 @@ public class SqlJetPage implements ISqlJetPage {
      */
     int nRef; /* Number of users of this page */
     SqlJetPageCache pCache; /* Cache that owns this page */
-    byte[][] apSave = new byte[2][]; /* Journal entries for in-memory databases */
-    /**********************************************************************
-     ** Elements above are accessible at any time by the owner of the cache
-     * without the need for a mutex. The elements that follow can only be
-     * accessed while holding the SQLITE_MUTEX_STATIC_LRU mutex.
-     */
-    SqlJetPage pNextHash, pPrevHash; /* Hash collision chain for PgHdr.pgno */
-    SqlJetPage pNext, pPrev; /* List of clean or dirty pages */
-    SqlJetPage pNextLru, pPrevLru; /* Part of global LRU list */
 
+    SqlJetPage pDirtyNext;             /* Next element in list of dirty pages */
+    SqlJetPage pDirtyPrev;             /* Previous element in list of dirty pages */
+
+    /**
+     * 
+     */
+    public SqlJetPage() {
+        // TODO Auto-generated constructor stub
+    }
+    
     /**
      * 
      */
@@ -81,10 +82,6 @@ public class SqlJetPage implements ISqlJetPage {
          */
         if (!pPager.journalOpen || SqlJetUtility.bitSetTest(pPager.pagesAlwaysRollback, pgno)
                 || pgno > pPager.dbOrigSize) {
-            return;
-        }
-
-        if (flags.contains(SqlJetPageFlags.IN_JOURNAL)) {
             return;
         }
 
@@ -165,7 +162,7 @@ public class SqlJetPage implements ISqlJetPage {
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getData()
      */
     public byte[] getData() throws SqlJetException {
-        assertion( nRef>0 || pPager.memDb );
+        //assertion( nRef>0 || pPager.memDb );
         return pData;
     }
 
@@ -650,7 +647,7 @@ public class SqlJetPage implements ISqlJetPage {
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getNext()
      */
     public ISqlJetPage getNext() {
-        return pNext;
+        return pDirtyNext;
     }
 
     /*
@@ -659,7 +656,7 @@ public class SqlJetPage implements ISqlJetPage {
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getPrev()
      */
     public ISqlJetPage getPrev() {
-        return pPrev;
+        return pDirtyPrev;
     }
 
 }

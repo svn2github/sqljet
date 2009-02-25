@@ -42,7 +42,7 @@ import org.tmatesoft.sqljet.core.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.SqlJetPagerLockingMode;
-import org.tmatesoft.sqljet.core.SqlJetPagerSafetyLevel;
+import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
 import org.tmatesoft.sqljet.core.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
@@ -269,7 +269,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /** Pointer to page cache object */
     SqlJetPageCache pageCache;
 
-    SqlJetPagerSafetyLevel safetyLevel;
+    SqlJetSafetyLevel safetyLevel;
 
     /**
      * Call this routine when reloading pages
@@ -608,7 +608,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getSafetyLevel()
      */
-    public SqlJetPagerSafetyLevel getSafetyLevel() {
+    public SqlJetSafetyLevel getSafetyLevel() {
         return safetyLevel;
     }
 
@@ -619,12 +619,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * org.tmatesoft.sqljet.core.ISqlJetPager#setSafetyLevel(org.tmatesoft.sqljet
      * .core.SqlJetPagerSafetyLevel)
      */
-    public void setSafetyLevel(final SqlJetPagerSafetyLevel safetyLevel) {
+    public void setSafetyLevel(final SqlJetSafetyLevel safetyLevel) {
 
         this.safetyLevel = safetyLevel;
 
-        noSync = safetyLevel == SqlJetPagerSafetyLevel.OFF || tempFile;
-        fullSync = safetyLevel == SqlJetPagerSafetyLevel.FULL && !tempFile;
+        noSync = safetyLevel == SqlJetSafetyLevel.OFF || tempFile;
+        fullSync = safetyLevel == SqlJetSafetyLevel.FULL && !tempFile;
         if (noSync)
             needSync = false;
 

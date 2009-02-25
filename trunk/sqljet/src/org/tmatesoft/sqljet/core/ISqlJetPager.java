@@ -217,14 +217,14 @@ public interface ISqlJetPager {
      * 
      * @param safetyLevel
      */
-    void setSafetyLevel(final SqlJetPagerSafetyLevel safetyLevel);
+    void setSafetyLevel(final SqlJetSafetyLevel safetyLevel);
     
     /**
      * Get safety level
      * 
      * @return
      */
-    SqlJetPagerSafetyLevel getSafetyLevel();
+    SqlJetSafetyLevel getSafetyLevel();
     
     /**
      * Return a pointer to the "temporary page" buffer held internally by the

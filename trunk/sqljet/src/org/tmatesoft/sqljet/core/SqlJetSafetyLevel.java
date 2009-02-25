@@ -22,7 +22,7 @@ package org.tmatesoft.sqljet.core;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public enum SqlJetPagerSafetyLevel {
+public enum SqlJetSafetyLevel {
 
     /**
      * sqlite3OsSync() is never called. This is the default for temporary and

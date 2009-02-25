@@ -28,7 +28,7 @@ import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
-import org.tmatesoft.sqljet.core.SavepointOperation;
+import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -3502,21 +3502,21 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     ** If there are less than (iSavepoint+1) active savepoints when this 
     ** function is called it is a no-op.
     */ 
-    public void savepoint(SavepointOperation op, int iSavepoint) throws SqlJetException{
+    public void savepoint(SqlJetSavepointOperation op, int iSavepoint) throws SqlJetException{
         
         SqlJetException rc = null;
 
-      assertion( op==SavepointOperation.RELEASE || op==SavepointOperation.ROLLBACK );
+      assertion( op==SqlJetSavepointOperation.RELEASE || op==SqlJetSavepointOperation.ROLLBACK );
 
       if( iSavepoint<this.nSavepoint ){
         int ii;
-        int nNew = iSavepoint + (op==SavepointOperation.ROLLBACK?1:0);
+        int nNew = iSavepoint + (op==SqlJetSavepointOperation.ROLLBACK?1:0);
         for(ii=nNew; ii<nSavepoint; ii++){
           aSavepoint[ii].pInSavepoint=null;
         }
         nSavepoint = nNew;
 
-        if( op==SavepointOperation.ROLLBACK && jfd!=null ){
+        if( op==SqlJetSavepointOperation.ROLLBACK && jfd!=null ){
           PagerSavepoint pSavepoint = (nNew==0)?null:aSavepoint[nNew-1];
           try {
               playbackSavepoint(pSavepoint);
@@ -3528,7 +3528,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
       
         /* If this is a release of the outermost savepoint, truncate 
         ** the sub-journal. */
-        if( nNew==0 && op==SavepointOperation.RELEASE && sjfd!=null ){
+        if( nNew==0 && op==SqlJetSavepointOperation.RELEASE && sjfd!=null ){
           assertion( rc==null );
           try{
               sjfd.truncate(0);

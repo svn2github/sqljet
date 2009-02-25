@@ -527,7 +527,7 @@ public interface ISqlJetPager {
     * If there are less than (iSavepoint+1) active savepoints when this 
     * function is called it is a no-op.
     */ 
-    void savepoint(SavepointOperation op, int iSavepoint) throws SqlJetException;
+    void savepoint(SqlJetSavepointOperation op, int iSavepoint) throws SqlJetException;
     
     /**
      * Truncate the in-memory database file image to nPage pages. This 

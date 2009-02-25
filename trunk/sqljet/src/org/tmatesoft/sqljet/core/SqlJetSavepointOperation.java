@@ -21,7 +21,7 @@ package org.tmatesoft.sqljet.core;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public enum SavepointOperation {
+public enum SqlJetSavepointOperation {
 
     BEGIN,
 

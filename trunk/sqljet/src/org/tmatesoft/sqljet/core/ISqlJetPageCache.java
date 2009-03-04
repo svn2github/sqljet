@@ -38,7 +38,7 @@ public interface ISqlJetPageCache {
      * @param xStress
      *            Call to try to make pages clean
      */
-    void open(final int szPage, final int szExtra, final boolean bPurgeable,
+    void open(final int szPage, final boolean bPurgeable,
             final ISqlJetPageCallback xStress);
 
     /**

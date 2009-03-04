@@ -72,7 +72,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testOpenTemp() throws Exception {
-        pager.open(fileSystem, null, 0, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.DELETEONCLOSE, SqlJetFileOpenPermission.READWRITE));
     }
 
@@ -83,7 +83,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testOpenMain() throws Exception {
-        pager.open(fileSystem, file, 0, null, SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.READWRITE));
     }
 
@@ -94,7 +94,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testOpenMemory() throws Exception {
-        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), 0, null, SqlJetFileType.MAIN_DB, EnumSet.of(
+        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, EnumSet.of(
                 SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE));
     }
 
@@ -105,7 +105,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testReadDataBase() throws Exception {
-        pager.open(fileSystem, testDataBase, 0, null, SqlJetFileType.MAIN_DB, EnumSet
+        pager.open(fileSystem, testDataBase, null, SqlJetFileType.MAIN_DB, EnumSet
                 .of(SqlJetFileOpenPermission.READONLY));
         byte[] zDbHeader = new byte[100];
         pager.readFileHeader(zDbHeader.length, zDbHeader);
@@ -120,7 +120,7 @@ public class SqlJetPagerTest {
     
     @Test
     public final void testWriteTemp() throws Exception {
-        pager.open(fileSystem, null, 0, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.DELETEONCLOSE, SqlJetFileOpenPermission.READWRITE));
         final ISqlJetPage page = pager.acquirePage(1, true);
         pager.begin(true);
@@ -139,7 +139,7 @@ public class SqlJetPagerTest {
     @Test
     public final void testWriteMain() throws Exception {
         
-        pager.open(fileSystem, file, 0, null, SqlJetFileType.MAIN_DB, 
+        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         int pageSize = pager.getPageSize();
@@ -157,7 +157,7 @@ public class SqlJetPagerTest {
         page2.unref();
         pager.close();
 
-        pager.open(fileSystem, file, 0, null, SqlJetFileType.MAIN_DB, 
+        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         int pageCount = pager.getPageCount();
@@ -181,7 +181,7 @@ public class SqlJetPagerTest {
         page2.unref();
         pager.close();
 
-        pager.open(fileSystem, file, 0, null, SqlJetFileType.MAIN_DB, 
+        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
                 EnumSet.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         pageCount = pager.getPageCount();
@@ -204,7 +204,7 @@ public class SqlJetPagerTest {
      */
     @Test
     public final void testWriteMemory() throws Exception {
-        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), 0, null, SqlJetFileType.MAIN_DB, EnumSet.of(
+        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, EnumSet.of(
                 SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE));
         final ISqlJetPage page = pager.acquirePage(1, true);
         pager.begin(true);

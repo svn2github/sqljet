@@ -35,22 +35,42 @@ import org.tmatesoft.sqljet.core.SqlJetUtility;
  */
 public class SqlJetPage implements ISqlJetPage {
 
-    byte[] pData; /* Content of this page */
-    byte[] pExtra; /* Extra content */
-    SqlJetPage pDirty; /* Transient list of dirty pages */
-    int pgno; /* Page number for this page */
-    SqlJetPager pPager; /* The pager this page is part of */
-    long pageHash; /* Hash of page content */
+    /** Content of this page */
+    byte[] pData;
+    
+    /** Extra content */
+    Object pExtra; 
+    
+    /** Transient list of dirty pages */
+    SqlJetPage pDirty;
+    
+    /** Page number for this page */
+    int pgno;
+    
+    /** The pager this page is part of */
+    SqlJetPager pPager;
+    
+    /** Hash of page content */
+    long pageHash;
+    
     EnumSet<SqlJetPageFlags> flags = EnumSet.noneOf(SqlJetPageFlags.class); 
-    /**********************************************************************
-     ** Elements above are public. All that follows is private to pcache.c and
+    
+    /*
+     * Elements above are public. All that follows is private to pcache.c and
      * should not be accessed by other modules.
      */
-    int nRef; /* Number of users of this page */
-    SqlJetPageCache pCache; /* Cache that owns this page */
+    
+    /** Number of users of this page */
+    int nRef; 
+    
+    /** Cache that owns this page */
+    SqlJetPageCache pCache; 
 
-    SqlJetPage pDirtyNext;             /* Next element in list of dirty pages */
-    SqlJetPage pDirtyPrev;             /* Previous element in list of dirty pages */
+    /** Next element in list of dirty pages */
+    SqlJetPage pDirtyNext;
+    
+    /** Previous element in list of dirty pages */    
+    SqlJetPage pDirtyPrev;
 
     /**
      * 
@@ -62,9 +82,8 @@ public class SqlJetPage implements ISqlJetPage {
     /**
      * 
      */
-    SqlJetPage(int szPage, int szExtra) {
+    SqlJetPage(int szPage) {
         pData = new byte[szPage];
-        pExtra = new byte[szExtra];
     }
     
     /*
@@ -171,8 +190,15 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getExtra()
      */
-    public byte[] getExtra() {
+    public Object getExtra() {
         return (pPager != null ? pExtra : null);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setExtra(java.lang.Object)
+     */
+    public void setExtra(Object extra) {
+        this.pExtra = extra;
     }
 
     /*

@@ -1,5 +1,5 @@
 /**
- * ISqlJet.java
+ * ISqlJetConfig.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,40 +13,11 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import java.util.EnumSet;
-import java.util.List;
-
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetDb {
-
-    /**
-     * Get config
-     * 
-     * @return
-     */
-    ISqlJetConfig getConfig();
-    
-    /**
-     * Set config
-     * 
-     * @param config
-     */
-    void setConfig(ISqlJetConfig config);
-    
-    /**
-     * @return
-     */
-    ISqlJetFileSystem getFileSystem();
-    
-    /**
-     * @return
-     */
-    EnumSet<SqlJetDbFlags> getFlags();
-    
-    List<ISqlJetBackend> getBackends();
-    
+public interface ISqlJetConfig {
+    boolean isSharedCacheEnabled();
 }

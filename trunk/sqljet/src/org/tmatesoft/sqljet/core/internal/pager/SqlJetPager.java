@@ -212,9 +212,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /** Number of records in stmt subjournal */
     int stmtNRec;
 
-    /** Add this many bytes to each in-memory page */
-    int nExtra;
-
     /** Number of bytes in a page */
     int pageSize;
 
@@ -358,7 +355,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet,
      * org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)
      */
-    public void open(final ISqlJetFileSystem fileSystem, final File fileName, final int nExtra,
+    public void open(final ISqlJetFileSystem fileSystem, final File fileName,
             final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
@@ -434,7 +431,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         this.tmpSpace = new byte[szPageDflt];
 
         pageCache = new SqlJetPageCache();
-        pageCache.open(szPageDflt, nExtra, !memDb, !memDb ? this : null);
+        pageCache.open(szPageDflt, !memDb, !memDb ? this : null);
 
         PAGERTRACE("OPEN %s %s\n", FILEHANDLEID(), fileName);
 
@@ -451,7 +448,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         this.fullSync = !this.noSync;
         this.syncFlags = EnumSet.of(SqlJetSyncFlags.NORMAL);
 
-        this.nExtra = nExtra;
         this.journalSizeLimit = SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT;
 
         setSectorSize();
@@ -666,7 +662,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setPagesize(int)
      */
-    public void setPageSize(final int pageSize) throws SqlJetException {
+    public int setPageSize(final int pageSize) throws SqlJetException {
         checkErrorCode();
         assertion(pageSize >= SQLJET_MIN_PAGE_SIZE && pageSize <= SQLJET_MAX_PAGE_SIZE);
         if (pageSize != this.pageSize && (!this.memDb || this.dbSize == 0) && pageCache.getRefCount() == 0) {
@@ -677,7 +673,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             this.tmpSpace = new byte[pageSize];
             pageCache.setPageSize(pageSize);
         }
-
+        return this.pageSize;
     }
 
     /**
@@ -1017,8 +1013,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * initialized.
              */
             page.setPager(this);
-
-            SqlJetUtility.memset(page.getExtra(), (byte) 0, nExtra);
 
             int nMax;
             try {

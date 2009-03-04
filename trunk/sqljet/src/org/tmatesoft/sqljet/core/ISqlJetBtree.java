@@ -17,12 +17,30 @@ import java.io.File;
 import java.util.EnumSet;
 
 /**
+ * A Btree handle
+ * 
+ * A database connection contains a pointer to an instance of this object for
+ * every database file that it has open. This structure is opaque to the
+ * database connection. The database connection cannot see the internals of this
+ * structure and only deals with pointers to this structure.
+ * 
+ * For some database files, the same underlying database cache might be shared
+ * between multiple connections. In that case, each contection has it own
+ * pointer to this object. But each instance of this object points to the same
+ * BtShared object. The database cache and the schema associated with the
+ * database file are all contained within the BtShared object.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
 public interface ISqlJetBtree {
 
+    SqlJetAutoVacuumMode SQLJET_DEFAULT_AUTOVACUUM = 
+        SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_AUTOVACUUM", SqlJetAutoVacuumMode.NONE);
+    
+    
+    
     /**
      * Open a database file.
      * 
@@ -43,8 +61,8 @@ public interface ISqlJetBtree {
      *            Flags passed through to VFS open
      * @return
      */
-    void open(File filename, ISqlJetDb db, EnumSet<SqlJetBtreeFlags> flags, EnumSet<SqlJetFileOpenPermission> fsFlags)
-            throws SqlJetException;
+    void open(File filename, ISqlJetDb db, EnumSet<SqlJetBtreeFlags> flags, final SqlJetFileType type,
+            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
     /**
      * Close an open database and invalidate all cursors.
@@ -557,43 +575,42 @@ public interface ISqlJetBtree {
     ISqlJetPager getPager() throws SqlJetException;
 
     /**
-     * Create a new cursor for the BTree whose root is on the page
-     * iTable.  The act of acquiring a cursor gets a read lock on 
-     * the database file.
-     *
-     * If wrFlag==0, then the cursor can only be used for reading.
-     * If wrFlag==1, then the cursor can be used for reading or for
-     * writing if other conditions for writing are also met.  These
-     * are the conditions that must be met in order for writing to
-     * be allowed:
-     *
-     * 1:  The cursor must have been opened with wrFlag==1
-     *
-     * 2:  Other database connections that share the same pager cache
-     *     but which are not in the READ_UNCOMMITTED state may not have
-     *     cursors open with wrFlag==0 on the same table.  Otherwise
-     *     the changes made by this write cursor would be visible to
-     *     the read cursors in the other database connection.
-     *
-     * 3:  The database must be writable (not on read-only media)
-     *
-     * 4:  There must be an active transaction.
-     *
-     * No checking is done to make sure that page iTable really is the
-     * root page of a b-tree.  If it is not, then the cursor acquired
-     * will not work correctly.
-     *
-     * It is assumed that the sqlite3BtreeCursorSize() bytes of memory 
-     * pointed to by pCur have been zeroed by the caller.
+     * Create a new cursor for the BTree whose root is on the page iTable. The
+     * act of acquiring a cursor gets a read lock on the database file.
      * 
-     * @param table Index of root page
-     * @param wrFlag true for writing.  false for read-only
-     * @param keyInfo First argument to compare function
+     * If wrFlag==0, then the cursor can only be used for reading. If wrFlag==1,
+     * then the cursor can be used for reading or for writing if other
+     * conditions for writing are also met. These are the conditions that must
+     * be met in order for writing to be allowed:
+     * 
+     * 1: The cursor must have been opened with wrFlag==1
+     * 
+     * 2: Other database connections that share the same pager cache but which
+     * are not in the READ_UNCOMMITTED state may not have cursors open with
+     * wrFlag==0 on the same table. Otherwise the changes made by this write
+     * cursor would be visible to the read cursors in the other database
+     * connection.
+     * 
+     * 3: The database must be writable (not on read-only media)
+     * 
+     * 4: There must be an active transaction.
+     * 
+     * No checking is done to make sure that page iTable really is the root page
+     * of a b-tree. If it is not, then the cursor acquired will not work
+     * correctly.
+     * 
+     * It is assumed that the sqlite3BtreeCursorSize() bytes of memory pointed
+     * to by pCur have been zeroed by the caller.
+     * 
+     * @param table
+     *            Index of root page
+     * @param wrFlag
+     *            true for writing. false for read-only
+     * @param keyInfo
+     *            First argument to compare function
      * @return
      * @throws SqlJetException
      */
-    ISqlJetBtreeCursor getCursor( int table, boolean wrFlag, ISqlJetKeyInfo keyInfo) throws SqlJetException;
-    
-    
-    
+    ISqlJetBtreeCursor getCursor(int table, boolean wrFlag, ISqlJetKeyInfo keyInfo) throws SqlJetException;
+
 }

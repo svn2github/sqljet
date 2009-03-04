@@ -50,8 +50,6 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     int nMin = 10;
     /** Size of every page in this cache */
     int szPage;
-    /** Size of extra space for each page */
-    int szExtra;
     /** True if pages are on backing store */
     boolean bPurgeable;
     /** Call to try make a page clean */
@@ -142,9 +140,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetPageCache#open(int, int, boolean, org.tmatesoft.sqljet.core.ISqlJetPageCallback)
      */
-    public void open(int szPage, int szExtra, boolean purgeable, ISqlJetPageCallback stress) {
+    public void open(int szPage, boolean purgeable, ISqlJetPageCallback stress) {
         this.szPage = szPage;
-        this.szExtra = szExtra;
         this.bPurgeable = purgeable;
         this.xStress = stress;
         this.nMax = 100;
@@ -211,7 +208,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
           }
           pPage.nRef++;
           pPage.pData = new byte[szPage];
-          pPage.pExtra = new byte[szExtra];
+          pPage.pExtra = null;
           pPage.pCache = this;
           pPage.pgno = pgno;
           if( pgno==1 ){
@@ -564,7 +561,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             ** attempt to allocate a new one. 
             */
             if( pPage==null ){
-              pPage = new SqlJetPage(szPage,szExtra);
+              pPage = new SqlJetPage(szPage);
             }
 
             if( pPage!=null ){

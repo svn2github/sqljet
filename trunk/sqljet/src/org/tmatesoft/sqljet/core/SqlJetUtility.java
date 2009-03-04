@@ -51,6 +51,26 @@ public class SqlJetUtility {
     }
     
     /**
+     * @param <T>
+     * @param propName
+     * @param defValue
+     * @return
+     */
+    public static <T extends Enum<T>> T getEnumSysProp(String propName, T defValue) {
+        if (null == propName)
+            throw new SqlJetError("Undefined property name");
+        if (null == defValue)
+            throw new SqlJetError("Undefined default value");
+        try {
+            return defValue.valueOf(defValue.getDeclaringClass(),
+                    System.getProperty(propName, defValue.toString()));
+        } catch (Throwable t) {
+            throw new SqlJetError("Error while get int value for property " + propName, t);
+        }
+    }
+    
+    
+    /**
      * Read a four-byte big-endian integer value.
      */
 
@@ -58,6 +78,10 @@ public class SqlJetUtility {
         return ByteBuffer.wrap(p).getInt();
     }
 
+    public static int get4byte(byte[] p, int pos) {
+        return ByteBuffer.wrap(p).getInt(pos);
+    }
+    
     /**
      * Write a four-byte big-endian integer value.
      */
@@ -159,5 +183,5 @@ public class SqlJetUtility {
         }
         return 0;
     }
-
+    
 }

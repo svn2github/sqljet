@@ -141,11 +141,10 @@ public interface ISqlJetPage {
     byte[] getData() throws SqlJetException;
 
     /**
-     * Return a pointer to the Pager.nExtra bytes of "extra" space allocated
-     * along with the specified page.
      * 
      */
-    byte[] getExtra();
+    Object getExtra();
+    void setExtra(Object extra);
 
     
     /**

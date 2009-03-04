@@ -97,8 +97,6 @@ public interface ISqlJetPager {
      *            The file system to use
      * @param fileName
      *            Name of the database file to open
-     * @param nExtra
-     *            Extra bytes append to each in-memory page
      * @param flags
      *            flags controlling this file
      * @param type
@@ -109,7 +107,7 @@ public interface ISqlJetPager {
      *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
      * @throws SqlJetException
      */
-    void open(final ISqlJetFileSystem fs, final File fileName, final int nExtra,
+    void open(final ISqlJetFileSystem fs, final File fileName,
             final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
@@ -265,7 +263,7 @@ public interface ISqlJetPager {
      * @return
      * @throws SqlJetException
      */
-    void setPageSize(final int pageSize) throws SqlJetException;
+    int setPageSize(final int pageSize) throws SqlJetException;
 
     /**
      * Get the page size.

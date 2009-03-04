@@ -182,5 +182,8 @@ public interface ISqlJetFileSystem {
      */
     long currentTime() throws SqlJetException;
 
-    File getTempFile() throws IOException;    
+    File getTempFile() throws IOException;
+    
+    String getFullPath(File filename) throws SqlJetException;
+    
 }

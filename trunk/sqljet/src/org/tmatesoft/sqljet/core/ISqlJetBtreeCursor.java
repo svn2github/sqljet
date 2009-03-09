@@ -21,6 +21,18 @@ package org.tmatesoft.sqljet.core;
 public interface ISqlJetBtreeCursor {
 
     /**
+     * Maximum depth of an SQLite B-Tree structure. Any B-Tree deeper than
+     * this will be declared corrupt. This value is calculated based on a
+     * maximum database size of 2^31 pages a minimum fanout of 2 for a
+     * root-node and 3 for all other internal nodes.
+     *
+     * If a tree that appears to be taller than this is encountered, it is
+     * assumed that the database is corrupt.
+     */
+     int BTCURSOR_MAX_DEPTH  = 20;
+    
+    
+    /**
      * Close a cursor.  The read lock on the database file is released
      * when the last cursor is closed.
      * 

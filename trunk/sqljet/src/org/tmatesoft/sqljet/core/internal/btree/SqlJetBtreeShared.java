@@ -15,8 +15,10 @@ package org.tmatesoft.sqljet.core.internal.btree;
 
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 
 /**
  * An instance of this object represents a single database file.
@@ -46,7 +48,7 @@ public class SqlJetBtreeShared {
     ISqlJetDb db;
 
     /** A list of all open cursors */
-    ISqlJetBtreeCursor pCursor;
+    SqlJetBtreeCursor pCursor;
 
     /** First page of the database */
     SqlJetMemPage pPage1;
@@ -93,6 +95,9 @@ public class SqlJetBtreeShared {
     /** Pointer to space allocated by sqlite3BtreeSchema() */
     Object pSchema;
 
+    /** Non-recursive mutex required to access this struct */    
+    ISqlJetMutex mutex = new SqlJetMutex();
+    
     /** Number of references to this structure */
     int nRef;
 

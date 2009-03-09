@@ -97,6 +97,97 @@ public class SqlJetBtree implements ISqlJetBtree {
     int get2byte( byte[] x, int off ) { return x[off]<<8 | x[off+1]; }
     void put2byte(byte[] p, int off, int v) { p[off]=(byte)(v>>8); p[off+1]=(byte)(v); }
     
+    /*
+    ** Enter a mutex on the given BTree object.
+    **
+    ** If the object is not sharable, then no mutex is ever required
+    ** and this routine is a no-op.  The underlying mutex is non-recursive.
+    ** But we keep a reference count in Btree.wantToLock so the behavior
+    ** of this interface is recursive.
+    **
+    ** To avoid deadlocks, multiple Btrees are locked in the same order
+    ** by all database connections.  The p->pNext is a list of other
+    ** Btrees belonging to the same database connection as the p Btree
+    ** which need to be locked after p.  If we cannot get a lock on
+    ** p, then first unlock all of the others on p->pNext, then wait
+    ** for the lock to become available on p, then relock all of the
+    ** subsequent Btrees that desire a lock.
+    */
+    private void enter() throws SqlJetException{
+      SqlJetBtree p = this;
+      SqlJetBtree pLater;
+
+      /* Some basic sanity checking on the Btree.  The list of Btrees
+      ** connected by pNext and pPrev should be in sorted order by
+      ** Btree.pBt value. All elements of the list should belong to
+      ** the same connection. Only shared Btrees are on the list. */
+      assertion( p.pNext==null || p.pNext.pBt.hashCode() > p.pBt.hashCode() );
+      assertion( p.pPrev==null || p.pPrev.pBt.hashCode() < p.pBt.hashCode() );
+      assertion( p.pNext==null || p.pNext.db==p.db );
+      assertion( p.pPrev==null || p.pPrev.db==p.db );
+      assertion( p.sharable || (p.pNext==null && p.pPrev==null) );
+
+      /* Check for locking consistency */
+      assertion( !p.locked || p.wantToLock>0 );
+      assertion( p.sharable || p.wantToLock==0 );
+
+      /* We should already hold a lock on the database connection */
+      assertion( p.db.getMutex().held() );
+
+      if( !p.sharable ) return;
+      p.wantToLock++;
+      if( p.locked ) return;
+
+      /* In most cases, we should be able to acquire the lock we
+      ** want without having to go throught the ascending lock
+      ** procedure that follows.  Just be sure not to block.
+      */
+      if( p.pBt.mutex.attempt() ){
+        p.locked = true;
+        return;
+      }
+
+      /* To avoid deadlock, first release all locks with a larger
+      ** BtShared address.  Then acquire our lock.  Then reacquire
+      ** the other BtShared locks that we used to hold in ascending
+      ** order.
+      */
+      for(pLater=p.pNext; pLater!=null; pLater=pLater.pNext){
+        assertion( pLater.sharable );
+        assertion( pLater.pNext==null || pLater.pNext.pBt.hashCode()>pLater.pBt.hashCode() );
+        assertion( !pLater.locked || pLater.wantToLock>0 );
+        if( pLater.locked ){
+          pLater.pBt.mutex.leave();
+          pLater.locked = false;
+        }
+      }
+      p.pBt.mutex.enter();
+      p.locked = true;
+      for(pLater=p.pNext; pLater!=null; pLater=pLater.pNext){
+        if( pLater.wantToLock>0 ){
+          pLater.pBt.mutex.enter();
+          pLater.locked = true;
+        }
+      }
+    }
+
+    /*
+    ** Exit the recursive mutex on a Btree.
+    */
+    private void leave() throws SqlJetException{
+      SqlJetBtree p = this;
+      if( p.sharable ){
+        assertion( p.wantToLock>0 );
+        p.wantToLock--;
+        if( p.wantToLock==0 ){
+          assertion( p.locked );
+          p.pBt.mutex.leave();
+          p.locked = false;
+        }
+      }
+    }
+        
+    
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#open(java.io.File, org.tmatesoft.sqljet.core.ISqlJetDb, java.util.EnumSet, org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)
      */
@@ -262,6 +353,241 @@ public class SqlJetBtree implements ISqlJetBtree {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#close()
+     */
+    public void close() throws SqlJetException {
+        SqlJetBtree p = this;
+        SqlJetBtreeCursor pCur;
+
+        /* Close all cursors opened via this handle.  */
+        
+        assertion( p.db.getMutex().held() );
+        p.enter();
+        try {
+            pBt.db = db;
+            pCur = pBt.pCursor;
+            while( pCur!=null ){
+              SqlJetBtreeCursor pTmp = pCur;
+              pCur = pCur.pNext;
+              if( pTmp.pBtree==p ){
+                  pTmp.closeCursor();
+              }
+            }
+    
+            /* Rollback any active transaction and free the handle structure.
+            ** The call to sqlite3BtreeRollback() drops any table-locks held by
+            ** this handle.
+            */
+            p.rollback();
+        } finally {
+            p.leave();
+        }
+
+        /* If there are still other outstanding references to the shared-btree
+        ** structure, return now. The remainder of this procedure cleans 
+        ** up the shared-btree.
+        */
+        assertion( p.wantToLock==0 && !p.locked );
+        if( !p.sharable || removeFromSharingList(pBt) ){
+          /* The pBt is no longer on the sharing list, so we can access
+          ** it without having to hold the mutex.
+          **
+          ** Clean out and delete the BtShared object.
+          */
+          assertion( pBt.pCursor==null );
+          pBt.pPager.close();
+          pBt.pSchema = null;
+          pBt.pTmpSpace = null;
+        }
+
+        assertion( p.wantToLock==0 );
+        assertion( !p.locked );
+        if( p.pPrev!=null ) p.pPrev.pNext = p.pNext;
+        if( p.pNext!=null ) p.pNext.pPrev = p.pPrev;
+    }
+
+    /**
+     * Decrement the BtShared.nRef counter.  When it reaches zero,
+     * remove the BtShared structure from the sharing list.  Return
+     * true if the BtShared.nRef counter reaches zero and return
+     * false if it is still positive.
+     *
+     * @param bt
+     * @return
+     * @throws SqlJetException 
+     */
+    static private boolean removeFromSharingList(SqlJetBtreeShared pBt) throws SqlJetException {
+        boolean removed = false;
+        assertion( !pBt.mutex.held() );
+        synchronized (sharedCacheList) {
+            pBt.nRef--;
+            if( pBt.nRef<=0 ){
+                sharedCacheList.remove(pBt);
+                removed = true;
+            }
+        }
+        return removed;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setCacheSize(int)
+     */
+    public void setCacheSize(int mxPage) throws SqlJetException {
+        assertion( db.getMutex().held() );
+        enter();
+        try {
+            pBt.pPager.setCacheSize(mxPage);
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#setSafetyLevel(org.tmatesoft.sqljet
+     * .core.SqlJetSafetyLevel)
+     */
+    public void setSafetyLevel(SqlJetSafetyLevel level) throws SqlJetException {
+        assertion( db.getMutex().held() );
+        enter();
+        try {
+            pBt.pPager.setSafetyLevel(level);
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSyncDisabled()
+     */
+    public boolean isSyncDisabled() throws SqlJetException {
+        assertion( db.getMutex().held() );
+        enter();
+        try {
+            assertion( pBt!=null && pBt.pPager!=null );
+            return pBt.pPager.isNoSync();
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setPageSize(int, int)
+     */
+    public void setPageSize(int pageSize, int reserve) throws SqlJetException {
+        assertion( reserve>=-1 && reserve<=255 );
+        enter();
+        try {
+            if( pBt.pageSizeFixed ){
+              throw new SqlJetException(SqlJetErrorCode.READONLY);
+            }
+            if( reserve < 0 ){
+                reserve = pBt.pageSize - pBt.usableSize;
+            }
+            assertion( reserve>=0 && reserve<=255 );
+            if( pageSize>=ISqlJetLimits.SQLJET_MIN_PAGE_SIZE && 
+                    pageSize<=ISqlJetLimits.SQLJET_MAX_PAGE_SIZE &&
+                  ((pageSize-1)&pageSize)==0 )
+            {
+              assertion( (pageSize & 7)==0 );
+              assertion( pBt.pPage1==null && pBt.pCursor==null );
+              pBt.pageSize = pageSize;
+              pBt.pTmpSpace = null;
+              pBt.pageSize = pBt.pPager.setPageSize(pBt.pageSize);
+            }
+            pBt.usableSize = pBt.pageSize - reserve;
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getPageSize()
+     */
+    public int getPageSize() throws SqlJetException {
+        return pBt.pageSize;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setMaxPageCount(int)
+     */
+    public void setMaxPageCount(int mxPage) throws SqlJetException {
+        enter();
+        try {
+            pBt.pPager.setMaxPageCount(mxPage);
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getReserve()
+     */
+    public int getReserve() throws SqlJetException {
+        enter();
+        try {
+           return pBt.pageSize - pBt.usableSize;
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#setAutoVacuum(org.tmatesoft.sqljet
+     * .core.SqlJetAutoVacuumMode)
+     */
+    public void setAutoVacuum(SqlJetAutoVacuumMode autoVacuum) throws SqlJetException {
+        boolean av = autoVacuum!=SqlJetAutoVacuumMode.NONE;
+        enter();
+        try {
+            if( pBt.pageSizeFixed && av!=pBt.autoVacuum ){
+                throw new SqlJetException(
+                     SqlJetErrorCode.READONLY);
+            }else{
+                pBt.autoVacuum = av;
+            }
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getAutoVacuum()
+     */
+    public SqlJetAutoVacuumMode getAutoVacuum() throws SqlJetException {
+        enter();
+        try {
+            return 
+                !pBt.autoVacuum ? SqlJetAutoVacuumMode.NONE:
+                !pBt.incrVacuum ? SqlJetAutoVacuumMode.FULL:
+                    SqlJetAutoVacuumMode.INCR;
+        } finally {
+            leave();
+        }
+    }
+    
     /**
      * @param page
      */
@@ -307,17 +633,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         // TODO Auto-generated method stub
 
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#close()
-     */
-    public void close() throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -395,16 +711,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getAutoVacuum()
-     */
-    public SqlJetAutoVacuumMode getAutoVacuum() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getCursor(int, boolean,
      * org.tmatesoft.sqljet.core.ISqlJetKeyInfo)
      */
@@ -456,31 +762,11 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getPageSize()
-     */
-    public int getPageSize() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getPager()
      */
     public ISqlJetPager getPager() throws SqlJetException {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getReserve()
-     */
-    public int getReserve() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /*
@@ -557,16 +843,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSyncDisabled()
-     */
-    public boolean isSyncDisabled() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
      */
     public void lockTable(int table, boolean isWriteLock) throws SqlJetException {
@@ -602,60 +878,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * .core.SqlJetSavepointOperation, int)
      */
     public void savepoint(SqlJetSavepointOperation op, int savepoint) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#setAutoVacuum(org.tmatesoft.sqljet
-     * .core.SqlJetAutoVacuumMode)
-     */
-    public void setAutoVacuum(SqlJetAutoVacuumMode autoVacuum) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setCacheSize(int)
-     */
-    public void setCacheSize(int mxPage) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setMaxPageCount(int)
-     */
-    public void setMaxPageCount(int mxPage) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setPageSize(int, int)
-     */
-    public void setPageSize(int pageSize, int reserve) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#setSafetyLevel(org.tmatesoft.sqljet
-     * .core.SqlJetSafetyLevel)
-     */
-    public void setSafetyLevel(SqlJetSafetyLevel level) throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

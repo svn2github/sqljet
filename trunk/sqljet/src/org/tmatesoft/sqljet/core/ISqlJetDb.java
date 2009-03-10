@@ -50,5 +50,15 @@ public interface ISqlJetDb {
     List<ISqlJetBackend> getBackends();
     
     ISqlJetMutex getMutex();
+
+    /**
+     * @return
+     */
+    ISqlJetBusyHandler getBusyHaldler();
+
+    /**
+     * @return
+     */
+    int getSavepointNum();
     
 }

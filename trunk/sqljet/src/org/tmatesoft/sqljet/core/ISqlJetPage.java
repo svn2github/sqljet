@@ -160,5 +160,6 @@ public interface ISqlJetPage {
     
     ISqlJetPage getNext(); 
     ISqlJetPage getPrev();
-    
+
+    int getRefCount();    
 }

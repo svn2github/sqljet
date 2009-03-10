@@ -685,4 +685,10 @@ public class SqlJetPage implements ISqlJetPage {
         return pDirtyPrev;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getRefCount()
+     */
+    public int getRefCount() {
+        return nRef;
+    }
 }

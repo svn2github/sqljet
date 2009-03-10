@@ -38,7 +38,23 @@ public interface ISqlJetBtree {
 
     SqlJetAutoVacuumMode SQLJET_DEFAULT_AUTOVACUUM = 
         SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_AUTOVACUUM", SqlJetAutoVacuumMode.NONE);
+
+    String SQLITE_FILE_HEADER = "SQLite format 3";
     
+    /*
+    ** The header string that appears at the beginning of every
+    ** SQLite database.
+    */
+    byte[] zMagicHeader =  SqlJetUtility.getBytes(SQLITE_FILE_HEADER);
+    
+    /*
+    ** Page type flags.  An ORed combination of these flags appear as the
+    ** first byte of on-disk image of every BTree page.
+    */
+    byte PTF_INTKEY   = 0x01;
+    byte PTF_ZERODATA = 0x02;
+    byte PTF_LEAFDATA = 0x04;
+    byte PTF_LEAF     = 0x08;
     
     
     /**

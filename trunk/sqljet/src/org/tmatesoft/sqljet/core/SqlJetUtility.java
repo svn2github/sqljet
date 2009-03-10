@@ -183,5 +183,29 @@ public class SqlJetUtility {
         }
         return 0;
     }
+
+    public static int memcmp(byte[] a1, int from1, byte[] a2, int from2, int count) {
+        for(int i = 0; i<count; i++) {
+            final Byte b1 = Byte.valueOf(a1[from1 + i]);
+            final Byte b2 = Byte.valueOf(a2[from2 + i]);
+            final int c = b1.compareTo(b2);
+            if(0!=c) return c;
+        }
+        return 0;
+    }
+    
+    /**
+     * @param sqliteFileHeader
+     * @return
+     */
+    public static byte[] getBytes(String string) {
+        if (null == string)
+            throw new SqlJetError("Undefined string");
+        try {
+            return string.getBytes("US-ASCII");
+        } catch (Throwable t) {
+            throw new SqlJetError("Error while get bytes for string \"" + string+"\"", t);
+        }
+    }
     
 }

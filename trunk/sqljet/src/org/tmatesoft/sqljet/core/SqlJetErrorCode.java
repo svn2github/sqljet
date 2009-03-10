@@ -103,6 +103,8 @@ public enum SqlJetErrorCode {
     DONE,
     
     /** Bad parameter value in function call wich impossible to execute */
-    BAD_PARAMETER
+    BAD_PARAMETER, 
+    
+    CORRUPT_BKPT
 
 }

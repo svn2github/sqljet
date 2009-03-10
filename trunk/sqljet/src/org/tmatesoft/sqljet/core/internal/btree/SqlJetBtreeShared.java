@@ -18,6 +18,7 @@ import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 
 /**
@@ -87,7 +88,7 @@ public class SqlJetBtreeShared {
     int minLeaf;
 
     /** Transaction state */
-    SqlJetTransactionMode inTransaction;
+    TransMode inTransaction;
 
     /** Number of open transactions (read + write) */
     int nTransaction;

@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.*;
+import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 
 import java.io.File;
 import java.util.EnumSet;
@@ -25,8 +25,8 @@ import org.tmatesoft.sqljet.core.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
-import org.tmatesoft.sqljet.core.ISqlJetConfig;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
+import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
@@ -95,15 +95,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      */
     static List<SqlJetBtreeShared> sharedCacheList = new LinkedList<SqlJetBtreeShared>();
 
-    int get2byte(byte[] x, int off) {
-        return x[off] << 8 | x[off + 1];
-    }
-
-    void put2byte(byte[] p, int off, int v) {
-        p[off] = (byte) (v >> 8);
-        p[off + 1] = (byte) (v);
-    }
-
     /**
      * A bunch of assert() statements to check the transaction state variables
      * of handle p (type Btree*) are internally consistent.
@@ -112,25 +103,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         assertion(pBt.inTransaction != TransMode.NONE || pBt.nTransaction == 0);
         assertion(pBt.inTransaction.compareTo(inTrans) >= 0);
     }
-
-    /**
-     * The following value is the maximum cell size assuming a maximum page size
-     * give above.
-     */
-    private int MX_CELL_SIZE() {
-        return (pBt.pageSize - 8);
-    }
-
-    /**
-     * The maximum number of cells on a single page of the database. This
-     * assumes a minimum cell size of 6 bytes (4 bytes for the cell itself plus
-     * 2 bytes for the index to the cell in the page header). Such small cells
-     * will be rare, but they are possible.
-     */
-    private int MX_CELL() {
-        return ((pBt.pageSize - 8) / 6);
-    }
-
+    
     /**
      * Enter a mutex on the given BTree object.
      * 
@@ -314,7 +287,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 pBt.pCursor = null;
                 pBt.pPage1 = null;
                 pBt.readOnly = pBt.pPager.isReadOnly();
-                pBt.pageSize = get2byte(zDbHeader, 16);
+                pBt.pageSize = SqlJetUtility.get2byte(zDbHeader, 16);
 
                 if (pBt.pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
                         || pBt.pageSize > ISqlJetLimits.SQLJET_MAX_PAGE_SIZE
@@ -641,61 +614,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
-     * Convert a DbPage obtained from the pager into a MemPage used by the btree
-     * layer.
-     */
-    private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) throws SqlJetException {
-        SqlJetMemPage pPage = (SqlJetMemPage) pDbPage.getExtra();
-        pPage.aData = pDbPage.getData();
-        pPage.pDbPage = pDbPage;
-        pPage.pBt = pBt;
-        pPage.pgno = pgno;
-        pPage.hdrOffset = (byte) (pPage.pgno == 1 ? 100 : 0);
-        return pPage;
-    }
-
-    /**
-     * Get a page from the pager. Initialize the MemPage.pBt and MemPage.aData
-     * elements if needed.
-     * 
-     * If the noContent flag is set, it means that we do not care about the
-     * content of the page at this time. So do not go to the disk to fetch the
-     * content. Just fill in the content with zeros for now. If in the future we
-     * call sqlite3PagerWrite() on this page, that means we have started to be
-     * concerned about content and the disk read should occur at that point.
-     * 
-     * @param pgno
-     *            Number of the page to fetch
-     * @param noContent
-     *            Do not load page content if true
-     * @return
-     */
-    private SqlJetMemPage getPage(int pgno, boolean noContent) throws SqlJetException {
-        ISqlJetPage pDbPage;
-        assertion(pBt.mutex.held());
-        pDbPage = pBt.pPager.acquirePage(pgno, !noContent);
-        return pageFromDbPage(pDbPage, pgno);
-    }
-
-    /**
-     * Release a MemPage. This should be called once for each prior call to
-     * sqlite3BtreeGetPage.
-     * 
-     * @throws SqlJetException
-     */
-    private void releasePage(SqlJetMemPage pPage) throws SqlJetException {
-        if (pPage != null) {
-            assertion(pPage.nOverflow == 0 || pPage.pDbPage.getRefCount() > 1);
-            assertion(pPage.aData);
-            assertion(pPage.pBt);
-            assertion(pPage.pDbPage.getExtra() == pPage);
-            assertion(pPage.pDbPage.getData() == pPage.aData);
-            assertion(pPage.pBt.mutex.held());
-            pPage.pDbPage.unref();
-        }
-    }
-
-    /**
      * Get a reference to pPage1 of the database file. This will also acquire a
      * readlock on that file.
      * 
@@ -715,7 +633,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         if (pBt.pPage1 != null)
             return;
 
-        pPage1 = getPage(1, false);
+        pPage1 = pBt.getPage(1, false);
 
         try {
             /*
@@ -727,7 +645,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                 int pageSize;
                 int usableSize;
-                byte[] page1 = pPage1.aData;
+                byte[] page1 = pPage1.aData.array();
                 rc = new SqlJetException(SqlJetErrorCode.NOTADB);
                 if (SqlJetUtility.memcmp(page1, zMagicHeader, 16) != 0) {
                     throw rc;
@@ -750,7 +668,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     throw rc;
                 }
 
-                pageSize = get2byte(page1, 16);
+                pageSize = SqlJetUtility.get2byte(page1, 16);
                 if (((pageSize - 1) & pageSize) != 0
                         || pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
                         || (ISqlJetLimits.SQLJET_MAX_PAGE_SIZE < 32768 && pageSize > ISqlJetLimits.SQLJET_MAX_PAGE_SIZE)) {
@@ -767,7 +685,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                      * caller will call this function again with the correct
                      * page-size.
                      */
-                    releasePage(pPage1);
+                    SqlJetMemPage.releasePage(pPage1);
                     pBt.usableSize = usableSize;
                     pBt.pageSize = pageSize;
                     freeTempSpace(pBt);
@@ -797,13 +715,13 @@ public class SqlJetBtree implements ISqlJetBtree {
             pBt.minLocal = (pBt.usableSize - 12) * 32 / 255 - 23;
             pBt.maxLeaf = pBt.usableSize - 35;
             pBt.minLeaf = (pBt.usableSize - 12) * 32 / 255 - 23;
-            assertion(pBt.maxLeaf + 23 <= MX_CELL_SIZE());
+            assertion(pBt.maxLeaf + 23 <= pBt.MX_CELL_SIZE());
             pBt.pPage1 = pPage1;
             return;
 
         } catch (SqlJetException e) {
             // page1_init_failed:
-            releasePage(pPage1);
+            SqlJetMemPage.releasePage(pPage1);
             pBt.pPage1 = null;
             throw e;
         }
@@ -817,50 +735,11 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
-     * Decode the flags byte (the first byte of the header) for a page and
-     * initialize fields of the MemPage structure accordingly.
-     * 
-     * Only the following combinations are supported. Anything different
-     * indicates a corrupt database files:
-     * 
-     * PTF_ZERODATA PTF_ZERODATA | PTF_LEAF PTF_LEAFDATA | PTF_INTKEY
-     * PTF_LEAFDATA | PTF_INTKEY | PTF_LEAF
-     */
-    private void decodeFlags(SqlJetMemPage pPage, int flagByte) throws SqlJetException {
-        SqlJetBtreeShared pBt; /* A copy of pPage->pBt */
-
-        assertion(pPage.hdrOffset == (pPage.pgno == 1 ? 100 : 0));
-        assertion(pPage.pBt.mutex.held());
-
-        pPage.leaf = (flagByte >> 3) > 0;
-
-        assertion(PTF_LEAF == 1 << 3);
-
-        flagByte &= ~PTF_LEAF;
-        pPage.childPtrSize = (byte) (4 - 4 * (pPage.leaf ? 1 : 0));
-        pBt = pPage.pBt;
-        if (flagByte == (PTF_LEAFDATA | PTF_INTKEY)) {
-            pPage.intKey = true;
-            pPage.hasData = pPage.leaf;
-            pPage.maxLocal = pBt.maxLeaf;
-            pPage.minLocal = pBt.minLeaf;
-        } else if (flagByte == PTF_ZERODATA) {
-            pPage.intKey = false;
-            pPage.hasData = false;
-            pPage.maxLocal = pBt.maxLocal;
-            pPage.minLocal = pBt.minLocal;
-        } else {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
-        }
-        return;
-    }
-
-    /**
      * Set up a raw page so that it looks like a database page holding no
      * entries.
      */
     private void zeroPage(SqlJetMemPage pPage, int flags) throws SqlJetException {
-        byte[] data = pPage.aData;
+        byte[] data = pPage.aData.array();
         SqlJetBtreeShared pBt = pPage.pBt;
         byte hdr = pPage.hdrOffset;
         int first;
@@ -871,12 +750,12 @@ public class SqlJetBtree implements ISqlJetBtree {
         assertion(pBt.mutex.held());
 
         data[hdr] = (byte) flags;
-        first = hdr + 8 + 4 * ((flags & PTF_LEAF) == 0 ? 1 : 0);
+        first = hdr + 8 + 4 * ((flags & SqlJetMemPage.PTF_LEAF) == 0 ? 1 : 0);
         SqlJetUtility.memset(data, hdr + 1, (byte) 0, 4);
         data[hdr + 7] = 0;
-        put2byte(data, hdr + 5, pBt.usableSize);
+        SqlJetUtility.put2byte(data, hdr + 5, pBt.usableSize);
         pPage.nFree = pBt.usableSize - first;
-        decodeFlags(pPage, flags);
+        pPage.decodeFlags(flags);
         pPage.hdrOffset = hdr;
         pPage.cellOffset = first;
         pPage.nOverflow = 0;
@@ -903,11 +782,11 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
         pP1 = pBt.pPage1;
         assertion(pP1 != null);
-        data = pP1.aData;
+        data = pP1.aData.array();
         pP1.pDbPage.write();
         SqlJetUtility.memcpy(data, zMagicHeader, zMagicHeader.length);
         assertion(zMagicHeader.length == 16);
-        put2byte(data, 16, pBt.pageSize);
+        SqlJetUtility.put2byte(data, 16, pBt.pageSize);
         data[18] = 1;
         data[19] = 1;
         assertion(pBt.usableSize <= pBt.pageSize && pBt.usableSize + 255 >= pBt.pageSize);
@@ -916,7 +795,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         data[22] = 32;
         data[23] = 32;
         SqlJetUtility.memset(data, 24, (byte) 0, 100 - 24);
-        zeroPage(pP1, PTF_INTKEY | PTF_LEAF | PTF_LEAFDATA);
+        zeroPage(pP1, SqlJetMemPage.PTF_INTKEY | SqlJetMemPage.PTF_LEAF | SqlJetMemPage.PTF_LEAFDATA);
         pBt.pageSizeFixed = true;
         assertion(pBt.autoVacuum || !pBt.autoVacuum);
         assertion(pBt.incrVacuum || !pBt.incrVacuum);
@@ -940,7 +819,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         if (pBt.inTransaction == TransMode.NONE && pBt.pCursor == null && pBt.pPage1 != null) {
             if (pBt.pPager.getRefCount() >= 1) {
                 assertion(pBt.pPage1.aData);
-                releasePage(pBt.pPage1);
+                SqlJetMemPage.releasePage(pBt.pPage1);
             }
             pBt.pPage1 = null;
             pBt.inStmt = false;
@@ -1077,6 +956,27 @@ public class SqlJetBtree implements ISqlJetBtree {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#commitPhaseOne(java.lang.String)
+     */
+    public void commitPhaseOne(String master) throws SqlJetException {
+        if( this.inTrans== TransMode.WRITE ){
+          enter();
+          try {
+              pBt.db = this.db;
+              if( pBt.autoVacuum ){
+                  pBt.autoVacuumCommit();
+              }
+              pBt.pPager.commitPhaseOne(master, false);
+          } finally {
+              leave();
+          }
+        }
+    }    
+
     /**
      * @param page
      */
@@ -1111,17 +1011,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commit()
      */
     public void commit() throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#commitPhaseOne(java.lang.String)
-     */
-    public void commitPhaseOne(String master) throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

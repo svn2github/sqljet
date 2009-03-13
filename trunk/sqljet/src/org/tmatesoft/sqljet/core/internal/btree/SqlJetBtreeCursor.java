@@ -26,28 +26,12 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {    
     
-    /**
-     * An instance of the following structure is used to hold information
-     * about a cell.  The parseCellPtr() function fills in this structure
-     * based on information extract from the raw disk page.
-     */
-    private static class CellInfo{
-        byte[] pCell;     /* Pointer to the start of cell content */
-        long nKey;      /* The key for INTKEY tables, or number of bytes in key */
-        int nData;     /* Number of bytes of data */
-        int nPayload;  /* Total amount of payload */
-        int nHeader;   /* Size of the cell content header in bytes */
-        int nLocal;    /* Amount of payload held locally */
-        int iOverflow; /* Offset to overflow page number.  Zero if no overflow */
-        int nSize;     /* Size of the cell content on the main b-tree page */
-    }
-    
     SqlJetBtree pBtree;            /* The Btree to which this cursor belongs */
     SqlJetBtreeShared pBt;            /* The BtShared this cursor points to */
     SqlJetBtreeCursor pNext, pPrev;  /* Forms a linked list of all cursors */
     ISqlJetKeyInfo pKeyInfo; /* Argument passed to comparison function */
     int pgnoRoot;            /* The root page of this tree */
-    CellInfo info;            /* A parse of the cell we are pointing at */
+    SqlJetBtreeCellInfo info;            /* A parse of the cell we are pointing at */
     boolean wrFlag;                /* True if writable */
     boolean atLast;                /* Cursor pointing to the last entry */
     boolean validNKey;             /* True if info.nKey is valid */

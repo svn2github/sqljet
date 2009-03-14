@@ -60,7 +60,7 @@ public class SqlJetBtree implements ISqlJetBtree {
     /** Sharable content of this btree */
     SqlJetBtreeShared pBt;
 
-    /*
+    /**
      * Btree.inTrans may take one of the following values.
      * 
      * If the shared-data extension is enabled, there may be multiple users of
@@ -103,7 +103,16 @@ public class SqlJetBtree implements ISqlJetBtree {
         assertion(pBt.inTransaction != TransMode.NONE || pBt.nTransaction == 0);
         assertion(pBt.inTransaction.compareTo(inTrans) >= 0);
     }
-    
+
+    /**
+     * Invoke the busy handler for a btree.
+     */
+    public boolean invokeBusyHandler(int number) throws SqlJetException {
+        assertion(db != null);
+        assertion(db.getMutex().held());
+        return db.getBusyHaldler().call(number);
+    }
+
     /**
      * Enter a mutex on the given BTree object.
      * 
@@ -196,6 +205,18 @@ public class SqlJetBtree implements ISqlJetBtree {
                 p.locked = false;
             }
         }
+    }
+
+    /**
+     * Return true if the BtShared mutex is held on the btree.
+     * 
+     * This routine makes no determination one why or another if the database
+     * connection mutex is held.
+     * 
+     * This routine is used only from within assert() statements.
+     */
+    private boolean holdsMutex() {
+        return !sharable || (locked && wantToLock != 0 && pBt.mutex.held());
     }
 
     /*
@@ -804,37 +825,6 @@ public class SqlJetBtree implements ISqlJetBtree {
         return;
     }
 
-    /**
-     * If there are no outstanding cursors and we are not in the middle of a
-     * transaction but there is a read lock on the database, then this routine
-     * unrefs the first page of the database file which has the effect of
-     * releasing the read lock.
-     * 
-     * If there are any outstanding cursors, this routine is a no-op.
-     * 
-     * If there is a transaction in progress, this routine is a no-op.
-     */
-    private void unlockBtreeIfUnused() throws SqlJetException {
-        assertion(pBt.mutex.held());
-        if (pBt.inTransaction == TransMode.NONE && pBt.pCursor == null && pBt.pPage1 != null) {
-            if (pBt.pPager.getRefCount() >= 1) {
-                assertion(pBt.pPage1.aData);
-                SqlJetMemPage.releasePage(pBt.pPage1);
-            }
-            pBt.pPage1 = null;
-            pBt.inStmt = false;
-        }
-    }
-
-    /*
-     * Invoke the busy handler for a btree.
-     */
-    private boolean invokeBusyHandler(int number) throws SqlJetException {
-        assertion(pBt.db != null);
-        assertion(pBt.db.getMutex().held());
-        return pBt.db.getBusyHaldler().call(number);
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -877,9 +867,9 @@ public class SqlJetBtree implements ISqlJetBtree {
             }
 
             if (mode == SqlJetTransactionMode.EXCLUSIVE) {
-                SqlJetBtreeLock pIter;
-                for (pIter = pBt.pLock; pIter != null; pIter = pIter.pNext) {
-                    if (pIter.pBtree != this) {
+                Iterator<SqlJetBtreeLock> pIter;
+                for (pIter = pBt.pLock.iterator(); pIter.hasNext();) {
+                    if (pIter.next().pBtree != this) {
                         throw new SqlJetException(SqlJetErrorCode.BUSY);
                     }
                 }
@@ -909,7 +899,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                 } catch (SqlJetException e) {
                     rc = e;
-                    unlockBtreeIfUnused();
+                    pBt.unlockBtreeIfUnused();
                 }
 
             } while (rc != null && rc.getErrorCode() == SqlJetErrorCode.BUSY && pBt.inTransaction == TransMode.NONE
@@ -963,19 +953,101 @@ public class SqlJetBtree implements ISqlJetBtree {
      * org.tmatesoft.sqljet.core.ISqlJetBtree#commitPhaseOne(java.lang.String)
      */
     public void commitPhaseOne(String master) throws SqlJetException {
-        if( this.inTrans== TransMode.WRITE ){
-          enter();
-          try {
-              pBt.db = this.db;
-              if( pBt.autoVacuum ){
-                  pBt.autoVacuumCommit();
-              }
-              pBt.pPager.commitPhaseOne(master, false);
-          } finally {
-              leave();
-          }
+        if (this.inTrans == TransMode.WRITE) {
+            enter();
+            try {
+                pBt.db = this.db;
+                if (pBt.autoVacuum) {
+                    pBt.autoVacuumCommit();
+                }
+                pBt.pPager.commitPhaseOne(master, false);
+            } finally {
+                leave();
+            }
         }
-    }    
+    }
+
+    /**
+     * Release all the table locks (locks obtained via calls to the lockTable()
+     * procedure) held by Btree handle p.
+     * 
+     * @throws SqlJetException
+     */
+    private void unlockAllTables() throws SqlJetException {
+
+        Iterator<SqlJetBtreeLock> ppIter = pBt.pLock.iterator();
+
+        assertion(holdsMutex());
+        assertion(sharable || !ppIter.hasNext());
+
+        while (ppIter.hasNext()) {
+            SqlJetBtreeLock pLock = ppIter.next();
+            assertion(pBt.pExclusive == null || pBt.pExclusive == pLock.pBtree);
+            if (pLock.pBtree == this) {
+                ppIter.remove();
+            }
+        }
+
+        if (pBt.pExclusive == this) {
+            pBt.pExclusive = null;
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commitPhaseTwo()
+     */
+    public void commitPhaseTwo() throws SqlJetException {
+
+        enter();
+        try {
+
+            pBt.db = this.db;
+            integrity();
+
+            /*
+             * If the handle has a write-transaction open, commit the
+             * shared-btrees transaction and set the shared state to TRANS_READ.
+             */
+            if (this.inTrans == TransMode.WRITE) {
+                assertion(pBt.inTransaction == TransMode.WRITE);
+                assertion(pBt.nTransaction > 0);
+                pBt.pPager.commitPhaseTwo();
+                pBt.inTransaction = TransMode.READ;
+                pBt.inStmt = false;
+            }
+            unlockAllTables();
+
+            /*
+             * If the handle has any kind of transaction open, decrement the
+             * transaction count of the shared btree. If the transaction count
+             * reaches 0, set the shared state to TRANS_NONE. The
+             * unlockBtreeIfUnused() call below will unlock the pager.
+             */
+            if (this.inTrans != TransMode.NONE) {
+                pBt.nTransaction--;
+                if (0 == pBt.nTransaction) {
+                    pBt.inTransaction = TransMode.NONE;
+                }
+            }
+
+            /*
+             * Set the handles current transaction state to TRANS_NONE and
+             * unlock the pager if this call closed the only read or write
+             * transaction.
+             */
+            this.inTrans = TransMode.NONE;
+            pBt.unlockBtreeIfUnused();
+
+            integrity();
+
+        } finally {
+            leave();
+        }
+
+    }
 
     /**
      * @param page
@@ -1011,16 +1083,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commit()
      */
     public void commit() throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commitPhaseTwo()
-     */
-    public void commitPhaseTwo() throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

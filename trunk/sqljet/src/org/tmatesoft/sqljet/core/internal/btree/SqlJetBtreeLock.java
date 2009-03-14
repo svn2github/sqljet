@@ -40,6 +40,6 @@ public class SqlJetBtreeLock {
     LockMode eLock;
 
     /** Next in BtShared.pLock list */
-    SqlJetBtreeLock pNext;
+    //SqlJetBtreeLock pNext;
 
 }

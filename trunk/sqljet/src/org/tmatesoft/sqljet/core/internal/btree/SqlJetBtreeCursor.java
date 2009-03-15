@@ -35,7 +35,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     boolean wrFlag;                /* True if writable */
     boolean atLast;                /* Cursor pointing to the last entry */
     boolean validNKey;             /* True if info.nKey is valid */
-    boolean eState;                /* One of the CURSOR_XXX constants (see below) */
+    CursorState eState;                /* One of the CURSOR_XXX constants (see below) */
     Object pKey;      /* Saved key that was cursor's last known position */
     long nKey;        /* Size of pKey, or last integer key */
     int skip;        /* (skip<0) -> Prev() is a no-op. (skip>0) -> Next() is */
@@ -45,6 +45,39 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     int iPage;                            /* Index of current page in apPage */
     SqlJetMemPage[] apPage = new SqlJetMemPage[BTCURSOR_MAX_DEPTH];  /* Pages from root to current page */
     int[] aiIdx = new int[BTCURSOR_MAX_DEPTH];        /* Current index in apPage[i] */
+
+    /**
+    * Potential values for BtCursor.eState.
+    *
+    * CURSOR_VALID:
+    *   Cursor points to a valid entry. getPayload() etc. may be called.
+    *
+    * CURSOR_INVALID:
+    *   Cursor does not point to a valid entry. This can happen (for example) 
+    *   because the table is empty or because BtreeCursorFirst() has not been
+    *   called.
+    *
+    * CURSOR_REQUIRESEEK:
+    *   The table that this cursor was opened on still exists, but has been 
+    *   modified since the cursor was last used. The cursor position is saved
+    *   in variables BtCursor.pKey and BtCursor.nKey. When a cursor is in 
+    *   this state, restoreCursorPosition() can be called to attempt to
+    *   seek the cursor to the saved position.
+    *
+    * CURSOR_FAULT:
+    *   A unrecoverable error (an I/O error or a malloc failure) has occurred
+    *   on a different connection that shares the BtShared cache with this
+    *   cursor.  The error has left the cache in an inconsistent state.
+    *   Do nothing else with this cursor.  Any attempt to use the cursor
+    *   should return the error code stored in BtCursor.skip
+    */
+    static enum CursorState {
+        INVALID,           //0
+        VALID,             //1
+        REQUIRESEEK,       //2
+        FAULT             //3
+    }
+
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
@@ -220,6 +253,14 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     public void putData(int offset, int amt, byte[] data) throws SqlJetException {
         // TODO Auto-generated method stub
 
+    }
+
+    /**
+     * 
+     */
+    public void saveCursorPosition() throws SqlJetException {
+        // TODO Auto-generated method stub
+        
     }
 
 }

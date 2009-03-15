@@ -841,4 +841,45 @@ public class SqlJetBtreeShared {
         }
     }
 
+    /**
+     * Save the positions of all cursors except pExcept open on the table 
+     * with root-page iRoot. Usually, this is called just before cursor
+     * pExcept is used to modify the table (BtreeDelete() or BtreeInsert()).
+     * 
+     * @param i
+     * @param j
+     */
+    public void saveAllCursors(int iRoot, SqlJetBtreeCursor pExcept) throws SqlJetException {
+          SqlJetBtreeCursor p;
+          assertion( mutex.held() );
+          assertion( pExcept==null || pExcept.pBt==this );
+          for(p=this.pCursor; p!=null; p=p.pNext){
+            if( p!=pExcept && (0==iRoot || p.pgnoRoot==iRoot) && 
+                p.eState== SqlJetBtreeCursor.CursorState.VALID ){
+                p.saveCursorPosition();
+            }
+          }
+    }
+
+    /**
+     * Return the number of write-cursors open on this handle. This is for use
+     * in assert() expressions, so it is only compiled if NDEBUG is not
+     * defined.
+     *
+     * For the purposes of this routine, a write-cursor is any cursor that
+     * is capable of writing to the databse.  That means the cursor was
+     * originally opened for writing and the cursor has not be disabled
+     * by having its state changed to CURSOR_FAULT.
+     * 
+     * @return
+     */
+    public int countWriteCursors() {
+        SqlJetBtreeCursor pCur;
+        int r = 0;
+        for(pCur=this.pCursor; pCur!=null; pCur=pCur.pNext){
+            if( pCur.wrFlag && pCur.eState!=SqlJetBtreeCursor.CursorState.FAULT ) r++; 
+        }
+        return r;
+    }
+
 }

@@ -1049,6 +1049,95 @@ public class SqlJetBtree implements ISqlJetBtree {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commit()
+     */
+    public void commit() throws SqlJetException {
+        enter();
+        try {
+            commitPhaseOne(null);
+            commitPhaseTwo();
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#rollback()
+     */
+    public void rollback() throws SqlJetException {
+
+        SqlJetMemPage pPage1;
+
+        enter();
+
+        try {
+
+            pBt.db = this.db;
+            try {
+                pBt.saveAllCursors(0, null);
+            } catch (SqlJetException e) {
+                /*
+                 * This is a horrible situation. An IO or malloc() error occured
+                 * whilst trying to save cursor positions. If this is an
+                 * automatic rollback (as the result of a constraint, malloc()
+                 * failure or IO error) then the cache may be internally
+                 * inconsistent (not contain valid trees) so we cannot simply
+                 * return the error to the caller. Instead, abort all queries
+                 * that may be using any of the cursors that failed to save.
+                 */
+                tripAllCursors(e.getErrorCode());
+            }
+            integrity();
+            unlockAllTables();
+
+            try {
+                if (this.inTrans == TransMode.WRITE) {
+                    assertion(TransMode.WRITE == pBt.inTransaction);
+                    try {
+                        pBt.pPager.rollback();
+                    } finally {
+                        /*
+                         * The rollback may have destroyed the pPage1->aData
+                         * value. So call sqlite3BtreeGetPage() on page 1 again
+                         * to make sure pPage1->aData is set correctly.
+                         */
+                        try {
+                            pPage1 = pBt.getPage(1, false);
+                            SqlJetMemPage.releasePage(pPage1);
+                        } finally {
+                            assertion(pBt.countWriteCursors() == 0);
+                            pBt.inTransaction = TransMode.READ;
+                        }
+                    }
+                }
+            } finally {
+
+                if (this.inTrans != TransMode.NONE) {
+                    assertion(pBt.nTransaction > 0);
+                    pBt.nTransaction--;
+                    if (0 == pBt.nTransaction) {
+                        pBt.inTransaction = TransMode.NONE;
+                    }
+                }
+
+                this.inTrans = TransMode.NONE;
+                pBt.inStmt = false;
+                pBt.unlockBtreeIfUnused();
+
+                integrity();
+
+            }
+
+        } finally {
+            leave();
+        }
+    }
+
     /**
      * @param page
      */
@@ -1073,16 +1162,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
      */
     public void clearTable(int table, int[] change) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#commit()
-     */
-    public void commit() throws SqlJetException {
         // TODO Auto-generated method stub
 
     }
@@ -1268,16 +1347,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
      */
     public void lockTable(int table, boolean isWriteLock) throws SqlJetException {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#rollback()
-     */
-    public void rollback() throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

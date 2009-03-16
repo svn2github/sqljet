@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.mutex;
 
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;

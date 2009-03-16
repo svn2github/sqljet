@@ -21,19 +21,21 @@ import java.util.EnumSet;
  * 
  */
 public interface ISqlJetPage {
-    
+
     ISqlJetPager getPager();
+
     void setPager(final ISqlJetPager pager);
-    
+
     EnumSet<SqlJetPageFlags> getFlags();
+
     void setFlags(final EnumSet<SqlJetPageFlags> flags);
 
     /**
      * Increment the reference count for a page.
-     * @throws SqlJetException 
+     * 
      * 
      */
-    void ref() throws SqlJetException;
+    void ref();
 
     /**
      * Release a page.
@@ -42,6 +44,7 @@ public interface ISqlJetPage {
      * added to the LRU list. When all references to all pages are released, a
      * rollback occurs and the lock on the database is removed.
      * @throws SqlJetException 
+     * 
      * 
      */
     void unref() throws SqlJetException;
@@ -55,8 +58,8 @@ public interface ISqlJetPage {
      * function also deals with the special case where 2 or more pages fit on a
      * single disk sector. In this case all co-resident pages must have been
      * written to the journal file before returning.
+     * @throws SqlJetException 
      * 
-     * @throws SqlJetException
      */
     void write() throws SqlJetException;
 
@@ -70,39 +73,36 @@ public interface ISqlJetPage {
      * will never need to read the page content in the future. so the needRead
      * flag can be cleared at this point.
      * 
-     * @throws SqlJetException
      */
-    void dontRollback() throws SqlJetException;
+    void dontRollback();
 
     /**
-     * A call to this routine tells the pager that it is not necessary to
-     * write the information on page pPg back to the disk, even though
-     * that page might be marked as dirty.  This happens, for example, when
-     * the page has been added as a leaf of the freelist and so its
-     * content no longer matters.
-     *
-     * The overlying software layer calls this routine when all of the data
-     * on the given page is unused.  The pager marks the page as clean so
-     * that it does not get written to disk.
-     *
+     * A call to this routine tells the pager that it is not necessary to write
+     * the information on page pPg back to the disk, even though that page might
+     * be marked as dirty. This happens, for example, when the page has been
+     * added as a leaf of the freelist and so its content no longer matters.
+     * 
+     * The overlying software layer calls this routine when all of the data on
+     * the given page is unused. The pager marks the page as clean so that it
+     * does not get written to disk.
+     * 
      * Tests show that this optimization, together with the
-     * sqlite3PagerDontRollback() below, more than double the speed
-     * of large INSERT operations and quadruple the speed of large DELETEs.
-     *
-     * When this routine is called, set the bit corresponding to pDbPage in
-     * the Pager.pAlwaysRollback bitvec.  Subsequent calls to
+     * sqlite3PagerDontRollback() below, more than double the speed of large
+     * INSERT operations and quadruple the speed of large DELETEs.
+     * 
+     * When this routine is called, set the bit corresponding to pDbPage in the
+     * Pager.pAlwaysRollback bitvec. Subsequent calls to
      * sqlite3PagerDontRollback() for the same page will thereafter be ignored.
      * This is necessary to avoid a problem where a page with data is added to
      * the freelist during one part of a transaction then removed from the
      * freelist during a later part of the same transaction and reused for some
-     * other purpose.  When it is first added to the freelist, this routine is
-     * called.  When reused, the sqlite3PagerDontRollback() routine is called.
+     * other purpose. When it is first added to the freelist, this routine is
+     * called. When reused, the sqlite3PagerDontRollback() routine is called.
      * But because the page contains critical data, we still need to be sure it
      * gets rolled back in spite of the sqlite3PagerDontRollback() call.
      * 
-     * @throws SqlJetException
      */
-    void dontWrite() throws SqlJetException;
+    void dontWrite();
 
     /**
      * Move the page to location pageNumber in the file.
@@ -129,37 +129,40 @@ public interface ISqlJetPage {
      * 
      * @param pageNumber
      * @param isCommit
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     void move(final int pageNumber, final boolean isCommit) throws SqlJetException;
 
     /**
      * Return a pointer to the data for the specified page.
-     * @throws SqlJetException 
+     * 
      * 
      */
-    byte[] getData() throws SqlJetException;
+    byte[] getData();
 
     /**
      * 
      */
     Object getExtra();
+
     void setExtra(Object extra);
 
-    
     /**
      * Hash of page content
      * 
      * @return
      */
     long getHash();
+
     void setHash(long hash);
-    
+
     int getPageNumber();
+
     void setPageNumber(final int pageNumber);
-    
-    ISqlJetPage getNext(); 
+
+    ISqlJetPage getNext();
+
     ISqlJetPage getPrev();
 
-    int getRefCount();    
+    int getRefCount();
 }

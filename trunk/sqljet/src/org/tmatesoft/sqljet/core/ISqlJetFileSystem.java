@@ -127,7 +127,6 @@ public interface ISqlJetFileSystem {
      * @param path
      * @param sync
      * @return
-     * @throws SqlJetException
      */
     boolean delete(final File path, final boolean sync) throws SqlJetException;
 
@@ -160,9 +159,8 @@ public interface ISqlJetFileSystem {
      * 
      * @param numBytes
      * @return
-     * @throws SqlJetException
      */
-    byte[] randomness(final int numBytes) throws SqlJetException;
+    byte[] randomness(final int numBytes);
 
     /**
      * The sleep() method causes the calling thread to sleep for at
@@ -170,17 +168,15 @@ public interface ISqlJetFileSystem {
      * 
      * @param microseconds
      * @return
-     * @throws SqlJetException
      */
-    long sleep(final long microseconds) throws SqlJetException;
+    long sleep(final long microseconds);
 
     /**
      *  The currentTime() method returns a Julian Day Number for the current date and time.
      * 
      * @return
-     * @throws SqlJetException
      */
-    long currentTime() throws SqlJetException;
+    long currentTime();
 
     File getTempFile() throws IOException;
     

@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core;
 
-
 /**
  * The page cache subsystem
  * 
@@ -38,17 +37,15 @@ public interface ISqlJetPageCache {
      * @param xStress
      *            Call to try to make pages clean
      */
-    void open(final int szPage, final boolean bPurgeable,
-            final ISqlJetPageCallback xStress);
+    void open(final int szPage, final boolean bPurgeable, final ISqlJetPageCallback xStress);
 
     /**
      * Modify the page-size after the cache has been created. Change the page
      * size for PCache object. This can only happen when the cache is empty.
      * 
      * @param pageSize
-     * @throws SqlJetException 
      */
-    void setPageSize(final int pageSize) throws SqlJetException;
+    void setPageSize(final int pageSize);
 
     /**
      * Try to obtain a page from the cache.
@@ -59,6 +56,7 @@ public interface ISqlJetPageCache {
      * @param createFlag
      *            If true, create page if it does not exist already
      * @return
+     * @throws SqlJetException
      */
     ISqlJetPage fetch(final int pageNumber, final boolean createFlag) throws SqlJetException;
 
@@ -68,9 +66,9 @@ public interface ISqlJetPageCache {
      * pinned until released. Reference counted.
      * 
      * @param page
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void release(final ISqlJetPage page) throws SqlJetException;
+    void release(final ISqlJetPage page);
 
     /**
      * Remove page from cache
@@ -80,34 +78,35 @@ public interface ISqlJetPageCache {
      * pointed to by p is invalid.
      * 
      * @param page
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void drop(final ISqlJetPage page) throws SqlJetException;
+    void drop(final ISqlJetPage page);
 
     /**
      * Make sure the page is marked as dirty. If it isn't dirty already, make it
      * so.
      * 
      * @param page
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void makeDirty(final ISqlJetPage page) throws SqlJetException;
+    void makeDirty(final ISqlJetPage page);
 
     /**
      * Make sure the page is marked as clean. If it isn't clean already, make it
      * so.
      * 
      * @param page
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void makeClean(final ISqlJetPage page) throws SqlJetException;
+    void makeClean(final ISqlJetPage page);
 
     /**
      * Mark all dirty list pages as clean Make every page in the cache clean.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetExceptionRemove
      * 
      */
-    void cleanAll() throws SqlJetException;
+    void cleanAll();
 
     /**
      * Change a page number. Used by incr-vacuum.
@@ -118,9 +117,9 @@ public interface ISqlJetPageCache {
      * 
      * @param page
      * @param pageNumber
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void move(final ISqlJetPage page, final int pageNumber) throws SqlJetException;
+    void move(final ISqlJetPage page, final int pageNumber);
 
     /**
      * Remove all pages with page numbers more than pageNumber. Reset the cache
@@ -129,9 +128,9 @@ public interface ISqlJetPageCache {
      * Drop every cache entry whose page number is greater than "pgno".
      * 
      * @param pageNumber
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void truncate(final int pageNumber) throws SqlJetException;
+    void truncate(final int pageNumber);
 
     /**
      * Get a list of all dirty pages in the cache, sorted by page number
@@ -142,27 +141,25 @@ public interface ISqlJetPageCache {
 
     /**
      * Reset and close the cache object
-     * @throws SqlJetException 
      * 
      */
-    void close() throws SqlJetException;
+    void close();
 
     /**
      * Clear flags from pages of the page cache
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetExceptionRemove
      */
-    void clearSyncFlags() throws SqlJetException;
+    void clearSyncFlags();
 
     /**
      * Return true if the number of dirty pages is 0 or 1
      */
-    //boolean isZeroOrOneDirtyPages();
-
+    // boolean isZeroOrOneDirtyPages();
     /**
      * Discard the contents of the cache
      */
-    void clear() throws SqlJetException;
+    void clear();
 
     /**
      * Return the total number of outstanding page references
@@ -178,7 +175,7 @@ public interface ISqlJetPageCache {
      * Iterate through all pages currently stored in the cache.
      * 
      * @param xIter
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void iterate(final ISqlJetPageCallback xIter) throws SqlJetException;
 
@@ -197,8 +194,7 @@ public interface ISqlJetPageCache {
      * suggested cache-sizes.
      * 
      * @param cacheSize
-     * @throws SqlJetException 
      */
-    void setCacheSize(final int cacheSize) throws SqlJetException;
-    
+    void setCacheSize(final int cacheSize);
+
 }

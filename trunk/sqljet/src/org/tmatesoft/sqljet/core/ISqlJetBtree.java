@@ -91,9 +91,8 @@ public interface ISqlJetBtree {
      * is not normally a worry.
      * 
      * @param mxPage
-     * @throws SqlJetException
      */
-    void setCacheSize(int mxPage) throws SqlJetException;
+    void setCacheSize(int mxPage);
 
     /**
      * Change the way data is synced to disk in order to increase or decrease
@@ -106,16 +105,15 @@ public interface ISqlJetBtree {
      * @param level
      * @throws SqlJetException
      */
-    void setSafetyLevel(SqlJetSafetyLevel level) throws SqlJetException;
+    void setSafetyLevel(SqlJetSafetyLevel level);
 
     /**
      * Return TRUE if the given btree is set to safety level 1. In other words,
      * return TRUE if no sync() occurs on the disk files.
      * 
      * @return
-     * @throws SqlJetException
      */
-    boolean isSyncDisabled() throws SqlJetException;
+    boolean isSyncDisabled();
 
     /**
      * Change the default pages size and the number of reserved bytes per page.
@@ -142,9 +140,8 @@ public interface ISqlJetBtree {
      * Return the currently defined page size
      * 
      * @return
-     * @throws SqlJetException
      */
-    int getPageSize() throws SqlJetException;
+    int getPageSize();
 
     /**
      * Set the maximum page count for a database if mxPage is positive. No
@@ -156,7 +153,7 @@ public interface ISqlJetBtree {
      */
     void setMaxPageCount(int mxPage) throws SqlJetException;
 
-    int getReserve() throws SqlJetException;
+    int getReserve();
 
     /**
      * Change the 'auto-vacuum' property of the database. If the 'autoVacuum'
@@ -176,7 +173,7 @@ public interface ISqlJetBtree {
      * @return
      * @throws SqlJetException
      */
-    SqlJetAutoVacuumMode getAutoVacuum() throws SqlJetException;
+    SqlJetAutoVacuumMode getAutoVacuum();
 
     /**
      * Attempt to start a new transaction. A write-transaction is started if the

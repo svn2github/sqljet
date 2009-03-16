@@ -13,8 +13,12 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.*;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.get2byte;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.get4byte;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.getVarint;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.getVarint32;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.put4byte;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.slice;
 
 import java.nio.ByteBuffer;
 
@@ -125,10 +129,10 @@ public class SqlJetMemPage {
      * PTF_LEAFDATA | PTF_INTKEY | PTF_LEAF
      */
     public void decodeFlags(int flagByte) throws SqlJetException {
-        assertion(hdrOffset == (pgno == 1 ? 100 : 0));
-        assertion(pBt.mutex.held());
+        assert(hdrOffset == (pgno == 1 ? 100 : 0));
+        assert(pBt.mutex.held());
         leaf = (flagByte >> 3) > 0;
-        assertion(PTF_LEAF == 1 << 3);
+        assert(PTF_LEAF == 1 << 3);
         flagByte &= ~PTF_LEAF;
         childPtrSize = (byte) (4 - 4 * (leaf ? 1 : 0));
         if (flagByte == (PTF_LEAFDATA | PTF_INTKEY)) {
@@ -157,11 +161,11 @@ public class SqlJetMemPage {
      */
     public void initPage() throws SqlJetException {
 
-        assertion(pBt != null);
-        assertion(pBt.mutex.held());
-        assertion(pgno == pDbPage.getPageNumber());
-        assertion(this == pDbPage.getExtra());
-        assertion(aData.array() == pDbPage.getData());
+        assert(pBt != null);
+        assert(pBt.mutex.held());
+        assert(pgno == pDbPage.getPageNumber());
+        assert(this == pDbPage.getExtra());
+        assert(aData.array() == pDbPage.getData());
 
         if (!isInit) {
             int pc; /* Address of a freeblock within pPage->aData[] */
@@ -175,7 +179,7 @@ public class SqlJetMemPage {
             hdr = hdrOffset;
             data = aData.array();
             decodeFlags(data[hdr]);
-            assertion(pBt.pageSize >= 512 && pBt.pageSize <= 32768);
+            assert(pBt.pageSize >= 512 && pBt.pageSize <= 32768);
             maskPage = pBt.pageSize - 1;
             nOverflow = 0;
             usableSize = pBt.usableSize;
@@ -219,16 +223,16 @@ public class SqlJetMemPage {
      * Release a MemPage. This should be called once for each prior call to
      * sqlite3BtreeGetPage.
      * 
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
-    public static void releasePage(SqlJetMemPage pPage) throws SqlJetException {
+    public static void releasePage(SqlJetMemPage pPage) throws SqlJetException{
         if (pPage != null) {
-            assertion(pPage.nOverflow == 0 || pPage.pDbPage.getRefCount() > 1);
-            assertion(pPage.aData);
-            assertion(pPage.pBt);
-            assertion(pPage.pDbPage.getExtra() == pPage);
-            assertion(pPage.pDbPage.getData() == pPage.aData.array());
-            assertion(pPage.pBt.mutex.held());
+            assert(pPage.nOverflow == 0 || pPage.pDbPage.getRefCount() > 1);
+            assert(pPage.aData!=null);
+            assert(pPage.pBt!=null);
+            assert(pPage.pDbPage.getExtra() == pPage);
+            assert(pPage.pDbPage.getData() == pPage.aData.array());
+            assert(pPage.pBt.mutex.held());
             pPage.pDbPage.unref();
         }
     }
@@ -237,6 +241,7 @@ public class SqlJetMemPage {
      * Set the pointer-map entries for all children of page pPage. Also, if
      * pPage contains cells that point to overflow pages, set the pointer map
      * entries for the overflow pages as well.
+     * @throws SqlJetException 
      */
     public void setChildPtrmaps() throws SqlJetException {
         int i; /* Counter variable */
@@ -244,7 +249,7 @@ public class SqlJetMemPage {
 
         boolean isInitOrig = isInit;
 
-        assertion(pBt.mutex.held());
+        assert(pBt.mutex.held());
         try {
             initPage();
             nCell = this.nCell;
@@ -286,10 +291,10 @@ public class SqlJetMemPage {
      * PTRMAP_OVERFLOW2: pPage is an overflow-page. The pointer points at the
      * next overflow page in the list.
      * 
-     * @throws SqlJetException
+     * @throws SqlJetExceptionRemove
      */
     public void modifyPagePointer(int iFrom, int iTo, byte eType) throws SqlJetException {
-        assertion(pBt.mutex.held());
+        assert(pBt.mutex.held());
         if (eType == SqlJetBtreeShared.PTRMAP_OVERFLOW2) {
             /* The pointer is always the first 4 bytes of the page in this case. */
             if (get4byte(aData) != iFrom) {
@@ -348,11 +353,12 @@ public class SqlJetMemPage {
     /**
      * If the cell pCell, part of page pPage contains a pointer to an overflow
      * page, insert an entry into the pointer-map for the overflow page.
+     * @throws SqlJetException 
      */
     private void ptrmapPutOvflPtr(ByteBuffer pCell) throws SqlJetException {
-        assertion(pCell != null);
+        assert(pCell != null);
         SqlJetBtreeCellInfo info = parseCellPtr(pCell);
-        assertion((info.nData + (intKey ? 0 : info.nKey)) == info.nPayload);
+        assert((info.nData + (intKey ? 0 : info.nKey)) == info.nPayload);
         if ((info.nData + (intKey ? 0 : info.nKey)) > info.nLocal) {
             int ovfl = get4byte(pCell, info.iOverflow);
             pBt.ptrmapPut(ovfl, SqlJetBtreeShared.PTRMAP_OVERFLOW1, pgno);
@@ -371,19 +377,18 @@ public class SqlJetMemPage {
      * @param pCell
      *            Pointer to the cell text.
      * @return
-     * @throws SqlJetException
      */
-    private SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell) throws SqlJetException {
+    private SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell)  {
 
         int n; /* Number bytes in cell content header */
         int[] nPayload = new int[1]; /* Number of bytes of cell payload */
 
-        assertion(pBt.mutex.held());
+        assert(pBt.mutex.held());
 
         SqlJetBtreeCellInfo pInfo = new SqlJetBtreeCellInfo();
         pInfo.pCell = pCell;
         n = childPtrSize;
-        assertion(n == 4 - 4 * (leaf ? 1 : 0));
+        assert(n == 4 - 4 * (leaf ? 1 : 0));
         if (intKey) {
             if (hasData) {
                 n += getVarint32(slice(pCell, n), nPayload);

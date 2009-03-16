@@ -86,7 +86,7 @@ public interface ISqlJetFile {
     /**
      * Close a file.
      * 
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     void close() throws SqlJetException;
 
@@ -97,9 +97,9 @@ public interface ISqlJetFile {
      * @param amount
      * @param offset
      * @return
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    int read(final byte[] buffer, final int amount, final long offset) throws SqlJetException;
+    int read(final byte[] buffer, final int amount, final long offset) throws SqlJetIOException;
 
     /**
      * Write data from a buffer into a file. 
@@ -108,17 +108,17 @@ public interface ISqlJetFile {
      * @param amount
      * @param offset
      * @return
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    void write(final byte[] buffer, final int amount, final long offset) throws SqlJetException;
+    void write(final byte[] buffer, final int amount, final long offset) throws SqlJetIOException;
 
     /**
      * Truncate an open file to a specified size
      * 
      * @param size
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    void truncate(final long size) throws SqlJetException;
+    void truncate(final long size) throws SqlJetIOException;
 
     /**
      * Make sure all writes to a particular file are committed to disk.
@@ -137,15 +137,15 @@ public interface ISqlJetFile {
      *
      * @param dataOnly
      * @param full
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException;
+    void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetIOException;
 
     /**
      * Determine the current size of a file in bytes
      * 
      * @return
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     long fileSize() throws SqlJetException;
 
@@ -175,9 +175,9 @@ public interface ISqlJetFile {
      * 
      * @param lockType
      * @return TODO
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    boolean lock(final SqlJetLockType lockType) throws SqlJetException;
+    boolean lock(final SqlJetLockType lockType) throws SqlJetIOException;
 
     /**
      * Lower the locking level on file descriptor pFile to locktype.  locktype
@@ -188,9 +188,9 @@ public interface ISqlJetFile {
      * 
      * @param lockType
      * @return TODO
-     * @throws SqlJetException
+     * @throws SqlJetIOException 
      */
-    boolean unlock(final SqlJetLockType lockType) throws SqlJetException;
+    boolean unlock(final SqlJetLockType lockType) throws SqlJetIOException;
 
     /**
      * This routine checks if there is a RESERVED lock held on the specified
@@ -205,9 +205,8 @@ public interface ISqlJetFile {
      * Returns lock type of file.
      * 
      * @return
-     * @throws SqlJetException
      */
-    SqlJetLockType getLockType() throws SqlJetException;
+    SqlJetLockType getLockType();
 
     /**
      * Return the sector size in bytes of the underlying block device for

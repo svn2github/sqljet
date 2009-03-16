@@ -13,18 +13,14 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
-
 import java.util.BitSet;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetPageFlags;
-import org.tmatesoft.sqljet.core.SqlJetPagerFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.SqlJetUtility;
 
@@ -37,39 +33,39 @@ public class SqlJetPage implements ISqlJetPage {
 
     /** Content of this page */
     byte[] pData;
-    
+
     /** Extra content */
-    Object pExtra; 
-    
+    Object pExtra;
+
     /** Transient list of dirty pages */
     SqlJetPage pDirty;
-    
+
     /** Page number for this page */
     int pgno;
-    
+
     /** The pager this page is part of */
     SqlJetPager pPager;
-    
+
     /** Hash of page content */
     long pageHash;
-    
-    EnumSet<SqlJetPageFlags> flags = EnumSet.noneOf(SqlJetPageFlags.class); 
-    
+
+    EnumSet<SqlJetPageFlags> flags = EnumSet.noneOf(SqlJetPageFlags.class);
+
     /*
      * Elements above are public. All that follows is private to pcache.c and
      * should not be accessed by other modules.
      */
-    
+
     /** Number of users of this page */
-    int nRef; 
-    
+    int nRef;
+
     /** Cache that owns this page */
-    SqlJetPageCache pCache; 
+    SqlJetPageCache pCache;
 
     /** Next element in list of dirty pages */
     SqlJetPage pDirtyNext;
-    
-    /** Previous element in list of dirty pages */    
+
+    /** Previous element in list of dirty pages */
     SqlJetPage pDirtyPrev;
 
     /**
@@ -78,36 +74,37 @@ public class SqlJetPage implements ISqlJetPage {
     public SqlJetPage() {
         // TODO Auto-generated constructor stub
     }
-    
+
     /**
      * 
      */
     SqlJetPage(int szPage) {
         pData = new byte[szPage];
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#dontRollback()
      */
-    public void dontRollback() throws SqlJetException {
+    public void dontRollback() {
 
-        assertion(pPager.state.compareTo(SqlJetPagerState.RESERVED) >= 0);
+        assert (pPager.state.compareTo(SqlJetPagerState.RESERVED) >= 0);
 
-        /* If the journal file is not open, or DontWrite() has been called on
-         ** this page (DontWrite() sets the Pager.pAlwaysRollback bit), then this
-         ** function is a no-op.
+        /*
+         * If the journal file is not open, or DontWrite() has been called on
+         * this page (DontWrite() sets the Pager.pAlwaysRollback bit), then this
+         * function is a no-op.
          */
         if (!pPager.journalOpen || SqlJetUtility.bitSetTest(pPager.pagesAlwaysRollback, pgno)
                 || pgno > pPager.dbOrigSize) {
             return;
         }
 
-        if( SqlJetUtility.bitSetTest(pPager.pagesInJournal, pgno) || pgno>pPager.dbOrigSize ){
+        if (SqlJetUtility.bitSetTest(pPager.pagesInJournal, pgno) || pgno > pPager.dbOrigSize) {
             return;
         }
-        
+
         /*
          * If SECURE_DELETE is disabled, then there is no way that this routine
          * can be called on a page for which sqlite3PagerDontWrite() has not
@@ -120,20 +117,21 @@ public class SqlJetPage implements ISqlJetPage {
          * necessarily true:
          */
 
-        assertion(pPager.pagesInJournal != null);
+        assert (pPager.pagesInJournal != null);
         flags.remove(SqlJetPageFlags.NEED_READ);
 
-        /* Failure to set the bits in the InJournal bit-vectors is benign.
-         ** It merely means that we might do some extra work to journal a page
-         ** that does not need to be journaled.  Nevertheless, be sure to test the
-         ** case where a malloc error occurs while trying to set a bit in a 
-         ** bit vector.
+        /*
+         * Failure to set the bits in the InJournal bit-vectors is benign. It
+         * merely means that we might do some extra work to journal a page that
+         * does not need to be journaled. Nevertheless, be sure to test the case
+         * where a malloc error occurs while trying to set a bit in a bit
+         * vector.
          */
-         pPager.pagesInJournal.set(pgno);
-         pPager.addToSavepointBitSets(pgno);
+        pPager.pagesInJournal.set(pgno);
+        pPager.addToSavepointBitSets(pgno);
 
-         pPager.PAGERTRACE("DONT_ROLLBACK page %d of %s\n", pgno, pPager.PAGERID());
-         // IOTRACE(("GARBAGE %p %d\n", pPager, pPg->pgno))
+        pPager.PAGERTRACE("DONT_ROLLBACK page %d of %s\n", pgno, pPager.PAGERID());
+        // IOTRACE(("GARBAGE %p %d\n", pPager, pPg->pgno))
 
     }
 
@@ -142,19 +140,19 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#dontWrite()
      */
-    public void dontWrite() throws SqlJetException {
+    public void dontWrite() {
 
-        if ( pgno > pPager.dbOrigSize) {
+        if (pgno > pPager.dbOrigSize) {
             return;
         }
 
         if (pPager.pagesAlwaysRollback == null) {
-            assertion(pPager.pagesInJournal);
+            assert (pPager.pagesInJournal != null);
             pPager.pagesAlwaysRollback = new BitSet(pPager.dbOrigSize);
         }
         pPager.pagesAlwaysRollback.set(pgno);
-        if (flags.contains(SqlJetPageFlags.DIRTY) && pPager.nSavepoint==0) {
-            assertion(pPager.state.compareTo(SqlJetPagerState.SHARED) >= 0);
+        if (flags.contains(SqlJetPageFlags.DIRTY) && pPager.nSavepoint == 0) {
+            assert (pPager.state.compareTo(SqlJetPagerState.SHARED) >= 0);
             if (pPager.dbSize == pgno && pPager.dbOrigSize < pPager.dbSize) {
                 /*
                  * If this pages is the last page in the file and the file has
@@ -180,8 +178,8 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getData()
      */
-    public byte[] getData() throws SqlJetException {
-        //assertion( nRef>0 || pPager.memDb );
+    public byte[] getData() {
+        // assertion( nRef>0 || pPager.memDb );
         return pData;
     }
 
@@ -193,8 +191,10 @@ public class SqlJetPage implements ISqlJetPage {
     public Object getExtra() {
         return (pPager != null ? pExtra : null);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#setExtra(java.lang.Object)
      */
     public void setExtra(Object extra) {
@@ -211,30 +211,26 @@ public class SqlJetPage implements ISqlJetPage {
         SqlJetPage pPgOld; /* The page being overwritten. */
         int needSyncPgno = 0;
 
-        assertion(nRef > 0);
-        
-        /* If the page being moved is dirty and has not been saved by the latest
-         ** savepoint, then save the current contents of the page into the 
-         ** sub-journal now. This is required to handle the following scenario:
-         **
-         **   BEGIN;
-         **     <journal page X, then modify it in memory>
-         **     SAVEPOINT one;
-         **       <Move page X to location Y>
-         **     ROLLBACK TO one;
-         **
-         ** If page X were not written to the sub-journal here, it would not
-         ** be possible to restore its contents when the "ROLLBACK TO one"
-         ** statement were processed.
-         */
-         if( flags.contains(SqlJetPageFlags.DIRTY) 
-                 && pPager.subjRequiresPage(this) )
-         {
-             pPager.subjournalPage(this);
-         }        
+        assert (nRef > 0);
 
-        pPager.PAGERTRACE("MOVE %s page %d (needSync=%b) moves to %d\n",
-           pPager.PAGERID(), this.pgno, flags.contains(SqlJetPageFlags.NEED_SYNC), pageNumber);
+        /*
+         * If the page being moved is dirty and has not been saved by the latest
+         * savepoint, then save the current contents of the page into the
+         * sub-journal now. This is required to handle the following scenario:
+         * 
+         * BEGIN; <journal page X, then modify it in memory> SAVEPOINT one;
+         * <Move page X to location Y> ROLLBACK TO one;
+         * 
+         * If page X were not written to the sub-journal here, it would not be
+         * possible to restore its contents when the "ROLLBACK TO one" statement
+         * were processed.
+         */
+        if (flags.contains(SqlJetPageFlags.DIRTY) && pPager.subjRequiresPage(this)) {
+            pPager.subjournalPage(this);
+        }
+
+        pPager.PAGERTRACE("MOVE %s page %d (needSync=%b) moves to %d\n", pPager.PAGERID(), this.pgno, flags
+                .contains(SqlJetPageFlags.NEED_SYNC), pageNumber);
         // IOTRACE(("MOVE %p %d %d\n", pPager, pPg->pgno, pgno))
 
         pPager.getContent(this);
@@ -249,9 +245,9 @@ public class SqlJetPage implements ISqlJetPage {
          */
         if (flags.contains(SqlJetPageFlags.NEED_SYNC) && !isCommit) {
             needSyncPgno = pgno;
-            assertion( pPager.pageInJournal(this) || pgno > pPager.dbOrigSize );
-            assertion(flags.contains(SqlJetPageFlags.DIRTY));
-            assertion(pPager.needSync);
+            assert (pPager.pageInJournal(this) || pgno > pPager.dbOrigSize);
+            assert (flags.contains(SqlJetPageFlags.DIRTY));
+            assert (pPager.needSync);
         }
 
         /*
@@ -262,7 +258,7 @@ public class SqlJetPage implements ISqlJetPage {
          */
         flags.remove(SqlJetPageFlags.NEED_SYNC);
         pPgOld = (SqlJetPage) pPager.lookup(pgno);
-        assertion(pPgOld == null || pPgOld.nRef == 1);
+        assert (pPgOld == null || pPgOld.nRef == 1);
         if (pPgOld != null) {
             if (pPgOld.flags.contains(SqlJetPageFlags.NEED_SYNC))
                 flags.add(SqlJetPageFlags.NEED_SYNC);
@@ -298,7 +294,7 @@ public class SqlJetPage implements ISqlJetPage {
              * sure the Pager.needSync flag is set too.
              */
             SqlJetPage pPgHdr;
-            assertion(pPager.needSync);
+            assert (pPager.needSync);
             try {
                 pPgHdr = (SqlJetPage) pPager.getPage(needSyncPgno);
             } catch (SqlJetException e) {
@@ -309,7 +305,7 @@ public class SqlJetPage implements ISqlJetPage {
             }
 
             pPager.needSync = true;
-            assertion(!pPager.noSync && !pPager.memDb);
+            assert (!pPager.noSync && !pPager.memDb);
             pPgHdr.flags.add(SqlJetPageFlags.NEED_SYNC);
             pPager.pageCache.makeDirty(pPgHdr);
             pPgHdr.unref();
@@ -321,8 +317,8 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#ref()
      */
-    public void ref() throws SqlJetException {
-        assertion(nRef > 0);
+    public void ref() {
+        assert (nRef > 0);
         nRef++;
     }
 
@@ -348,7 +344,7 @@ public class SqlJetPage implements ISqlJetPage {
 
         int nPagePerSector = (pPager.sectorSize / pPager.pageSize);
 
-        if ( nPagePerSector > 1 ) {
+        if (nPagePerSector > 1) {
 
             int nPageCount; /* Total number of pages in database file */
             int pg1; /* First page of the sector pPg is located on. */
@@ -361,8 +357,8 @@ public class SqlJetPage implements ISqlJetPage {
              * journal header to be written between the pages journaled by this
              * function.
              */
-            assertion(!pPager.memDb);
-            assertion(!pPager.doNotSync);
+            assert (!pPager.memDb);
+            assert (!pPager.doNotSync);
             pPager.doNotSync = true;
 
             /*
@@ -380,9 +376,9 @@ public class SqlJetPage implements ISqlJetPage {
             } else {
                 nPage = nPagePerSector;
             }
-            assertion(nPage > 0);
-            assertion(pg1 <= pgno);
-            assertion((pg1 + nPage) > pgno);
+            assert (nPage > 0);
+            assert (pg1 <= pgno);
+            assert ((pg1 + nPage) > pgno);
 
             for (ii = 0; ii < nPage; ii++) {
                 int pg = pg1 + ii;
@@ -399,7 +395,7 @@ public class SqlJetPage implements ISqlJetPage {
                 } else if ((pPage = (SqlJetPage) pPager.lookup(pg)) != null) {
                     if (pPage.flags.contains(SqlJetPageFlags.NEED_SYNC)) {
                         needSync = true;
-                        assertion(pPager.needSync);
+                        assert (pPager.needSync);
                     }
                     pPage.unref();
                 }
@@ -413,7 +409,7 @@ public class SqlJetPage implements ISqlJetPage {
              * any of them can be written out to the database file.
              */
             if (needSync) {
-                assertion(!pPager.memDb && !pPager.noSync);
+                assert (!pPager.memDb && !pPager.noSync);
                 for (ii = 0; ii < nPage && needSync; ii++) {
                     SqlJetPage pPage = (SqlJetPage) pPager.lookup(pg1 + ii);
                     if (pPage != null) {
@@ -421,10 +417,10 @@ public class SqlJetPage implements ISqlJetPage {
                         pPage.unref();
                     }
                 }
-                assertion(pPager.needSync);
+                assert (pPager.needSync);
             }
 
-            assertion(pPager.doNotSync);
+            assert (pPager.doNotSync);
             pPager.doNotSync = false;
 
         } else {
@@ -448,6 +444,8 @@ public class SqlJetPage implements ISqlJetPage {
      * subsequent write attempts also return SQLITE_FULL until there is a call
      * to sqlite3PagerCommit() or sqlite3PagerRollback() to reset.
      * 
+     * @throws SqlJetException
+     * 
      */
     private void doWrite() throws SqlJetException {
 
@@ -461,7 +459,7 @@ public class SqlJetPage implements ISqlJetPage {
             throw new SqlJetException(SqlJetErrorCode.PERM);
         }
 
-        assertion(!pPager.setMaster);
+        assert (!pPager.setMaster);
 
         /*
          * If this page was previously acquired with noContent==1, that means we
@@ -478,7 +476,7 @@ public class SqlJetPage implements ISqlJetPage {
          * journal then we can return right away.
          */
         pCache.makeDirty(this);
-        if( pPager.pageInJournal(this) && !pPager.subjRequiresPage(this) ){
+        if (pPager.pageInJournal(this) && !pPager.subjRequiresPage(this)) {
             pPager.dirtyCache = true;
             pPager.dbModified = true;
         } else {
@@ -489,9 +487,9 @@ public class SqlJetPage implements ISqlJetPage {
              * First check to see that the transaction journal exists and create
              * it if it does not.
              */
-            assertion(pPager.state != SqlJetPagerState.UNLOCK);
+            assert (pPager.state != SqlJetPagerState.UNLOCK);
             pPager.begin(false);
-            assertion(pPager.state.compareTo(SqlJetPagerState.RESERVED) >= 0);
+            assert (pPager.state.compareTo(SqlJetPagerState.RESERVED) >= 0);
             if (!pPager.journalOpen && pPager.useJournal && pPager.journalMode != SqlJetPagerJournalMode.OFF) {
                 pPager.openJournal();
             }
@@ -503,16 +501,16 @@ public class SqlJetPage implements ISqlJetPage {
              * EXCLUSIVE lock on the main database file. Write the current page
              * to the transaction journal if it is not there already.
              */
-            if( !pPager.pageInJournal(this) && pPager.journalOpen ){
+            if (!pPager.pageInJournal(this) && pPager.journalOpen) {
                 if (pgno <= pPager.dbOrigSize) {
-                        /*
-                         * We should never write to the journal file the page
-                         * that contains the database locks. The following
-                         * assert verifies that we do not.
-                         */
-                        assertion(pgno != pPager.PAGER_MJ_PGNO());
+                    /*
+                     * We should never write to the journal file the page that
+                     * contains the database locks. The following assert
+                     * verifies that we do not.
+                     */
+                    assert (pgno != pPager.PAGER_MJ_PGNO());
 
-                     try {
+                    try {
                         int cksum = pPager.cksum(pData);
                         pPager.write32bits(pPager.jfd, pPager.journalOff, pgno);
                         try {
@@ -526,46 +524,45 @@ public class SqlJetPage implements ISqlJetPage {
                             pPager.journalOff += 4;
                         }
 
-                     }finally {
+                    } finally {
                         // IOTRACE(("JOUT %p %d %lld %d\n", pPager, pPg->pgno,
                         // pPager->journalOff, pPager->pageSize));
                         // PAGER_INCR(sqlite3_pager_writej_count);
-                        pPager.PAGERTRACE("JOURNAL %s page %d needSync=%b hash(%08x)\n",
-                                pPager.PAGERID(), pgno,
-                                flags.contains(SqlJetPageFlags.NEED_SYNC),
-                                pPager.pageHash(this));
+                        pPager.PAGERTRACE("JOURNAL %s page %d needSync=%b hash(%08x)\n", pPager.PAGERID(), pgno, flags
+                                .contains(SqlJetPageFlags.NEED_SYNC), pPager.pageHash(this));
 
-                        /* Even if an IO or diskfull error occurred while journalling the
-                         ** page in the block above, set the need-sync flag for the page.
-                         ** Otherwise, when the transaction is rolled back, the logic in
-                         ** playback_one_page() will think that the page needs to be restored
-                         ** in the database file. And if an IO error occurs while doing so,
-                         ** then corruption may follow.
+                        /*
+                         * Even if an IO or diskfull error occurred while
+                         * journalling the page in the block above, set the
+                         * need-sync flag for the page. Otherwise, when the
+                         * transaction is rolled back, the logic in
+                         * playback_one_page() will think that the page needs to
+                         * be restored in the database file. And if an IO error
+                         * occurs while doing so, then corruption may follow.
                          */
-                         if( !pPager.noSync ){
-                           flags.add(SqlJetPageFlags.NEED_SYNC);
-                           pPager.needSync = true;
-                         }
-                         
-                         /*
-                          * An error has occured writing to the journal file. The
-                          * transaction will be rolled back by the layer above.
-                          */
-                         
-                       }
-                        
-                        pPager.nRec++;
-                        assertion(pPager.pagesInJournal != null);
-                        pPager.pagesInJournal.set(pgno);
-                        pPager.addToSavepointBitSets(pgno);
+                        if (!pPager.noSync) {
+                            flags.add(SqlJetPageFlags.NEED_SYNC);
+                            pPager.needSync = true;
+                        }
+
+                        /*
+                         * An error has occured writing to the journal file. The
+                         * transaction will be rolled back by the layer above.
+                         */
+
+                    }
+
+                    pPager.nRec++;
+                    assert (pPager.pagesInJournal != null);
+                    pPager.pagesInJournal.set(pgno);
+                    pPager.addToSavepointBitSets(pgno);
                 } else {
                     if (!pPager.journalStarted && !pPager.noSync) {
                         flags.add(SqlJetPageFlags.NEED_SYNC);
                         pPager.needSync = true;
                     }
-                    pPager.PAGERTRACE("APPEND %s page %d needSync=%b\n",
-                            pPager.PAGERID(), pgno,
-                            flags.contains(SqlJetPageFlags.NEED_SYNC));
+                    pPager.PAGERTRACE("APPEND %s page %d needSync=%b\n", pPager.PAGERID(), pgno, flags
+                            .contains(SqlJetPageFlags.NEED_SYNC));
                 }
             }
 
@@ -575,7 +572,7 @@ public class SqlJetPage implements ISqlJetPage {
              * statement journal format differs from the standard journal format
              * in that it omits the checksums and the header.
              */
-            if( pPager.subjRequiresPage(this) ){
+            if (pPager.subjRequiresPage(this)) {
                 pPager.subjournalPage(this);
             }
         }
@@ -583,10 +580,10 @@ public class SqlJetPage implements ISqlJetPage {
         /*
          * Update the database size and return.
          */
-        assertion(pPager.state.compareTo(SqlJetPagerState.SHARED) >= 0);
+        assert (pPager.state.compareTo(SqlJetPagerState.SHARED) >= 0);
         if (pPager.dbSize < pgno) {
             pPager.dbSize = pgno;
-            if( pPager.dbSize==(pPager.PAGER_MJ_PGNO()-1) ){
+            if (pPager.dbSize == (pPager.PAGER_MJ_PGNO() - 1)) {
                 pPager.dbSize++;
             }
         }
@@ -646,7 +643,7 @@ public class SqlJetPage implements ISqlJetPage {
      * .ISqlJetPager)
      */
     public void setPager(ISqlJetPager pager) {
-        pPager = (SqlJetPager)pager;
+        pPager = (SqlJetPager) pager;
     }
 
     /*
@@ -685,7 +682,9 @@ public class SqlJetPage implements ISqlJetPage {
         return pDirtyPrev;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getRefCount()
      */
     public int getRefCount() {

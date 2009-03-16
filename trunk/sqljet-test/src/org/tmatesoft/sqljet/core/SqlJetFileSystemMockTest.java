@@ -59,7 +59,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
                 + " CREATE, READWRITE, DELETEONCLOSE", f);
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class )
     public void testOpenFileNullReadonly() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_READONLY);
         Assert.fail("File shouldn't be opened without path if permission is READONLY");
@@ -81,21 +81,21 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.fail("File which doesn't exists shouldn't be opened with permission READONLY");
     }
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testOpenReadonlyAndWrite() throws Exception {
         Assert.assertNotNull(path);
         final ISqlJetFile f = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_READONLY_AND_WRITE);
         Assert.fail("File shouldn't be opened with permissions READONLY and READWRITE");
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testOpenNullReadonlyAndWrite() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_READONLY_AND_WRITE);
         Assert.fail("File shouldn't be opened with permissions READONLY and READWRITE");
     }
     
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testOpenCreateOnly() throws Exception {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
@@ -103,7 +103,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.fail("File shouldn't be opened with permission CREATE only");
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testOpenCreateReadonly() throws Exception {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
@@ -119,7 +119,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull("File should be created with permission CREATE and READWRITE", f);
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testOpenExclusiveOnly() throws Exception {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
@@ -137,7 +137,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
 
     // delete()
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testDeleteNull() throws Exception {
         final boolean d = fileSystem.delete(null, false);
         Assert.fail("It shouldn't delete unknown files denoted by null");
@@ -162,7 +162,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
 
     // access()
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testAccessNull() throws Exception {
         Assert.assertNotNull(path);
         fileSystem.access(null, null);
@@ -229,13 +229,13 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
     
     // randomness()
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testRandomnessZero() throws Exception {
         final byte[] zero = fileSystem.randomness(0);
         Assert.fail("It should be not allowed to call get zero bytes count from randomness() function");
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testRandomnessNegative() throws Exception {
         final byte[] negativ = fileSystem.randomness(-1);
         Assert.fail("It should be not allowed to call get negative bytes count from randomness() function");
@@ -263,13 +263,13 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
 
     // sleep()
     
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testSleepZero() throws Exception {
         final long s = fileSystem.sleep(0);
         Assert.fail("Sleeping to zero time is impossible");
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testSleepNegative() throws Exception {
         final long s = fileSystem.sleep(-1);
         Assert.fail("Sleeping to negative time is impossible");

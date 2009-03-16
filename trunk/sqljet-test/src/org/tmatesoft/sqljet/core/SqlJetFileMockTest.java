@@ -82,7 +82,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     }
 
-    @Test(expected = SqlJetException.class)
+    @Test(expected = AssertionError.class)
     public void testClose() throws Exception {
         file.close();
         file.sync(null);

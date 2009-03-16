@@ -113,7 +113,7 @@ public class SqlJetFileSystemsManager implements ISqlJetFileSystemsManager {
      * Check FS parameter
      * 
      * @param fs
-     * @throws SqlJetException
+     * @throws SqlJetExceptionRemove
      */
     private void checkFS(final ISqlJetFileSystem fs) throws SqlJetException {
         if(null==fs) 

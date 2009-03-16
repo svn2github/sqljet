@@ -16,7 +16,6 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.EnumSet;
 
-
 /**
  * The pages cache subsystem reads and writes a file a page at a time and
  * provides a journal for rollback.
@@ -30,8 +29,7 @@ public interface ISqlJetPager {
     /**
      * The minimum sector size is 512
      */
-    int SQLJET_MIN_SECTOR_SIZE = SqlJetUtility.getIntSysProp(
-            "SQLJET_MIN_SECTOR_SIZE", 512 );
+    int SQLJET_MIN_SECTOR_SIZE = SqlJetUtility.getIntSysProp("SQLJET_MIN_SECTOR_SIZE", 512);
 
     String JOURNAL = "-journal";
 
@@ -57,8 +55,8 @@ public interface ISqlJetPager {
      * initializing the checksum to random value which is different for every
      * journal, we minimize that risk.
      */
-    byte[] aJournalMagic = { (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1,
-                (byte) 0x63, (byte) 0xd7 };
+    byte[] aJournalMagic = { (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1, (byte) 0x63,
+            (byte) 0xd7 };
 
     /**
      * The maximum legal page number is (2^31 - 1).
@@ -69,9 +67,8 @@ public interface ISqlJetPager {
      * If defined as non-zero, auto-vacuum is enabled by default. Otherwise it
      * must be turned on for each database using "PRAGMA auto_vacuum = 1".
      */
-    //int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
-    int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = SqlJetUtility.getIntSysProp(
-            "SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT", -1);
+    // int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = -1;
+    int SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT = SqlJetUtility.getIntSysProp("SQLJET_DEFAULT_JOURNAL_SIZE_LIMIT", -1);
 
     /**
      * In-memory database's "file-name".
@@ -82,8 +79,8 @@ public interface ISqlJetPager {
      * Open a new page cache.
      * 
      * The file to be cached need not exist. The file is not locked until the
-     * first call to {@link #getPage(int)} and is only held open until the last page
-     * is released using {@link #unref(ISqlJetPage)}.
+     * first call to {@link #getPage(int)} and is only held open until the last
+     * page is released using {@link #unref(ISqlJetPage)}.
      * 
      * If fileName is null then a randomly-named temporary file is created and
      * used as the file to be cached. The file will be deleted automatically
@@ -107,9 +104,8 @@ public interface ISqlJetPager {
      *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
      * @throws SqlJetException
      */
-    void open(final ISqlJetFileSystem fs, final File fileName,
-            final EnumSet<SqlJetPagerFlags> flags, final SqlJetFileType type,
-            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
+    void open(final ISqlJetFileSystem fs, final File fileName, final EnumSet<SqlJetPagerFlags> flags,
+            final SqlJetFileType type, final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
     /**
      * Return the path of the database file.
@@ -131,7 +127,7 @@ public interface ISqlJetPager {
      * @return
      */
     File getJournalName();
-    
+
     /**
      * Return the file system for the pager.
      * 
@@ -155,7 +151,7 @@ public interface ISqlJetPager {
      * @return
      */
     boolean isReadOnly();
-    
+
     /**
      * Return true if fsync() calls are disabled for this pager. Return FALSE if
      * fsync()s are executed normally.
@@ -166,19 +162,18 @@ public interface ISqlJetPager {
 
     /**
      * Get the locking-mode for this pager.
-     *  
+     * 
      * @return
      */
     SqlJetPagerLockingMode getLockingMode();
 
     /**
      * Set the locking-mode for this pager.
-     *  
+     * 
      * @param lockingMode
-     * @throws SqlJetException
      */
-    void setLockingMode(final SqlJetPagerLockingMode lockingMode) throws SqlJetException;
-    
+    void setLockingMode(final SqlJetPagerLockingMode lockingMode);
+
     /**
      * Get the journal-mode for this pager.
      * 
@@ -189,12 +184,12 @@ public interface ISqlJetPager {
 
     /**
      * Set the journal-mode for this pager.
-     *  
+     * 
      * @param journalMode
      * @return
      */
-    void setJournalMode(final SqlJetPagerJournalMode journalMode) throws SqlJetException;
-    
+    void setJournalMode(final SqlJetPagerJournalMode journalMode);
+
     /**
      * Get the size-limit used for persistent journal files.
      * 
@@ -206,24 +201,23 @@ public interface ISqlJetPager {
      * Set the size-limit used for persistent journal files.
      * 
      * @param limit
-     * @throws SqlJetException
      */
-    void setJournalSizeLimit(final long limit) throws SqlJetException;
-    
+    void setJournalSizeLimit(final long limit);
+
     /**
      * Set safety level
      * 
      * @param safetyLevel
      */
     void setSafetyLevel(final SqlJetSafetyLevel safetyLevel);
-    
+
     /**
      * Get safety level
      * 
      * @return
      */
     SqlJetSafetyLevel getSafetyLevel();
-    
+
     /**
      * Return a pointer to the "temporary page" buffer held internally by the
      * pager. This is a buffer that is big enough to hold the entire content of
@@ -234,13 +228,13 @@ public interface ISqlJetPager {
      * @return
      */
     byte[] getTempSpace();
-    
+
     /**
      * Set the busy handler function.
      * 
      * @param busyHandler
      */
-    void setBusyhandler(final ISqlJetBusyHandler busyHandler) throws SqlJetException;
+    void setBusyhandler(final ISqlJetBusyHandler busyHandler);
 
     /**
      * Set the reinitializer for this pager. If not NULL, the reinitializer is
@@ -251,7 +245,7 @@ public interface ISqlJetPager {
      * 
      * @param reinitier
      */
-    void setReiniter(final ISqlJetPageCallback reinitier) throws SqlJetException;
+    void setReiniter(final ISqlJetPageCallback reinitier);
 
     /**
      * 
@@ -271,7 +265,7 @@ public interface ISqlJetPager {
      * @return
      */
     int getPageSize();
-    
+
     /**
      * Attempt to set the maximum database page count if mxPage is positive.
      * Make no changes if mxPage is zero or negative. And never reduce the
@@ -287,14 +281,14 @@ public interface ISqlJetPager {
      * @return
      */
     int getMaxPageCount();
-    
+
     /**
      * Change the maximum number of in-memory pages that are allowed.
      * 
      * @param cacheSize
      */
-    void setCacheSize(final int cacheSize) throws SqlJetException;
-    
+    void setCacheSize(final int cacheSize);
+
     /**
      * Read the first N bytes from the beginning of the file into memory that
      * buffer points to.
@@ -307,8 +301,9 @@ public interface ISqlJetPager {
      * 
      * @param count
      * @param buffer
+     * @throws SqlJetIOException 
      */
-    void readFileHeader(final int count, final byte[] buffer) throws SqlJetException;
+    void readFileHeader(final int count, final byte[] buffer) throws SqlJetIOException;
 
     /**
      * Return the total number of pages in the disk file associated with pager.
@@ -323,7 +318,7 @@ public interface ISqlJetPager {
      *             if pager is in error state.
      */
     int getPageCount() throws SqlJetException;
-    
+
     /**
      * Shutdown the page cache. Free all memory and close all files.
      * 
@@ -356,13 +351,13 @@ public interface ISqlJetPager {
      * The acquisition might fail for several reasons. In all cases, an
      * appropriate error code is returned and *ppPage is set to NULL.
      * 
-     * See also {@link #lookupPage(int)}. Both this routine and {@link #lookupPage(int)}
-     * attempt to find a page in the in-memory cache first. If the page is not
-     * already in memory, this routine goes to disk to read it in whereas
-     * {@link #lookupPage(int)} just returns 0. This routine acquires a read-lock
-     * the first time it has to go to disk, and could also playback an old
-     * journal if necessary. Since {@link #lookupPage(int)} never goes to disk, it
-     * never has to deal with locks or journal files.
+     * See also {@link #lookupPage(int)}. Both this routine and
+     * {@link #lookupPage(int)} attempt to find a page in the in-memory cache
+     * first. If the page is not already in memory, this routine goes to disk to
+     * read it in whereas {@link #lookupPage(int)} just returns 0. This routine
+     * acquires a read-lock the first time it has to go to disk, and could also
+     * playback an old journal if necessary. Since {@link #lookupPage(int)}
+     * never goes to disk, it never has to deal with locks or journal files.
      * 
      * If noContent is false, the page contents are actually read from disk. If
      * noContent is true, it means that we do not care about the contents of the
@@ -379,9 +374,7 @@ public interface ISqlJetPager {
      *            Do not bother reading content from disk if false
      * 
      * @return
-     * 
-     * @throws SqlJetException
-     * 
+     * @throws SqlJetException 
      */
     ISqlJetPage acquirePage(final int pageNumber, final boolean read) throws SqlJetException;
 
@@ -391,7 +384,7 @@ public interface ISqlJetPager {
      * @param pageNumber
      *            Page number to fetch
      * @return
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     ISqlJetPage getPage(final int pageNumber) throws SqlJetException;
 
@@ -401,14 +394,15 @@ public interface ISqlJetPager {
      * in cache.
      * 
      * See also {@link #getPage(int)}. The difference between this routine and
-     * {@link #getPage(int)} is that {@link #getPage(int)} will go to the disk and read
-     * in the page if the page is not already in cache. This routine returns
-     * null if the page is not in cache or if a disk I/O error has ever
+     * {@link #getPage(int)} is that {@link #getPage(int)} will go to the disk
+     * and read in the page if the page is not already in cache. This routine
+     * returns null if the page is not in cache or if a disk I/O error has ever
      * happened.
      * 
      * @param pageNumber
      *            Page number to lookup
      * @return
+     * @throws SqlJetException 
      */
     ISqlJetPage lookupPage(final int pageNumber) throws SqlJetException;
 
@@ -423,8 +417,8 @@ public interface ISqlJetPager {
      * <li>unref() is called to on every outstanding page.</li>
      * </ul>
      * 
-     * The parameter indicates how much space in bytes to reserve for a
-     * master journal file-name at the start of the journal when it is created.
+     * The parameter indicates how much space in bytes to reserve for a master
+     * journal file-name at the start of the journal when it is created.
      * 
      * A journal file is opened if this is not a temporary file. For temporary
      * files, the opening of the journal file is deferred until there is an
@@ -437,7 +431,7 @@ public interface ISqlJetPager {
      * exclusive is ignored if a transaction is already active.
      * 
      * @param exclusive
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     void begin(boolean exclusive) throws SqlJetException;
 
@@ -463,7 +457,7 @@ public interface ISqlJetPager {
      * 
      * @param master
      * @param noSync
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
     void commitPhaseOne(final String master, boolean noSync) throws SqlJetException;
 
@@ -472,8 +466,8 @@ public interface ISqlJetPager {
      * 
      * If the commit fails for any reason, a rollback attempt is made and an
      * error code is returned. If the commit worked, SQLITE_OK is returned.
+     * @throws SqlJetException 
      * 
-     * @throws SqlJetException
      */
     void commitPhaseTwo() throws SqlJetException;
 
@@ -496,59 +490,58 @@ public interface ISqlJetPager {
      * Return the number of references to the pager.
      * 
      * @return
-     * @throws SqlJetException
      */
-    int getRefCount() throws SqlJetException;
-
+    int getRefCount();
 
     /**
      * Sync the pager file to disk.
+     * @throws SqlJetIOException 
      * 
-     * @throws SqlJetException
      */
-    void sync() throws SqlJetException;
+    void sync() throws SqlJetIOException;
 
     /**
-    * Ensure that there are at least nSavepoint savepoints open.
-    */
+     * Ensure that there are at least nSavepoint savepoints open.
+     * @throws SqlJetException 
+     */
     void openSavepoint(int nSavepoint) throws SqlJetException;
 
     /**
-    * Parameter op is always either SAVEPOINT_ROLLBACK or SAVEPOINT_RELEASE.
-    * If it is SAVEPOINT_RELEASE, then release and destroy the savepoint with
-    * index iSavepoint. If it is SAVEPOINT_ROLLBACK, then rollback all changes
-    * that have occured since savepoint iSavepoint was created.
-    *
-    * In either case, all savepoints with an index greater than iSavepoint 
-    * are destroyed.
-    *
-    * If there are less than (iSavepoint+1) active savepoints when this 
-    * function is called it is a no-op.
-    */ 
-    void savepoint(SqlJetSavepointOperation op, int iSavepoint) throws SqlJetException;
-    
-    /**
-     * Truncate the in-memory database file image to nPage pages. This 
-     * function does not actually modify the database file on disk. It 
-     * just sets the internal state of the pager object so that the 
-     * truncation will be done when the current transaction is committed.
+     * Parameter op is always either SAVEPOINT_ROLLBACK or SAVEPOINT_RELEASE. If
+     * it is SAVEPOINT_RELEASE, then release and destroy the savepoint with
+     * index iSavepoint. If it is SAVEPOINT_ROLLBACK, then rollback all changes
+     * that have occured since savepoint iSavepoint was created.
      * 
-     * @param pageNumber
-     * @throws SqlJetException
+     * In either case, all savepoints with an index greater than iSavepoint are
+     * destroyed.
+     * 
+     * If there are less than (iSavepoint+1) active savepoints when this
+     * function is called it is a no-op.
+     * @throws SqlJetException 
      */
-    void truncateImage(final int pagesNumber) throws SqlJetException;
+    void savepoint(SqlJetSavepointOperation op, int iSavepoint) throws SqlJetException;
 
     /**
-    * Return the current size of the database file image in pages. This
-    * function differs from sqlite3PagerPagecount() in two ways:
-    *
-    *  a) It may only be called when at least one reference to a database
-    *     page is held. This guarantees that the database size is already
-    *     known and a call to sqlite3OsFileSize() is not required.
-    *
-    *  b) The return value is not adjusted for the locking page.
-    *  
-    */
-    int imageSize() throws SqlJetException;
-    
+     * Truncate the in-memory database file image to nPage pages. This function
+     * does not actually modify the database file on disk. It just sets the
+     * internal state of the pager object so that the truncation will be done
+     * when the current transaction is committed.
+     * 
+     * @param pageNumber
+     */
+    void truncateImage(final int pagesNumber);
+
+    /**
+     * Return the current size of the database file image in pages. This
+     * function differs from sqlite3PagerPagecount() in two ways:
+     * 
+     * a) It may only be called when at least one reference to a database page
+     * is held. This guarantees that the database size is already known and a
+     * call to sqlite3OsFileSize() is not required.
+     * 
+     * b) The return value is not adjusted for the locking page.
+     * 
+     */
+    int imageSize();
+
 }

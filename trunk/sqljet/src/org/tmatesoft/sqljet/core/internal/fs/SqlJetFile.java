@@ -13,8 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.fs;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -243,12 +241,12 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
-    public synchronized int read(byte[] buffer, int amount, long offset) throws SqlJetException {
-        assertion(amount > 0);
-        assertion(offset >= 0);
-        assertion(buffer);
-        assertion(buffer.length >= amount);
-        assertion(file);
+    public synchronized int read(byte[] buffer, int amount, long offset) throws SqlJetIOException{
+        assert(amount > 0);
+        assert(offset >= 0);
+        assert(buffer!=null);
+        assert(buffer.length >= amount);
+        assert(file!=null);
         try {
             final ByteBuffer dst = ByteBuffer.wrap(buffer, 0, amount);
             TIMER_START();
@@ -268,12 +266,12 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public synchronized void write(byte[] buffer, int amount, long offset) throws SqlJetException {
-        assertion(amount > 0);
-        assertion(offset >= 0);
-        assertion(buffer);
-        assertion(buffer.length >= amount);
-        assertion(file);
+    public synchronized void write(byte[] buffer, int amount, long offset) throws SqlJetIOException {
+        assert(amount > 0);
+        assert(offset >= 0);
+        assert(buffer!=null);
+        assert(buffer.length >= amount);
+        assert(file!=null);
         try {
             final ByteBuffer src = ByteBuffer.wrap(buffer, 0, amount);
             TIMER_START();
@@ -290,9 +288,9 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#truncate(long)
      */
-    public synchronized void truncate(long size) throws SqlJetException {
-        assertion(size >= 0);
-        assertion(file);
+    public synchronized void truncate(long size) throws SqlJetIOException{
+        assert(size >= 0);
+        assert(file!=null);
         try {
             file.setLength(size);
         } catch (IOException e) {
@@ -305,8 +303,8 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(boolean, boolean)
      */
-    public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException {
-        assertion(file);
+    public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetIOException{
+        assert(file!=null);
         try {
             OSTRACE("SYNC    %s\n", this.filePath);
             boolean syncMetaData = syncFlags != null && syncFlags.contains(SqlJetSyncFlags.NORMAL);
@@ -322,7 +320,7 @@ public class SqlJetFile implements ISqlJetFile {
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#fileSize()
      */
     public synchronized long fileSize() throws SqlJetException {
-        assertion(file);
+        assert(file!=null);
         try {
             return file.getChannel().size();
         } catch (IOException e) {
@@ -335,7 +333,7 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#lockType()
      */
-    public synchronized SqlJetLockType getLockType() throws SqlJetException {
+    public synchronized SqlJetLockType getLockType(){
         return lockType;
     }
 
@@ -347,9 +345,9 @@ public class SqlJetFile implements ISqlJetFile {
      * SqlJetLockType)
      */
 
-    public synchronized boolean lock(final SqlJetLockType lockType) throws SqlJetException {
-        assertion(lockType);
-        assertion(file);
+    public synchronized boolean lock(final SqlJetLockType lockType) throws SqlJetIOException{
+        assert(lockType!=null);
+        assert(file!=null);
 
         /*
          * The following describes the implementation of the various locks and
@@ -408,11 +406,11 @@ public class SqlJetFile implements ISqlJetFile {
         }
 
         /* Make sure the locking sequence is correct */
-        assertion(lockType != SqlJetLockType.PENDING);
-        assertion(this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
-        assertion(lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
+        assert(lockType != SqlJetLockType.PENDING);
+        assert(this.lockType != SqlJetLockType.NONE || lockType == SqlJetLockType.SHARED);
+        assert(lockType != SqlJetLockType.RESERVED || this.lockType == SqlJetLockType.SHARED);
 
-        assertion(lockInfo);
+        assert(lockInfo!=null);
         try {
             synchronized (openFiles) {
 
@@ -493,7 +491,7 @@ public class SqlJetFile implements ISqlJetFile {
                      * assumed that there is a SHARED or greater lock on the
                      * file already.
                      */
-                    assertion(SqlJetLockType.NONE != this.lockType);
+                    assert(SqlJetLockType.NONE != this.lockType);
 
                     switch (lockType) {
                     case RESERVED:
@@ -517,7 +515,7 @@ public class SqlJetFile implements ISqlJetFile {
                         }
                         break;
                     default:
-                        assertion(false);
+                        assert(false);
                     }
 
                 }
@@ -545,9 +543,9 @@ public class SqlJetFile implements ISqlJetFile {
      * org.tmatesoft.sqljet.core.ISqlJetFile#unlock(org.tmatesoft.sqljet.core
      * .SqlJetLockType)
      */
-    public synchronized boolean unlock(final SqlJetLockType lockType) throws SqlJetException {
-        assertion(lockType);
-        assertion(file);
+    public synchronized boolean unlock(final SqlJetLockType lockType) throws SqlJetIOException{
+        assert(lockType!=null);
+        assert(file!=null);
 
         /*
          * Lower the locking level on file descriptor pFile to locktype.
@@ -563,14 +561,14 @@ public class SqlJetFile implements ISqlJetFile {
         OSTRACE("UNLOCK  %s %s was %s(%s,%s) pid=%s\n", this.filePath, locktypeName(lockType),
                 locktypeName(this.lockType), locktypeName(lockInfo.lockType), lockInfo.sharedLockCount, getpid());
 
-        assertion(SqlJetLockType.SHARED.compareTo(lockType) >= 0);
+        assert(SqlJetLockType.SHARED.compareTo(lockType) >= 0);
         if (this.lockType.compareTo(lockType) <= 0)
             return true;
 
         synchronized (openFiles) {
 
-            assertion(lockInfo);
-            assertion(lockInfo.sharedLockCount > 0);
+            assert(lockInfo!=null);
+            assert(lockInfo.sharedLockCount > 0);
 
             try {
 
@@ -635,7 +633,7 @@ public class SqlJetFile implements ISqlJetFile {
                      * whose close was deferred because of outstanding locks.
                      */
                     openCount.numLock--;
-                    assertion(openCount.numLock >= 0);
+                    assert(openCount.numLock >= 0);
                     if (openCount.numLock == 0 && null != openCount.pending && openCount.pending.size() > 0) {
                         for (final RandomAccessFile f : openCount.pending) {
                             f.close();

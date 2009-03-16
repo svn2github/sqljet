@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -524,9 +523,9 @@ public class SqlJetUtility {
      * code should use the MACRO version as this function assumes the
      * single-byte case has already been handled.
      * 
-     * @throws SqlJetException
+     * @throws SqlJetExceptionRemove
      */
-    public static byte getVarint32(ByteBuffer p, int[] v) throws SqlJetException {
+    public static byte getVarint32(ByteBuffer p, int[] v){
         int a, b;
         int i = 0;
 
@@ -594,7 +593,7 @@ public class SqlJetUtility {
 
             i -= 4;
             n = getVarint(p, v64);
-            assertion(n > 5 && n <= 9);
+            assert(n > 5 && n <= 9);
             v[0] = (int) v64[0];
             return n;
         }

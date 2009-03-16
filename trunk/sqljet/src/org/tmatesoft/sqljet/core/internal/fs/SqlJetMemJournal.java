@@ -13,13 +13,10 @@
  */
 package org.tmatesoft.sqljet.core.internal.fs;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
-
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
-import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
@@ -79,7 +76,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
-    public int read(byte[] buffer, int amount, long offset) throws SqlJetException {
+    public int read(byte[] buffer, int amount, long offset) {
 
         SqlJetMemJournal p = this;
         
@@ -91,7 +88,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
         int iChunkOffset;
         FileChunk pChunk;
 
-        assertion( iOfst+iAmt<=p.endpoint.iOffset );
+        assert(iOfst+iAmt<=p.endpoint.iOffset);
 
         if( p.readpoint.iOffset!=iOfst || iOfst==0 ){
           long iOff = 0;
@@ -124,7 +121,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public void write(byte[] buffer, int amount, long offset) throws SqlJetException {
+    public void write(byte[] buffer, int amount, long offset) {
 
         SqlJetMemJournal p = this;
         
@@ -137,7 +134,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
         /* An in-memory journal file should only ever be appended to. Random
         ** access writes are not required by sqlite.
         */
-        assertion(iOfst==p.endpoint.iOffset);
+        assert(iOfst==p.endpoint.iOffset);
 
         while( nWrite>0 ){
           FileChunk pChunk = p.endpoint.pChunk;
@@ -149,10 +146,10 @@ public class SqlJetMemJournal implements ISqlJetFile {
             FileChunk pNew = new FileChunk();
             pNew.pNext = null;
             if( pChunk!=null ){
-              assertion( p.pFirst!=null );
+              assert(p.pFirst!=null);
               pChunk.pNext = pNew;
             }else{
-              assertion( p.pFirst==null );
+              assert(p.pFirst==null);
               p.pFirst = pNew;
             }
             p.endpoint.pChunk = pNew;
@@ -168,11 +165,11 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#truncate(long)
      */
-    public void truncate(long size) throws SqlJetException {
+    public void truncate(long size) {
         SqlJetMemJournal p = this;
         
         FileChunk pChunk;
-        assertion(size==0);
+        assert(size==0);
         pChunk = p.pFirst;
         while( pChunk!=null ){
           FileChunk pTmp = pChunk;
@@ -187,20 +184,20 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#close()
      */
-    public void close() throws SqlJetException {
+    public void close() {
         truncate(0);
     }
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(java.util.EnumSet)
      */
-    public void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetException {
+    public void sync(EnumSet<SqlJetSyncFlags> syncFlags) {
     }
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#fileSize()
      */
-    public long fileSize() throws SqlJetException {
+    public long fileSize() {
         SqlJetMemJournal p = this;
         return p.endpoint.iOffset;
     }
@@ -233,7 +230,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#getLockType()
      */
-    public SqlJetLockType getLockType() throws SqlJetException {
+    public SqlJetLockType getLockType() {
         return null;
     }
 
@@ -247,7 +244,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#lock(org.tmatesoft.sqljet.core.SqlJetLockType)
      */
-    public boolean lock(SqlJetLockType lockType) throws SqlJetException {
+    public boolean lock(SqlJetLockType lockType) {
         return false;
     }
     
@@ -261,7 +258,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#unlock(org.tmatesoft.sqljet.core.SqlJetLockType)
      */
-    public boolean unlock(SqlJetLockType lockType) throws SqlJetException {
+    public boolean unlock(SqlJetLockType lockType) {
         return false;
     }
     

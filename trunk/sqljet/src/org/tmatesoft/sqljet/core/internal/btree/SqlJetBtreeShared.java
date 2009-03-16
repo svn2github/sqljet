@@ -13,8 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.SqlJetException.assertion;
-
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
@@ -173,13 +171,12 @@ public class SqlJetBtreeShared {
      * pgno is returned. So (pgno==PTRMAP_PAGENO(pgsz, pgno)) can be used to
      * test if pgno is a pointer-map page. PTRMAP_ISPAGE implements this test.
      * 
-     * @throws SqlJetException
      */
-    private int PTRMAP_PAGENO(int pgno) throws SqlJetException {
+    private int PTRMAP_PAGENO(int pgno) {
         return ptrmapPageno(pgno);
     }
 
-    private boolean PTRMAP_ISPAGE(int pgno) throws SqlJetException {
+    private boolean PTRMAP_ISPAGE(int pgno) {
         return PTRMAP_PAGENO(pgno) == pgno;
     }
 
@@ -191,8 +188,8 @@ public class SqlJetBtreeShared {
      * Invalidate the overflow page-list cache for all cursors opened on the
      * shared btree structure pBt.
      */
-    private void invalidateAllOverflowCache() throws SqlJetException {
-        assertion(mutex.held());
+    private void invalidateAllOverflowCache() {
+        assert(mutex.held());
         for (SqlJetBtreeCursor p = pCursor; p != null; p = p.pNext) {
             p.aOverflow = 0;
         }
@@ -201,9 +198,10 @@ public class SqlJetBtreeShared {
     /**
      * Return the size of the database file in pages. If there is any kind of
      * error, return ((unsigned int)-1).
+     * @throws SqlJetException 
      */
     private int pagerPagecount() throws SqlJetException {
-        assertion(pPage1 != null);
+        assert(pPage1 != null);
         return pPager.getPageCount();
     }
 
@@ -212,10 +210,10 @@ public class SqlJetBtreeShared {
      * for the pointer-map page that contains the entry for the input page
      * number.
      */
-    private int ptrmapPageno(int pgno) throws SqlJetException {
+    private int ptrmapPageno(int pgno) {
         int nPagesPerMapPage;
         int iPtrMap, ret;
-        assertion(mutex.held());
+        assert(mutex.held());
         nPagesPerMapPage = (usableSize / 5) + 1;
         iPtrMap = (pgno - 2) / nPagesPerMapPage;
         ret = (iPtrMap * nPagesPerMapPage) + 2;
@@ -238,14 +236,14 @@ public class SqlJetBtreeShared {
         int iPtrmap; /* The pointer map page number */
         int offset; /* Offset in pointer map page */
 
-        assertion(mutex.held());
+        assert(mutex.held());
         /*
          * The master-journal page number must never be used as a pointer map
          * page
          */
-        assertion(!PTRMAP_ISPAGE(PENDING_BYTE_PAGE()));
+        assert(!PTRMAP_ISPAGE(PENDING_BYTE_PAGE()));
 
-        assertion(autoVacuum);
+        assert(autoVacuum);
         if (key == 0) {
             throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
         }
@@ -276,14 +274,14 @@ public class SqlJetBtreeShared {
         byte[] pPtrmap; /* Pointer map page data */
         int offset; /* Offset of entry in pointer map */
 
-        assertion(mutex.held());
+        assert(mutex.held());
 
         iPtrmap = PTRMAP_PAGENO(key);
         pDbPage = pPager.getPage(iPtrmap);
         pPtrmap = pDbPage.getData();
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
-        assertion(pEType != null && pEType.length > 0);
+        assert(pEType != null && pEType.length > 0);
         pEType[0] = pPtrmap[offset];
         if (pPgno != null && pPgno.length > 0)
             pPgno[0] = SqlJetUtility.get4byte(pPtrmap, offset + 1);
@@ -298,7 +296,7 @@ public class SqlJetBtreeShared {
      * Convert a DbPage obtained from the pager into a MemPage used by the btree
      * layer.
      */
-    private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) throws SqlJetException {
+    private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) {
         SqlJetMemPage pPage = (SqlJetMemPage) pDbPage.getExtra();
         pPage.aData = ByteBuffer.wrap(pDbPage.getData());
         pPage.pDbPage = pDbPage;
@@ -323,10 +321,11 @@ public class SqlJetBtreeShared {
      * @param noContent
      *            Do not load page content if true
      * @return
+     * @throws SqlJetException 
      */
     public SqlJetMemPage getPage(int pgno, boolean noContent) throws SqlJetException {
         ISqlJetPage pDbPage;
-        assertion(mutex.held());
+        assert(mutex.held());
         pDbPage = pPager.acquirePage(pgno, !noContent);
         return pageFromDbPage(pDbPage, pgno);
     }
@@ -351,6 +350,7 @@ public class SqlJetBtreeShared {
      * If the "exact" parameter is not 0, and the page-number nearby exists
      * anywhere on the free-list, then it is guarenteed to be returned. This is
      * only used by auto-vacuum databases when allocating a new table.
+     * @throws SqlJetException 
      */
     public SqlJetMemPage allocateBtreePage(int[] pPgno, int nearby, boolean exact) throws SqlJetException {
         SqlJetMemPage ppPage = null;
@@ -360,7 +360,7 @@ public class SqlJetBtreeShared {
         SqlJetMemPage pTrunk = null;
         SqlJetMemPage pPrevTrunk = null;
 
-        assertion(mutex.held());
+        assert(mutex.held());
         n = SqlJetUtility.get4byte(pPage1.aData, 36);
         try {
             if (n > 0) {
@@ -377,8 +377,8 @@ public class SqlJetBtreeShared {
                  */
                 if (exact && nearby <= pagerPagecount()) {
                     byte[] eType = new byte[1];
-                    assertion(nearby > 0);
-                    assertion(autoVacuum);
+                    assert(nearby > 0);
+                    assert(autoVacuum);
                     ptrmapGet(nearby, eType, null);
                     if (eType[0] == PTRMAP_FREEPAGE) {
                         searchList = true;
@@ -422,7 +422,7 @@ public class SqlJetBtreeShared {
                          * searched. So extract the trunk page itself and use it
                          * as the newly allocated page
                          */
-                        assertion(pPrevTrunk == null);
+                        assert(pPrevTrunk == null);
                         pTrunk.pDbPage.write();
                         pPgno[0] = iTrunk;
                         SqlJetUtility.memcpy(pPage1.aData, 32, pTrunk.aData, 0, 4);
@@ -439,7 +439,7 @@ public class SqlJetBtreeShared {
                          * page to allocate, regardless of whether it has
                          * leaves.
                          */
-                        assertion(pPgno[0] == iTrunk);
+                        assert(pPgno[0] == iTrunk);
                         ppPage = pTrunk;
                         searchList = false;
                         pTrunk.pDbPage.write();
@@ -550,14 +550,14 @@ public class SqlJetBtreeShared {
                      */
                     // TRACE(("ALLOCATE: %d from end of file (pointer-map page)\n",
                     // *pPgno));
-                    assertion(pPgno[0] != PENDING_BYTE_PAGE());
+                    assert(pPgno[0] != PENDING_BYTE_PAGE());
                     pPgno[0]++;
                     if (pPgno[0] == PENDING_BYTE_PAGE()) {
                         pPgno[0]++;
                     }
                 }
 
-                assertion(pPgno[0] != PENDING_BYTE_PAGE());
+                assert(pPgno[0] != PENDING_BYTE_PAGE());
                 ppPage = getPage(pPgno[0], false);
                 try {
                     ppPage.pDbPage.write();
@@ -567,7 +567,7 @@ public class SqlJetBtreeShared {
                 // TRACE(("ALLOCATE: %d from end of file\n", *pPgno));
             }
 
-            assertion(pPgno[0] != PENDING_BYTE_PAGE());
+            assert(pPgno[0] != PENDING_BYTE_PAGE());
 
         } catch (SqlJetException e) {
             // end_allocate_page:
@@ -600,17 +600,17 @@ public class SqlJetBtreeShared {
      * @param iFreePage
      *            The location to move pDbPage to
      * @param isCommit
+     * @throws SqlJetException 
      */
-    private void relocatePage(SqlJetMemPage pDbPage, byte eType, int iPtrPage, int iFreePage, boolean isCommit)
-            throws SqlJetException {
+    private void relocatePage(SqlJetMemPage pDbPage, byte eType, int iPtrPage, int iFreePage, boolean isCommit) throws SqlJetException {
         /* The page that contains a pointer to pDbPage */
         SqlJetMemPage pPtrPage;
         int iDbPage = pDbPage.pgno;
 
-        assertion(eType == PTRMAP_OVERFLOW2 || eType == PTRMAP_OVERFLOW1 || eType == PTRMAP_BTREE
-                || eType == PTRMAP_ROOTPAGE);
-        assertion(mutex.held());
-        assertion(pDbPage.pBt == this);
+        assert(eType == PTRMAP_OVERFLOW2 || eType == PTRMAP_OVERFLOW1 || eType == PTRMAP_BTREE
+        || eType == PTRMAP_ROOTPAGE);
+        assert(mutex.held());
+        assert(pDbPage.pBt == this);
 
         /* Move page iDbPage from its current location to page number iFreePage */
 
@@ -671,11 +671,12 @@ public class SqlJetBtreeShared {
      * caller will keep calling incrVacuumStep() until it returns SQLITE_DONE or
      * an error, and that nFin is the number of pages the database file will
      * contain after this process is complete.
+     * @throws SqlJetException 
      */
     private void incrVacuumStep(int nFin, int iLastPg) throws SqlJetException {
         int nFreeList; /* Number of pages still on the free-list */
 
-        assertion(mutex.held());
+        assert(mutex.held());
 
         if (!PTRMAP_ISPAGE(iLastPg) && iLastPg != PENDING_BYTE_PAGE()) {
             int rc;
@@ -704,7 +705,7 @@ public class SqlJetBtreeShared {
                     int[] iFreePg = new int[1];
                     SqlJetMemPage pFreePg;
                     pFreePg = allocateBtreePage(iFreePg, iLastPg, true);
-                    assertion(iFreePg[0] == iLastPg);
+                    assert(iFreePg[0] == iLastPg);
                     SqlJetMemPage.releasePage(pFreePg);
                 }
             } else {
@@ -732,7 +733,7 @@ public class SqlJetBtreeShared {
                     }
                     SqlJetMemPage.releasePage(pFreePg);
                 } while (nFin != 0 && iFreePg[0] > nFin);
-                assertion(iFreePg[0] < iLastPg);
+                assert(iFreePg[0] < iLastPg);
                 pLastPg.pDbPage.write();
                 try {
                     relocatePage(pLastPg, eType[0], iPtrPage[0], iFreePg[0], nFin != 0);
@@ -764,9 +765,9 @@ public class SqlJetBtreeShared {
      */
     public void autoVacuumCommit() throws SqlJetException {
 
-        assertion(mutex.held());
+        assert(mutex.held());
         invalidateAllOverflowCache();
-        assertion(autoVacuum);
+        assert(autoVacuum);
         if (!incrVacuum) {
             int nFin;
             int nFree;
@@ -816,7 +817,7 @@ public class SqlJetBtreeShared {
 
         }
 
-        assertion(nRef == pPager.getRefCount());
+        assert(nRef == pPager.getRefCount());
     }
 
     /**
@@ -828,12 +829,13 @@ public class SqlJetBtreeShared {
      * If there are any outstanding cursors, this routine is a no-op.
      * 
      * If there is a transaction in progress, this routine is a no-op.
+     * @throws SqlJetException 
      */
     public void unlockBtreeIfUnused() throws SqlJetException {
-        assertion(mutex.held());
+        assert(mutex.held());
         if (inTransaction == TransMode.NONE && pCursor == null && pPage1 != null) {
             if (pPager.getRefCount() >= 1) {
-                assertion(pPage1.aData);
+                assert(pPage1.aData!=null);
                 SqlJetMemPage.releasePage(pPage1);
             }
             pPage1 = null;
@@ -848,11 +850,12 @@ public class SqlJetBtreeShared {
      * 
      * @param i
      * @param j
+     * @throws SqlJetException 
      */
     public void saveAllCursors(int iRoot, SqlJetBtreeCursor pExcept) throws SqlJetException {
           SqlJetBtreeCursor p;
-          assertion( mutex.held() );
-          assertion( pExcept==null || pExcept.pBt==this );
+          assert(mutex.held());
+          assert(pExcept==null || pExcept.pBt==this);
           for(p=this.pCursor; p!=null; p=p.pNext){
             if( p!=pExcept && (0==iRoot || p.pgnoRoot==iRoot) && 
                 p.eState== SqlJetBtreeCursor.CursorState.VALID ){

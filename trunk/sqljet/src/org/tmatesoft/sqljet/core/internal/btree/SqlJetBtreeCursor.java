@@ -82,7 +82,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
      */
-    public void cacheOverflow() throws SqlJetException {
+    public void cacheOverflow(){
         // TODO Auto-generated method stub
 
     }
@@ -90,7 +90,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#clearCursor()
      */
-    public void clearCursor() throws SqlJetException {
+    public void clearCursor(){
         // TODO Auto-generated method stub
 
     }
@@ -98,7 +98,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#closeCursor()
      */
-    public void closeCursor() throws SqlJetException {
+    public void closeCursor(){
         // TODO Auto-generated method stub
 
     }
@@ -106,7 +106,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cursorHasMoved()
      */
-    public boolean cursorHasMoved() throws SqlJetException {
+    public boolean cursorHasMoved(){
         // TODO Auto-generated method stub
         return false;
     }
@@ -114,7 +114,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#data(int, int, byte[])
      */
-    public void data(int offset, int amt, byte[] buf) throws SqlJetException {
+    public void data(int offset, int amt, byte[] buf){
         // TODO Auto-generated method stub
 
     }
@@ -122,7 +122,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#dataFetch(int[])
      */
-    public byte[] dataFetch(int[] amt) throws SqlJetException {
+    public byte[] dataFetch(int[] amt){
         // TODO Auto-generated method stub
         return null;
     }
@@ -130,7 +130,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#delete()
      */
-    public void delete() throws SqlJetException {
+    public void delete(){
         // TODO Auto-generated method stub
 
     }
@@ -146,7 +146,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#first()
      */
-    public boolean first() throws SqlJetException {
+    public boolean first(){
         // TODO Auto-generated method stub
         return false;
     }
@@ -154,7 +154,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#flags()
      */
-    public byte flags() throws SqlJetException {
+    public byte flags(){
         // TODO Auto-generated method stub
         return 0;
     }
@@ -162,7 +162,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getCursorDb()
      */
-    public ISqlJetDb getCursorDb() throws SqlJetException {
+    public ISqlJetDb getCursorDb(){
         // TODO Auto-generated method stub
         return null;
     }
@@ -178,7 +178,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getKeySize()
      */
-    public long getKeySize() throws SqlJetException {
+    public long getKeySize(){
         // TODO Auto-generated method stub
         return 0;
     }
@@ -186,7 +186,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long, byte[], int, int, boolean)
      */
-    public void insert(byte[] key, long key2, byte[] data, int data2, int zero, boolean bias) throws SqlJetException {
+    public void insert(byte[] key, long key2, byte[] data, int data2, int zero, boolean bias){
         // TODO Auto-generated method stub
 
     }
@@ -194,7 +194,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
      */
-    public void key(int offset, int amt, byte[] buf) throws SqlJetException {
+    public void key(int offset, int amt, byte[] buf){
         // TODO Auto-generated method stub
 
     }
@@ -202,7 +202,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#keyFetch(int[])
      */
-    public byte[] keyFetch(int[] amt) throws SqlJetException {
+    public byte[] keyFetch(int[] amt){
         // TODO Auto-generated method stub
         return null;
     }
@@ -210,7 +210,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#last()
      */
-    public boolean last() throws SqlJetException {
+    public boolean last(){
         // TODO Auto-generated method stub
         return false;
     }
@@ -218,7 +218,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long, boolean)
      */
-    public int moveTo(byte[] key, long key2, boolean bias) throws SqlJetException {
+    public int moveTo(byte[] key, long key2, boolean bias){
         // TODO Auto-generated method stub
         return 0;
     }
@@ -226,7 +226,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveToUnpacked(org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord, long, boolean)
      */
-    public int moveToUnpacked(ISqlJetUnpackedRecord unKey, long intKey, boolean bias) throws SqlJetException {
+    public int moveToUnpacked(ISqlJetUnpackedRecord unKey, long intKey, boolean bias){
         // TODO Auto-generated method stub
         return 0;
     }
@@ -234,7 +234,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#next()
      */
-    public boolean next() throws SqlJetException {
+    public boolean next(){
         // TODO Auto-generated method stub
         return false;
     }
@@ -242,7 +242,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#previous()
      */
-    public boolean previous() throws SqlJetException {
+    public boolean previous(){
         // TODO Auto-generated method stub
         return false;
     }
@@ -250,7 +250,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#putData(int, int, byte[])
      */
-    public void putData(int offset, int amt, byte[] data) throws SqlJetException {
+    public void putData(int offset, int amt, byte[] data){
         // TODO Auto-generated method stub
 
     }

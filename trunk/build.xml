@@ -52,6 +52,7 @@
 
 	<target name="test" depends="deploy">
 		<junit>
+			<jvmarg value="-ea"/>			
 			<formatter type="plain" usefile="false" />
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />
@@ -64,7 +65,6 @@
 			      <exclude name="**/*Mock*.java"/>
 			    </fileset>
 			 </batchtest>
-			<sysproperty key="SQLJET_ASSERTIONS" value="true"/>
 			<sysproperty key="SQLJET_FILE_LOG" value="true"/>
 			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="true"/>
 			<sysproperty key="SQLJET_PAGER_LOG" value="true"/>

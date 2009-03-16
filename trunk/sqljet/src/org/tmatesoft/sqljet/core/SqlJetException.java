@@ -26,9 +26,6 @@ public class SqlJetException extends Exception {
 
     private SqlJetErrorCode errorCode = SqlJetErrorCode.MISUSE;
     
-    public static final boolean ASSERTIONS = SqlJetUtility.getBoolSysProp(
-            "SQLJET_ASSERTIONS", false);
-
     /**
      * @return the errorCode
      */
@@ -81,51 +78,6 @@ public class SqlJetException extends Exception {
 
     public SqlJetException(final String message, final Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * Assertions
-     * 
-     * @param assertion
-     * @throws SqlJetException
-     */
-
-    public static void assertion(final boolean assertion) throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (!assertion)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-    }
-
-    public static void assertion(final boolean assertion, final SqlJetErrorCode errorCode) throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (!assertion)
-            throw new SqlJetException(errorCode);
-    }
-
-    public static void assertion(final boolean assertion, final SqlJetErrorCode errorCode, final String description)
-            throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (!assertion)
-            throw new SqlJetException(errorCode, description);
-    }
-
-    public static void assertion(final Object assertion) throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (null == assertion)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-    }
-
-    public static void assertion(final Object assertion, final SqlJetErrorCode errorCode) throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (null == assertion)
-            throw new SqlJetException(errorCode);
-    }
-
-    public static void assertion(final Object assertion, final SqlJetErrorCode errorCode, final String description)
-            throws SqlJetException {
-        if(!ASSERTIONS) return;
-        if (null == assertion)
-            throw new SqlJetException(errorCode, description);
     }
 
 }

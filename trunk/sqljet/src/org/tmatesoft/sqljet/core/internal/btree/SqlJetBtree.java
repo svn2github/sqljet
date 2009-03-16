@@ -1247,9 +1247,141 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetBtree#createTable(java.util.EnumSet)
      */
-    public int createTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) {
-        // TODO Auto-generated method stub
-        return 0;
+    public int createTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
+        enter();
+        try {
+            pBt.db = db;
+            return doCreateTable(flags);
+        } finally {
+            leave();
+        }
+    }
+
+    /**
+     * @param flags
+     * @return
+     * @throws SqlJetException 
+     */
+    private int doCreateTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
+        SqlJetMemPage pRoot;
+        int pgnoRoot;
+
+        assert( holdsMutex() );
+        assert( pBt.inTransaction==TransMode.WRITE );
+        assert( !pBt.readOnly );
+
+        if( pBt.autoVacuum ){
+          int[] pgnoMove = new int[1];      /* Move a page here to make room for the root-page */
+          SqlJetMemPage pPageMove; /* The page to move to. */
+
+          /* Creating a new table may probably require moving an existing database
+          ** to make room for the new tables root page. In case this page turns
+          ** out to be an overflow page, delete all overflow page-map caches
+          ** held by open cursors.
+          */
+          pBt.invalidateAllOverflowCache();
+
+          /* Read the value of meta[3] from the database to determine where the
+          ** root page of the new table should go. meta[3] is the largest root-page
+          ** created so far, so the new root-page is (meta[3]+1).
+          */
+          pgnoRoot = getMeta( 4 );
+          pgnoRoot++;
+
+          /* The new root-page may not be allocated on a pointer-map page, or the
+          ** PENDING_BYTE page.
+          */
+          while( pgnoRoot==pBt.PTRMAP_PAGENO( pgnoRoot) ||
+              pgnoRoot==pBt.PENDING_BYTE_PAGE() ){
+            pgnoRoot++;
+          }
+          assert( pgnoRoot>=3 );
+
+          /* Allocate a page. The page that currently resides at pgnoRoot will
+          ** be moved to the allocated page (unless the allocated page happens
+          ** to reside at pgnoRoot).
+          */
+          pPageMove = pBt.allocateBtreePage( pgnoMove, pgnoRoot, true);
+
+          if( pgnoMove[0]!=pgnoRoot ){
+            /* pgnoRoot is the page that will be used for the root-page of
+            ** the new table (assuming an error did not occur). But we were
+            ** allocated pgnoMove. If required (i.e. if it was not allocated
+            ** by extending the file), the current page at position pgnoMove
+            ** is already journaled.
+            */
+            byte[] eType = new byte[1];
+            int[] iPtrPage = new int[1];
+
+            SqlJetMemPage.releasePage(pPageMove);
+
+            /* Move the page currently at pgnoRoot to pgnoMove. */
+            pRoot = pBt.getPage(pgnoRoot, false);
+            try {
+                pBt.ptrmapGet( pgnoRoot, eType, iPtrPage);
+                if( eType[0]==SqlJetBtreeShared.PTRMAP_ROOTPAGE || 
+                        eType[0]==SqlJetBtreeShared.PTRMAP_FREEPAGE ){
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                }
+            } catch (SqlJetException e) {
+                SqlJetMemPage.releasePage(pRoot);
+                throw e;
+            }
+            assert( eType[0]!=SqlJetBtreeShared.PTRMAP_ROOTPAGE );
+            assert( eType[0]!=SqlJetBtreeShared.PTRMAP_FREEPAGE );
+            try {
+                pRoot.pDbPage.write();
+            } catch (SqlJetException e) {
+                SqlJetMemPage.releasePage(pRoot);
+                throw e;
+            }
+            try {
+                pBt.relocatePage(pRoot, eType[0], iPtrPage[0], pgnoMove[0], false);
+            } finally {
+                SqlJetMemPage.releasePage(pRoot);
+            }
+
+            /* Obtain the page at pgnoRoot */
+            pRoot = pBt.getPage(pgnoRoot, false);
+            try {
+                pRoot.pDbPage.write();
+            } catch (SqlJetException e) {
+                SqlJetMemPage.releasePage(pRoot);
+                throw e;
+            }
+          }else{
+            pRoot = pPageMove;
+          } 
+
+          /* Update the pointer-map and meta-data with the new root-page number. */
+          try {
+              pBt.ptrmapPut(pgnoRoot, SqlJetBtreeShared.PTRMAP_ROOTPAGE, 0);
+          } catch (SqlJetException e) {
+              SqlJetMemPage.releasePage(pRoot);
+              throw e;
+          }
+          try {
+              updateMeta(4, pgnoRoot);
+          } catch (SqlJetException e) {
+              SqlJetMemPage.releasePage(pRoot);
+              throw e;
+          }
+
+        }else{
+            int[] a = new int[1];
+            pRoot = pBt.allocateBtreePage(a, 1, false);
+            pgnoRoot = a[0];
+        }
+        
+        //assert( sqlite3PagerIswriteable(pRoot->pDbPage) );
+        try {
+            zeroPage(pRoot, SqlJetBtreeTableCreateFlags.toByte(flags) | SqlJetMemPage.PTF_LEAF );
+        } finally {
+            pRoot.pDbPage.unref();
+        }
+        
+        return pgnoRoot;
+        
     }
 
     /*
@@ -1308,9 +1440,9 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getMeta(int)
      */
-    public int[] getMeta(int idx) {
+    public int getMeta(int idx) {
         // TODO Auto-generated method stub
-        return null;
+        return 0;
     }
 
     /*
@@ -1443,7 +1575,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#updateMeta(int, int[])
      */
-    public void updateMeta(int idx, int[] value) {
+    public void updateMeta(int idx, int value) throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

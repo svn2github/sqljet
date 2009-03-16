@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.util.EnumSet;
+
 /**
  * The flags parameter to sqlite3BtreeCreateTable can be the bitwise OR of the
  * following flags:
@@ -24,12 +26,29 @@ package org.tmatesoft.sqljet.core;
 public enum SqlJetBtreeTableCreateFlags {
 
     /** Table has only 64-bit signed integer keys */
-    INTKEY,
+    INTKEY((byte)1),
 
     /** Table has keys only - no data */
-    ZERODATA,
+    ZERODATA((byte)2),
 
     /** Data stored in leaves only. Implies INTKEY */
-    LEAFDATA
+    LEAFDATA((byte)4);
 
+    private byte value;
+    
+    /**
+     * 
+     */
+    private SqlJetBtreeTableCreateFlags(byte value) {
+        this.value = value;
+    }
+    
+    public static byte toByte(EnumSet<SqlJetBtreeTableCreateFlags> flags) {
+        byte v = 0;
+        for (SqlJetBtreeTableCreateFlags flag : flags) {
+            v |= flag.value;
+        }
+        return v;
+    }
+    
 }

@@ -524,7 +524,7 @@ public interface ISqlJetBtree {
      * @return
      * @throws SqlJetException
      */
-    int[] getMeta(int idx) throws SqlJetException;
+    int getMeta(int idx) throws SqlJetException;
 
     /**
      * Write meta-information back into the database. Meta[0] is read-only and
@@ -534,7 +534,7 @@ public interface ISqlJetBtree {
      * @param value
      * @throws SqlJetException
      */
-    void updateMeta(int idx, int[] value) throws SqlJetException;
+    void updateMeta(int idx, int value) throws SqlJetException;
 
     /**
      * This routine sets the state to CURSOR_FAULT and the error code to errCode

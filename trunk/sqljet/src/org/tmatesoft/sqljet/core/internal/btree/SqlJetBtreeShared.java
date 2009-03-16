@@ -135,7 +135,7 @@ public class SqlJetBtreeShared {
      * If disk I/O is omitted (meaning that the database is stored purely in
      * memory) then there is no pending byte.
      */
-    private int PENDING_BYTE_PAGE() {
+    public int PENDING_BYTE_PAGE() {
         return (int) (ISqlJetFile.PENDING_BYTE / pageSize) + 1;
     }
 
@@ -172,7 +172,7 @@ public class SqlJetBtreeShared {
      * test if pgno is a pointer-map page. PTRMAP_ISPAGE implements this test.
      * 
      */
-    private int PTRMAP_PAGENO(int pgno) {
+    public int PTRMAP_PAGENO(int pgno) {
         return ptrmapPageno(pgno);
     }
 
@@ -188,7 +188,7 @@ public class SqlJetBtreeShared {
      * Invalidate the overflow page-list cache for all cursors opened on the
      * shared btree structure pBt.
      */
-    private void invalidateAllOverflowCache() {
+    public void invalidateAllOverflowCache() {
         assert(mutex.held());
         for (SqlJetBtreeCursor p = pCursor; p != null; p = p.pNext) {
             p.aOverflow = 0;
@@ -268,7 +268,7 @@ public class SqlJetBtreeShared {
      * type and parent page number to *pEType and *pPgno respectively. An error
      * code is returned if something goes wrong, otherwise SQLITE_OK.
      */
-    private void ptrmapGet(int key, byte[] pEType, int[] pPgno) throws SqlJetException {
+    public void ptrmapGet(int key, byte[] pEType, int[] pPgno) throws SqlJetException {
         ISqlJetPage pDbPage; /* The pointer map page */
         int iPtrmap; /* Pointer map page index */
         byte[] pPtrmap; /* Pointer map page data */
@@ -602,7 +602,7 @@ public class SqlJetBtreeShared {
      * @param isCommit
      * @throws SqlJetException 
      */
-    private void relocatePage(SqlJetMemPage pDbPage, byte eType, int iPtrPage, int iFreePage, boolean isCommit) throws SqlJetException {
+    public void relocatePage(SqlJetMemPage pDbPage, byte eType, int iPtrPage, int iFreePage, boolean isCommit) throws SqlJetException {
         /* The page that contains a pointer to pDbPage */
         SqlJetMemPage pPtrPage;
         int iDbPage = pDbPage.pgno;

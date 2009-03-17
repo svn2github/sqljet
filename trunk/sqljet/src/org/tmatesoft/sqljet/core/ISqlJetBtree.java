@@ -333,23 +333,23 @@ public interface ISqlJetBtree {
     /**
      * Return true if a transaction is active.
      * 
-     * @throws SqlJetException
+     * @return
      */
-    void isInTrans() throws SqlJetException;
+    boolean isInTrans();
 
     /**
      * Return true if a statement transaction is active.
      * 
-     * @throws SqlJetException
+     * @return
      */
-    void isInStmt() throws SqlJetException;
+    boolean isInStmt();
 
     /**
      * Return true if a read (or write) transaction is active.
      * 
-     * @throws SqlJetException
+     * @return
      */
-    void isInReadTrans() throws SqlJetException;
+    boolean isInReadTrans();
 
     /**
      * This function returns a pointer to a blob of memory associated with a
@@ -358,24 +358,22 @@ public interface ISqlJetBtree {
      * shared-btree).
      * 
      * @return
-     * @throws SqlJetException
      */
-    Object getSchema() throws SqlJetException;
+    Object getSchema();
 
     /**
      * @param schema
-     * @throws SqlJetException
      */
-    void setSchema(Object schema) throws SqlJetException;
+    void setSchema(Object schema);
 
     /**
      * Return true if another user of the same shared btree as the argument
      * handle holds an exclusive lock on the sqlite_master table.
      * 
      * @return
-     * @throws SqlJetException
+     * @throws SqlJetException 
      */
-    boolean isSchemaLocked() throws SqlJetException;
+    boolean isSchemaLocked();
 
     /**
      * Obtain a lock on the table whose root page is iTab. The lock is a write

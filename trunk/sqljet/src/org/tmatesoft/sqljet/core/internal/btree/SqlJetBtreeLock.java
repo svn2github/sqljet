@@ -26,10 +26,6 @@ package org.tmatesoft.sqljet.core.internal.btree;
  */
 public class SqlJetBtreeLock {
 
-    static enum LockMode {
-        READ, WRITE
-    }
-
     /** Btree handle holding this lock */
     SqlJetBtree pBtree;
 
@@ -37,7 +33,7 @@ public class SqlJetBtreeLock {
     int iTable;
 
     /** READ_LOCK or WRITE_LOCK */
-    LockMode eLock;
+    SqlJetBtreeLockMode eLock;
 
     /** Next in BtShared.pLock list */
     //SqlJetBtreeLock pNext;

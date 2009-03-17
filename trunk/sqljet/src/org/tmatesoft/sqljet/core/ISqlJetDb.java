@@ -24,6 +24,19 @@ import java.util.List;
 public interface ISqlJetDb {
 
     /**
+    * Name of the master database table.  The master database table
+    * is a special table that holds the names and attributes of all
+    * user tables and indices.
+    */
+    String MASTER_NAME = "sqlite_master";
+    String TEMP_MASTER_NAME = "sqlite_temp_master";
+
+    /**
+    * The root-page of the master database table.
+    */
+    int MASTER_ROOT = 1;
+    
+    /**
      * Get config
      * 
      * @return

@@ -228,7 +228,6 @@ public class SqlJetBtree implements ISqlJetBtree {
 
         ISqlJetFileSystem pVfs; /* The VFS to use for this btree */
         SqlJetBtreeShared pBt = null; /* Shared part of btree structure */
-        SqlJetException rc = null;
         int nReserve;
         byte[] zDbHeader = new byte[100];
 
@@ -1212,33 +1211,25 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
+     * During a rollback, when the pager reloads information into the cache
+     * so that the cache is restored to its original state at the start of
+     * the transaction, for each page restored this routine is called.
+     *
+     * This routine needs to reset the extra data section at the end of the
+     * page to agree with the restored data.
+     * 
      * @param page
+     * @throws SqlJetException 
      */
-    protected void pageReinit(ISqlJetPage page) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
-     */
-    public void clearTable(int table, int[] change) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#copyFile(org.tmatesoft.sqljet.
-     * core.ISqlJetBtree)
-     */
-    public void copyFile(ISqlJetBtree from) {
-        // TODO Auto-generated method stub
-
+    protected void pageReinit(ISqlJetPage page) throws SqlJetException {
+        final SqlJetMemPage pPage = (SqlJetMemPage)page.getExtra();
+        if( pPage.isInit ){
+          assert( pPage.pBt.mutex.held() );
+          pPage.isInit = false;
+          if( page.getRefCount()>0 ){
+            pPage.initPage();
+          }
+        }
     }
 
     /*
@@ -1387,6 +1378,150 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInTrans()
+     */
+    public boolean isInTrans() {
+        assert( db.getMutex().held() );
+        return inTrans== TransMode.WRITE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInStmt()
+     */
+    public boolean isInStmt() {
+        assert( holdsMutex() );
+        return pBt!=null && pBt.inStmt;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInReadTrans()
+     */
+    public boolean isInReadTrans() {
+        assert( db.getMutex().held() );
+        return inTrans== TransMode.NONE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getSchema()
+     */
+    public Object getSchema() {
+        return pBt.pSchema;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setSchema(java.lang.Object)
+     */
+    public void setSchema(Object schema) {
+        pBt.pSchema = schema;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSchemaLocked()
+     */
+    public boolean isSchemaLocked() {
+        int rc;
+        assert( db.getMutex().held() );
+        enter();
+        try {
+            return queryTableLock(ISqlJetDb.MASTER_ROOT, SqlJetBtreeLockMode.READ);
+        } finally {
+            leave();
+        }
+    }    
+    
+    /**
+     * Query to see if btree handle p may obtain a lock of type eLock 
+     * (READ_LOCK or WRITE_LOCK) on the table with root-page iTab. Return
+     * SQLITE_OK if the lock may be obtained (by calling lockTable()), or
+     * SQLITE_LOCKED if not.
+     * 
+     * @param iTab
+     * @param eLock
+     * 
+     * @throws SqlJetException 
+     */
+    private boolean queryTableLock(int iTab, SqlJetBtreeLockMode eLock) {
+
+        assert( holdsMutex() );
+        assert( eLock!=null );
+        assert( db!=null );
+
+        /* This is a no-op if the shared-cache is not enabled */
+        if( !sharable ){
+          return true;
+        }
+
+        /* If some other connection is holding an exclusive lock, the
+        ** requested lock may not be obtained.
+        */
+        if( pBt.pExclusive!=null && pBt.pExclusive!=this ){
+          return false;
+        }
+
+        /* This (along with lockTable()) is where the ReadUncommitted flag is
+        ** dealt with. If the caller is querying for a read-lock and the flag is
+        ** set, it is unconditionally granted - even if there are write-locks
+        ** on the table. If a write-lock is requested, the ReadUncommitted flag
+        ** is not considered.
+        **
+        ** In function lockTable(), if a read-lock is demanded and the 
+        ** ReadUncommitted flag is set, no entry is added to the locks list 
+        ** (BtShared.pLock).
+        **
+        ** To summarize: If the ReadUncommitted flag is set, then read cursors do
+        ** not create or respect table locks. The locking procedure for a 
+        ** write-cursor does not change.
+        */
+        if( 
+          !db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) || 
+          eLock==SqlJetBtreeLockMode.WRITE ||
+          iTab==ISqlJetDb.MASTER_ROOT
+        ){
+          for( SqlJetBtreeLock pIter : pBt.pLock ){
+            if( pIter.pBtree!=this && pIter.iTable==iTab && 
+                (pIter.eLock!=eLock || eLock!=SqlJetBtreeLockMode.READ) ){
+                return false;
+            }
+          }
+        }
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
+     */
+    public void clearTable(int table, int[] change) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#copyFile(org.tmatesoft.sqljet.
+     * core.ISqlJetBtree)
+     */
+    public void copyFile(ISqlJetBtree from) {
+        // TODO Auto-generated method stub
+
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#dropTable(int)
      */
     public int dropTable(int table) {
@@ -1458,16 +1593,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getSchema()
-     */
-    public Object getSchema() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#incrVacuum()
      */
     public void incrVacuum() {
@@ -1489,46 +1614,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInReadTrans()
-     */
-    public void isInReadTrans() {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInStmt()
-     */
-    public void isInStmt() {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInTrans()
-     */
-    public void isInTrans() {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSchemaLocked()
-     */
-    public boolean isSchemaLocked() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
      */
     public void lockTable(int table, boolean isWriteLock) {
@@ -1544,16 +1629,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * .core.SqlJetSavepointOperation, int)
      */
     public void savepoint(SqlJetSavepointOperation op, int savepoint) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setSchema(java.lang.Object)
-     */
-    public void setSchema(Object schema) {
         // TODO Auto-generated method stub
 
     }

@@ -1500,11 +1500,101 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
+     */
+    public void lockTable(int table, boolean isWriteLock) {
+        if( sharable ){
+          enter();
+          try {
+              final SqlJetBtreeLockMode lockType = isWriteLock ? 
+                      SqlJetBtreeLockMode.WRITE : SqlJetBtreeLockMode.READ;
+              if( queryTableLock( table, lockType) ){
+                  lockTable( table, lockType );
+              }
+          } finally {
+              leave();
+          }
+        }
+    }
+    
+    /**
+     * Add a lock on the table with root-page iTable to the shared-btree used
+     * by Btree handle p. Parameter eLock must be either READ_LOCK or 
+     * WRITE_LOCK.
+     *
+     * SQLITE_OK is returned if the lock is added successfully. SQLITE_BUSY and
+     * SQLITE_NOMEM may also be returned.
+     * 
+     * @param table
+     * @param lockType
+     */
+    private void lockTable(int iTable, SqlJetBtreeLockMode eLock) {
+        
+        assert( holdsMutex() );
+        assert( eLock!=null );
+        assert( db!=null );
+
+        /* This is a no-op if the shared-cache is not enabled */
+        if( !sharable ){
+          return;
+        }
+
+        assert( queryTableLock(iTable, eLock) );
+
+        /* If the read-uncommitted flag is set and a read-lock is requested,
+        * return early without adding an entry to the BtShared.pLock list. See
+        * comment in function queryTableLock() for more info on handling 
+        * the ReadUncommitted flag.
+        */
+        if( 
+          db.getFlags().contains( SqlJetDbFlags.ReadUncommitted ) && 
+          (eLock==SqlJetBtreeLockMode.READ) &&
+          iTable!= ISqlJetDb.MASTER_ROOT
+        ){
+          return;
+        }
+
+        SqlJetBtreeLock pLock = null;
+        
+        /* First search the list for an existing lock on this table. */
+        for( SqlJetBtreeLock pIter : pBt.pLock ){
+          if( pIter.iTable==iTable && pIter.pBtree==this ){
+            pLock = pIter;
+            break;
+          }
+        }
+
+        /* If the above search did not find a BtLock struct associating Btree p
+        * with table iTable, allocate one and link it into the list.
+        */
+        if( null==pLock ){
+          pLock = new SqlJetBtreeLock();
+          pLock.iTable = iTable;
+          pLock.pBtree = this;
+          pBt.pLock.add(pLock);
+          pLock.eLock = eLock;
+        }
+
+        /* Set the BtLock.eLock variable to the maximum of the current lock
+        * and the requested lock. This means if a write-lock was already held
+        * and a read-lock requested, we don't incorrectly downgrade the lock.
+        */
+        if( eLock==SqlJetBtreeLockMode.WRITE && 
+                pLock.eLock==SqlJetBtreeLockMode.READ )
+        {
+          pLock.eLock = eLock;
+        }
+        
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
      */
     public void clearTable(int table, int[] change) {
         // TODO Auto-generated method stub
-
+        
     }
 
     /*
@@ -1609,16 +1699,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     public String integrityCheck(int[] root, int root2, int mxErr, int[] err) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
-     */
-    public void lockTable(int table, boolean isWriteLock) {
-        // TODO Auto-generated method stub
-
     }
 
     /*

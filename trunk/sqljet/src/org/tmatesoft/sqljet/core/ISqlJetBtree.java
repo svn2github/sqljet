@@ -45,7 +45,8 @@ public interface ISqlJetBtree {
     ** The header string that appears at the beginning of every
     ** SQLite database.
     */
-    byte[] zMagicHeader =  SqlJetUtility.getBytes(SQLITE_FILE_HEADER);
+    byte[] zMagicHeader = SqlJetUtility.addZeroByteEnd(
+        SqlJetUtility.getBytes(SQLITE_FILE_HEADER));
     
     /**
      * Open a database file.
@@ -383,7 +384,7 @@ public interface ISqlJetBtree {
      * @param isWriteLock
      * @throws SqlJetException
      */
-    void lockTable(int table, boolean isWriteLock) throws SqlJetException;
+    void lockTable(int table, boolean isWriteLock);
 
     /**
      * The second argument to this function, op, is always SAVEPOINT_ROLLBACK or

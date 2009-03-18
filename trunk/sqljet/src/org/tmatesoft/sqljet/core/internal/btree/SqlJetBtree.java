@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.btree;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -747,74 +748,34 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
-     * Set up a raw page so that it looks like a database page holding no
-     * entries.
-     * 
-     * @throws SqlJetException
-     */
-    private void zeroPage(SqlJetMemPage pPage, int flags) throws SqlJetException {
-        byte[] data = pPage.aData.array();
-        SqlJetBtreeShared pBt = pPage.pBt;
-        byte hdr = pPage.hdrOffset;
-        int first;
-
-        assert (pPage.pDbPage.getPageNumber() == pPage.pgno);
-        assert (pPage.pDbPage.getExtra() == pPage);
-        assert (pPage.pDbPage.getData() == data);
-        assert (pBt.mutex.held());
-
-        data[hdr] = (byte) flags;
-        first = hdr + 8 + 4 * ((flags & SqlJetMemPage.PTF_LEAF) == 0 ? 1 : 0);
-        SqlJetUtility.memset(data, hdr + 1, (byte) 0, 4);
-        data[hdr + 7] = 0;
-        SqlJetUtility.put2byte(data, hdr + 5, pBt.usableSize);
-        pPage.nFree = pBt.usableSize - first;
-        pPage.decodeFlags(flags);
-        pPage.hdrOffset = hdr;
-        pPage.cellOffset = first;
-        pPage.nOverflow = 0;
-        assert (pBt.pageSize >= 512 && pBt.pageSize <= 32768);
-        pPage.maskPage = pBt.pageSize - 1;
-        pPage.nCell = 0;
-        pPage.isInit = true;
-
-    }
-
-    /*
      * Create a new database by initializing the first page of the file.
      */
     private void newDatabase() throws SqlJetException {
-        SqlJetMemPage pP1;
-        byte[] data;
-        int nPage;
-
         assert (pBt.mutex.held());
-        nPage = pBt.pPager.getPageCount();
+        int nPage = pBt.pPager.getPageCount();
         if (nPage > 0) {
             return;
         }
-        pP1 = pBt.pPage1;
+        
+        SqlJetMemPage pP1 = pBt.pPage1;
         assert (pP1 != null);
-        data = pP1.aData.array();
+        ByteBuffer data = pP1.aData;
         pP1.pDbPage.write();
-        SqlJetUtility.memcpy(data, zMagicHeader, zMagicHeader.length);
+        SqlJetUtility.memcpy(data, ByteBuffer.wrap(zMagicHeader), zMagicHeader.length);
         assert (zMagicHeader.length == 16);
         SqlJetUtility.put2byte(data, 16, pBt.pageSize);
-        data[18] = 1;
-        data[19] = 1;
+        data.put( 18, (byte) 1);
+        data.put( 19, (byte) 1);
         assert (pBt.usableSize <= pBt.pageSize && pBt.usableSize + 255 >= pBt.pageSize);
-        data[20] = (byte) (pBt.pageSize - pBt.usableSize);
-        data[21] = 64;
-        data[22] = 32;
-        data[23] = 32;
+        data.put( 20, (byte) (pBt.pageSize - pBt.usableSize));
+        data.put( 21, (byte)  64);
+        data.put( 22, (byte)  32);
+        data.put( 23, (byte)  32);
         SqlJetUtility.memset(data, 24, (byte) 0, 100 - 24);
-        zeroPage(pP1, SqlJetMemPage.PTF_INTKEY | SqlJetMemPage.PTF_LEAF | SqlJetMemPage.PTF_LEAFDATA);
+        pP1.zeroPage( SqlJetMemPage.PTF_INTKEY | SqlJetMemPage.PTF_LEAF | SqlJetMemPage.PTF_LEAFDATA );
         pBt.pageSizeFixed = true;
-        assert (pBt.autoVacuum || !pBt.autoVacuum);
-        assert (pBt.incrVacuum || !pBt.incrVacuum);
         SqlJetUtility.put4byte(data, 36 + 4 * 4, pBt.autoVacuum ? 1 : 0);
         SqlJetUtility.put4byte(data, 36 + 7 * 4, pBt.incrVacuum ? 1 : 0);
-        return;
     }
 
     /*
@@ -1366,7 +1327,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         
         //assert( sqlite3PagerIswriteable(pRoot->pDbPage) );
         try {
-            zeroPage(pRoot, SqlJetBtreeTableCreateFlags.toByte(flags) | SqlJetMemPage.PTF_LEAF );
+            pRoot.zeroPage( SqlJetBtreeTableCreateFlags.toByte(flags) | SqlJetMemPage.PTF_LEAF );
         } finally {
             pRoot.pDbPage.unref();
         }
@@ -1429,7 +1390,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSchemaLocked()
      */
     public boolean isSchemaLocked() {
-        int rc;
         assert( db.getMutex().held() );
         enter();
         try {
@@ -1590,6 +1550,29 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#savepoint(org.tmatesoft.sqljet
+     * .core.SqlJetSavepointOperation, int)
+     */
+    public void savepoint(SqlJetSavepointOperation op, int savepoint) throws SqlJetException {
+        if( this.inTrans==TransMode.WRITE ){
+          assert( pBt.inStmt==false );
+          assert( op==SqlJetSavepointOperation.RELEASE || op==SqlJetSavepointOperation.ROLLBACK );
+          assert( savepoint>=0 || (savepoint==-1 && op==SqlJetSavepointOperation.ROLLBACK) );
+          enter();
+          try {
+              pBt.db = this.db;
+              pBt.pPager.savepoint(op, savepoint);
+              newDatabase();
+          } finally {
+              leave();
+          }
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
      */
     public void clearTable(int table, int[] change) {
@@ -1699,18 +1682,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     public String integrityCheck(int[] root, int root2, int mxErr, int[] err) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#savepoint(org.tmatesoft.sqljet
-     * .core.SqlJetSavepointOperation, int)
-     */
-    public void savepoint(SqlJetSavepointOperation op, int savepoint) {
-        // TODO Auto-generated method stub
-
     }
 
     /*

@@ -177,20 +177,32 @@ public class SqlJetUtility {
     }
 
     public static void memcpy(ByteBuffer dest, ByteBuffer src, int length) {
-        System.arraycopy(src.array(), 0, dest.array(), 0, length);
+        System.arraycopy(src.array(), src.arrayOffset(), 
+                dest.array(), dest.arrayOffset(), length);
     }
 
     public static void memcpy(ByteBuffer dest, int dstPos, ByteBuffer src, int srcPos, int length) {
-        System.arraycopy(src.array(), srcPos, dest.array(), dstPos, length);
+        System.arraycopy(src.array(), src.arrayOffset()+srcPos, 
+                dest.array(), dest.arrayOffset() + dstPos, length);
     }
 
+    /**
+     * @param data
+     * @param from
+     * @param value
+     * @param count
+     */
+    public static void memset(byte[] data, int from, byte value, int count) {
+        Arrays.fill(data, from, count, value);
+    }
+    
     /**
      * @param data
      * @param value
      * @param count
      */
     public static void memset(byte[] data, byte value, int count) {
-        Arrays.fill(data, 0, count, value);
+        memset(data, 0, value, data.length);
     }
 
     /**
@@ -203,13 +215,31 @@ public class SqlJetUtility {
 
     /**
      * @param data
+     * @param from
      * @param value
      * @param count
      */
-    public static void memset(byte[] data, int from, byte value, int count) {
-        Arrays.fill(data, from, count, value);
+    public static void memset(ByteBuffer data, int from, byte value, int count) {
+        Arrays.fill(data.array(), data.arrayOffset()+from, count, value);
+    }
+    
+    /**
+     * @param data
+     * @param value
+     * @param count
+     */
+    public static void memset(ByteBuffer data, byte value, int count) {
+        memset(data, 0, value, data.capacity());
     }
 
+    /**
+     * @param data
+     * @param value
+     */
+    public static void memset(ByteBuffer data, byte value) {
+        memset(data, value, data.capacity());
+    }
+    
     /**
      * @param s
      * @param from
@@ -268,6 +298,15 @@ public class SqlJetUtility {
         return 0;
     }
 
+    public static byte[] addZeroByteEnd(byte[] b) {
+        if (null == b)
+            throw new SqlJetError("Undefined byte array");
+        byte[] r = new byte[b.length+1];
+        memcpy(r, b, b.length);
+        r[b.length] = 0;
+        return r;
+    }
+    
     /**
      * @param sqliteFileHeader
      * @return

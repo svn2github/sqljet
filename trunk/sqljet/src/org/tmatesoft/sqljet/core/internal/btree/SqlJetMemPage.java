@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetUtility;
 
 /**
  * As each page of the file is loaded into memory, an instance of the following
@@ -448,6 +449,40 @@ public class SqlJetMemPage {
 
         return pInfo;
 
+    }
+
+    /**
+     * Set up a raw page so that it looks like a database page holding no
+     * entries.
+     * 
+     * @param sqlJetBtree TODO
+     * @param flags TODO
+     * @throws SqlJetException
+     */
+    void zeroPage(int flags) throws SqlJetException {
+        byte[] data = aData.array();
+        byte hdr = hdrOffset;
+        int first;
+    
+        assert (pDbPage.getPageNumber() == pgno);
+        assert (pDbPage.getExtra() == this);
+        assert (pDbPage.getData() == data);
+        assert (pBt.mutex.held());
+    
+        data[hdr] = (byte) flags;
+        first = hdr + 8 + 4 * ((flags & SqlJetMemPage.PTF_LEAF) == 0 ? 1 : 0);
+        SqlJetUtility.memset(data, hdr + 1, (byte) 0, 4);
+        data[hdr + 7] = 0;
+        SqlJetUtility.put2byte(data, hdr + 5, pBt.usableSize);
+        nFree = pBt.usableSize - first;
+        decodeFlags(flags);
+        hdrOffset = hdr;
+        cellOffset = first;
+        nOverflow = 0;
+        assert (pBt.pageSize >= 512 && pBt.pageSize <= 32768);
+        maskPage = pBt.pageSize - 1;
+        nCell = 0;
+        isInit = true;
     }
 
 }

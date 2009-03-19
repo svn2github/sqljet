@@ -25,6 +25,7 @@ import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
+import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
@@ -756,7 +757,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         if (nPage > 0) {
             return;
         }
-        
+
         SqlJetMemPage pP1 = pBt.pPage1;
         assert (pP1 != null);
         ByteBuffer data = pP1.aData;
@@ -764,15 +765,15 @@ public class SqlJetBtree implements ISqlJetBtree {
         SqlJetUtility.memcpy(data, ByteBuffer.wrap(zMagicHeader), zMagicHeader.length);
         assert (zMagicHeader.length == 16);
         SqlJetUtility.put2byte(data, 16, pBt.pageSize);
-        data.put( 18, (byte) 1);
-        data.put( 19, (byte) 1);
+        data.put(18, (byte) 1);
+        data.put(19, (byte) 1);
         assert (pBt.usableSize <= pBt.pageSize && pBt.usableSize + 255 >= pBt.pageSize);
-        data.put( 20, (byte) (pBt.pageSize - pBt.usableSize));
-        data.put( 21, (byte)  64);
-        data.put( 22, (byte)  32);
-        data.put( 23, (byte)  32);
+        data.put(20, (byte) (pBt.pageSize - pBt.usableSize));
+        data.put(21, (byte) 64);
+        data.put(22, (byte) 32);
+        data.put(23, (byte) 32);
         SqlJetUtility.memset(data, 24, (byte) 0, 100 - 24);
-        pP1.zeroPage( SqlJetMemPage.PTF_INTKEY | SqlJetMemPage.PTF_LEAF | SqlJetMemPage.PTF_LEAFDATA );
+        pP1.zeroPage(SqlJetMemPage.PTF_INTKEY | SqlJetMemPage.PTF_LEAF | SqlJetMemPage.PTF_LEAFDATA);
         pBt.pageSizeFixed = true;
         SqlJetUtility.put4byte(data, 36 + 4 * 4, pBt.autoVacuum ? 1 : 0);
         SqlJetUtility.put4byte(data, 36 + 7 * 4, pBt.incrVacuum ? 1 : 0);
@@ -1172,24 +1173,24 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
-     * During a rollback, when the pager reloads information into the cache
-     * so that the cache is restored to its original state at the start of
-     * the transaction, for each page restored this routine is called.
-     *
-     * This routine needs to reset the extra data section at the end of the
-     * page to agree with the restored data.
+     * During a rollback, when the pager reloads information into the cache so
+     * that the cache is restored to its original state at the start of the
+     * transaction, for each page restored this routine is called.
+     * 
+     * This routine needs to reset the extra data section at the end of the page
+     * to agree with the restored data.
      * 
      * @param page
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     protected void pageReinit(ISqlJetPage page) throws SqlJetException {
-        final SqlJetMemPage pPage = (SqlJetMemPage)page.getExtra();
-        if( pPage.isInit ){
-          assert( pPage.pBt.mutex.held() );
-          pPage.isInit = false;
-          if( page.getRefCount()>0 ){
-            pPage.initPage();
-          }
+        final SqlJetMemPage pPage = (SqlJetMemPage) page.getExtra();
+        if (pPage.isInit) {
+            assert (pPage.pBt.mutex.held());
+            pPage.isInit = false;
+            if (page.getRefCount() > 0) {
+                pPage.initPage();
+            }
         }
     }
 
@@ -1212,128 +1213,137 @@ public class SqlJetBtree implements ISqlJetBtree {
     /**
      * @param flags
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     private int doCreateTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
         SqlJetMemPage pRoot;
         int pgnoRoot;
 
-        assert( holdsMutex() );
-        assert( pBt.inTransaction==TransMode.WRITE );
-        assert( !pBt.readOnly );
+        assert (holdsMutex());
+        assert (pBt.inTransaction == TransMode.WRITE);
+        assert (!pBt.readOnly);
 
-        if( pBt.autoVacuum ){
-          int[] pgnoMove = new int[1];      /* Move a page here to make room for the root-page */
-          SqlJetMemPage pPageMove; /* The page to move to. */
+        if (pBt.autoVacuum) {
+            int[] pgnoMove = new int[1]; /*
+                                          * Move a page here to make room for
+                                          * the root-page
+                                          */
+            SqlJetMemPage pPageMove; /* The page to move to. */
 
-          /* Creating a new table may probably require moving an existing database
-          ** to make room for the new tables root page. In case this page turns
-          ** out to be an overflow page, delete all overflow page-map caches
-          ** held by open cursors.
-          */
-          pBt.invalidateAllOverflowCache();
+            /*
+             * Creating a new table may probably require moving an existing
+             * database* to make room for the new tables root page. In case this
+             * page turns* out to be an overflow page, delete all overflow
+             * page-map caches* held by open cursors.
+             */
+            pBt.invalidateAllOverflowCache();
 
-          /* Read the value of meta[3] from the database to determine where the
-          ** root page of the new table should go. meta[3] is the largest root-page
-          ** created so far, so the new root-page is (meta[3]+1).
-          */
-          pgnoRoot = getMeta( 4 );
-          pgnoRoot++;
-
-          /* The new root-page may not be allocated on a pointer-map page, or the
-          ** PENDING_BYTE page.
-          */
-          while( pgnoRoot==pBt.PTRMAP_PAGENO( pgnoRoot) ||
-              pgnoRoot==pBt.PENDING_BYTE_PAGE() ){
+            /*
+             * Read the value of meta[3] from the database to determine where
+             * the* root page of the new table should go. meta[3] is the largest
+             * root-page* created so far, so the new root-page is (meta[3]+1).
+             */
+            pgnoRoot = getMeta(4);
             pgnoRoot++;
-          }
-          assert( pgnoRoot>=3 );
 
-          /* Allocate a page. The page that currently resides at pgnoRoot will
-          ** be moved to the allocated page (unless the allocated page happens
-          ** to reside at pgnoRoot).
-          */
-          pPageMove = pBt.allocateBtreePage( pgnoMove, pgnoRoot, true);
+            /*
+             * The new root-page may not be allocated on a pointer-map page, or
+             * the* PENDING_BYTE page.
+             */
+            while (pgnoRoot == pBt.PTRMAP_PAGENO(pgnoRoot) || pgnoRoot == pBt.PENDING_BYTE_PAGE()) {
+                pgnoRoot++;
+            }
+            assert (pgnoRoot >= 3);
 
-          if( pgnoMove[0]!=pgnoRoot ){
-            /* pgnoRoot is the page that will be used for the root-page of
-            ** the new table (assuming an error did not occur). But we were
-            ** allocated pgnoMove. If required (i.e. if it was not allocated
-            ** by extending the file), the current page at position pgnoMove
-            ** is already journaled.
-            */
-            byte[] eType = new byte[1];
-            int[] iPtrPage = new int[1];
+            /*
+             * Allocate a page. The page that currently resides at pgnoRoot will
+             * * be moved to the allocated page (unless the allocated page
+             * happens* to reside at pgnoRoot).
+             */
+            pPageMove = pBt.allocateBtreePage(pgnoMove, pgnoRoot, true);
 
-            SqlJetMemPage.releasePage(pPageMove);
+            if (pgnoMove[0] != pgnoRoot) {
+                /*
+                 * pgnoRoot is the page that will be used for the root-page of*
+                 * the new table (assuming an error did not occur). But we were*
+                 * allocated pgnoMove. If required (i.e. if it was not allocated
+                 * * by extending the file), the current page at position
+                 * pgnoMove* is already journaled.
+                 */
+                byte[] eType = new byte[1];
+                int[] iPtrPage = new int[1];
 
-            /* Move the page currently at pgnoRoot to pgnoMove. */
-            pRoot = pBt.getPage(pgnoRoot, false);
-            try {
-                pBt.ptrmapGet( pgnoRoot, eType, iPtrPage);
-                if( eType[0]==SqlJetBtreeShared.PTRMAP_ROOTPAGE || 
-                        eType[0]==SqlJetBtreeShared.PTRMAP_FREEPAGE ){
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                SqlJetMemPage.releasePage(pPageMove);
+
+                /* Move the page currently at pgnoRoot to pgnoMove. */
+                pRoot = pBt.getPage(pgnoRoot, false);
+                try {
+                    pBt.ptrmapGet(pgnoRoot, eType, iPtrPage);
+                    if (eType[0] == SqlJetBtreeShared.PTRMAP_ROOTPAGE || eType[0] == SqlJetBtreeShared.PTRMAP_FREEPAGE) {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    }
+                } catch (SqlJetException e) {
+                    SqlJetMemPage.releasePage(pRoot);
+                    throw e;
                 }
+                assert (eType[0] != SqlJetBtreeShared.PTRMAP_ROOTPAGE);
+                assert (eType[0] != SqlJetBtreeShared.PTRMAP_FREEPAGE);
+                try {
+                    pRoot.pDbPage.write();
+                } catch (SqlJetException e) {
+                    SqlJetMemPage.releasePage(pRoot);
+                    throw e;
+                }
+                try {
+                    pBt.relocatePage(pRoot, eType[0], iPtrPage[0], pgnoMove[0], false);
+                } finally {
+                    SqlJetMemPage.releasePage(pRoot);
+                }
+
+                /* Obtain the page at pgnoRoot */
+                pRoot = pBt.getPage(pgnoRoot, false);
+                try {
+                    pRoot.pDbPage.write();
+                } catch (SqlJetException e) {
+                    SqlJetMemPage.releasePage(pRoot);
+                    throw e;
+                }
+            } else {
+                pRoot = pPageMove;
+            }
+
+            /*
+             * Update the pointer-map and meta-data with the new root-page
+             * number.
+             */
+            try {
+                pBt.ptrmapPut(pgnoRoot, SqlJetBtreeShared.PTRMAP_ROOTPAGE, 0);
             } catch (SqlJetException e) {
                 SqlJetMemPage.releasePage(pRoot);
                 throw e;
             }
-            assert( eType[0]!=SqlJetBtreeShared.PTRMAP_ROOTPAGE );
-            assert( eType[0]!=SqlJetBtreeShared.PTRMAP_FREEPAGE );
             try {
-                pRoot.pDbPage.write();
+                updateMeta(4, pgnoRoot);
             } catch (SqlJetException e) {
                 SqlJetMemPage.releasePage(pRoot);
                 throw e;
             }
-            try {
-                pBt.relocatePage(pRoot, eType[0], iPtrPage[0], pgnoMove[0], false);
-            } finally {
-                SqlJetMemPage.releasePage(pRoot);
-            }
 
-            /* Obtain the page at pgnoRoot */
-            pRoot = pBt.getPage(pgnoRoot, false);
-            try {
-                pRoot.pDbPage.write();
-            } catch (SqlJetException e) {
-                SqlJetMemPage.releasePage(pRoot);
-                throw e;
-            }
-          }else{
-            pRoot = pPageMove;
-          } 
-
-          /* Update the pointer-map and meta-data with the new root-page number. */
-          try {
-              pBt.ptrmapPut(pgnoRoot, SqlJetBtreeShared.PTRMAP_ROOTPAGE, 0);
-          } catch (SqlJetException e) {
-              SqlJetMemPage.releasePage(pRoot);
-              throw e;
-          }
-          try {
-              updateMeta(4, pgnoRoot);
-          } catch (SqlJetException e) {
-              SqlJetMemPage.releasePage(pRoot);
-              throw e;
-          }
-
-        }else{
+        } else {
             int[] a = new int[1];
             pRoot = pBt.allocateBtreePage(a, 1, false);
             pgnoRoot = a[0];
         }
-        
-        //assert( sqlite3PagerIswriteable(pRoot->pDbPage) );
+
+        // assert( sqlite3PagerIswriteable(pRoot->pDbPage) );
         try {
-            pRoot.zeroPage( SqlJetBtreeTableCreateFlags.toByte(flags) | SqlJetMemPage.PTF_LEAF );
+            pRoot.zeroPage(SqlJetBtreeTableCreateFlags.toByte(flags) | SqlJetMemPage.PTF_LEAF);
         } finally {
             pRoot.pDbPage.unref();
         }
-        
+
         return pgnoRoot;
-        
+
     }
 
     /*
@@ -1342,8 +1352,8 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInTrans()
      */
     public boolean isInTrans() {
-        assert( db.getMutex().held() );
-        return inTrans== TransMode.WRITE;
+        assert (db.getMutex().held());
+        return inTrans == TransMode.WRITE;
     }
 
     /*
@@ -1352,18 +1362,18 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInStmt()
      */
     public boolean isInStmt() {
-        assert( holdsMutex() );
-        return pBt!=null && pBt.inStmt;
+        assert (holdsMutex());
+        return pBt != null && pBt.inStmt;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isInReadTrans()
      */
     public boolean isInReadTrans() {
-        assert( db.getMutex().held() );
-        return inTrans== TransMode.NONE;
+        assert (db.getMutex().held());
+        return inTrans == TransMode.NONE;
     }
 
     /*
@@ -1390,69 +1400,64 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#isSchemaLocked()
      */
     public boolean isSchemaLocked() {
-        assert( db.getMutex().held() );
+        assert (db.getMutex().held());
         enter();
         try {
             return queryTableLock(ISqlJetDb.MASTER_ROOT, SqlJetBtreeLockMode.READ);
         } finally {
             leave();
         }
-    }    
-    
+    }
+
     /**
-     * Query to see if btree handle p may obtain a lock of type eLock 
-     * (READ_LOCK or WRITE_LOCK) on the table with root-page iTab. Return
-     * SQLITE_OK if the lock may be obtained (by calling lockTable()), or
-     * SQLITE_LOCKED if not.
+     * Query to see if btree handle p may obtain a lock of type eLock (READ_LOCK
+     * or WRITE_LOCK) on the table with root-page iTab. Return SQLITE_OK if the
+     * lock may be obtained (by calling lockTable()), or SQLITE_LOCKED if not.
      * 
      * @param iTab
      * @param eLock
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     private boolean queryTableLock(int iTab, SqlJetBtreeLockMode eLock) {
 
-        assert( holdsMutex() );
-        assert( eLock!=null );
-        assert( db!=null );
+        assert (holdsMutex());
+        assert (eLock != null);
+        assert (db != null);
 
         /* This is a no-op if the shared-cache is not enabled */
-        if( !sharable ){
-          return true;
+        if (!sharable) {
+            return true;
         }
 
-        /* If some other connection is holding an exclusive lock, the
-        ** requested lock may not be obtained.
-        */
-        if( pBt.pExclusive!=null && pBt.pExclusive!=this ){
-          return false;
+        /*
+         * If some other connection is holding an exclusive lock, the* requested
+         * lock may not be obtained.
+         */
+        if (pBt.pExclusive != null && pBt.pExclusive != this) {
+            return false;
         }
 
-        /* This (along with lockTable()) is where the ReadUncommitted flag is
-        ** dealt with. If the caller is querying for a read-lock and the flag is
-        ** set, it is unconditionally granted - even if there are write-locks
-        ** on the table. If a write-lock is requested, the ReadUncommitted flag
-        ** is not considered.
-        **
-        ** In function lockTable(), if a read-lock is demanded and the 
-        ** ReadUncommitted flag is set, no entry is added to the locks list 
-        ** (BtShared.pLock).
-        **
-        ** To summarize: If the ReadUncommitted flag is set, then read cursors do
-        ** not create or respect table locks. The locking procedure for a 
-        ** write-cursor does not change.
-        */
-        if( 
-          !db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) || 
-          eLock==SqlJetBtreeLockMode.WRITE ||
-          iTab==ISqlJetDb.MASTER_ROOT
-        ){
-          for( SqlJetBtreeLock pIter : pBt.pLock ){
-            if( pIter.pBtree!=this && pIter.iTable==iTab && 
-                (pIter.eLock!=eLock || eLock!=SqlJetBtreeLockMode.READ) ){
-                return false;
+        /*
+         * This (along with lockTable()) is where the ReadUncommitted flag is*
+         * dealt with. If the caller is querying for a read-lock and the flag is
+         * * set, it is unconditionally granted - even if there are write-locks*
+         * on the table. If a write-lock is requested, the ReadUncommitted flag*
+         * is not considered.** In function lockTable(), if a read-lock is
+         * demanded and the* ReadUncommitted flag is set, no entry is added to
+         * the locks list* (BtShared.pLock).** To summarize: If the
+         * ReadUncommitted flag is set, then read cursors do* not create or
+         * respect table locks. The locking procedure for a* write-cursor does
+         * not change.
+         */
+        if (!db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) || eLock == SqlJetBtreeLockMode.WRITE
+                || iTab == ISqlJetDb.MASTER_ROOT) {
+            for (SqlJetBtreeLock pIter : pBt.pLock) {
+                if (pIter.pBtree != this && pIter.iTable == iTab
+                        && (pIter.eLock != eLock || eLock != SqlJetBtreeLockMode.READ)) {
+                    return false;
+                }
             }
-          }
         }
         return true;
     }
@@ -1463,25 +1468,23 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#lockTable(int, boolean)
      */
     public void lockTable(int table, boolean isWriteLock) {
-        if( sharable ){
-          enter();
-          try {
-              final SqlJetBtreeLockMode lockType = isWriteLock ? 
-                      SqlJetBtreeLockMode.WRITE : SqlJetBtreeLockMode.READ;
-              if( queryTableLock( table, lockType) ){
-                  lockTable( table, lockType );
-              }
-          } finally {
-              leave();
-          }
+        if (sharable) {
+            enter();
+            try {
+                final SqlJetBtreeLockMode lockType = isWriteLock ? SqlJetBtreeLockMode.WRITE : SqlJetBtreeLockMode.READ;
+                if (queryTableLock(table, lockType)) {
+                    lockTable(table, lockType);
+                }
+            } finally {
+                leave();
+            }
         }
     }
-    
+
     /**
-     * Add a lock on the table with root-page iTable to the shared-btree used
-     * by Btree handle p. Parameter eLock must be either READ_LOCK or 
-     * WRITE_LOCK.
-     *
+     * Add a lock on the table with root-page iTable to the shared-btree used by
+     * Btree handle p. Parameter eLock must be either READ_LOCK or WRITE_LOCK.
+     * 
      * SQLITE_OK is returned if the lock is added successfully. SQLITE_BUSY and
      * SQLITE_NOMEM may also be returned.
      * 
@@ -1489,62 +1492,60 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @param lockType
      */
     private void lockTable(int iTable, SqlJetBtreeLockMode eLock) {
-        
-        assert( holdsMutex() );
-        assert( eLock!=null );
-        assert( db!=null );
+
+        assert (holdsMutex());
+        assert (eLock != null);
+        assert (db != null);
 
         /* This is a no-op if the shared-cache is not enabled */
-        if( !sharable ){
-          return;
+        if (!sharable) {
+            return;
         }
 
-        assert( queryTableLock(iTable, eLock) );
+        assert (queryTableLock(iTable, eLock));
 
-        /* If the read-uncommitted flag is set and a read-lock is requested,
-        * return early without adding an entry to the BtShared.pLock list. See
-        * comment in function queryTableLock() for more info on handling 
-        * the ReadUncommitted flag.
-        */
-        if( 
-          db.getFlags().contains( SqlJetDbFlags.ReadUncommitted ) && 
-          (eLock==SqlJetBtreeLockMode.READ) &&
-          iTable!= ISqlJetDb.MASTER_ROOT
-        ){
-          return;
+        /*
+         * If the read-uncommitted flag is set and a read-lock is requested,
+         * return early without adding an entry to the BtShared.pLock list. See
+         * comment in function queryTableLock() for more info on handling the
+         * ReadUncommitted flag.
+         */
+        if (db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) && (eLock == SqlJetBtreeLockMode.READ)
+                && iTable != ISqlJetDb.MASTER_ROOT) {
+            return;
         }
 
         SqlJetBtreeLock pLock = null;
-        
+
         /* First search the list for an existing lock on this table. */
-        for( SqlJetBtreeLock pIter : pBt.pLock ){
-          if( pIter.iTable==iTable && pIter.pBtree==this ){
-            pLock = pIter;
-            break;
-          }
+        for (SqlJetBtreeLock pIter : pBt.pLock) {
+            if (pIter.iTable == iTable && pIter.pBtree == this) {
+                pLock = pIter;
+                break;
+            }
         }
 
-        /* If the above search did not find a BtLock struct associating Btree p
-        * with table iTable, allocate one and link it into the list.
-        */
-        if( null==pLock ){
-          pLock = new SqlJetBtreeLock();
-          pLock.iTable = iTable;
-          pLock.pBtree = this;
-          pBt.pLock.add(pLock);
-          pLock.eLock = eLock;
+        /*
+         * If the above search did not find a BtLock struct associating Btree p
+         * with table iTable, allocate one and link it into the list.
+         */
+        if (null == pLock) {
+            pLock = new SqlJetBtreeLock();
+            pLock.iTable = iTable;
+            pLock.pBtree = this;
+            pBt.pLock.add(pLock);
+            pLock.eLock = eLock;
         }
 
-        /* Set the BtLock.eLock variable to the maximum of the current lock
-        * and the requested lock. This means if a write-lock was already held
-        * and a read-lock requested, we don't incorrectly downgrade the lock.
-        */
-        if( eLock==SqlJetBtreeLockMode.WRITE && 
-                pLock.eLock==SqlJetBtreeLockMode.READ )
-        {
-          pLock.eLock = eLock;
+        /*
+         * Set the BtLock.eLock variable to the maximum of the current lock and
+         * the requested lock. This means if a write-lock was already held and a
+         * read-lock requested, we don't incorrectly downgrade the lock.
+         */
+        if (eLock == SqlJetBtreeLockMode.WRITE && pLock.eLock == SqlJetBtreeLockMode.READ) {
+            pLock.eLock = eLock;
         }
-        
+
     }
 
     /*
@@ -1555,29 +1556,39 @@ public class SqlJetBtree implements ISqlJetBtree {
      * .core.SqlJetSavepointOperation, int)
      */
     public void savepoint(SqlJetSavepointOperation op, int savepoint) throws SqlJetException {
-        if( this.inTrans==TransMode.WRITE ){
-          assert( pBt.inStmt==false );
-          assert( op==SqlJetSavepointOperation.RELEASE || op==SqlJetSavepointOperation.ROLLBACK );
-          assert( savepoint>=0 || (savepoint==-1 && op==SqlJetSavepointOperation.ROLLBACK) );
-          enter();
-          try {
-              pBt.db = this.db;
-              pBt.pPager.savepoint(op, savepoint);
-              newDatabase();
-          } finally {
-              leave();
-          }
+        if (this.inTrans == TransMode.WRITE) {
+            assert (pBt.inStmt == false);
+            assert (op == SqlJetSavepointOperation.RELEASE || op == SqlJetSavepointOperation.ROLLBACK);
+            assert (savepoint >= 0 || (savepoint == -1 && op == SqlJetSavepointOperation.ROLLBACK));
+            enter();
+            try {
+                pBt.db = this.db;
+                pBt.pPager.savepoint(op, savepoint);
+                newDatabase();
+            } finally {
+                leave();
+            }
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getFilename()
      */
-    public void clearTable(int table, int[] change) {
-        // TODO Auto-generated method stub
-        
+    public File getFilename() {
+        assert (pBt.pPager != null);
+        return pBt.pPager.getFileName();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getDirname()
+     */
+    public File getDirname() {
+        assert (pBt.pPager != null);
+        return pBt.pPager.getDirectoryName();
     }
 
     /*
@@ -1587,11 +1598,229 @@ public class SqlJetBtree implements ISqlJetBtree {
      * org.tmatesoft.sqljet.core.ISqlJetBtree#copyFile(org.tmatesoft.sqljet.
      * core.ISqlJetBtree)
      */
-    public void copyFile(ISqlJetBtree from) {
+    public void copyFile(ISqlJetBtree from) throws SqlJetException {
+        enter();
+        try {
+            final SqlJetBtree pFrom = (SqlJetBtree) from;
+            pFrom.enter();
+            try {
+                doCopyFile(pFrom);
+            } finally {
+                leave();
+            }
+        } finally {
+            leave();
+        }
+    }
+
+    /**
+     * Copy the complete content of pBtFrom into pBtTo. A transaction must be
+     * active for both files.
+     * 
+     * The size of file pTo may be reduced by this operation. If anything goes
+     * wrong, the transaction on pTo is rolled back.
+     * 
+     * If successful, CommitPhaseOne() may be called on pTo before returning.
+     * The caller should finish committing the transaction on pTo by calling
+     * sqlite3BtreeCommit().
+     * 
+     * @param from
+     * @throws SqlJetException
+     */
+    private void doCopyFile(SqlJetBtree pFrom) throws SqlJetException {
+
+        SqlJetBtree pTo = this;
+
+        int i;
+
+        int nFromPage; /* Number of pages in pFrom */
+        int nToPage; /* Number of pages in pTo */
+        int nNewPage; /* Number of pages in pTo after the copy */
+
+        int iSkip; /* Pending byte page in pTo */
+        int nToPageSize; /* Page size of pTo in bytes */
+        int nFromPageSize; /* Page size of pFrom in bytes */
+
+        SqlJetBtreeShared pBtTo = pTo.pBt;
+        SqlJetBtreeShared pBtFrom = pFrom.pBt;
+        pBtTo.db = pTo.db;
+        pBtFrom.db = pFrom.db;
+
+        nToPageSize = pBtTo.pageSize;
+        nFromPageSize = pBtFrom.pageSize;
+
+        assert (pTo.inTrans == TransMode.WRITE);
+        assert (pFrom.inTrans == TransMode.WRITE);
+        if (pBtTo.pCursor != null) {
+            throw new SqlJetException(SqlJetErrorCode.BUSY);
+        }
+
+        nToPage = pBtTo.pPager.getPageCount();
+        nFromPage = pBtFrom.pPager.getPageCount();
+        iSkip = pBtTo.PENDING_BYTE_PAGE();
+
+        /*
+         * Variable nNewPage is the number of pages required to store the*
+         * contents of pFrom using the current page-size of pTo.
+         */
+        nNewPage = (int) (((long) nFromPage * (long) nFromPageSize + (long) nToPageSize - 1) / (long) nToPageSize);
+
+        for (i = 1; (i <= nToPage || i <= nNewPage); i++) {
+
+            /*
+             * Journal the original page.** iSkip is the page number of the
+             * locking page (PENDING_BYTE_PAGE)* in database *pTo (before the
+             * copy). This page is never written* into the journal file. Unless
+             * i==iSkip or the page was not* present in pTo before the copy
+             * operation, journal page i from pTo.
+             */
+            if (i != iSkip && i <= nToPage) {
+                ISqlJetPage pDbPage = null;
+                pDbPage = pBtTo.pPager.getPage(i);
+                try {
+                    pDbPage.write();
+                    if (i > nFromPage) {
+                        /*
+                         * Yeah. It seems wierd to call DontWrite() right after
+                         * Write(). But* that is because the names of those
+                         * procedures do not exactly* represent what they do.
+                         * Write() really means "put this page in the* rollback
+                         * journal and mark it as dirty so that it will be
+                         * written* to the database file later." DontWrite()
+                         * undoes the second part of* that and prevents the page
+                         * from being written to the database. The* page is
+                         * still on the rollback journal, though. And that is
+                         * the* whole point of this block: to put pages on the
+                         * rollback journal.
+                         */
+                        pDbPage.dontWrite();
+                    }
+                } finally {
+                    pDbPage.unref();
+                }
+            }
+
+            /* Overwrite the data in page i of the target database */
+            if (i != iSkip && i <= nNewPage) {
+
+                ISqlJetPage pToPage = null;
+                long iOff;
+
+                pToPage = pBtTo.pPager.getPage(i);
+                pToPage.write();
+
+                for (iOff = (i - 1) * nToPageSize; iOff < i * nToPageSize; iOff += nFromPageSize) {
+                    ISqlJetPage pFromPage = null;
+                    int iFrom = (int) (iOff / nFromPageSize) + 1;
+
+                    if (iFrom == pBtFrom.PENDING_BYTE_PAGE()) {
+                        continue;
+                    }
+
+                    pFromPage = pBtFrom.pPager.getPage(iFrom);
+
+                    byte[] zTo = pToPage.getData();
+                    byte[] zFrom = pFromPage.getData();
+                    int nCopy;
+
+                    int nFrom = 0;
+                    int nTo = 0;
+
+                    if (nFromPageSize >= nToPageSize) {
+                        nFrom += ((i - 1) * nToPageSize - ((iFrom - 1) * nFromPageSize));
+                        nCopy = nToPageSize;
+                    } else {
+                        nTo += (((iFrom - 1) * nFromPageSize) - (i - 1) * nToPageSize);
+                        nCopy = nFromPageSize;
+                    }
+                    SqlJetUtility.memcpy(zTo, nTo, zFrom, nFrom, nCopy);
+
+                    pFromPage.unref();
+                }
+
+                if (pToPage != null) {
+                    SqlJetMemPage p = (SqlJetMemPage) pToPage.getExtra();
+                    p.isInit = false;
+                    pToPage.unref();
+                }
+            }
+        }
+
+        /*
+         * If things have worked so far, the database file may need to be*
+         * truncated. The complex part is that it may need to be truncated to* a
+         * size that is not an integer multiple of nToPageSize - the current*
+         * page size used by the pager associated with B-Tree pTo.** For
+         * example, say the page-size of pTo is 2048 bytes and the original*
+         * number of pages is 5 (10 KB file). If pFrom has a page size of 1024*
+         * bytes and 9 pages, then the file needs to be truncated to 9KB.
+         */
+
+        ISqlJetFile pFile = pBtTo.pPager.getFile();
+        long iSize = (long) nFromPageSize * (long) nFromPage;
+        long iNow = (long) ((nToPage > nNewPage) ? nToPage : nNewPage) * (long) nToPageSize;
+        long iPending = ((long) pBtTo.PENDING_BYTE_PAGE() - 1) * (long) nToPageSize;
+
+        assert (iSize <= iNow);
+
+        /*
+         * Commit phase one syncs the journal file associated with pTo*
+         * containing the original data. It does not sync the database file*
+         * itself. After doing this it is safe to use OsTruncate() and other*
+         * file APIs on the database file directly.
+         */
+        pBtTo.db = pTo.db;
+        pBtTo.pPager.commitPhaseOne(null, true);
+        if (iSize < iNow) {
+            pFile.truncate(iSize);
+        }
+
+        /*
+         * The loop that copied data from database pFrom to pTo did not*
+         * populate the locking page of database pTo. If the page-size of* pFrom
+         * is smaller than that of pTo, this means some data will* not have been
+         * copied.** This block copies the missing data from database pFrom to
+         * pTo* using file APIs. This is safe because at this point we know that
+         * * all of the original data from pTo has been synced into the* journal
+         * file. At this point it would be safe to do anything at* all to the
+         * database file except truncate it to zero bytes.
+         */
+        if (nFromPageSize < nToPageSize && iSize > iPending) {
+            long iOff;
+            for (iOff = iPending; iOff < (iPending + nToPageSize); iOff += nFromPageSize) {
+                ISqlJetPage pFromPage = null;
+                int iFrom = (int) (iOff / nFromPageSize) + 1;
+
+                if (iFrom == pBtFrom.PENDING_BYTE_PAGE() || iFrom > nFromPage) {
+                    continue;
+                }
+
+                pFromPage = pBtFrom.pPager.getPage(iFrom);
+                byte[] zFrom = pFromPage.getData();
+                pFile.write(zFrom, nFromPageSize, iOff);
+                pFromPage.unref();
+            }
+        }
+
+        /* Sync the database file */
+        try {
+            pBtTo.pPager.sync();
+            pBtTo.pageSizeFixed = false;
+        } catch (SqlJetException e) {
+            pTo.rollback();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
+     */
+    public void clearTable(int table, int[] change) {
         // TODO Auto-generated method stub
 
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -1616,31 +1845,11 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getDirname()
-     */
-    public File getDirname() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getFilename()
-     */
-    public File getFilename() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getJournalname()
      */
     public File getJournalname() {
-        // TODO Auto-generated method stub
-        return null;
+        assert (pBt.pPager != null);
+        return pBt.pPager.getJournalName();
     }
 
     /*

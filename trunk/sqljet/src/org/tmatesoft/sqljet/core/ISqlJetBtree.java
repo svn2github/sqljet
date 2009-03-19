@@ -411,9 +411,8 @@ public interface ISqlJetBtree {
      * safe to access without the BtShared mutex.
      * 
      * @return
-     * @throws SqlJetException
      */
-    File getFilename() throws SqlJetException;
+    File getFilename();
 
     /**
      * Return the pathname of the directory that contains the database file.
@@ -422,9 +421,8 @@ public interface ISqlJetBtree {
      * is safe to access without the BtShared mutex.
      * 
      * @return
-     * @throws SqlJetException
      */
-    File getDirname() throws SqlJetException;
+    File getDirname();
 
     /**
      * Return the pathname of the journal file for this database. The return
@@ -435,9 +433,8 @@ public interface ISqlJetBtree {
      * it is safe to access without the BtShared mutex.
      * 
      * @return
-     * @throws SqlJetException
      */
-    File getJournalname() throws SqlJetException;
+    File getJournalname();
 
     /**
      * Copy the complete content of from. A transaction must be active for both

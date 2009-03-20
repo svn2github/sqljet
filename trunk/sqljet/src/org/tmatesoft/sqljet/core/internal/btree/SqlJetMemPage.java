@@ -13,15 +13,11 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.SqlJetUtility.get2byte;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.get4byte;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.getVarint;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.getVarint32;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.put4byte;
-import static org.tmatesoft.sqljet.core.SqlJetUtility.slice;
+import static org.tmatesoft.sqljet.core.SqlJetUtility.*;
 
 import java.nio.ByteBuffer;
 
+import org.tmatesoft.sqljet.core.ISqlJetConfig;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -120,6 +116,19 @@ public class SqlJetMemPage {
     int pgno;
 
     /**
+     * The ISAUTOVACUUM macro is used within balance_nonroot() to determine if
+     * the database supports auto-vacuum or not. Because it is used within an
+     * expression that is an argument to another macro (sqliteMallocRaw), it is
+     * not possible to use conditional compilation. So, this macro is defined
+     * instead.
+     * 
+     * @return
+     */
+    private boolean ISAUTOVACUUM() {
+        return pBt.autoVacuum;
+    }
+
+    /**
      * Decode the flags byte (the first byte of the header) for a page and
      * initialize fields of the MemPage structure accordingly.
      * 
@@ -130,10 +139,10 @@ public class SqlJetMemPage {
      * PTF_LEAFDATA | PTF_INTKEY | PTF_LEAF
      */
     public void decodeFlags(int flagByte) throws SqlJetException {
-        assert(hdrOffset == (pgno == 1 ? 100 : 0));
-        assert(pBt.mutex.held());
+        assert (hdrOffset == (pgno == 1 ? 100 : 0));
+        assert (pBt.mutex.held());
         leaf = (flagByte >> 3) > 0;
-        assert(PTF_LEAF == 1 << 3);
+        assert (PTF_LEAF == 1 << 3);
         flagByte &= ~PTF_LEAF;
         childPtrSize = (byte) (4 - 4 * (leaf ? 1 : 0));
         if (flagByte == (PTF_LEAFDATA | PTF_INTKEY)) {
@@ -162,11 +171,11 @@ public class SqlJetMemPage {
      */
     public void initPage() throws SqlJetException {
 
-        assert(pBt != null);
-        assert(pBt.mutex.held());
-        assert(pgno == pDbPage.getPageNumber());
-        assert(this == pDbPage.getExtra());
-        assert(aData.array() == pDbPage.getData());
+        assert (pBt != null);
+        assert (pBt.mutex.held());
+        assert (pgno == pDbPage.getPageNumber());
+        assert (this == pDbPage.getExtra());
+        assert (aData.array() == pDbPage.getData());
 
         if (!isInit) {
             int pc; /* Address of a freeblock within pPage->aData[] */
@@ -180,7 +189,7 @@ public class SqlJetMemPage {
             hdr = hdrOffset;
             data = aData.array();
             decodeFlags(data[hdr]);
-            assert(pBt.pageSize >= 512 && pBt.pageSize <= 32768);
+            assert (pBt.pageSize >= 512 && pBt.pageSize <= 32768);
             maskPage = pBt.pageSize - 1;
             nOverflow = 0;
             usableSize = pBt.usableSize;
@@ -224,16 +233,16 @@ public class SqlJetMemPage {
      * Release a MemPage. This should be called once for each prior call to
      * sqlite3BtreeGetPage.
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
-    public static void releasePage(SqlJetMemPage pPage) throws SqlJetException{
+    public static void releasePage(SqlJetMemPage pPage) throws SqlJetException {
         if (pPage != null) {
-            assert(pPage.nOverflow == 0 || pPage.pDbPage.getRefCount() > 1);
-            assert(pPage.aData!=null);
-            assert(pPage.pBt!=null);
-            assert(pPage.pDbPage.getExtra() == pPage);
-            assert(pPage.pDbPage.getData() == pPage.aData.array());
-            assert(pPage.pBt.mutex.held());
+            assert (pPage.nOverflow == 0 || pPage.pDbPage.getRefCount() > 1);
+            assert (pPage.aData != null);
+            assert (pPage.pBt != null);
+            assert (pPage.pDbPage.getExtra() == pPage);
+            assert (pPage.pDbPage.getData() == pPage.aData.array());
+            assert (pPage.pBt.mutex.held());
             pPage.pDbPage.unref();
         }
     }
@@ -242,7 +251,8 @@ public class SqlJetMemPage {
      * Set the pointer-map entries for all children of page pPage. Also, if
      * pPage contains cells that point to overflow pages, set the pointer map
      * entries for the overflow pages as well.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     public void setChildPtrmaps() throws SqlJetException {
         int i; /* Counter variable */
@@ -250,7 +260,7 @@ public class SqlJetMemPage {
 
         boolean isInitOrig = isInit;
 
-        assert(pBt.mutex.held());
+        assert (pBt.mutex.held());
         try {
             initPage();
             nCell = this.nCell;
@@ -295,7 +305,7 @@ public class SqlJetMemPage {
      * @throws SqlJetExceptionRemove
      */
     public void modifyPagePointer(int iFrom, int iTo, byte eType) throws SqlJetException {
-        assert(pBt.mutex.held());
+        assert (pBt.mutex.held());
         if (eType == SqlJetBtreeShared.PTRMAP_OVERFLOW2) {
             /* The pointer is always the first 4 bytes of the page in this case. */
             if (get4byte(aData) != iFrom) {
@@ -354,12 +364,13 @@ public class SqlJetMemPage {
     /**
      * If the cell pCell, part of page pPage contains a pointer to an overflow
      * page, insert an entry into the pointer-map for the overflow page.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     private void ptrmapPutOvflPtr(ByteBuffer pCell) throws SqlJetException {
-        assert(pCell != null);
+        assert (pCell != null);
         SqlJetBtreeCellInfo info = parseCellPtr(pCell);
-        assert((info.nData + (intKey ? 0 : info.nKey)) == info.nPayload);
+        assert ((info.nData + (intKey ? 0 : info.nKey)) == info.nPayload);
         if ((info.nData + (intKey ? 0 : info.nKey)) > info.nLocal) {
             int ovfl = get4byte(pCell, info.iOverflow);
             pBt.ptrmapPut(ovfl, SqlJetBtreeShared.PTRMAP_OVERFLOW1, pgno);
@@ -379,17 +390,17 @@ public class SqlJetMemPage {
      *            Pointer to the cell text.
      * @return
      */
-    private SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell)  {
+    private SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell) {
 
         int n; /* Number bytes in cell content header */
         int[] nPayload = new int[1]; /* Number of bytes of cell payload */
 
-        assert(pBt.mutex.held());
+        assert (pBt.mutex.held());
 
         SqlJetBtreeCellInfo pInfo = new SqlJetBtreeCellInfo();
         pInfo.pCell = pCell;
         n = childPtrSize;
-        assert(n == 4 - 4 * (leaf ? 1 : 0));
+        assert (n == 4 - 4 * (leaf ? 1 : 0));
         if (intKey) {
             if (hasData) {
                 n += getVarint32(slice(pCell, n), nPayload);
@@ -455,20 +466,22 @@ public class SqlJetMemPage {
      * Set up a raw page so that it looks like a database page holding no
      * entries.
      * 
-     * @param sqlJetBtree TODO
-     * @param flags TODO
+     * @param sqlJetBtree
+     *            TODO
+     * @param flags
+     *            TODO
      * @throws SqlJetException
      */
     void zeroPage(int flags) throws SqlJetException {
         byte[] data = aData.array();
         byte hdr = hdrOffset;
         int first;
-    
+
         assert (pDbPage.getPageNumber() == pgno);
         assert (pDbPage.getExtra() == this);
         assert (pDbPage.getData() == data);
         assert (pBt.mutex.held());
-    
+
         data[hdr] = (byte) flags;
         first = hdr + 8 + 4 * ((flags & SqlJetMemPage.PTF_LEAF) == 0 ? 1 : 0);
         SqlJetUtility.memset(data, hdr + 1, (byte) 0, 4);
@@ -483,6 +496,93 @@ public class SqlJetMemPage {
         maskPage = pBt.pageSize - 1;
         nCell = 0;
         isInit = true;
+    }
+
+    /*
+     * * Add a page of the database file to the freelist.** sqlite3PagerUnref()
+     * is NOT called for pPage.
+     */
+    public void freePage() throws SqlJetException {
+        SqlJetMemPage pPage1 = pBt.pPage1;
+        int n, k;
+
+        /* Prepare the page for freeing */
+        assert (pBt.mutex.held());
+        assert (this.pgno > 1);
+        this.isInit = false;
+
+        /* Increment the free page count on pPage1 */
+        pPage1.pDbPage.write();
+        n = get4byte(pPage1.aData, 36);
+        put4byte(pPage1.aData, 36, n + 1);
+
+        if (ISqlJetConfig.SECURE_DELETE) {
+            /*
+             * If the SQLITE_SECURE_DELETE compile-time option is enabled, then
+             * always fully overwrite deleted information with zeros.
+             */
+            pDbPage.write();
+            memset(aData, (byte) 0, pBt.pageSize);
+        }
+
+        /*
+         * If the database supports auto-vacuum, write an entry in the
+         * pointer-map to indicate that the page is free.
+         */
+        if (ISAUTOVACUUM()) {
+            pBt.ptrmapPut(pgno, pBt.PTRMAP_FREEPAGE, 0);
+        }
+
+        if (n == 0) {
+            /* This is the first free page */
+            pDbPage.write();
+            memset(aData, (byte) 0, 8);
+            put4byte(pPage1.aData, 32, pgno);
+            // TRACE(("FREE-PAGE: %d first\n", pPage->pgno));
+        } else {
+            /*
+             * Other free pages already exist. Retrive the first trunk page* of
+             * the freelist and find out how many leaves it has.
+             */
+            SqlJetMemPage pTrunk;
+            pTrunk = pBt.getPage(get4byte(pPage1.aData, 32), false);
+            k = get4byte(pTrunk.aData, 4);
+            if (k >= pBt.usableSize / 4 - 8) {
+                /*
+                 * The trunk is full. Turn the page being freed into a new*
+                 * trunk page with no leaves.** Note that the trunk page is not
+                 * really full until it contains* usableSize/4 - 2 entries, not
+                 * usableSize/4 - 8 entries as we have* coded. But due to a
+                 * coding error in versions of SQLite prior to* 3.6.0, databases
+                 * with freelist trunk pages holding more than* usableSize/4 - 8
+                 * entries will be reported as corrupt. In order* to maintain
+                 * backwards compatibility with older versions of SQLite,* we
+                 * will contain to restrict the number of entries to
+                 * usableSize/4 - 8* for now. At some point in the future (once
+                 * everyone has upgraded* to 3.6.0 or later) we should consider
+                 * fixing the conditional above* to read "usableSize/4-2"
+                 * instead of "usableSize/4-8".
+                 */
+                pDbPage.write();
+                put4byte(aData, pTrunk.pgno);
+                put4byte(aData, 4, 0);
+                put4byte(aData, 32, pgno);
+                // TRACE(("FREE-PAGE: %d new trunk page replacing %d\n",
+                // pPage->pgno, pTrunk->pgno));
+            } else if (k < 0) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+            } else {
+                /* Add the newly freed page as a leaf on the current trunk */
+                pTrunk.pDbPage.write();
+                put4byte(pTrunk.aData, 4, k + 1);
+                put4byte(pTrunk.aData, 8 + k * 4, pgno);
+                if (ISqlJetConfig.SECURE_DELETE) {
+                    pDbPage.dontWrite();
+                }
+                // TRACE(("FREE-PAGE: %d leaf on trunk page %d\n",pPage->pgno,pTrunk->pgno));
+            }
+            releasePage(pTrunk);
+        }
     }
 
 }

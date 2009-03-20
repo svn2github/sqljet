@@ -19,5 +19,8 @@ package org.tmatesoft.sqljet.core;
  *
  */
 public interface ISqlJetConfig {
+    
+    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
+    
     boolean isSharedCacheEnabled();
 }

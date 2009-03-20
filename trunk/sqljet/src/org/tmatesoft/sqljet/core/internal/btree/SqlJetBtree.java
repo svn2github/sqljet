@@ -44,6 +44,7 @@ import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
 /**
@@ -1981,10 +1982,82 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#clearTable(int, int[])
      */
-    public void clearTable(int table, int[] change) {
-
+    public void clearTable(int table, int[] change) throws SqlJetException {
+        enter();
+        try {
+            pBt.db = db;
+            assert( inTrans==TransMode.WRITE );
+            if( !checkReadLocks( table, null, 1) ){
+                /* nothing to do */
+            }else if( !pBt.saveAllCursors(table, null) ){
+                /* nothing to do */
+            }else{
+                pBt.clearDatabasePage( table, false, change );
+            }
+        } finally {
+            leave();
+        }
     }
 
+    /**
+    * This routine checks all cursors that point to table pgnoRoot.
+    * If any of those cursors were opened with wrFlag==0 in a different
+    * database connection (a database connection that shares the pager
+    * cache with the current connection) and that other connection 
+    * is not in the ReadUncommmitted state, then this routine returns 
+    * SQLITE_LOCKED.
+    *
+    * As well as cursors with wrFlag==0, cursors with wrFlag==1 and 
+    * isIncrblobHandle==1 are also considered 'read' cursors. Incremental 
+    * blob cursors are used for both reading and writing.
+    *
+    * When pgnoRoot is the root page of an intkey table, this function is also
+    * responsible for invalidating incremental blob cursors when the table row
+    * on which they are opened is deleted or modified. Cursors are invalidated
+    * according to the following rules:
+    *
+    *   1) When BtreeClearTable() is called to completely delete the contents
+    *      of a B-Tree table, pExclude is set to zero and parameter iRow is 
+    *      set to non-zero. In this case all incremental blob cursors open
+    *      on the table rooted at pgnoRoot are invalidated.
+    *
+    *   2) When BtreeInsert(), BtreeDelete() or BtreePutData() is called to 
+    *      modify a table row via an SQL statement, pExclude is set to the 
+    *      write cursor used to do the modification and parameter iRow is set
+    *      to the integer row id of the B-Tree entry being modified. Unless
+    *      pExclude is itself an incremental blob cursor, then all incremental
+    *      blob cursors open on row iRow of the B-Tree are invalidated.
+    *
+    *   3) If both pExclude and iRow are set to zero, no incremental blob 
+    *      cursors are invalidated.
+    */
+    private boolean checkReadLocks( int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow )
+    {
+      SqlJetBtreeCursor p;
+      assert( holdsMutex() );
+      for(p=pBt.pCursor; p!=null; p=p.pNext){
+        if( p==pExclude ) continue;
+        if( p.pgnoRoot!=pgnoRoot ) continue;
+        if( p.isIncrblobHandle && ( 
+             (pExclude==null && iRow!=0)
+          || (pExclude!=null && !pExclude.isIncrblobHandle && p.info.nKey==iRow)
+        )){
+          p.eState = CursorState.INVALID;
+        }
+        if( p.eState!=CursorState.VALID ) continue;
+        if( !p.wrFlag 
+         || p.isIncrblobHandle
+        ){
+          ISqlJetDb dbOther = p.pBtree.db;
+          if( dbOther==null ||
+             (dbOther!=db && !dbOther.getFlags().contains(SqlJetDbFlags.ReadUncommitted)) ){
+              return false;
+          }
+        }
+      }
+      return true;
+    }
+    
     /*
      * (non-Javadoc)
      * 

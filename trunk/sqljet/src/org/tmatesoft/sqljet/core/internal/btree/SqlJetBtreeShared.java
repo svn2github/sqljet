@@ -857,15 +857,16 @@ public class SqlJetBtreeShared {
      * @param j
      * @throws SqlJetException
      */
-    public void saveAllCursors(int iRoot, SqlJetBtreeCursor pExcept) throws SqlJetException {
+    public boolean saveAllCursors(int iRoot, SqlJetBtreeCursor pExcept) throws SqlJetException {
         SqlJetBtreeCursor p;
         assert (mutex.held());
         assert (pExcept == null || pExcept.pBt == this);
         for (p = this.pCursor; p != null; p = p.pNext) {
             if (p != pExcept && (0 == iRoot || p.pgnoRoot == iRoot) && p.eState == SqlJetBtreeCursor.CursorState.VALID) {
-                p.saveCursorPosition();
+                if(!p.saveCursorPosition()) return false;
             }
         }
+        return true;
     }
 
     /**
@@ -889,4 +890,189 @@ public class SqlJetBtreeShared {
         return r;
     }
 
+    /**
+    * Erase the given database page and all its children.  Return
+    * the page to the freelist.
+    * 
+     * @param pgno
+     * @param freePageFlag Page number to clear
+     * @param pnChange Deallocate page if true
+     * 
+     * @throws SqlJetException
+     */
+    public void clearDatabasePage( int pgno, boolean freePageFlag, int[] pnChange ) throws SqlJetException
+    {
+      SqlJetMemPage pPage = null;
+      ByteBuffer pCell;
+      int i;
+
+      assert( mutex.held() );
+      if( pgno>pPager.getPageCount() ){
+          throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+      }
+
+      try {
+          
+          pPage = getAndInitPage( pgno );
+          for(i=0; i<pPage.nCell; i++){
+            pCell = pPage.findCell(i);
+            if( !pPage.leaf ){
+                clearDatabasePage( SqlJetUtility.get4byte(pCell), true, pnChange);
+            }
+            pPage.clearCell(pCell);
+          }
+          if( !pPage.leaf ){
+            clearDatabasePage( SqlJetUtility.get4byte( pPage.aData, 8), true, pnChange);
+          }else if( pnChange!=null ){
+            assert( pPage.intKey );
+            pnChange[0] += pPage.nCell;
+          }
+          if( freePageFlag ){
+              pPage.freePage();
+          }else { 
+              pPage.pDbPage.write();
+              pPage.zeroPage( pPage.aData.get(0) | SqlJetMemPage.PTF_LEAF );
+          }
+
+    // cleardatabasepage_out:
+      } catch(SqlJetException e) {
+          SqlJetMemPage.releasePage(pPage);
+          throw e;
+      }
+      
+    }
+
+    /*
+    ** Get a page from the pager and initialize it.  This routine
+    ** is just a convenience wrapper around separate calls to
+    ** sqlite3BtreeGetPage() and sqlite3BtreeInitPage().
+    */
+    private SqlJetMemPage getAndInitPage(
+      int pgno           /* Number of the page to get */
+    ) throws SqlJetException {
+      
+      ISqlJetPage pDbPage = null;
+      SqlJetMemPage pPage = null;
+
+      assert( mutex.held() );
+      if( pgno==0 ){
+          throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+      }
+
+      /* It is often the case that the page we want is already in cache.
+      ** If so, get it directly.  This saves us from having to call
+      ** pagerPagecount() to make sure pgno is within limits, which results
+      ** in a measureable performance improvements.
+      */
+      try {
+      pDbPage = pPager.lookupPage( pgno );
+      if( pDbPage!=null ){
+        /* Page is already in cache */
+        pPage = pageFromDbPage(pDbPage, pgno);
+      }else{
+        /* Page not in cache.  Acquire it. */
+        if( pgno>pPager.getPageCount() ){
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+        pPage = getPage( pgno, false);
+      }
+      if( !pPage.isInit ){
+          pPage.initPage();
+      }
+      } catch(SqlJetException e) {
+        SqlJetMemPage.releasePage(pPage);
+        throw e;
+      }
+      
+      return pPage;
+      
+    }
+
+    /**
+    * Given the page number of an overflow page in the database (parameter
+    * ovfl), this function finds the page number of the next page in the 
+    * linked list of overflow pages. If possible, it uses the auto-vacuum
+    * pointer-map data instead of reading the content of page ovfl to do so. 
+    *
+    * If an error occurs an SQLite error code is returned. Otherwise:
+    *
+    * Unless pPgnoNext is NULL, the page number of the next overflow 
+    * page in the linked list is written to *pPgnoNext. If page ovfl
+    * is the last page in its linked list, *pPgnoNext is set to zero. 
+    *
+    * If ppPage is not NULL, *ppPage is set to the MemPage* handle
+    * for page ovfl. The underlying pager page may have been requested
+    * with the noContent flag set, so the page data accessable via
+    * this handle may not be trusted.
+    * 
+     * @param ovfl Overflow page
+     * @param ppPage OUT: MemPage handle
+     * @param pPgnoNext OUT: Next overflow page number
+     * 
+     * @throws SqlJetException
+     */
+    public void getOverflowPage( int ovfl, SqlJetMemPage[] ppPage, int[] pPgnoNext ) throws SqlJetException
+    {
+      int next = 0;
+
+      assert( mutex.held() );
+      /* One of these must not be NULL. Otherwise, why call this function? */
+      assert( ( ppPage!=null && ppPage.length!=0 && ppPage[1]!=null ) || 
+              ( pPgnoNext!=null && pPgnoNext.length!=0 && pPgnoNext[1]!=0 ) );
+
+      /* If pPgnoNext is NULL, then this function is being called to obtain
+      ** a MemPage* reference only. No page-data is required in this case.
+      */
+      if( pPgnoNext==null || pPgnoNext.length==0 || pPgnoNext[1]==0 ){
+        ppPage[0] = getPage(ovfl, true);
+        return;
+      }
+
+      /* Try to find the next page in the overflow list using the
+      ** autovacuum pointer-map pages. Guess that the next page in 
+      ** the overflow list is page number (ovfl+1). If that guess turns 
+      ** out to be wrong, fall back to loading the data of page 
+      ** number ovfl to determine the next page number.
+      */
+      if( autoVacuum ){
+          
+        int[] pgno = new int[1];
+        int iGuess = ovfl+1;
+        byte[] eType = new byte[1];
+
+        while( PTRMAP_ISPAGE(iGuess) || iGuess==PENDING_BYTE_PAGE() ){
+          iGuess++;
+        }
+
+        if( iGuess<=pPager.getPageCount() ){
+          ptrmapGet(iGuess, eType, pgno);
+          if( eType[0]==PTRMAP_OVERFLOW2 && pgno[0]==ovfl ){
+            next = iGuess;
+          }
+        }
+      }
+
+      if( next==0 || ( ppPage!=null && ppPage.length!=0 && ppPage[1]!=null ) ){
+        SqlJetMemPage pPage = null;
+
+        try {
+            pPage = getPage(ovfl, next!=0);
+        } finally {
+            if( next==0 && pPage!=null ){
+                next = SqlJetUtility.get4byte(pPage.aData,0);
+            }
+
+            if( ( ppPage!=null && ppPage.length!=0 && ppPage[1]!=null ) ){
+                ppPage[0] = pPage;
+            }else{
+                SqlJetMemPage.releasePage(pPage);
+            }
+        }
+        
+      }
+      
+      pPgnoNext[0] = next;
+
+    }
+    
 }

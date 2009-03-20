@@ -357,7 +357,7 @@ public class SqlJetMemPage {
      * 
      * This routine works only for pages that do not contain overflow cells.
      */
-    private ByteBuffer findCell(int i) {
+    public ByteBuffer findCell(int i) {
         return slice(aData, maskPage & get2byte(aData, cellOffset + 2 * i));
     }
 
@@ -585,4 +585,34 @@ public class SqlJetMemPage {
         }
     }
 
+    /**
+    ** Free any overflow pages associated with the given Cell.
+    */
+    public void clearCell(ByteBuffer pCell) throws SqlJetException{
+      SqlJetBtreeCellInfo info;
+      int[] ovflPgno = new int[1];
+      int nOvfl;
+      int ovflPageSize;
+
+      assert( pBt.mutex.held() );
+      info=parseCellPtr(pCell);
+      if( info.iOverflow==0 ){
+        return;  /* No overflow pages. Return without doing anything */
+      }
+      ovflPgno[0] = get4byte(pCell,info.iOverflow);
+      ovflPageSize = pBt.usableSize - 4;
+      nOvfl = (info.nPayload - info.nLocal + ovflPageSize - 1)/ovflPageSize;
+      assert( ovflPgno[0]==0 || nOvfl>0 );
+      while( nOvfl-- !=0 ){
+        SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
+        if( ovflPgno[0]==0 || ovflPgno[0]>pBt.pPager.getPageCount() ){
+          throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+
+        pBt.getOverflowPage(ovflPgno[0], pOvfl, (nOvfl==0)?null:ovflPgno);
+        pOvfl[0].freePage();
+        pOvfl[0].pDbPage.unref();
+      }
+    }
+    
 }

@@ -258,9 +258,9 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     /**
      * 
      */
-    public void saveCursorPosition() throws SqlJetException {
+    public boolean saveCursorPosition()  throws SqlJetException {
         // TODO Auto-generated method stub
-        
+        return false;
     }
 
 }

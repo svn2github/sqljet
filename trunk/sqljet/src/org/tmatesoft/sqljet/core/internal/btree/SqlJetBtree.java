@@ -215,7 +215,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * This routine is used only from within assert() statements.
      */
-    private boolean holdsMutex() {
+    boolean holdsMutex() {
         return !sharable || (locked && wantToLock != 0 && pBt.mutex.held());
     }
 
@@ -2030,7 +2030,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 3) If both pExclude and iRow are set to zero, no incremental blob cursors
      * are invalidated.
      */
-    private boolean checkReadLocks(int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow) {
+    boolean checkReadLocks(int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow) {
         SqlJetBtreeCursor p;
         assert (holdsMutex());
         for (p = pBt.pCursor; p != null; p = p.pNext) {
@@ -2154,12 +2154,27 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getCursor(int, boolean,
-     * org.tmatesoft.sqljet.core.ISqlJetKeyInfo)
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#tripAllCursors(org.tmatesoft.sqljet
+     * .core.SqlJetErrorCode)
      */
-    public ISqlJetBtreeCursor getCursor(int table, boolean wrFlag, ISqlJetKeyInfo keyInfo) {
-        // TODO Auto-generated method stub
-        return null;
+    public void tripAllCursors(SqlJetErrorCode errCode) throws SqlJetException {
+        SqlJetBtreeCursor p;
+        enter();
+        try {
+            for (p = pBt.pCursor; p != null; p = p.pNext) {
+                int i;
+                p.clearCursor();
+                p.eState = CursorState.FAULT;
+                p.skip = errCode;
+                for (i = 0; i <= p.iPage; i++) {
+                    SqlJetMemPage.releasePage(p.apPage[i]);
+                    p.apPage[i] = null;
+                }
+            }
+        } finally {
+            leave();
+        }
     }
 
     /*
@@ -2168,8 +2183,46 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getPager()
      */
     public ISqlJetPager getPager() {
-        // TODO Auto-generated method stub
-        return null;
+        return pBt.pPager;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getCursor(int, boolean,
+     * org.tmatesoft.sqljet.core.ISqlJetKeyInfo)
+     */
+    public ISqlJetBtreeCursor getCursor(int table, boolean wrFlag, ISqlJetKeyInfo keyInfo) throws SqlJetException {
+        enter();
+        try {
+            pBt.db = db;
+            return new SqlJetBtreeCursor(this, table, wrFlag, keyInfo);
+        } finally {
+            leave();
+        }
+    }
+
+    /**
+     * This routine works like lockBtree() except that it also invokes the busy
+     * callback if there is lock contention.
+     * 
+     * @throws SqlJetException
+     */
+    void lockWithRetry() throws SqlJetException {
+        assert (holdsMutex());
+        if (inTrans == TransMode.NONE) {
+            TransMode inTransaction = pBt.inTransaction;
+            integrity();
+            try {
+                beginTrans(SqlJetTransactionMode.READ_ONLY);
+            } finally {
+                pBt.inTransaction = inTransaction;
+                inTrans = TransMode.NONE;
+            }
+            pBt.nTransaction--;
+            integrity();
+        }
+
     }
 
     /*
@@ -2182,17 +2235,5 @@ public class SqlJetBtree implements ISqlJetBtree {
         // TODO Auto-generated method stub
         return null;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#tripAllCursors(org.tmatesoft.sqljet
-     * .core.SqlJetErrorCode)
-     */
-    public void tripAllCursors(SqlJetErrorCode errCode) {
-        // TODO Auto-generated method stub
-
-    }
-
+    
 }

@@ -947,7 +947,7 @@ public class SqlJetBtreeShared {
     ** is just a convenience wrapper around separate calls to
     ** sqlite3BtreeGetPage() and sqlite3BtreeInitPage().
     */
-    private SqlJetMemPage getAndInitPage(
+    SqlJetMemPage getAndInitPage(
       int pgno           /* Number of the page to get */
     ) throws SqlJetException {
       

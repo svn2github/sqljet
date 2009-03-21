@@ -1986,13 +1986,13 @@ public class SqlJetBtree implements ISqlJetBtree {
         enter();
         try {
             pBt.db = db;
-            assert( inTrans==TransMode.WRITE );
-            if( !checkReadLocks( table, null, 1) ){
+            assert (inTrans == TransMode.WRITE);
+            if (!checkReadLocks(table, null, 1)) {
                 /* nothing to do */
-            }else if( !pBt.saveAllCursors(table, null) ){
+            } else if (!pBt.saveAllCursors(table, null)) {
                 /* nothing to do */
-            }else{
-                pBt.clearDatabasePage( table, false, change );
+            } else {
+                pBt.clearDatabasePage(table, false, change);
             }
         } finally {
             leave();
@@ -2000,64 +2000,157 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /**
-    * This routine checks all cursors that point to table pgnoRoot.
-    * If any of those cursors were opened with wrFlag==0 in a different
-    * database connection (a database connection that shares the pager
-    * cache with the current connection) and that other connection 
-    * is not in the ReadUncommmitted state, then this routine returns 
-    * SQLITE_LOCKED.
-    *
-    * As well as cursors with wrFlag==0, cursors with wrFlag==1 and 
-    * isIncrblobHandle==1 are also considered 'read' cursors. Incremental 
-    * blob cursors are used for both reading and writing.
-    *
-    * When pgnoRoot is the root page of an intkey table, this function is also
-    * responsible for invalidating incremental blob cursors when the table row
-    * on which they are opened is deleted or modified. Cursors are invalidated
-    * according to the following rules:
-    *
-    *   1) When BtreeClearTable() is called to completely delete the contents
-    *      of a B-Tree table, pExclude is set to zero and parameter iRow is 
-    *      set to non-zero. In this case all incremental blob cursors open
-    *      on the table rooted at pgnoRoot are invalidated.
-    *
-    *   2) When BtreeInsert(), BtreeDelete() or BtreePutData() is called to 
-    *      modify a table row via an SQL statement, pExclude is set to the 
-    *      write cursor used to do the modification and parameter iRow is set
-    *      to the integer row id of the B-Tree entry being modified. Unless
-    *      pExclude is itself an incremental blob cursor, then all incremental
-    *      blob cursors open on row iRow of the B-Tree are invalidated.
-    *
-    *   3) If both pExclude and iRow are set to zero, no incremental blob 
-    *      cursors are invalidated.
-    */
-    private boolean checkReadLocks( int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow )
-    {
-      SqlJetBtreeCursor p;
-      assert( holdsMutex() );
-      for(p=pBt.pCursor; p!=null; p=p.pNext){
-        if( p==pExclude ) continue;
-        if( p.pgnoRoot!=pgnoRoot ) continue;
-        if( p.isIncrblobHandle && ( 
-             (pExclude==null && iRow!=0)
-          || (pExclude!=null && !pExclude.isIncrblobHandle && p.info.nKey==iRow)
-        )){
-          p.eState = CursorState.INVALID;
+     * This routine checks all cursors that point to table pgnoRoot. If any of
+     * those cursors were opened with wrFlag==0 in a different database
+     * connection (a database connection that shares the pager cache with the
+     * current connection) and that other connection is not in the
+     * ReadUncommmitted state, then this routine returns SQLITE_LOCKED.
+     * 
+     * As well as cursors with wrFlag==0, cursors with wrFlag==1 and
+     * isIncrblobHandle==1 are also considered 'read' cursors. Incremental blob
+     * cursors are used for both reading and writing.
+     * 
+     * When pgnoRoot is the root page of an intkey table, this function is also
+     * responsible for invalidating incremental blob cursors when the table row
+     * on which they are opened is deleted or modified. Cursors are invalidated
+     * according to the following rules:
+     * 
+     * 1) When BtreeClearTable() is called to completely delete the contents of
+     * a B-Tree table, pExclude is set to zero and parameter iRow is set to
+     * non-zero. In this case all incremental blob cursors open on the table
+     * rooted at pgnoRoot are invalidated.
+     * 
+     * 2) When BtreeInsert(), BtreeDelete() or BtreePutData() is called to
+     * modify a table row via an SQL statement, pExclude is set to the write
+     * cursor used to do the modification and parameter iRow is set to the
+     * integer row id of the B-Tree entry being modified. Unless pExclude is
+     * itself an incremental blob cursor, then all incremental blob cursors open
+     * on row iRow of the B-Tree are invalidated.
+     * 
+     * 3) If both pExclude and iRow are set to zero, no incremental blob cursors
+     * are invalidated.
+     */
+    private boolean checkReadLocks(int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow) {
+        SqlJetBtreeCursor p;
+        assert (holdsMutex());
+        for (p = pBt.pCursor; p != null; p = p.pNext) {
+            if (p == pExclude)
+                continue;
+            if (p.pgnoRoot != pgnoRoot)
+                continue;
+            if (p.isIncrblobHandle
+                    && ((pExclude == null && iRow != 0) || (pExclude != null && !pExclude.isIncrblobHandle && p.info.nKey == iRow))) {
+                p.eState = CursorState.INVALID;
+            }
+            if (p.eState != CursorState.VALID)
+                continue;
+            if (!p.wrFlag || p.isIncrblobHandle) {
+                ISqlJetDb dbOther = p.pBtree.db;
+                if (dbOther == null || (dbOther != db && !dbOther.getFlags().contains(SqlJetDbFlags.ReadUncommitted))) {
+                    return false;
+                }
+            }
         }
-        if( p.eState!=CursorState.VALID ) continue;
-        if( !p.wrFlag 
-         || p.isIncrblobHandle
-        ){
-          ISqlJetDb dbOther = p.pBtree.db;
-          if( dbOther==null ||
-             (dbOther!=db && !dbOther.getFlags().contains(SqlJetDbFlags.ReadUncommitted)) ){
-              return false;
-          }
-        }
-      }
-      return true;
+        return true;
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getMeta(int)
+     */
+    public int getMeta(int idx) throws SqlJetException {
+
+        enter();
+
+        try {
+
+            ISqlJetPage pDbPage = null;
+            ByteBuffer pP1;
+
+            pBt.db = this.db;
+
+            /*
+             * Reading a meta-data value requires a read-lock on page 1 (and
+             * hence the sqlite_master table. We grab this lock regardless of
+             * whether or not the SQLITE_ReadUncommitted flag is set (the table
+             * rooted at page 1 is treated as a special case by queryTableLock()
+             * and lockTable()).
+             */
+            queryTableLock(1, SqlJetBtreeLockMode.READ);
+
+            assert (idx >= 0 && idx <= 15);
+            if (pBt.pPage1 != null) {
+                /*
+                 * The b-tree is already holding a reference to page 1 of the
+                 * database file. In this case the required meta-data value can
+                 * be read directly from the page data of this reference. This
+                 * is slightly faster than* requesting a new reference from the
+                 * pager layer.
+                 */
+                pP1 = pBt.pPage1.aData;
+            } else {
+                /*
+                 * The b-tree does not have a reference to page 1 of the
+                 * database file. Obtain one from the pager layer.
+                 */
+                pDbPage = pBt.pPager.getPage(1);
+                pP1 = ByteBuffer.wrap(pDbPage.getData());
+            }
+
+            int pMeta = SqlJetUtility.get4byte(pP1, 36 + idx * 4);
+
+            /*
+             * If the b-tree is not holding a reference to page 1, then one was
+             * requested from the pager layer in the above block. Release it
+             * now.
+             */
+            if (pBt.pPage1 == null) {
+                pDbPage.unref();
+            }
+
+            /*
+             * If autovacuumed is disabled in this build but we are trying to
+             * access an autovacuumed database, then make the database readonly.
+             */
+            if (idx == 4 && pMeta > 0)
+                pBt.readOnly = true;
+
+            /* Grab the read-lock on page 1. */
+            lockTable(1, SqlJetBtreeLockMode.READ);
+
+            return pMeta;
+
+        } finally {
+            leave();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#updateMeta(int, int[])
+     */
+    public void updateMeta(int idx, int value) throws SqlJetException {
+        assert (idx >= 1 && idx <= 15);
+        enter();
+        try {
+            pBt.db = this.db;
+            assert (this.inTrans == TransMode.WRITE);
+            assert (pBt.pPage1 != null);
+            ByteBuffer pP1 = pBt.pPage1.aData;
+            pBt.pPage1.pDbPage.write();
+            SqlJetUtility.put4byte(pP1, 36 + idx * 4, value);
+            if (idx == 7) {
+                assert (pBt.autoVacuum || value == 0);
+                assert (value == 0 || value == 1);
+                pBt.incrVacuum = value != 0;
+            }
+        } finally {
+            leave();
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -2067,16 +2160,6 @@ public class SqlJetBtree implements ISqlJetBtree {
     public ISqlJetBtreeCursor getCursor(int table, boolean wrFlag, ISqlJetKeyInfo keyInfo) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getMeta(int)
-     */
-    public int getMeta(int idx) {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /*
@@ -2108,16 +2191,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * .core.SqlJetErrorCode)
      */
     public void tripAllCursors(SqlJetErrorCode errCode) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#updateMeta(int, int[])
-     */
-    public void updateMeta(int idx, int value) throws SqlJetException {
         // TODO Auto-generated method stub
 
     }

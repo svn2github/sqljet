@@ -27,34 +27,66 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
 
-    SqlJetBtree pBtree; /* The Btree to which this cursor belongs */
-    SqlJetBtreeShared pBt; /* The BtShared this cursor points to */
-    SqlJetBtreeCursor pNext, pPrev; /* Forms a linked list of all cursors */
-    ISqlJetKeyInfo pKeyInfo; /* Argument passed to comparison function */
-    int pgnoRoot; /* The root page of this tree */
-    SqlJetBtreeCellInfo info; /* A parse of the cell we are pointing at */
-    boolean wrFlag; /* True if writable */
-    boolean atLast; /* Cursor pointing to the last entry */
-    boolean validNKey; /* True if info.nKey is valid */
-    CursorState eState; /* One of the CURSOR_XXX constants (see below) */
-    Object pKey; /* Saved key that was cursor's last known position */
-    long nKey; /* Size of pKey, or last integer key */
-    SqlJetErrorCode skip; /*
-                           * (skip<0) -> Prev() is a no-op. (skip>0) -> Next()
-                           * is
-                           */
-    boolean isIncrblobHandle; /* True if this cursor is an incr. io handle */
-    int aOverflow; /* Cache of overflow page locations */
-    boolean pagesShuffled; /* True if Btree pages are rearranged by balance() */
-    int iPage; /* Index of current page in apPage */
-    SqlJetMemPage[] apPage = new SqlJetMemPage[BTCURSOR_MAX_DEPTH]; /*
-                                                                     * Pages
-                                                                     * from root
-                                                                     * to
-                                                                     * current
-                                                                     * page
-                                                                     */
-    int[] aiIdx = new int[BTCURSOR_MAX_DEPTH]; /* Current index in apPage[i] */
+    /** The Btree to which this cursor belongs */
+    SqlJetBtree pBtree;
+
+    /** The BtShared this cursor points to */
+    SqlJetBtreeShared pBt;
+
+    /** Forms a linked list of all cursors */
+    SqlJetBtreeCursor pNext, pPrev;
+
+    /** Argument passed to comparison function */
+    ISqlJetKeyInfo pKeyInfo;
+
+    /** The root page of this tree */
+    int pgnoRoot;
+
+    /** A parse of the cell we are pointing at */
+    SqlJetBtreeCellInfo info;
+
+    /** True if writable */
+    boolean wrFlag;
+
+    /** Cursor pointing to the last entry */
+    boolean atLast;
+
+    /** True if info.nKey is valid */
+    boolean validNKey;
+
+    /** One of the CURSOR_XXX constants (see below) */
+    CursorState eState;
+
+    /** Saved key that was cursor's last known position */
+    Object pKey;
+
+    /** Size of pKey, or last integer key */
+    long nKey;
+
+    /**
+     * (skip<0) -> Prev() is a no-op. (skip>0) -> Next() is
+     */
+    SqlJetErrorCode skip;
+
+    /** True if this cursor is an incr. io handle */
+    boolean isIncrblobHandle;
+
+    /** Cache of overflow page locations */
+    int[] aOverflow;
+
+    /** True if Btree pages are rearranged by balance() */
+    boolean pagesShuffled;
+
+    /** Index of current page in apPage */
+    int iPage;
+
+    /**
+     * Pages from root to current page
+     */
+    SqlJetMemPage[] apPage = new SqlJetMemPage[BTCURSOR_MAX_DEPTH];
+
+    /** Current index in apPage[i] */
+    int[] aiIdx = new int[BTCURSOR_MAX_DEPTH];
 
     /**
      * Potential values for BtCursor.eState.
@@ -122,7 +154,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
      * 
      * @throws SqlJetException
      */
-    public SqlJetBtreeCursor(SqlJetBtree btree, int table, boolean wrFlag2, ISqlJetKeyInfo keyInfo)
+    public SqlJetBtreeCursor(SqlJetBtree btree, int table, boolean wrFlag, ISqlJetKeyInfo keyInfo)
             throws SqlJetException {
 
         int nPage;
@@ -157,7 +189,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
              * BtCursor* variables, link the cursor into the BtShared list and
              * set *ppCur (the* output argument to this function).
              */
-            this.pKeyInfo = pKeyInfo;
+            this.pKeyInfo = keyInfo;
             this.pBtree = btree;
             this.pBt = pBt;
             this.wrFlag = wrFlag;
@@ -176,14 +208,11 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
+    /**
+     * @return
      */
-    public void cacheOverflow() {
-        // TODO Auto-generated method stub
-
+    private boolean holdsMutex() {
+        return pBt.mutex.held();
     }
 
     /*
@@ -192,8 +221,9 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#clearCursor()
      */
     public void clearCursor() {
-        // TODO Auto-generated method stub
-
+        assert (holdsMutex());
+        pKey = null;
+        eState = CursorState.INVALID;
     }
 
     /*
@@ -201,7 +231,58 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#closeCursor()
      */
-    public void closeCursor() {
+    public void closeCursor() throws SqlJetException {
+        if (pBtree != null) {
+            int i;
+            pBtree.enter();
+            try {
+                pBt.db = pBtree.db;
+                clearCursor();
+                if (pPrev != null) {
+                    pPrev.pNext = pNext;
+                } else {
+                    pBt.pCursor = pNext;
+                }
+                if (pNext != null) {
+                    pNext.pPrev = pPrev;
+                }
+                for (i = 0; i <= iPage; i++) {
+                    SqlJetMemPage.releasePage(apPage[i]);
+                }
+                pBt.unlockBtreeIfUnused();
+                invalidateOverflowCache();
+                /* sqlite3_free(pCur); */
+            } finally {
+                pBtree.leave();
+            }
+        }
+    }
+
+    /**
+     * Invalidate the overflow page-list cache for cursor pCur, if any.
+     */
+    private void invalidateOverflowCache() {
+        assert (holdsMutex());
+        aOverflow = null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long,
+     * boolean)
+     */
+    public int moveTo(byte[] key, long key2, boolean bias) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
+     */
+    public void cacheOverflow() {
         // TODO Auto-generated method stub
 
     }
@@ -345,17 +426,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     public boolean last() {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long,
-     * boolean)
-     */
-    public int moveTo(byte[] key, long key2, boolean bias) {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /*

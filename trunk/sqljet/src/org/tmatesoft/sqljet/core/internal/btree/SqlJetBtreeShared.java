@@ -192,7 +192,7 @@ public class SqlJetBtreeShared {
     public void invalidateAllOverflowCache() {
         assert (mutex.held());
         for (SqlJetBtreeCursor p = pCursor; p != null; p = p.pNext) {
-            p.aOverflow = 0;
+            p.aOverflow = null;
         }
     }
 

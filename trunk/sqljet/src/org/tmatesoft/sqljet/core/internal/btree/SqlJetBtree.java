@@ -128,7 +128,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * p->pNext, then wait for the lock to become available on p, then relock
      * all of the subsequent Btrees that desire a lock.
      */
-    private void enter() {
+    void enter() {
         SqlJetBtree p = this;
         SqlJetBtree pLater;
 
@@ -194,7 +194,7 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * Exit the recursive mutex on a Btree.
      */
-    private void leave() {
+    void leave() {
         SqlJetBtree p = this;
         if (p.sharable) {
             assert (p.wantToLock > 0);

@@ -43,7 +43,7 @@ import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
@@ -2235,5 +2235,5 @@ public class SqlJetBtree implements ISqlJetBtree {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
 }

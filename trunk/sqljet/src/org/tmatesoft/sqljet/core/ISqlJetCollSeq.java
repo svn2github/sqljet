@@ -1,5 +1,5 @@
 /**
- * ISqlJetConfig.java
+ * ISqlJetCollSeq.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,16 +13,33 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import java.nio.ByteBuffer;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetConfig {
-    
-    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
-    
-    boolean isSharedCacheEnabled();
+public interface ISqlJetCollSeq {
+
+    /**
+     * @return
+     */
+    Object getUserData();
+
+    /**
+     * @param userData
+     * @param n
+     * @param z
+     * @param n2
+     * @param z2
+     * @return
+     */
+    int cmp(Object userData, int n, ByteBuffer z, int n2, ByteBuffer z2);
+
+    /**
+     * @return
+     */
+    SqlJetEncoding getEnc();
+
 }

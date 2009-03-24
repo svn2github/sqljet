@@ -11,11 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core;
+package org.tmatesoft.sqljet.core.internal;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+
+import org.tmatesoft.sqljet.core.SqlJetError;
 
 /**
  * @author TMate Software Ltd.
@@ -177,13 +179,11 @@ public class SqlJetUtility {
     }
 
     public static void memcpy(ByteBuffer dest, ByteBuffer src, int length) {
-        System.arraycopy(src.array(), src.arrayOffset(), 
-                dest.array(), dest.arrayOffset(), length);
+        System.arraycopy(src.array(), src.arrayOffset(), dest.array(), dest.arrayOffset(), length);
     }
 
     public static void memcpy(ByteBuffer dest, int dstPos, ByteBuffer src, int srcPos, int length) {
-        System.arraycopy(src.array(), src.arrayOffset()+srcPos, 
-                dest.array(), dest.arrayOffset() + dstPos, length);
+        System.arraycopy(src.array(), src.arrayOffset() + srcPos, dest.array(), dest.arrayOffset() + dstPos, length);
     }
 
     /**
@@ -195,7 +195,7 @@ public class SqlJetUtility {
     public static void memset(byte[] data, int from, byte value, int count) {
         Arrays.fill(data, from, count, value);
     }
-    
+
     /**
      * @param data
      * @param value
@@ -220,9 +220,9 @@ public class SqlJetUtility {
      * @param count
      */
     public static void memset(ByteBuffer data, int from, byte value, int count) {
-        Arrays.fill(data.array(), data.arrayOffset()+from, count, value);
+        Arrays.fill(data.array(), data.arrayOffset() + from, count, value);
     }
-    
+
     /**
      * @param data
      * @param value
@@ -239,7 +239,7 @@ public class SqlJetUtility {
     public static void memset(ByteBuffer data, byte value) {
         memset(data, value, data.capacity());
     }
-    
+
     /**
      * @param s
      * @param from
@@ -298,15 +298,32 @@ public class SqlJetUtility {
         return 0;
     }
 
+    /**
+     * @param z
+     * @param z2
+     * @param count
+     * @return
+     */
+    public static int memcmp(ByteBuffer a1, ByteBuffer a2, int count) {
+        for (int i = 0; i < count; i++) {
+            final Byte b1 = Byte.valueOf(a1.get(i));
+            final Byte b2 = Byte.valueOf(a2.get(i));
+            final int c = b1.compareTo(b2);
+            if (0 != c)
+                return c;
+        }
+        return 0;
+    }
+
     public static byte[] addZeroByteEnd(byte[] b) {
         if (null == b)
             throw new SqlJetError("Undefined byte array");
-        byte[] r = new byte[b.length+1];
+        byte[] r = new byte[b.length + 1];
         memcpy(r, b, b.length);
         r[b.length] = 0;
         return r;
     }
-    
+
     /**
      * @param sqliteFileHeader
      * @return
@@ -564,7 +581,7 @@ public class SqlJetUtility {
      * 
      * @throws SqlJetExceptionRemove
      */
-    public static byte getVarint32(ByteBuffer p, int[] v){
+    public static byte getVarint32(ByteBuffer p, int[] v) {
         int a, b;
         int i = 0;
 
@@ -632,7 +649,7 @@ public class SqlJetUtility {
 
             i -= 4;
             n = getVarint(p, v64);
-            assert(n > 5 && n <= 9);
+            assert (n > 5 && n <= 9);
             v[0] = (int) v64[0];
             return n;
         }

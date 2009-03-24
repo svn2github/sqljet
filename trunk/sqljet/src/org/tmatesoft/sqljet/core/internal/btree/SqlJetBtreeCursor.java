@@ -13,12 +13,16 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
+import java.nio.ByteBuffer;
+
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -272,11 +276,306 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long,
      * boolean)
      */
-    public int moveTo(byte[] key, long key2, boolean bias) {
-        // TODO Auto-generated method stub
-        return 0;
+    public int moveTo(ByteBuffer pKey, long nKey, boolean bias) throws SqlJetException {
+        /* Unpacked index key */
+        SqlJetUnpackedRecord pIdxKey;
+
+        if (pKey != null) {
+            assert (nKey == (long) (int) nKey);
+            pIdxKey = pKeyInfo.recordUnpack((int) nKey, pKey);
+            if (pIdxKey == null)
+                throw new SqlJetException(SqlJetErrorCode.NOMEM);
+        } else {
+            pIdxKey = null;
+        }
+
+        try {
+            return moveToUnpacked(pIdxKey, nKey, bias);
+        } finally {
+            if (pKey != null) {
+                SqlJetUnpackedRecord.delete(pIdxKey);
+            }
+        }
     }
-    
+
+    /**
+     * Move the cursor to the root page
+     */
+    private void moveToRoot() throws SqlJetException {
+        SqlJetMemPage pRoot;
+
+        assert (this.holdsMutex());
+        assert (CursorState.INVALID.compareTo(CursorState.REQUIRESEEK) < 0);
+        assert (CursorState.VALID.compareTo(CursorState.REQUIRESEEK) < 0);
+        assert (CursorState.FAULT.compareTo(CursorState.REQUIRESEEK) < 0);
+        if (this.eState.compareTo(CursorState.REQUIRESEEK) >= 0) {
+            if (this.eState == CursorState.FAULT) {
+                throw new SqlJetException(this.skip);
+            }
+            this.clearCursor();
+        }
+
+        if (this.iPage >= 0) {
+            int i;
+            for (i = 1; i <= this.iPage; i++) {
+                SqlJetMemPage.releasePage(this.apPage[i]);
+            }
+        } else {
+            try {
+                this.apPage[0] = pBt.getAndInitPage(this.pgnoRoot);
+            } catch (SqlJetException e) {
+                this.eState = CursorState.INVALID;
+                throw e;
+            }
+        }
+
+        pRoot = this.apPage[0];
+        assert (pRoot.pgno == this.pgnoRoot);
+        this.iPage = 0;
+        this.aiIdx[0] = 0;
+        this.info.nSize = 0;
+        this.atLast = false;
+        this.validNKey = false;
+
+        if (pRoot.nCell == 0 && !pRoot.leaf) {
+            int subpage;
+            assert (pRoot.pgno == 1);
+            subpage = SqlJetUtility.get4byte(pRoot.aData, pRoot.hdrOffset + 8);
+            assert (subpage > 0);
+            this.eState = CursorState.VALID;
+            moveToChild(subpage);
+        } else {
+            this.eState = ((pRoot.nCell > 0) ? CursorState.VALID : CursorState.INVALID);
+        }
+
+    }
+
+    /**
+     * Move the cursor down to a new child page. The newPgno argument is the
+     * page number of the child page to move to.
+     */
+    private void moveToChild(int newPgno) throws SqlJetException {
+        int i = this.iPage;
+        SqlJetMemPage pNewPage;
+
+        assert (this.holdsMutex());
+        assert (this.eState == CursorState.VALID);
+        assert (this.iPage < BTCURSOR_MAX_DEPTH);
+        if (this.iPage >= (BTCURSOR_MAX_DEPTH - 1)) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+        pNewPage = pBt.getAndInitPage(newPgno);
+        this.apPage[i + 1] = pNewPage;
+        this.aiIdx[i + 1] = 0;
+        this.iPage++;
+
+        this.info.nSize = 0;
+        this.validNKey = false;
+        if (pNewPage.nCell < 1) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+    }
+
+    /**
+     * Make sure the BtCursor has a valid BtCursor.info structure. If it is not
+     * already valid, call sqlite3BtreeParseCell() to fill it in.
+     * 
+     * BtCursor.info is a cache of the information in the current cell. Using
+     * this cache reduces the number of calls to sqlite3BtreeParseCell().
+     * 
+     */
+    private void getCellInfo() {
+        if (this.info.nSize == 0) {
+            this.info = this.apPage[iPage].parseCell(this.aiIdx[iPage]);
+            this.validNKey = true;
+        }
+    }
+
+    /**
+     * Return a pointer to payload information from the entry that the pCur
+     * cursor is pointing to. The pointer is to the beginning of the key if
+     * skipKey==0 and it points to the beginning of data if skipKey==1. The
+     * number of bytes of available key/data is written into *pAmt. If *pAmt==0,
+     * then the value returned will not be a valid pointer.
+     * 
+     * This routine is an optimization. It is common for the entire key and data
+     * to fit on the local page and for there to be no overflow pages. When that
+     * is so, this routine can be used to access the key and data without making
+     * a copy. If the key and/or data spills onto overflow pages, then
+     * accessPayload() must be used to reassembly the key/data and copy it into
+     * a preallocated buffer.
+     * 
+     * The pointer returned by this routine looks directly into the cached page
+     * of the database. The data might change or move the next time any btree
+     * routine is called.
+     * 
+     * @param pAmt
+     *            Write the number of available bytes here
+     * @param skipKey
+     *            read beginning at data if this is true
+     * @return
+     */
+    private ByteBuffer fetchPayload(int[] pAmt, boolean skipKey) {
+        ByteBuffer aPayload;
+        SqlJetMemPage pPage;
+        int nKey;
+        int nLocal;
+
+        assert (this.iPage >= 0 && this.apPage[this.iPage] != null);
+        assert (this.eState == CursorState.VALID);
+        assert (this.holdsMutex());
+        pPage = this.apPage[this.iPage];
+        assert (this.aiIdx[this.iPage] < pPage.nCell);
+        this.getCellInfo();
+        aPayload = this.info.pCell;
+        aPayload = SqlJetUtility.slice(aPayload, this.info.nHeader);
+        if (pPage.intKey) {
+            nKey = 0;
+        } else {
+            nKey = (int) this.info.nKey;
+        }
+        if (skipKey) {
+            aPayload = SqlJetUtility.slice(aPayload, nKey);
+            nLocal = this.info.nLocal - nKey;
+        } else {
+            nLocal = this.info.nLocal;
+            if (nLocal > nKey) {
+                nLocal = nKey;
+            }
+        }
+        pAmt[0] = nLocal;
+        return aPayload;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveToUnpacked(org.tmatesoft
+     * .sqljet.core.ISqlJetUnpackedRecord, long, boolean)
+     */
+    public int moveToUnpacked(ISqlJetUnpackedRecord pIdxKey, long intKey, boolean biasRight) throws SqlJetException {
+
+        assert (holdsMutex());
+        assert (pBtree.db.getMutex().held());
+
+        /*
+         * If the cursor is already positioned at the point we are trying* to
+         * move to, then just return without doing any work
+         */
+        if (this.eState == CursorState.VALID && this.validNKey && this.apPage[0].intKey) {
+            if (this.info.nKey == intKey) {
+                return 0;
+            }
+            if (this.atLast && this.info.nKey < intKey) {
+                return -1;
+            }
+        }
+
+        moveToRoot();
+
+        assert (this.apPage[this.iPage] != null);
+        assert (this.apPage[this.iPage].isInit);
+        if (this.eState == CursorState.INVALID) {
+            assert (this.apPage[this.iPage].nCell == 0);
+            return -1;
+        }
+        assert (this.apPage[0].intKey || pIdxKey != null);
+        for (;;) {
+            int lwr, upr;
+            int chldPg;
+            SqlJetMemPage pPage = this.apPage[this.iPage];
+            int c = -1; /* pRes return if table is empty must be -1 */
+            lwr = 0;
+            upr = pPage.nCell - 1;
+            if ((!pPage.intKey && pIdxKey == null) || upr < 0) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
+            if (biasRight) {
+                this.aiIdx[this.iPage] = upr;
+            } else {
+                this.aiIdx[this.iPage] = ((upr + lwr) / 2);
+            }
+            for (;;) {
+                ByteBuffer pCellKey;
+                long[] nCellKey = new long[1];
+                int idx = this.aiIdx[this.iPage];
+                this.info.nSize = 0;
+                this.validNKey = true;
+                if (pPage.intKey) {
+                    ByteBuffer pCell;
+                    pCell = SqlJetUtility.slice(pPage.findCell(idx), pPage.childPtrSize);
+                    if (pPage.hasData) {
+                        int[] dummy = new int[1];
+                        pCell = SqlJetUtility.slice(pCell, SqlJetUtility.getVarint32(pCell, dummy));
+                    }
+                    SqlJetUtility.getVarint(pCell, nCellKey);
+                    if (nCellKey[0] == intKey) {
+                        c = 0;
+                    } else if (nCellKey[0] < intKey) {
+                        c = -1;
+                    } else {
+                        assert (nCellKey[0] > intKey);
+                        c = +1;
+                    }
+                } else {
+                    int[] available = new int[1];
+                    pCellKey = this.fetchPayload(available, false);
+                    nCellKey[0] = this.info.nKey;
+                    if (available[0] >= nCellKey[0]) {
+                        c = pIdxKey.recordCompare((int) nCellKey[0], pCellKey);
+                    } else {
+                        pCellKey = ByteBuffer.allocate((int) nCellKey[0]);
+                        try {
+                            this.key(0, (int) nCellKey[0], pCellKey);
+                        } finally {
+                            c = pIdxKey.recordCompare((int) nCellKey[0], pCellKey);
+                            // sqlite3_free(pCellKey);
+                        }
+                    }
+                }
+                if (c == 0) {
+                    this.info.nKey = nCellKey[0];
+                    if (pPage.intKey && !pPage.leaf) {
+                        lwr = idx;
+                        upr = lwr - 1;
+                        break;
+                    } else {
+                        return 0;
+                    }
+                }
+                if (c < 0) {
+                    lwr = idx + 1;
+                } else {
+                    upr = idx - 1;
+                }
+                if (lwr > upr) {
+                    this.info.nKey = nCellKey[0];
+                    break;
+                }
+                this.aiIdx[this.iPage] = (int) ((lwr + upr) / 2);
+            }
+            assert (lwr == upr + 1);
+            assert (pPage.isInit);
+            if (pPage.leaf) {
+                chldPg = 0;
+            } else if (lwr >= pPage.nCell) {
+                chldPg = SqlJetUtility.get4byte(pPage.aData, pPage.hdrOffset + 8);
+            } else {
+                chldPg = SqlJetUtility.get4byte(pPage.findCell(lwr));
+            }
+            if (chldPg == 0) {
+                assert (this.aiIdx[this.iPage] < this.apPage[this.iPage].nCell);
+                return c;
+            }
+            this.aiIdx[this.iPage] = (int) lwr;
+            this.info.nSize = 0;
+            this.validNKey = false;
+            moveToChild(chldPg);
+        }
+
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -403,7 +702,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
      */
-    public void key(int offset, int amt, byte[] buf) {
+    public void key(int offset, int amt, ByteBuffer buf) {
         // TODO Auto-generated method stub
 
     }
@@ -426,18 +725,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     public boolean last() {
         // TODO Auto-generated method stub
         return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveToUnpacked(org.tmatesoft
-     * .sqljet.core.ISqlJetUnpackedRecord, long, boolean)
-     */
-    public int moveToUnpacked(ISqlJetUnpackedRecord unKey, long intKey, boolean bias) {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /*

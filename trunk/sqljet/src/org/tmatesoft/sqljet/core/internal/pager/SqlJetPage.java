@@ -22,7 +22,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.SqlJetPagerJournalMode;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.

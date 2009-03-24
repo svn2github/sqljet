@@ -38,7 +38,7 @@ import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.

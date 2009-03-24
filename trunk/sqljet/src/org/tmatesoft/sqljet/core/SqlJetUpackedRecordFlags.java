@@ -1,5 +1,5 @@
 /**
- * ISqlJetConfig.java
+ * SqlJetUpackedRecordFlags.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,16 +13,26 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetConfig {
+public enum SqlJetUpackedRecordFlags {
+
+    /** Memory is from sqlite3Malloc() */
+    NEED_FREE,  //     0x0001  
     
-    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
+    /** apMem[]s should all be destroyed */    
+    NEED_DESTROY,   //  0x0002  
     
-    boolean isSharedCacheEnabled();
+    /** Ignore trailing rowid on key1 */    
+    IGNORE_ROWID,   //  0x0004  
+    
+    /** Make this key an epsilon larger */
+    INCRKEY,    //       0x0008  
+    
+    /** A prefix match is considered OK */
+    PREFIX_MATCH    //  0x0010  
+    
 }

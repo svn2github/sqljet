@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 

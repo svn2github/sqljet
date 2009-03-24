@@ -1,5 +1,5 @@
 /**
- * ISqlJetConfig.java
+ * SqlJetEncoding.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,16 +13,27 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-
 /**
+ * These constant define integer codes that represent the various
+ * text encodings supported by SQLite.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetConfig {
+public enum SqlJetEncoding {
+
+    UTF8,           //1
+    UTF16LE,        //2
+    UTF16BE,        //3
     
-    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
+    /** Use native byte order */    
+    UTF16,          //4
     
-    boolean isSharedCacheEnabled();
+    /** sqlite3_create_function only */    
+    ANY,            //5
+    
+    /** sqlite3_create_collation only */    
+    UTF16_ALIGNED   //8
+    
 }

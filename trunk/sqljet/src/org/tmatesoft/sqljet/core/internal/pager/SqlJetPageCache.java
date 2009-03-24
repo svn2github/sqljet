@@ -23,7 +23,7 @@ import org.tmatesoft.sqljet.core.ISqlJetPageCache;
 import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetPageFlags;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * A complete page cache is an instance of this structure.

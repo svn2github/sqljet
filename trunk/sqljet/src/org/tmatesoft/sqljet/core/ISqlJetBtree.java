@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.EnumSet;
 
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+
 /**
  * A Btree handle
  * 

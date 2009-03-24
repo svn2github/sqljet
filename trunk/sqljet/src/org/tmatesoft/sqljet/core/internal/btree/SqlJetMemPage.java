@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.SqlJetUtility.*;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.*;
 
 import java.nio.ByteBuffer;
 
@@ -21,7 +21,7 @@ import org.tmatesoft.sqljet.core.ISqlJetConfig;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * As each page of the file is loaded into memory, an instance of the following
@@ -383,9 +383,6 @@ public class SqlJetMemPage {
      * as the second argument and sqlite3BtreeParseCellPtr() takes a pointer to
      * the body of the cell as its second argument.
      * 
-     * Within this file, the parseCell() macro can be called instead of
-     * sqlite3BtreeParseCellPtr(). Using some compilers, this will be faster.
-     * 
      * @param pCell
      *            Pointer to the cell text.
      * @return
@@ -463,6 +460,15 @@ public class SqlJetMemPage {
     }
 
     /**
+     * @param iCell
+     *            The cell index. First cell is 0
+     * @return
+     */
+    public SqlJetBtreeCellInfo parseCell(int iCell) {
+        return parseCellPtr(findCell(iCell));
+    }
+
+    /**
      * Set up a raw page so that it looks like a database page holding no
      * entries.
      * 
@@ -530,7 +536,7 @@ public class SqlJetMemPage {
          * pointer-map to indicate that the page is free.
          */
         if (ISAUTOVACUUM()) {
-            pBt.ptrmapPut(pgno, pBt.PTRMAP_FREEPAGE, 0);
+            pBt.ptrmapPut(pgno, SqlJetBtreeShared.PTRMAP_FREEPAGE, 0);
         }
 
         if (n == 0) {
@@ -586,33 +592,33 @@ public class SqlJetMemPage {
     }
 
     /**
-    ** Free any overflow pages associated with the given Cell.
-    */
-    public void clearCell(ByteBuffer pCell) throws SqlJetException{
-      SqlJetBtreeCellInfo info;
-      int[] ovflPgno = new int[1];
-      int nOvfl;
-      int ovflPageSize;
+     ** Free any overflow pages associated with the given Cell.
+     */
+    public void clearCell(ByteBuffer pCell) throws SqlJetException {
+        SqlJetBtreeCellInfo info;
+        int[] ovflPgno = new int[1];
+        int nOvfl;
+        int ovflPageSize;
 
-      assert( pBt.mutex.held() );
-      info=parseCellPtr(pCell);
-      if( info.iOverflow==0 ){
-        return;  /* No overflow pages. Return without doing anything */
-      }
-      ovflPgno[0] = get4byte(pCell,info.iOverflow);
-      ovflPageSize = pBt.usableSize - 4;
-      nOvfl = (info.nPayload - info.nLocal + ovflPageSize - 1)/ovflPageSize;
-      assert( ovflPgno[0]==0 || nOvfl>0 );
-      while( nOvfl-- !=0 ){
-        SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
-        if( ovflPgno[0]==0 || ovflPgno[0]>pBt.pPager.getPageCount() ){
-          throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        assert (pBt.mutex.held());
+        info = parseCellPtr(pCell);
+        if (info.iOverflow == 0) {
+            return; /* No overflow pages. Return without doing anything */
         }
+        ovflPgno[0] = get4byte(pCell, info.iOverflow);
+        ovflPageSize = pBt.usableSize - 4;
+        nOvfl = (info.nPayload - info.nLocal + ovflPageSize - 1) / ovflPageSize;
+        assert (ovflPgno[0] == 0 || nOvfl > 0);
+        while (nOvfl-- != 0) {
+            SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
+            if (ovflPgno[0] == 0 || ovflPgno[0] > pBt.pPager.getPageCount()) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
 
-        pBt.getOverflowPage(ovflPgno[0], pOvfl, (nOvfl==0)?null:ovflPgno);
-        pOvfl[0].freePage();
-        pOvfl[0].pDbPage.unref();
-      }
+            pBt.getOverflowPage(ovflPgno[0], pOvfl, (nOvfl == 0) ? null : ovflPgno);
+            pOvfl[0].freePage();
+            pOvfl[0].pDbPage.unref();
+        }
     }
-    
+
 }

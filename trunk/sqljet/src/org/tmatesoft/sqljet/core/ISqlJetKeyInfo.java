@@ -13,11 +13,34 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.nio.ByteBuffer;
+
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
 public interface ISqlJetKeyInfo {
+
+    /**
+     * Given the nKey-byte encoding of a record in pKey[], parse the
+     * record into a UnpackedRecord structure.  Return a pointer to
+     * that structure.
+     *
+     * The calling function might provide szSpace bytes of memory
+     * space at pSpace.  This space can be used to hold the returned
+     * VDbeParsedRecord structure if it is large enough.  If it is
+     * not big enough, space is obtained from sqlite3_malloc().
+     *
+     * The returned structure should be closed by a call to
+     * sqlite3VdbeDeleteUnpackedRecord().
+     * 
+     * @param nKey Size of the binary record
+     * @param pKey The binary record
+     * @return
+     */
+    SqlJetUnpackedRecord recordUnpack(int nKey, ByteBuffer pKey);
 
 }

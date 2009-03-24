@@ -1,5 +1,5 @@
 /**
- * ISqlJetConfig.java
+ * ISqlJetRowSet.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,16 +13,11 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetConfig {
-    
-    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
-    
-    boolean isSharedCacheEnabled();
+public interface ISqlJetRowSet {
+
 }

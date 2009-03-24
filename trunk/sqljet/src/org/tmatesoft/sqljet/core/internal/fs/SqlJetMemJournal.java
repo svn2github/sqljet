@@ -21,7 +21,7 @@ import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetLockType;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * This subclass is a subclass of sqlite3_file.  Each open memory-journal

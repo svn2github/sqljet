@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.EnumSet;
 
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+
 /**
  * The pages cache subsystem reads and writes a file a page at a time and
  * provides a journal for rollback.

@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.nio.ByteBuffer;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -51,7 +53,7 @@ public interface ISqlJetBtreeCursor {
      * @return
      * @throws SqlJetException
      */
-    int moveTo( byte[] pKey, long nKey, boolean bias ) throws SqlJetException;
+    int moveTo( ByteBuffer pKey, long nKey, boolean bias ) throws SqlJetException;
     
     /**
      * Move the cursor so that it points to an entry near the key 
@@ -193,7 +195,7 @@ public interface ISqlJetBtreeCursor {
     * wrong.  An error is thrown if "offset+amt" is larger than
     * the available payload.
     */
-    void key( int offset, int amt, byte[] buf) throws SqlJetException;
+    void key( int offset, int amt, ByteBuffer buf) throws SqlJetException;
     
     /**
      * Return the database connection handle for a cursor.

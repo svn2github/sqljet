@@ -42,7 +42,7 @@ import org.tmatesoft.sqljet.core.SqlJetPagerLockingMode;
 import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
-import org.tmatesoft.sqljet.core.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
 
 /**

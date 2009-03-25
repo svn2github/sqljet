@@ -62,15 +62,17 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     CursorState eState;
 
     /** Saved key that was cursor's last known position */
-    Object pKey;
+    ByteBuffer pKey;
 
     /** Size of pKey, or last integer key */
     long nKey;
 
+    SqlJetErrorCode error;
+    
     /**
      * (skip<0) -> Prev() is a no-op. (skip>0) -> Next() is
      */
-    SqlJetErrorCode skip;
+    int skip;
 
     /** True if this cursor is an incr. io handle */
     boolean isIncrblobHandle;
@@ -310,7 +312,7 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
         assert (CursorState.FAULT.compareTo(CursorState.REQUIRESEEK) < 0);
         if (this.eState.compareTo(CursorState.REQUIRESEEK) >= 0) {
             if (this.eState == CursorState.FAULT) {
-                throw new SqlJetException(this.skip);
+                throw new SqlJetException(this.error);
             }
             this.clearCursor();
         }
@@ -576,6 +578,53 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
 
     }
 
+    /**
+    * Restore the cursor to the position it was in (or as close to as possible)
+    * when saveCursorPosition() was called. Note that this call deletes the 
+    * saved position info stored by saveCursorPosition(), so there can be
+    * at most one effective restoreCursorPosition() call after each 
+    * saveCursorPosition().
+    */
+    private void restoreCursorPosition() throws SqlJetException{
+      if( this.eState.compareTo(CursorState.REQUIRESEEK) <0 ) return;
+      assert( this.holdsMutex() );
+      if( this.eState==CursorState.FAULT ){
+        throw new SqlJetException(this.error);
+      }
+      this.eState = CursorState.INVALID;
+      this.skip = this.moveTo( this.pKey, this.nKey, false);
+      this.pKey = null;
+      assert( this.eState==CursorState.VALID || this.eState==CursorState.INVALID );
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cursorHasMoved()
+     */
+    public boolean cursorHasMoved() {
+        try {
+            restoreCursorPosition();
+        } catch(SqlJetException e) {
+          return true;
+        }
+        if( eState!=CursorState.VALID || skip!=0 ){
+          return true;
+        }else{
+          return false;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#delete()
+     */
+    public void delete() {
+        // TODO Auto-generated method stub
+
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -584,16 +633,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     public void cacheOverflow() {
         // TODO Auto-generated method stub
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cursorHasMoved()
-     */
-    public boolean cursorHasMoved() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     /*
@@ -614,16 +653,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor {
     public byte[] dataFetch(int[] amt) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#delete()
-     */
-    public void delete() {
-        // TODO Auto-generated method stub
-
     }
 
     /*

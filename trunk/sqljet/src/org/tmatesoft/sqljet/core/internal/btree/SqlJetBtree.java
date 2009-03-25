@@ -2166,7 +2166,8 @@ public class SqlJetBtree implements ISqlJetBtree {
                 int i;
                 p.clearCursor();
                 p.eState = CursorState.FAULT;
-                p.skip = errCode;
+                p.error = errCode;
+                p.skip = errCode!=null?1:0;
                 for (i = 0; i <= p.iPage; i++) {
                     SqlJetMemPage.releasePage(p.apPage[i]);
                     p.apPage[i] = null;

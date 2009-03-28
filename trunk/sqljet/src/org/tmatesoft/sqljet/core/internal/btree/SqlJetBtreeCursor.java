@@ -1873,6 +1873,104 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#first()
+     */
+    public boolean first() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        assert (cursorHoldsMutex(pCur));
+        assert (pCur.pBtree.db.getMutex().held());
+        pCur.moveToRoot();
+        if (pCur.eState == CursorState.INVALID) {
+            assert (pCur.apPage[pCur.iPage].nCell == 0);
+            return true;
+        } else {
+            assert (pCur.apPage[pCur.iPage].nCell > 0);
+            pCur.moveToLeftmost();
+            return false;
+        }
+    }
+
+    /**
+     * Move the cursor down to the left-most leaf entry beneath the entry to
+     * which it is currently pointing.
+     * 
+     * The left-most leaf is the one with the smallest key - the first in
+     * ascending order.
+     * 
+     * @throws SqlJetException
+     */
+    private void moveToLeftmost() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        int pgno;
+        SqlJetMemPage pPage;
+        assert (cursorHoldsMutex(pCur));
+        assert (pCur.eState == CursorState.VALID);
+        while (!(pPage = pCur.apPage[pCur.iPage]).leaf) {
+            assert (pCur.aiIdx[pCur.iPage] < pPage.nCell);
+            pgno = get4byte(pPage.findCell(pCur.aiIdx[pCur.iPage]));
+            pCur.moveToChild(pgno);
+        }
+    }
+
+    /**
+     * Move the cursor down to the right-most leaf entry beneath the page to
+     * which it is currently pointing. Notice the difference between
+     * moveToLeftmost() and moveToRightmost(). moveToLeftmost() finds the
+     * left-most entry beneath the *entry* whereas moveToRightmost() finds the
+     * right-most entry beneath the *page*.
+     * 
+     * The right-most entry is the one with the largest key - the last key in
+     * ascending order.
+     * 
+     * @throws SqlJetException
+     */
+    private void moveToRightmost() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        int pgno;
+        SqlJetMemPage pPage = null;
+        assert (cursorHoldsMutex(pCur));
+        assert (pCur.eState == CursorState.VALID);
+        while (!(pPage = pCur.apPage[pCur.iPage]).leaf) {
+            pgno = get4byte(pPage.aData, pPage.hdrOffset + 8);
+            pCur.aiIdx[pCur.iPage] = pPage.nCell;
+            pCur.moveToChild(pgno);
+        }
+        pCur.aiIdx[pCur.iPage] = pPage.nCell - 1;
+        pCur.info.nSize = 0;
+        pCur.validNKey = false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#last()
+     */
+    public boolean last() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        assert (cursorHoldsMutex(pCur));
+        assert (pCur.pBtree.db.getMutex().held());
+        pCur.moveToRoot();
+        if (CursorState.INVALID == pCur.eState) {
+            assert (pCur.apPage[pCur.iPage].nCell == 0);
+            return true;
+        } else {
+            assert (pCur.eState == CursorState.VALID);
+            try {
+                pCur.moveToRightmost();
+            } catch (SqlJetException e) {
+                pCur.atLast = false;
+                throw e;
+            } finally {
+                pCur.getCellInfo();
+            }
+            pCur.atLast = true;
+            return false;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
      */
     public void cacheOverflow() {
@@ -1906,16 +2004,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#eof()
      */
     public boolean eof() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#first()
-     */
-    public boolean first() {
         // TODO Auto-generated method stub
         return false;
     }
@@ -1978,16 +2066,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     public byte[] keyFetch(int[] amt) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#last()
-     */
-    public boolean last() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     /*

@@ -120,7 +120,7 @@ public interface ISqlJetBtreeCursor {
      * @param bias True if this is likely an append
      * @throws SqlJetException
      */
-    void insert( byte[] pKey, long nKey, byte[] pData, int nData,
+    void insert( ByteBuffer pKey, long nKey, ByteBuffer pData, int nData,
          int nZero, boolean bias) throws SqlJetException;
     
     /** Move the cursor to the first entry in the table.

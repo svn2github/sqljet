@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
@@ -33,11 +34,11 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeCursor implements ISqlJetBtreeCursor, Cloneable {
+public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCursor {
 
     /*
-     * * The following parameters determine how many adjacent pages get involved
-     * * in a balancing operation. NN is the number of neighbors on either side*
+     * The following parameters determine how many adjacent pages get involved
+     * in a balancing operation. NN is the number of neighbors on either side*
      * of the page that participate in the balancing operation. NB is the* total
      * number of pages that participate, including the target page and* NN
      * neighbors on either side.** The minimum value of NN is 1 (of course).
@@ -656,7 +657,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor, Cloneable {
         SqlJetMemPage pPage = pCur.apPage[pCur.iPage];
         int idx;
         ByteBuffer pCell;
-        int rc;
         int pgnoChild = 0;
         SqlJetBtree p = pCur.pBtree;
         SqlJetBtreeShared pBt = p.pBt;
@@ -1794,6 +1794,85 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor, Cloneable {
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long,
+     * byte[], int, int, boolean)
+     */
+    public void insert(ByteBuffer key, long key2, ByteBuffer data, int data2, int zero, boolean bias)
+            throws SqlJetException {
+
+        final SqlJetBtreeCursor pCur = this;
+
+        int loc;
+        int szNew;
+        int idx;
+        SqlJetMemPage pPage;
+        SqlJetBtree p = pCur.pBtree;
+        SqlJetBtreeShared pBt = p.pBt;
+        ByteBuffer oldCell;
+        ByteBuffer newCell = null;
+
+        assert (cursorHoldsMutex(pCur));
+        assert (pBt.inTransaction == TransMode.WRITE);
+        assert (!pBt.readOnly);
+        assert (pCur.wrFlag);
+        if (pCur.pBtree.checkReadLocks(pCur.pgnoRoot, pCur, nKey)) {
+            /* The table pCur points to has a read lock */
+            throw new SqlJetException(SqlJetErrorCode.LOCKED);
+        }
+        if (pCur.eState == CursorState.FAULT) {
+            throw new SqlJetException(pCur.error);
+        }
+
+        /* Save the positions of any other cursors open on this table */
+        pCur.clearCursor();
+        pBt.saveAllCursors(pCur.pgnoRoot, pCur);
+        loc = pCur.moveTo(pKey, nKey, bias);
+
+        pPage = pCur.apPage[pCur.iPage];
+        assert (pPage.intKey || nKey >= 0);
+        assert (pPage.leaf || !pPage.intKey);
+        TRACE("INSERT: table=%d nkey=%lld ndata=%d page=%d %s\n", pCur.pgnoRoot, nKey, data, pPage.pgno,
+                loc == 0 ? "overwrite" : "new entry");
+        assert (pPage.isInit);
+        pBt.allocateTempSpace();
+        newCell = ByteBuffer.wrap(pBt.pTmpSpace);
+        szNew = pPage.fillInCell(newCell, key, key2, data, data2, zero);
+        assert (szNew == pPage.cellSizePtr(newCell));
+        assert (szNew <= pBt.MX_CELL_SIZE());
+        idx = pCur.aiIdx[pCur.iPage];
+        if (loc == 0 && CursorState.VALID == pCur.eState) {
+            int szOld;
+            assert (idx < pPage.nCell);
+            pPage.pDbPage.write();
+            oldCell = pPage.findCell(idx);
+            if (!pPage.leaf) {
+                memcpy(newCell, oldCell, 4);
+            }
+            szOld = pPage.cellSizePtr(oldCell);
+            pPage.clearCell(oldCell);
+            pPage.dropCell(idx, szOld);
+        } else if (loc < 0 && pPage.nCell > 0) {
+            assert (pPage.leaf);
+            idx = ++pCur.aiIdx[pCur.iPage];
+            pCur.info.nSize = 0;
+            pCur.validNKey = false;
+        } else {
+            assert (pPage.leaf);
+        }
+        pPage.insertCell(idx, newCell, szNew, null, (byte) 0);
+        pCur.balance(true);
+
+        /*
+         * Must make sure nOverflow is reset to zero even if the balance()*
+         * fails. Internal data structure corruption will result otherwise.
+         */
+        pCur.apPage[pCur.iPage].nOverflow = 0;
+        pCur.moveToRoot();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
      */
     public void cacheOverflow() {
@@ -1879,17 +1958,6 @@ public class SqlJetBtreeCursor implements ISqlJetBtreeCursor, Cloneable {
     public long getKeySize() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long,
-     * byte[], int, int, boolean)
-     */
-    public void insert(byte[] key, long key2, byte[] data, int data2, int zero, boolean bias) {
-        // TODO Auto-generated method stub
-
     }
 
     /*

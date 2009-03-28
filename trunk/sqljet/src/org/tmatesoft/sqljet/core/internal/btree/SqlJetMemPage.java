@@ -14,13 +14,16 @@
 package org.tmatesoft.sqljet.core.internal.btree;
 
 import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.*;
+import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
 
 import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.ISqlJetConfig;
+import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -40,7 +43,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetMemPage {
+public class SqlJetMemPage extends SqlJetCloneable {
 
     /**
      * Page type flags. An ORed combination of these flags appear as the first
@@ -90,10 +93,10 @@ public class SqlJetMemPage {
     /** Mask for page offset */
     int maskPage;
 
-    static class _OvflCell {
+    static class _OvflCell extends SqlJetCloneable {
 
         /** Pointers to the body of the overflow cell */
-        byte[] pCell;
+        ByteBuffer pCell;
 
         /** Insert this cell before idx-th non-overflow cell */
         int idx;
@@ -387,7 +390,7 @@ public class SqlJetMemPage {
      *            Pointer to the cell text.
      * @return
      */
-    private SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell) {
+    SqlJetBtreeCellInfo parseCellPtr(ByteBuffer pCell) {
 
         int n; /* Number bytes in cell content header */
         int[] nPayload = new int[1]; /* Number of bytes of cell payload */
@@ -544,7 +547,7 @@ public class SqlJetMemPage {
             pDbPage.write();
             memset(aData, (byte) 0, 8);
             put4byte(pPage1.aData, 32, pgno);
-            // TRACE(("FREE-PAGE: %d first\n", pPage->pgno));
+            TRACE("FREE-PAGE: %d first\n", this.pgno);
         } else {
             /*
              * Other free pages already exist. Retrive the first trunk page* of
@@ -573,8 +576,7 @@ public class SqlJetMemPage {
                 put4byte(aData, pTrunk.pgno);
                 put4byte(aData, 4, 0);
                 put4byte(aData, 32, pgno);
-                // TRACE(("FREE-PAGE: %d new trunk page replacing %d\n",
-                // pPage->pgno, pTrunk->pgno));
+                TRACE("FREE-PAGE: %d new trunk page replacing %d\n", this.pgno, pTrunk.pgno);
             } else if (k < 0) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             } else {
@@ -585,7 +587,7 @@ public class SqlJetMemPage {
                 if (ISqlJetConfig.SECURE_DELETE) {
                     pDbPage.dontWrite();
                 }
-                // TRACE(("FREE-PAGE: %d leaf on trunk page %d\n",pPage->pgno,pTrunk->pgno));
+                TRACE("FREE-PAGE: %d leaf on trunk page %d\n", this.pgno, pTrunk.pgno);
             }
             releasePage(pTrunk);
         }
@@ -619,6 +621,696 @@ public class SqlJetMemPage {
             pOvfl[0].freePage();
             pOvfl[0].pDbPage.unref();
         }
+    }
+
+    /**
+     ** Compute the total number of bytes that a Cell needs in the cell data area
+     * of the btree-page. The return number includes the cell data header and
+     * the local payload, but not any overflow page or the space used by the
+     * cell pointer.
+     */
+    int cellSize(int iCell) {
+        SqlJetBtreeCellInfo info = parseCell(iCell);
+        return info.nSize;
+    }
+
+    int cellSizePtr(ByteBuffer pCell) {
+        SqlJetBtreeCellInfo info = parseCellPtr(pCell);
+        return info.nSize;
+    }
+
+    /**
+     * Remove the i-th cell from pPage. This routine effects pPage only. The
+     * cell content is not freed or deallocated. It is assumed that the cell
+     * content has been copied someplace else. This routine just removes the
+     * reference to the cell from pPage.
+     * 
+     * "sz" must be the number of bytes in the cell.
+     * 
+     * @param idx
+     * @param sz
+     * @throws SqlJetException
+     */
+    public void dropCell(int idx, int sz) throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+
+        int i; /* Loop counter */
+        int pc; /* Offset to cell content of cell being deleted */
+        ByteBuffer data; /* pPage->aData */
+        ByteBuffer ptr; /* Used to move bytes around within data[] */
+
+        assert (idx >= 0 && idx < pPage.nCell);
+        assert (sz == pPage.cellSize(idx));
+        assert (pPage.pBt.mutex.held());
+        data = pPage.aData;
+        ptr = slice(data, pPage.cellOffset + 2 * idx);
+        pc = get2byte(ptr);
+        if ((pc < pPage.hdrOffset + 6 + (pPage.leaf ? 0 : 4)) || (pc + sz > pPage.pBt.usableSize)) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+        pPage.freeSpace(pc, sz);
+        for (i = idx + 1; i < pPage.nCell; i++, ptr = slice(ptr, 2)) {
+            ptr.put(0, ptr.get(2));
+            ptr.put(1, ptr.get(3));
+        }
+        pPage.nCell--;
+        put2byte(data, pPage.hdrOffset + 3, pPage.nCell);
+        pPage.nFree += 2;
+    }
+
+    /*
+     * * Return a section of the pPage->aData to the freelist.* The first byte
+     * of the new free block is pPage->aDisk[start]* and the size of the block
+     * is "size" bytes.** Most of the effort here is involved in coalesing
+     * adjacent* free blocks into a single big free block.
+     */
+    private void freeSpace(int start, int size) throws SqlJetException {
+
+        SqlJetMemPage pPage = this;
+
+        int addr, pbegin, hdr;
+        ByteBuffer data = pPage.aData;
+
+        assert (pPage.pBt != null);
+        assert (start >= pPage.hdrOffset + 6 + (pPage.leaf ? 0 : 4));
+        assert ((start + size) <= pPage.pBt.usableSize);
+        assert (pPage.pBt.mutex.held());
+        assert (size >= 0); /* Minimum cell size is 4 */
+
+        if (ISqlJetConfig.SECURE_DELETE) {
+            /*
+             * Overwrite deleted information with zeros when the SECURE_DELETE*
+             * option is enabled at compile-time
+             */
+            memset(data, start, (byte) 0, size);
+        }
+
+        /* Add the space back into the linked list of freeblocks */
+        hdr = pPage.hdrOffset;
+        addr = hdr + 1;
+        while ((pbegin = get2byte(data, addr)) < start && pbegin > 0) {
+            assert (pbegin <= pPage.pBt.usableSize - 4);
+            if (pbegin <= addr) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
+            addr = pbegin;
+        }
+        if (pbegin > pPage.pBt.usableSize - 4) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+        assert (pbegin > addr || pbegin == 0);
+        put2byte(data, addr, start);
+        put2byte(data, start, pbegin);
+        put2byte(data, start + 2, size);
+        pPage.nFree += size;
+
+        /* Coalesce adjacent free blocks */
+        addr = pPage.hdrOffset + 1;
+        while ((pbegin = get2byte(data, addr)) > 0) {
+            int pnext, psize, x;
+            assert (pbegin > addr);
+            assert (pbegin <= pPage.pBt.usableSize - 4);
+            pnext = get2byte(data, pbegin);
+            psize = get2byte(data, pbegin + 2);
+            if (pbegin + psize + 3 >= pnext && pnext > 0) {
+                int frag = pnext - (pbegin + psize);
+                if ((frag < 0) || (frag > (int) data.get(pPage.hdrOffset + 7))) {
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                }
+                data.put(pPage.hdrOffset + 7, (byte) (data.get(pPage.hdrOffset + 7) - (byte) frag));
+                x = get2byte(data, pnext);
+                put2byte(data, pbegin, x);
+                x = pnext + get2byte(data, pnext + 2) - pbegin;
+                put2byte(data, pbegin + 2, x);
+            } else {
+                addr = pbegin;
+            }
+        }
+
+        /* If the cell content area begins with a freeblock, remove it. */
+        if (data.get(hdr + 1) == data.get(hdr + 5) && data.get(hdr + 2) == data.get(hdr + 6)) {
+            int top;
+            pbegin = get2byte(data, hdr + 1);
+            memcpy(data, hdr + 1, data, pbegin, 2);
+            top = get2byte(data, hdr + 5) + get2byte(data, pbegin + 2);
+            put2byte(data, hdr + 5, top);
+        }
+        assert (pPage.pDbPage.isWriteable());
+    }
+
+    /**
+     * Insert a new cell on pPage at cell index "i". pCell points to the content
+     * of the cell.
+     * 
+     * If the cell content will fit on the page, then put it there. If it will
+     * not fit, then make a copy of the cell content into pTemp if pTemp is not
+     * null. Regardless of pTemp, allocate a new entry in pPage->aOvfl[] and
+     * make it point to the cell content (either in pTemp or the original pCell)
+     * and also record its index. Allocating a new entry in pPage->aCell[]
+     * implies that pPage->nOverflow is incremented.
+     * 
+     * If nSkip is non-zero, then do not copy the first nSkip bytes of the cell.
+     * The caller will overwrite them after this function returns. If nSkip is
+     * non-zero, then pCell may not point to an invalid memory location (but
+     * pCell+nSkip is always valid).
+     * 
+     * @param i
+     *            New cell becomes the i-th cell of the page
+     * @param pCell
+     *            Content of the new cell
+     * @param sz
+     *            Bytes of content in pCell
+     * @param pTemp
+     *            Temp storage space for pCell, if needed
+     * @param nSkip
+     *            Do not write the first nSkip bytes of the cell
+     * 
+     * @throws SqlJetException
+     */
+    public void insertCell(int i, ByteBuffer pCell, int sz, ByteBuffer pTemp, byte nSkip) throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+
+        int idx; /* Where to write new cell content in data[] */
+        int j; /* Loop counter */
+        int top; /* First byte of content for any cell in data[] */
+        int end; /* First byte past the last cell pointer in data[] */
+        int ins; /* Index in data[] where new cell pointer is inserted */
+        int hdr; /* Offset into data[] of the page header */
+        int cellOffset; /* Address of first cell pointer in data[] */
+        ByteBuffer data; /* The content of the whole page */
+        ByteBuffer ptr; /* Used for moving information around in data[] */
+
+        assert (i >= 0 && i <= pPage.nCell + pPage.nOverflow);
+        assert (pPage.nCell <= pPage.pBt.MX_CELL() && pPage.pBt.MX_CELL() <= 5460);
+        assert (pPage.nOverflow <= pPage.aOvfl.length);
+        assert (sz == pPage.cellSizePtr(pCell));
+        assert (pPage.pBt.mutex.held());
+        if (pPage.nOverflow != 0 || sz + 2 > pPage.nFree) {
+            if (pTemp != null) {
+                memcpy(pTemp, nSkip, pCell, nSkip, sz - nSkip);
+                pCell = pTemp;
+            }
+            j = pPage.nOverflow++;
+            // assert( j<(int)(sizeof(pPage.aOvfl)/sizeof(pPage.aOvfl[0])) );
+            pPage.aOvfl[j].pCell = pCell;
+            pPage.aOvfl[j].idx = i;
+            pPage.nFree = 0;
+        } else {
+            pPage.pDbPage.write();
+            assert (pPage.pDbPage.isWriteable());
+            data = pPage.aData;
+            hdr = pPage.hdrOffset;
+            top = get2byte(data, hdr + 5);
+            cellOffset = pPage.cellOffset;
+            end = cellOffset + 2 * pPage.nCell + 2;
+            ins = cellOffset + 2 * i;
+            if (end > top - sz) {
+                pPage.defragmentPage();
+                top = get2byte(data, hdr + 5);
+                assert (end + sz <= top);
+            }
+            idx = pPage.allocateSpace(sz);
+            assert (idx > 0);
+            assert (end <= get2byte(data, hdr + 5));
+            if (idx + sz > pPage.pBt.usableSize) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
+            pPage.nCell++;
+            pPage.nFree -= 2;
+            memcpy(data, idx + nSkip, pCell, nSkip, sz - nSkip);
+            for (j = end - 2, ptr = slice(data, j); j > ins; j -= 2, ptr = slice(ptr, -2)) {
+                ptr.put(0, slice(ptr, -2).get(0));
+                ptr.put(1, slice(ptr, -1).get(0));
+            }
+            put2byte(data, ins, idx);
+            put2byte(data, hdr + 3, pPage.nCell);
+            if (pPage.pBt.autoVacuum) {
+                /*
+                 * The cell may contain a pointer to an overflow page. If so,
+                 * write* the entry for the overflow page into the pointer map.
+                 */
+                SqlJetBtreeCellInfo info = pPage.parseCellPtr(pCell);
+                assert ((info.nData + (pPage.intKey ? 0 : info.nKey)) == info.nPayload);
+                if ((info.nData + (pPage.intKey ? 0 : info.nKey)) > info.nLocal) {
+                    int pgnoOvfl = get4byte(pCell, info.iOverflow);
+                    pPage.pBt.ptrmapPut(pgnoOvfl, SqlJetBtreeShared.PTRMAP_OVERFLOW1, pPage.pgno);
+                }
+            }
+        }
+    }
+
+    /**
+     * Allocate nByte bytes of space on a page.
+     * 
+     * Return the index into pPage->aData[] of the first byte of the new
+     * allocation. The caller guarantees that there is enough space. This
+     * routine will never fail.
+     * 
+     * If the page contains nBytes of free space but does not contain nBytes of
+     * contiguous free space, then this routine automatically calls
+     * defragementPage() to consolidate all free space before allocating the new
+     * chunk.
+     * 
+     * @param nByte
+     * @return
+     * 
+     * @throws SqlJetException
+     */
+    private int allocateSpace(int nByte) throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+
+        int addr, pc, hdr;
+        int size;
+        int nFrag;
+        int top;
+        int nCell;
+        int cellOffset;
+        ByteBuffer data;
+
+        data = pPage.aData;
+        assert (pPage.pDbPage.isWriteable());
+        assert (pPage.pBt != null);
+        assert (pPage.pBt.mutex.held());
+        assert (nByte >= 0); /* Minimum cell size is 4 */
+        assert (pPage.nFree >= nByte);
+        assert (pPage.nOverflow == 0);
+        pPage.nFree -= nByte;
+        hdr = pPage.hdrOffset;
+
+        nFrag = data.get(hdr + 7);
+        if (nFrag < 60) {
+            /*
+             * Search the freelist looking for a slot big enough to satisfy the*
+             * space request.
+             */
+            addr = hdr + 1;
+            while ((pc = get2byte(data, addr)) > 0) {
+                size = get2byte(data, pc + 2);
+                if (size >= nByte) {
+                    int x = size - nByte;
+                    if (size < nByte + 4) {
+                        memcpy(data, addr, data, pc, 2);
+                        data.put(hdr + 7, (byte) (nFrag + x));
+                        return pc;
+                    } else {
+                        put2byte(data, pc + 2, x);
+                        return pc + x;
+                    }
+                }
+                addr = pc;
+            }
+        }
+
+        /*
+         * Allocate memory from the gap in between the cell pointer array* and
+         * the cell content area.
+         */
+        top = get2byte(data, hdr + 5);
+        nCell = get2byte(data, hdr + 3);
+        cellOffset = pPage.cellOffset;
+        if (nFrag >= 60 || cellOffset + 2 * nCell > top - nByte) {
+            defragmentPage();
+            top = get2byte(data, hdr + 5);
+        }
+        top -= nByte;
+        assert (cellOffset + 2 * nCell <= top);
+        put2byte(data, hdr + 5, top);
+        assert (pPage.pDbPage.isWriteable());
+        return top;
+    }
+
+    /**
+     * Defragment the page given. All Cells are moved to the end of the page and
+     * all free space is collected into one big FreeBlk that occurs in between
+     * the header and cell pointer array and the cell content area.
+     * 
+     * @throws SqlJetException
+     */
+    private void defragmentPage() throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+
+        int i; /* Loop counter */
+        int pc; /* Address of a i-th cell */
+        int addr; /* Offset of first byte after cell pointer array */
+        int hdr; /* Offset to the page header */
+        int size; /* Size of a cell */
+        int usableSize; /* Number of usable bytes on a page */
+        int cellOffset; /* Offset to the cell pointer array */
+        int cbrk; /* Offset to the cell content area */
+        int nCell; /* Number of cells on the page */
+        ByteBuffer data; /* The page data */
+        ByteBuffer temp; /* Temp area for cell content */
+
+        assert (pPage.pDbPage.isWriteable());
+        assert (pPage.pBt != null);
+        assert (pPage.pBt.usableSize <= ISqlJetLimits.SQLJET_MAX_PAGE_SIZE);
+        assert (pPage.nOverflow == 0);
+        assert (pPage.pBt.mutex.held());
+        temp = ByteBuffer.wrap(pPage.pBt.pPager.getTempSpace());
+        data = pPage.aData;
+        hdr = pPage.hdrOffset;
+        cellOffset = pPage.cellOffset;
+        nCell = pPage.nCell;
+        assert (nCell == get2byte(data, hdr + 3));
+        usableSize = pPage.pBt.usableSize;
+        cbrk = get2byte(data, hdr + 5);
+        memcpy(temp, cbrk, data, cbrk, usableSize - cbrk);
+        cbrk = usableSize;
+        for (i = 0; i < nCell; i++) {
+            ByteBuffer pAddr; /* The i-th cell pointer */
+            pAddr = slice(data, cellOffset + i * 2);
+            pc = get2byte(pAddr);
+            if (pc >= usableSize) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
+            size = pPage.cellSizePtr(slice(temp, pc));
+            cbrk -= size;
+            if (cbrk < cellOffset + 2 * nCell || pc + size > usableSize) {
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            }
+            assert (cbrk + size <= usableSize && cbrk >= 0);
+            memcpy(data, cbrk, temp, pc, size);
+            put2byte(pAddr, cbrk);
+        }
+        assert (cbrk >= cellOffset + 2 * nCell);
+        put2byte(data, hdr + 5, cbrk);
+        data.put(hdr + 1, (byte) 0);
+        data.put(hdr + 2, (byte) 0);
+        data.put(hdr + 7, (byte) 0);
+        addr = cellOffset + 2 * nCell;
+        memset(data, addr, (byte) 0, cbrk - addr);
+        assert (pPage.pDbPage.isWriteable());
+        if (cbrk - addr != pPage.nFree) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+    }
+
+    /**
+     * This a more complex version of findCell() that works for pages that do
+     * contain overflow cells. See insert
+     * 
+     * @param iCell
+     * @return
+     */
+    public ByteBuffer findOverflowCell(int iCell) {
+        final SqlJetMemPage pPage = this;
+        int i;
+        assert (pPage.pBt.mutex.held());
+        for (i = pPage.nOverflow - 1; i >= 0; i--) {
+            int k;
+            _OvflCell pOvfl = pPage.aOvfl[i];
+            k = pOvfl.idx;
+            if (k <= iCell) {
+                if (k == iCell) {
+                    return pOvfl.pCell;
+                }
+                iCell--;
+            }
+        }
+        return pPage.findCell(iCell);
+    }
+
+    /**
+     * Add a list of cells to a page. The page should be initially empty. The
+     * cells are guaranteed to fit on the page.
+     * 
+     * @param nCell
+     *            The number of cells to add to this page
+     * @param apCell
+     *            Pointers to cell bodies
+     * @param aSize
+     *            Sizes of the cells
+     * 
+     * @throws SqlJetException
+     */
+    public void assemblePage(int nCell, ByteBuffer[] apCell, int[] aSize) throws SqlJetException {
+        assemblePage(nCell, apCell, 0, aSize, 0);
+    }
+
+    public void assemblePage(int nCell, ByteBuffer[] apCell, int apCellPos, int[] aSize, int aSizePos)
+            throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+
+        int i; /* Loop counter */
+        int totalSize; /* Total size of all cells */
+        int hdr; /* Index of page header */
+        int cellptr; /* Address of next cell pointer */
+        int cellbody; /* Address of next cell body */
+        ByteBuffer data; /* Data for the page */
+
+        assert (pPage.nOverflow == 0);
+        assert (pPage.pBt.mutex.held());
+        assert (nCell >= 0 && nCell <= pPage.pBt.MX_CELL() && pPage.pBt.MX_CELL() <= 5460);
+        totalSize = 0;
+        for (i = 0; i < nCell; i++) {
+            totalSize += aSize[aSizePos + i];
+        }
+        assert (totalSize + 2 * nCell <= pPage.nFree);
+        assert (pPage.nCell == 0);
+        assert (pPage.pDbPage.isWriteable());
+        cellptr = pPage.cellOffset;
+        data = pPage.aData;
+        hdr = pPage.hdrOffset;
+        put2byte(data, hdr + 3, nCell);
+        if (nCell != 0) {
+            cellbody = pPage.allocateSpace(totalSize);
+            assert (cellbody > 0);
+            assert (pPage.nFree >= 2 * nCell);
+            pPage.nFree -= 2 * nCell;
+            for (i = 0; i < nCell; i++) {
+                put2byte(data, cellptr, cellbody);
+                memcpy(slice(data, cellbody), apCell[apCellPos + i], aSize[aSizePos + i]);
+                cellptr += 2;
+                cellbody += aSize[aSizePos + i];
+            }
+            assert (cellbody == pPage.pBt.usableSize);
+        }
+        pPage.nCell = nCell;
+
+    }
+
+    /**
+     * Page pParent is an internal (non-leaf) tree page. This function asserts
+     * that page number iChild is the left-child if the iIdx'th cell in page
+     * pParent. Or, if iIdx is equal to the total number of cells in pParent,
+     * that page number iChild is the right-child of the page.
+     * 
+     * @param iIdx
+     * @param iChild
+     */
+    public void assertParentIndex(int iIdx, int iChild) {
+        final SqlJetMemPage pParent = this;
+        assert (iIdx <= pParent.nCell);
+        if (iIdx == pParent.nCell) {
+            assert (get4byte(pParent.aData, pParent.hdrOffset + 8) == iChild);
+        } else {
+            assert (get4byte(pParent.findCell(iIdx)) == iChild);
+        }
+    }
+
+    /**
+     * Create the byte sequence used to represent a cell on page pPage and write
+     * that byte sequence into pCell[]. Overflow pages are allocated and filled
+     * in as necessary. The calling procedure is responsible for making sure
+     * sufficient space has been allocated for pCell[].
+     * 
+     * Note that pCell does not necessary need to point to the pPage->aData
+     * area. pCell might point to some temporary storage. The cell will be
+     * constructed in this temporary area then copied into pPage->aData later.
+     * 
+     * @param pCell
+     *            Complete text of the cell
+     * @param pKey
+     *            The key
+     * @param nKey
+     *            The key
+     * @param pData
+     *            The data
+     * @param nData
+     *            The data
+     * @param nZero
+     *            Extra zero bytes to append to pData
+     * 
+     * @return cell size
+     * 
+     * @throws SqlJetException
+     */
+    public int fillInCell(ByteBuffer pCell, ByteBuffer pKey, long nKey, ByteBuffer pData, int nData, int nZero)
+            throws SqlJetException {
+
+        final SqlJetMemPage pPage = this;
+        int pnSize = 0;
+
+        int nPayload;
+        ByteBuffer pSrc;
+        int nSrc, n, rc;
+        int spaceLeft;
+        SqlJetMemPage pOvfl = null;
+        SqlJetMemPage pToRelease = null;
+        ByteBuffer pPrior;
+        ByteBuffer pPayload;
+        SqlJetBtreeShared pBt = pPage.pBt;
+        int[] pgnoOvfl = { 0 };
+        int nHeader;
+        SqlJetBtreeCellInfo info;
+
+        assert (pPage.pBt.mutex.held());
+
+        /*
+         * pPage is not necessarily writeable since pCell might be auxiliary*
+         * buffer space that is separate from the pPage buffer area
+         */
+        assert (pCell.array() != pPage.aData.array() || pPage.pDbPage.isWriteable());
+
+        /* Fill in the header. */
+        nHeader = 0;
+        if (!pPage.leaf) {
+            nHeader += 4;
+        }
+        if (pPage.hasData) {
+            nHeader += putVarint(slice(pCell, nHeader), nData + nZero);
+        } else {
+            nData = nZero = 0;
+        }
+        nHeader += putVarint(slice(pCell, nHeader), nKey);
+        info = pPage.parseCellPtr(pCell);
+        assert (info.nHeader == nHeader);
+        assert (info.nKey == nKey);
+        assert (info.nData == nData + nZero);
+
+        /* Fill in the payload */
+        nPayload = nData + nZero;
+        if (pPage.intKey) {
+            pSrc = pData;
+            nSrc = nData;
+            nData = 0;
+        } else {
+            /* TBD: Perhaps raise SQLITE_CORRUPT if nKey is larger than 31 bits? */
+            nPayload += (int) nKey;
+            pSrc = pKey;
+            nSrc = (int) nKey;
+        }
+        pnSize = info.nSize;
+        spaceLeft = info.nLocal;
+        pPayload = slice(pCell, nHeader);
+        pPrior = slice(pCell, info.iOverflow);
+
+        while (nPayload > 0) {
+            if (spaceLeft == 0) {
+                int pgnoPtrmap = pgnoOvfl[0]; /*
+                                               * Overflow page pointer-map entry
+                                               * page
+                                               */
+                if (pBt.autoVacuum) {
+                    do {
+                        pgnoOvfl[0]++;
+                    } while (pBt.PTRMAP_ISPAGE(pgnoOvfl[0]) || pgnoOvfl[0] == pBt.PENDING_BYTE_PAGE());
+                }
+                try {
+                    pOvfl = pBt.allocatePage(pgnoOvfl, pgnoOvfl[0], false);
+                    /*
+                     * If the database supports auto-vacuum, and the second or
+                     * subsequent* overflow page is being allocated, add an
+                     * entry to the pointer-map* for that page now.** If this is
+                     * the first overflow page, then write a partial entry* to
+                     * the pointer-map. If we write nothing to this pointer-map
+                     * slot,* then the optimistic overflow chain processing in
+                     * clearCell()* may misinterpret the uninitialised values
+                     * and delete the* wrong pages from the database.
+                     */
+                    if (pBt.autoVacuum) {
+                        byte eType = (pgnoPtrmap != 0 ? SqlJetBtreeShared.PTRMAP_OVERFLOW2
+                                : SqlJetBtreeShared.PTRMAP_OVERFLOW1);
+                        try {
+                            pBt.ptrmapPut(pgnoOvfl[0], eType, pgnoPtrmap);
+                        } catch (SqlJetException e) {
+                            releasePage(pOvfl);
+                        }
+                    }
+                } catch (SqlJetException e) {
+                    releasePage(pToRelease);
+                    throw e;
+                }
+
+                /*
+                 * If pToRelease is not zero than pPrior points into the data
+                 * area* of pToRelease. Make sure pToRelease is still writeable.
+                 */
+                assert (pToRelease == null || pToRelease.pDbPage.isWriteable());
+
+                /*
+                 * If pPrior is part of the data area of pPage, then make sure
+                 * pPage* is still writeable
+                 */
+                assert (pPrior.array() != pPage.aData.array() || pPage.pDbPage.isWriteable());
+
+                put4byte(pPrior, pgnoOvfl[0]);
+                releasePage(pToRelease);
+                pToRelease = pOvfl;
+                pPrior = pOvfl.aData;
+                put4byte(pPrior, 0);
+                pPayload = slice(pOvfl.aData, 4);
+                spaceLeft = pBt.usableSize - 4;
+            }
+            n = nPayload;
+            if (n > spaceLeft)
+                n = spaceLeft;
+
+            /*
+             * If pToRelease is not zero than pPayload points into the data area
+             * * of pToRelease. Make sure pToRelease is still writeable.
+             */
+            assert (pToRelease == null || pToRelease.pDbPage.isWriteable());
+
+            /*
+             * If pPayload is part of the data area of pPage, then make sure
+             * pPage* is still writeable
+             */
+            assert (pPayload.array() != pPage.aData.array() || pPage.pDbPage.isWriteable());
+
+            if (nSrc > 0) {
+                if (n > nSrc)
+                    n = nSrc;
+                assert (pSrc != null);
+                memcpy(pPayload, pSrc, n);
+            } else {
+                memset(pPayload, (byte) 0, n);
+            }
+            nPayload -= n;
+            pPayload = slice(pPayload, n);
+            pSrc = slice(pSrc, n);
+            nSrc -= n;
+            spaceLeft -= n;
+            if (nSrc == 0) {
+                nSrc = nData;
+                pSrc = pData;
+            }
+        }
+        releasePage(pToRelease);
+
+        return pnSize;
+    }
+
+    /**
+     * If the cell with index iCell on page pPage contains a pointer to an
+     * overflow page, insert an entry into the pointer-map for the overflow
+     * page.
+     * 
+     * @param iCell
+     * 
+     * @throws SqlJetException
+     */
+    public void ptrmapPutOvfl(int iCell) throws SqlJetException {
+        SqlJetMemPage pPage = this;
+        ByteBuffer pCell;
+        assert (pPage.pBt.mutex.held());
+        pCell = pPage.findOverflowCell(iCell);
+        pPage.ptrmapPutOvflPtr(pCell);
     }
 
 }

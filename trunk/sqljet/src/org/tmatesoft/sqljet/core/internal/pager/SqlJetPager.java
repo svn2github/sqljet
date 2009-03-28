@@ -42,6 +42,7 @@ import org.tmatesoft.sqljet.core.SqlJetPagerLockingMode;
 import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
 
@@ -74,10 +75,10 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
 public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
 
     static final String SQLJET_PAGER_LOGGER = "SQLJET_PAGER";
-    private Logger logger = Logger.getLogger(SQLJET_PAGER_LOGGER);
+    private static Logger logger = Logger.getLogger(SQLJET_PAGER_LOGGER);
     private static final boolean SQLJET_PAGER_LOG = SqlJetUtility.getBoolSysProp("SQLJET_PAGER_LOG", false);
 
-    void PAGERTRACE(String format, Object... args) {
+    static void PAGERTRACE(String format, Object... args) {
         if (SQLJET_PAGER_LOG)
             logger.info(String.format(format, args));
     }
@@ -120,7 +121,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * rollback (see pagerPlaybackSavepoint()).
      */
 
-    private class PagerSavepoint {
+    private class PagerSavepoint extends SqlJetCloneable {
         /** Starting offset in main journal */
         long iOffset;
         /** See above */

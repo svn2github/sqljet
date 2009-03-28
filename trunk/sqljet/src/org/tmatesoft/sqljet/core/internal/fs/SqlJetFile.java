@@ -50,12 +50,12 @@ public class SqlJetFile implements ISqlJetFile {
     public static final int SQLJET_DEFAULT_SECTOR_SIZE = 512;
 
     static final String SQLJET_FILE_LOGGER = "SQLJET_FILE";
-    private Logger logger = Logger.getLogger(SQLJET_FILE_LOGGER);
+    private static Logger logger = Logger.getLogger(SQLJET_FILE_LOGGER);
 
     private static final boolean SQLJET_FILE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_LOG", false);
     private static final boolean SQLJET_FILE_PERFORMANCE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_PERFORMANCE_LOG", false);
 
-    private void OSTRACE(String format, Object... args) {
+    private static void OSTRACE(String format, Object... args) {
         if (SQLJET_FILE_LOG)
             logger.info(String.format(format, args));
     }

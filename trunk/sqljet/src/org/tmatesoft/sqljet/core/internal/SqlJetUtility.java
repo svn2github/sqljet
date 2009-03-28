@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.tmatesoft.sqljet.core.SqlJetError;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
@@ -87,10 +89,24 @@ public class SqlJetUtility {
     /**
      * Read a two-byte big-endian integer values.
      */
+    public static int get2byte(ByteBuffer x) {
+        return x.get(0) << 8 | x.get(1);
+    }
+    
+    /**
+     * Read a two-byte big-endian integer values.
+     */
     public static int get2byte(ByteBuffer x, int off) {
         return x.get(off) << 8 | x.get(off + 1);
     }
 
+    /**
+     * Write a two-byte big-endian integer values.
+     */
+    public static void put2byte(ByteBuffer p, int v) {
+        put2byte(p,0,v);
+    }
+    
     /**
      * Write a two-byte big-endian integer values.
      */
@@ -174,16 +190,44 @@ public class SqlJetUtility {
         System.arraycopy(src, srcPos, dest, dstPos, length);
     }
 
-    public static void memcpy(Object[] dest, Object[] src, int length) {
-        System.arraycopy(src, 0, dest, 0, length);
-    }
-
     public static void memcpy(ByteBuffer dest, ByteBuffer src, int length) {
         System.arraycopy(src.array(), src.arrayOffset(), dest.array(), dest.arrayOffset(), length);
     }
 
     public static void memcpy(ByteBuffer dest, int dstPos, ByteBuffer src, int srcPos, int length) {
         System.arraycopy(src.array(), src.arrayOffset() + srcPos, dest.array(), dest.arrayOffset() + dstPos, length);
+    }
+
+    public static void memcpy(SqlJetCloneable[] dest, SqlJetCloneable[] src, int length) throws SqlJetException {
+        memcpy(src, 0, dest, 0, length);
+    }
+
+    public static SqlJetCloneable memcpy(SqlJetCloneable src) throws SqlJetException {
+        try {
+            return (SqlJetCloneable) src.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new SqlJetException(SqlJetErrorCode.INTERNAL, e);
+        }
+    }
+    
+    /**
+     * @param src
+     * @param dstPos
+     * @param dest
+     * @param srcPos
+     * @param length
+     * 
+     * @throws SqlJetException 
+     */
+    private static void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length) throws SqlJetException {
+        for(int x = srcPos, y=dstPos; x<src.length && y<dest.length; x++, y++) {
+            final SqlJetCloneable o = src[x]; if(null==o) continue;
+            try {
+                dest[y] = (SqlJetCloneable) o.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new SqlJetException(SqlJetErrorCode.INTERNAL, e);
+            }
+        }
     }
 
     /**
@@ -315,6 +359,10 @@ public class SqlJetUtility {
         return 0;
     }
 
+    /**
+     * @param b
+     * @return
+     */
     public static byte[] addZeroByteEnd(byte[] b) {
         if (null == b)
             throw new SqlJetError("Undefined byte array");
@@ -338,11 +386,22 @@ public class SqlJetUtility {
         }
     }
 
+    /**
+     * Implements address arithmetic on byte buffer.
+     * 
+     * @param b
+     * @param pos
+     * @return
+     */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
         synchronized (b) {
             try {
-                b.position(pos);
-                return b.slice();
+                 //b.position(pos);
+                 //return b.slice();
+                
+                 final byte[] a = b.array();
+                 final int p = b.position() + pos;
+                 return ByteBuffer.wrap(a, p, a.length - p);
             } finally {
                 b.reset();
             }

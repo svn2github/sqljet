@@ -165,4 +165,14 @@ public interface ISqlJetPage {
     ISqlJetPage getPrev();
 
     int getRefCount();
+    
+    /**
+     * Return TRUE if the page given in the argument was previously passed
+     * to sqlite3PagerWrite().  In other words, return TRUE if it is ok
+     * to change the content of the page.
+     * 
+     * @return
+     */
+    boolean isWriteable();
+    
 }

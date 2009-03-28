@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.ISqlJetBtree;
@@ -53,6 +54,15 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  * 
  */
 public class SqlJetBtree implements ISqlJetBtree {
+
+    static final String SQLJET_BTREE_LOGGER = "SQLJET_BTREE";
+    private static Logger logger = Logger.getLogger(SQLJET_BTREE_LOGGER);
+    private static final boolean SQLJET_BTREE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_BTREE_LOG", false);
+
+    static void TRACE(String format, Object... args) {
+        if (SQLJET_BTREE_LOG)
+            logger.info(String.format(format, args));
+    }
 
     /** The database connection holding this btree */
     ISqlJetDb db;
@@ -1261,7 +1271,7 @@ public class SqlJetBtree implements ISqlJetBtree {
              * * be moved to the allocated page (unless the allocated page
              * happens* to reside at pgnoRoot).
              */
-            pPageMove = pBt.allocateBtreePage(pgnoMove, pgnoRoot, true);
+            pPageMove = pBt.allocatePage(pgnoMove, pgnoRoot, true);
 
             if (pgnoMove[0] != pgnoRoot) {
                 /*
@@ -1332,7 +1342,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
         } else {
             int[] a = new int[1];
-            pRoot = pBt.allocateBtreePage(a, 1, false);
+            pRoot = pBt.allocatePage(a, 1, false);
             pgnoRoot = a[0];
         }
 
@@ -2167,7 +2177,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 p.clearCursor();
                 p.eState = CursorState.FAULT;
                 p.error = errCode;
-                p.skip = errCode!=null?1:0;
+                p.skip = errCode != null ? 1 : 0;
                 for (i = 0; i <= p.iPage; i++) {
                     SqlJetMemPage.releasePage(p.apPage[i]);
                     p.apPage[i] = null;

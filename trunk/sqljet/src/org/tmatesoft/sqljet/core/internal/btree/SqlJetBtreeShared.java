@@ -13,11 +13,12 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
+import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
+
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetFile;
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
@@ -177,7 +178,7 @@ public class SqlJetBtreeShared {
         return ptrmapPageno(pgno);
     }
 
-    private boolean PTRMAP_ISPAGE(int pgno) {
+    boolean PTRMAP_ISPAGE(int pgno) {
         return PTRMAP_PAGENO(pgno) == pgno;
     }
 
@@ -202,7 +203,7 @@ public class SqlJetBtreeShared {
      * 
      * @throws SqlJetException
      */
-    private int pagerPagecount() throws SqlJetException {
+    int getPageCount() throws SqlJetException {
         assert (pPage1 != null);
         return pPager.getPageCount();
     }
@@ -255,7 +256,7 @@ public class SqlJetBtreeShared {
         pPtrmap = pDbPage.getData();
 
         if (eType != pPtrmap[offset] || SqlJetUtility.get4byte(pPtrmap, offset + 1) != parent) {
-            // TRACE(("PTRMAP_UPDATE: %d->(%d,%d)\n", key, eType, parent));
+            TRACE("PTRMAP_UPDATE: %d->(%d,%d)\n", key, eType, parent);
             pDbPage.write();
             pPtrmap[offset] = eType;
             SqlJetUtility.put4byte(pPtrmap, offset + 1, parent);
@@ -355,9 +356,8 @@ public class SqlJetBtreeShared {
      * 
      * @throws SqlJetException
      */
-    public SqlJetMemPage allocateBtreePage(int[] pPgno, int nearby, boolean exact) throws SqlJetException {
+    public SqlJetMemPage allocatePage(int[] pPgno, int nearby, boolean exact) throws SqlJetException {
         SqlJetMemPage ppPage = null;
-        SqlJetMemPage pPage;
         int n; /* Number of pages on the freelist */
         int k; /* Number of leaves on the trunk of the freelist */
         SqlJetMemPage pTrunk = null;
@@ -378,7 +378,7 @@ public class SqlJetBtreeShared {
                  * free-list, then the entire-list will be searched for that
                  * page.
                  */
-                if (exact && nearby <= pagerPagecount()) {
+                if (exact && nearby <= getPageCount()) {
                     byte[] eType = new byte[1];
                     assert (nearby > 0);
                     assert (autoVacuum);
@@ -431,8 +431,7 @@ public class SqlJetBtreeShared {
                         SqlJetUtility.memcpy(pPage1.aData, 32, pTrunk.aData, 0, 4);
                         ppPage = pTrunk;
                         pTrunk = null;
-                        // TRACE(("ALLOCATE: %d trunk - %d free pages left\n",
-                        // *pPgno, n-1));
+                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno, n - 1);
                     } else if (k > usableSize / 4 - 2) {
                         /* Value of k is out of range. Database corruption */
                         throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
@@ -479,8 +478,7 @@ public class SqlJetBtreeShared {
                             }
                         }
                         pTrunk = null;
-                        // TRACE(("ALLOCATE: %d trunk - %d free pages left\n",
-                        // *pPgno, n-1));
+                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno, n - 1);
                     } else {
                         /* Extract a leaf from the trunk */
                         int closest;
@@ -510,14 +508,13 @@ public class SqlJetBtreeShared {
                         if (!searchList || iPage == nearby) {
                             int nPage;
                             pPgno[0] = iPage;
-                            nPage = pagerPagecount();
+                            nPage = getPageCount();
                             if (pPgno[0] > nPage) {
                                 /* Free page off the end of the file */
                                 throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
                             }
-                            // TRACE(("ALLOCATE: %d was leaf %d of %d on trunk %d"
-                            // ": %d more free pages\n",
-                            // *pPgno, closest+1, k, pTrunk->pgno, n-1));
+                            TRACE("ALLOCATE: %d was leaf %d of %d on trunk %d" + ": %d more free pages\n", pPgno,
+                                    closest + 1, k, pTrunk.pgno, n - 1);
                             if (closest < k - 1) {
                                 SqlJetUtility.memcpy(aData, 8 + closest * 4, aData, 4 + k * 4, 4);
                             }
@@ -541,7 +538,7 @@ public class SqlJetBtreeShared {
                  * There are no pages on the freelist, so create a new page at
                  * the end of the file
                  */
-                int nPage = pagerPagecount();
+                int nPage = getPageCount();
                 pPgno[0] = nPage + 1;
 
                 if (autoVacuum && PTRMAP_ISPAGE(pPgno[0])) {
@@ -551,8 +548,7 @@ public class SqlJetBtreeShared {
                      * allocated page becomes a new pointer-map page, the second
                      * is used by the caller.
                      */
-                    // TRACE(("ALLOCATE: %d from end of file (pointer-map page)\n",
-                    // *pPgno));
+                    TRACE("ALLOCATE: %d from end of file (pointer-map page)\n", pPgno);
                     assert (pPgno[0] != PENDING_BYTE_PAGE());
                     pPgno[0]++;
                     if (pPgno[0] == PENDING_BYTE_PAGE()) {
@@ -567,7 +563,7 @@ public class SqlJetBtreeShared {
                 } catch (SqlJetException e) {
                     SqlJetMemPage.releasePage(ppPage);
                 }
-                // TRACE(("ALLOCATE: %d from end of file\n", *pPgno));
+                TRACE("ALLOCATE: %d from end of file\n", pPgno);
             }
 
             assert (pPgno[0] != PENDING_BYTE_PAGE());
@@ -617,8 +613,7 @@ public class SqlJetBtreeShared {
 
         /* Move page iDbPage from its current location to page number iFreePage */
 
-        // TRACE(("AUTOVACUUM: Moving %d to free page %d (ptr page %d type %d)\n",
-        // iDbPage, iFreePage, iPtrPage, eType));
+        TRACE("AUTOVACUUM: Moving %d to free page %d (ptr page %d type %d)\n", iDbPage, iFreePage, iPtrPage, eType);
         pDbPage.pDbPage.move(iFreePage, isCommit);
         pDbPage.pgno = iFreePage;
 
@@ -708,7 +703,7 @@ public class SqlJetBtreeShared {
                      */
                     int[] iFreePg = new int[1];
                     SqlJetMemPage pFreePg;
-                    pFreePg = allocateBtreePage(iFreePg, iLastPg, true);
+                    pFreePg = allocatePage(iFreePg, iLastPg, true);
                     assert (iFreePg[0] == iLastPg);
                     SqlJetMemPage.releasePage(pFreePg);
                 }
@@ -730,7 +725,7 @@ public class SqlJetBtreeShared {
                 do {
                     SqlJetMemPage pFreePg;
                     try {
-                        pFreePg = allocateBtreePage(iFreePg, 0, false);
+                        pFreePg = allocatePage(iFreePg, 0, false);
                     } catch (SqlJetException e) {
                         SqlJetMemPage.releasePage(pLastPg);
                         throw e;
@@ -778,7 +773,7 @@ public class SqlJetBtreeShared {
             int nPtrmap;
             int iFree;
             final int pgsz = pageSize;
-            int nOrig = pagerPagecount();
+            int nOrig = getPageCount();
 
             if (PTRMAP_ISPAGE(nOrig)) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
@@ -1079,6 +1074,17 @@ public class SqlJetBtreeShared {
 
         pPgnoNext[0] = next;
 
+    }
+
+    /**
+     * Make sure pBt->pTmpSpace points to an allocation of MX_CELL_SIZE(pBt)
+     * bytes.
+     * 
+     */
+    public void allocateTempSpace() {
+        if (pTmpSpace == null) {
+            pTmpSpace = new byte[pageSize];
+        }
     }
 
 }

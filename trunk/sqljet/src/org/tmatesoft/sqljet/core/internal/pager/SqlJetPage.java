@@ -690,4 +690,12 @@ public class SqlJetPage implements ISqlJetPage {
     public int getRefCount() {
         return nRef;
     }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#isWriteable()
+     */
+    public boolean isWriteable() {
+        return flags.contains( SqlJetPageFlags.DIRTY );
+    }
+    
 }

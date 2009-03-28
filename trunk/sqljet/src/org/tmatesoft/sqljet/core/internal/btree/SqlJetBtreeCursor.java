@@ -1971,6 +1971,168 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /*
      * (non-Javadoc)
      * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#next()
+     */
+    public boolean next() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        
+        int idx;
+        SqlJetMemPage pPage;
+
+        assert( cursorHoldsMutex(pCur) );
+        pCur.restoreCursorPosition();
+        if( CursorState.INVALID==pCur.eState ){
+          return true;
+        }
+        if( pCur.skip>0 ){
+          pCur.skip = 0;
+          return false;
+        }
+        pCur.skip = 0;
+
+        pPage = pCur.apPage[pCur.iPage];
+        idx = ++pCur.aiIdx[pCur.iPage];
+        assert( pPage.isInit );
+        assert( idx<=pPage.nCell );
+
+        pCur.info.nSize = 0;
+        pCur.validNKey = false;
+        if( idx>=pPage.nCell ){
+          if( !pPage.leaf ){
+            pCur.moveToChild(get4byte(pPage.aData, pPage.hdrOffset+8));
+            pCur.moveToLeftmost();
+            return false;
+          }
+          do{
+            if( pCur.iPage==0 ){
+              pCur.eState = CursorState.INVALID;
+              return true;
+            }
+            pCur.moveToParent();
+            pPage = pCur.apPage[pCur.iPage];
+          }while( pCur.aiIdx[pCur.iPage]>=pPage.nCell );
+          if( pPage.intKey ){
+            return pCur.next();
+          }
+          return false;
+        }
+        if( pPage.leaf ){
+            return false;
+        }
+        pCur.moveToLeftmost();
+        return false;
+    }
+
+    /**
+     * Move the cursor up to the parent page.
+     *
+     * pCur->idx is set to the cell index that contains the pointer
+     * to the page we are coming from.  If we are coming from the
+     * right-most child page then pCur->idx is set to one more than
+     * the largest cell index.
+     * 
+     * @throws SqlJetException 
+     * 
+     */
+    private void moveToParent() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        assert( cursorHoldsMutex(pCur) );
+        assert( pCur.eState==CursorState.VALID );
+        assert( pCur.iPage>0 );
+        assert( pCur.apPage[pCur.iPage]!=null );
+        pCur.apPage[pCur.iPage-1].assertParentIndex(
+          pCur.aiIdx[pCur.iPage-1], pCur.apPage[pCur.iPage].pgno );
+        SqlJetMemPage.releasePage(pCur.apPage[pCur.iPage]);
+        pCur.iPage--;
+        pCur.info.nSize = 0;
+        pCur.validNKey = false;
+    }
+    
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#previous()
+     */
+    public boolean previous() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        
+        SqlJetMemPage pPage;
+
+        assert( cursorHoldsMutex(pCur) );
+        pCur.restoreCursorPosition();
+        pCur.atLast = false;
+        if( CursorState.INVALID==pCur.eState ){
+          return true;
+        }
+        if( pCur.skip<0 ){
+          pCur.skip = 0;
+          return false;
+        }
+        pCur.skip = 0;
+
+        pPage = pCur.apPage[pCur.iPage];
+        assert( pPage.isInit );
+        if( !pPage.leaf ){
+          int idx = pCur.aiIdx[pCur.iPage];
+          pCur.moveToChild(get4byte(pPage.findCell(idx)));
+          pCur.moveToRightmost();
+        }else{
+          while( pCur.aiIdx[pCur.iPage]==0 ){
+            if( pCur.iPage==0 ){
+              pCur.eState = CursorState.INVALID;
+              return true;
+            }
+            pCur.moveToParent();
+          }
+          pCur.info.nSize = 0;
+          pCur.validNKey = false;
+
+          pCur.aiIdx[pCur.iPage]--;
+          pPage = pCur.apPage[pCur.iPage];
+          if( pPage.intKey && !pPage.leaf ){
+            return pCur.previous();
+          }
+        }
+        return false;
+    }    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#eof()
+     */
+    public boolean eof() {
+        final SqlJetBtreeCursor pCur = this;
+        /* TODO: What if the cursor is in CURSOR_REQUIRESEEK but all table entries
+         ** have been deleted? This API will need to change to return an error code
+         ** as well as the boolean result value.
+         */
+         return (CursorState.VALID!=pCur.eState);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#flags()
+     */
+    public byte flags() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        /* TODO: What about CURSOR_REQUIRESEEK state? Probably need to call
+         ** restoreCursorPosition() here.
+         */
+         SqlJetMemPage pPage;
+         pCur.restoreCursorPosition();
+         pPage = pCur.apPage[pCur.iPage];
+         assert( cursorHoldsMutex(pCur) );
+         assert( pPage!=null );
+         assert( pPage.pBt==pCur.pBt );
+         return pPage.aData.get(pPage.hdrOffset);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
      */
     public void cacheOverflow() {
@@ -1996,26 +2158,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     public byte[] dataFetch(int[] amt) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#eof()
-     */
-    public boolean eof() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#flags()
-     */
-    public byte flags() {
-        // TODO Auto-generated method stub
-        return 0;
     }
 
     /*
@@ -2066,26 +2208,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     public byte[] keyFetch(int[] amt) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#next()
-     */
-    public boolean next() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#previous()
-     */
-    public boolean previous() {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     /*

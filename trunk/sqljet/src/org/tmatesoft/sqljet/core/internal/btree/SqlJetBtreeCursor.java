@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -1975,48 +1976,48 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      */
     public boolean next() throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
-        
+
         int idx;
         SqlJetMemPage pPage;
 
-        assert( cursorHoldsMutex(pCur) );
+        assert (cursorHoldsMutex(pCur));
         pCur.restoreCursorPosition();
-        if( CursorState.INVALID==pCur.eState ){
-          return true;
+        if (CursorState.INVALID == pCur.eState) {
+            return true;
         }
-        if( pCur.skip>0 ){
-          pCur.skip = 0;
-          return false;
+        if (pCur.skip > 0) {
+            pCur.skip = 0;
+            return false;
         }
         pCur.skip = 0;
 
         pPage = pCur.apPage[pCur.iPage];
         idx = ++pCur.aiIdx[pCur.iPage];
-        assert( pPage.isInit );
-        assert( idx<=pPage.nCell );
+        assert (pPage.isInit);
+        assert (idx <= pPage.nCell);
 
         pCur.info.nSize = 0;
         pCur.validNKey = false;
-        if( idx>=pPage.nCell ){
-          if( !pPage.leaf ){
-            pCur.moveToChild(get4byte(pPage.aData, pPage.hdrOffset+8));
-            pCur.moveToLeftmost();
-            return false;
-          }
-          do{
-            if( pCur.iPage==0 ){
-              pCur.eState = CursorState.INVALID;
-              return true;
+        if (idx >= pPage.nCell) {
+            if (!pPage.leaf) {
+                pCur.moveToChild(get4byte(pPage.aData, pPage.hdrOffset + 8));
+                pCur.moveToLeftmost();
+                return false;
             }
-            pCur.moveToParent();
-            pPage = pCur.apPage[pCur.iPage];
-          }while( pCur.aiIdx[pCur.iPage]>=pPage.nCell );
-          if( pPage.intKey ){
-            return pCur.next();
-          }
-          return false;
+            do {
+                if (pCur.iPage == 0) {
+                    pCur.eState = CursorState.INVALID;
+                    return true;
+                }
+                pCur.moveToParent();
+                pPage = pCur.apPage[pCur.iPage];
+            } while (pCur.aiIdx[pCur.iPage] >= pPage.nCell);
+            if (pPage.intKey) {
+                return pCur.next();
+            }
+            return false;
         }
-        if( pPage.leaf ){
+        if (pPage.leaf) {
             return false;
         }
         pCur.moveToLeftmost();
@@ -2025,30 +2026,27 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /**
      * Move the cursor up to the parent page.
-     *
-     * pCur->idx is set to the cell index that contains the pointer
-     * to the page we are coming from.  If we are coming from the
-     * right-most child page then pCur->idx is set to one more than
-     * the largest cell index.
      * 
-     * @throws SqlJetException 
+     * pCur->idx is set to the cell index that contains the pointer to the page
+     * we are coming from. If we are coming from the right-most child page then
+     * pCur->idx is set to one more than the largest cell index.
+     * 
+     * @throws SqlJetException
      * 
      */
     private void moveToParent() throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
-        assert( cursorHoldsMutex(pCur) );
-        assert( pCur.eState==CursorState.VALID );
-        assert( pCur.iPage>0 );
-        assert( pCur.apPage[pCur.iPage]!=null );
-        pCur.apPage[pCur.iPage-1].assertParentIndex(
-          pCur.aiIdx[pCur.iPage-1], pCur.apPage[pCur.iPage].pgno );
+        assert (cursorHoldsMutex(pCur));
+        assert (pCur.eState == CursorState.VALID);
+        assert (pCur.iPage > 0);
+        assert (pCur.apPage[pCur.iPage] != null);
+        pCur.apPage[pCur.iPage - 1].assertParentIndex(pCur.aiIdx[pCur.iPage - 1], pCur.apPage[pCur.iPage].pgno);
         SqlJetMemPage.releasePage(pCur.apPage[pCur.iPage]);
         pCur.iPage--;
         pCur.info.nSize = 0;
         pCur.validNKey = false;
     }
-    
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -2056,46 +2054,46 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      */
     public boolean previous() throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
-        
+
         SqlJetMemPage pPage;
 
-        assert( cursorHoldsMutex(pCur) );
+        assert (cursorHoldsMutex(pCur));
         pCur.restoreCursorPosition();
         pCur.atLast = false;
-        if( CursorState.INVALID==pCur.eState ){
-          return true;
+        if (CursorState.INVALID == pCur.eState) {
+            return true;
         }
-        if( pCur.skip<0 ){
-          pCur.skip = 0;
-          return false;
+        if (pCur.skip < 0) {
+            pCur.skip = 0;
+            return false;
         }
         pCur.skip = 0;
 
         pPage = pCur.apPage[pCur.iPage];
-        assert( pPage.isInit );
-        if( !pPage.leaf ){
-          int idx = pCur.aiIdx[pCur.iPage];
-          pCur.moveToChild(get4byte(pPage.findCell(idx)));
-          pCur.moveToRightmost();
-        }else{
-          while( pCur.aiIdx[pCur.iPage]==0 ){
-            if( pCur.iPage==0 ){
-              pCur.eState = CursorState.INVALID;
-              return true;
+        assert (pPage.isInit);
+        if (!pPage.leaf) {
+            int idx = pCur.aiIdx[pCur.iPage];
+            pCur.moveToChild(get4byte(pPage.findCell(idx)));
+            pCur.moveToRightmost();
+        } else {
+            while (pCur.aiIdx[pCur.iPage] == 0) {
+                if (pCur.iPage == 0) {
+                    pCur.eState = CursorState.INVALID;
+                    return true;
+                }
+                pCur.moveToParent();
             }
-            pCur.moveToParent();
-          }
-          pCur.info.nSize = 0;
-          pCur.validNKey = false;
+            pCur.info.nSize = 0;
+            pCur.validNKey = false;
 
-          pCur.aiIdx[pCur.iPage]--;
-          pPage = pCur.apPage[pCur.iPage];
-          if( pPage.intKey && !pPage.leaf ){
-            return pCur.previous();
-          }
+            pCur.aiIdx[pCur.iPage]--;
+            pPage = pCur.apPage[pCur.iPage];
+            if (pPage.intKey && !pPage.leaf) {
+                return pCur.previous();
+            }
         }
         return false;
-    }    
+    }
 
     /*
      * (non-Javadoc)
@@ -2104,11 +2102,12 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      */
     public boolean eof() {
         final SqlJetBtreeCursor pCur = this;
-        /* TODO: What if the cursor is in CURSOR_REQUIRESEEK but all table entries
-         ** have been deleted? This API will need to change to return an error code
-         ** as well as the boolean result value.
+        /*
+         * TODO: What if the cursor is in CURSOR_REQUIRESEEK but all table
+         * entries* have been deleted? This API will need to change to return an
+         * error code* as well as the boolean result value.
          */
-         return (CursorState.VALID!=pCur.eState);
+        return (CursorState.VALID != pCur.eState);
     }
 
     /*
@@ -2118,18 +2117,259 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      */
     public byte flags() throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
-        /* TODO: What about CURSOR_REQUIRESEEK state? Probably need to call
-         ** restoreCursorPosition() here.
+        /*
+         * TODO: What about CURSOR_REQUIRESEEK state? Probably need to call*
+         * restoreCursorPosition() here.
          */
-         SqlJetMemPage pPage;
-         pCur.restoreCursorPosition();
-         pPage = pCur.apPage[pCur.iPage];
-         assert( cursorHoldsMutex(pCur) );
-         assert( pPage!=null );
-         assert( pPage.pBt==pCur.pBt );
-         return pPage.aData.get(pPage.hdrOffset);
+        SqlJetMemPage pPage;
+        pCur.restoreCursorPosition();
+        pPage = pCur.apPage[pCur.iPage];
+        assert (cursorHoldsMutex(pCur));
+        assert (pPage != null);
+        assert (pPage.pBt == pCur.pBt);
+        return pPage.aData.get(pPage.hdrOffset);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getKeySize()
+     */
+    public long getKeySize() throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        assert (cursorHoldsMutex(pCur));
+        pCur.restoreCursorPosition();
+        assert (pCur.eState == CursorState.INVALID || pCur.eState == CursorState.VALID);
+        if (pCur.eState == CursorState.INVALID) {
+            return 0;
+        } else {
+            pCur.getCellInfo();
+            return pCur.info.nKey;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
+     */
+    public void key(int offset, int amt, ByteBuffer buf) throws SqlJetException {
+        final SqlJetBtreeCursor pCur = this;
+        assert (cursorHoldsMutex(pCur));
+        pCur.restoreCursorPosition();
+        assert (pCur.eState == CursorState.VALID);
+        assert (pCur.iPage >= 0 && pCur.apPage[pCur.iPage] != null);
+        if (pCur.apPage[0].intKey) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+        assert (pCur.aiIdx[pCur.iPage] < pCur.apPage[pCur.iPage].nCell);
+        pCur.accessPayload(offset, amt, buf, 0, false);
+    }
+
+    /**
+     * This function is used to read or overwrite payload information for the
+     * entry that the pCur cursor is pointing to. If the eOp parameter is 0,
+     * this is a read operation (data copied into buffer pBuf). If it is
+     * non-zero, a write (data copied from buffer pBuf).
+     * 
+     * A total of "amt" bytes are read or written beginning at "offset". Data is
+     * read to or from the buffer pBuf.
+     * 
+     * This routine does not make a distinction between key and data. It just
+     * reads or writes bytes from the payload area. Data might appear on the
+     * main page or be scattered out on multiple overflow pages.
+     * 
+     * If the BtCursor.isIncrblobHandle flag is set, and the current cursor
+     * entry uses one or more overflow pages, this function allocates space for
+     * and lazily popluates the overflow page-list cache array
+     * (BtCursor.aOverflow). Subsequent calls use this cache to make seeking to
+     * the supplied offset more efficient.
+     * 
+     * Once an overflow page-list cache has been allocated, it may be
+     * invalidated if some other cursor writes to the same table, or if the
+     * cursor is moved to a different row. Additionally, in auto-vacuum mode,
+     * the following events may invalidate an overflow page-list cache.
+     * 
+     * <ul>
+     * <li>An incremental vacuum</li>
+     * <li>A commit in auto_vacuum="full" mode</li>
+     * <li>Creating a table (may require moving an overflow page)</li>
+     * </ul>
+     * 
+     * 
+     * @param offset
+     *            Begin reading this far into payload
+     * @param amt
+     *            Read this many bytes
+     * @param buf
+     *            Write the bytes into this buffer
+     * @param skipKey
+     *            offset begins at data if this is true
+     * @param eOp
+     *            false to read. true to write
+     * 
+     * @throws SqlJetException
+     */
+    private void accessPayload(int offset, int amt, ByteBuffer pBuf, int skipKey, boolean eOp) throws SqlJetException {
+
+        final SqlJetBtreeCursor pCur = this;
+
+        ByteBuffer aPayload;
+        int nKey;
+        int iIdx = 0;
+        /* Btree page of current entry */
+        SqlJetMemPage pPage = pCur.apPage[pCur.iPage];
+        /* Btree this cursor belongs to */
+        SqlJetBtreeShared pBt = pCur.pBt;
+
+        assert (pPage != null);
+        assert (pCur.eState == CursorState.VALID);
+        assert (pCur.aiIdx[pCur.iPage] < pPage.nCell);
+        assert (cursorHoldsMutex(pCur));
+
+        pCur.getCellInfo();
+        aPayload = slice(pCur.info.pCell, pCur.info.nHeader);
+        nKey = (pPage.intKey ? 0 : (int) pCur.info.nKey);
+
+        if (skipKey != 0) {
+            offset += nKey;
+        }
+        if (offset + amt > nKey + pCur.info.nData || aPayload.get(pCur.info.nLocal) > pPage.aData.get(pBt.usableSize)) {
+            /* Trying to read or write past the end of the data is an error */
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+
+        /* Check if data must be read/written to/from the btree page itself. */
+        if (offset < pCur.info.nLocal) {
+            int a = amt;
+            if (a + offset > pCur.info.nLocal) {
+                a = pCur.info.nLocal - offset;
+            }
+            copyPayload(slice(aPayload, offset), pBuf, a, eOp, pPage.pDbPage);
+            offset = 0;
+            pBuf = slice(pBuf, a);
+            amt -= a;
+        } else {
+            offset -= pCur.info.nLocal;
+        }
+
+        if (amt > 0) {
+            int ovflSize = pBt.usableSize - 4; /* Bytes content per ovfl page */
+            int nextPage;
+
+            nextPage = get4byte(slice(aPayload, pCur.info.nLocal));
+
+            /*
+             * If the isIncrblobHandle flag is set and the BtCursor.aOverflow[]*
+             * has not been allocated, allocate it now. The array is sized at*
+             * one entry for each overflow page in the overflow chain. The* page
+             * number of the first overflow page is stored in aOverflow[0],*
+             * etc. A value of 0 in the aOverflow[] array means "not yet known"*
+             * (the cache is lazily populated).
+             */
+            if (pCur.isIncrblobHandle && pCur.aOverflow == null) {
+                int nOvfl = (pCur.info.nPayload - pCur.info.nLocal + ovflSize - 1) / ovflSize;
+                pCur.aOverflow = new int[nOvfl];
+            }
+
+            /*
+             * If the overflow page-list cache has been allocated and the* entry
+             * for the first required overflow page is valid, skip* directly to
+             * it.
+             */
+            if (pCur.aOverflow != null && pCur.aOverflow[offset / ovflSize] != 0) {
+                iIdx = (offset / ovflSize);
+                nextPage = pCur.aOverflow[iIdx];
+                offset = (offset % ovflSize);
+            }
+
+            for (; amt > 0 && nextPage != 0; iIdx++) {
+
+                /* If required, populate the overflow page-list cache. */
+                if (pCur.aOverflow != null) {
+                    assert (pCur.aOverflow[iIdx] == 0 || pCur.aOverflow[iIdx] == nextPage);
+                    pCur.aOverflow[iIdx] = nextPage;
+                }
+
+                if (offset >= ovflSize) {
+                    /*
+                     * The only reason to read this page is to obtain the page*
+                     * number for the next page in the overflow chain. The page*
+                     * data is not required. So first try to lookup the overflow
+                     * * page-list cache, if any, then fall back to the
+                     * getOverflowPage()* function.
+                     */
+                    if (pCur.aOverflow != null && pCur.aOverflow[iIdx + 1] != 0) {
+                        nextPage = pCur.aOverflow[iIdx + 1];
+                    } else {
+                        int[] pNextPage = { nextPage };
+                        pBt.getOverflowPage(nextPage, null, pNextPage);
+                        nextPage = pNextPage[0];
+                    }
+                    offset -= ovflSize;
+                } else {
+                    /*
+                     * Need to read this page properly. It contains some of the*
+                     * range of data that is being read (eOp==0) or written
+                     * (eOp!=0).
+                     */
+                    ISqlJetPage pDbPage;
+                    int a = amt;
+                    pDbPage = pBt.pPager.getPage(nextPage);
+                    aPayload = ByteBuffer.wrap(pDbPage.getData());
+                    nextPage = get4byte(aPayload);
+                    if (a + offset > ovflSize) {
+                        a = ovflSize - offset;
+                    }
+                    copyPayload(slice(aPayload, offset + 4), pBuf, a, eOp, pDbPage);
+                    pDbPage.unref();
+                    offset = 0;
+                    amt -= a;
+                    pBuf = slice(pBuf, a);
+                }
+            }
+        }
+
+        if (amt > 0) {
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+        }
+
+    }
+
+    /**
+     * Copy data from a buffer to a page, or from a page to a buffer.
+     * 
+     * pPayload is a pointer to data stored on database page pDbPage. If
+     * argument eOp is false, then nByte bytes of data are copied from pPayload
+     * to the buffer pointed at by pBuf. If eOp is true, then
+     * sqlite3PagerWrite() is called on pDbPage and nByte bytes of data are
+     * copied from the buffer pBuf to pPayload.
+     * 
+     * @param pPayload
+     *            Pointer to page data
+     * @param pBuf
+     *            Pointer to buffer
+     * @param nByte
+     *            Number of bytes to copy
+     * @param eOp
+     *            false -> copy from page, true -> copy to page
+     * @param pDbPage
+     *            Page containing pPayload
+     * 
+     * @throws SqlJetException
+     */
+    private void copyPayload(ByteBuffer pPayload, ByteBuffer pBuf, int nByte, boolean eOp, ISqlJetPage pDbPage)
+            throws SqlJetException {
+        if (eOp) {
+            /* Copy data from buffer to page (a write operation) */
+            pDbPage.write();
+            memcpy(pPayload, pBuf, nByte);
+        } else {
+            /* Copy data from page to buffer (a read operation) */
+            memcpy(pBuf, pPayload, nByte);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -2178,26 +2418,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     public int getDataSize() {
         // TODO Auto-generated method stub
         return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getKeySize()
-     */
-    public long getKeySize() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
-     */
-    public void key(int offset, int amt, ByteBuffer buf) {
-        // TODO Auto-generated method stub
-
     }
 
     /*

@@ -202,9 +202,9 @@ public class SqlJetUtility {
         memcpy(src, 0, dest, 0, length);
     }
 
-    public static SqlJetCloneable memcpy(SqlJetCloneable src) throws SqlJetException {
+    public static <T extends SqlJetCloneable> T memcpy(T src) throws SqlJetException {
         try {
-            return (SqlJetCloneable) src.clone();
+            return (T) src.clone();
         } catch (CloneNotSupportedException e) {
             throw new SqlJetException(SqlJetErrorCode.INTERNAL, e);
         }

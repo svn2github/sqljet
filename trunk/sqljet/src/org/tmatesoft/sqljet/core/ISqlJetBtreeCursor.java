@@ -222,7 +222,7 @@ public interface ISqlJetBtreeCursor {
      * 
      * @return
      */
-    byte[] keyFetch( int[] pAmt) throws SqlJetException;
+    ByteBuffer keyFetch( int[] pAmt) throws SqlJetException;
     
     /**
      * For the entry that cursor pCur is point to, return as
@@ -240,7 +240,7 @@ public interface ISqlJetBtreeCursor {
      * 
      * @return
      */
-    byte[] dataFetch( int[] pAmt ) throws SqlJetException;
+    ByteBuffer dataFetch( int[] pAmt ) throws SqlJetException;
     
     /**
      * Return the number of bytes of data in the entry the
@@ -249,8 +249,9 @@ public interface ISqlJetBtreeCursor {
      * the database is empty) then return 0.
      * 
      * @return
+     * @throws SqlJetException 
      */
-    int getDataSize();
+    int getDataSize() throws SqlJetException;
     
     /**
      * Read part of the data associated with cursor pCur.  Exactly
@@ -266,7 +267,7 @@ public interface ISqlJetBtreeCursor {
      * @param buf
      * @throws SqlJetException
      */
-    void data( int offset, int amt, byte[] buf ) throws SqlJetException;
+    void data( int offset, int amt, ByteBuffer buf ) throws SqlJetException;
 
     /**
      * Must be a cursor opened for writing on an 
@@ -280,7 +281,7 @@ public interface ISqlJetBtreeCursor {
      * @param data
      * @throws SqlJetException
      */
-    void putData( int offset, int amt, byte[] data) throws SqlJetException;
+    void putData( int offset, int amt, ByteBuffer data) throws SqlJetException;
     
     /**
      * Set a flag on this cursor to cache the locations of pages from the 

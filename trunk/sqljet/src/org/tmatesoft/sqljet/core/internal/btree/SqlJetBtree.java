@@ -2025,20 +2025,24 @@ public class SqlJetBtree implements ISqlJetBtree {
      * on which they are opened is deleted or modified. Cursors are invalidated
      * according to the following rules:
      * 
-     * 1) When BtreeClearTable() is called to completely delete the contents of
+     * <ol>
+     * 
+     * <li> When BtreeClearTable() is called to completely delete the contents of
      * a B-Tree table, pExclude is set to zero and parameter iRow is set to
      * non-zero. In this case all incremental blob cursors open on the table
-     * rooted at pgnoRoot are invalidated.
+     * rooted at pgnoRoot are invalidated. </li>
      * 
-     * 2) When BtreeInsert(), BtreeDelete() or BtreePutData() is called to
+     * <li> When BtreeInsert(), BtreeDelete() or BtreePutData() is called to
      * modify a table row via an SQL statement, pExclude is set to the write
      * cursor used to do the modification and parameter iRow is set to the
      * integer row id of the B-Tree entry being modified. Unless pExclude is
      * itself an incremental blob cursor, then all incremental blob cursors open
-     * on row iRow of the B-Tree are invalidated.
+     * on row iRow of the B-Tree are invalidated. </li>
      * 
-     * 3) If both pExclude and iRow are set to zero, no incremental blob cursors
-     * are invalidated.
+     * <li> If both pExclude and iRow are set to zero, no incremental blob cursors
+     * are invalidated. </li>
+     * 
+     * </ol>
      */
     boolean checkReadLocks(int pgnoRoot, SqlJetBtreeCursor pExclude, long iRow) {
         SqlJetBtreeCursor p;

@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
 
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -725,6 +726,14 @@ public class SqlJetUtility {
             v >>= 7;
         } while (v != 0 && i < 9);
         return i;
+    }
+
+    /**
+     * @param mutex
+     * @return
+     */
+    public static boolean mutex_held(ISqlJetMutex mutex) {
+        return mutex.held();
     }
 
 }

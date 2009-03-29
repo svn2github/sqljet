@@ -2373,21 +2373,24 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getCursorDb()
      */
-    public void cacheOverflow() {
-        // TODO Auto-generated method stub
-
+    public ISqlJetDb getCursorDb() {
+        assert (mutex_held(pBtree.db.getMutex()));
+        return pBtree.db;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#data(int, int, byte[])
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#keyFetch(int[])
      */
-    public void data(int offset, int amt, byte[] buf) {
-        // TODO Auto-generated method stub
-
+    public ByteBuffer keyFetch(int[] amt) {
+        assert (cursorHoldsMutex(this));
+        if (eState == CursorState.VALID) {
+            return fetchPayload(amt, false);
+        }
+        return null;
     }
 
     /*
@@ -2395,18 +2398,11 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#dataFetch(int[])
      */
-    public byte[] dataFetch(int[] amt) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getCursorDb()
-     */
-    public ISqlJetDb getCursorDb() {
-        // TODO Auto-generated method stub
+    public ByteBuffer dataFetch(int[] amt) {
+        assert (cursorHoldsMutex(this));
+        if (eState == CursorState.VALID) {
+            return fetchPayload(amt, true);
+        }
         return null;
     }
 
@@ -2415,19 +2411,36 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getDataSize()
      */
-    public int getDataSize() {
-        // TODO Auto-generated method stub
-        return 0;
+    public int getDataSize() throws SqlJetException {
+        assert (cursorHoldsMutex(this));
+        restoreCursorPosition();
+        assert (eState == CursorState.INVALID || eState == CursorState.VALID);
+        if (eState == CursorState.INVALID) {
+            /* Not pointing at a valid entry - set *pSize to 0. */
+            return 0;
+        } else {
+            getCellInfo();
+            return info.nData;
+        }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#keyFetch(int[])
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#data(int, int, byte[])
      */
-    public byte[] keyFetch(int[] amt) {
-        // TODO Auto-generated method stub
-        return null;
+    public void data(int offset, int amt, ByteBuffer buf) throws SqlJetException {
+
+        if (eState == CursorState.INVALID) {
+            throw new SqlJetException(SqlJetErrorCode.ABORT);
+        }
+
+        assert (cursorHoldsMutex(this));
+        restoreCursorPosition();
+        assert (eState == CursorState.VALID);
+        assert (iPage >= 0 && apPage[iPage] != null);
+        assert (aiIdx[iPage] < apPage[iPage].nCell);
+        accessPayload(offset, amt, buf, 1, false);
     }
 
     /*
@@ -2436,17 +2449,94 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#putData(int, int,
      * byte[])
      */
-    public void putData(int offset, int amt, byte[] data) {
-        // TODO Auto-generated method stub
+    public void putData(int offset, int amt, ByteBuffer data) throws SqlJetException {
+
+        assert (cursorHoldsMutex(this));
+        assert (mutex_held(this.pBtree.db.getMutex()));
+        assert (this.isIncrblobHandle);
+
+        restoreCursorPosition();
+        assert (this.eState != CursorState.REQUIRESEEK);
+        if (this.eState != CursorState.VALID) {
+            throw new SqlJetException(SqlJetErrorCode.ABORT);
+        }
+
+        /*
+         * Check some preconditions:* (a) the cursor is open for writing,* (b)
+         * there is no read-lock on the table being modified and* (c) the cursor
+         * points at a valid row of an intKey table.
+         */
+        if (!this.wrFlag) {
+            throw new SqlJetException(SqlJetErrorCode.READONLY);
+        }
+        assert (!this.pBt.readOnly && this.pBt.inTransaction == TransMode.WRITE);
+        if (this.pBtree.checkReadLocks(this.pgnoRoot, this, 0)) {
+            /* The table pCur points to has a read lock */
+            throw new SqlJetException(SqlJetErrorCode.LOCKED);
+        }
+        if (this.eState == CursorState.INVALID || !this.apPage[this.iPage].intKey) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        }
+
+        accessPayload(offset, amt, data, 0, true);
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
+     */
+    public void cacheOverflow() {
+        assert (cursorHoldsMutex(this));
+        assert (mutex_held(pBtree.db.getMutex()));
+        assert (!isIncrblobHandle);
+        assert (aOverflow == null);
+        isIncrblobHandle = true;
+    }
+
     /**
+     * Save the current cursor position in the variables BtCursor.nKey and
+     * BtCursor.pKey. The cursor's state is set to CURSOR_REQUIRESEEK.
      * 
      */
     public boolean saveCursorPosition() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return false;
+
+        final SqlJetBtreeCursor pCur = this;
+
+        assert (CursorState.VALID == pCur.eState);
+        assert (null == pCur.pKey);
+        assert (cursorHoldsMutex(pCur));
+
+        try {
+            pCur.nKey = pCur.getKeySize();
+
+            /*
+             * If this is an intKey table, then the above call to BtreeKeySize()
+             * * stores the integer key in pCur->nKey. In this case this value
+             * is* all that is required. Otherwise, if pCur is not open on an
+             * intKey* table, then malloc space for and store the pCur->nKey
+             * bytes of key* data.
+             */
+            if (!pCur.apPage[0].intKey) {
+                ByteBuffer pKey = ByteBuffer.allocate((int) pCur.nKey);
+                pCur.key(0, (int) pCur.nKey, pKey);
+                pCur.pKey = pKey;
+            }
+            assert (!pCur.apPage[0].intKey || pCur.pKey == null);
+
+            int i;
+            for (i = 0; i <= pCur.iPage; i++) {
+                SqlJetMemPage.releasePage(pCur.apPage[i]);
+                pCur.apPage[i] = null;
+            }
+            pCur.iPage = -1;
+            pCur.eState = CursorState.REQUIRESEEK;
+
+        } finally {
+            pCur.invalidateOverflowCache();
+        }
+        return true;
     }
 
 }

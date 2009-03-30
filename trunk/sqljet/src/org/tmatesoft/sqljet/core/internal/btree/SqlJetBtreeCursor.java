@@ -69,7 +69,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     int pgnoRoot;
 
     /** A parse of the cell we are pointing at */
-    SqlJetBtreeCellInfo info;
+    SqlJetBtreeCellInfo info = new SqlJetBtreeCellInfo();
 
     /** True if writable */
     boolean wrFlag;

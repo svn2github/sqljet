@@ -125,7 +125,7 @@ public interface ISqlJetBtreeCursor {
     
     /** Move the cursor to the first entry in the table.
      *   
-     * @return true if the cursor actually points to something or false if the table is empty.
+     * @return false if the cursor actually points to something or true if the table is empty.
      * @throws SqlJetException
      */
     boolean first() throws SqlJetException;

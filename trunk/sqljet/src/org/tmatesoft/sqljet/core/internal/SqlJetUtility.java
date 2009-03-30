@@ -93,7 +93,7 @@ public class SqlJetUtility {
     public static int get2byte(ByteBuffer x) {
         return x.get(0) << 8 | x.get(1);
     }
-    
+
     /**
      * Read a two-byte big-endian integer values.
      */
@@ -105,9 +105,9 @@ public class SqlJetUtility {
      * Write a two-byte big-endian integer values.
      */
     public static void put2byte(ByteBuffer p, int v) {
-        put2byte(p,0,v);
+        put2byte(p, 0, v);
     }
-    
+
     /**
      * Write a two-byte big-endian integer values.
      */
@@ -210,7 +210,7 @@ public class SqlJetUtility {
             throw new SqlJetException(SqlJetErrorCode.INTERNAL, e);
         }
     }
-    
+
     /**
      * @param src
      * @param dstPos
@@ -218,11 +218,14 @@ public class SqlJetUtility {
      * @param srcPos
      * @param length
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
-    private static void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length) throws SqlJetException {
-        for(int x = srcPos, y=dstPos; x<src.length && y<dest.length; x++, y++) {
-            final SqlJetCloneable o = src[x]; if(null==o) continue;
+    private static void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length)
+            throws SqlJetException {
+        for (int x = srcPos, y = dstPos; x < src.length && y < dest.length; x++, y++) {
+            final SqlJetCloneable o = src[x];
+            if (null == o)
+                continue;
             try {
                 dest[y] = (SqlJetCloneable) o.clone();
             } catch (CloneNotSupportedException e) {
@@ -396,16 +399,12 @@ public class SqlJetUtility {
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
         synchronized (b) {
-            try {
-                 //b.position(pos);
-                 //return b.slice();
-                
-                 final byte[] a = b.array();
-                 final int p = b.position() + pos;
-                 return ByteBuffer.wrap(a, p, a.length - p);
-            } finally {
-                b.reset();
-            }
+            /*
+             * try { b.position(pos); return b.slice(); } finally { b.reset(); }
+             */
+            final byte[] a = b.array();
+            final int p = b.position() + pos;
+            return ByteBuffer.wrap(a, p, a.length - p);
         }
     }
 
@@ -737,16 +736,18 @@ public class SqlJetUtility {
     }
 
     /**
-     * Compute a string length that is limited to what can be stored in
-     * lower 30 bits of a 32-bit signed integer.
+     * Compute a string length that is limited to what can be stored in lower 30
+     * bits of a 32-bit signed integer.
      * 
      * @param z
      * @return
      */
     public static int strlen30(ByteBuffer z) {
-        int i=0; final int l = z.limit();
-        for(;i<l && z.get(i)!=0; i++);
-        return 0x3fffffff & (int)(i);
+        int i = 0;
+        final int l = z.limit();
+        for (; i < l && z.get(i) != 0; i++)
+            ;
+        return 0x3fffffff & (int) (i);
     }
 
 }

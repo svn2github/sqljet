@@ -103,7 +103,7 @@ public class SqlJetBtreeShared {
     int minLeaf;
 
     /** Transaction state */
-    TransMode inTransaction;
+    TransMode inTransaction = TransMode.NONE;
 
     /** Number of open transactions (read + write) */
     int nTransaction;
@@ -300,6 +300,7 @@ public class SqlJetBtreeShared {
      * layer.
      */
     private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) {
+        if(null==pDbPage.getExtra()) pDbPage.setExtra(new SqlJetMemPage());
         SqlJetMemPage pPage = (SqlJetMemPage) pDbPage.getExtra();
         pPage.aData = ByteBuffer.wrap(pDbPage.getData());
         pPage.pDbPage = pDbPage;

@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +35,7 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  */
 public class SqlJetPagerTest {
     
-    private Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
+    private static Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
 
     private ISqlJetFileSystem fileSystem;
     private ISqlJetPager pager;

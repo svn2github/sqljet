@@ -213,8 +213,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 nRef++;
             }
             pPage.nRef++;
-            pPage.pData = new byte[szPage];
-            pPage.pExtra = null;
+            if(null==pPage.pData) pPage.pData = new byte[szPage];
             pPage.pCache = this;
             pPage.pgno = pgno;
             if (pgno == 1) {

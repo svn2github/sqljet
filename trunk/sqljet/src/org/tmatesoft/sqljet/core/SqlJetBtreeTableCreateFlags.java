@@ -51,4 +51,15 @@ public enum SqlJetBtreeTableCreateFlags {
         return v;
     }
     
+    /**
+     * @return the value
+     */
+    public byte getValue() {
+        return value;
+    }
+    
+    public boolean hasFlag(int flags) {
+        return (flags & value) > 0;
+    }
+    
 }

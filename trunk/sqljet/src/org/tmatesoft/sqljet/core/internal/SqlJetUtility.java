@@ -736,4 +736,17 @@ public class SqlJetUtility {
         return mutex.held();
     }
 
+    /**
+     * Compute a string length that is limited to what can be stored in
+     * lower 30 bits of a 32-bit signed integer.
+     * 
+     * @param z
+     * @return
+     */
+    public static int strlen30(ByteBuffer z) {
+        int i=0; final int l = z.limit();
+        for(;i<l && z.get(i)!=0; i++);
+        return 0x3fffffff & (int)(i);
+    }
+
 }

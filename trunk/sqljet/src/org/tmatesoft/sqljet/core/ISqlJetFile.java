@@ -174,7 +174,7 @@ public interface ISqlJetFile {
      * 
      * 
      * @param lockType
-     * @return TODO
+     * @return
      * @throws SqlJetIOException 
      */
     boolean lock(final SqlJetLockType lockType) throws SqlJetIOException;
@@ -187,7 +187,7 @@ public interface ISqlJetFile {
      * the requested locking level, this routine is a no-op.
      * 
      * @param lockType
-     * @return TODO
+     * @return
      * @throws SqlJetIOException 
      */
     boolean unlock(final SqlJetLockType lockType) throws SqlJetIOException;

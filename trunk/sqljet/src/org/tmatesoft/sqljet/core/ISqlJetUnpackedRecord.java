@@ -60,7 +60,8 @@ public interface ISqlJetUnpackedRecord {
      * @param i
      * @param cellKey
      * @return
+     * @throws SqlJetException 
      */
-    int recordCompare(int i, ByteBuffer cellKey);
+    int recordCompare(int i, ByteBuffer cellKey) throws SqlJetException;
 
 }

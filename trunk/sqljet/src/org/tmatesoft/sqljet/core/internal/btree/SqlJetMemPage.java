@@ -476,9 +476,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * entries.
      * 
      * @param sqlJetBtree
-     *            TODO
      * @param flags
-     *            TODO
      * @throws SqlJetException
      */
     void zeroPage(int flags) throws SqlJetException {

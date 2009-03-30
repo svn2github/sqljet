@@ -24,7 +24,6 @@ public class SqlJetError extends Error {
      * 
      */
     public SqlJetError() {
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -32,7 +31,6 @@ public class SqlJetError extends Error {
      */
     public SqlJetError(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -40,7 +38,6 @@ public class SqlJetError extends Error {
      */
     public SqlJetError(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -49,7 +46,6 @@ public class SqlJetError extends Error {
      */
     public SqlJetError(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
 }

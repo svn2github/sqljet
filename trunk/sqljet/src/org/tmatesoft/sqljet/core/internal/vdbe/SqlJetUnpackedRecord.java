@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetUpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
@@ -70,7 +71,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
      * @see org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord#recordCompare(int,
      * java.nio.ByteBuffer)
      */
-    public int recordCompare(int nKey1, ByteBuffer pKey1) {
+    public int recordCompare(int nKey1, ByteBuffer pKey1) throws SqlJetException {
 
         final SqlJetUnpackedRecord pPKey2 = this;
 

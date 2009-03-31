@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -81,31 +82,41 @@ public class SqlJetBtreeTest {
 
     @Test
     public void testRead() throws Exception {
-        btree.open(testDataBase, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
-                .of(SqlJetFileOpenPermission.READONLY));
+        db.getMutex().enter();
         try {
-            btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
-            final int pageCount = btree.getPager().getPageCount();
-            for (int i = 1; i <= pageCount; i++) {
-                logger.info("page " + i);
-                final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
-                final byte flags = c.flags();
-                boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
-                logger.info("intKey " + intKey);
-                if (c.first()) {
-                    logger.info("empty cursor");
-                } else {
-                    do {
-                        final long keySize = c.getKeySize();
-                        logger.info("keySize " + keySize);
-                        final int dataSize = c.getDataSize();
-                        logger.info("dataSize " + dataSize);
-                        logger.info("next");
-                    } while (!c.next());
+            btree.open(testDataBase, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
+                    .of(SqlJetFileOpenPermission.READONLY));
+            try {
+                btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
+                final int pageCount = btree.getPager().getPageCount();
+                for (int i = 1; i <= pageCount; i++) {
+                    logger.info("page " + i);
+                    final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
+                    c.enterCursor();
+                    try {
+                        final byte flags = c.flags();
+                        boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
+                        logger.info("intKey " + intKey);
+                        if (c.first()) {
+                            logger.info("empty cursor");
+                        } else {
+                            do {
+                                final long keySize = c.getKeySize();
+                                logger.info("keySize " + keySize);
+                                final int dataSize = c.getDataSize();
+                                logger.info("dataSize " + dataSize);
+                                logger.info("next");
+                            } while (!c.next());
+                        }
+                    } finally {
+                        c.leaveCursor();
+                    }
                 }
+            } finally {
+                btree.close();
             }
         } finally {
-            btree.close();
+            db.getMutex().leave();
         }
     }
 

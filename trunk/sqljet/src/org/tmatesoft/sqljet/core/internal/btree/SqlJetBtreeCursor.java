@@ -339,7 +339,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (this.holdsMutex());
         assert (CursorState.INVALID.compareTo(CursorState.REQUIRESEEK) < 0);
         assert (CursorState.VALID.compareTo(CursorState.REQUIRESEEK) < 0);
-        assert (CursorState.FAULT.compareTo(CursorState.REQUIRESEEK) < 0);
+        assert (CursorState.FAULT.compareTo(CursorState.REQUIRESEEK) > 0);
         if (this.eState.compareTo(CursorState.REQUIRESEEK) >= 0) {
             if (this.eState == CursorState.FAULT) {
                 throw new SqlJetException(this.error);
@@ -2539,4 +2539,18 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         return true;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#enterCursor()
+     */
+    public void enterCursor() {
+        pBtree.enter();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#leaveCursor()
+     */
+    public void leaveCursor() {
+        pBtree.leave();
+    }
+    
 }

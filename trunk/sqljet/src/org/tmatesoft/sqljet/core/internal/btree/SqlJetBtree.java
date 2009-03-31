@@ -123,22 +123,10 @@ public class SqlJetBtree implements ISqlJetBtree {
         return db.getBusyHaldler().call(number);
     }
 
-    /**
-     * Enter a mutex on the given BTree object.
-     * 
-     * If the object is not sharable, then no mutex is ever required and this
-     * routine is a no-op. The underlying mutex is non-recursive. But we keep a
-     * reference count in Btree.wantToLock so the behavior of this interface is
-     * recursive.
-     * 
-     * To avoid deadlocks, multiple Btrees are locked in the same order by all
-     * database connections. The p->pNext is a list of other Btrees belonging to
-     * the same database connection as the p Btree which need to be locked after
-     * p. If we cannot get a lock on p, then first unlock all of the others on
-     * p->pNext, then wait for the lock to become available on p, then relock
-     * all of the subsequent Btrees that desire a lock.
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#enter()
      */
-    void enter() {
+    public void enter() {
         SqlJetBtree p = this;
         SqlJetBtree pLater;
 
@@ -201,10 +189,10 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
     }
 
-    /*
-     * Exit the recursive mutex on a Btree.
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#leave()
      */
-    void leave() {
+    public void leave() {
         SqlJetBtree p = this;
         if (p.sharable) {
             assert (p.wantToLock > 0);

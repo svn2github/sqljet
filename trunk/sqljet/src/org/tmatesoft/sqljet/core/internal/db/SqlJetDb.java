@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.db;
 
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetBackend;
@@ -37,13 +38,13 @@ public class SqlJetDb implements ISqlJetDb {
     private ISqlJetConfig config = new SqlJetConfig();
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
+    private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()
      */
     public List<ISqlJetBackend> getBackends() {
-        // TODO Auto-generated method stub
-        return null;
+        return backends;
     }
 
     /* (non-Javadoc)

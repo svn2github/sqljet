@@ -22,7 +22,7 @@ import org.tmatesoft.sqljet.core.ISqlJetConfig;
  */
 public class SqlJetConfig implements ISqlJetConfig {
 
-    private boolean sharedCacheEnabled = false;
+    private boolean sharedCacheEnabled = true;
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetConfig#isSharedCacheEnabled()

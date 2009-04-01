@@ -107,7 +107,7 @@ public class SqlJetBtreeTest {
                                 logger.info("dataSize " + dataSize);
                                 ByteBuffer data = ByteBuffer.allocate(dataSize);
                                 c.data(0, dataSize, data);
-                                logger.info(new String(data.array()));
+                                logger.info(new String(data.array(), "US-ASCII").replaceAll("[^\\p{Print}]", ""));
                                 logger.info("next");
                             } while (!c.next());
                         }

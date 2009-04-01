@@ -2234,7 +2234,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         if (skipKey != 0) {
             offset += nKey;
         }
-        if (offset + amt > nKey + pCur.info.nData || aPayload.get(pCur.info.nLocal) > pPage.aData.get(pBt.usableSize)) {
+        if (offset + amt > nKey + pCur.info.nData || 
+                (aPayload.arrayOffset()+pCur.info.nLocal) > (pPage.aData.arrayOffset()+pBt.usableSize)) {
             /* Trying to read or write past the end of the data is an error */
             throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
         }

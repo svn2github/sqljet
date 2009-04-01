@@ -105,6 +105,9 @@ public class SqlJetBtreeTest {
                                 logger.info("keySize " + keySize);
                                 final int dataSize = c.getDataSize();
                                 logger.info("dataSize " + dataSize);
+                                ByteBuffer data = ByteBuffer.allocate(dataSize);
+                                c.data(0, dataSize, data);
+                                logger.info(new String(data.array()));
                                 logger.info("next");
                             } while (!c.next());
                         }

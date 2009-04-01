@@ -398,14 +398,9 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
-        synchronized (b) {
-            /*
-             * try { b.position(pos); return b.slice(); } finally { b.reset(); }
-             */
-            final byte[] a = b.array();
-            final int p = b.position() + pos;
-            return ByteBuffer.wrap(a, p, a.length - p);
-        }
+        final byte[] a = b.array();
+        final int p = b.arrayOffset() + pos;
+        return ByteBuffer.wrap(a, p, a.length - p).slice();
     }
 
     /**
@@ -461,6 +456,11 @@ public class SqlJetUtility {
      * this function assumes the single-byte case has already been handled.
      */
     public static int putVarint32(ByteBuffer p, int v) {
+        if (v < 0x80) {
+            p.put(0, (byte) v);
+            return 1;
+        }
+
         if ((v & ~0x7f) == 0) {
             p.put(0, (byte) v);
             return 1;
@@ -481,7 +481,7 @@ public class SqlJetUtility {
         int a, b, s;
         int i = 0;
 
-        a = p.getInt(i);
+        a = p.get(i);
         /* a: p0 (unmasked) */
         if ((a & 0x80) == 0) {
             v[0] = a;
@@ -489,7 +489,7 @@ public class SqlJetUtility {
         }
 
         i++;
-        b = p.getInt(i);
+        b = p.get(i);
         /* b: p1 (unmasked) */
         if ((b & 0x80) == 0) {
             a &= 0x7f;
@@ -501,7 +501,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p0<<14 | p2 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 14) | (0x7f);
@@ -516,7 +516,7 @@ public class SqlJetUtility {
         a &= (0x7f << 14) | (0x7f);
         i++;
         b = b << 14;
-        b |= p.getInt(i);
+        b |= p.get(i);
         /* b: p1<<14 | p3 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 14) | (0x7f);
@@ -539,7 +539,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p0<<28 | p2<<14 | p4 (unmasked) */
         if ((a & 0x80) == 0) {
             /*
@@ -562,7 +562,7 @@ public class SqlJetUtility {
 
         i++;
         b = b << 14;
-        b |= p.getInt(i);
+        b |= p.get(i);
         /* b: p1<<28 | p3<<14 | p5 (unmasked) */
         if ((b & 0x80) == 0) {
             /*
@@ -580,7 +580,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p2<<28 | p4<<14 | p6 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -596,7 +596,7 @@ public class SqlJetUtility {
         a &= (0x7f << 14) | (0x7f);
         i++;
         b = b << 14;
-        b |= p.getInt(i);
+        b |= p.get(i);
         /* b: p3<<28 | p5<<14 | p7 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -611,7 +611,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 15;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p4<<29 | p6<<15 | p8 (unmasked) */
 
         /* moved CSE2 up */
@@ -621,7 +621,7 @@ public class SqlJetUtility {
         a |= b;
 
         s = s << 4;
-        b = p.getInt(i - 4);
+        b = p.get(i - 4);
         b &= 0x7f;
         b = b >> 3;
         s |= b;
@@ -641,10 +641,17 @@ public class SqlJetUtility {
      * @throws SqlJetExceptionRemove
      */
     public static byte getVarint32(ByteBuffer p, int[] v) {
+
+        byte x = p.get(0);
+        if (x < 0x80) {
+            v[0] = x;
+            return 1;
+        }
+
         int a, b;
         int i = 0;
 
-        a = p.getInt(i);
+        a = p.get(i);
         /* a: p0 (unmasked) */
         if ((a & 0x80) == 0) {
             v[0] = a;
@@ -652,7 +659,7 @@ public class SqlJetUtility {
         }
 
         i++;
-        b = p.getInt(i);
+        b = p.get(i);
         /* b: p1 (unmasked) */
         if ((b & 0x80) == 0) {
             a &= 0x7f;
@@ -663,7 +670,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p0<<14 | p2 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 14) | (0x7f);
@@ -675,7 +682,7 @@ public class SqlJetUtility {
 
         i++;
         b = b << 14;
-        b |= p.getInt(i);
+        b |= p.get(i);
         /* b: p1<<14 | p3 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 14) | (0x7f);
@@ -687,7 +694,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.getInt(i);
+        a |= p.get(i);
         /* a: p0<<28 | p2<<14 | p4 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 28) | (0x7f << 14) | (0x7f);

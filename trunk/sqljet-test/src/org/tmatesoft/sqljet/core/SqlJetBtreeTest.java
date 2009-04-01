@@ -16,7 +16,6 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.After;
@@ -27,7 +26,6 @@ import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
-import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
 /**
  * @author TMate Software Ltd.

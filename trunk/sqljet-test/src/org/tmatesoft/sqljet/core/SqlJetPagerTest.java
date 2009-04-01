@@ -14,8 +14,8 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.hamcrest.BaseMatcher;
@@ -58,10 +58,11 @@ public class SqlJetPagerTest {
     @After
     public void tearDown() throws Exception {
         if(pager!=null) {
-//            if(pager.getRefCount()>0) {
-//                pager.rollback();
-//            }
-//            pager.close();
+            try {
+                pager.close();
+            } catch(Exception e) {
+                logger.log(Level.INFO, "pager.close():", e);
+            }
             pager = null;
         }
         fileSystem = null;
@@ -117,7 +118,7 @@ public class SqlJetPagerTest {
         for (int pageNumber = 1; pageNumber <= pageCount; pageNumber++) {
             final ISqlJetPage page = pager.acquirePage(pageNumber, true);
             final byte[] data = page.getData();
-            logger.info("page#"+pageNumber+":"+Arrays.toString(data));
+            //logger.info("page#"+pageNumber+":"+Arrays.toString(data));
             Assert.assertThat(data, new BaseMatcher<byte[]>() {
                 public boolean matches(Object a) {
                     for(byte b :(byte[])a) if(b!=0) return true;
@@ -178,11 +179,11 @@ public class SqlJetPagerTest {
         logger.info("pages count "+Integer.toString(pageCount));
         logger.info("file size "+Long.toString(fileSize));
         final ISqlJetPage page$1 = pager.acquirePage(pageNumber, true);
-        logger.info("page#"+pageNumber+":"+Arrays.toString(page$1.getData()));
+        //logger.info("page#"+pageNumber+":"+Arrays.toString(page$1.getData()));
         Assert.assertArrayEquals(page1.getData(), page$1.getData());
         
         final ISqlJetPage page$2 = pager.acquirePage(pageNumber+1, true);
-        logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(page$2.getData()));
+        //logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(page$2.getData()));
         Assert.assertArrayEquals(page2.getData(), page$2.getData());
 
         pager.begin(true);
@@ -203,11 +204,11 @@ public class SqlJetPagerTest {
         logger.info("pages count "+Integer.toString(pageCount));
         logger.info("file size "+Long.toString(fileSize));
         final ISqlJetPage page$$1 = pager.acquirePage(pageNumber, true);
-        logger.info("page#"+pageNumber+":"+Arrays.toString(page$$1.getData()));
+        //logger.info("page#"+pageNumber+":"+Arrays.toString(page$$1.getData()));
         Assert.assertArrayEquals(page1.getData(), page$$1.getData());
 
         final ISqlJetPage page$$2 = pager.acquirePage(pageNumber+1, true);
-        logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(page$$2.getData()));
+        //logger.info("page#"+(pageNumber+1)+":"+Arrays.toString(page$$2.getData()));
         Assert.assertArrayEquals(page2.getData(), page$$2.getData());
         
     }

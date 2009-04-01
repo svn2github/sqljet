@@ -929,7 +929,7 @@ public class SqlJetBtreeShared {
                 pPage.freePage();
             } else {
                 pPage.pDbPage.write();
-                pPage.zeroPage(pPage.aData.get(0) | SqlJetMemPage.PTF_LEAF);
+                pPage.zeroPage(SqlJetUtility.getUnsignedByte(pPage.aData, 0) | SqlJetMemPage.PTF_LEAF);
             }
 
             // cleardatabasepage_out:

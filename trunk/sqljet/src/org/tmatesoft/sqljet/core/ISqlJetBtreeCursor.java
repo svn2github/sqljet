@@ -166,7 +166,7 @@ public interface ISqlJetBtreeCursor {
      * @return
      * @throws SqlJetException
      */
-    byte flags() throws SqlJetException;
+    short flags() throws SqlJetException;
     
     /**
     * Step the cursor to the back to the previous entry in the database.  If

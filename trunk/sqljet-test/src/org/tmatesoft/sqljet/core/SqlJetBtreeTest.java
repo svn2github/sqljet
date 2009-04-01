@@ -94,7 +94,7 @@ public class SqlJetBtreeTest {
                     final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
                     c.enterCursor();
                     try {
-                        final byte flags = c.flags();
+                        final short flags = c.flags();
                         boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
                         logger.info("intKey " + intKey);
                         if (c.first()) {

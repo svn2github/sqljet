@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.internal.vdbe;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -57,28 +59,28 @@ public class SqlJetVdbeSerialType {
             break;
         }
         case 1: { /* 1-byte signed integer */
-            pMem.i = buf.get(0);
+            pMem.i = SqlJetUtility.getUnsignedByte(buf, 0);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 1;
         }
         case 2: { /* 2-byte signed integer */
-            pMem.i = (buf.get(0) << 8) | buf.get(1);
+            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 2;
         }
         case 3: { /* 3-byte signed integer */
-            pMem.i = (buf.get(0) << 16) | (buf.get(1) << 8) | buf.get(2);
+            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 3;
         }
         case 4: { /* 4-byte signed integer */
-            pMem.i = (buf.get(0) << 24) | (buf.get(1) << 16) | (buf.get(2) << 8) | buf.get(3);
+            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 4;
         }
         case 5: { /* 6-byte signed integer */
-            long x = (buf.get(0) << 8) | buf.get(1);
-            int y = (buf.get(2) << 24) | (buf.get(3) << 16) | (buf.get(4) << 8) | buf.get(5);
+            long x = (SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1);
+            int y = (SqlJetUtility.getUnsignedByte(buf, 2) << 24) | (SqlJetUtility.getUnsignedByte(buf, 3) << 16) | (SqlJetUtility.getUnsignedByte(buf, 4) << 8) | SqlJetUtility.getUnsignedByte(buf, 5);
             x = (x << 32) | y;
             pMem.i = x;
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
@@ -88,8 +90,8 @@ public class SqlJetVdbeSerialType {
         case 7: { /* IEEE floating point */
             long x;
             int y;
-            x = (buf.get(0) << 24) | (buf.get(1) << 16) | (buf.get(2) << 8) | buf.get(3);
-            y = (buf.get(4) << 24) | (buf.get(5) << 16) | (buf.get(6) << 8) | buf.get(7);
+            x = (SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3);
+            y = (SqlJetUtility.getUnsignedByte(buf, 4) << 24) | (SqlJetUtility.getUnsignedByte(buf, 5) << 16) | (SqlJetUtility.getUnsignedByte(buf, 6) << 8) | SqlJetUtility.getUnsignedByte(buf, 7);
             x = (x << 32) | y;
             if (serial_type == 6) {
                 pMem.i = x;

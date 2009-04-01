@@ -357,8 +357,8 @@ public class SqlJetUtility {
      */
     public static int memcmp(ByteBuffer a1, ByteBuffer a2, int count) {
         for (int i = 0; i < count; i++) {
-            final Byte b1 = Byte.valueOf(a1.get(i));
-            final Byte b2 = Byte.valueOf(a2.get(i));
+            final Short b1 = Short.valueOf(SqlJetUtility.getUnsignedByte(a1, i));
+            final Short b2 = Short.valueOf(SqlJetUtility.getUnsignedByte(a2, i));
             final int c = b1.compareTo(b2);
             if (0 != c)
                 return c;
@@ -430,10 +430,10 @@ public class SqlJetUtility {
         int i, j, n;
         byte[] buf = new byte[10];
         if ((v & (((long) 0xff000000) << 32)) != 0) {
-            p.put(8, (byte) v);
+            SqlJetUtility.putUnsignedByte(p, 8, (byte) v);
             v >>= 8;
             for (i = 7; i >= 0; i--) {
-                p.put(i, (byte) ((v & 0x7f) | 0x80));
+                SqlJetUtility.putUnsignedByte(p, i, (byte) ((v & 0x7f) | 0x80));
                 v >>= 7;
             }
             return 9;
@@ -446,7 +446,7 @@ public class SqlJetUtility {
         buf[0] &= 0x7f;
         assert (n <= 9);
         for (i = 0, j = n - 1; j >= 0; j--, i++) {
-            p.put(i, buf[j]);
+            SqlJetUtility.putUnsignedByte(p, i, buf[j]);
         }
         return n;
     }
@@ -460,17 +460,17 @@ public class SqlJetUtility {
      */
     public static int putVarint32(ByteBuffer p, int v) {
         if (v < 0x80) {
-            p.put(0, (byte) v);
+            SqlJetUtility.putUnsignedByte(p, 0, (byte) v);
             return 1;
         }
 
         if ((v & ~0x7f) == 0) {
-            p.put(0, (byte) v);
+            SqlJetUtility.putUnsignedByte(p, 0, (byte) v);
             return 1;
         }
         if ((v & ~0x3fff) == 0) {
-            p.put(0, (byte) ((v >> 7) | 0x80));
-            p.put(1, (byte) (v & 0x7f));
+            SqlJetUtility.putUnsignedByte(p, 0, (byte) ((v >> 7) | 0x80));
+            SqlJetUtility.putUnsignedByte(p, 1, (byte) (v & 0x7f));
             return 2;
         }
         return putVarint(p, v);
@@ -484,7 +484,7 @@ public class SqlJetUtility {
         int a, b, s;
         int i = 0;
 
-        a = p.get(i);
+        a = SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0 (unmasked) */
         if ((a & 0x80) == 0) {
             v[0] = a;
@@ -492,7 +492,7 @@ public class SqlJetUtility {
         }
 
         i++;
-        b = p.get(i);
+        b = SqlJetUtility.getUnsignedByte(p, i);
         /* b: p1 (unmasked) */
         if ((b & 0x80) == 0) {
             a &= 0x7f;
@@ -504,7 +504,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0<<14 | p2 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 14) | (0x7f);
@@ -519,7 +519,7 @@ public class SqlJetUtility {
         a &= (0x7f << 14) | (0x7f);
         i++;
         b = b << 14;
-        b |= p.get(i);
+        b |= SqlJetUtility.getUnsignedByte(p, i);
         /* b: p1<<14 | p3 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 14) | (0x7f);
@@ -542,7 +542,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0<<28 | p2<<14 | p4 (unmasked) */
         if ((a & 0x80) == 0) {
             /*
@@ -565,7 +565,7 @@ public class SqlJetUtility {
 
         i++;
         b = b << 14;
-        b |= p.get(i);
+        b |= SqlJetUtility.getUnsignedByte(p, i);
         /* b: p1<<28 | p3<<14 | p5 (unmasked) */
         if ((b & 0x80) == 0) {
             /*
@@ -583,7 +583,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p2<<28 | p4<<14 | p6 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -599,7 +599,7 @@ public class SqlJetUtility {
         a &= (0x7f << 14) | (0x7f);
         i++;
         b = b << 14;
-        b |= p.get(i);
+        b |= SqlJetUtility.getUnsignedByte(p, i);
         /* b: p3<<28 | p5<<14 | p7 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -614,7 +614,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 15;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p4<<29 | p6<<15 | p8 (unmasked) */
 
         /* moved CSE2 up */
@@ -624,7 +624,7 @@ public class SqlJetUtility {
         a |= b;
 
         s = s << 4;
-        b = p.get(i - 4);
+        b = SqlJetUtility.getUnsignedByte(p, i - 4);
         b &= 0x7f;
         b = b >> 3;
         s |= b;
@@ -645,7 +645,7 @@ public class SqlJetUtility {
      */
     public static byte getVarint32(ByteBuffer p, int[] v) {
 
-        byte x = p.get(0);
+        short x = SqlJetUtility.getUnsignedByte(p, 0);
         if (x < 0x80) {
             v[0] = x;
             return 1;
@@ -654,7 +654,7 @@ public class SqlJetUtility {
         int a, b;
         int i = 0;
 
-        a = p.get(i);
+        a = SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0 (unmasked) */
         if ((a & 0x80) == 0) {
             v[0] = a;
@@ -662,7 +662,7 @@ public class SqlJetUtility {
         }
 
         i++;
-        b = p.get(i);
+        b = SqlJetUtility.getUnsignedByte(p, i);
         /* b: p1 (unmasked) */
         if ((b & 0x80) == 0) {
             a &= 0x7f;
@@ -673,7 +673,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0<<14 | p2 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 14) | (0x7f);
@@ -685,7 +685,7 @@ public class SqlJetUtility {
 
         i++;
         b = b << 14;
-        b |= p.get(i);
+        b |= SqlJetUtility.getUnsignedByte(p, i);
         /* b: p1<<14 | p3 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 14) | (0x7f);
@@ -697,7 +697,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= p.get(i);
+        a |= SqlJetUtility.getUnsignedByte(p, i);
         /* a: p0<<28 | p2<<14 | p4 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -755,9 +755,34 @@ public class SqlJetUtility {
     public static int strlen30(ByteBuffer z) {
         int i = 0;
         final int l = z.limit();
-        for (; i < l && z.get(i) != 0; i++)
+        for (; i < l && SqlJetUtility.getUnsignedByte(z, i) != 0; i++)
             ;
         return 0x3fffffff & (int) (i);
+    }
+
+    /**
+     * Get unsigned byte from byte buffer
+     * 
+     * @param byteBuffer
+     * @param index
+     * @return
+     */
+    public static short getUnsignedByte(ByteBuffer byteBuffer, int index) {
+        //return byteBuffer.get(index);
+        return ((short)(byteBuffer.get (index) & (short)0xff));
+    }
+
+    /**
+     * Put unsigned byte to byte buffer
+     * 
+     * @param byteBuffer
+     * @param index
+     * @param value
+     * @return
+     */
+    public static ByteBuffer putUnsignedByte(ByteBuffer byteBuffer, int index, short value) {
+        //return byteBuffer.put(index, b);
+        return byteBuffer.put (index, (byte)(value & 0xff));
     }
 
 }

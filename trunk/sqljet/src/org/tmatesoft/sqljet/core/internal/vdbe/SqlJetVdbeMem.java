@@ -444,8 +444,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
           return;   /* Nothing to do */
         }
         pMem.grow(pMem.n+2, true);
-        pMem.z.put(pMem.n, (byte)0);
-        pMem.z.put(pMem.n+1, (byte)0);
+        SqlJetUtility.putUnsignedByte(pMem.z, pMem.n, (byte)0);
+        SqlJetUtility.putUnsignedByte(pMem.z, pMem.n+1, (byte)0);
         pMem.flags.add(SqlJetVdbeMemFlags.Term);
     }
 

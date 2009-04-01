@@ -669,8 +669,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
         }
         pPage.freeSpace(pc, sz);
         for (i = idx + 1; i < pPage.nCell; i++, ptr = slice(ptr, 2)) {
-            ptr.put(0, ptr.get(2));
-            ptr.put(1, ptr.get(3));
+            SqlJetUtility.putUnsignedByte(ptr, 0, SqlJetUtility.getUnsignedByte(ptr, 2));
+            SqlJetUtility.putUnsignedByte(ptr, 1, SqlJetUtility.getUnsignedByte(ptr, 3));
         }
         pPage.nCell--;
         put2byte(data, pPage.hdrOffset + 3, pPage.nCell);
@@ -733,10 +733,10 @@ public class SqlJetMemPage extends SqlJetCloneable {
             psize = get2byte(data, pbegin + 2);
             if (pbegin + psize + 3 >= pnext && pnext > 0) {
                 int frag = pnext - (pbegin + psize);
-                if ((frag < 0) || (frag > (int) data.get(pPage.hdrOffset + 7))) {
+                if ((frag < 0) || (frag > (int) SqlJetUtility.getUnsignedByte(data, pPage.hdrOffset + 7))) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
                 }
-                data.put(pPage.hdrOffset + 7, (byte) (data.get(pPage.hdrOffset + 7) - (byte) frag));
+                SqlJetUtility.putUnsignedByte(data, pPage.hdrOffset + 7, (byte) (SqlJetUtility.getUnsignedByte(data, pPage.hdrOffset + 7) - (byte) frag));
                 x = get2byte(data, pnext);
                 put2byte(data, pbegin, x);
                 x = pnext + get2byte(data, pnext + 2) - pbegin;
@@ -747,7 +747,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         }
 
         /* If the cell content area begins with a freeblock, remove it. */
-        if (data.get(hdr + 1) == data.get(hdr + 5) && data.get(hdr + 2) == data.get(hdr + 6)) {
+        if (SqlJetUtility.getUnsignedByte(data, hdr + 1) == SqlJetUtility.getUnsignedByte(data, hdr + 5) && SqlJetUtility.getUnsignedByte(data, hdr + 2) == SqlJetUtility.getUnsignedByte(data, hdr + 6)) {
             int top;
             pbegin = get2byte(data, hdr + 1);
             memcpy(data, hdr + 1, data, pbegin, 2);
@@ -839,8 +839,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
             pPage.nFree -= 2;
             memcpy(data, idx + nSkip, pCell, nSkip, sz - nSkip);
             for (j = end - 2, ptr = slice(data, j); j > ins; j -= 2, ptr = slice(ptr, -2)) {
-                ptr.put(0, slice(ptr, -2).get(0));
-                ptr.put(1, slice(ptr, -1).get(0));
+                SqlJetUtility.putUnsignedByte(ptr, 0, SqlJetUtility.getUnsignedByte(slice(ptr, -2), 0));
+                SqlJetUtility.putUnsignedByte(ptr, 1, SqlJetUtility.getUnsignedByte(slice(ptr, -1), 0));
             }
             put2byte(data, ins, idx);
             put2byte(data, hdr + 3, pPage.nCell);
@@ -898,7 +898,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         pPage.nFree -= nByte;
         hdr = pPage.hdrOffset;
 
-        nFrag = data.get(hdr + 7);
+        nFrag = SqlJetUtility.getUnsignedByte(data, hdr + 7);
         if (nFrag < 60) {
             /*
              * Search the freelist looking for a slot big enough to satisfy the*
@@ -911,7 +911,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
                     int x = size - nByte;
                     if (size < nByte + 4) {
                         memcpy(data, addr, data, pc, 2);
-                        data.put(hdr + 7, (byte) (nFrag + x));
+                        SqlJetUtility.putUnsignedByte(data, hdr + 7, (byte) (nFrag + x));
                         return pc;
                     } else {
                         put2byte(data, pc + 2, x);
@@ -996,9 +996,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
         }
         assert (cbrk >= cellOffset + 2 * nCell);
         put2byte(data, hdr + 5, cbrk);
-        data.put(hdr + 1, (byte) 0);
-        data.put(hdr + 2, (byte) 0);
-        data.put(hdr + 7, (byte) 0);
+        SqlJetUtility.putUnsignedByte(data, hdr + 1, (byte) 0);
+        SqlJetUtility.putUnsignedByte(data, hdr + 2, (byte) 0);
+        SqlJetUtility.putUnsignedByte(data, hdr + 7, (byte) 0);
         addr = cellOffset + 2 * nCell;
         memset(data, addr, (byte) 0, cbrk - addr);
         assert (pPage.pDbPage.isWriteable());

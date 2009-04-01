@@ -90,7 +90,7 @@ public class SqlJetBtreeTest {
                 btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
                 final int pageCount = btree.getPager().getPageCount();
                 for (int i = 1; i <= pageCount; i++) {
-                    logger.info("page " + i);
+                    logger.info("\npage " + i);
                     final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
                     c.enterCursor();
                     try {

@@ -94,25 +94,23 @@ public class SqlJetBtreeTest {
                 btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
                 final int pageCount = btree.getPager().getPageCount();
                 for (int i = 1; i <= pageCount; i++) {
-                    logger.info("\npage " + i);
                     final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
                     c.enterCursor();
                     try {
                         final short flags = c.flags();
                         boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
-                        logger.info("intKey " + intKey);
+                        if(!intKey) continue; 
+                        logger.info("table " + i);
                         if (c.first()) {
-                            logger.info("empty cursor");
+                            logger.info("empty");
                         } else {
                             do {
-                                final long keySize = c.getKeySize();
-                                logger.info("keySize " + keySize);
+                                final long key = c.getKeySize();
                                 final int dataSize = c.getDataSize();
-                                logger.info("dataSize " + dataSize);
                                 ByteBuffer data = ByteBuffer.allocate(dataSize);
                                 c.data(0, dataSize, data);
-                                logger.info(new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", ""));
-                                logger.info("next");
+                                final String str = new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", "");
+                                logger.info("record " + key + " : \"" + str + "\"" );
                             } while (!c.next());
                         }
                     } finally {
@@ -143,13 +141,13 @@ public class SqlJetBtreeTest {
             btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
             try {
                 btree.beginTrans(SqlJetTransactionMode.WRITE);
-                for (int x = 1; x <= 10; x++) {
+                for (int x = 1; x <= 3; x++) {
                     final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
                             SqlJetBtreeTableCreateFlags.LEAFDATA));
                     final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
                     c.enterCursor();
                     try {
-                        for (int y = 1; y <= 10; y++) {
+                        for (int y = 1; y <= 3; y++) {
                             c.insert(null, y, pData, pData.capacity(), 0, false);
                         }
                         c.closeCursor();
@@ -169,23 +167,25 @@ public class SqlJetBtreeTest {
                     final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
                     c.enterCursor();
                     try {
-                        if (!c.first())
+                        if (!c.first()) {
+                            logger.info("table " + i);
                             do {
                                 StringBuilder s = new StringBuilder();
                                 final long key = c.getKeySize();
                                 if (key != 0)
-                                    s.append("key : ").append(key).append(" ");
+                                    s.append("record ").append(key).append(" : ");
                                 final int dataSize = c.getDataSize();
                                 if (dataSize > 0) {
                                     ByteBuffer b = ByteBuffer.allocate(dataSize);
                                     c.data(0, dataSize, b);
                                     final String str = new String(b.array(), "UTF8");
-                                    s.append("data : ").append(str.replaceAll("[^\\p{Print}]", ""));
+                                    s.append("\"").append(str.replaceAll("[^\\p{Print}]", "")).append("\"");
                                     Assert.assertEquals(data, str);
                                 }
                                 if (s.length() > 0)
                                     logger.info(s.toString());
                             } while (!c.next());
+                        }
                     } finally {
                         c.leaveCursor();
                     }

@@ -109,7 +109,7 @@ public class SqlJetBtreeTest {
                                 final int dataSize = c.getDataSize();
                                 ByteBuffer data = ByteBuffer.allocate(dataSize);
                                 c.data(0, dataSize, data);
-                                final String str = new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", "");
+                                final String str = new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", "?");
                                 logger.info("record " + key + " : \"" + str + "\"" );
                             } while (!c.next());
                         }
@@ -179,7 +179,7 @@ public class SqlJetBtreeTest {
                                     ByteBuffer b = ByteBuffer.allocate(dataSize);
                                     c.data(0, dataSize, b);
                                     final String str = new String(b.array(), "UTF8");
-                                    s.append("\"").append(str.replaceAll("[^\\p{Print}]", "")).append("\"");
+                                    s.append("\"").append(str.replaceAll("[^\\p{Print}]", "?")).append("\"");
                                     Assert.assertEquals(data, str);
                                 }
                                 if (s.length() > 0)

@@ -174,5 +174,10 @@ public interface ISqlJetPage {
      * @return
      */
     boolean isWriteable();
+
+    /**
+     * @return
+     */
+    ISqlJetPage getDirty();
     
 }

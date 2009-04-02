@@ -123,7 +123,9 @@ public class SqlJetBtree implements ISqlJetBtree {
         return db.getBusyHaldler().call(number);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#enter()
      */
     public void enter() {
@@ -189,7 +191,9 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#leave()
      */
     public void leave() {
@@ -306,7 +310,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 if (pBt.pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
                         || pBt.pageSize > ISqlJetLimits.SQLJET_MAX_PAGE_SIZE
                         || ((pBt.pageSize - 1) & pBt.pageSize) != 0) {
-                    pBt.pageSize = 0;
+                    pBt.pageSize = ISqlJetLimits.SQLJET_DEFAULT_PAGE_SIZE;
                     pBt.pageSize = pBt.pPager.setPageSize(pBt.pageSize);
                     /*
                      * If the magic name ":memory:" will create an in-memory
@@ -637,7 +641,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      */
     private void lockBtree() throws SqlJetException {
 
-        SqlJetException rc = null;
+        SqlJetErrorCode rc = null;
         SqlJetMemPage pPage1;
         int nPage;
 
@@ -659,15 +663,15 @@ public class SqlJetBtree implements ISqlJetBtree {
                 int pageSize;
                 int usableSize;
                 byte[] page1 = pPage1.aData.array();
-                rc = new SqlJetException(SqlJetErrorCode.NOTADB);
+                rc = SqlJetErrorCode.NOTADB;
                 if (SqlJetUtility.memcmp(page1, zMagicHeader, 16) != 0) {
-                    throw rc;
+                    throw new SqlJetException(rc);
                 }
                 if (page1[18] > 1) {
                     pBt.readOnly = true;
                 }
                 if (page1[19] > 1) {
-                    throw rc;
+                    throw new SqlJetException(rc);
                 }
 
                 /*
@@ -678,14 +682,14 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * fixed.
                  */
                 if (SqlJetUtility.memcmp(page1, 21, new byte[] { (byte) 0100, (byte) 040, (byte) 040 }, 0, 3) != 0) {
-                    throw rc;
+                    throw new SqlJetException(rc);
                 }
 
                 pageSize = SqlJetUtility.get2byte(page1, 16);
                 if (((pageSize - 1) & pageSize) != 0
                         || pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
                         || (ISqlJetLimits.SQLJET_MAX_PAGE_SIZE < 32768 && pageSize > ISqlJetLimits.SQLJET_MAX_PAGE_SIZE)) {
-                    throw rc;
+                    throw new SqlJetException(rc);
                 }
                 assert ((pageSize & 7) == 0);
                 usableSize = pageSize - page1[20];
@@ -706,7 +710,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     return;
                 }
                 if (usableSize < 500) {
-                    throw rc;
+                    throw new SqlJetException(rc);
                 }
                 pBt.pageSize = pageSize;
                 pBt.usableSize = usableSize;
@@ -2015,20 +2019,20 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * <ol>
      * 
-     * <li> When BtreeClearTable() is called to completely delete the contents of
+     * <li>When BtreeClearTable() is called to completely delete the contents of
      * a B-Tree table, pExclude is set to zero and parameter iRow is set to
      * non-zero. In this case all incremental blob cursors open on the table
-     * rooted at pgnoRoot are invalidated. </li>
+     * rooted at pgnoRoot are invalidated.</li>
      * 
-     * <li> When BtreeInsert(), BtreeDelete() or BtreePutData() is called to
+     * <li>When BtreeInsert(), BtreeDelete() or BtreePutData() is called to
      * modify a table row via an SQL statement, pExclude is set to the write
      * cursor used to do the modification and parameter iRow is set to the
      * integer row id of the B-Tree entry being modified. Unless pExclude is
      * itself an incremental blob cursor, then all incremental blob cursors open
-     * on row iRow of the B-Tree are invalidated. </li>
+     * on row iRow of the B-Tree are invalidated.</li>
      * 
-     * <li> If both pExclude and iRow are set to zero, no incremental blob cursors
-     * are invalidated. </li>
+     * <li>If both pExclude and iRow are set to zero, no incremental blob
+     * cursors are invalidated.</li>
      * 
      * </ol>
      */
@@ -2049,11 +2053,11 @@ public class SqlJetBtree implements ISqlJetBtree {
             if (!p.wrFlag || p.isIncrblobHandle) {
                 ISqlJetDb dbOther = p.pBtree.db;
                 if (dbOther == null || (dbOther != db && !dbOther.getFlags().contains(SqlJetDbFlags.ReadUncommitted))) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /*

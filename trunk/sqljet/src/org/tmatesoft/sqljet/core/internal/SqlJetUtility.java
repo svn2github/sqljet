@@ -116,7 +116,7 @@ public class SqlJetUtility {
     public static void put2byte(ByteBuffer p, int off, int v) {
         //p.put(off, (byte) (v >> 8));
         //p.put(off + 1, (byte) (v));
-        p.putShort((short)v);
+        p.putShort(off,(short)v);
     }
 
     /**
@@ -244,7 +244,7 @@ public class SqlJetUtility {
      * @param count
      */
     public static void memset(byte[] data, int from, byte value, int count) {
-        Arrays.fill(data, from, count, value);
+        Arrays.fill(data, from, from + count, value);
     }
 
     /**
@@ -253,7 +253,7 @@ public class SqlJetUtility {
      * @param count
      */
     public static void memset(byte[] data, byte value, int count) {
-        memset(data, 0, value, data.length);
+        memset(data, 0, value, count);
     }
 
     /**
@@ -271,7 +271,8 @@ public class SqlJetUtility {
      * @param count
      */
     public static void memset(ByteBuffer data, int from, byte value, int count) {
-        Arrays.fill(data.array(), data.arrayOffset() + from, count, value);
+        final int i = data.arrayOffset() + from;
+        Arrays.fill(data.array(), i, i+count, value);
     }
 
     /**
@@ -280,7 +281,7 @@ public class SqlJetUtility {
      * @param count
      */
     public static void memset(ByteBuffer data, byte value, int count) {
-        memset(data, 0, value, data.capacity());
+        memset(data, 0, value, count);
     }
 
     /**
@@ -387,7 +388,7 @@ public class SqlJetUtility {
         if (null == string)
             throw new SqlJetError("Undefined string");
         try {
-            return string.getBytes("US-ASCII");
+            return string.getBytes("UTF8");
         } catch (Throwable t) {
             throw new SqlJetError("Error while get bytes for string \"" + string + "\"", t);
         }

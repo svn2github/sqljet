@@ -3128,7 +3128,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          */
         waitOnLock(SqlJetLockType.EXCLUSIVE);
 
-        for (ISqlJetPage page = pList; page != null; page = page.getNext()) {
+        for (ISqlJetPage page = pList; page != null; page = page.getDirty()) {
 
             /* If the file has not yet been opened, open it now. */
             if (null == fd) {

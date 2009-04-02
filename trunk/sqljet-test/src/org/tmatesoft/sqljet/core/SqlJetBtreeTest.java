@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
+import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 
 /**
  * @author TMate Software Ltd.
@@ -36,7 +37,9 @@ public class SqlJetBtreeTest {
 
     private static Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
 
+    private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private File testDataBase = new File("sqljet-test/db/testdb.sqlite");
+    private File testTempFile;
     private ISqlJetBtree btree;
     private ISqlJetDb db = new SqlJetDb();
 
@@ -45,6 +48,7 @@ public class SqlJetBtreeTest {
      */
     @Before
     public void setUp() throws Exception {
+        testTempFile = fileSystem.getTempFile();
         btree = new SqlJetBtree();
     }
 
@@ -53,6 +57,8 @@ public class SqlJetBtreeTest {
      */
     @After
     public void tearDown() throws Exception {
+        if(testTempFile!=null)
+            testTempFile.delete();
     }
 
     static class _OvflCell extends SqlJetCloneable {
@@ -105,7 +111,7 @@ public class SqlJetBtreeTest {
                                 logger.info("dataSize " + dataSize);
                                 ByteBuffer data = ByteBuffer.allocate(dataSize);
                                 c.data(0, dataSize, data);
-                                logger.info(new String(data.array(),"UTF8").replaceAll("[^\\p{Print}]", ""));
+                                logger.info(new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", ""));
                                 logger.info("next");
                             } while (!c.next());
                         }
@@ -121,4 +127,75 @@ public class SqlJetBtreeTest {
         }
     }
 
+    @Test
+    public void testWrite() throws Exception {
+        db.getMutex().enter();
+        try {
+
+            final String data = "Test data";
+            final byte[] bytes = SqlJetUtility.getBytes(data);
+            ByteBuffer pData = ByteBuffer.wrap(bytes);
+
+            final EnumSet<SqlJetBtreeFlags> btreeFlags = EnumSet
+                    .of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
+            final EnumSet<SqlJetFileOpenPermission> fileFlags = EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                    SqlJetFileOpenPermission.READWRITE);
+            btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
+            try {
+                btree.beginTrans(SqlJetTransactionMode.WRITE);
+                for (int x = 1; x <= 10; x++) {
+                    final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
+                            SqlJetBtreeTableCreateFlags.LEAFDATA));
+                    final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
+                    c.enterCursor();
+                    try {
+                        for (int y = 1; y <= 10; y++) {
+                            c.insert(null, y, pData, pData.capacity(), 0, false);
+                        }
+                        c.closeCursor();
+                    } finally {
+                        c.leaveCursor();
+                    }
+                }
+                btree.commit();
+            } finally {
+                btree.close();
+            }
+
+            btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
+            try {
+                final int pageCount = btree.getPager().getPageCount();
+                for (int i = 1; i <= pageCount; i++) {
+                    final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
+                    c.enterCursor();
+                    try {
+                        if (!c.first())
+                            do {
+                                StringBuilder s = new StringBuilder();
+                                final long key = c.getKeySize();
+                                if (key != 0)
+                                    s.append("key : ").append(key).append(" ");
+                                final int dataSize = c.getDataSize();
+                                if (dataSize > 0) {
+                                    ByteBuffer b = ByteBuffer.allocate(dataSize);
+                                    c.data(0, dataSize, b);
+                                    final String str = new String(b.array(), "UTF8");
+                                    s.append("data : ").append(str.replaceAll("[^\\p{Print}]", ""));
+                                    Assert.assertEquals(data, str);
+                                }
+                                if (s.length() > 0)
+                                    logger.info(s.toString());
+                            } while (!c.next());
+                    } finally {
+                        c.leaveCursor();
+                    }
+                }
+            } finally {
+                btree.close();
+            }
+
+        } finally {
+            db.getMutex().leave();
+        }
+    }
 }

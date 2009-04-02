@@ -696,5 +696,11 @@ public class SqlJetPage implements ISqlJetPage {
     public boolean isWriteable() {
         return flags.contains( SqlJetPageFlags.DIRTY );
     }
-    
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#getDirty()
+     */
+    public ISqlJetPage getDirty() {
+        return pDirty;
+    }
 }

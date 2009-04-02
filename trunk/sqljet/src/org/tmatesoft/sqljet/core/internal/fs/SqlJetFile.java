@@ -585,10 +585,12 @@ public class SqlJetFile implements ISqlJetFile {
                             locks.remove(SqlJetLockType.EXCLUSIVE);
                         }
 
-                        final FileLock sharedLock = channel.lock(SHARED_FIRST, SHARED_SIZE, true);
-                        if (null == sharedLock)
-                            return false;
-                        locks.put(SqlJetLockType.SHARED, sharedLock);
+                        if(null==locks.get(SqlJetLockType.SHARED)) {
+                            final FileLock sharedLock = channel.lock(SHARED_FIRST, SHARED_SIZE, true);
+                            if (null == sharedLock)
+                                return false;
+                            locks.put(SqlJetLockType.SHARED, sharedLock);
+                        }
 
                     }
 

@@ -13,8 +13,14 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.io.DataInput;
 import java.io.File;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.EnumSet;
 import java.util.logging.Logger;
 
@@ -39,6 +45,7 @@ public class SqlJetBtreeTest {
 
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private File testDataBase = new File("sqljet-test/db/testdb.sqlite");
+    private File testNativeFile = new File("sqljet-test/db/sqlite.native");
     private File testTempFile;
     private ISqlJetBtree btree;
     private ISqlJetDb db = new SqlJetDb();
@@ -57,7 +64,7 @@ public class SqlJetBtreeTest {
      */
     @After
     public void tearDown() throws Exception {
-        if(testTempFile!=null)
+        if (testTempFile != null)
             testTempFile.delete();
     }
 
@@ -99,7 +106,8 @@ public class SqlJetBtreeTest {
                     try {
                         final short flags = c.flags();
                         boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
-                        if(!intKey) continue; 
+                        if (!intKey)
+                            continue;
                         logger.info("table " + i);
                         if (c.first()) {
                             logger.info("empty");
@@ -110,7 +118,7 @@ public class SqlJetBtreeTest {
                                 ByteBuffer data = ByteBuffer.allocate(dataSize);
                                 c.data(0, dataSize, data);
                                 final String str = new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", "?");
-                                logger.info("record " + key + " : \"" + str + "\"" );
+                                logger.info("record " + key + " : \"" + str + "\"");
                             } while (!c.next());
                         }
                     } finally {
@@ -197,5 +205,38 @@ public class SqlJetBtreeTest {
         } finally {
             db.getMutex().leave();
         }
+
+        Assert.assertTrue("output file is'nt equal to native", compareFiles(testTempFile, testNativeFile));
+        logger.info("Output is equal to native");
+
+    }
+
+    /**
+     * @param testTempFile2
+     * @param testNativeTmpFile2
+     */
+    private boolean compareFiles(File f1, File f2) throws Exception {
+        RandomAccessFile i1 = new RandomAccessFile(f1, "r");
+        try {
+            RandomAccessFile i2 = new RandomAccessFile(f2, "r");
+            try {
+                final MappedByteBuffer m1 = i1.getChannel().map(MapMode.READ_ONLY, 0, i1.length());
+                final MappedByteBuffer m2 = i1.getChannel().map(MapMode.READ_ONLY, 0, i1.length());
+                while (m1.hasRemaining() && m2.hasRemaining()) {
+                    final byte b1 = m1.get();
+                    final byte b2 = m2.get();
+                    if (b1 != b2)
+                        return false;
+
+                }
+                if (m1.hasRemaining() || m2.hasRemaining())
+                    return false;
+            } finally {
+                i2.close();
+            }
+        } finally {
+            i1.close();
+        }
+        return true;
     }
 }

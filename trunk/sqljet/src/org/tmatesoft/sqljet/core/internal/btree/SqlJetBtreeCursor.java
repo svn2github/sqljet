@@ -1317,7 +1317,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 if (pBt.autoVacuum) {
                     for (k = j; k < cntNew[i]; k++) {
                         assert (k < nMaxCells);
-                        if (SqlJetUtility.getUnsignedByte(aFrom, k) == 0xFF || apCopy[SqlJetUtility.getUnsignedByte(aFrom, k)].pgno != pNew.pgno) {
+                        if (SqlJetUtility.getUnsignedByte(aFrom, k) == 0xFF
+                                || apCopy[SqlJetUtility.getUnsignedByte(aFrom, k)].pgno != pNew.pgno) {
                             pNew.ptrmapPutOvfl(k - j);
                             if (leafCorrection == 0) {
                                 pBt.ptrmapPut(get4byte(apCell[k]), SqlJetBtreeShared.PTRMAP_BTREE, pNew.pgno);
@@ -1343,7 +1344,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     pTemp = slice(aSpace2, iSpace2);
                     if (!pNew.leaf) {
                         memcpy(slice(pNew.aData, 8), pCell, 4);
-                        if (pBt.autoVacuum && (SqlJetUtility.getUnsignedByte(aFrom, j) == 0xFF || apCopy[SqlJetUtility.getUnsignedByte(aFrom, j)].pgno != pNew.pgno)) {
+                        if (pBt.autoVacuum
+                                && (SqlJetUtility.getUnsignedByte(aFrom, j) == 0xFF || apCopy[SqlJetUtility
+                                        .getUnsignedByte(aFrom, j)].pgno != pNew.pgno)) {
                             pBt.ptrmapPut(get4byte(pCell), SqlJetBtreeShared.PTRMAP_BTREE, pNew.pgno);
                         }
                     } else if (leafData) {
@@ -1798,7 +1801,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long,
      * byte[], int, int, boolean)
      */
-    public void insert(ByteBuffer key, long key2, ByteBuffer data, int data2, int zero, boolean bias)
+    public void insert(ByteBuffer pKey, long nKey, ByteBuffer pData, int nData, int zero, boolean bias)
             throws SqlJetException {
 
         final SqlJetBtreeCursor pCur = this;
@@ -1832,12 +1835,12 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.intKey || nKey >= 0);
         assert (pPage.leaf || !pPage.intKey);
-        TRACE("INSERT: table=%d nkey=%lld ndata=%d page=%d %s\n", pCur.pgnoRoot, nKey, data, pPage.pgno,
+        TRACE("INSERT: table=%d nkey=%lld ndata=%d page=%d %s\n", pCur.pgnoRoot, nKey, pData, pPage.pgno,
                 loc == 0 ? "overwrite" : "new entry");
         assert (pPage.isInit);
         pBt.allocateTempSpace();
         newCell = ByteBuffer.wrap(pBt.pTmpSpace);
-        szNew = pPage.fillInCell(newCell, key, key2, data, data2, zero);
+        szNew = pPage.fillInCell(newCell, pKey, nKey, pData, nData, zero);
         assert (szNew == pPage.cellSizePtr(newCell));
         assert (szNew <= pBt.MX_CELL_SIZE());
         idx = pCur.aiIdx[pCur.iPage];
@@ -2234,8 +2237,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         if (skipKey != 0) {
             offset += nKey;
         }
-        if (offset + amt > nKey + pCur.info.nData || 
-                (aPayload.arrayOffset()+pCur.info.nLocal) > (pPage.aData.arrayOffset()+pBt.usableSize)) {
+        if (offset + amt > nKey + pCur.info.nData
+                || (aPayload.arrayOffset() + pCur.info.nLocal) > (pPage.aData.arrayOffset() + pBt.usableSize)) {
             /* Trying to read or write past the end of the data is an error */
             throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
         }
@@ -2540,18 +2543,22 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         return true;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#enterCursor()
      */
     public void enterCursor() {
         pBtree.enter();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#leaveCursor()
      */
     public void leaveCursor() {
         pBtree.leave();
     }
-    
+
 }

@@ -12,5 +12,6 @@ int main(void) {
 	testRead();
 	testWrite();
 	testDelete();
+	testUpdate();
 	return EXIT_SUCCESS;
 }

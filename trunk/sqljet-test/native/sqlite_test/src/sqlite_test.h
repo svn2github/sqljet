@@ -25,10 +25,12 @@
 
 #define WRITE_FILE "/tmp/write.native"
 #define DELETE_FILE "/tmp/delete.native"
+#define UPDATE_FILE "/tmp/update.native"
 
 
 void testRead(void);
 void testWrite(void);
 void testDelete(void);
+void testUpdate(void);
 
 #endif /* SQLITE_TEST_H_ */

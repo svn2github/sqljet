@@ -8,10 +8,21 @@
 
 #include "sqlite_test.h"
 
+void cleanup(){
+	unlink(WRITE_FILE);
+	unlink(DELETE_FILE);
+	unlink(UPDATE_FILE);
+}
+
 int main(void) {
+
+	cleanup();
+
 	testRead();
 	testWrite();
 	testDelete();
 	testUpdate();
+
 	return EXIT_SUCCESS;
+
 }

@@ -10,9 +10,11 @@
 
 void testWrite() {
 
+	puts("testWrite()");
+
 	sqlite3 *db;
 
-	char * file = TEMP_FILE;
+	char * file = WRITE_FILE;
 
 	int rc = sqlite3_open(file, &db);
 

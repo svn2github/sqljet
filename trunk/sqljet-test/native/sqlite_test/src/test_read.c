@@ -10,6 +10,8 @@
 
 void testRead() {
 
+	puts("testRead()");
+
 	char * file = TEST_DB;
 
 	sqlite3 *db;

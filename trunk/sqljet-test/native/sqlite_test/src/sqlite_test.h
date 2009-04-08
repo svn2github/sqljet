@@ -23,10 +23,12 @@
 
 #define TEST_DB SQLJET_ROOT "sqljet-test/db/testdb.sqlite"
 
-#define TEMP_FILE "/tmp/sqlite.test"
+#define WRITE_FILE "/tmp/write.native"
+#define DELETE_FILE "/tmp/delete.native"
 
 
 void testRead(void);
 void testWrite(void);
+void testDelete(void);
 
 #endif /* SQLITE_TEST_H_ */

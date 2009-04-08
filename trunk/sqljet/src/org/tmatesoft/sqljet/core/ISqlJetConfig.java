@@ -22,7 +22,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public interface ISqlJetConfig {
     
-    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", true);
+    boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", false);
     
     boolean isSharedCacheEnabled();
 }

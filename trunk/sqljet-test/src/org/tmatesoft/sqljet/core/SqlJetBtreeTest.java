@@ -13,13 +13,10 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import java.io.DataInput;
 import java.io.File;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.EnumSet;
 import java.util.logging.Logger;
@@ -45,7 +42,8 @@ public class SqlJetBtreeTest {
 
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private File testDataBase = new File("sqljet-test/db/testdb.sqlite");
-    private File testNativeFile = new File("sqljet-test/db/sqlite.native");
+    private File testWriteNativeFile = new File("sqljet-test/db/write.native");
+    private File testDeleteNativeFile = new File("sqljet-test/db/delete.native");
     private File testTempFile;
     private ISqlJetBtree btree;
     private ISqlJetDb db = new SqlJetDb();
@@ -206,7 +204,7 @@ public class SqlJetBtreeTest {
             db.getMutex().leave();
         }
 
-        Assert.assertTrue("output file is'nt equal to native", compareFiles(testTempFile, testNativeFile));
+        Assert.assertTrue("output file is'nt equal to native", compareFiles(testTempFile, testWriteNativeFile));
         logger.info("Output is equal to native");
 
     }
@@ -239,4 +237,103 @@ public class SqlJetBtreeTest {
         }
         return true;
     }
+
+    @Test
+    public void testDelete() throws Exception {
+        db.getMutex().enter();
+        try {
+
+            final EnumSet<SqlJetBtreeFlags> btreeFlags = EnumSet
+                    .of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
+            final EnumSet<SqlJetFileOpenPermission> fileFlags = EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                    SqlJetFileOpenPermission.READWRITE);
+            btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
+            try {
+                final ByteBuffer pData = ByteBuffer.wrap(SqlJetUtility.getBytes("Test data"));
+                btree.beginTrans(SqlJetTransactionMode.WRITE);
+                for (int x = 1; x <= 3; x++) {
+                    final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
+                            SqlJetBtreeTableCreateFlags.LEAFDATA));
+                    final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
+                    c.enterCursor();
+                    try {
+                        for (int y = 1; y <= 3; y++) {
+                            c.insert(null, y, pData, pData.capacity(), 0, false);
+                        }
+                        c.closeCursor();
+                    } finally {
+                        c.leaveCursor();
+                    }
+                }
+                btree.commit();
+            } finally {
+                btree.close();
+            }
+
+            btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
+            try {
+                btree.beginTrans(SqlJetTransactionMode.WRITE);
+                final int pageCount = btree.getPager().getPageCount();
+                for (int x = 1; x <= pageCount; x++) {
+                    final ISqlJetBtreeCursor c = btree.getCursor(x, true, null);
+                    c.enterCursor();
+                    try {
+                        if (!c.first()) {
+                            do {
+                                c.delete();
+                            } while (!c.eof());
+                        }
+                    } finally {
+                        c.leaveCursor();
+                    }
+                }
+                btree.commit();
+            } finally {
+                btree.close();
+            }
+
+            btree.open(testTempFile, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
+                    .of(SqlJetFileOpenPermission.READONLY));
+            try {
+                btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
+                final int pageCount = btree.getPager().getPageCount();
+                for (int i = 1; i <= pageCount; i++) {
+                    final ISqlJetBtreeCursor c = btree.getCursor(i, false, null);
+                    c.enterCursor();
+                    try {
+                        final short flags = c.flags();
+                        boolean intKey = SqlJetBtreeTableCreateFlags.INTKEY.hasFlag(flags);
+                        if (!intKey)
+                            continue;
+                        logger.info("table " + i);
+                        if (c.first()) {
+                            logger.info("empty");
+                        } else {
+                            do {
+                                final long key = c.getKeySize();
+                                final int dataSize = c.getDataSize();
+                                ByteBuffer data = ByteBuffer.allocate(dataSize);
+                                c.data(0, dataSize, data);
+                                final String str = new String(data.array(), "UTF8").replaceAll("[^\\p{Print}]", "?");
+                                logger.info("record " + key + " : \"" + str + "\"");
+                            } while (!c.next());
+                        }
+                    } finally {
+                        c.leaveCursor();
+                    }
+                }
+            } finally {
+                btree.close();
+            }
+
+            
+        } finally {
+            db.getMutex().leave();
+        }
+        
+        Assert.assertTrue("output file is'nt equal to native", compareFiles(testTempFile, testDeleteNativeFile));
+        logger.info("Output is equal to native");
+        
+    }
+
 }

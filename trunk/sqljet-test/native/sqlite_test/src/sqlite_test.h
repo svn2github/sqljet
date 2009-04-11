@@ -17,11 +17,15 @@
 #include "./tsrc/btree.h"
 #include "./tsrc/btreeInt.h"
 #include "./tsrc/pager.h"
+#include "./tsrc/vdbe.h"
+#include "./tsrc/vdbeInt.h"
 
 
 #define SQLJET_ROOT "/home/sergey/work2/sqljet/workspace/org.tmatesoft.sqljet.trunk/"
 
 #define TEST_DB SQLJET_ROOT "sqljet-test/db/testdb.sqlite"
+
+#define REP_CACHE_DB SQLJET_ROOT "sqljet-test/db/rep-cache/rep-cache.db"
 
 #define WRITE_FILE "/tmp/write.native"
 #define DELETE_FILE "/tmp/delete.native"
@@ -32,5 +36,7 @@ void testRead(void);
 void testWrite(void);
 void testDelete(void);
 void testUpdate(void);
+
+void testReadMaster(char * file);
 
 #endif /* SQLITE_TEST_H_ */

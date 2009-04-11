@@ -23,6 +23,8 @@ int main(void) {
 	testDelete();
 	testUpdate();
 
+	testReadMaster(REP_CACHE_DB);
+
 	return EXIT_SUCCESS;
 
 }

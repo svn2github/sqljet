@@ -21,28 +21,37 @@ static const char master_schema[] = "CREATE TABLE sqlite_master(\n"
 	"  sql text\n"
 	")";
 
-int readColumn(
-				sqlite3 *db, /* The database */
-				BtCursor *pCrsr, /* The BTree cursor */
-				int column, /* column number to retrieve */
-				Bool isIndex, /* True if an index containing keys only - no data */
-				u32 *aType, /* Type values for all entries in the record */
-				u32 *aOffset, /* Cached offsets to the start of each columns data */
-				Mem *pDest /* Where to write the extracted value */
+int readRecordColumn(
+	sqlite3 *db, /* The database */
+	BtCursor *pCrsr, /* The BTree cursor */
+	int column, /* column number to retrieve */
+	Bool isIndex, /* True if an index containing keys only - no data */
+	u32 *aType, /* Type values for all entries in the record */
+	u32 *aOffset, /* Cached offsets to the start of each columns data */
+	Mem *pDest /* Where to write the extracted value */
 );
 
-int readHeader(
-				sqlite3 *db, /* The database */
-				BtCursor *pCrsr, /* The BTree cursor */
-				int nField, /* number of fields in the record */
-				Bool isIndex, /* True if an index containing keys only - no data */
-				u32 *aType, /* Type values for all entries in the record */
-				u32 *aOffset /* Cached offsets to the start of each columns data */
+int readRecordHeader(
+	sqlite3 *db, /* The database */
+	BtCursor *pCrsr, /* The BTree cursor */
+	Bool isIndex, /* True if an index containing keys only - no data */
+	int *nField, /* number of fields in the record */
+	u32 *aType, /* Type values for all entries in the record */
+	u32 *aOffset /* Cached offsets to the start of each columns data */
 );
 
-void testReadMaster(char * file) {
+int readTable(
+	sqlite3 *db,
+	Btree *pBt,
+	int table,
+	int deepLevel,
+	Bool index
+);
 
-	puts("testReadMaster()");
+void testReadMaster(
+	char * file) {
+
+	puts("\ntestReadMaster()");
 
 	sqlite3 *db;
 
@@ -53,81 +62,109 @@ void testReadMaster(char * file) {
 		printf("file: %s \n", file);
 		return;
 	}
-
-	//sqlite3_exec(db, "SELECT * FROM rep_cache", NULL, NULL, NULL);
-
 	if (db->nDb == 0) {
 		puts("backends count is zero");
 		goto close;
 	}
-
 	Btree *pBt = db->aDb[0].pBt;
+
+	rc = readTable(db, pBt, MASTER_ROOT, 1, 0);
+
+	close:
+
+	sqlite3_close(db);
+
+}
+
+int readTable(
+	sqlite3 *db,
+	Btree *pBt,
+	int table,
+	int deepLevel,
+	Bool index
+)
+{
+	int rc = SQLITE_OK;
 
 	BtCursor cur;
 	memset(&cur, 0, sizeof(BtCursor));
-	rc = sqlite3BtreeCursor(pBt, MASTER_ROOT, 0, 0, &cur);
+	rc = sqlite3BtreeCursor(pBt, table, 0, 0, &cur);
 	if (rc != SQLITE_OK) {
 		printf("failed get cursor: %d", rc);
-		goto close;
+		return rc;
 	}
-
 	int next = 0;
 	rc = sqlite3BtreeFirst(&cur, &next);
 	if (rc != SQLITE_OK) {
 		printf("failed first(): %d \n", rc);
 		goto closeCursor;
 	}
-
 	if (next != 0) {
 		puts("cursor is empty");
 		goto closeCursor;
 	}
-
-	u32 aType[MASTER_COLUMNS];
-	u32 aOffset[MASTER_COLUMNS];
-
+	u32 aType[SQLITE_MAX_COLUMN];
+	u32 aOffset[SQLITE_MAX_COLUMN];
+	int nField;
 	int i;
 	Mem mem;
 	i64 key;
-
 	do {
 
 		memset(&key, 0, sizeof(i64));
 		rc = sqlite3BtreeKeySize(&cur, &key);
 		if (rc != SQLITE_OK) {
 			printf("failed read key: %d\n", rc);
-			goto close;
+			return rc;
 		}
 		printf("key: \"%lld\"\n", key);
 
+		nField = 0;
 		memset(&aType, 0, sizeof(aType));
 		memset(&aOffset, 0, sizeof(aOffset));
-		rc = readHeader(db, &cur, MASTER_COLUMNS, 0, aType, aOffset);
+		rc = readRecordHeader(db, &cur, index, &nField, aType, aOffset);
 		if (rc != SQLITE_OK) {
 			printf("failed read header: %d\n", rc);
-			goto close;
+			return rc;
 		}
 
-		for (i = 0; i < MASTER_COLUMNS; i++) {
+		int deepIndex = 0;
+		int deepPage = 0;
+
+		for (i = 0; i < nField; i++) {
 			memset(&mem, 0, sizeof(Mem));
-			rc = readColumn(db, &cur, i, 0, aType, aOffset, &mem);
+			rc = readRecordColumn(db, &cur, i, index, aType, aOffset, &mem);
 			if (rc != SQLITE_OK) {
 				printf("failed read column: %d\n", rc);
-				goto close;
+				return rc;
 			}
 			const unsigned char *text = sqlite3_value_text(&mem);
 			printf("value: \"%s\"\n", text);
+
+			if(deepLevel>0){
+				if(i==0 && text!=NULL){
+					if(strcmp("index",text)==0)
+						deepIndex = 1;
+				}
+				if(i==3){
+					deepPage = sqlite3_value_int(&mem);
+				}
+				if(i==4){
+					char* shema = mem.z;
+				}
+			}
+
 		}
+
+		if(deepLevel>0 && deepPage>0)
+			readTable(db, pBt, deepPage, deepLevel-1, deepIndex );
+
+
 	} while (SQLITE_OK == sqlite3BtreeNext(&cur, &next) && next == 0);
 
-	closeCursor:
+	closeCursor: sqlite3BtreeCloseCursor(&cur);
 
-	sqlite3BtreeCloseCursor(&cur);
-
-	close:
-
-	sqlite3_close(db);
-
+	return rc;
 }
 
 /* Opcode: Column P1 P2 P3 P4 *
@@ -144,14 +181,14 @@ void testReadMaster(char * file) {
  ** if the P4 argument is a P4_MEM use the value of the P4 argument as
  ** the result.
  */
-int readColumn(
-				sqlite3 *db, /* The database */
-				BtCursor *pCrsr, /* The BTree cursor */
-				int column, /* column number to retrieve */
-				Bool isIndex, /* True if an index containing keys only - no data */
-				u32 *aType, /* Type values for all entries in the record */
-				u32 *aOffset, /* Cached offsets to the start of each columns data */
-				Mem *pDest /* Where to write the extracted value */
+int readRecordColumn(
+	sqlite3 *db, /* The database */
+	BtCursor *pCrsr, /* The BTree cursor */
+	int column, /* column number to retrieve */
+	Bool isIndex, /* True if an index containing keys only - no data */
+	u32 *aType, /* Type values for all entries in the record */
+	u32 *aOffset, /* Cached offsets to the start of each columns data */
+	Mem *pDest /* Where to write the extracted value */
 ) {
 
 	int rc = SQLITE_OK; /* Value to return */
@@ -166,15 +203,6 @@ int readColumn(
 
 	/* This block sets the variable payloadSize to be the total number of
 	 ** bytes in the record.
-	 **
-	 ** zRec is set to be the complete text of the record if it is available.
-	 ** The complete record text is always available for pseudo-tables
-	 ** If the record is stored in a cursor, the complete record text
-	 ** might be available in the  pC->aRow cache.  Or it might not be.
-	 ** If the data is unavailable,  zRec is set to NULL.
-	 **
-	 ** We also compute the number of columns in the record.  For cursors,
-	 ** the number of columns is stored in the VdbeCursor.nField element.
 	 */
 	if (isIndex) {
 		i64 payloadSize64;
@@ -235,16 +263,36 @@ int readColumn(
 /* Read and parse the table header.  Store the results of the parse
  ** into the record header cache fields of the cursor.
  */
-int readHeader(
-				sqlite3 *db, /* The database */
-				BtCursor *pCrsr, /* The BTree cursor */
-				int nField, /* number of fields in the record */
-				Bool isIndex, /* True if an index containing keys only - no data */
-				u32 *aType, /* Type values for all entries in the record */
-				u32 *aOffset /* Cached offsets to the start of each columns data */
+int readRecordHeader(
+	sqlite3 *db, /* The database */
+	BtCursor *pCrsr, /* The BTree cursor */
+	Bool isIndex, /* True if an index containing keys only - no data */
+	int *nField, /* number of fields in the record */
+	u32 *aType, /* Type values for all entries in the record */
+	u32 *aOffset /* Cached offsets to the start of each columns data */
 ) {
 
 	int rc = SQLITE_OK; /* Value to return */
+
+	int payloadSize; /* Number of bytes in the record */
+
+	/* This block sets the variable payloadSize to be the total number of
+	 ** bytes in the record.
+	 */
+	if (isIndex) {
+		i64 payloadSize64;
+		sqlite3BtreeKeySize(pCrsr, &payloadSize64);
+		payloadSize = (int) payloadSize64;
+	} else {
+		sqlite3BtreeDataSize(pCrsr, (u32 *) &payloadSize);
+	}
+	/* If payloadSize is 0, then just store a NULL */
+	if (payloadSize == 0) {
+		return rc;
+	}
+	if (payloadSize > db->aLimit[SQLITE_LIMIT_LENGTH]) {
+		return SQLITE_TOOBIG;
+	}
 
 	char *zRec; /* Pointer to complete record-data */
 	int len; /* The length of the serialized data for the column */
@@ -297,20 +345,12 @@ int readHeader(
 	 ** column and aOffset[i] will contain the offset from the beginning
 	 ** of the record to the start of the data for the i-th column
 	 */
-	for (i = 0; i < nField; i++) {
-		if (zIdx < zEndHdr) {
-			aOffset[i] = offset;
-			zIdx += getVarint32(zIdx, aType[i]);
-			offset += sqlite3VdbeSerialTypeLen(aType[i]);
-		} else {
-			/* If i is less that nField, then there are less fields in this
-			 ** record than SetNumColumns indicated there are columns in the
-			 ** table. Set the offset for any extra columns not present in
-			 ** the record to 0. This tells code below to store a NULL
-			 ** instead of deserializing a value from the record.
-			 */
-			aOffset[i] = 0;
-		}
+	*nField = 0;
+	for (i = 0; i < SQLITE_MAX_COLUMN && zIdx < zEndHdr && offset < payloadSize; i++, *nField
+			+= 1) {
+		aOffset[i] = offset;
+		zIdx += getVarint32(zIdx, aType[i]);
+		offset += sqlite3VdbeSerialTypeLen(aType[i]);
 	}
 	sqlite3VdbeMemRelease(&sMem);
 	sMem.flags = MEM_Null;
@@ -321,7 +361,8 @@ int readHeader(
 	 ** of the record (when all fields present), then we must be dealing
 	 ** with a corrupt database.
 	 */
-	if (zIdx > zEndHdr) {
+	if (zIdx > zEndHdr || offset > payloadSize || (zIdx == zEndHdr && offset
+			!= payloadSize)) {
 		return SQLITE_CORRUPT;
 	}
 

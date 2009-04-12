@@ -182,13 +182,14 @@ public class SqlJetRecord {
       * @param pDest
       * @throws SqlJetException
       */
-     public void getColumn(int column, SqlJetVdbeMem pDest) throws SqlJetException {
+     public SqlJetVdbeMem getColumn(int column ) throws SqlJetException {
 
          long payloadSize; /* Number of bytes in the record */
          int len; /* The length of the serialized data for the column */
          ByteBuffer zData; /* Part of the record being decoded */
          /* For storing the record being decoded */
          SqlJetVdbeMem sMem = new SqlJetVdbeMem();
+         SqlJetVdbeMem pDest = new SqlJetVdbeMem();
          pDest.flags=EnumSet.of(SqlJetVdbeMemFlags.Null);
 
          /*
@@ -203,7 +204,7 @@ public class SqlJetRecord {
 
          /* If payloadSize is 0, then just store a NULL */
          if (payloadSize == 0) {
-             return;
+             return pDest;
          }
 
          /*
@@ -241,6 +242,8 @@ public class SqlJetRecord {
          }
 
          pDest.makeWriteable();
+         
+         return pDest;
 
      }
      

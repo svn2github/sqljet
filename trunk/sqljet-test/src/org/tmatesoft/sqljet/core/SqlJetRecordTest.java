@@ -72,8 +72,7 @@ public class SqlJetRecordTest {
                         do {
                             SqlJetRecord r = new SqlJetRecord(c, false);
                             for (int i = 0; i < r.getFieldsCount(); i++) {
-                                SqlJetVdbeMem mem = new SqlJetVdbeMem();
-                                r.getColumn(i, mem);
+                                SqlJetVdbeMem mem = r.getColumn(i);
                                 final ByteBuffer value = mem.valueText(SqlJetEncoding.UTF8);
                                 String s = new String(value.array());
                                 logger.info(s);

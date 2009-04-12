@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetDbFlags;
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 
@@ -39,6 +40,7 @@ public class SqlJetDb implements ISqlJetDb {
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
+    private SqlJetEncoding enc = SqlJetEncoding.UTF8;
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()
@@ -100,4 +102,10 @@ public class SqlJetDb implements ISqlJetDb {
 
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
+     */
+    public SqlJetEncoding getEnc() {
+        return enc;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * ISqlJetRecord.java
+ * ISqlJetBtreeTable.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,23 +13,21 @@
  */
 package org.tmatesoft.sqljet.core;
 
-import java.util.List;
-
 
 /**
- * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to fields. 
- * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetRecord {
+public interface ISqlJetBtreeTable {
+
+    ISqlJetRecord next() throws SqlJetException;
 
     /**
-     * @return the fieldsCount
+     * @return
      */
-    int getFieldsCount();
+    boolean eof();
 
-    List<ISqlJetVdbeMem> getFields();
+    void close() throws SqlJetException;
 
 }

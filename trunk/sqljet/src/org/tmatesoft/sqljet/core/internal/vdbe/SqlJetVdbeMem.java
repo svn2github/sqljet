@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.ISqlJetCollSeq;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetFuncDef;
 import org.tmatesoft.sqljet.core.ISqlJetRowSet;
+import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetMemType;
@@ -45,7 +46,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetVdbeMem extends SqlJetCloneable {
+public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     // union {
 
@@ -90,11 +91,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
     /** Dynamic buffer allocated by sqlite3_malloc() */
     ByteBuffer zMalloc;
 
-    /**
-     * Release any memory held by the Mem. This may leave the Mem in an
-     * inconsistent state, for example with (Mem.z==0) and
-     * (Mem.type==SQLITE_TEXT).
-     * 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#release()
      */
     public void release() {
         releaseExternal();
@@ -266,18 +264,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
         return pTo;
     }
 
-    /**
-     * This function is only available internally, it is not part of the
-     * external API. It works in a similar way to sqlite3_value_text(), except
-     * the data returned is in the encoding specified by the second parameter,
-     * which must be one of SQLITE_UTF16BE, SQLITE_UTF16LE or SQLITE_UTF8.
-     * 
-     * (2006-02-16:) The enc value can be or-ed with SQLITE_UTF16_ALIGNED. If
-     * that is the case, then the result must be aligned on an even byte
-     * boundary.
-     * 
-     * @param enc
-     * @return
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#valueText(org.tmatesoft.sqljet.core.SqlJetEncoding)
      */
     public ByteBuffer valueText(SqlJetEncoding enc) {
         // if( !pVal ) return 0;
@@ -369,19 +357,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
         pMem.changeEncoding(enc);
     }
 
-    /**
-     * Make sure pMem->z points to a writable allocation of at least n bytes.
-     * 
-     * If the memory cell currently contains string or blob data and the third
-     * argument passed to this function is true, the current content of the cell
-     * is preserved. Otherwise, it may be discarded.
-     * 
-     * This function sets the MEM_Dyn flag and clears any xDel callback. It also
-     * clears MEM_Ephem and MEM_Static. If the preserve flag is not set, Mem.n
-     * is zeroed.
-     * 
-     * @param n
-     * @param preserve
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#grow(int, boolean)
      */
     public void grow(int n, boolean preserve) {
 
@@ -503,28 +480,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
         }
     }
 
-    /**
-     * Move data out of a btree key or data field and into a Mem structure. The
-     * data or key is taken from the entry that pCur is currently pointing to.
-     * offset and amt determine what portion of the data or key to retrieve. key
-     * is true to get the key or false to get data. The result is written into
-     * the pMem element.
-     * 
-     * The pMem structure is assumed to be uninitialized. Any prior content is
-     * overwritten without being freed.
-     * 
-     * If this routine fails for any reason (malloc returns NULL or unable to
-     * read from the disk) then the pMem is left in an inconsistent state.
-     * 
-     * @param pCur
-     * @param offset
-     *            Offset from the start of data to return bytes from.
-     * @param amt
-     *            Number of bytes to return.
-     * @param key
-     *            If true, retrieve from the btree key, not data.
-     * @return
-     * @throws SqlJetException
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#fromBtree(org.tmatesoft.sqljet.core.ISqlJetBtreeCursor, int, int, boolean)
      */
     public void fromBtree(ISqlJetBtreeCursor pCur, int offset, int amt, boolean key) throws SqlJetException {
 
@@ -570,17 +527,14 @@ public class SqlJetVdbeMem extends SqlJetCloneable {
         pMem.n = amt;
     }
 
-    /**
-     * Make the given Mem object MEM_Dyn. In other words, make it so that any
-     * TEXT or BLOB content is stored in memory obtained from malloc(). In this
-     * way, we know that the memory is safe to be overwritten or altered.
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#makeWriteable()
      */
     public void makeWriteable() {
         SqlJetVdbeMem pMem = this;
         assert (pMem.db == null || mutex_held(pMem.db.getMutex()));
         assert (!pMem.flags.contains(SqlJetVdbeMemFlags.RowSet));
         pMem.expandBlob();
-        EnumSet<SqlJetVdbeMemFlags> f = pMem.flags;
         if ((pMem.flags.contains(SqlJetVdbeMemFlags.Str) || pMem.flags.contains(SqlJetVdbeMemFlags.Blob))
                 && pMem.z != pMem.zMalloc) {
             pMem.grow(pMem.n + 2, true);

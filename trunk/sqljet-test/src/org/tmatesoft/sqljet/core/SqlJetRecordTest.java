@@ -70,9 +70,9 @@ public class SqlJetRecordTest {
                 try {
                     if (!c.first()) {
                         do {
-                            SqlJetRecord r = new SqlJetRecord(c, false);
+                            ISqlJetRecord r = new SqlJetRecord(c, false);
                             for (int i = 0; i < r.getFieldsCount(); i++) {
-                                SqlJetVdbeMem mem = r.getColumn(i);
+                                ISqlJetVdbeMem mem = r.getField(i);
                                 final ByteBuffer value = mem.valueText(SqlJetEncoding.UTF8);
                                 String s = new String(value.array());
                                 logger.info(s);

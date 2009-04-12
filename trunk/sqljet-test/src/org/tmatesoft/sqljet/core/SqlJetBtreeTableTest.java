@@ -129,7 +129,8 @@ public class SqlJetBtreeTableTest {
                 final String name = new String(r1.getFields().get(1).valueText(SqlJetEncoding.UTF8).array());
                 Assert.assertNotNull(name);
                 final long page = r1.getFields().get(3).intValue();
-                if ("table".equals(type.trim()) && "rep_cache".equals(name.trim())) {
+                if ("table".equals(type.trim())) {
+                    logger.info(name.trim());
                     Assert.assertTrue(page > 0);
                     final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, false);
                     Assert.assertTrue(!data.eof());
@@ -152,4 +153,41 @@ public class SqlJetBtreeTableTest {
         Assert.assertTrue(passed);
     }
 
+    @Test
+    public void testTableReadIndex() throws SqlJetException, UnsupportedEncodingException {
+        boolean passed = false;
+        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
+        try {
+            Assert.assertTrue(!master.eof());
+            for (ISqlJetRecord r1 = master.next(); r1 != null; r1 = master.next()) {
+                Assert.assertNotNull(r1.getFields());
+                Assert.assertTrue(!r1.getFields().isEmpty());
+                final String type = new String(r1.getFields().get(0).valueText(SqlJetEncoding.UTF8).array());
+                Assert.assertNotNull(type);
+                final String name = new String(r1.getFields().get(1).valueText(SqlJetEncoding.UTF8).array());
+                Assert.assertNotNull(name);
+                final long page = r1.getFields().get(3).intValue();
+                if ("index".equals(type.trim())) {
+                    Assert.assertTrue(page > 0);
+                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, true);
+                    Assert.assertTrue(!data.eof());
+                    for (ISqlJetRecord r2 = data.next(); r2 != null; r2 = data.next()) {
+                        Assert.assertNotNull(r2.getFields());
+                        Assert.assertTrue(!r2.getFields().isEmpty());
+                        for (ISqlJetVdbeMem field : r2.getFields()) {
+                            final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
+                            Assert.assertNotNull(value);
+                            String s = new String(value.array());
+                            logger.info(s);
+                            passed = true;
+                        }
+                    }
+                }
+            }
+        } finally {
+            master.close();
+        }
+        Assert.assertTrue(passed);
+    }
+    
 }

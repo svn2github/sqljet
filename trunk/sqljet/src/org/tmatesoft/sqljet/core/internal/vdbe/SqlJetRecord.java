@@ -14,7 +14,9 @@
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
@@ -28,26 +30,40 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  * 
  */
 public class SqlJetRecord {
+    
+    private ISqlJetBtreeCursor pCrsr; 
+    private boolean isIndex;
 
+    private int fieldsCount = 0;
+    private List<Integer> aType = new ArrayList<Integer>(); 
+    private List<Integer> aOffset = new ArrayList<Integer>(); 
+    
+    /**
+     * 
+     * 
+     * @throws SqlJetException 
+     * 
+     */
+    public SqlJetRecord(ISqlJetBtreeCursor pCrsr, boolean isIndex) throws SqlJetException {
+        this.pCrsr = pCrsr;
+        this.isIndex = isIndex;
+        read();
+    }
+
+    /**
+     * @return the fieldsCount
+     */
+    public int getFieldsCount() {
+        return fieldsCount;
+    }
+    
     /**
      * Read and parse the table header. Store the results of the parse into the
      * record header cache fields of the cursor.
      * 
-     * @param pCrsr
-     *            The BTree cursor
-     * @param isIndex
-     *            True if an index containing keys only - no data
-     * @param nField
-     *            number of fields in the record
-     * @param aType
-     *            Type values for all entries in the record
-     * @param aOffset
-     *            Cached offsets to the start of each columns data
-     * 
      * @throws SqlJetException
      */
-    public static void read(ISqlJetBtreeCursor pCrsr, boolean isIndex, int[] nField, int[] aType, int[] aOffset)
-            throws SqlJetException {
+     private void read() throws SqlJetException {
 
         long payloadSize; /* Number of bytes in the record */
 
@@ -112,14 +128,14 @@ public class SqlJetRecord {
          * and aOffset[i] will contain the offset from the beginning* of the
          * record to the start of the data for the i-th column
          */
-        nField[0] = 0;
+        fieldsCount = 0;
         for (i = 0; i < ISqlJetLimits.SQLJET_MAX_COLUMN && zIdx.arrayOffset() < zEndHdr.arrayOffset()
-                && offset[0] < payloadSize; i++, nField[0] += 1) {
-            aOffset[i] = offset[0];
+                && offset[0] < payloadSize; i++, fieldsCount++) {
+            aOffset.add(i, offset[0]);
             int[] a = { 0 };
             zIdx = SqlJetUtility.slice(zIdx, SqlJetUtility.getVarint32(zIdx, a));
-            aType[i] = a[0];
-            offset[0] += SqlJetVdbeSerialType.serialTypeLen(aType[i]);
+            aType.add(i, a[0]);
+            offset[0] += SqlJetVdbeSerialType.serialTypeLen(a[0]);
         }
         sMem.release();
         sMem.flags=EnumSet.of(SqlJetVdbeMemFlags.Null);
@@ -133,100 +149,99 @@ public class SqlJetRecord {
          */
         if (zIdx.arrayOffset() > zEndHdr.arrayOffset() || offset[0] > payloadSize
                 || (zIdx.arrayOffset() == zEndHdr.arrayOffset() && offset[0] != payloadSize)) {
-
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-
         }
 
     }
 
-    /**
-     * Opcode: Column P1 P2 P3 P4 *
-     * 
-     * Interpret the data that cursor P1 points to as a structure built using
-     * the MakeRecord instruction. (See the MakeRecord opcode for additional
-     * information about the format of the data.) Extract the P2-th column from
-     * this record. If there are less that (P2+1) values in the record, extract
-     * a NULL.
-     * 
-     * The value extracted is stored in register P3.
-     * 
-     * If the column contains fewer than P2 fields, then extract a NULL. Or, if
-     * the P4 argument is a P4_MEM use the value of the P4 argument as the
-     * result.
-     * 
-     * @param pCrsr
-     *            The BTree cursor
-     * @param column
-     *            column number to retrieve
-     * @param isIndex
-     *            True if an index containing keys only - no data
-     * @param aType
-     *            Type values for all entries in the record
-     * @param aOffset
-     *            Cached offsets to the start of each columns data
-     * @param pDest
-     * @throws SqlJetException
-     */
-    public static void getColumn(ISqlJetBtreeCursor pCrsr, int column, boolean isIndex, int[] aType, int[] aOffset,
-            SqlJetVdbeMem pDest) throws SqlJetException {
+     /**
+      * Opcode: Column P1 P2 P3 P4 *
+      * 
+      * Interpret the data that cursor P1 points to as a structure built using
+      * the MakeRecord instruction. (See the MakeRecord opcode for additional
+      * information about the format of the data.) Extract the P2-th column from
+      * this record. If there are less that (P2+1) values in the record, extract
+      * a NULL.
+      * 
+      * The value extracted is stored in register P3.
+      * 
+      * If the column contains fewer than P2 fields, then extract a NULL. Or, if
+      * the P4 argument is a P4_MEM use the value of the P4 argument as the
+      * result.
+      * 
+      * @param pCrsr
+      *            The BTree cursor
+      * @param column
+      *            column number to retrieve
+      * @param isIndex
+      *            True if an index containing keys only - no data
+      * @param aType
+      *            Type values for all entries in the record
+      * @param aOffset
+      *            Cached offsets to the start of each columns data
+      * @param pDest
+      * @throws SqlJetException
+      */
+     public void getColumn(int column, SqlJetVdbeMem pDest) throws SqlJetException {
 
-        long payloadSize; /* Number of bytes in the record */
-        int len; /* The length of the serialized data for the column */
-        ByteBuffer zData; /* Part of the record being decoded */
-        /* For storing the record being decoded */
-        SqlJetVdbeMem sMem = new SqlJetVdbeMem();
-        pDest.flags=EnumSet.of(SqlJetVdbeMemFlags.Null);
+         long payloadSize; /* Number of bytes in the record */
+         int len; /* The length of the serialized data for the column */
+         ByteBuffer zData; /* Part of the record being decoded */
+         /* For storing the record being decoded */
+         SqlJetVdbeMem sMem = new SqlJetVdbeMem();
+         pDest.flags=EnumSet.of(SqlJetVdbeMemFlags.Null);
 
-        /*
-         * This block sets the variable payloadSize to be the total number of*
-         * bytes in the record.
-         */
-        if (isIndex) {
-            payloadSize = pCrsr.getKeySize();
-        } else {
-            payloadSize = pCrsr.getDataSize();
-        }
+         /*
+          * This block sets the variable payloadSize to be the total number of*
+          * bytes in the record.
+          */
+         if (isIndex) {
+             payloadSize = pCrsr.getKeySize();
+         } else {
+             payloadSize = pCrsr.getDataSize();
+         }
 
-        /* If payloadSize is 0, then just store a NULL */
-        if (payloadSize == 0) {
-            return;
-        }
+         /* If payloadSize is 0, then just store a NULL */
+         if (payloadSize == 0) {
+             return;
+         }
 
-        /*
-         * Get the column information. If aOffset[p2] is non-zero, then*
-         * deserialize the value from the record. If aOffset[p2] is zero,* then
-         * there are not enough fields in the record to satisfy the* request. In
-         * this case, set the value NULL or to P4 if P4 is* a pointer to a Mem
-         * object.
-         */
-        if (aOffset[column] != 0) {
-            len = SqlJetVdbeSerialType.serialTypeLen(aType[column]);
-            sMem.fromBtree(pCrsr, aOffset[column], len, isIndex);
-            zData = sMem.z;
-            SqlJetVdbeSerialType.serialGet(zData, aType[column], pDest);
-            pDest.enc = pCrsr.getCursorDb().getEnc();
-        }
+         /*
+          * Get the column information. If aOffset[p2] is non-zero, then*
+          * deserialize the value from the record. If aOffset[p2] is zero,* then
+          * there are not enough fields in the record to satisfy the* request. In
+          * this case, set the value NULL or to P4 if P4 is* a pointer to a Mem
+          * object.
+          */
+        final Integer aOffsetColumn = aOffset.get(column);
+        final Integer aTypeColumn = aType.get(column);
+        if ( aOffsetColumn!=null && aTypeColumn!=null && aOffsetColumn != 0) {
+             len = SqlJetVdbeSerialType.serialTypeLen(aTypeColumn);
+             sMem.fromBtree(pCrsr, aOffset.get(column), len, isIndex);
+             zData = sMem.z;
+             SqlJetVdbeSerialType.serialGet(zData, aTypeColumn, pDest);
+             pDest.enc = pCrsr.getCursorDb().getEnc();
+         }
 
-        /*
-         * If we dynamically allocated space to hold the data (in the*
-         * sqlite3VdbeMemFromBtree() call above) then transfer control of that*
-         * dynamically allocated space over to the pDest structure.* This
-         * prevents a memory copy.
-         */
-        if (sMem.zMalloc != null) {
-            assert (sMem.z == sMem.zMalloc);
-            assert (!pDest.flags.contains(SqlJetVdbeMemFlags.Dyn));
-            assert (!(pDest.flags.contains(SqlJetVdbeMemFlags.Blob) || pDest.flags.contains(SqlJetVdbeMemFlags.Str)) || pDest.z == sMem.z);
-            pDest.flags.remove(SqlJetVdbeMemFlags.Ephem);
-            pDest.flags.remove(SqlJetVdbeMemFlags.Static);
-            pDest.flags.add(SqlJetVdbeMemFlags.Term);
-            pDest.z = sMem.z;
-            pDest.zMalloc = sMem.zMalloc;
-        }
+         /*
+          * If we dynamically allocated space to hold the data (in the*
+          * sqlite3VdbeMemFromBtree() call above) then transfer control of that*
+          * dynamically allocated space over to the pDest structure.* This
+          * prevents a memory copy.
+          */
+         if (sMem.zMalloc != null) {
+             assert (sMem.z == sMem.zMalloc);
+             assert (!pDest.flags.contains(SqlJetVdbeMemFlags.Dyn));
+             assert (!(pDest.flags.contains(SqlJetVdbeMemFlags.Blob) || pDest.flags.contains(SqlJetVdbeMemFlags.Str)) || pDest.z == sMem.z);
+             pDest.flags.remove(SqlJetVdbeMemFlags.Ephem);
+             pDest.flags.remove(SqlJetVdbeMemFlags.Static);
+             pDest.flags.add(SqlJetVdbeMemFlags.Term);
+             pDest.z = sMem.z;
+             pDest.zMalloc = sMem.zMalloc;
+         }
 
-        pDest.makeWriteable();
+         pDest.makeWriteable();
 
-    }
-
+     }
+     
 }

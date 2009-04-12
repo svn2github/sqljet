@@ -70,23 +70,15 @@ public class SqlJetRecordTest {
                 try {
                     if (!c.first()) {
                         do {
-                            
-                            int[] aType = new int[ISqlJetLimits.SQLJET_MAX_COLUMN];
-                            int[] aOffset = new int[ISqlJetLimits.SQLJET_MAX_COLUMN];
-                            int[] nField = {0};
-                            
-                            SqlJetRecord.read(c, false, nField, aType, aOffset);
-
-                            for (int i = 0; i < nField[0]; i++) {
-                                
+                            SqlJetRecord r = new SqlJetRecord(c, false);
+                            for (int i = 0; i < r.getFieldsCount(); i++) {
                                 SqlJetVdbeMem mem = new SqlJetVdbeMem();
-                                SqlJetRecord.getColumn(c, i, false, aType, aOffset, mem);
+                                r.getColumn(i, mem);
                                 final ByteBuffer value = mem.valueText(SqlJetEncoding.UTF8);
                                 String s = new String(value.array());
                                 logger.info(s);
-                                
                             }
-                            
+
                         } while (!c.next());
                     }
                 } finally {

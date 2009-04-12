@@ -20,6 +20,7 @@ import java.util.EnumSet;
 import java.util.logging.Logger;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
@@ -67,39 +68,51 @@ public class SqlJetBtreeTableTest {
 
     @Test
     public void testRecordReadMaster() throws SqlJetException, UnsupportedEncodingException {
+        boolean passed = false;
         final ISqlJetBtreeCursor c = btree.getCursor(ISqlJetDb.MASTER_ROOT, false, null);
         c.enterCursor();
         try {
-            if (!c.first()) {
+            if (!c.first())
                 do {
                     ISqlJetRecord r = new SqlJetRecord(c, false);
+                    Assert.assertNotNull(r.getFields());
+                    Assert.assertTrue(!r.getFields().isEmpty());
                     for (ISqlJetVdbeMem field : r.getFields()) {
                         final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
+                        Assert.assertNotNull(value);
                         String s = new String(value.array());
                         logger.info(s);
+                        passed = true;
                     }
                 } while (!c.next());
-            }
             c.closeCursor();
         } finally {
             c.leaveCursor();
         }
+        Assert.assertTrue(passed);
     }
 
     @Test
     public void testTableReadMaster() throws SqlJetException, UnsupportedEncodingException {
+        boolean passed = false;
         final ISqlJetBtreeTable t = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
         try {
+            Assert.assertTrue(!t.eof());
             for (ISqlJetRecord r = t.next(); r != null; r = t.next()) {
+                Assert.assertNotNull(r.getFields());
+                Assert.assertTrue(!r.getFields().isEmpty());
                 for (ISqlJetVdbeMem field : r.getFields()) {
                     final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
+                    Assert.assertNotNull(value);
                     String s = new String(value.array());
                     logger.info(s);
+                    passed = true;
                 }
             }
         } finally {
             t.close();
         }
+        Assert.assertTrue(passed);
     }
-    
+
 }

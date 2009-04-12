@@ -94,4 +94,16 @@ public interface ISqlJetVdbeMem {
      */
     void makeWriteable();
 
+    /**
+     * Return some kind of integer value which is the best we can do
+     * at representing the value that *pMem describes as an integer.
+     * If pMem is an integer, then the value is exact.  If pMem is
+     * a floating-point then the value returned is the integer part.
+     * If pMem is a string or blob, then we make an attempt to convert
+     * it into a integer and return that.  If pMem is NULL, return 0.
+     *
+     * If pMem is a string, its encoding might be changed.
+     */
+     public long intValue();
+    
 }

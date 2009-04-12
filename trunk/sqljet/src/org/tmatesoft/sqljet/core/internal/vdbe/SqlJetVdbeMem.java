@@ -91,7 +91,9 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     /** Dynamic buffer allocated by sqlite3_malloc() */
     ByteBuffer zMalloc;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#release()
      */
     public void release() {
@@ -264,8 +266,12 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         return pTo;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#valueText(org.tmatesoft.sqljet.core.SqlJetEncoding)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#valueText(org.
+     * tmatesoft.sqljet.core.SqlJetEncoding)
      */
     public ByteBuffer valueText(SqlJetEncoding enc) {
         // if( !pVal ) return 0;
@@ -357,8 +363,11 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.changeEncoding(enc);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#grow(int, boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#grow(int,
+     * boolean)
      */
     public void grow(int n, boolean preserve) {
 
@@ -480,8 +489,12 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#fromBtree(org.tmatesoft.sqljet.core.ISqlJetBtreeCursor, int, int, boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#fromBtree(org.
+     * tmatesoft.sqljet.core.ISqlJetBtreeCursor, int, int, boolean)
      */
     public void fromBtree(ISqlJetBtreeCursor pCur, int offset, int amt, boolean key) throws SqlJetException {
 
@@ -527,8 +540,11 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.n = amt;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#makeWriteable()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#makeWriteable()
      */
     public void makeWriteable() {
         SqlJetVdbeMem pMem = this;
@@ -541,6 +557,29 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             putUnsignedByte(pMem.z, pMem.n, (byte) 0);
             putUnsignedByte(pMem.z, pMem.n + 1, (byte) 0);
             pMem.flags.add(SqlJetVdbeMemFlags.Term);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#intValue()
+     */
+    public long intValue() {
+        assert (db == null || mutex_held(db.getMutex()));
+        if (flags.contains(SqlJetVdbeMemFlags.Int)) {
+            return i;
+        } else if (flags.contains(SqlJetVdbeMemFlags.Real)) {
+            return (long) r;
+        } else if (flags.contains(SqlJetVdbeMemFlags.Str) || flags.contains(SqlJetVdbeMemFlags.Blob)) {
+            long value = 0;
+            /*
+             * pMem->flags |= MEM_Str; if( sqlite3VdbeChangeEncoding(pMem,
+             * SQLITE_UTF8) || sqlite3VdbeMemNulTerminate(pMem) ){ return 0; }
+             * assert( pMem->z ); sqlite3Atoi64(pMem->z, &value);
+             */return value;
+        } else {
+            return 0;
         }
     }
 

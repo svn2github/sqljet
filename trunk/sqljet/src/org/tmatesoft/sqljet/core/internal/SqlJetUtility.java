@@ -769,7 +769,6 @@ public class SqlJetUtility {
      * @return
      */
     public static short getUnsignedByte(ByteBuffer byteBuffer, int index) {
-        //return byteBuffer.get(index);
         return ((short)(byteBuffer.get (index) & (short)0xff));
     }
 
@@ -782,8 +781,27 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer putUnsignedByte(ByteBuffer byteBuffer, int index, short value) {
-        //return byteBuffer.put(index, b);
         return byteBuffer.put (index, (byte)(value & 0xff));
     }
 
+    /**
+     * Convert byte buffer to string.
+     * 
+     * @param buf
+     * @return
+     */
+    public static String toString(ByteBuffer buf) {
+        byte[] bytes = new byte[buf.remaining()];
+        buf.get(bytes);
+        return new String(bytes);
+    }
+
+    /**
+     * @param s
+     * @return
+     */
+    public static String trim(String s) {
+        return null != s ? s.trim() : null;
+    }
+    
 }

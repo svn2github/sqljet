@@ -20,10 +20,11 @@ import java.util.List;
 
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -276,4 +277,26 @@ public class SqlJetRecord implements ISqlJetRecord {
 
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetRecord#getStringField(int)
+     */
+    public String getStringField(int field, SqlJetEncoding enc) {
+        final ISqlJetVdbeMem f = fields.get(field);
+        if (null == f)
+            return null;
+        final ByteBuffer v = f.valueText(enc);
+        if (null == v)
+            return null;
+        return SqlJetUtility.toString(v);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetRecord#getIntField(int)
+     */
+    public long getIntField(int field) {
+        final ISqlJetVdbeMem f = fields.get(field);
+        if (null == f)
+            return 0;
+        return f.intValue();
+    }
 }

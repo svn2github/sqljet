@@ -1,5 +1,5 @@
 /**
- * ISqlJetRecord.java
+ * ISqlJetBtreeSchemaTable.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,25 +11,33 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core;
+package org.tmatesoft.sqljet.core.ext;
 
-import java.util.List;
+import java.util.Set;
+
+import org.tmatesoft.sqljet.core.ISqlJetBtree;
 
 
 /**
- * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to fields. 
- * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
-public interface ISqlJetRecord {
+public interface ISqlJetBtreeSchemaTable {
 
     /**
-     * @return the fieldsCount
+     * @return
      */
-    int getFieldsCount();
+    ISqlJetBtree getBtree();
 
-    List<ISqlJetVdbeMem> getFields();
+    /**
+     * @return
+     */
+    Set<String> getTableNames();
+    
+    /**
+     * @return the tables
+     */
+    Integer getTablePage(String name);
 
 }

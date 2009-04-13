@@ -62,12 +62,14 @@
 			<batchtest fork="yes" todir="sqljet-test/bin">
 			    <fileset dir="sqljet-test/src">
 			      <include name="**/*Test*.java"/>
+			      <exclude name="**/*Abstract*.java"/>
 			      <exclude name="**/*Mock*.java"/>
 			    </fileset>
 			 </batchtest>
-			<sysproperty key="SQLJET_FILE_LOG" value="true"/>
-			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="true"/>
-			<sysproperty key="SQLJET_PAGER_LOG" value="true"/>
+			<sysproperty key="SQLJET_FILE_LOG" value="false"/>
+			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="false"/>
+			<sysproperty key="SQLJET_PAGER_LOG" value="false"/>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
 		</junit>
 	</target>
 	

@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.EnumSet;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -36,9 +35,7 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeTest {
-
-    private static Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
+public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
 
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private File testDataBase = new File("sqljet-test/db/testdb.sqlite");

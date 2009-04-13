@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -38,9 +37,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeTableTest {
-
-    private static Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
+public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     private File repCacheDb = new File("sqljet-test/db/rep-cache/rep-cache.db");
 

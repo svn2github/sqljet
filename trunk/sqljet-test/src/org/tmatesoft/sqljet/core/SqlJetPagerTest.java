@@ -16,7 +16,6 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -33,10 +32,8 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetPagerTest {
+public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
     
-    private static Logger logger = Logger.getLogger(SqlJetAbstractMockTest.SQLJET_TEST_LOGGER);
-
     private ISqlJetFileSystem fileSystem;
     private ISqlJetPager pager;
     private File file;

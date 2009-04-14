@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree.ext;
 
+import java.nio.ByteBuffer;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
@@ -46,9 +48,20 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public int lookup(ISqlJetRecord key) throws SqlJetException {
         lock();
         try {
-            return cursor.moveTo(key.getRawRecord(), 0, false);
+            adjustKeyInfo(key);
+            final ByteBuffer r = key.getRawRecord();
+            return cursor.moveTo(r, r.remaining(), false);
         } finally {
             unlock();
+        }
+    }
+
+    /**
+     * @param key
+     */
+    private void adjustKeyInfo(ISqlJetRecord key) {
+        if(null!=keyInfo) {
+            keyInfo.setNField(key.getFieldsCount());
         }
     }
 }

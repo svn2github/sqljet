@@ -94,6 +94,8 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
      */
     public void setNField(int field) {
         nField = field;
+        aSortOrder = new boolean[nField];
+        aColl = new ISqlJetCollSeq[nField];
     }
 
     /**

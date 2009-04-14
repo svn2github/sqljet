@@ -252,6 +252,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
         final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE, false);
         
+        d.next();
         final ISqlJetRecord record = d.getRecord();
         final ISqlJetVdbeMem f = record.getFields().get(0);
         final ByteBuffer v = f.valueText(SqlJetEncoding.UTF8);
@@ -261,8 +262,10 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         Assert.assertNotNull(index);
         final ISqlJetBtreeIndexTable i = new SqlJetBtreeIndexTable(s, index, false);
         final SqlJetVdbeMem m = new SqlJetVdbeMem();
-        m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-        final int row = i.lookup(new SqlJetRecord(new SqlJetVdbeMem[] { m }));
+        //m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+        //final int row = i.lookup(new SqlJetRecord(new SqlJetVdbeMem[] { m }));
+        
+        final int row = i.lookup(record);
         
         logger.info("loookup " + row);
 

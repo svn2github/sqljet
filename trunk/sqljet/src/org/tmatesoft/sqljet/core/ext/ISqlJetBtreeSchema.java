@@ -1,5 +1,5 @@
 /**
- * ISqlJetRecord.java
+ * ISqlJetBtreeSchemaTable.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,45 +13,39 @@
  */
 package org.tmatesoft.sqljet.core.ext;
 
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Set;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.ISqlJetBtree;
 
 
 /**
- * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to fields. 
- * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
-public interface ISqlJetRecord {
-
-    /**
-     * @return the fieldsCount
-     */
-    int getFieldsCount();
+public interface ISqlJetBtreeSchema {
 
     /**
      * @return
      */
-    List<ISqlJetVdbeMem> getFields();
+    ISqlJetBtree getBtree();
+
+    /**
+     * @return
+     */
+    Set<String> getTableNames();
     
     /**
-     * @param field
-     * @return
+     * @return the tables
      */
-    String getStringField(int field, SqlJetEncoding enc);
-    
-    /**
-     * @param field
-     * @return
-     */
-    long getIntField(int field);
+    int getTablePage(String tableName);
 
-    ByteBuffer getRawRecord();
+    /**
+     * @param tableName
+     * @return
+     */
+    Set<String> getIndexesOfTable(String tableName);
+    
+    int getIndexePage(String indexName);
     
 }

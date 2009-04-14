@@ -127,4 +127,100 @@ public class SqlJetVdbeSerialType {
         return 0;
     }
 
+    /*
+    ** Return the serial-type for the value stored in pMem.
+    */
+    public static int serialType(SqlJetVdbeMem pMem, int file_format){
+      int n;
+      if( pMem.flags.contains(SqlJetVdbeMemFlags.Null) ){
+        return 0;
+      }
+      if( pMem.flags.contains(SqlJetVdbeMemFlags.Int) ){
+        /* Figure out whether to use 1, 2, 4, 6 or 8 bytes. */
+        long MAX_6BYTE = ((((long)0x00008000)<<32)-1);
+        long i = pMem.i;
+        long u;
+        if( file_format>=4 && (i&1)==i ){
+          return 8+(int)i;
+        }
+        u = i<0 ? -i : i;
+        if( u<=127 ) return 1;
+        if( u<=32767 ) return 2;
+        if( u<=8388607 ) return 3;
+        if( u<=2147483647 ) return 4;
+        if( u<=MAX_6BYTE ) return 5;
+        return 6;
+      }
+      if( pMem.flags.contains(SqlJetVdbeMemFlags.Real )){
+        return 7;
+      }
+      n = pMem.n;
+      if( pMem.flags.contains(SqlJetVdbeMemFlags.Zero )){
+        n += pMem.nZero;
+      }
+      assert( n>=0 );
+      return ((n*2) + 12 + (pMem.flags.contains(SqlJetVdbeMemFlags.Str)?1:0));
+    }
+
+    /**
+    * Write the serialized data blob for the value stored in pMem into 
+    * buf. It is assumed that the caller has allocated sufficient space.
+    * Return the number of bytes written.
+    *
+    * nBuf is the amount of space left in buf[].  nBuf must always be
+    * large enough to hold the entire field.  Except, if the field is
+    * a blob with a zero-filled tail, then buf[] might be just the right
+    * size to hold everything except for the zero-filled tail.  If buf[]
+    * is only big enough to hold the non-zero prefix, then only write that
+    * prefix into buf[].  But if buf[] is large enough to hold both the
+    * prefix and the tail then write the prefix and set the tail to all
+    * zeros.
+    *
+    * Return the number of bytes actually written into buf[].  The number
+    * of bytes in the zero-filled tail is included in the return value only
+    * if those bytes were zeroed in buf[].
+    */ 
+    public static int serialPut(ByteBuffer buf, int nBuf, SqlJetVdbeMem pMem, int file_format){
+      int serial_type = serialType(pMem, file_format);
+      int len;
+
+      /* Integer and Real */
+      if( serial_type<=7 && serial_type>0 ){
+        long v;
+        int i;
+        if( serial_type==7 ){
+          v = (long)pMem.r;
+        }else{
+          v = pMem.i;
+        }
+        len = i = serialTypeLen(serial_type);
+        assert( len<=nBuf );
+        while( i-- > 0 ){
+          SqlJetUtility.putUnsignedByte(buf, i, (byte)(v&0xFF));
+          v >>= 8;
+        }
+        return len;
+      }
+
+      /* String or blob */
+      if( serial_type>=12 ){
+        assert( pMem.n + (pMem.flags.contains(SqlJetVdbeMemFlags.Zero)?pMem.nZero:0)
+                 == serialTypeLen(serial_type) );
+        assert( pMem.n<=nBuf );
+        len = pMem.n;
+        SqlJetUtility.memcpy(buf, pMem.z, len);
+        if( pMem.flags.contains(SqlJetVdbeMemFlags.Zero) ){
+          len += pMem.nZero;
+          if( len > nBuf ){
+            len = nBuf;
+          }
+          SqlJetUtility.memset(SqlJetUtility.slice(buf,pMem.n), (byte)0, len-pMem.n);
+        }
+        return len;
+      }
+
+      /* NULL or constants 0 or 1 */
+      return 0;
+    }
+    
 }

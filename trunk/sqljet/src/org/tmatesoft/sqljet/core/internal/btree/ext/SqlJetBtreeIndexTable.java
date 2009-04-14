@@ -14,36 +14,41 @@
 package org.tmatesoft.sqljet.core.internal.btree.ext;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
+import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
+public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBtreeIndexTable {
 
     /**
-     * Open data table by name
+     * Open index by name
      * 
      * @throws SqlJetException
      * 
      */
-    public SqlJetBtreeDataTable(ISqlJetBtreeSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getTablePage(tableName), write, false);
+    public SqlJetBtreeIndexTable(ISqlJetBtreeSchema schema, String indexName, boolean write)
+            throws SqlJetException {
+        super(schema.getBtree(), schema.getIndexePage(indexName), write, true);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.ext.ISqlJetBtreeDataTable#goToRow(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.ext.ISqlJetBtreeIndexTable#lookup
+     * (org.tmatesoft.sqljet.core.ext.ISqlJetRecord)
      */
-    public int goToRow(int rowId) throws SqlJetException {
+    public int lookup(ISqlJetRecord key) throws SqlJetException {
         lock();
         try {
-            return cursor.moveTo(null, rowId, false);
+            return cursor.moveTo(key.getRawRecord(), 0, false);
         } finally {
             unlock();
         }
     }
-    
 }

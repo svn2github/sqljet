@@ -1,5 +1,5 @@
 /**
- * ISqlJetBtreeTable.java
+ * ISqlJetBtreeIndexTable.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,38 +13,15 @@
  */
 package org.tmatesoft.sqljet.core.ext;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.SqlJetException;
-
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
-public interface ISqlJetBtreeTable {
+public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
 
-    ISqlJetBtree getBtree();
-    
-    void close() throws SqlJetException;
+    int lookup(ISqlJetRecord key) throws SqlJetException;
 
-    void lock();
-    
-    void unlock();
-    
-    boolean eof();
-
-    boolean first() throws SqlJetException;
-
-    boolean last() throws SqlJetException;
-
-    boolean next() throws SqlJetException;
-
-    boolean previous() throws SqlJetException;
-
-    ISqlJetRecord getRecord() throws SqlJetException;
-    
-    ISqlJetBtreeCursor getCursor();
-    
 }

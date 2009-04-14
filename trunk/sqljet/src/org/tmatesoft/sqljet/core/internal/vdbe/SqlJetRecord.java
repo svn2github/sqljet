@@ -15,6 +15,8 @@ package org.tmatesoft.sqljet.core.internal.vdbe;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -44,11 +46,13 @@ public class SqlJetRecord implements ISqlJetRecord {
     private List<Integer> aOffset = new ArrayList<Integer>();
     private List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>();
 
+    private int file_format = 4;
+
     /**
      * @return the fields
      */
     public List<ISqlJetVdbeMem> getFields() {
-        return fields;
+        return Collections.unmodifiableList(fields);
     }
 
     /**
@@ -155,8 +159,8 @@ public class SqlJetRecord implements ISqlJetRecord {
                 aType.add(i, a[0]);
                 offset[0] += SqlJetVdbeSerialType.serialTypeLen(a[0]);
 
-                fields.add(i,getField(i));
-                
+                fields.add(i, getField(i));
+
             }
             sMem.release();
             sMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Null);
@@ -277,7 +281,9 @@ public class SqlJetRecord implements ISqlJetRecord {
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetRecord#getStringField(int)
      */
     public String getStringField(int field, SqlJetEncoding enc) {
@@ -289,8 +295,10 @@ public class SqlJetRecord implements ISqlJetRecord {
             return null;
         return SqlJetUtility.toString(v);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetRecord#getIntField(int)
      */
     public long getIntField(int field) {
@@ -298,5 +306,117 @@ public class SqlJetRecord implements ISqlJetRecord {
         if (null == f)
             return 0;
         return f.intValue();
+    }
+
+    /**
+     * 
+     */
+    public SqlJetRecord(ISqlJetVdbeMem[] values, int file_format) {
+        this.file_format = file_format;
+        initFields(values);
+    }
+
+    public SqlJetRecord(ISqlJetVdbeMem[] values) {
+        initFields(values);
+    }
+
+    /**
+     * @param values
+     */
+    private void initFields(ISqlJetVdbeMem[] values) {
+        fields.addAll(Arrays.asList(values));
+        fieldsCount = values.length;
+    }
+
+    /**
+     * Assuming the record contains N fields, the record format looks like this:
+     * 
+     * <table border="1">
+     * <tr>
+     * <td>hdr-size</td>
+     * <td>type 0</td>
+     * <td>type 1</td>
+     * <td>...</td>
+     * <td>type N-1</td>
+     * <td>data0</td>
+     * <td>...</td>
+     * <td>data N-1</td>
+     * </tr>
+     * </table>
+     * 
+     * Each type field is a varint representing the serial type of the
+     * corresponding data element (see sqlite3VdbeSerialType()). The hdr-size
+     * field is also a varint which is the offset from the beginning of the
+     * record to data0.
+     */
+    public ByteBuffer getRawRecord() {
+
+        ByteBuffer zNewRecord; /* A buffer to hold the data for the new record */
+        int nData = 0; /* Number of bytes of data space */
+        int nHdr = 0; /* Number of bytes of header space */
+        int nByte = 0; /* Data space required for this record */
+        int nZero = 0; /* Number of zero bytes at the end of the record */
+        int nVarint; /* Number of bytes in a varint */
+        int serial_type; /* Type field */
+        int i; /* Space used in zNewRecord[] */
+
+        /*
+         * Loop through the elements that will make up the record to figure* out
+         * how much space is required for the new record.
+         */
+        for (ISqlJetVdbeMem value : fields) {
+            SqlJetVdbeMem pRec = (SqlJetVdbeMem) value;
+
+            int len;
+            if (pRec.flags.contains(SqlJetVdbeMemFlags.Zero) && pRec.n > 0) {
+                pRec.expandBlob();
+            }
+            serial_type = SqlJetVdbeSerialType.serialType(pRec, file_format);
+            len = SqlJetVdbeSerialType.serialTypeLen(serial_type);
+            nData += len;
+            nHdr += SqlJetUtility.varintLen(serial_type);
+            if (pRec.flags.contains(SqlJetVdbeMemFlags.Zero)) {
+                /*
+                 * Only pure zero-filled BLOBs can be input to this Opcode.* We
+                 * do not allow blobs with a prefix and a zero-filled tail.
+                 */
+                nZero += pRec.nZero;
+            } else if (len != 0) {
+                nZero = 0;
+            }
+        }
+
+        /* Add the initial header varint and total the size */
+        nHdr += nVarint = SqlJetUtility.varintLen(nHdr);
+        if (nVarint < SqlJetUtility.varintLen(nHdr)) {
+            nHdr++;
+        }
+        nByte = nHdr + nData - nZero;
+
+        /*
+         * Make sure the output register has a buffer large enough to store* the
+         * new record. The output register (pOp->p3) is not allowed to* be one
+         * of the input registers (because the following call to*
+         * sqlite3VdbeMemGrow() could clobber the value before it is used).
+         */
+        zNewRecord = ByteBuffer.allocate(nByte);
+
+        /* Write the record */
+        i = SqlJetUtility.putVarint32(zNewRecord, nHdr);
+        for (ISqlJetVdbeMem value : fields) {
+            SqlJetVdbeMem pRec = (SqlJetVdbeMem) value;
+            serial_type = SqlJetVdbeSerialType.serialType(pRec, file_format);
+            /* serial type */
+            i += SqlJetUtility.putVarint32(SqlJetUtility.slice(zNewRecord, i), serial_type);
+        }
+        for (ISqlJetVdbeMem value : fields) {
+            SqlJetVdbeMem pRec = (SqlJetVdbeMem) value;
+            /* serial data */
+            i += SqlJetVdbeSerialType.serialPut(SqlJetUtility.slice(zNewRecord, i), (int) (nByte - i), pRec,
+                    file_format);
+        }
+        assert (i == nByte);
+
+        return zNewRecord;
     }
 }

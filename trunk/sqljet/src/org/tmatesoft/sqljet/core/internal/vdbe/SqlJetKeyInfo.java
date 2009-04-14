@@ -69,6 +69,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
             idx += SqlJetUtility.getVarint32(SqlJetUtility.slice(pKey, idx), serial_type);
             if (d >= nKey && SqlJetVdbeSerialType.serialTypeLen(serial_type[0]) > 0)
                 break;
+            pMem[u] = new SqlJetVdbeMem();
             pMem[u].enc = pKeyInfo.enc;
             pMem[u].db = pKeyInfo.db;
             pMem[u].flags = EnumSet.noneOf(SqlJetVdbeMemFlags.class);
@@ -81,4 +82,32 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
         return p;
     }
 
+    /**
+     * @return the nField
+     */
+    public int getNField() {
+        return nField;
+    }
+
+    /**
+     * @param field the nField to set
+     */
+    public void setNField(int field) {
+        nField = field;
+    }
+
+    /**
+     * @return the enc
+     */
+    public SqlJetEncoding getEnc() {
+        return enc;
+    }
+
+    /**
+     * @param enc the enc to set
+     */
+    public void setEnc(SqlJetEncoding enc) {
+        this.enc = enc;
+    }
+    
 }

@@ -13,15 +13,20 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree.ext;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
@@ -30,7 +35,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
+public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;
@@ -45,6 +50,7 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
     
     private Map<String, Integer> tables = new HashMap<String, Integer>();
     private Map<String, Integer> indexes = new HashMap<String, Integer>();
+    private Map<String, Set<String>> indexesOfTables = new HashMap<String, Set<String>>();
 
     private ISqlJetBtree btree;
 
@@ -52,7 +58,7 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
      * @param btree
      * @throws SqlJetException
      */
-    public SqlJetBtreeSchemaTable(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetBtreeSchema(ISqlJetBtree btree) throws SqlJetException {
         init(btree, SqlJetEncoding.UTF8);
     }
 
@@ -60,7 +66,7 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
      * @param btree
      * @throws SqlJetException
      */
-    public SqlJetBtreeSchemaTable(ISqlJetBtree btree, SqlJetEncoding enc) throws SqlJetException {
+    public SqlJetBtreeSchema(ISqlJetBtree btree, SqlJetEncoding enc) throws SqlJetException {
         init(btree, enc);
     }
     
@@ -108,10 +114,30 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaTable
      * #getTablePage(java.lang.String)
      */
-    public Integer getTablePage(String name) {
-        return tables.get(name);
+    public int getTablePage(String tableName) {
+        final Integer p = tables.get(tableName);
+        if(null==p) return 0;
+        return p;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexesOfTable(java.lang.String)
+     */
+    public Set<String> getIndexesOfTable(String tableName) {
+        final Set<String> i = indexesOfTables.get(tableName);
+        if(null==i) return Collections.EMPTY_SET;
+        return Collections.unmodifiableSet(i);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexePage(java.lang.String)
+     */
+    public int getIndexePage(String indexName) {
+        final Integer p = indexes.get(indexName);
+        if(null==p) return 0;
+        return p;
+    }
+    
     /**
      * @throws SqlJetException
      * 
@@ -121,7 +147,9 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
             final String t = SqlJetUtility.trim(r.getStringField(TYPE_FIELD, enc));
             if (null == t)
                 continue;
-            final Map<String, Integer> m = TABLE_TYPE.equals(t) ? tables : (INDEX_TYPE.equals(t) ? indexes : null);
+            final boolean isTable = TABLE_TYPE.equals(t);
+            final boolean isIndex = INDEX_TYPE.equals(t);
+            final Map<String, Integer> m = isTable ? tables : (isIndex ? indexes : null);
             if (null == m)
                 continue;
             final String n = SqlJetUtility.trim(r.getStringField(NAME_FIELD, enc));
@@ -131,6 +159,20 @@ public class SqlJetBtreeSchemaTable implements ISqlJetBtreeSchemaTable {
             if (0 == p)
                 continue;
             m.put(n, p);
+            if(isIndex) {
+                final String it = SqlJetUtility.trim(r.getStringField(TABLE_FIELD, enc));
+                if (null == t)
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                final Set<String> l = indexesOfTables.get(it);
+                if(null!=l) {
+                    l.add(n);
+                } else {
+                    final Set<String> nl = new HashSet<String>();
+                    nl.add(n);
+                    indexesOfTables.put(it, nl);
+                }
+            }
+                
         }
     }
 

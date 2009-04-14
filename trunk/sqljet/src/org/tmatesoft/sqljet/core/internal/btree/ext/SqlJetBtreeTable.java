@@ -13,16 +13,14 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree.ext;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
 
 /**
@@ -32,13 +30,16 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
-    private ISqlJetBtree btree;
-    private int rootPage;
+    protected ISqlJetBtree btree;
+    protected int rootPage;
 
-    private boolean write;
-    private boolean index;
+    protected boolean write;
+    protected boolean index;
 
-    private ISqlJetBtreeCursor cursor;
+    protected ISqlJetBtreeCursor cursor;
+
+    protected SqlJetKeyInfo keyInfo;
+    protected SqlJetEncoding encoding = SqlJetEncoding.UTF8;
 
     /**
      * @throws SqlJetException
@@ -51,16 +52,31 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         this.write = write;
         this.index = index;
 
-        cursor = btree.getCursor(rootPage, write, null);
+        if (index) {
+            keyInfo = new SqlJetKeyInfo();
+            keyInfo.setEnc(encoding);
+        }
+
+        cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+
         first();
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#getBtree()
      */
     public ISqlJetBtree getBtree() {
         return btree;
+    }
+
+    /**
+     * @return the cursor
+     */
+    public ISqlJetBtreeCursor getCursor() {
+        return cursor;
     }
     
     /*
@@ -98,7 +114,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean eof() {
         return cursor.eof();
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -126,7 +142,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             unlock();
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -140,8 +156,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             unlock();
         }
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#previous()
      */
     public boolean previous() throws SqlJetException {
@@ -168,5 +186,5 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             unlock();
         }
     }
-    
+
 }

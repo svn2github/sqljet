@@ -22,15 +22,20 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchemaTable;
+import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 
 /**
  * @author TMate Software Ltd.
@@ -38,6 +43,11 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
  * 
  */
 public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
+
+    /**
+     * 
+     */
+    public static final String REP_CACHE = "rep_cache";
 
     private File repCacheDb = new File("sqljet-test/db/rep-cache/rep-cache.db");
 
@@ -195,7 +205,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testSchema() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchemaTable s = new SqlJetBtreeSchemaTable(btree);
+        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
         for (String tableName : s.getTableNames()) {
             logger.info(tableName);
             passed = true;
@@ -206,16 +216,57 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testDataTable() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchemaTable s = new SqlJetBtreeSchemaTable(btree);
-        final ISqlJetBtreeTable t = new SqlJetBtreeDataTable(s, "rep_cache", false);
+        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetBtreeTable t = new SqlJetBtreeDataTable(s, REP_CACHE, false);
         for (ISqlJetRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
             final int fields = r.getFieldsCount();
-            for(int i = 0; i<fields; i++ ) {
+            for (int i = 0; i < fields; i++) {
                 logger.info(r.getStringField(i, SqlJetEncoding.UTF8));
                 passed = true;
             }
         }
         Assert.assertTrue(passed);
     }
-    
+
+    @Test
+    public void testIndexTable() throws SqlJetException {
+        boolean passed = false;
+        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final String index = s.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(index);
+        final ISqlJetBtreeTable t = new SqlJetBtreeIndexTable(s, index, false);
+        for (ISqlJetRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
+            final int fields = r.getFieldsCount();
+            for (int i = 0; i < fields; i++) {
+                logger.info(r.getStringField(i, SqlJetEncoding.UTF8));
+                passed = true;
+            }
+        }
+        Assert.assertTrue(passed);
+    }
+
+    @Test
+    public void testIndexLookup() throws SqlJetException {
+        boolean passed = false;
+        
+        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE, false);
+        
+        final ISqlJetRecord record = d.getRecord();
+        final ISqlJetVdbeMem f = record.getFields().get(0);
+        final ByteBuffer v = f.valueText(SqlJetEncoding.UTF8);
+        final String hash = SqlJetUtility.toString(v);
+        
+        final String index = s.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(index);
+        final ISqlJetBtreeIndexTable i = new SqlJetBtreeIndexTable(s, index, false);
+        final SqlJetVdbeMem m = new SqlJetVdbeMem();
+        m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+        final int row = i.lookup(new SqlJetRecord(new SqlJetVdbeMem[] { m }));
+        
+        logger.info("loookup " + row);
+
+        // Assert.assertTrue(passed);
+    }
+
 }

@@ -23,9 +23,11 @@ import org.tmatesoft.sqljet.core.ISqlJetCallback;
 import org.tmatesoft.sqljet.core.ISqlJetCollSeq;
 import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.ISqlJetFuncDef;
+import org.tmatesoft.sqljet.core.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.ISqlJetRowSet;
 import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetMemType;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
@@ -77,7 +79,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     int n;
 
     /** Some combination of MEM_Null, MEM_Str, MEM_Dyn, etc. */
-    EnumSet<SqlJetVdbeMemFlags> flags;
+    EnumSet<SqlJetVdbeMemFlags> flags = EnumSet.noneOf(SqlJetVdbeMemFlags.class);
 
     /** One of SQLITE_NULL, SQLITE_TEXT, SQLITE_INTEGER, etc */
     SqlJetMemType type;
@@ -466,7 +468,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * stored in dynamically allocated space.
      * 
      */
-    private void expandBlob() {
+    public void expandBlob() {
         final SqlJetVdbeMem pMem = this;
         if (pMem.flags.contains(SqlJetVdbeMemFlags.Zero)) {
             int nByte;
@@ -583,4 +585,54 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         }
     }
 
+    /**
+    ** Delete any previous value and set the value stored in *pMem to NULL.
+    */
+    public void setNull(){
+      if( flags.contains(SqlJetVdbeMemFlags.RowSet) ){
+        //sqlite3RowSetClear(pMem->u.pRowSet);
+      }
+      flags= EnumSet.of(SqlJetVdbeMemFlags.Null);
+      type = SqlJetMemType.NULL;
+    }
+    
+    /**
+    ** Change the value of a Mem to be a string or a BLOB.
+    **
+    ** The memory management strategy depends on the value of the xDel
+    ** parameter. If the value passed is SQLITE_TRANSIENT, then the 
+    ** string is copied into a (possibly existing) buffer managed by the 
+    ** Mem structure. Otherwise, any existing buffer is freed and the
+    ** pointer copied.
+    *
+     * @throws SqlJetException 
+    */
+    public void setStr( ByteBuffer z, SqlJetEncoding enc ) throws SqlJetException{
+      
+      assert( db==null || mutex_held(db.getMutex()) );
+      assert( !flags.contains(SqlJetVdbeMemFlags.RowSet) );
+
+      /* If z is a NULL pointer, set pMem to contain an SQL NULL. */
+      if( z==null ){
+        setNull();
+        return;
+      }
+
+      int nByte = z.remaining();      /* New value for pMem->n */
+      int iLimit = ISqlJetLimits.SQLJET_MAX_LENGTH;  /* Maximum allowed string or blob size */
+      flags = EnumSet.noneOf(SqlJetVdbeMemFlags.class);      /* New value for pMem->flags */
+      
+      flags.add(enc==null?SqlJetVdbeMemFlags.Blob:SqlJetVdbeMemFlags.Str);
+
+      if( nByte>iLimit ){
+        throw new SqlJetException(SqlJetErrorCode.TOOBIG);
+      }
+
+      this.z = z;
+      this.n = nByte;
+      this.enc = (enc==null ? SqlJetEncoding.UTF8 : enc);
+      this.type = (enc==null ? SqlJetMemType.BLOB : SqlJetMemType.TEXT );
+
+    }
+    
 }

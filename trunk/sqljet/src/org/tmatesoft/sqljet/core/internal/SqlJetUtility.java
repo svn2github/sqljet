@@ -803,5 +803,18 @@ public class SqlJetUtility {
     public static String trim(String s) {
         return null != s ? s.trim() : null;
     }
+
+    /**
+    * Return the number of bytes that will be needed to store the given
+    * 64-bit integer.
+    */
+    public static int varintLen(long v){
+      int i = 0;
+      do{
+        i++;
+        v >>= 7;
+      }while( v!=0 && i<9 );
+      return i;
+    }
     
 }

@@ -1,5 +1,5 @@
 /**
- * ISqlJetBtreeSchemaTable.java
+ * ISqlJetBtreeDataTable.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,31 +13,15 @@
  */
 package org.tmatesoft.sqljet.core.ext;
 
-import java.util.Set;
-
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
-
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
-public interface ISqlJetBtreeSchemaTable {
+public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
 
-    /**
-     * @return
-     */
-    ISqlJetBtree getBtree();
-
-    /**
-     * @return
-     */
-    Set<String> getTableNames();
-    
-    /**
-     * @return the tables
-     */
-    Integer getTablePage(String name);
+    int goToRow(int rowId) throws SqlJetException;
 
 }

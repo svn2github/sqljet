@@ -104,6 +104,11 @@ public interface ISqlJetVdbeMem {
      *
      * If pMem is a string, its encoding might be changed.
      */
-     public long intValue();
+     long intValue();
     
+     void setNull();
+     
+     void setStr( ByteBuffer z, SqlJetEncoding enc ) throws SqlJetException;
+
+     
 }

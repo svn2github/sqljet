@@ -35,6 +35,8 @@ import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 
 /**
@@ -246,6 +248,31 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     }
 
     @Test
+    public void testRecordCompare() throws SqlJetException {
+        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE, false);
+        final ISqlJetBtreeRecord r = d.getRecord();
+        final ISqlJetVdbeMem f = r.getFields().get(0);
+        final ByteBuffer v = f.valueText(SqlJetEncoding.UTF8);
+        final String h = SqlJetUtility.toString(v);
+        final SqlJetBtreeRecord r1 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { f });
+        final SqlJetVdbeMem m = new SqlJetVdbeMem();
+        m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(h)), SqlJetEncoding.UTF8);
+        final SqlJetBtreeRecord r2 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { m });
+        SqlJetKeyInfo keyInfo = new SqlJetKeyInfo();
+        keyInfo.setEnc(SqlJetEncoding.UTF8);
+        keyInfo.setNField(r1.getFieldsCount());
+        final ByteBuffer raw1 = r1.getRawRecord();
+        final SqlJetUnpackedRecord u = keyInfo.recordUnpack(raw1.remaining(), raw1);
+        final ByteBuffer raw2 = r2.getRawRecord();
+        final int c1 = u.recordCompare(raw2.remaining(), raw2);
+        logger.info("compare " + c1);
+        final int c2 = raw1.compareTo(raw2);
+        logger.info("compare2 " + c2);
+        Assert.assertTrue(c1==c2);
+    }
+
+    @Test
     public void testIndexLookup() throws SqlJetException {
         boolean passed = false;
         
@@ -262,15 +289,17 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         Assert.assertNotNull(index);
         final ISqlJetBtreeIndexTable i = new SqlJetBtreeIndexTable(s, index, false);
         
-        int row = i.lookup(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { f }));
+        final SqlJetBtreeRecord r1 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { f });
+        int row = i.lookup(r1);
         logger.info("loookup " + row);
         
         final SqlJetVdbeMem m = new SqlJetVdbeMem();
         m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-        row = i.lookup(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { m }));
+        final SqlJetBtreeRecord r2 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { m });
+        row = i.lookup(r2);
         logger.info("loookup " + row);
-
+        
         //Assert.assertTrue(passed);
     }
-
+    
 }

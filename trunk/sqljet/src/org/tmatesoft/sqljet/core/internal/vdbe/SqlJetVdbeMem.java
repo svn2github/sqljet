@@ -301,6 +301,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
              * (MEM_Ephem|MEM_Static))!=0 ); if(
              * sqlite3VdbeMemMakeWriteable(pVal)!=SQLITE_OK ){ return 0; } }
              */
+            pVal.makeWriteable();
             pVal.nulTerminate();
         } else {
             assert (!pVal.flags.contains(SqlJetVdbeMemFlags.Blob));
@@ -422,6 +423,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         SqlJetUtility.putUnsignedByte(pMem.z, pMem.n, (byte) 0);
         SqlJetUtility.putUnsignedByte(pMem.z, pMem.n + 1, (byte) 0);
         pMem.flags.add(SqlJetVdbeMemFlags.Term);
+        pMem.z.limit(pMem.n);
     }
 
     /**
@@ -559,6 +561,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             putUnsignedByte(pMem.z, pMem.n, (byte) 0);
             putUnsignedByte(pMem.z, pMem.n + 1, (byte) 0);
             pMem.flags.add(SqlJetVdbeMemFlags.Term);
+            pMem.z.limit(pMem.n);
         }
     }
 

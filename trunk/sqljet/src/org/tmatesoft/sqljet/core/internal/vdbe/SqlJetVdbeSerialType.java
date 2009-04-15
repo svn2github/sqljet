@@ -100,7 +100,8 @@ public class SqlJetVdbeSerialType {
                 // assert( sizeof(x)==8 && sizeof(pMem->r)==8 );
                 // swapMixedEndianFloat(x);
                 // memcpy(&pMem->r, &x, sizeof(x));
-                pMem.r = ByteBuffer.allocate(8).putLong(x).getDouble();
+                //pMem.r = ByteBuffer.allocate(8).putLong(x).getDouble();
+                pMem.r = (double) x;
                 pMem.flags = EnumSet.of(pMem.r == Double.NaN ? SqlJetVdbeMemFlags.Null : SqlJetVdbeMemFlags.Real);
             }
             return 8;

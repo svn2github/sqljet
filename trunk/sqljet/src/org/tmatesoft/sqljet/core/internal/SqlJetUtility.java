@@ -791,9 +791,12 @@ public class SqlJetUtility {
      * @return
      */
     public static String toString(ByteBuffer buf) {
-        byte[] bytes = new byte[buf.remaining()];
-        buf.get(bytes);
-        return new String(bytes);
+        synchronized (buf) {
+            byte[] bytes = new byte[buf.remaining()];
+            buf.get(bytes);
+            buf.rewind();
+            return new String(bytes);            
+        }
     }
 
     /**

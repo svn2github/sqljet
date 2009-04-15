@@ -43,7 +43,7 @@ public interface ISqlJetBtreeTable {
 
     boolean previous() throws SqlJetException;
 
-    ISqlJetRecord getRecord() throws SqlJetException;
+    ISqlJetBtreeRecord getRecord() throws SqlJetException;
     
     ISqlJetBtreeCursor getCursor();
     

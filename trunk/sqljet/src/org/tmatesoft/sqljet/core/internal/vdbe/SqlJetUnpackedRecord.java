@@ -38,7 +38,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
     EnumSet<SqlJetUpackedRecordFlags> flags;
 
     /* Values */
-    SqlJetVdbeMem[] aMem;
+    public SqlJetVdbeMem[] aMem;
 
     /**
      * 

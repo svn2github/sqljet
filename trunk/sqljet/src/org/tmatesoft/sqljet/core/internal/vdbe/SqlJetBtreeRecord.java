@@ -26,17 +26,17 @@ import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
- * Implements {@link ISqlJetRecord}.
+ * Implements {@link ISqlJetBtreeRecord}.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetRecord implements ISqlJetRecord {
+public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
 
     private ISqlJetBtreeCursor cursor;
     private boolean isIndex;
@@ -61,7 +61,7 @@ public class SqlJetRecord implements ISqlJetRecord {
      * @throws SqlJetException
      * 
      */
-    public SqlJetRecord(ISqlJetBtreeCursor cursor, boolean isIndex) throws SqlJetException {
+    public SqlJetBtreeRecord(ISqlJetBtreeCursor cursor, boolean isIndex) throws SqlJetException {
         this.cursor = cursor;
         this.isIndex = isIndex;
         read();
@@ -311,12 +311,12 @@ public class SqlJetRecord implements ISqlJetRecord {
     /**
      * 
      */
-    public SqlJetRecord(ISqlJetVdbeMem[] values, int file_format) {
+    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
         this.file_format = file_format;
         initFields(values);
     }
 
-    public SqlJetRecord(ISqlJetVdbeMem[] values) {
+    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values) {
         initFields(values);
     }
 

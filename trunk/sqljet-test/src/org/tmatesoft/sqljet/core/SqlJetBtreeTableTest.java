@@ -26,7 +26,7 @@ import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
-import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeDataTable;
@@ -34,7 +34,7 @@ import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 
 /**
@@ -86,7 +86,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         try {
             if (!c.first())
                 do {
-                    ISqlJetRecord r = new SqlJetRecord(c, false);
+                    ISqlJetBtreeRecord r = new SqlJetBtreeRecord(c, false);
                     Assert.assertNotNull(r.getFields());
                     Assert.assertTrue(!r.getFields().isEmpty());
                     for (ISqlJetVdbeMem field : r.getFields()) {
@@ -110,7 +110,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeTable t = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!t.eof());
-            for (ISqlJetRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
+            for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
                 Assert.assertNotNull(r.getFields());
                 Assert.assertTrue(!r.getFields().isEmpty());
                 for (ISqlJetVdbeMem field : r.getFields()) {
@@ -133,7 +133,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!master.eof());
-            for (ISqlJetRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
+            for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
                 Assert.assertNotNull(r1.getFields());
                 Assert.assertTrue(!r1.getFields().isEmpty());
                 final String type = new String(r1.getFields().get(0).valueText(SqlJetEncoding.UTF8).array());
@@ -146,7 +146,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
                     Assert.assertTrue(page > 0);
                     final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, false);
                     Assert.assertTrue(!data.eof());
-                    for (ISqlJetRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
+                    for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
                         Assert.assertTrue(!r2.getFields().isEmpty());
                         for (ISqlJetVdbeMem field : r2.getFields()) {
@@ -171,7 +171,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!master.eof());
-            for (ISqlJetRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
+            for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
                 Assert.assertNotNull(r1.getFields());
                 Assert.assertTrue(!r1.getFields().isEmpty());
                 final String type = new String(r1.getFields().get(0).valueText(SqlJetEncoding.UTF8).array());
@@ -183,7 +183,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
                     Assert.assertTrue(page > 0);
                     final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, true);
                     Assert.assertTrue(!data.eof());
-                    for (ISqlJetRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
+                    for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
                         Assert.assertTrue(!r2.getFields().isEmpty());
                         for (ISqlJetVdbeMem field : r2.getFields()) {
@@ -218,7 +218,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         boolean passed = false;
         final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
         final ISqlJetBtreeTable t = new SqlJetBtreeDataTable(s, REP_CACHE, false);
-        for (ISqlJetRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
+        for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
             final int fields = r.getFieldsCount();
             for (int i = 0; i < fields; i++) {
                 logger.info(r.getStringField(i, SqlJetEncoding.UTF8));
@@ -235,7 +235,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final String index = s.getIndexesOfTable(REP_CACHE).iterator().next();
         Assert.assertNotNull(index);
         final ISqlJetBtreeTable t = new SqlJetBtreeIndexTable(s, index, false);
-        for (ISqlJetRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
+        for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
             final int fields = r.getFieldsCount();
             for (int i = 0; i < fields; i++) {
                 logger.info(r.getStringField(i, SqlJetEncoding.UTF8));
@@ -253,7 +253,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE, false);
         
         d.next();
-        final ISqlJetRecord record = d.getRecord();
+        final ISqlJetBtreeRecord record = d.getRecord();
         final ISqlJetVdbeMem f = record.getFields().get(0);
         final ByteBuffer v = f.valueText(SqlJetEncoding.UTF8);
         final String hash = SqlJetUtility.toString(v);
@@ -261,15 +261,16 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final String index = s.getIndexesOfTable(REP_CACHE).iterator().next();
         Assert.assertNotNull(index);
         final ISqlJetBtreeIndexTable i = new SqlJetBtreeIndexTable(s, index, false);
+        
+        int row = i.lookup(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { f }));
+        logger.info("loookup " + row);
+        
         final SqlJetVdbeMem m = new SqlJetVdbeMem();
-        //m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-        //final int row = i.lookup(new SqlJetRecord(new SqlJetVdbeMem[] { m }));
-        
-        final int row = i.lookup(record);
-        
+        m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+        row = i.lookup(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { m }));
         logger.info("loookup " + row);
 
-        // Assert.assertTrue(passed);
+        //Assert.assertTrue(passed);
     }
 
 }

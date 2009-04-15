@@ -19,9 +19,9 @@ import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
-import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -176,12 +176,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * 
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#getRecord
      */
-    public ISqlJetRecord getRecord() throws SqlJetException {
+    public ISqlJetBtreeRecord getRecord() throws SqlJetException {
         if (eof())
             return null;
         lock();
         try {
-            return new SqlJetRecord(cursor, index);
+            return new SqlJetBtreeRecord(cursor, index);
         } finally {
             unlock();
         }

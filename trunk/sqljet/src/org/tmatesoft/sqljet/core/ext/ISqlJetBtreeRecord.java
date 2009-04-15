@@ -28,7 +28,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetRecord {
+public interface ISqlJetBtreeRecord {
 
     /**
      * @return the fieldsCount

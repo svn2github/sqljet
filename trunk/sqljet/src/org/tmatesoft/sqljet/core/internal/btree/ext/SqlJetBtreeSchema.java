@@ -27,7 +27,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
-import org.tmatesoft.sqljet.core.ext.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -143,7 +143,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
      * 
      */
     private void readShema(SqlJetBtreeTable bt) throws SqlJetException {
-        for (ISqlJetRecord r = bt.getRecord(); !bt.eof(); bt.next(), r = bt.getRecord()) {
+        for (ISqlJetBtreeRecord r = bt.getRecord(); !bt.eof(); bt.next(), r = bt.getRecord()) {
             final String t = SqlJetUtility.trim(r.getStringField(TYPE_FIELD, enc));
             if (null == t)
                 continue;

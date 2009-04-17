@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -269,37 +270,89 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         logger.info("compare " + c1);
         final int c2 = raw1.compareTo(raw2);
         logger.info("compare2 " + c2);
-        Assert.assertTrue(c1==c2);
+        Assert.assertTrue(c1 == c2);
     }
 
     @Test
     public void testIndexLookup() throws SqlJetException {
-        boolean passed = false;
-        
-        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
-        final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE, false);
-        
-        d.next();
-        final ISqlJetBtreeRecord record = d.getRecord();
-        final ISqlJetVdbeMem f = record.getFields().get(0);
-        final ByteBuffer v = f.valueText(SqlJetEncoding.UTF8);
-        final String hash = SqlJetUtility.toString(v);
-        
-        final String index = s.getIndexesOfTable(REP_CACHE).iterator().next();
-        Assert.assertNotNull(index);
-        final ISqlJetBtreeIndexTable i = new SqlJetBtreeIndexTable(s, index, false);
-        
-        final SqlJetBtreeRecord r1 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { f });
-        int row = i.lookup(r1);
-        logger.info("loookup " + row);
-        
-        final SqlJetVdbeMem m = new SqlJetVdbeMem();
-        m.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-        final SqlJetBtreeRecord r2 = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { m });
-        row = i.lookup(r2);
-        logger.info("loookup " + row);
-        
-        //Assert.assertTrue(passed);
+        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        for(int i=0;i<100; i++) {
+            final String randomHash = getRandomHash(schema);
+            boolean passed = hashIndexLookupTest(schema, randomHash);
+            Assert.assertTrue(passed);
+        }
+    }
+
+    @Test
+    public void testIndexLookupIncorrect() throws SqlJetException {
+        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        boolean failed = hashIndexLookupTest(schema, "incorrect");
+        Assert.assertTrue(!failed);
     }
     
+    /**
+     * @param schema
+     * @throws SqlJetException
+     */
+    private boolean hashIndexLookupTest(final ISqlJetBtreeSchema schema, String hash) throws SqlJetException {
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, false);
+        try {
+            final long row = locateHash(schema, hash);
+            if(0==row) return false;
+            data.goToRow((int) row);
+            final ISqlJetBtreeRecord record = data.getRecord();
+            final ISqlJetVdbeMem field = record.getFields().get(0);
+            final String foundHash = SqlJetUtility.toString(field.valueText(SqlJetEncoding.UTF8));
+            Assert.assertEquals(hash, foundHash);
+            return true;
+        } finally {
+            data.close();
+        }
+    }
+
+    /**
+     * @param schema
+     * @param hash
+     * @return
+     * @throws SqlJetException
+     */
+    private long locateHash(final ISqlJetBtreeSchema schema, final String hash) throws SqlJetException {
+        final String i = schema.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(i);
+        final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, false);
+        try {
+            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
+            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+            final ISqlJetBtreeRecord record = index.lookup(
+                    new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { mem }));
+            if(null==record) return 0; 
+            final long row = record.getFields().get(1).intValue();
+            return row;
+        } finally {
+            index.close();
+        }
+    }
+
+    /**
+     * @param schema
+     * @return
+     * @throws SqlJetException
+     */
+    private String getRandomHash(final ISqlJetBtreeSchema schema) throws SqlJetException {
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, false);
+        try {
+            data.last();
+            long lastKey = data.getKey();
+            Random random = new Random();
+            final int key = random.nextInt((int) lastKey);
+            data.goToRow(key);
+            final ISqlJetBtreeRecord record = data.getRecord();
+            final ISqlJetVdbeMem field = record.getFields().get(0);
+            final String hash = SqlJetUtility.toString(field.valueText(SqlJetEncoding.UTF8));
+            return hash;
+        } finally {
+            data.close();
+        }
+    }
+
 }

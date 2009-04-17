@@ -24,4 +24,6 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
 
     int goToRow(int rowId) throws SqlJetException;
 
+    long getKey() throws SqlJetException;
+    
 }

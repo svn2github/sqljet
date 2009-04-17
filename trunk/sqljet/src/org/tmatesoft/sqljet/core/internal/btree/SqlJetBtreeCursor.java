@@ -492,7 +492,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (pBtree.db.getMutex().held());
 
         /*
-         * If the cursor is already positioned at the point we are trying* to
+         * If the cursor is already positioned at the point we are trying to
          * move to, then just return without doing any work
          */
         if (this.eState == CursorState.VALID && this.validNKey && this.apPage[0].intKey) {

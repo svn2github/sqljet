@@ -33,8 +33,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @throws SqlJetException
      * 
      */
-    public SqlJetBtreeIndexTable(ISqlJetBtreeSchema schema, String indexName, boolean write)
-            throws SqlJetException {
+    public SqlJetBtreeIndexTable(ISqlJetBtreeSchema schema, String indexName, boolean write) throws SqlJetException {
         super(schema.getBtree(), schema.getIndexePage(indexName), write, true);
     }
 
@@ -45,12 +44,15 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * org.tmatesoft.sqljet.core.internal.btree.ext.ISqlJetBtreeIndexTable#lookup
      * (org.tmatesoft.sqljet.core.ext.ISqlJetRecord)
      */
-    public int lookup(ISqlJetBtreeRecord key) throws SqlJetException {
+    public ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException {
         lock();
         try {
             adjustKeyInfo(key);
             final ByteBuffer r = key.getRawRecord();
-            return cursor.moveTo(r, r.remaining(), false);
+            if (cursor.moveTo(r, r.remaining(), false) < 0) {
+                next();
+            }
+            return getRecord();
         } finally {
             unlock();
         }
@@ -60,7 +62,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @param key
      */
     private void adjustKeyInfo(ISqlJetBtreeRecord key) {
-        if(null!=keyInfo) {
+        if (null != keyInfo) {
             keyInfo.setNField(key.getFieldsCount());
         }
     }

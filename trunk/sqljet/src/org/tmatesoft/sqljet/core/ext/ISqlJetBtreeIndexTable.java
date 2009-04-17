@@ -22,6 +22,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
 
-    int lookup(ISqlJetBtreeRecord key) throws SqlJetException;
+    ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException;
 
 }

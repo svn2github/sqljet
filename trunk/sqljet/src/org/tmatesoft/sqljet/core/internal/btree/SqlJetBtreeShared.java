@@ -765,6 +765,9 @@ public class SqlJetBtreeShared {
      */
     public void autoVacuumCommit() throws SqlJetException {
 
+        int nref = pPager.getRefCount();
+        
+        
         assert (mutex.held());
         invalidateAllOverflowCache();
         assert (autoVacuum);
@@ -817,7 +820,7 @@ public class SqlJetBtreeShared {
 
         }
 
-        //assert (nRef == pPager.getRefCount());
+        assert (nref == pPager.getRefCount());
     }
 
     /**

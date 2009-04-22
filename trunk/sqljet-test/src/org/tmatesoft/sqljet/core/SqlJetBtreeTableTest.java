@@ -21,8 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Random;
-import java.util.logging.Level;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,6 +53,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * 
      */
     public static final String REP_CACHE = "rep_cache";
+    private static final boolean deleteCopy = SqlJetUtility.getBoolSysProp("SqlJetBtreeTableTest.deleteCopy", true);
 
     private File repCacheDb = new File("sqljet-test/db/rep-cache/rep-cache.db");
     private File repCacheDbCopy;
@@ -90,12 +89,13 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      */
     private void copyRepCache() throws IOException, FileNotFoundException {
         repCacheDbCopy = File.createTempFile("rep-cache", null);
-        repCacheDbCopy.deleteOnExit();
+        if (deleteCopy)
+            repCacheDbCopy.deleteOnExit();
         RandomAccessFile in = new RandomAccessFile(repCacheDb, "r");
         RandomAccessFile out = new RandomAccessFile(repCacheDbCopy, "rw");
         byte[] b = new byte[4096];
         for (int i = in.read(b); i > 0; i = in.read(b))
-            out.write(b);
+            out.write(b, 0, i);
         in.close();
         out.close();
     }
@@ -114,7 +114,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
                     if (null != btreeCopy)
                         btreeCopy.close();
                 } finally {
-                    repCacheDbCopy.delete();
+                    if (deleteCopy)
+                        repCacheDbCopy.delete();
                 }
             }
         } finally {

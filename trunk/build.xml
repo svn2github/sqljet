@@ -70,6 +70,7 @@
 			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="false"/>
 			<sysproperty key="SQLJET_PAGER_LOG" value="false"/>
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
+			<sysproperty key="SqlJetBtreeTableTest.deleteCopy" value="true"/>
 		</junit>
 	</target>
 	

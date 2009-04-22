@@ -401,7 +401,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testInsert() throws SqlJetException {
 
-        btreeCopy.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
 
         final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);

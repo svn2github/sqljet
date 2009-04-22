@@ -2818,7 +2818,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         put32bits(zHeader, aJournalMagic.length + 8, dbOrigSize);
 
         /* The assumed sector size for this process */
-        put32bits(zHeader, aJournalMagic.length + 8, sectorSize);
+        put32bits(zHeader, aJournalMagic.length + 12, sectorSize);
 
         /*
          * Initializing the tail of the buffer is not necessary. Everything
@@ -2830,7 +2830,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         if (journalHdr == 0) {
             /* The page size */
-            put32bits(zHeader, aJournalMagic.length + 8, pageSize);
+            put32bits(zHeader, aJournalMagic.length + 16, pageSize);
         }
 
         for (nWrite = 0; rc == null && nWrite < JOURNAL_HDR_SZ(); nWrite += nHeader) {

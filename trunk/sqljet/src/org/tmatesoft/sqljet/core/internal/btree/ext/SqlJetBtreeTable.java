@@ -187,4 +187,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         }
     }
 
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable#lockTable(boolean)
+     */
+    public void lockTable(boolean write) {
+        btree.lockTable(rootPage, write);
+    }
+    
 }

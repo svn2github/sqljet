@@ -46,5 +46,6 @@ public interface ISqlJetBtreeTable {
     ISqlJetBtreeRecord getRecord() throws SqlJetException;
     
     ISqlJetBtreeCursor getCursor();
-    
+ 
+    void lockTable(boolean write);
 }

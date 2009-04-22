@@ -53,7 +53,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * 
      */
     public static final String REP_CACHE = "rep_cache";
-    private static final boolean deleteCopy = SqlJetUtility.getBoolSysProp("SqlJetBtreeTableTest.deleteCopy", true);
+    private static final boolean deleteCopy = SqlJetUtility.getBoolSysProp("SqlJetBtreeTableTest.deleteCopy", false);
 
     private File repCacheDb = new File("sqljet-test/db/rep-cache/rep-cache.db");
     private File repCacheDbCopy;
@@ -401,7 +401,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testInsert() throws SqlJetException {
 
-        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+        btreeCopy.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
 
         final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);
@@ -431,6 +431,9 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
         ISqlJetBtreeRecord indexRecord = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { hashMem, rowIdMem });
 
+        index.lockTable(true);
+        data.lockTable(true);
+        
         index.insert(indexRecord, false);
         data.insert(rowId, dataRecord, false);
 

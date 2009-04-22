@@ -76,22 +76,23 @@ public class SqlJetUtility {
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(byte[] x, int off) {
-        return x[off] << 8 | x[off + 1];
+        //return x[off] << 8 | x[off + 1];
+        return get2byte(ByteBuffer.wrap(x), off);
     }
 
     /**
      * Write a two-byte big-endian integer values.
      */
     public static void put2byte(byte[] p, int off, int v) {
-        p[off] = (byte) (v >> 8);
-        p[off + 1] = (byte) (v);
+        //p[off] = (byte) (v >> 8);
+        //p[off + 1] = (byte) (v);
+        put2byte(ByteBuffer.wrap(p), off, v);
     }
 
     /**
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(ByteBuffer x) {
-        //return x.get(0) << 8 | x.get(1);
         return get2byte(x,0);
     }
 
@@ -99,7 +100,6 @@ public class SqlJetUtility {
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(ByteBuffer x, int off) {
-        //return ((int)x.get(off)) << 8 | ((int)x.get(off + 1));
         return x.getShort(off);
     }
 

@@ -184,38 +184,36 @@ public class SqlJetMemPage extends SqlJetCloneable {
         if (!isInit) {
             int pc; /* Address of a freeblock within pPage->aData[] */
             byte hdr; /* Offset to beginning of page header */
-            byte[] data; /* Equal to pPage->aData */
             int usableSize; /* Amount of usable space on each page */
             int cellOffset; /* Offset from start of page to first cell pointer */
             int nFree; /* Number of unused bytes on the page */
             int top; /* First byte of the cell content area */
 
             hdr = hdrOffset;
-            data = aData.array();
-            decodeFlags(data[hdr]);
+            decodeFlags(SqlJetUtility.getUnsignedByte(aData, hdr));
             assert (pBt.pageSize >= 512 && pBt.pageSize <= 32768);
             maskPage = pBt.pageSize - 1;
             nOverflow = 0;
             usableSize = pBt.usableSize;
             this.cellOffset = cellOffset = hdr + 12 - 4 * (leaf ? 1 : 0);
-            top = get2byte(data, hdr + 5);
-            nCell = get2byte(data, hdr + 3);
+            top = get2byte(aData, hdr + 5);
+            nCell = get2byte(aData, hdr + 3);
             if (nCell > pBt.MX_CELL()) {
                 /* To many cells for a single page. The page must be corrupt */
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
             }
 
             /* Compute the total free space on the page */
-            pc = get2byte(data, hdr + 1);
-            nFree = data[hdr + 7] + top - (cellOffset + 2 * nCell);
+            pc = get2byte(aData, hdr + 1);
+            nFree = SqlJetUtility.getUnsignedByte(aData,hdr + 7) + top - (cellOffset + 2 * nCell);
             while (pc > 0) {
                 int next, size;
                 if (pc > usableSize - 4) {
                     /* Free block is off the page */
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
                 }
-                next = get2byte(data, pc);
-                size = get2byte(data, pc + 2);
+                next = get2byte(aData, pc);
+                size = get2byte(aData, pc + 2);
                 if (next > 0 && next <= pc + size + 3) {
                     /* Free blocks must be in accending order */
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);

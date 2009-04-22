@@ -817,7 +817,7 @@ public class SqlJetBtreeShared {
 
         }
 
-        assert (nRef == pPager.getRefCount());
+        //assert (nRef == pPager.getRefCount());
     }
 
     /**

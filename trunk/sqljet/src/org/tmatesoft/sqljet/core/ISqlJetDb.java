@@ -69,7 +69,7 @@ public interface ISqlJetDb {
     /**
      * @return
      */
-    ISqlJetBusyHandler getBusyHaldler();
+    ISqlJetBusyHandler getBusyHandler();
 
     /**
      * @return

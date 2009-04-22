@@ -14,10 +14,14 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Random;
+import java.util.logging.Level;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,20 +57,47 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     public static final String REP_CACHE = "rep_cache";
 
     private File repCacheDb = new File("sqljet-test/db/rep-cache/rep-cache.db");
+    private File repCacheDbCopy;
 
     private ISqlJetDb db;
     private ISqlJetBtree btree;
+    private ISqlJetBtree btreeCopy;
 
     /**
      * @throws java.lang.Exception
      */
     @Before
     public void setUp() throws Exception {
+
+        copyRepCache();
+
         db = new SqlJetDb();
         db.getMutex().enter();
         btree = new SqlJetBtree();
         btree.open(repCacheDb, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
                 .of(SqlJetFileOpenPermission.READONLY));
+
+        btreeCopy = new SqlJetBtree();
+        btreeCopy
+                .open(repCacheDbCopy, db, EnumSet.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
+                        SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.READWRITE,
+                                SqlJetFileOpenPermission.CREATE));
+    }
+
+    /**
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    private void copyRepCache() throws IOException, FileNotFoundException {
+        repCacheDbCopy = File.createTempFile("rep-cache", null);
+        repCacheDbCopy.deleteOnExit();
+        RandomAccessFile in = new RandomAccessFile(repCacheDb, "r");
+        RandomAccessFile out = new RandomAccessFile(repCacheDbCopy, "rw");
+        byte[] b = new byte[4096];
+        for (int i = in.read(b); i > 0; i = in.read(b))
+            out.write(b);
+        in.close();
+        out.close();
     }
 
     /**
@@ -75,7 +106,17 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @After
     public void tearDown() throws Exception {
         try {
-            btree.close();
+            try {
+                if (null != btree)
+                    btree.close();
+            } finally {
+                try {
+                    if (null != btreeCopy)
+                        btreeCopy.close();
+                } finally {
+                    repCacheDbCopy.delete();
+                }
+            }
         } finally {
             db.getMutex().leave();
         }
@@ -276,7 +317,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testIndexLookup() throws SqlJetException {
         final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
-        for(int i=0;i<100; i++) {
+        for (int i = 0; i < 100; i++) {
             final String randomHash = getRandomHash(schema);
             boolean passed = hashIndexLookupTest(schema, randomHash);
             Assert.assertTrue(passed);
@@ -289,7 +330,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         boolean failed = hashIndexLookupTest(schema, "incorrect");
         Assert.assertTrue(!failed);
     }
-    
+
     /**
      * @param schema
      * @throws SqlJetException
@@ -298,7 +339,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, false);
         try {
             final long row = locateHash(schema, hash);
-            if(0==row) return false;
+            if (0 == row)
+                return false;
             data.goToRow((int) row);
             final ISqlJetBtreeRecord record = data.getRecord();
             final ISqlJetVdbeMem field = record.getFields().get(0);
@@ -323,9 +365,9 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         try {
             final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-            final ISqlJetBtreeRecord record = index.lookup(
-                    new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { mem }));
-            if(null==record) return 0; 
+            final ISqlJetBtreeRecord record = index.lookup(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { mem }));
+            if (null == record)
+                return 0;
             final long row = record.getFields().get(1).intValue();
             return row;
         } finally {
@@ -353,6 +395,46 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         } finally {
             data.close();
         }
+    }
+
+    @Test
+    public void testInsert() throws SqlJetException {
+
+        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+
+        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);
+        final String i = schema.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(i);
+        final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
+
+        String hash = "TEST";
+        ISqlJetVdbeMem hashMem = new SqlJetVdbeMem();
+        hashMem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+
+        ISqlJetVdbeMem f1 = new SqlJetVdbeMem();
+        f1.setInt64(1);
+        ISqlJetVdbeMem f2 = new SqlJetVdbeMem();
+        f2.setInt64(1);
+        ISqlJetVdbeMem f3 = new SqlJetVdbeMem();
+        f3.setInt64(1);
+        ISqlJetVdbeMem f4 = new SqlJetVdbeMem();
+        f4.setInt64(1);
+
+        ISqlJetBtreeRecord dataRecord = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { hashMem, f1, f2, f3, f4 });
+
+        final long rowId = data.newRowId(0);
+
+        ISqlJetVdbeMem rowIdMem = new SqlJetVdbeMem();
+        rowIdMem.setInt64(rowId);
+
+        ISqlJetBtreeRecord indexRecord = new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { hashMem, rowIdMem });
+
+        index.insert(indexRecord, false);
+        data.insert(rowId, dataRecord, false);
+
+        btreeCopy.commit();
+
     }
 
 }

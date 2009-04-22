@@ -120,7 +120,9 @@ public class SqlJetBtree implements ISqlJetBtree {
     public boolean invokeBusyHandler(int number) {
         assert (db != null);
         assert (db.getMutex().held());
-        return db.getBusyHaldler().call(number);
+        final ISqlJetBusyHandler busyHandler = db.getBusyHandler();
+        if(busyHandler==null) return true;
+        return busyHandler.call(number);
     }
 
     /*
@@ -260,7 +262,9 @@ public class SqlJetBtree implements ISqlJetBtree {
                 db.getFlags().add(SqlJetDbFlags.SharedCache);
                 final String fullPathname = pVfs.getFullPath(filename);
                 synchronized (sharedCacheList) {
-                    for (final Iterator<SqlJetBtreeShared> i = sharedCacheList.iterator(); i.hasNext(); pBt = i.next()) {
+                    final Iterator<SqlJetBtreeShared> i = sharedCacheList.iterator();
+                    while (i.hasNext()) {
+                        pBt = i.next();
                         assert (pBt.nRef > 0);
                         final String pagerFilename = pVfs.getFullPath(pBt.pPager.getFileName());
                         if (fullPathname.equals(pagerFilename) && pVfs == pBt.pPager.getFileSystem()) {
@@ -274,7 +278,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
 
         try {
-            if (pBt == null) {
+            if (this.pBt == null) {
                 /*
                  * The following asserts make sure that structures used by the
                  * btree are the right size. This is to guard against size
@@ -448,6 +452,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             pBt.pSchema = null;
             pBt.pTmpSpace = null;
         }
+        pBt = null;
 
         assert (p.wantToLock == 0);
         assert (!p.locked);

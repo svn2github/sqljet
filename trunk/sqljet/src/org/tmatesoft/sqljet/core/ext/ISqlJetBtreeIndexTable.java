@@ -18,10 +18,22 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
 
     ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException;
+
+    /**
+     * Writes key into the index. Data for the entry is nil.
+     * 
+     * Append flag that provides a hint to the b-tree layer that this insert is
+     * likely to be an append.
+     * 
+     * @param record
+     * @param append
+     * @throws SqlJetException
+     */
+    void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException;
 
 }

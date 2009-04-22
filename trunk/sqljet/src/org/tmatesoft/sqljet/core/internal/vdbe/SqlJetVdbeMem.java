@@ -637,5 +637,16 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
       this.type = (enc==null ? SqlJetMemType.BLOB : SqlJetMemType.TEXT );
 
     }
+
+    /**
+    * Delete any previous value and set the value stored in *pMem to val,
+    * manifest type INTEGER.
+    */
+    public void setInt64(long val){
+      release();
+      i = val;
+      flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+      type = SqlJetMemType.INTEGER;
+    }
     
 }

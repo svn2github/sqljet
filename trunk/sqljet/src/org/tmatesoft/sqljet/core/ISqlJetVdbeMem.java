@@ -110,5 +110,6 @@ public interface ISqlJetVdbeMem {
      
      void setStr( ByteBuffer z, SqlJetEncoding enc ) throws SqlJetException;
 
+     void setInt64(long val);
      
 }

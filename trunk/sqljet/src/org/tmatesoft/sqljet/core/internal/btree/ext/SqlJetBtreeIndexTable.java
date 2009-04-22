@@ -66,4 +66,22 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             keyInfo.setNField(key.getFieldsCount());
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable#insert(org.tmatesoft
+     * .sqljet.core.ext.ISqlJetBtreeRecord, boolean)
+     */
+    public void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException {
+        lock();
+        try {
+            final ByteBuffer zKey = key.getRawRecord();
+            cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
+        } finally {
+            unlock();
+        }
+    }
+
 }

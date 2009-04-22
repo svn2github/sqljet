@@ -1271,8 +1271,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                                     final EnumSet<SqlJetFileOpenPermission> p = jfd.getPermissions();
                                     if (p.contains(SqlJetFileOpenPermission.READONLY))
                                         throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
-                                } finally {
+                                } catch(SqlJetException e) {
                                     jfd.close();
+                                    throw e;
                                 }
                             }
 

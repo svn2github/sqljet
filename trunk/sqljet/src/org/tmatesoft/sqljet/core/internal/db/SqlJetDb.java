@@ -52,7 +52,7 @@ public class SqlJetDb implements ISqlJetDb {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBusyHaldler()
      */
-    public ISqlJetBusyHandler getBusyHaldler() {
+    public ISqlJetBusyHandler getBusyHandler() {
         // TODO Auto-generated method stub
         return null;
     }

@@ -104,7 +104,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
     }
 
     /** Cells that will not fit on aData[] */
-    _OvflCell[] aOvfl = new _OvflCell[5];
+    _OvflCell[] aOvfl = new _OvflCell[] { new _OvflCell(), new _OvflCell(), new _OvflCell(), new _OvflCell(),
+            new _OvflCell() };
 
     /** Pointer to BtShared that this page is part of */
     SqlJetBtreeShared pBt;
@@ -736,7 +737,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
                 if ((frag < 0) || (frag > (int) SqlJetUtility.getUnsignedByte(data, pPage.hdrOffset + 7))) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
                 }
-                SqlJetUtility.putUnsignedByte(data, pPage.hdrOffset + 7, (byte) (SqlJetUtility.getUnsignedByte(data, pPage.hdrOffset + 7) - (byte) frag));
+                SqlJetUtility.putUnsignedByte(data, pPage.hdrOffset + 7, (byte) (SqlJetUtility.getUnsignedByte(data,
+                        pPage.hdrOffset + 7) - (byte) frag));
                 x = get2byte(data, pnext);
                 put2byte(data, pbegin, x);
                 x = pnext + get2byte(data, pnext + 2) - pbegin;
@@ -747,7 +749,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
         }
 
         /* If the cell content area begins with a freeblock, remove it. */
-        if (SqlJetUtility.getUnsignedByte(data, hdr + 1) == SqlJetUtility.getUnsignedByte(data, hdr + 5) && SqlJetUtility.getUnsignedByte(data, hdr + 2) == SqlJetUtility.getUnsignedByte(data, hdr + 6)) {
+        if (SqlJetUtility.getUnsignedByte(data, hdr + 1) == SqlJetUtility.getUnsignedByte(data, hdr + 5)
+                && SqlJetUtility.getUnsignedByte(data, hdr + 2) == SqlJetUtility.getUnsignedByte(data, hdr + 6)) {
             int top;
             pbegin = get2byte(data, hdr + 1);
             memcpy(data, hdr + 1, data, pbegin, 2);
@@ -1146,7 +1149,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
         int nPayload;
         ByteBuffer pSrc;
-        int nSrc, n, rc;
+        int nSrc, n;
         int spaceLeft;
         SqlJetMemPage pOvfl = null;
         SqlJetMemPage pToRelease = null;

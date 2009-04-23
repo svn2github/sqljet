@@ -316,7 +316,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         initFields(values);
     }
 
-    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values) {
+    public SqlJetBtreeRecord(ISqlJetVdbeMem... values) {
         initFields(values);
     }
 

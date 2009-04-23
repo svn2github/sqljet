@@ -79,8 +79,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private static final boolean SQLJET_PAGER_LOG = SqlJetUtility.getBoolSysProp("SQLJET_PAGER_LOG", false);
 
     static void PAGERTRACE(String format, Object... args) {
-        if (SQLJET_PAGER_LOG)
-            logger.info(String.format(format, args));
+        if (SQLJET_PAGER_LOG) {
+            SqlJetUtility.log(logger, format, args);
+        }
     }
 
     /**

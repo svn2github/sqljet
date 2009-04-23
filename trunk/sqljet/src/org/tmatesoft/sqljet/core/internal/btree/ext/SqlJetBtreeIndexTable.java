@@ -84,4 +84,23 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable#delete(org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord)
+     */
+    public void delete(ISqlJetBtreeRecord key) throws SqlJetException {
+        lock();
+        try {
+            adjustKeyInfo(key);
+            final ByteBuffer r = key.getRawRecord();
+            if (cursor.moveTo(r, r.remaining(), false) < 0) {
+                next();
+            }
+            if(!eof()) {
+                cursor.delete();
+            }
+        } finally {
+            unlock();
+        }        
+    }
+    
 }

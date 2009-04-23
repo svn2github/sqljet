@@ -174,13 +174,30 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeDataTable#insert(long,
      * org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord)
      */
-    public void insert(long rowId, ISqlJetBtreeRecord record, boolean append) throws SqlJetException {
+    public void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException {
         lock();
         try {
-            final ByteBuffer pData = record.getRawRecord();
+            final ByteBuffer pData = data.getRawRecord();
             cursor.insert(null, rowId, pData, pData.remaining(), 0, append);
         } finally {
             unlock();
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeDataTable#delete(long)
+     */
+    public void delete(long rowId) throws SqlJetException {
+        lock();
+        try {
+            if (goToRow(rowId) == 0) {
+                cursor.delete();
+            }
+        } finally {
+            unlock();
+        }
+    }
+
 }

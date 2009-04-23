@@ -16,11 +16,13 @@ package org.tmatesoft.sqljet.core.internal;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
 /**
  * @author TMate Software Ltd.
@@ -819,6 +821,23 @@ public class SqlJetUtility {
         v >>= 7;
       }while( v!=0 && i<9 );
       return i;
+    }
+
+    /**
+     * @param logger TODO
+     * @param format
+     * @param args
+     */
+    public static void log(Logger logger, String format, Object... args) {
+        StringBuilder s = new StringBuilder();
+        s.append(String.format(format, args)).append('\n');
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            final String l = stackTraceElement.toString();
+            if(l.startsWith("org.tmatesoft.sqljet"))
+                s.append('\t').append(l).append('\n');
+        }
+        logger.info(s.toString());
     }
     
 }

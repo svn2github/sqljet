@@ -36,4 +36,6 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      */
     void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException;
 
+    void delete(ISqlJetBtreeRecord key) throws SqlJetException;
+    
 }

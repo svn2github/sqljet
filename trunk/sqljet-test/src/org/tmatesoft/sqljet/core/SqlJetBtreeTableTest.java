@@ -441,4 +441,52 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     }
 
+    @Test
+    public void testDelete() throws SqlJetException {
+        
+        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);
+
+        //for(int i = 0; i<100; i++) {
+            btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+            deleteHash(schema, data);
+            btreeCopy.commit();
+        //}
+        
+    }
+
+    /**
+     * @param schema
+     * @param data
+     * @throws SqlJetException
+     */
+    private void deleteHash(final ISqlJetBtreeSchema schema, final ISqlJetBtreeDataTable data) throws SqlJetException {
+        final String hash = getRandomHash(schema);
+        logger.info(hash);
+        final long rowId = locateHash(schema, hash);
+        if(rowId>0) {
+            deleteIndex(schema, hash);
+            data.delete(rowId);
+        }
+    }
+
+    /**
+     * @param schema
+     * @param hash
+     * @return
+     * @throws SqlJetException
+     */
+    private void deleteIndex(final ISqlJetBtreeSchema schema, final String hash) throws SqlJetException {
+        final String i = schema.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(i);
+        final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
+        try {
+            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
+            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+            index.delete(new SqlJetBtreeRecord(new ISqlJetVdbeMem[] { mem }));
+        } finally {
+            index.close();
+        }
+    }
+    
 }

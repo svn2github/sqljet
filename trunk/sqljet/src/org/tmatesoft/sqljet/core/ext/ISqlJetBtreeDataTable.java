@@ -48,8 +48,11 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * already exist or the data for an existing entry is overwritten.
      * 
      * @param rowId
-     * @param record
+     * @param data
      * @throws SqlJetException 
      */
-    void insert(long rowId, ISqlJetBtreeRecord record, boolean append) throws SqlJetException;
+    void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException;
+    
+    void delete(long rowId) throws SqlJetException;
+    
 }

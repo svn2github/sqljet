@@ -53,6 +53,7 @@
 	<target name="test" depends="deploy">
 		<junit>
 			<jvmarg value="-ea"/>			
+			<jvmarg value="-Xmx512m"/>			
 			<formatter type="plain" usefile="false" />
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />

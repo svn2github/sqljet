@@ -462,11 +462,9 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     public void testDeleteOnce() throws SqlJetException {
         final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);
-        for (int i = 0; i < 100; i++) {
-            btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
-            deleteHash(schema, data);
-            btreeCopy.commit();
-        }
+        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+        deleteHash(schema, data);
+        btreeCopy.commit();
     }
     
     //@Test

@@ -207,7 +207,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     int nRec;
 
     /** Quasi-random value added to every checksum */
-    int cksumInit;
+    long cksumInit;
 
     /** Number of records in stmt subjournal */
     int stmtNRec;
@@ -2214,8 +2214,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param data
      * @return
      */
-    int cksum(byte[] data) {
-        int cksum = cksumInit;
+    long cksum(byte[] data) {
+        long cksum = cksumInit;
         int i = pageSize - 200;
         while (i > 0) {
             cksum += SqlJetUtility.toUnsigned(data[i]);
@@ -2813,7 +2813,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         /* The random check-hash initialiser */
         cksumInit = randomnessInt();
-        put32bits(zHeader, aJournalMagic.length + 4, cksumInit);
+        put32bits(zHeader, aJournalMagic.length + 4, SqlJetUtility.fromUnsigned(cksumInit));
 
         /* The initial database size */
         put32bits(zHeader, aJournalMagic.length + 8, dbOrigSize);
@@ -2850,8 +2850,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * @return
      */
-    private int randomnessInt() {
-        return SqlJetUtility.get4byte(fileSystem.randomness(4));
+    private long randomnessInt() {
+        return SqlJetUtility.get4byteUnsigned(fileSystem.randomness(4));
     }
 
     /**

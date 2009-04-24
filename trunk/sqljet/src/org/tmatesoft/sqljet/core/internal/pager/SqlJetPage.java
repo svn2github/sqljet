@@ -510,7 +510,7 @@ public class SqlJetPage implements ISqlJetPage {
                     assert (pgno != pPager.PAGER_MJ_PGNO());
 
                     try {
-                        int cksum = pPager.cksum(pData);
+                        long cksum = pPager.cksum(pData);
                         pPager.write32bits(pPager.jfd, pPager.journalOff, pgno);
                         try {
                             pPager.jfd.write(pData, pPager.pageSize, pPager.journalOff + 4);
@@ -518,7 +518,8 @@ public class SqlJetPage implements ISqlJetPage {
                             pPager.journalOff += pPager.pageSize + 4;
                         }
                         try {
-                            pPager.write32bits(pPager.jfd, pPager.journalOff, cksum);
+                            pPager.write32bits(pPager.jfd, pPager.journalOff, 
+                                    SqlJetUtility.fromUnsigned(cksum) );
                         } finally {
                             pPager.journalOff += 4;
                         }

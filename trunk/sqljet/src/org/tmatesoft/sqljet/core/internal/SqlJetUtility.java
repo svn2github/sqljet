@@ -862,11 +862,76 @@ public class SqlJetUtility {
     }
 
     public static long toUnsigned(int value) {
-        return (int) (value & (int) 0xffffffffL);
+        return (long) (value & (long) 0xffffffffL );
     }
 
     public static int fromUnsigned(long value) {
-        return (short) (value & 0xffffffffL);
+        return (int) (value & 0xffffffffL);
     }
 
+    /**
+     * Read a four-byte big-endian integer value.
+     */
+    public static long get4byteUnsigned(byte[] p) {
+        return get4byteUnsigned(ByteBuffer.wrap(p));
+    }
+
+    /**
+     * Read a four-byte big-endian integer value.
+     */
+    public static long get4byteUnsigned(byte[] p, int pos) {
+        return get4byteUnsigned(ByteBuffer.wrap(p));
+    }
+
+    /**
+     * Write a four-byte big-endian integer value.
+     */
+    public static byte[] put4byteUnsigned(long v) {
+        if (v < 0)
+            log(logger, "signed %d", v);
+        return ByteBuffer.wrap(new byte[4]).putInt(0, fromUnsigned(v)).array();
+    }
+
+    /**
+     * Write a four-byte big-endian integer value.
+     */
+    public static void put4byteUnsigned(byte[] p, int pos, long v) {
+        put4byteUnsigned(ByteBuffer.wrap(p), pos, v);
+    }
+
+    /**
+     * Read a four-byte big-endian integer value.
+     */
+    public static long get4byteUnsigned(ByteBuffer p) {
+        return get4byteUnsigned(p, 0);
+    }
+
+    /**
+     * Read a four-byte big-endian integer value.
+     */
+    public static long get4byteUnsigned(ByteBuffer p, int pos) {
+        long v = toUnsigned(p.getInt(pos));
+        if (v < 0)
+            log(logger, "signed %d", v);
+        return v;
+    }
+
+    /**
+     * Write a four-byte big-endian integer value.
+     */
+    public static void put4byteUnsigned(ByteBuffer p, int pos, long v) {
+        if (null == p || (p.capacity() - pos) < 4)
+            throw new SqlJetError("Wrong destination");
+        if (v < 0)
+            log(logger, "signed %d", v);
+        p.putInt(pos, fromUnsigned(v));
+    }
+
+    /**
+     * Write a four-byte big-endian integer value.
+     */
+    public static void put4byteUnsigned(ByteBuffer p, long v) {
+        put4byteUnsigned(p, 0, v);
+    }
+    
 }

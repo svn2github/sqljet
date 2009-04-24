@@ -1059,7 +1059,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             if (pBt.autoVacuum) {
                 aFrom = ByteBuffer.allocate(nMaxCells);
             }
-            aSpace1 = ByteBuffer.allocate(pBt.pageSize);
+            aSpace2 = ByteBuffer.allocate(pBt.pageSize);
 
             /*
              * * Make copies of the content of pPage and its siblings into

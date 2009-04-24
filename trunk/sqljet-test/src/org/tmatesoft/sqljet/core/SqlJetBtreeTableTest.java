@@ -491,7 +491,6 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         String hash="8e204eb864658660ffa6e28dda57dcecb95b1847";
         locateHash(schema, hash);
         deleteHash(schema, data,hash);
-        locateHash(schema, hash);
         btreeCopy.commit();
         locateHash(schema, hash);
     }

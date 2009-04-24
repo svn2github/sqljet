@@ -2320,7 +2320,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     ISqlJetPage pDbPage;
                     int a = amt;
                     pDbPage = pBt.pPager.getPage(nextPage);
-                    aPayload = ByteBuffer.wrap(pDbPage.getData());
+                    aPayload = pDbPage.getData();
                     nextPage = get4byte(aPayload);
                     if (a + offset > ovflSize) {
                         a = ovflSize - offset;

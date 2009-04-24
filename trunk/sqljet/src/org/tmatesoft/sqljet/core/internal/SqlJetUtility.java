@@ -138,12 +138,15 @@ public class SqlJetUtility {
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static byte[] put4byte(int v) {
+    public static ByteBuffer put4byte(int v) {
         if (v < 0)
             log(logger, "signed %d", v);
-        return ByteBuffer.wrap(new byte[4]).putInt(0, v).array();
+        final ByteBuffer b = ByteBuffer.allocate(4);
+        b.putInt(0, v);
+        b.rewind();
+        return b;
     }
-
+    
     /**
      * Write a four-byte big-endian integer value.
      */
@@ -310,6 +313,14 @@ public class SqlJetUtility {
         return (p - from);
     }
 
+    public static int strlen(ByteBuffer s, int from) {
+        int p = from;
+        /* Loop over the data in s. */
+        while (p < s.remaining() && getUnsignedByte(s, p)!= 0)
+            p++;
+        return (p - from);
+    }
+    
     /**
      * Check to see if the i-th bit is set. Return true or false. If p is NULL
      * (if the bitmap has not been created) or if i is out of range, then return
@@ -407,11 +418,20 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
+        return slice(b, pos, b.remaining()-pos);
+    }
+
+    /**
+     * Implements address arithmetic on byte buffer.
+     * 
+     * @param b
+     * @param pos
+     * @return
+     */
+    public static ByteBuffer slice(ByteBuffer b, int pos, int count) {
         if (null == b)
             return null;
-        final byte[] a = b.array();
-        final int p = b.arrayOffset() + pos;
-        return ByteBuffer.wrap(a, p, a.length - p).slice();
+        return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, count).slice();
     }
 
     /**
@@ -862,7 +882,7 @@ public class SqlJetUtility {
     }
 
     public static long toUnsigned(int value) {
-        return (long) (value & (long) 0xffffffffL );
+        return (long) (value & (long) 0xffffffffL);
     }
 
     public static int fromUnsigned(long value) {
@@ -886,10 +906,12 @@ public class SqlJetUtility {
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static byte[] put4byteUnsigned(long v) {
+    public static ByteBuffer put4byteUnsigned(long v) {
         if (v < 0)
             log(logger, "signed %d", v);
-        return ByteBuffer.wrap(new byte[4]).putInt(0, fromUnsigned(v)).array();
+        final ByteBuffer b = ByteBuffer.allocate(4);
+        b.putInt(0, fromUnsigned(v)).rewind();
+        return b;
     }
 
     /**
@@ -933,5 +955,5 @@ public class SqlJetUtility {
     public static void put4byteUnsigned(ByteBuffer p, long v) {
         put4byteUnsigned(p, 0, v);
     }
-    
+
 }

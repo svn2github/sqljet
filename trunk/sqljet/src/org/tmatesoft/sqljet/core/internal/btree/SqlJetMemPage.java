@@ -179,7 +179,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (pBt.mutex.held());
         assert (pgno == pDbPage.getPageNumber());
         assert (this == pDbPage.getExtra());
-        assert (aData.array() == pDbPage.getData());
+        assert (aData.array() == pDbPage.getData().array());
 
         if (!isInit) {
             int pc; /* Address of a freeblock within pPage->aData[] */
@@ -243,7 +243,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             assert (pPage.aData != null);
             assert (pPage.pBt != null);
             assert (pPage.pDbPage.getExtra() == pPage);
-            assert (pPage.pDbPage.getData() == pPage.aData.array());
+            assert (pPage.pDbPage.getData().array() == pPage.aData.array());
             assert (pPage.pBt.mutex.held());
             pPage.pDbPage.unref();
         }
@@ -306,9 +306,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * 
      * @throws SqlJetExceptionRemove
      */
-    public void modifyPagePointer(int iFrom, int iTo, byte eType) throws SqlJetException {
+    public void modifyPagePointer(int iFrom, int iTo, short s) throws SqlJetException {
         assert (pBt.mutex.held());
-        if (eType == SqlJetBtreeShared.PTRMAP_OVERFLOW2) {
+        if (s == SqlJetBtreeShared.PTRMAP_OVERFLOW2) {
             /* The pointer is always the first 4 bytes of the page in this case. */
             if (get4byte(aData) != iFrom) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
@@ -324,7 +324,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
             for (i = 0; i < nCell; i++) {
                 ByteBuffer pCell = findCell(i);
-                if (eType == SqlJetBtreeShared.PTRMAP_OVERFLOW1) {
+                if (s == SqlJetBtreeShared.PTRMAP_OVERFLOW1) {
                     SqlJetBtreeCellInfo info;
                     info = parseCellPtr(pCell);
                     if (info.iOverflow > 0) {
@@ -342,7 +342,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             }
 
             if (i == nCell) {
-                if (eType != SqlJetBtreeShared.PTRMAP_BTREE || get4byte(aData, hdrOffset + 8) != iFrom) {
+                if (s != SqlJetBtreeShared.PTRMAP_BTREE || get4byte(aData, hdrOffset + 8) != iFrom) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
                 }
                 put4byte(aData, hdrOffset + 8, iTo);
@@ -479,19 +479,19 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * @throws SqlJetException
      */
     void zeroPage(int flags) throws SqlJetException {
-        byte[] data = aData.array();
+        ByteBuffer data = aData;
         byte hdr = hdrOffset;
         int first;
 
         assert (pDbPage.getPageNumber() == pgno);
         assert (pDbPage.getExtra() == this);
-        assert (pDbPage.getData() == data);
+        assert (pDbPage.getData().array() == data.array());
         assert (pBt.mutex.held());
 
-        data[hdr] = (byte) flags;
+        SqlJetUtility.putUnsignedByte(data, hdr, (short)flags);
         first = hdr + 8 + 4 * ((flags & SqlJetMemPage.PTF_LEAF) == 0 ? 1 : 0);
         SqlJetUtility.memset(data, hdr + 1, (byte) 0, 4);
-        data[hdr + 7] = 0;
+        SqlJetUtility.putUnsignedByte(data, hdr+7, (short)0);
         SqlJetUtility.put2byte(data, hdr + 5, pBt.usableSize);
         nFree = pBt.usableSize - first;
         decodeFlags(flags);
@@ -969,7 +969,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (pPage.pBt.usableSize <= ISqlJetLimits.SQLJET_MAX_PAGE_SIZE);
         assert (pPage.nOverflow == 0);
         assert (pPage.pBt.mutex.held());
-        temp = ByteBuffer.wrap(pPage.pBt.pPager.getTempSpace());
+        temp = pPage.pBt.pPager.getTempSpace();
         data = pPage.aData;
         hdr = pPage.hdrOffset;
         cellOffset = pPage.cellOffset;

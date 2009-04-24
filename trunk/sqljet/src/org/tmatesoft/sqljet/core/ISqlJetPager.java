@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -57,8 +58,9 @@ public interface ISqlJetPager {
      * initializing the checksum to random value which is different for every
      * journal, we minimize that risk.
      */
-    byte[] aJournalMagic = { (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1, (byte) 0x63,
-            (byte) 0xd7 };
+    ByteBuffer aJournalMagic =  ByteBuffer.wrap( new byte[] { 
+            (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1, (byte) 0x63,
+            (byte) 0xd7 } );
 
     /**
      * The maximum legal page number is (2^31 - 1).
@@ -229,7 +231,7 @@ public interface ISqlJetPager {
      * 
      * @return
      */
-    byte[] getTempSpace();
+    ByteBuffer getTempSpace();
 
     /**
      * Set the busy handler function.
@@ -305,7 +307,7 @@ public interface ISqlJetPager {
      * @param buffer
      * @throws SqlJetIOException 
      */
-    void readFileHeader(final int count, final byte[] buffer) throws SqlJetIOException;
+    void readFileHeader(final int count, final ByteBuffer buffer) throws SqlJetIOException;
 
     /**
      * Return the total number of pages in the disk file associated with pager.

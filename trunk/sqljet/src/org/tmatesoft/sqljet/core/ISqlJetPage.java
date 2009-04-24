@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 /**
@@ -138,7 +139,7 @@ public interface ISqlJetPage {
      * 
      * 
      */
-    byte[] getData();
+    ByteBuffer getData();
 
     /**
      * 

@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.EnumSet;
 
@@ -32,7 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 public class SqlJetPage implements ISqlJetPage {
 
     /** Content of this page */
-    byte[] pData;
+    ByteBuffer pData;
 
     /** Extra content */
     Object pExtra;
@@ -78,7 +79,7 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      */
     SqlJetPage(int szPage) {
-        pData = new byte[szPage];
+        pData = ByteBuffer.allocate(szPage);
     }
 
     /*
@@ -177,7 +178,7 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getData()
      */
-    public byte[] getData() {
+    public ByteBuffer getData() {
         // assertion( nRef>0 || pPager.memDb );
         return pData;
     }

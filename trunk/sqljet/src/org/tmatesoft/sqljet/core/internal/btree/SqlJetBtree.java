@@ -236,7 +236,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         ISqlJetFileSystem pVfs; /* The VFS to use for this btree */
         SqlJetBtreeShared pBt = null; /* Shared part of btree structure */
         int nReserve;
-        byte[] zDbHeader = new byte[100];
+        ByteBuffer zDbHeader = ByteBuffer.allocate(100);
 
         /*
          * Set the variable isMemdb to true for an in-memory database, or false
@@ -293,7 +293,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 pBt = new SqlJetBtreeShared();
                 pBt.pPager = new SqlJetPager();
                 pBt.pPager.open(pVfs, filename, SqlJetBtreeFlags.toPagerFlags(flags), type, permissions);
-                pBt.pPager.readFileHeader(zDbHeader.length, zDbHeader);
+                pBt.pPager.readFileHeader(zDbHeader.remaining(), zDbHeader);
                 pBt.pPager.setBusyhandler(new ISqlJetBusyHandler() {
                     public boolean call(int number) {
                         return invokeBusyHandler(number);
@@ -330,7 +330,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     }
                     nReserve = 0;
                 } else {
-                    nReserve = zDbHeader[20];
+                    nReserve = SqlJetUtility.getUnsignedByte(zDbHeader,20);
                     pBt.pageSizeFixed = true;
                     pBt.autoVacuum = (SqlJetUtility.get4byte(zDbHeader, 36 + 4 * 4) != 0);
                     pBt.incrVacuum = (SqlJetUtility.get4byte(zDbHeader, 36 + 7 * 4) != 0);
@@ -1278,8 +1278,8 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * * by extending the file), the current page at position
                  * pgnoMove* is already journaled.
                  */
-                byte[] eType = new byte[1];
-                int[] iPtrPage = new int[1];
+                short[] eType = {0};
+                int[] iPtrPage = {0};
 
                 SqlJetMemPage.releasePage(pPageMove);
 
@@ -1737,8 +1737,8 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                     pFromPage = pBtFrom.pPager.getPage(iFrom);
 
-                    byte[] zTo = pToPage.getData();
-                    byte[] zFrom = pFromPage.getData();
+                    ByteBuffer zTo = pToPage.getData();
+                    ByteBuffer zFrom = pFromPage.getData();
                     int nCopy;
 
                     int nFrom = 0;
@@ -1814,7 +1814,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 }
 
                 pFromPage = pBtFrom.pPager.getPage(iFrom);
-                byte[] zFrom = pFromPage.getData();
+                ByteBuffer zFrom = pFromPage.getData();
                 pFile.write(zFrom, nFromPageSize, iOff);
                 pFromPage.unref();
             }
@@ -2106,7 +2106,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * database file. Obtain one from the pager layer.
                  */
                 pDbPage = pBt.pPager.getPage(1);
-                pP1 = ByteBuffer.wrap(pDbPage.getData());
+                pP1 = pDbPage.getData();
             }
 
             int pMeta = SqlJetUtility.get4byte(pP1, 36 + idx * 4);

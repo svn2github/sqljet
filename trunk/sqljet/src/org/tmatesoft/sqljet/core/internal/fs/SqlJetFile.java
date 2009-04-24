@@ -243,20 +243,20 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
-    public synchronized int read(byte[] buffer, int amount, long offset) throws SqlJetIOException {
+    public synchronized int read(ByteBuffer buffer, int amount, long offset) throws SqlJetIOException {
         assert (amount > 0);
         assert (offset >= 0);
         assert (buffer != null);
-        assert (buffer.length >= amount);
+        assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            final ByteBuffer dst = ByteBuffer.wrap(buffer, 0, amount);
+            final ByteBuffer dst = SqlJetUtility.slice(buffer, 0, amount);
+            dst.clear();
             TIMER_START();
-            final int read = file.getChannel().position(offset).read(dst);
+            final int read = file.getChannel().read(dst,offset);
             TIMER_END();
             OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
-            if (amount > read)
-                Arrays.fill(buffer, read < 0 ? 0 : read, amount, (byte) 0);
+            dst.rewind();
             return read < 0 ? 0 : read;
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_READ, e);
@@ -268,18 +268,19 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public synchronized void write(byte[] buffer, int amount, long offset) throws SqlJetIOException {
+    public synchronized void write(ByteBuffer buffer, int amount, long offset) throws SqlJetIOException {
         assert (amount > 0);
         assert (offset >= 0);
         assert (buffer != null);
-        assert (buffer.length >= amount);
+        assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            final ByteBuffer src = ByteBuffer.wrap(buffer, 0, amount);
+            ByteBuffer src = SqlJetUtility.slice(buffer, 0, amount);
             TIMER_START();
             final int write = file.getChannel().position(offset).write(src);
             TIMER_END();
             OSTRACE("WRITE %s %5d %7d %d\n", this.filePath, write, offset, TIMER_ELAPSED());
+            src.rewind();
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_WRITE, e);
         }

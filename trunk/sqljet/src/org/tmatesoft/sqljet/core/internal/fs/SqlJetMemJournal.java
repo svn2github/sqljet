@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.fs;
 
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.ISqlJetFile;
@@ -56,7 +57,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     */
     private static class FileChunk {
       FileChunk pNext;               /* Next chunk in the journal */
-      byte[] zChunk = new byte[JOURNAL_CHUNKSIZE];   /* Content of this chunk */
+      ByteBuffer zChunk = ByteBuffer.allocate(JOURNAL_CHUNKSIZE);   /* Content of this chunk */
     };
     
     /*
@@ -76,7 +77,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
-    public int read(byte[] buffer, int amount, long offset) {
+    public int read(ByteBuffer buffer, int amount, long offset) {
 
         SqlJetMemJournal p = this;
         
@@ -121,7 +122,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public void write(byte[] buffer, int amount, long offset) {
+    public void write(ByteBuffer buffer, int amount, long offset) {
 
         SqlJetMemJournal p = this;
         

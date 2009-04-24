@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -93,7 +94,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testReadEmpty() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final byte[] b = { 0 };
+        final ByteBuffer b = ByteBuffer.allocate(1);
         final int r = file.read(b, 1, 0);
         Assert.assertEquals("Read empty file should return empty data", 0, r);
     }
@@ -101,27 +102,28 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testWriteRead() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final byte[] wb = { 1 };
+        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
         file.write(wb, 1, 0);
-        final byte[] rb = { 0 };
+        final ByteBuffer rb = ByteBuffer.allocate(1);
         final int r = file.read(rb, 1, 0);
-        Assert.assertArrayEquals("Reading should get the same data as it was written", wb, rb);
+        Assert.assertArrayEquals("Reading should get the same data as it was written", 
+                wb.array(), rb.array());
     }
 
     @Test
     public void testSize() throws Exception {
         final long fileSize = file.fileSize();
-        final byte[] wb = { 1 };
-        file.write(wb, wb.length, fileSize);
+        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
+        file.write(wb, wb.remaining(), fileSize);
         Assert.assertTrue("File size should be increased after writing after end of file", file.fileSize() > fileSize);
     }
 
     @Test
     public void testTruncate() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final byte[] wb = { 1 };
+        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
         final long fileSize = file.fileSize();
-        file.write(wb, wb.length, fileSize);
+        file.write(wb, wb.remaining(), fileSize);
         file.truncate(0);
         Assert.assertTrue("File size should be decreased after truncating", 0 == file.fileSize());
     }

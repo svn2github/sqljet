@@ -233,9 +233,9 @@ public class SqlJetBtreeShared {
      * it maps to type 'eType' and parent page number 'pgno'. An error code is
      * returned if something goes wrong, otherwise SQLITE_OK.
      */
-    public void ptrmapPut(int key, byte eType, int parent) throws SqlJetException {
+    public void ptrmapPut(int key, short eType, int parent) throws SqlJetException {
         ISqlJetPage pDbPage; /* The pointer map page */
-        byte[] pPtrmap; /* The pointer map data */
+        ByteBuffer pPtrmap; /* The pointer map data */
         int iPtrmap; /* The pointer map page number */
         int offset; /* Offset in pointer map page */
 
@@ -255,10 +255,10 @@ public class SqlJetBtreeShared {
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
         pPtrmap = pDbPage.getData();
 
-        if (eType != pPtrmap[offset] || SqlJetUtility.get4byte(pPtrmap, offset + 1) != parent) {
+        if (eType != SqlJetUtility.getUnsignedByte(pPtrmap,offset) || SqlJetUtility.get4byte(pPtrmap, offset + 1) != parent) {
             TRACE("PTRMAP_UPDATE: %d->(%d,%d)\n", key, eType, parent);
             pDbPage.write();
-            pPtrmap[offset] = eType;
+            SqlJetUtility.putUnsignedByte(pPtrmap,offset,eType);
             SqlJetUtility.put4byte(pPtrmap, offset + 1, parent);
         }
         pDbPage.unref();
@@ -271,10 +271,10 @@ public class SqlJetBtreeShared {
      * type and parent page number to *pEType and *pPgno respectively. An error
      * code is returned if something goes wrong, otherwise SQLITE_OK.
      */
-    public void ptrmapGet(int key, byte[] pEType, int[] pPgno) throws SqlJetException {
+    public void ptrmapGet(int key, short[] pEType, int[] pPgno) throws SqlJetException {
         ISqlJetPage pDbPage; /* The pointer map page */
         int iPtrmap; /* Pointer map page index */
-        byte[] pPtrmap; /* Pointer map page data */
+        ByteBuffer pPtrmap; /* Pointer map page data */
         int offset; /* Offset of entry in pointer map */
 
         assert (mutex.held());
@@ -285,7 +285,7 @@ public class SqlJetBtreeShared {
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
         assert (pEType != null && pEType.length > 0);
-        pEType[0] = pPtrmap[offset];
+        pEType[0] = SqlJetUtility.getUnsignedByte(pPtrmap,offset);
         if (pPgno != null && pPgno.length > 0)
             pPgno[0] = SqlJetUtility.get4byte(pPtrmap, offset + 1);
 
@@ -302,7 +302,7 @@ public class SqlJetBtreeShared {
     private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) {
         if(null==pDbPage.getExtra()) pDbPage.setExtra(new SqlJetMemPage());
         SqlJetMemPage pPage = (SqlJetMemPage) pDbPage.getExtra();
-        pPage.aData = ByteBuffer.wrap(pDbPage.getData());
+        pPage.aData = pDbPage.getData();
         pPage.pDbPage = pDbPage;
         pPage.pBt = this;
         pPage.pgno = pgno;
@@ -380,7 +380,7 @@ public class SqlJetBtreeShared {
                  * page.
                  */
                 if (exact && nearby <= getPageCount()) {
-                    byte[] eType = new byte[1];
+                    short[] eType = {0};
                     assert (nearby > 0);
                     assert (autoVacuum);
                     ptrmapGet(nearby, eType, null);
@@ -593,7 +593,7 @@ public class SqlJetBtreeShared {
     /**
      * @param pDbPage
      *            Open page to move
-     * @param eType
+     * @param s
      *            Pointer map 'type' entry for pDbPage
      * @param iPtrPage
      *            Pointer map 'page-no' entry for pDbPage
@@ -602,19 +602,19 @@ public class SqlJetBtreeShared {
      * @param isCommit
      * @throws SqlJetException
      */
-    public void relocatePage(SqlJetMemPage pDbPage, byte eType, int iPtrPage, int iFreePage, boolean isCommit)
+    public void relocatePage(SqlJetMemPage pDbPage, short s, int iPtrPage, int iFreePage, boolean isCommit)
             throws SqlJetException {
         /* The page that contains a pointer to pDbPage */
         SqlJetMemPage pPtrPage;
         int iDbPage = pDbPage.pgno;
 
-        assert (eType == PTRMAP_OVERFLOW2 || eType == PTRMAP_OVERFLOW1 || eType == PTRMAP_BTREE || eType == PTRMAP_ROOTPAGE);
+        assert (s == PTRMAP_OVERFLOW2 || s == PTRMAP_OVERFLOW1 || s == PTRMAP_BTREE || s == PTRMAP_ROOTPAGE);
         assert (mutex.held());
         assert (pDbPage.pBt == this);
 
         /* Move page iDbPage from its current location to page number iFreePage */
 
-        TRACE("AUTOVACUUM: Moving %d to free page %d (ptr page %d type %d)\n", iDbPage, iFreePage, iPtrPage, eType);
+        TRACE("AUTOVACUUM: Moving %d to free page %d (ptr page %d type %d)\n", iDbPage, iFreePage, iPtrPage, s);
         pDbPage.pDbPage.move(iFreePage, isCommit);
         pDbPage.pgno = iFreePage;
 
@@ -627,7 +627,7 @@ public class SqlJetBtreeShared {
          * pointer to a subsequent overflow page. If this is the case, then the
          * pointer map needs to be updated for the subsequent overflow page.
          */
-        if (eType == PTRMAP_BTREE || eType == PTRMAP_ROOTPAGE) {
+        if (s == PTRMAP_BTREE || s == PTRMAP_ROOTPAGE) {
             pDbPage.setChildPtrmaps();
         } else {
             int nextOvfl = SqlJetUtility.get4byte(pDbPage.aData);
@@ -641,7 +641,7 @@ public class SqlJetBtreeShared {
          * that it points at iFreePage. Also fix the pointer map entry for
          * iPtrPage.
          */
-        if (eType != PTRMAP_ROOTPAGE) {
+        if (s != PTRMAP_ROOTPAGE) {
             pPtrPage = getPage(iPtrPage, false);
             try {
                 pPtrPage.pDbPage.write();
@@ -650,11 +650,11 @@ public class SqlJetBtreeShared {
                 throw e;
             }
             try {
-                pPtrPage.modifyPagePointer(iDbPage, iFreePage, eType);
+                pPtrPage.modifyPagePointer(iDbPage, iFreePage, s);
             } finally {
                 SqlJetMemPage.releasePage(pPtrPage);
             }
-            ptrmapPut(iFreePage, eType, iPtrPage);
+            ptrmapPut(iFreePage, s, iPtrPage);
         }
     }
 
@@ -680,8 +680,8 @@ public class SqlJetBtreeShared {
 
         if (!PTRMAP_ISPAGE(iLastPg) && iLastPg != PENDING_BYTE_PAGE()) {
             int rc;
-            byte[] eType = new byte[1];
-            int[] iPtrPage = new int[1];
+            short[] eType = {0};
+            int[] iPtrPage = {0};
 
             nFreeList = SqlJetUtility.get4byte(pPage1.aData, 36);
             if (nFreeList == 0 || nFin == iLastPg) {
@@ -1041,9 +1041,9 @@ public class SqlJetBtreeShared {
          */
         if (autoVacuum) {
 
-            int[] pgno = new int[1];
+            int[] pgno = {0};
             int iGuess = ovfl + 1;
-            byte[] eType = new byte[1];
+            short[] eType = {0};
 
             while (PTRMAP_ISPAGE(iGuess) || iGuess == PENDING_BYTE_PAGE()) {
                 iGuess++;

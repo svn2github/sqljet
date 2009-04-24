@@ -848,11 +848,11 @@ public class SqlJetUtility {
     }
 
     public static long toUnsigned(int value) {
-        return (int)(value & (int)0xffff);
+        return (int)(value & (int)0xffffffffL);
     }
 
     public static int fromUnsigned(long value) {
-        return (short)(value & 0xffff);
+        return (short)(value & 0xffffffffL);
     }
     
 }

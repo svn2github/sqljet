@@ -78,7 +78,6 @@ public class SqlJetUtility {
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(byte[] x, int off) {
-        //return x[off] << 8 | x[off + 1];
         return get2byte(ByteBuffer.wrap(x), off);
     }
 
@@ -86,8 +85,6 @@ public class SqlJetUtility {
      * Write a two-byte big-endian integer values.
      */
     public static void put2byte(byte[] p, int off, int v) {
-        //p[off] = (byte) (v >> 8);
-        //p[off + 1] = (byte) (v);
         put2byte(ByteBuffer.wrap(p), off, v);
     }
 
@@ -102,7 +99,7 @@ public class SqlJetUtility {
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(ByteBuffer x, int off) {
-        return x.getShort(off);
+        return toUnsigned(x.getShort(off));
     }
 
     /**
@@ -116,23 +113,21 @@ public class SqlJetUtility {
      * Write a two-byte big-endian integer values.
      */
     public static void put2byte(ByteBuffer p, int off, int v) {
-        //p.put(off, (byte) (v >> 8));
-        //p.put(off + 1, (byte) (v));
-        p.putShort(off,(short)v);
+        p.putShort(off, fromUnsigned(v));
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(byte[] p) {
-        return ByteBuffer.wrap(p).getInt();
+        return get4byte(ByteBuffer.wrap(p));
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(byte[] p, int pos) {
-        return ByteBuffer.wrap(p).getInt(pos);
+        return get4byte(ByteBuffer.wrap(p));
     }
 
     /**
@@ -146,16 +141,14 @@ public class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static void put4byte(byte[] p, int pos, int v) {
-        if (null == p || (p.length - pos) < 4)
-            throw new SqlJetError("Wrong destination");
-        ByteBuffer.wrap(p).putInt(pos, v);
+        put4byte(ByteBuffer.wrap(p),pos,v);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(ByteBuffer p) {
-        return p.getInt();
+        return get4byte(p,0);
     }
 
     /**
@@ -168,19 +161,17 @@ public class SqlJetUtility {
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byte(ByteBuffer p, int pos, int v) {
+    public static void put4byte(ByteBuffer p, int pos, long v) {
         if (null == p || (p.capacity() - pos) < 4)
             throw new SqlJetError("Wrong destination");
-        p.putInt(pos, v);
+        p.putInt(pos, fromUnsigned(v));
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byte(ByteBuffer p, int v) {
-        if (null == p || p.capacity() < 4)
-            throw new SqlJetError("Wrong destination");
-        p.putInt(v);
+    public static void put4byte(ByteBuffer p, long v) {
+        put4byte(p,0,v);
     }
 
     /**
@@ -838,6 +829,30 @@ public class SqlJetUtility {
                 s.append('\t').append(l).append('\n');
         }
         logger.info(s.toString());
+    }
+
+    public static short toUnsigned(byte value) {
+        return (short)(value & (short)0xff);
+    }
+
+    public static byte fromUnsigned(short value) {
+        return (byte)(value & 0xff);
+    }
+
+    public static int toUnsigned(short value) {
+        return (int)(value & (int)0xffff);
+    }
+
+    public static short fromUnsigned(int value) {
+        return (short)(value & 0xffff);
+    }
+
+    public static long toUnsigned(int value) {
+        return (int)(value & (int)0xffff);
+    }
+
+    public static int fromUnsigned(long value) {
+        return (short)(value & 0xffff);
     }
     
 }

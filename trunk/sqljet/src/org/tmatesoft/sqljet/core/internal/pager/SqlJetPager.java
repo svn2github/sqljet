@@ -1096,7 +1096,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         long hash = 0;
         int i;
         for (i = 0; i < numByte; i++) {
-            hash = (hash * 1039) + data[i];
+            hash = (hash * 1039) + SqlJetUtility.toUnsigned(data[i]);
         }
         return hash;
     }
@@ -2218,7 +2218,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         int cksum = cksumInit;
         int i = pageSize - 200;
         while (i > 0) {
-            cksum += data[i];
+            cksum += SqlJetUtility.toUnsigned(data[i]);
             i -= 200;
         }
         return cksum;
@@ -2265,7 +2265,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         /* See if the checksum matches the master journal name */
         for (u = 0; u < len; u++) {
-            cksum -= zMaster[u];
+            cksum -= SqlJetUtility.toUnsigned(zMaster[u]);
         }
         if (cksum > 0) {
             /*
@@ -3230,7 +3230,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         len = zMaster.length;
         for (i = 0; i < len; i++) {
-            cksum += zMaster[i];
+            cksum += SqlJetUtility.toUnsigned(zMaster[i]);
         }
 
         /*

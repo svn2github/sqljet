@@ -2025,7 +2025,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         ISqlJetPage pPg; /* An existing page in the cache */
         int pgno; /* The page number of a page in journal */
-        int cksum; /* Checksum used for sanity checking */
+        long cksum; /* Checksum used for sanity checking */
         byte[] aData; /* Temporary storage for the page */
         ISqlJetFile jfd; /* The file descriptor for the journal file */
 
@@ -2061,7 +2061,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             return;
         }
         if (isMainJrnl) {
-            cksum = read32bits(jfd, pOffset - 4);
+            cksum = read32bitsUnsigned(jfd, pOffset - 4);
             if (!isSavepnt && cksum(aData) != cksum) {
                 throw new SqlJetException(SqlJetErrorCode.DONE);
             }
@@ -2245,7 +2245,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private String readMasterJournal(final ISqlJetFile journal) throws SqlJetException {
         int len;
         long szJ;
-        int cksum;
+        long cksum;
         int u; /* Unsigned loop counter */
         byte[] aMagic = new byte[8]; /* A buffer to hold the magic header */
 
@@ -2254,7 +2254,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             return null;
 
         len = read32bits(journal, szJ - 16);
-        cksum = read32bits(journal, szJ - 12);
+        cksum = read32bitsUnsigned(journal, szJ - 12);
 
         journal.read(aMagic, aMagic.length, szJ - 8);
         if (!Arrays.equals(aMagic, aJournalMagic))
@@ -2292,6 +2292,18 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         return SqlJetUtility.get4byte(ac);
     }
 
+    /**
+     * @param fd
+     * @param offset
+     * @return
+     * @throws SqlJetIOException
+     */
+    private long read32bitsUnsigned(final ISqlJetFile fd, final long offset) throws SqlJetIOException {
+        byte[] ac = new byte[4];
+        fd.read(ac, ac.length, offset);
+        return SqlJetUtility.get4byteUnsigned(ac);
+    }
+    
     /**
      * The journal file must be open when this is called. A journal header file
      * (JOURNAL_HDR_SZ bytes) is read from the current location in the journal
@@ -2332,7 +2344,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         }
 
         int pNRec = read32bits(jfd, jrnlOff);
-        cksumInit = read32bits(jfd, jrnlOff + 4);
+        cksumInit = read32bitsUnsigned(jfd, jrnlOff + 4);
         int pDbSize = read32bits(jfd, jrnlOff + 8);
 
         result[0] = pNRec;
@@ -2698,6 +2710,11 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         fd.write(b, b.length, offset);
     }
 
+    static void write32bitsUnsigned(ISqlJetFile fd, long offset, long val) throws SqlJetIOException {
+        final byte[] b = SqlJetUtility.put4byteUnsigned(val);
+        fd.write(b, b.length, offset);
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -2813,7 +2830,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         /* The random check-hash initialiser */
         cksumInit = randomnessInt();
-        put32bits(zHeader, aJournalMagic.length + 4, SqlJetUtility.fromUnsigned(cksumInit));
+        put32bitsUnsigned(zHeader, aJournalMagic.length + 4, cksumInit);
 
         /* The initial database size */
         put32bits(zHeader, aJournalMagic.length + 8, dbOrigSize);
@@ -2869,6 +2886,14 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         put32bits(p, 0, v);
     }
 
+    private void put32bitsUnsigned(byte[] p, int pos, long v) {
+        SqlJetUtility.put4byteUnsigned(p, pos, v);
+    }
+
+    private void put32bitsUnsigned(byte[] p, long v) {
+        put32bitsUnsigned(p, 0, v);
+    }
+    
     /**
      * If the main journal file has already been opened, ensure that the
      * sub-journal file is open too. If the main journal is not open, this

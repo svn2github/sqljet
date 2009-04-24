@@ -16,13 +16,13 @@ package org.tmatesoft.sqljet.core.internal;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
 /**
  * @author TMate Software Ltd.
@@ -30,6 +30,11 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  * 
  */
 public class SqlJetUtility {
+
+    private static final Logger logger = Logger.getLogger("SIGNED");
+    static {
+        logger.setLevel(getBoolSysProp("LOG_SIGNED", true) ? Level.ALL : Level.OFF);
+    }
 
     public static int getIntSysProp(final String propName, final int defValue) throws SqlJetError {
         if (null == propName)
@@ -92,7 +97,7 @@ public class SqlJetUtility {
      * Read a two-byte big-endian integer values.
      */
     public static int get2byte(ByteBuffer x) {
-        return get2byte(x,0);
+        return get2byte(x, 0);
     }
 
     /**
@@ -134,6 +139,8 @@ public class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static byte[] put4byte(int v) {
+        if (v < 0)
+            log(logger, "signed %d", v);
         return ByteBuffer.wrap(new byte[4]).putInt(0, v).array();
     }
 
@@ -141,21 +148,24 @@ public class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static void put4byte(byte[] p, int pos, int v) {
-        put4byte(ByteBuffer.wrap(p),pos,v);
+        put4byte(ByteBuffer.wrap(p), pos, v);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(ByteBuffer p) {
-        return get4byte(p,0);
+        return get4byte(p, 0);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(ByteBuffer p, int pos) {
-        return p.getInt(pos);
+        int v = p.getInt(pos);
+        if (v < 0)
+            log(logger, "signed %d", v);
+        return v;
     }
 
     /**
@@ -164,6 +174,8 @@ public class SqlJetUtility {
     public static void put4byte(ByteBuffer p, int pos, long v) {
         if (null == p || (p.capacity() - pos) < 4)
             throw new SqlJetError("Wrong destination");
+        if (v < 0)
+            log(logger, "signed %d", v);
         p.putInt(pos, fromUnsigned(v));
     }
 
@@ -171,7 +183,7 @@ public class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static void put4byte(ByteBuffer p, long v) {
-        put4byte(p,0,v);
+        put4byte(p, 0, v);
     }
 
     /**
@@ -265,7 +277,7 @@ public class SqlJetUtility {
      */
     public static void memset(ByteBuffer data, int from, byte value, int count) {
         final int i = data.arrayOffset() + from;
-        Arrays.fill(data.array(), i, i+count, value);
+        Arrays.fill(data.array(), i, i + count, value);
     }
 
     /**
@@ -395,7 +407,8 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
-        if(null==b) return null;
+        if (null == b)
+            return null;
         final byte[] a = b.array();
         final int p = b.arrayOffset() + pos;
         return ByteBuffer.wrap(a, p, a.length - p).slice();
@@ -763,7 +776,7 @@ public class SqlJetUtility {
      * @return
      */
     public static short getUnsignedByte(ByteBuffer byteBuffer, int index) {
-        return ((short)(byteBuffer.get (index) & (short)0xff));
+        return ((short) (byteBuffer.get(index) & (short) 0xff));
     }
 
     /**
@@ -775,7 +788,7 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer putUnsignedByte(ByteBuffer byteBuffer, int index, short value) {
-        return byteBuffer.put (index, (byte)(value & 0xff));
+        return byteBuffer.put(index, (byte) (value & 0xff));
     }
 
     /**
@@ -789,7 +802,7 @@ public class SqlJetUtility {
             byte[] bytes = new byte[buf.remaining()];
             buf.get(bytes);
             buf.rewind();
-            return new String(bytes);            
+            return new String(bytes);
         }
     }
 
@@ -802,20 +815,21 @@ public class SqlJetUtility {
     }
 
     /**
-    * Return the number of bytes that will be needed to store the given
-    * 64-bit integer.
-    */
-    public static int varintLen(long v){
-      int i = 0;
-      do{
-        i++;
-        v >>= 7;
-      }while( v!=0 && i<9 );
-      return i;
+     * Return the number of bytes that will be needed to store the given 64-bit
+     * integer.
+     */
+    public static int varintLen(long v) {
+        int i = 0;
+        do {
+            i++;
+            v >>= 7;
+        } while (v != 0 && i < 9);
+        return i;
     }
 
     /**
-     * @param logger TODO
+     * @param logger
+     *            TODO
      * @param format
      * @param args
      */
@@ -825,34 +839,34 @@ public class SqlJetUtility {
         final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace) {
             final String l = stackTraceElement.toString();
-            if(l.startsWith("org.tmatesoft.sqljet"))
+            if (l.startsWith("org.tmatesoft.sqljet"))
                 s.append('\t').append(l).append('\n');
         }
         logger.info(s.toString());
     }
 
     public static short toUnsigned(byte value) {
-        return (short)(value & (short)0xff);
+        return (short) (value & (short) 0xff);
     }
 
     public static byte fromUnsigned(short value) {
-        return (byte)(value & 0xff);
+        return (byte) (value & 0xff);
     }
 
     public static int toUnsigned(short value) {
-        return (int)(value & (int)0xffff);
+        return (int) (value & (int) 0xffff);
     }
 
     public static short fromUnsigned(int value) {
-        return (short)(value & 0xffff);
+        return (short) (value & 0xffff);
     }
 
     public static long toUnsigned(int value) {
-        return (int)(value & (int)0xffffffffL);
+        return (int) (value & (int) 0xffffffffL);
     }
 
     public static int fromUnsigned(long value) {
-        return (short)(value & 0xffffffffL);
+        return (short) (value & 0xffffffffL);
     }
-    
+
 }

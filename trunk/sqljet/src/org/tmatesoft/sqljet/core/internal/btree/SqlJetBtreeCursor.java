@@ -704,10 +704,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
         if (!pPage.leaf) {
             /*
-             * * The entry we are about to delete is not a leaf so if we do not*
-             * do something we will leave a hole on an internal page.* We have
-             * to fill the hole by moving in a cell from a leaf. The* next Cell
-             * after the one to be deleted is guaranteed to exist and* to be a
+             * * The entry we are about to delete is not a leaf so if we do not
+             * do something we will leave a hole on an internal page. We have to
+             * fill the hole by moving in a cell from a leaf. The next Cell
+             * after the one to be deleted is guaranteed to exist and to be a
              * leaf so we can use it.
              */
             SqlJetBtreeCursor leafCur;
@@ -738,72 +738,77 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 pPage.insertCell(idx, slice(pNext, -4), szNext + 4, tempCell, (byte) 0);
 
                 /*
-                 * The "if" statement in the next code block is critical. The*
+                 * The "if" statement in the next code block is critical. The
                  * slightest error in that statement would allow SQLite to
                  * operate* correctly most of the time but produce very rare
-                 * failures. To* guard against this, the following macros help
-                 * to verify that* the "if" statement is well tested.
-                 */
-                /*
-                 * testcase( pPage->nOverflow==0 &&
-                 * pPage->nFree<pBt->usableSize*2/3 && pLeafPage->nFree+2+szNext
-                 * > pBt->usableSize*2/3 ); testcase( pPage->nOverflow==0 &&
-                 * pPage->nFree==pBt->usableSize*2/3 &&
-                 * pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 ); testcase(
-                 * pPage->nOverflow==0 && pPage->nFree==pBt->usableSize*2/3+1 &&
-                 * pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 ); testcase(
-                 * pPage->nOverflow>0 && pPage->nFree<=pBt->usableSize*2/3 &&
-                 * pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 ); testcase(
-                 * (pPage->nOverflow>0 || (pPage->nFree > pBt->usableSize*2/3))
-                 * && pLeafPage->nFree+2+szNext == pBt->usableSize*2/3 );
+                 * failures. To guard against this, the following macros help to
+                 * verify that the "if" statement is well tested.
                  */
 
+                // testcase( pPage->nOverflow==0 &&
+                // pPage->nFree<pBt->usableSize*2/3
+                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
+                // testcase( pPage->nOverflow==0 &&
+                // pPage->nFree==pBt->usableSize*2/3
+                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
+                // testcase( pPage->nOverflow==0 &&
+                // pPage->nFree==pBt->usableSize*2/3+1
+                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
+                // testcase( pPage->nOverflow>0 &&
+                // pPage->nFree<=pBt->usableSize*2/3
+                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
+                // testcase( (pPage->nOverflow>0 || (pPage->nFree >
+                // pBt->usableSize*2/3))
+                // && pLeafPage->nFree+2+szNext == pBt->usableSize*2/3 );
+                
                 if ((pPage.nOverflow > 0 || (pPage.nFree > pBt.usableSize * 2 / 3))
                         && (pLeafPage.nFree + 2 + szNext > pBt.usableSize * 2 / 3)) {
                     /*
                      * This branch is taken if the internal node is now either
-                     * overflowing* or underfull and the leaf node will be
-                     * underfull after the just cell* copied to the internal
-                     * node is deleted from it. This is a special* case because
-                     * the call to balance() to correct the internal node* may
-                     * change the tree structure and invalidate the contents of*
-                     * the leafCur.apPage[] and leafCur.aiIdx[] arrays, which
-                     * will be* used by the balance() required to correct the
-                     * underfull leaf* node.** The formula used in the
-                     * expression above are based on facets of* the SQLite
-                     * file-format that do not change over time.
+                     * overflowing or underfull and the leaf node will be
+                     * underfull after the just cell copied to the internal node
+                     * is deleted from it. This is a special case because the
+                     * call to balance() to correct the internal node may change
+                     * the tree structure and invalidate the contents of the
+                     * leafCur.apPage[] and leafCur.aiIdx[] arrays, which will
+                     * be used by the balance() required to correct the
+                     * underfull leaf node. The formula used in the expression
+                     * above are based on facets of the SQLite file-format that
+                     * do not change over time.
                      */
+                    // testcase( pPage->nFree==pBt->usableSize*2/3+1 );
+                    // testcase(
+                    // pLeafPage->nFree+2+szNext==pBt->usableSize*2/3+1 );
+                    leafCursorInvalid = true;
+                }
+
+                assert (pPage.pDbPage.isWriteable());
+                put4byte(pPage.findOverflowCell(idx), pgnoChild);
+                pCur.balance(false);
+
+                if (leafCursorInvalid) {
                     /*
-                     * testcase( pPage->nFree==pBt->usableSize*2/3+1 );
-                     * testcase(
-                     * pLeafPage->nFree+2+szNext==pBt->usableSize*2/3+1 ); /*
-                     * leafCursorInvalid = true; }
-                     * 
-                     * assert( pPage.pDbPage.isWriteable() );
-                     * put4byte(pPage.findOverflowCell(idx), pgnoChild);
-                     * pCur.balance(false);
-                     * 
-                     * if( leafCursorInvalid ){ /* The leaf-node is now
-                     * underfull and so the tree needs to be* rebalanced.
-                     * However, the balance() operation on the internal* node
-                     * above may have modified the structure of the B-Tree and*
-                     * so the current contents of leafCur.apPage[] and
-                     * leafCur.aiIdx[]* may not be trusted.** It is not possible
-                     * to copy the ancestry from pCur, as the same* balance()
-                     * call has invalidated the pCur->apPage[] and aiIdx[]*
-                     * arrays.** The call to saveCursorPosition() below
-                     * internally saves the* key that leafCur is currently
-                     * pointing to. Currently, there* are two copies of that key
-                     * in the tree - one here on the leaf* page and one on some
-                     * internal node in the tree. The copy on* the leaf node is
-                     * always the next key in tree-order after the* copy on the
-                     * internal node. So, the call to sqlite3BtreeNext()* calls
-                     * restoreCursorPosition() to point the cursor to the copy*
-                     * stored on the internal node, then advances to the next
-                     * entry,* which happens to be the copy of the key on the
-                     * internal node.* Net effect: leafCur is pointing back to
-                     * the duplicate cell* that needs to be removed, and the
-                     * leafCur.apPage[] and* leafCur.aiIdx[] arrays are correct.
+                     * The leaf-node is now underfull and so the tree needs to
+                     * be* rebalanced. However, the balance() operation on the
+                     * internal* node above may have modified the structure of
+                     * the B-Tree and* so the current contents of
+                     * leafCur.apPage[] and leafCur.aiIdx[]* may not be
+                     * trusted.** It is not possible to copy the ancestry from
+                     * pCur, as the same* balance() call has invalidated the
+                     * pCur->apPage[] and aiIdx[]* arrays.** The call to
+                     * saveCursorPosition() below internally saves the* key that
+                     * leafCur is currently pointing to. Currently, there* are
+                     * two copies of that key in the tree - one here on the
+                     * leaf* page and one on some internal node in the tree. The
+                     * copy on* the leaf node is always the next key in
+                     * tree-order after the* copy on the internal node. So, the
+                     * call to sqlite3BtreeNext()* calls restoreCursorPosition()
+                     * to point the cursor to the copy* stored on the internal
+                     * node, then advances to the next entry,* which happens to
+                     * be the copy of the key on the internal node.* Net effect:
+                     * leafCur is pointing back to the duplicate cell* that
+                     * needs to be removed, and the leafCur.apPage[] and*
+                     * leafCur.aiIdx[] arrays are correct.
                      */
                     leafCur.saveCursorPosition();
                     notUsed = leafCur.next();

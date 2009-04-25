@@ -760,7 +760,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 // testcase( (pPage->nOverflow>0 || (pPage->nFree >
                 // pBt->usableSize*2/3))
                 // && pLeafPage->nFree+2+szNext == pBt->usableSize*2/3 );
-                
                 if ((pPage.nOverflow > 0 || (pPage.nFree > pBt.usableSize * 2 / 3))
                         && (pLeafPage.nFree + 2 + szNext > pBt.usableSize * 2 / 3)) {
                     /*
@@ -923,52 +922,33 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int iSpace1 = 0; /* First unused byte of aSpace1[] */
         int iSpace2 = 0; /* First unused byte of aSpace2[] */
         int szScratch; /* Size of scratch memory requested */
-        SqlJetMemPage[] apOld = new SqlJetMemPage[NB]; /*
-                                                        * pPage and up to two
-                                                        * siblings
-                                                        */
+        /* pPage and up to two siblings */
+        SqlJetMemPage[] apOld = new SqlJetMemPage[NB];
         int[] pgnoOld = new int[NB]; /* Page numbers for each page in apOld[] */
-        SqlJetMemPage[] apCopy = new SqlJetMemPage[NB]; /*
-                                                         * Private copies of
-                                                         * apOld[] pages
-                                                         */
-        SqlJetMemPage[] apNew = new SqlJetMemPage[NB + 2]; /*
-                                                            * pPage and up to NB
-                                                            * siblings after
-                                                            * balancing
-                                                            */
-        int[] pgnoNew = new int[NB + 2]; /*
-                                          * Page numbers for each page in
-                                          * apNew[]
-                                          */
+        /* Private copies of apOld[] pages */
+        SqlJetMemPage[] apCopy = new SqlJetMemPage[NB];
+        /* pPage and up to NB siblings after balancing */
+        SqlJetMemPage[] apNew = new SqlJetMemPage[NB + 2];
+        /* Page numbers for each page in apNew[] */
+        int[] pgnoNew = new int[NB + 2];
         ByteBuffer[] apDiv = new ByteBuffer[NB]; /* Divider cells in pParent */
-        int[] cntNew = new int[NB + 2]; /*
-                                         * Index in aCell[] of cell after i-th
-                                         * page
-                                         */
-        int[] szNew = new int[NB + 2]; /*
-                                        * Combined size of cells place on i-th
-                                        * page
-                                        */
+        /* Index in aCell[] of cell after i-th page */
+        int[] cntNew = new int[NB + 2];
+        /* Combined size of cells place on i-th page */
+        int[] szNew = new int[NB + 2];
         ByteBuffer[] apCell = null; /* All cells begin balanced */
         int[] szCell; /* Local size of all cells in apCell[] */
-        ByteBuffer[] aCopy = new ByteBuffer[NB]; /*
-                                                  * Space for holding data of
-                                                  * apCopy[]
-                                                  */
+        /* Space for holding data of apCopy[] */
+        ByteBuffer[] aCopy = new ByteBuffer[NB];
         ByteBuffer aSpace1; /* Space for copies of dividers cells before balance */
-        ByteBuffer aSpace2 = null; /*
-                                    * Space for overflow dividers cells after
-                                    * balance
-                                    */
+        /* Space for overflow dividers cells after balance */
+        ByteBuffer aSpace2 = null;
         ByteBuffer aFrom = null;
 
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.pBt.mutex.held());
 
-        /*
-         * * Find the parent page.
-         */
+        /* Find the parent page. */
         assert (pCur.iPage > 0);
         assert (pPage.isInit);
         assert (pPage.pDbPage.isWriteable() || pPage.nOverflow == 1);
@@ -1263,14 +1243,16 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             }
 
             /*
-             * * Put the new pages in accending order. This helps to* keep
-             * entries in the disk file in order so that a scan* of the table is
-             * a linear scan through the file. That* in turn helps the operating
-             * system to deliver pages* from the disk more rapidly.** An O(n^2)
-             * insertion sort algorithm is used, but since* n is never more than
-             * NB (a small constant), that should* not be a problem.** When
-             * NB==3, this one optimization makes the database* about 25% faster
-             * for large insertions and deletions.
+             * Put the new pages in accending order. This helps to keep entries
+             * in the disk file in order so that a scan of the table is a linear
+             * scan through the file. That in turn helps the operating system to
+             * deliver pages from the disk more rapidly.
+             * 
+             * An O(n^2) insertion sort algorithm is used, but since n is never
+             * more than NB (a small constant), that should not be a problem.
+             * 
+             * When NB==3, this one optimization makes the database* about 25%
+             * faster for large insertions and deletions.
              */
             for (i = 0; i < k - 1; i++) {
                 int minV = pgnoNew[i];
@@ -1299,7 +1281,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     nNew >= 5 ? pgnoNew[4] : 0, nNew >= 5 ? szNew[4] : 0);
 
             /*
-             * * Evenly distribute the data in apCell[] across the new pages.*
+             * Evenly distribute the data in apCell[] across the new pages.
              * Insert divider cells into pParent as necessary.
              */
             j = 0;
@@ -1315,9 +1297,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
                 /*
                  * If this is an auto-vacuum database, update the pointer map
-                 * entries* that point to the siblings that were rearranged.
-                 * These can be: left* children of cells, the right-child of the
-                 * page, or overflow pages* pointed to by cells.
+                 * entries that point to the siblings that were rearranged.
+                 * These can be: left children of cells, the right-child of the
+                 * page, or overflow pages pointed to by cells.
                  */
                 if (pBt.autoVacuum) {
                     for (k = j; k < cntNew[i]; k++) {
@@ -1336,7 +1318,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
                 /*
                  * If the sibling page assembled above was not the right-most
-                 * sibling,* insert a divider cell into the parent page.
+                 * sibling, insert a divider cell into the parent page.
                  */
                 if (i < nNew - 1 && j < nCell) {
                     ByteBuffer pCell;
@@ -1357,10 +1339,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     } else if (leafData) {
                         /*
                          * If the tree is a leaf-data tree, and the siblings are
-                         * leaves,* then there is no divider cell in apCell[].
-                         * Instead, the divider* cell consists of the integer
-                         * key for the right-most cell of* the sibling-page
-                         * assembled above only.
+                         * leaves, then there is no divider cell in apCell[].
+                         * Instead, the divider cell consists of the integer key
+                         * for the right-most cell of the sibling-page assembled
+                         * above only.
                          */
                         j--;
                         SqlJetBtreeCellInfo info = pNew.parseCellPtr(apCell[j]);
@@ -1371,15 +1353,17 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                         pCell = slice(pCell, -4);
                         /*
                          * Obscure case for non-leaf-data trees: If the cell at
-                         * pCell was* previously stored on a leaf node, and its
-                         * reported size was 4* bytes, then it may actually be
-                         * smaller than this* (see sqlite3BtreeParseCellPtr(), 4
-                         * bytes is the minimum size of* any cell). But it is
-                         * important to pass the correct size to* insertCell(),
-                         * so reparse the cell now.** Note that this can never
-                         * happen in an SQLite data file, as all* cells are at
-                         * least 4 bytes. It only happens in b-trees used* to
-                         * evaluate "IN (SELECT ...)" and similar clauses.
+                         * pCell was previously stored on a leaf node, and its
+                         * reported size was 4 bytes, then it may actually be
+                         * smaller than this (see sqlite3BtreeParseCellPtr(), 4
+                         * bytes is the minimum size of any cell). But it is
+                         * important to pass the correct size to insertCell(),
+                         * so reparse the cell now.
+                         * 
+                         * Note that this can never happen in an SQLite data
+                         * file, as all cells are at least 4 bytes. It only
+                         * happens in b-trees used to evaluate "IN (SELECT ...)"
+                         * and similar clauses.
                          */
                         if (szCell[j] == 4) {
                             assert (leafCorrection == 4);
@@ -1395,8 +1379,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
                     /*
                      * If this is an auto-vacuum database, and not a leaf-data
-                     * tree,* then update the pointer map with an entry for the
-                     * overflow page* that the cell just inserted points to (if
+                     * tree, then update the pointer map with an entry for the
+                     * overflow page that the cell just inserted points to (if
                      * any).
                      */
                     if (pBt.autoVacuum && !leafData) {
@@ -1428,15 +1412,15 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             } else {
                 /*
                  * Right-most sibling is the left child of the first entry in
-                 * pParent* past the right-most divider entry
+                 * pParent past the right-most divider entry
                  */
                 put4byte(pParent.findOverflowCell(nxDiv), pgnoNew[nNew - 1]);
             }
 
             /*
-             * * Balance the parent page. Note that the current page (pPage)
-             * might* have been added to the freelist so it might no longer be
-             * initialized.* But the parent page will always be initialized.
+             * Balance the parent page. Note that the current page (pPage)
+             * might have been added to the freelist so it might no longer be
+             * initialized. But the parent page will always be initialized.
              */
             assert (pParent.isInit);
             // sqlite3ScratchFree(apCell);
@@ -1453,7 +1437,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 return;
 
             /*
-             * * Cleanup before returning.
+             * Cleanup before returning.
              */
 
             // balance_cleanup:

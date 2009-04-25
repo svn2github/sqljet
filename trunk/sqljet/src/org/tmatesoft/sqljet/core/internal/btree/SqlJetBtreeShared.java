@@ -255,10 +255,11 @@ public class SqlJetBtreeShared {
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
         pPtrmap = pDbPage.getData();
 
-        if (eType != SqlJetUtility.getUnsignedByte(pPtrmap,offset) || SqlJetUtility.get4byte(pPtrmap, offset + 1) != parent) {
+        if (eType != SqlJetUtility.getUnsignedByte(pPtrmap, offset)
+                || SqlJetUtility.get4byte(pPtrmap, offset + 1) != parent) {
             TRACE("PTRMAP_UPDATE: %d->(%d,%d)\n", key, eType, parent);
             pDbPage.write();
-            SqlJetUtility.putUnsignedByte(pPtrmap,offset,eType);
+            SqlJetUtility.putUnsignedByte(pPtrmap, offset, eType);
             SqlJetUtility.put4byte(pPtrmap, offset + 1, parent);
         }
         pDbPage.unref();
@@ -285,7 +286,7 @@ public class SqlJetBtreeShared {
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
         assert (pEType != null && pEType.length > 0);
-        pEType[0] = SqlJetUtility.getUnsignedByte(pPtrmap,offset);
+        pEType[0] = SqlJetUtility.getUnsignedByte(pPtrmap, offset);
         if (pPgno != null && pPgno.length > 0)
             pPgno[0] = SqlJetUtility.get4byte(pPtrmap, offset + 1);
 
@@ -300,7 +301,8 @@ public class SqlJetBtreeShared {
      * layer.
      */
     private SqlJetMemPage pageFromDbPage(ISqlJetPage pDbPage, int pgno) {
-        if(null==pDbPage.getExtra()) pDbPage.setExtra(new SqlJetMemPage());
+        if (null == pDbPage.getExtra())
+            pDbPage.setExtra(new SqlJetMemPage());
         SqlJetMemPage pPage = (SqlJetMemPage) pDbPage.getExtra();
         pPage.aData = pDbPage.getData();
         pPage.pDbPage = pDbPage;
@@ -380,7 +382,7 @@ public class SqlJetBtreeShared {
                  * page.
                  */
                 if (exact && nearby <= getPageCount()) {
-                    short[] eType = {0};
+                    short[] eType = { 0 };
                     assert (nearby > 0);
                     assert (autoVacuum);
                     ptrmapGet(nearby, eType, null);
@@ -680,8 +682,8 @@ public class SqlJetBtreeShared {
 
         if (!PTRMAP_ISPAGE(iLastPg) && iLastPg != PENDING_BYTE_PAGE()) {
             int rc;
-            short[] eType = {0};
-            int[] iPtrPage = {0};
+            short[] eType = { 0 };
+            int[] iPtrPage = { 0 };
 
             nFreeList = SqlJetUtility.get4byte(pPage1.aData, 36);
             if (nFreeList == 0 || nFin == iLastPg) {
@@ -766,8 +768,7 @@ public class SqlJetBtreeShared {
     public void autoVacuumCommit() throws SqlJetException {
 
         int nref = pPager.getRefCount();
-        
-        
+
         assert (mutex.held());
         invalidateAllOverflowCache();
         assert (autoVacuum);
@@ -943,13 +944,17 @@ public class SqlJetBtreeShared {
 
     }
 
-    /*
-     * * Get a page from the pager and initialize it. This routine* is just a
+    /**
+     * Get a page from the pager and initialize it. This routine* is just a
      * convenience wrapper around separate calls to* sqlite3BtreeGetPage() and
      * sqlite3BtreeInitPage().
+     * 
+     * @param pgno
+     *            Number of the page to get
+     * @return
+     * @throws SqlJetException
      */
-    SqlJetMemPage getAndInitPage(int pgno /* Number of the page to get */
-    ) throws SqlJetException {
+    SqlJetMemPage getAndInitPage(int pgno) throws SqlJetException {
 
         ISqlJetPage pDbPage = null;
         SqlJetMemPage pPage = null;
@@ -1041,9 +1046,9 @@ public class SqlJetBtreeShared {
          */
         if (autoVacuum) {
 
-            int[] pgno = {0};
+            int[] pgno = { 0 };
             int iGuess = ovfl + 1;
-            short[] eType = {0};
+            short[] eType = { 0 };
 
             while (PTRMAP_ISPAGE(iGuess) || iGuess == PENDING_BYTE_PAGE()) {
                 iGuess++;

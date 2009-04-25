@@ -33,7 +33,7 @@ public class SqlJetUtility {
 
     private static final Logger logger = Logger.getLogger("SIGNED");
     static {
-        logger.setLevel(getBoolSysProp("LOG_SIGNED", true) ? Level.ALL : Level.OFF);
+        logger.setLevel(getBoolSysProp("LOG_SIGNED", false) ? Level.ALL : Level.OFF);
     }
 
     public static int getIntSysProp(final String propName, final int defValue) throws SqlJetError {

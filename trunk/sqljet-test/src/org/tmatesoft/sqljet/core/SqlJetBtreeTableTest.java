@@ -405,7 +405,9 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final String idx = schema.getIndexesOfTable(REP_CACHE).iterator().next();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
+        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         insertHash(schema, data, index, "TEST");
+        btreeCopy.commit();            
     }
 
     @Test
@@ -416,14 +418,27 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         for (int i = 0; i < 1000; i++) {
+            btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
             insertHash(schema, data, index, String.valueOf(i));
-        }
-        Random random = new Random();
-        for (int i = 0; i < 1000; i++) {
-            insertHash(schema, data, index, String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt())));
+            btreeCopy.commit();            
         }
     }
 
+    @Test
+    public void testInsertRandom() throws SqlJetException {
+        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE, true);
+        final String idx = schema.getIndexesOfTable(REP_CACHE).iterator().next();
+        Assert.assertNotNull(idx);
+        final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
+        Random random = new Random();
+        for (int i = 0; i < 1000; i++) {
+            btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+            insertHash(schema, data, index, String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt())));
+            btreeCopy.commit();            
+        }
+    }
+    
     public void insertHash(ISqlJetBtreeSchema schema, ISqlJetBtreeDataTable data, ISqlJetBtreeIndexTable index,
             String hash) throws SqlJetException {
 
@@ -448,14 +463,11 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
         ISqlJetBtreeRecord indexRecord = new SqlJetBtreeRecord(hashMem, rowIdMem);
 
-        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         index.lockTable(true);
         data.lockTable(true);
 
         index.insert(indexRecord, false);
         data.insert(rowId, dataRecord, false);
-
-        btreeCopy.commit();
 
     }
 

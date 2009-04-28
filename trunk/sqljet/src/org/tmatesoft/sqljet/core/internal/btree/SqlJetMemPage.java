@@ -139,8 +139,10 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * Only the following combinations are supported. Anything different
      * indicates a corrupt database files:
      * 
-     * PTF_ZERODATA PTF_ZERODATA | PTF_LEAF PTF_LEAFDATA | PTF_INTKEY
-     * PTF_LEAFDATA | PTF_INTKEY | PTF_LEAF
+     * <p>PTF_ZERODATA</p> 
+     * <p>PTF_ZERODATA | PTF_LEAF</p> 
+     * <p>PTF_LEAFDATA | PTF_INTKEY</p>
+     * <p>PTF_LEAFDATA | PTF_INTKEY | PTF_LEAF</p>
      */
     public void decodeFlags(int flagByte) throws SqlJetException {
         assert (hdrOffset == (pgno == 1 ? 100 : 0));

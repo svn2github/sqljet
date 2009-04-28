@@ -127,7 +127,7 @@ public class SqlJetBtreeShared {
     SqlJetBtree pExclusive;
 
     /** BtShared.pageSize bytes of space for tmp use */
-    byte[] pTmpSpace;
+    ByteBuffer pTmpSpace;
 
     /**
      * The database page the PENDING_BYTE occupies. This page is never used.
@@ -361,13 +361,13 @@ public class SqlJetBtreeShared {
      */
     public SqlJetMemPage allocatePage(int[] pPgno, int nearby, boolean exact) throws SqlJetException {
         SqlJetMemPage ppPage = null;
-        int n; /* Number of pages on the freelist */
+        long n; /* Number of pages on the freelist */
         int k; /* Number of leaves on the trunk of the freelist */
         SqlJetMemPage pTrunk = null;
         SqlJetMemPage pPrevTrunk = null;
 
         assert (mutex.held());
-        n = SqlJetUtility.get4byte(pPage1.aData, 36);
+        n = SqlJetUtility.get4byteUnsigned(pPage1.aData, 36);
         try {
             if (n > 0) {
                 /* There are pages on the freelist. Reuse one of those pages. */
@@ -397,7 +397,7 @@ public class SqlJetBtreeShared {
                  * of the first free-list trunk page. iPrevTrunk is initially 1.
                  */
                 pPage1.pDbPage.write();
-                SqlJetUtility.put4byte(pPage1.aData, 36, n - 1);
+                SqlJetUtility.put4byteUnsigned(pPage1.aData, 36, n - 1);
 
                 /*
                  * The code within this loop is run only once if the
@@ -1092,7 +1092,9 @@ public class SqlJetBtreeShared {
      */
     public void allocateTempSpace() {
         if (pTmpSpace == null) {
-            pTmpSpace = new byte[pageSize];
+            // Allocate double space and point to middle because of some mad
+            // address ariphmetics (sergey.scherbina)
+            pTmpSpace = SqlJetUtility.slice(ByteBuffer.allocate(pageSize * 2), pageSize);
         }
     }
 

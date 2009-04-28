@@ -734,7 +734,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 szNext = pLeafPage.cellSizePtr(pNext);
                 assert (pBt.MX_CELL_SIZE() >= szNext + 4);
                 pBt.allocateTempSpace();
-                tempCell = ByteBuffer.wrap(pBt.pTmpSpace);
+                tempCell = pBt.pTmpSpace;
                 pPage.insertCell(idx, slice(pNext, -4), szNext + 4, tempCell, (byte) 0);
 
                 /*
@@ -965,12 +965,12 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             TRACE("BALANCE: begin page %d child of %d\n", pPage.pgno, pParent.pgno);
 
             /*
-             * * A special case: If a new entry has just been inserted into a*
+             * A special case: If a new entry has just been inserted into a
              * table (that is, a btree with integer keys and all data at the
-             * leaves)* and the new entry is the right-most entry in the tree
-             * (it has the* largest key) then use the special balance_quick()
-             * routine for* balancing. balance_quick() is much faster and
-             * results in a tighter* packing of data in the common case.
+             * leaves) and the new entry is the right-most entry in the tree
+             * (it has the largest key) then use the special balance_quick()
+             * routine for balancing. balance_quick() is much faster and
+             * results in a tighter packing of data in the common case.
              */
             if (pPage.leaf && pPage.intKey && pPage.nOverflow == 1 && pPage.aOvfl[0].idx == pPage.nCell
                     && pParent.pgno != 1 && get4byte(pParent.aData, pParent.hdrOffset + 8) == pPage.pgno) {
@@ -987,19 +987,19 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             pPage.pDbPage.write();
 
             /*
-             * * Find the cell in the parent page whose left child points back*
-             * to pPage. The "idx" variable is the index of that cell. If pPage*
+             * * Find the cell in the parent page whose left child points back
+             * to pPage. The "idx" variable is the index of that cell. If pPage
              * is the rightmost child of pParent then set idx to pParent->nCell
              */
             idx = pCur.aiIdx[pCur.iPage - 1];
             pParent.assertParentIndex(idx, pPage.pgno);
 
             /*
-             * * Find sibling pages to pPage and the cells in pParent that
-             * divide* the siblings. An attempt is made to find NN siblings on
-             * either* side of pPage. More siblings are taken from one side,
-             * however, if* pPage there are fewer than NN siblings on the other
-             * side. If pParent* has NB or fewer children then all children of
+             * Find sibling pages to pPage and the cells in pParent that
+             * divide the siblings. An attempt is made to find NN siblings on
+             * either side of pPage. More siblings are taken from one side,
+             * however, if pPage there are fewer than NN siblings on the other
+             * side. If pParent has NB or fewer children then all children of
              * pParent are taken.
              */
             nxDiv = idx - NN;
@@ -1047,10 +1047,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             aSpace2 = ByteBuffer.allocate(pBt.pageSize);
 
             /*
-             * * Make copies of the content of pPage and its siblings into
-             * aOld[].* The rest of this function will use data from the copies
-             * rather* that the original pages since the original pages will be
-             * in the* process of being overwritten.
+             * Make copies of the content of pPage and its siblings into
+             * aOld[].The rest of this function will use data from the copies
+             * rather that the original pages since the original pages will be
+             * in the process of being overwritten.
              */
             for (i = 0; i < nOld; i++) {
                 SqlJetMemPage p = apCopy[i] = (SqlJetMemPage) memcpy(apOld[i]);
@@ -1059,16 +1059,19 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             }
 
             /*
-             * * Load pointers to all cells on sibling pages and the divider
-             * cells* into the local apCell[] array. Make copies of the divider
-             * cells* into space obtained form aSpace1[] and remove the the
-             * divider Cells* from pParent.** If the siblings are on leaf pages,
-             * then the child pointers of the* divider cells are stripped from
-             * the cells before they are copied* into aSpace1[]. In this way,
-             * all cells in apCell[] are without* child pointers. If siblings
-             * are not leaves, then all cell in* apCell[] include child
-             * pointers. Either way, all cells in apCell[]* are alike.**
-             * leafCorrection: 4 if pPage is a leaf. 0 if pPage is not a leaf.*
+             * Load pointers to all cells on sibling pages and the divider
+             * cells into the local apCell[] array. Make copies of the divider
+             * cells into space obtained form aSpace1[] and remove the the
+             * divider Cells* from pParent. 
+             * 
+             * If the siblings are on leaf pages,
+             * then the child pointers of the divider cells are stripped from
+             * the cells before they are copied into aSpace1[]. In this way,
+             * all cells in apCell[] are without child pointers. If siblings
+             * are not leaves, then all cell in apCell[] include child
+             * pointers. Either way, all cells in apCell[] are alike.
+             * 
+             * leafCorrection: 4 if pPage is a leaf. 0 if pPage is not a leaf.
              * leafData: 1 if pPage holds key+data and pParent holds only keys.
              */
             nCell = 0;
@@ -1099,9 +1102,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     if (leafData) {
                         /*
                          * With the LEAFDATA flag, pParent cells hold only
-                         * INTKEYs that* are duplicates of keys on the child
-                         * pages. We need to remove* the divider cells from
-                         * pParent, but the dividers cells are not* added to
+                         * INTKEYs that are duplicates of keys on the child
+                         * pages. We need to remove the divider cells from
+                         * pParent, but the dividers cells are not added to
                          * apCell[] because they are duplicates of child cells.
                          */
                         pParent.dropCell(nxDiv, sz);
@@ -1126,7 +1129,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                             assert (leafCorrection == 0);
                             /*
                              * The right pointer of the child page pOld becomes
-                             * the left* pointer of the divider cell
+                             * the left pointer of the divider cell
                              */
                             memcpy(apCell[nCell], slice(pOld.aData, pOld.hdrOffset + 8), 4);
                         } else {
@@ -1142,15 +1145,17 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             }
 
             /*
-             * * Figure out the number of pages needed to hold all nCell cells.*
+             * Figure out the number of pages needed to hold all nCell cells.
              * Store this number in "k". Also compute szNew[] which is the total
-             * * size of all cells on the i-th page and cntNew[] which is the
-             * index* in apCell[] of the cell that divides page i from page i+1.
-             * * cntNew[k] should equal nCell.** Values computed by this block:*
-             * * k: The total number of sibling pages* szNew[i]: Spaced used on
-             * the i-th sibling page.* cntNew[i]: Index in apCell[] and szCell[]
-             * for the first cell to* the right of the i-th sibling page.*
-             * usableSpace: Number of bytes of space available on each sibling.*
+             * size of all cells on the i-th page and cntNew[] which is the
+             * index in apCell[] of the cell that divides page i from page i+1.
+             * cntNew[k] should equal nCell.
+             * 
+             * Values computed by this block:
+             * <p> k: The total number of sibling pages. </p>
+             * <p> szNew[i]: Spaced used on the i-th sibling page. </p>
+             * <p> cntNew[i]: Index in apCell[] and szCell[] for the first cell to the right of the i-th sibling page.</p>
+             * <p> usableSpace: Number of bytes of space available on each sibling.</p>
              */
             usableSpace = pBt.usableSize - 12 + leafCorrection;
             for (subtotal = k = i = 0; i < nCell; i++) {
@@ -1171,13 +1176,15 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             k++;
 
             /*
-             * * The packing computed by the previous block is biased toward the
-             * siblings* on the left side. The left siblings are always nearly
-             * full, while the* right-most sibling might be nearly empty. This
-             * block of code attempts* to adjust the packing of siblings to get
-             * a better balance.** This adjustment is more than an optimization.
-             * The packing above might* be so out of balance as to be illegal.
-             * For example, the right-most* sibling might be completely empty.
+             * The packing computed by the previous block is biased toward the
+             * siblings on the left side. The left siblings are always nearly
+             * full, while the right-most sibling might be nearly empty. This
+             * block of code attempts to adjust the packing of siblings to get
+             * a better balance. 
+             * 
+             * This adjustment is more than an optimization.
+             * The packing above might be so out of balance as to be illegal.
+             * For example, the right-most sibling might be completely empty.
              * This adjustment is not optional.
              */
             for (i = k - 1; i > 0; i--) {
@@ -1251,7 +1258,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * An O(n^2) insertion sort algorithm is used, but since n is never
              * more than NB (a small constant), that should not be a problem.
              * 
-             * When NB==3, this one optimization makes the database* about 25%
+             * When NB==3, this one optimization makes the database about 25%
              * faster for large insertions and deletions.
              */
             for (i = 0; i < k - 1; i++) {
@@ -1350,6 +1357,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                         sz = pParent.fillInCell(pCell, null, info.nKey, null, 0, 0);
                         pTemp = null;
                     } else {
+                        // There is mad address ariphmetic which causes
+                        // allocation of double tmp space (sergey.scherbina)
                         pCell = slice(pCell, -4);
                         /*
                          * Obscure case for non-leaf-data trees: If the cell at
@@ -1418,8 +1427,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             }
 
             /*
-             * Balance the parent page. Note that the current page (pPage)
-             * might have been added to the freelist so it might no longer be
+             * Balance the parent page. Note that the current page (pPage) might
+             * have been added to the freelist so it might no longer be
              * initialized. But the parent page will always be initialized.
              */
             assert (pParent.isInit);
@@ -1828,7 +1837,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 loc == 0 ? "overwrite" : "new entry");
         assert (pPage.isInit);
         pBt.allocateTempSpace();
-        newCell = ByteBuffer.wrap(pBt.pTmpSpace);
+        newCell = pBt.pTmpSpace;
         szNew = pPage.fillInCell(newCell, pKey, nKey, pData, nData, zero);
         assert (szNew == pPage.cellSizePtr(newCell));
         assert (szNew <= pBt.MX_CELL_SIZE());

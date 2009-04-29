@@ -44,7 +44,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     /** Number of pinned pages */
     int nRef;
     /** Configured cache size */
-    int nMax = 100;
+    int nMax = 2000;
     /** Configured minimum cache size */
     int nMin = 10;
     /** Size of every page in this cache */
@@ -606,6 +606,11 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 return fetch_out.go_to(pPage);
             }
 
+            /* Step 3 of header comment. */
+            if(bPurgeable && apHash.size()==nMax) {
+                return null;
+            }
+            
             /*
              * If a usable page buffer has still not been found, attempt to
              * allocate a new one.

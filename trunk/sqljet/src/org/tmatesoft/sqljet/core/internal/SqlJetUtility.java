@@ -36,6 +36,16 @@ public class SqlJetUtility {
         logger.setLevel(getBoolSysProp("LOG_SIGNED", false) ? Level.ALL : Level.OFF);
     }
 
+    public static String getSysProp(final String propName, final String defValue) throws SqlJetError {
+        if (null == propName)
+            throw new SqlJetError("Undefined property name");
+        try {
+            return System.getProperty(propName, defValue);
+        } catch (Throwable t) {
+            throw new SqlJetError("Error while get int value for property " + propName, t);
+        }
+    }
+    
     public static int getIntSysProp(final String propName, final int defValue) throws SqlJetError {
         if (null == propName)
             throw new SqlJetError("Undefined property name");

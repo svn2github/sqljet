@@ -35,6 +35,13 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public class SqlJetPageCache implements ISqlJetPageCache {
 
+    /**
+     * System property name for cache size configuration.
+     */
+    public static final String SQLJET_PAGE_CACHE_SIZE = "SQLJET.PAGE_CACHE_SIZE";
+    public static final int PAGE_CACHE_SIZE_DEFAULT = 2000;
+    public static final int PAGE_CACHE_SIZE_MINIMUM = 10;
+
     private static final int N_SORT_BUCKET = 25;
 
     /** List of dirty pages in LRU order */
@@ -44,9 +51,9 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     /** Number of pinned pages */
     int nRef;
     /** Configured cache size */
-    int nMax = 2000;
+    int nMax = PAGE_CACHE_SIZE_DEFAULT;
     /** Configured minimum cache size */
-    int nMin = 10;
+    int nMin = PAGE_CACHE_SIZE_MINIMUM;
     /** Size of every page in this cache */
     int szPage;
     /** True if pages are on backing store */
@@ -57,6 +64,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     ISqlJetPage pPage1;
 
     SqlJetPageCache() {
+        final int cacheSize = SqlJetUtility.getIntSysProp(SQLJET_PAGE_CACHE_SIZE, nMax);
+        if(cacheSize>=nMin) nMax = cacheSize;
     }
 
     /*
@@ -146,8 +155,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         this.szPage = szPage;
         this.bPurgeable = purgeable;
         this.xStress = stress;
-        this.nMax = 100;
-        this.nMin = 10;
+        //this.nMax = 100;
+        //this.nMin = 10;
     }
 
     /*
@@ -531,7 +540,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>() {
             @Override
             protected boolean removeEldestEntry(Map.Entry<Integer, SqlJetPage> eldest) {
-                return isHashFull();
+                return bPurgeable && getPageCount() > nMax;
             }
         };
         
@@ -541,15 +550,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         public synchronized int getPageCount() {
             return apHash.size();
         }
-
-        /**
-         * @return
-         */
-        public boolean isHashFull() {
-            return bPurgeable && getPageCount() > nMax;
-        }
-        
-        
+                
         /**
          * Fetch a page by key value.
          * 
@@ -615,7 +616,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
 
             /* Step 3 of header comment. */
-            if(isHashFull()) {
+            if(bPurgeable && getPageCount() == nMax) {
                 return null;
             }
             

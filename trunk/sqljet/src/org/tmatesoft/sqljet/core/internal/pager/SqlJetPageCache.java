@@ -531,10 +531,10 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>() {
             @Override
             protected boolean removeEldestEntry(Map.Entry<Integer, SqlJetPage> eldest) {
-                return size() > nMax;
+                return isHashFull();
             }
         };
-
+        
         /** Largest key seen since xTruncate() */
         private int iMaxKey;
 
@@ -542,6 +542,14 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             return apHash.size();
         }
 
+        /**
+         * @return
+         */
+        public boolean isHashFull() {
+            return bPurgeable && getPageCount() > nMax;
+        }
+        
+        
         /**
          * Fetch a page by key value.
          * 
@@ -607,7 +615,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
 
             /* Step 3 of header comment. */
-            if(bPurgeable && apHash.size()==nMax) {
+            if(isHashFull()) {
                 return null;
             }
             

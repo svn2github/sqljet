@@ -49,13 +49,19 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
  */
 public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
-    public static final String REP_CACHE_DB = SqlJetUtility.getSysProp("SqlJetBtreeTableTest.REP_CACHE_DB",
-            "sqljet-test/db/rep-cache/rep-cache.db");
-    public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp("SqlJetBtreeTableTest.REP_CACHE_TABLE",
-            "rep_cache");
-    private static final int REPEATS_COUNT = SqlJetUtility.getIntSysProp("SqlJetBtreeTableTest.REPEATS_COUNT", 1000);
-    private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp("SqlJetBtreeTableTest.DELETE_COPY", false);
+    public static final String BTREE_TABLE_TEST = "SqlJetBtreeTableTest";
 
+    public static final String REP_CACHE_DB = SqlJetUtility.getSysProp(BTREE_TABLE_TEST + ".REP_CACHE_DB",
+            "sqljet-test/db/rep-cache/rep-cache.db");
+
+    public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp(BTREE_TABLE_TEST + ".REP_CACHE_TABLE",
+            "rep_cache");
+
+    private static final int REPEATS_COUNT = SqlJetUtility.getIntSysProp(BTREE_TABLE_TEST + ".REPEATS_COUNT", 1000);
+
+    private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(BTREE_TABLE_TEST + ".DELETE_COPY", false);
+
+    
     private File repCacheDb = new File(REP_CACHE_DB);
     private File repCacheDbCopy;
 

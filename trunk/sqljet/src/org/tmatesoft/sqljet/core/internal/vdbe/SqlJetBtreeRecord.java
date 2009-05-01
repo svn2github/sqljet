@@ -286,7 +286,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetRecord#getStringField(int)
      */
-    public String getStringField(int field, SqlJetEncoding enc) {
+    public String getStringField(int field, SqlJetEncoding enc) throws SqlJetException {
         final ISqlJetVdbeMem f = fields.get(field);
         if (null == f)
             return null;
@@ -308,6 +308,16 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         return f.intValue();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord#getRealField(int)
+     */
+    public double getRealField(int field) {
+        final ISqlJetVdbeMem f = fields.get(field);
+        if (null == f)
+            return 0;
+        return f.realValue();
+    }
+    
     /**
      * 
      */

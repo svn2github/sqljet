@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -20,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -837,6 +839,57 @@ public class SqlJetUtility {
     }
 
     /**
+     * Convert byte buffer to string.
+     * 
+     * @param buf
+     * @return
+     * @throws SqlJetException 
+     */
+    public static String toString(ByteBuffer buf, SqlJetEncoding enc) throws SqlJetException {
+        if(buf==null) return null;
+        if(enc==null) return null;
+        synchronized (buf) {
+            byte[] bytes = new byte[buf.remaining()];
+            buf.get(bytes);
+            buf.rewind();
+            try {
+                return new String(bytes, enc.name() );
+            } catch (UnsupportedEncodingException e) {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE,"Unknown charser " + enc.name());
+            }
+        }
+    }
+    
+    /**
+     * Get {@link ByteBuffer} from {@link String}.
+     * 
+     * @param s
+     * @param enc
+     * @return
+     * @throws SqlJetException
+     */
+    public static ByteBuffer fromString(String s, SqlJetEncoding enc) throws SqlJetException {
+        try {
+            return ByteBuffer.wrap(s.getBytes(enc.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE,"Unknown charser " + enc.name());
+        }
+    }
+    
+    /**
+     * Translate {@link ByteBuffer} from one charset to other charset.
+     * 
+     * @param buf
+     * @param from
+     * @param to
+     * @return
+     * @throws SqlJetException
+     */
+    public static ByteBuffer translate(ByteBuffer buf, SqlJetEncoding from, SqlJetEncoding to) throws SqlJetException {
+        return fromString(toString(buf,from), to);
+    }
+    
+    /**
      * @param s
      * @return
      */
@@ -964,6 +1017,26 @@ public class SqlJetUtility {
      */
     public static void put4byteUnsigned(ByteBuffer p, long v) {
         put4byteUnsigned(p, 0, v);
+    }
+
+    /**
+     * @param z
+     * @param slice
+     * @param n
+     */
+    public static void memmove(ByteBuffer dst, ByteBuffer src, int n) {
+        byte[] b = new byte[n];
+        src.get(b, 0, n);
+        dst.put(b,0,n);
+    }
+
+    /**
+     * @param z
+     * @return
+     */
+    public static double atof(ByteBuffer z) {
+        final String s = toString(z);
+        return Double.valueOf(s).doubleValue();
     }
 
 }

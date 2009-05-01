@@ -19,6 +19,7 @@ import java.util.List;
 import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 
 /**
@@ -39,19 +40,29 @@ public interface ISqlJetBtreeRecord {
      * @return
      */
     List<ISqlJetVdbeMem> getFields();
+
+    /**
+     * @return
+     */
+    ByteBuffer getRawRecord();
     
     /**
      * @param field
      * @return
+     * @throws SqlJetException 
      */
-    String getStringField(int field, SqlJetEncoding enc);
+    String getStringField(int field, SqlJetEncoding enc) throws SqlJetException;
     
     /**
      * @param field
      * @return
      */
     long getIntField(int field);
-
-    ByteBuffer getRawRecord();
+    
+    /**
+     * @param field
+     * @return
+     */
+    double getRealField(int field);
     
 }

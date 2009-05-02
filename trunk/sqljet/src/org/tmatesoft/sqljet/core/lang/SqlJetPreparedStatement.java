@@ -186,7 +186,9 @@ public class SqlJetPreparedStatement {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported select syntax.");
         }
         ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
-        table = new SqlJetBtreeDataTable(schema, tableName, false);
+        if (schema.getTableNames().contains(tableName)) {
+            table = new SqlJetBtreeDataTable(schema, tableName, false);
+        }
     }
 
     public int getColumnsCount() throws SqlJetException {

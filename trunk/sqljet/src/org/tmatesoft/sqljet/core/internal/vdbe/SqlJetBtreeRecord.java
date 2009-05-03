@@ -67,6 +67,32 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         read();
     }
 
+    public SqlJetBtreeRecord(List<ISqlJetVdbeMem> values) {
+        fields.addAll(values);
+        fieldsCount = values.size();
+    }
+    
+    /**
+     * 
+     */
+    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
+        this.file_format = file_format;
+        initFields(values);
+    }
+
+    public SqlJetBtreeRecord(ISqlJetVdbeMem... values) {
+        initFields(values);
+    }
+
+    /**
+     * @param values
+     */
+    private void initFields(ISqlJetVdbeMem[] values) {
+        fields.addAll(Arrays.asList(values));
+        fieldsCount = values.length;
+    }
+    
+    
     /*
      * (non-Javadoc)
      * 
@@ -318,26 +344,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         return f.realValue();
     }
     
-    /**
-     * 
-     */
-    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
-        this.file_format = file_format;
-        initFields(values);
-    }
-
-    public SqlJetBtreeRecord(ISqlJetVdbeMem... values) {
-        initFields(values);
-    }
-
-    /**
-     * @param values
-     */
-    private void initFields(ISqlJetVdbeMem[] values) {
-        fields.addAll(Arrays.asList(values));
-        fieldsCount = values.length;
-    }
-
     /**
      * Assuming the record contains N fields, the record format looks like this:
      * 

@@ -16,8 +16,6 @@ package org.tmatesoft.sqljet.core;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
-
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)

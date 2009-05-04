@@ -139,7 +139,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexesOfTable(java.lang.String)
      */
-    public Set<String> getIndexesOfTable(String tableName) {
+    public Set<String> getTableIndexes(String tableName) {
         final Set<String> i = indexesOfTables.get(tableName);
         if(null==i) return Collections.emptySet();
         return Collections.unmodifiableSet(i);
@@ -148,7 +148,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexePage(java.lang.String)
      */
-    public int getIndexePage(String indexName) {
+    public int getIndexPage(String indexName) {
         final Integer p = indexes.get(indexName);
         if(null==p) return 0;
         return p;

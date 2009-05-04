@@ -128,7 +128,7 @@ public class SqlJetApiDb {
      * @return
      */
     public Set<String> getIndexesNames(String tableName) {
-        return schema.getIndexesOfTable(tableName);
+        return schema.getTableIndexes(tableName);
     }
 
     public SqlJetApiTable openTable(String tableName) throws SqlJetException {

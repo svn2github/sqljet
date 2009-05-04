@@ -17,37 +17,21 @@ import java.util.Set;
 
 import org.tmatesoft.sqljet.core.ISqlJetBtree;
 
-
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
  */
 public interface ISqlJetBtreeSchema {
 
-    /**
-     * @return
-     */
     ISqlJetBtree getBtree();
 
-    /**
-     * @return
-     */
     Set<String> getTableNames();
-    
+
     ISqlJetTableDef getTable(String name);
-    
-    /**
-     * @return the tables
-     */
+
     int getTablePage(String tableName);
 
-    /**
-     * @param tableName
-     * @return
-     */
-    Set<String> getIndexesOfTable(String tableName);
-    
-    int getIndexePage(String indexName);
-    
+    Set<String> getTableIndexes(String tableName);
+
+    int getIndexPage(String indexName);
 }

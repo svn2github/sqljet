@@ -35,6 +35,8 @@ public interface ISqlJetBtreeSchema {
      */
     Set<String> getTableNames();
     
+    ISqlJetTableDef getTable(String name);
+    
     /**
      * @return the tables
      */

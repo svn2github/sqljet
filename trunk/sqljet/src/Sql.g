@@ -19,6 +19,7 @@ grammar Sql;
 options {
 	language = Java;
 	output = AST;
+	k = 4;
 }
 
 tokens {
@@ -249,10 +250,10 @@ create_virtual_table_stmt: CREATE VIRTUAL TABLE (database_name=ID DOT)? table_na
   USING module_name=ID (LPAREN column_def (COMMA column_def)* RPAREN)?;
 
 // CREATE TABLE
-create_table_stmt: CREATE (TEMP | TEMPORARY)? TABLE (IF NOT EXISTS)? (database_name=ID DOT)? table_name=ID
+create_table_stmt: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? (database_name=ID DOT)? table_name=ID
   ( LPAREN column_def (COMMA column_def)* (COMMA table_constraint)* RPAREN
   | AS select_stmt)
--> ^(TABLE TEMP? TEMPORARY? ^($table_name $database_name?) ^(COLUMN_DEFS column_def+)? ^(TABLE_CONSTRAINTS table_constraint*)? select_stmt?);
+-> ^(TABLE TEMPORARY? ^($table_name $database_name?) ^(COLUMN_DEFS column_def+)? ^(TABLE_CONSTRAINTS table_constraint*)? select_stmt?);
 
 column_def: ID^ type_name? (column_constraint)*;
 
@@ -313,7 +314,7 @@ drop_table_stmt: DROP TABLE (IF EXISTS)? (database_name=ID DOT)? table_name=ID;
 alter_table_stmt: ALTER TABLE (database_name=ID DOT)? table_name=ID (RENAME TO new_table_name=ID | ADD (COLUMN)? column_def);
 
 // CREATE VIEW
-create_view_stmt: CREATE (TEMP | TEMPORARY)? VIEW (IF NOT EXISTS)? (database_name=ID DOT)? view_name=ID AS select_stmt;
+create_view_stmt: CREATE TEMPORARY? VIEW (IF NOT EXISTS)? (database_name=ID DOT)? view_name=ID AS select_stmt;
 
 // DROP VIEW
 drop_view_stmt: DROP VIEW (IF EXISTS)? (database_name=ID DOT)? view_name=ID;
@@ -328,7 +329,7 @@ indexed_column: column_name=ID (COLLATE collation_name=ID)? (ASC | DESC)?;
 drop_index_stmt: DROP INDEX (IF EXISTS)? (database_name=ID DOT)? index_name=ID;
 
 // CREATE TRIGGER
-create_trigger_stmt: CREATE (TEMP | TEMPORARY)? TRIGGER (IF NOT EXISTS)? (database_name=ID DOT)? trigger_name=ID
+create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=ID DOT)? trigger_name=ID
   (BEFORE | AFTER | INSTEAD OF)? (DELETE | INSERT | UPDATE (OF column_names+=ID (COMMA column_names+=ID)*)?)
   ON table_name=ID (FOR EACH ROW)? (WHEN expr)?
   BEGIN ((update_stmt | insert_stmt | delete_stmt | select_stmt) SEMI)+ END;
@@ -478,8 +479,7 @@ SAVEPOINT: S A V E P O I N T;
 SELECT: S E L E C T;
 SET: S E T;
 TABLE: T A B L E;
-TEMP: T E M P;
-TEMPORARY: T E M P O R A R Y;
+TEMPORARY: T E M P ( O R A R Y )?;
 THEN: T H E N;
 TO: T O;
 TRANSACTION: T R A N S A C T I O N;

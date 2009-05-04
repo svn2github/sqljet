@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core;
 
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
 
@@ -306,5 +307,7 @@ public interface ISqlJetVdbeMem {
       * @param real
       */
      void setTypeFlag(SqlJetVdbeMemFlags f);
+     
+     EnumSet<SqlJetVdbeMemFlags> getFlags();
      
 }

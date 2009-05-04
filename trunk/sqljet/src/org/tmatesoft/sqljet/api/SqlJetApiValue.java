@@ -14,12 +14,15 @@
 package org.tmatesoft.sqljet.api;
 
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetMemType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
 
 /**
  * @author TMate Software Ltd.
@@ -52,6 +55,13 @@ public class SqlJetApiValue {
         mem.setNull();
     }
 
+    public boolean isNull() {
+        if(null==mem) return true;
+        final EnumSet<SqlJetVdbeMemFlags> flags = mem.getFlags();
+        if(null==flags) return false;
+        return flags.contains(SqlJetVdbeMemFlags.Null);
+    }
+    
     public SqlJetApiValue(String value) throws SqlJetException {
         mem = new SqlJetVdbeMem();
         mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(value)), SqlJetEncoding.UTF8);
@@ -68,14 +78,17 @@ public class SqlJetApiValue {
     }
 
     public String getString() throws SqlJetException {
+        if(isNull()) return null;
         return SqlJetUtility.toString(mem.valueText(SqlJetEncoding.UTF8));
     }
 
     public Long getInteger() {
+        if(isNull()) return null;
         return mem.intValue();
     }
 
     public Double getReal() {
+        if(isNull()) return null;
         return mem.realValue();
     }
 

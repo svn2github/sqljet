@@ -14,10 +14,13 @@
 package org.tmatesoft.sqljet.api.repcache;
 
 import java.io.File;
+import java.util.List;
 
 import org.tmatesoft.sqljet.api.SqlJetApiDb;
 import org.tmatesoft.sqljet.api.SqlJetApiIndex;
+import org.tmatesoft.sqljet.api.SqlJetApiRecord;
 import org.tmatesoft.sqljet.api.SqlJetApiTable;
+import org.tmatesoft.sqljet.api.SqlJetApiValue;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
@@ -123,5 +126,84 @@ public class RepCacheDao {
             db.unlock();
         }
     }
+ 
+    public RepCache getByHash(final String hash) throws SqlJetException {
+        db.lock();
+        try {
+            final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(hash));
+            final Long rowId = index.getRecordRowId(index.lookup(key));
+            if (null == rowId)
+                return null;
+            if (table.goToRow(rowId) < 0)
+                return null;
+            return getRepCache();
+        } finally {
+            db.unlock();
+        }
+    }
 
+    public boolean deleteByHash(final String hash) throws SqlJetException {
+        db.lock();
+        try {
+            final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(hash));
+            final Long rowId = index.getRecordRowId(index.lookup(key));
+            if (null == rowId)
+                return false;
+            if (table.goToRow(rowId) < 0)
+                return false;
+            beginTransaction();
+            index.delete(key);
+            table.delete(rowId);
+            commit();
+            return true;
+        } finally {
+            db.unlock();
+        }
+    }
+
+    public boolean insert(RepCache repCache) throws SqlJetException {
+        db.lock();
+        try {
+            final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()));
+            final SqlJetApiRecord lookup = index.lookup(key);
+            final Long rowId = index.getRecordRowId(lookup);
+            if(null!=rowId)
+                return false;
+            beginTransaction();
+            final long newRowId = table.newRowId();
+            final SqlJetApiRecord idxKey = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()),
+                    new SqlJetApiValue(newRowId));
+            index.insert(idxKey);
+            table.insert(newRowId, repCache.getRecord());
+            commit();
+            return true;
+        } finally {
+            db.unlock();
+        }
+    }
+    
+    public boolean update(RepCache repCache) throws SqlJetException {
+        db.lock();
+        try {
+            final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()));
+            final Long rowId = index.getRecordRowId(index.lookup(key));
+            if(null==rowId)
+                return false;
+            if (table.goToRow(rowId) < 0)
+                return false;
+            beginTransaction();
+            index.delete(key);
+            table.delete(rowId);
+            final long newRowId = table.newRowId();
+            final SqlJetApiRecord idxKey = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()),
+                    new SqlJetApiValue(newRowId));
+            index.insert(idxKey);
+            table.insert(newRowId, repCache.getRecord());
+            commit();
+            return true;
+        } finally {
+            db.unlock();
+        }
+    }
+    
 }

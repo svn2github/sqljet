@@ -971,5 +971,12 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
           pMem.enc = bom;
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#getFlags()
+     */
+    public EnumSet<SqlJetVdbeMemFlags> getFlags() {
+        return flags;
+    }
     
 }

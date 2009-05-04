@@ -36,6 +36,11 @@ public class SqlJetApiIndex extends SqlJetApiCursor {
     public SqlJetApiRecord lookup(SqlJetApiRecord key) throws SqlJetException{
         return new SqlJetApiRecord(indexTable.lookup(key.getRecord()));
     }
+    
+    public Long getRecordRowId(SqlJetApiRecord record) {
+        if(null == record || null == record.values || 0 == record.values.size()) return null;
+        return record.values.get(record.values.size()-1).getInteger();
+    }
 
     /**
      * Writes key into the index.

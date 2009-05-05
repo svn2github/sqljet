@@ -27,7 +27,6 @@ import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchema;
-import org.tmatesoft.sqljet.core.internal.lang.CommonTreeDumper;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 
@@ -110,7 +109,7 @@ public class SqlJetPreparedStatement {
         if (ast == null) {
             try {
                 ast = parse();
-                //System.out.println(CommonTreeDumper.toString(ast));
+                // System.out.println(CommonTreeDumper.toString(ast));
                 String stmtName = ast.getText();
                 if (stmtName != null) {
                     stmtName = stmtName.toLowerCase();
@@ -118,9 +117,7 @@ public class SqlJetPreparedStatement {
                 if ("select".equals(stmtName)) {
                     handleSelect();
                 } else {
-                    // throw new SqlJetException(SqlJetErrorCode.ERROR,
-                    // "Unsupported statement.");
-                    System.out.println("Unsupported statement.");
+                    throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported statement.");
                 }
             } catch (RecognitionException e) {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, e);
@@ -186,6 +183,7 @@ public class SqlJetPreparedStatement {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported select syntax.");
         }
         ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        //System.err.println(schema.toString());
         if (schema.getTableNames().contains(tableName)) {
             table = new SqlJetBtreeDataTable(schema, tableName, false);
         }

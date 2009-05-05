@@ -171,16 +171,14 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
             if (TABLE_TYPE.equals(type)) {
                 tables.put(name, page);
-                /* not ready yet
                 String sql = record.getStringField(SQL_FIELD, enc);
-                System.err.println(sql);
+                //System.err.println(sql);
                 CommonTree ast = parse(sql);
                 ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                 if (!name.equals(tableDef.getName())) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 tableDefs.put(name, tableDef);
-                */
             } else if (INDEX_TYPE.equals(type)) {
                 indexes.put(name, page);
                 final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, enc));

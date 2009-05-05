@@ -54,7 +54,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         this.columns = Collections.unmodifiableList(columns);
         List<ISqlJetTableConstraint> constraints = new ArrayList<ISqlJetTableConstraint>();
-        if ("table_constraints".equalsIgnoreCase(child.getText())) {
+        if (child != null && "table_constraints".equalsIgnoreCase(child.getText())) {
             for (int constraintIndex = 0; constraintIndex < child.getChildCount(); constraintIndex++) {
                 constraints.add(new SqlJetTableConstraint((CommonTree) child.getChild(constraintIndex)));
             }

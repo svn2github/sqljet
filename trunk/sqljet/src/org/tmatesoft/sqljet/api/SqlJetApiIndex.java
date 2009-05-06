@@ -13,8 +13,11 @@
  */
 package org.tmatesoft.sqljet.api;
 
+import java.util.List;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -34,12 +37,16 @@ public class SqlJetApiIndex extends SqlJetApiCursor {
     }
 
     public SqlJetApiRecord lookup(SqlJetApiRecord key) throws SqlJetException{
-        return new SqlJetApiRecord(indexTable.lookup(key.getRecord()));
+        final ISqlJetBtreeRecord lookup = indexTable.lookup(key.getRecord());
+        if(null==lookup) return null;
+        return new SqlJetApiRecord(lookup);
     }
     
     public Long getRecordRowId(SqlJetApiRecord record) {
-        if(null == record || null == record.values || 0 == record.values.size()) return null;
-        return record.values.get(record.values.size()-1).getInteger();
+        if(null == record) return null;
+        final List<SqlJetApiValue> values = record.getValues();
+        if( null == values || 0 == values.size()) return null;
+        return values.get(values.size()-1).getInteger();
     }
 
     /**

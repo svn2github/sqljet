@@ -14,7 +14,6 @@
 package org.tmatesoft.sqljet.api.repcache;
 
 import java.io.File;
-import java.util.List;
 
 import org.tmatesoft.sqljet.api.SqlJetApiDb;
 import org.tmatesoft.sqljet.api.SqlJetApiIndex;
@@ -126,7 +125,7 @@ public class RepCacheDao {
             db.unlock();
         }
     }
- 
+
     public RepCache getByHash(final String hash) throws SqlJetException {
         db.lock();
         try {
@@ -166,9 +165,9 @@ public class RepCacheDao {
         try {
             final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()));
             final SqlJetApiRecord lookup = index.lookup(key);
-            final Long rowId = index.getRecordRowId(lookup);
-            if(null!=rowId)
+            if (null != lookup) {
                 return false;
+            }
             beginTransaction();
             final long newRowId = table.newRowId();
             final SqlJetApiRecord idxKey = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()),
@@ -181,13 +180,13 @@ public class RepCacheDao {
             db.unlock();
         }
     }
-    
+
     public boolean update(RepCache repCache) throws SqlJetException {
         db.lock();
         try {
             final SqlJetApiRecord key = new SqlJetApiRecord(new SqlJetApiValue(repCache.getHash()));
             final Long rowId = index.getRecordRowId(index.lookup(key));
-            if(null==rowId)
+            if (null == rowId)
                 return false;
             if (table.goToRow(rowId) < 0)
                 return false;
@@ -205,5 +204,5 @@ public class RepCacheDao {
             db.unlock();
         }
     }
-    
+
 }

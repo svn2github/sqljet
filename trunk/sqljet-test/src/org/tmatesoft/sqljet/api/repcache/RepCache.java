@@ -137,7 +137,7 @@ public class RepCache {
     /**
      * @return the expanded_size
      */
-    public Long getExpanded_size() {
+    public Long getExpandedSize() {
         return expanded_size;
     }
 

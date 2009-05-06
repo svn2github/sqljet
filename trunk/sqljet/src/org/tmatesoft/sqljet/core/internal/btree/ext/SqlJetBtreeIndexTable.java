@@ -15,10 +15,13 @@ package org.tmatesoft.sqljet.core.internal.btree.ext;
 
 import java.nio.ByteBuffer;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetUpackedRecordFlags;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -48,14 +51,33 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         lock();
         try {
             adjustKeyInfo(key);
-            final ByteBuffer r = key.getRawRecord();
-            if (cursor.moveTo(r, r.remaining(), false) < 0) {
+            final ByteBuffer k = key.getRawRecord();
+            if (cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
             }
-            return getRecord();
+            final ISqlJetBtreeRecord record = getRecord();
+            if (null == record)
+                return null;
+            if (keyCompare(k, record.getRawRecord()) != 0)
+                return null;
+            return record;
         } finally {
             unlock();
         }
+    }
+
+    /**
+     * 
+     * @param key
+     * @param record
+     * @return
+     * 
+     * @throws SqlJetException
+     */
+    private int keyCompare(ByteBuffer key, ByteBuffer record) throws SqlJetException {
+        final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(key.remaining(), key);
+        unpacked.getFlags().add(SqlJetUpackedRecordFlags.IGNORE_ROWID);
+        return unpacked.recordCompare(record.remaining(), record);
     }
 
     /**
@@ -84,8 +106,12 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable#delete(org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ext.ISqlJetBtreeIndexTable#delete(org.tmatesoft
+     * .sqljet.core.ext.ISqlJetBtreeRecord)
      */
     public void delete(ISqlJetBtreeRecord key) throws SqlJetException {
         lock();
@@ -95,12 +121,12 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             if (cursor.moveTo(r, r.remaining(), false) < 0) {
                 next();
             }
-            if(!eof()) {
+            if (!eof()) {
                 cursor.delete();
             }
         } finally {
             unlock();
-        }        
+        }
     }
-    
+
 }

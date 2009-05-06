@@ -92,4 +92,16 @@ public class SqlJetApiValue {
         return mem.realValue();
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        try {
+            return !isNull()?getString().trim():"<null>";
+        } catch (SqlJetException e) {
+            return "<error>";
+        }
+    }
+    
 }

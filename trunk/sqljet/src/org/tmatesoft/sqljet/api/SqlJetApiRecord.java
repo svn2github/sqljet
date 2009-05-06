@@ -21,7 +21,6 @@ import java.util.List;
 import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 
 /**
  * @author TMate Software Ltd.
@@ -30,7 +29,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
  */
 public class SqlJetApiRecord {
 
-    List<SqlJetApiValue> values;
+    private List<SqlJetApiValue> values;
 
     /**
      * 
@@ -49,6 +48,7 @@ public class SqlJetApiRecord {
 
     ISqlJetBtreeRecord getRecord() {
         List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.size());
+        if(values!=null)
         for (SqlJetApiValue value : values) {
             fields.add(value.getMem());
         }
@@ -66,7 +66,33 @@ public class SqlJetApiRecord {
      * @return the values
      */
     public List<SqlJetApiValue> getValues() {
+        if(null==values) return null;
         return Collections.unmodifiableList(values);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        final StringBuilder s = new StringBuilder();
+        s.append(super.toString());
+        s.append("=[");
+        if (values != null) {
+            boolean first = true;
+            for (SqlJetApiValue value : values) {
+                if (!first) {
+                    s.append(",");
+                } else {
+                    first = false;
+                }
+                s.append(value.toString());
+            }
+        }
+        s.append("]");
+        return s.toString();
     }
 
 }

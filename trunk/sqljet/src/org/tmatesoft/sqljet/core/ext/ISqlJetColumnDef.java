@@ -25,5 +25,7 @@ public interface ISqlJetColumnDef {
 
     public String getName();
 
+    public ISqlJetTypeDef getType();
+
     public List<ISqlJetColumnConstraint> getConstraints();
 }

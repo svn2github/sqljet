@@ -27,11 +27,14 @@ tokens {
 	ALIAS; // replaces AS
 	COLUMN_DEFS; // groups all column definitions
 	COLUMN_CONSTRAINT; // root for column_constraint
+	CONSTRAINTS; // groups all constraints
+	CREATE_TABLE;
+	DROP_TABLE;
 	NOT_NULL; // single token that replaces NOT NULL
+	OPTIONS;
 	ORDERING; // root for ordering_term
 	RESULT_COLUMNS; // groups all result columns within a select
 	SELECT_CORE; // root for simple select statement, part of a compound select
-	TABLE_CONSTRAINTS; // groups all table constraints
 	TABLE_CONSTRAINT; // root for table constraint
 	TYPE; // root for type_name
 	TYPE_PARAMS; // root for numbers in type_name
@@ -124,7 +127,7 @@ bind_parameter
   | AT id
   | DOLLAR name=TCL_ID;
 
-type_name: names+=ID+ (LPAREN n1=signed_number (COMMA n2=signed_number)? RPAREN)? -> ^(TYPE $names+ ^(TYPE_PARAMS $n1? $n2?));
+type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)? -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
 
 raise_function: RAISE LPAREN (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA error_message=STRING) RPAREN;
 
@@ -250,9 +253,10 @@ create_virtual_table_stmt: CREATE VIRTUAL TABLE (database_name=id DOT)? table_na
 create_table_stmt: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? (database_name=id DOT)? table_name=id
   ( LPAREN column_def (COMMA column_def)* (COMMA table_constraint)* RPAREN
   | AS select_stmt)
--> ^(TABLE TEMPORARY? ^($table_name $database_name?) ^(COLUMN_DEFS column_def+)? ^(TABLE_CONSTRAINTS table_constraint*)? select_stmt?);
+-> ^(CREATE_TABLE ^(OPTIONS TEMPORARY? EXISTS?) ^($table_name $database_name?)
+  ^(COLUMN_DEFS column_def+)? ^(CONSTRAINTS table_constraint*)? select_stmt?);
 
-column_def: id_column_def^ type_name? (column_constraint)*;
+column_def: name=id_column_def type_name? column_constraint* -> ^($name ^(CONSTRAINTS column_constraint*) type_name?);
 
 column_constraint: (CONSTRAINT name=id)?
   ( column_constraint_pk
@@ -262,14 +266,15 @@ column_constraint: (CONSTRAINT name=id)?
   | column_constraint_default
   | column_constraint_collate
   | fk_clause)
--> ^(COLUMN_CONSTRAINT id? 
+-> ^(COLUMN_CONSTRAINT
   column_constraint_pk?
   column_constraint_not_null?
   column_constraint_unique?
   column_constraint_check?
   column_constraint_default?
   column_constraint_collate?
-  fk_clause?);
+  fk_clause?
+  $name?);
 
 column_constraint_pk: PRIMARY^ KEY! (ASC | DESC)? table_conflict_clause? (AUTOINCREMENT)?;
 
@@ -305,7 +310,8 @@ fk_clause_action
 fk_clause_deferrable: (NOT)? DEFERRABLE (INITIALLY DEFERRED | INITIALLY IMMEDIATE)?;
 
 // DROP TABLE
-drop_table_stmt: DROP TABLE (IF EXISTS)? (database_name=id DOT)? table_name=id;
+drop_table_stmt: DROP TABLE (IF EXISTS)? (database_name=id DOT)? table_name=id
+-> ^(DROP_TABLE ^(OPTIONS EXISTS?) ^($table_name $database_name?));
 
 // ALTER TABLE
 alter_table_stmt: ALTER TABLE (database_name=id DOT)? table_name=id (RENAME TO new_table_name=id | ADD (COLUMN)? column_def);

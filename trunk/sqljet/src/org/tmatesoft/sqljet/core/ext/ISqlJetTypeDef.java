@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnConstraint.java
+ * ISqlJetTypeDef.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,11 +13,17 @@
  */
 package org.tmatesoft.sqljet.core.ext;
 
+import java.util.List;
+
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnConstraint {
+public interface ISqlJetTypeDef {
 
-    public String getName();
+    public List<String> getNames();
+
+    public Double getSize1();
+
+    public Double getSize2();
 }

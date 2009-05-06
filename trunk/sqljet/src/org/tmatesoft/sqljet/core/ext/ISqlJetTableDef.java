@@ -25,7 +25,11 @@ public interface ISqlJetTableDef {
 
     public String getName();
 
+    public String getDatabaseName();
+
     public boolean isTemporary();
+
+    public boolean isKeepExisting();
 
     public List<ISqlJetColumnDef> getColumns();
 

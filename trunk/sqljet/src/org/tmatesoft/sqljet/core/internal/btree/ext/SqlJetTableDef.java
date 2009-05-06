@@ -29,47 +29,71 @@ import org.tmatesoft.sqljet.core.ext.ISqlJetTableDef;
 public class SqlJetTableDef implements ISqlJetTableDef {
 
     private final String name;
+    private final String databaseName;
     private final boolean temporary;
+    private final boolean ifNotExists;
     private final List<ISqlJetColumnDef> columns;
     private final List<ISqlJetTableConstraint> constraints;
     private final int page;
 
     public SqlJetTableDef(CommonTree ast, int page) {
-        int childIndex = 0;
-        CommonTree child = (CommonTree) ast.getChild(childIndex++);
-        if ("temporary".equalsIgnoreCase(child.getText())) {
-            temporary = true;
-            child = (CommonTree) ast.getChild(childIndex++);
-        } else {
-            temporary = false;
-        }
-        name = child.getText();
-        child = (CommonTree) ast.getChild(childIndex++);
+        CommonTree optionsNode = (CommonTree) ast.getChild(0);
+        temporary = hasOption(optionsNode, "temporary");
+        ifNotExists = hasOption(optionsNode, "exists");
+
+        CommonTree nameNode = (CommonTree) ast.getChild(1);
+        name = nameNode.getText();
+        databaseName = nameNode.getChildCount() > 0 ? nameNode.getChild(0).getText() : null;
+
         List<ISqlJetColumnDef> columns = new ArrayList<ISqlJetColumnDef>();
-        if ("column_defs".equalsIgnoreCase(child.getText())) {
-            for (int columnIndex = 0; columnIndex < child.getChildCount(); columnIndex++) {
-                columns.add(new SqlJetColumnDef((CommonTree) child.getChild(columnIndex)));
+        List<ISqlJetTableConstraint> constraints = new ArrayList<ISqlJetTableConstraint>();
+        if (ast.getChildCount() > 2) {
+            CommonTree defNode = (CommonTree) ast.getChild(2);
+            if ("column_defs".equalsIgnoreCase(defNode.getText())) {
+                for (int i = 0; i < defNode.getChildCount(); i++) {
+                    columns.add(new SqlJetColumnDef((CommonTree) defNode.getChild(i)));
+                }
+                if (ast.getChildCount() > 4) {
+                    CommonTree constraintsNode = (CommonTree) ast.getChild(3);
+                    assert "constraints".equalsIgnoreCase(constraintsNode.getText());
+                    for (int i = 0; i < constraintsNode.getChildCount(); i++) {
+                        constraints.add(new SqlJetTableConstraint((CommonTree) constraintsNode.getChild(i)));
+                    }
+                }
+            } else {
+                // TODO: handle select
             }
-            child = (CommonTree) ast.getChild(childIndex++);
         }
         this.columns = Collections.unmodifiableList(columns);
-        List<ISqlJetTableConstraint> constraints = new ArrayList<ISqlJetTableConstraint>();
-        if (child != null && "table_constraints".equalsIgnoreCase(child.getText())) {
-            for (int constraintIndex = 0; constraintIndex < child.getChildCount(); constraintIndex++) {
-                constraints.add(new SqlJetTableConstraint((CommonTree) child.getChild(constraintIndex)));
-            }
-            child = (CommonTree) ast.getChild(childIndex++);
-        }
         this.constraints = Collections.unmodifiableList(constraints);
+
         this.page = page;
+    }
+
+    private boolean hasOption(CommonTree optionsNode, String name) {
+        for (int i = 0; i < optionsNode.getChildCount(); i++) {
+            CommonTree optionNode = (CommonTree) optionsNode.getChild(i);
+            if (name.equalsIgnoreCase(optionNode.getText())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getName() {
         return name;
     }
 
+    public String getDatabaseName() {
+        return databaseName;
+    }
+
     public boolean isTemporary() {
         return temporary;
+    }
+
+    public boolean isKeepExisting() {
+        return ifNotExists;
     }
 
     public List<ISqlJetColumnDef> getColumns() {
@@ -92,9 +116,16 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         if (isTemporary()) {
             buffer.append("TEMPORARY ");
         }
+        if (isKeepExisting()) {
+            buffer.append("IF NOT EXISTS ");
+        }
         buffer.append("TABLE ");
+        if (getDatabaseName() != null) {
+            buffer.append(getDatabaseName());
+            buffer.append('.');
+        }
         buffer.append(getName());
-        buffer.append(" ( ");
+        buffer.append(" (");
         List<ISqlJetColumnDef> columns = getColumns();
         for (int i = 0; i < columns.size(); i++) {
             if (i > 0) {
@@ -109,7 +140,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
             }
             buffer.append(constraints.get(i).toString());
         }
-        buffer.append(")");
+        buffer.append(')');
         return buffer.toString();
     }
 }

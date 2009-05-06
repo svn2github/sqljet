@@ -29,8 +29,8 @@ import org.tmatesoft.sqljet.core.ISqlJetDb;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.ext.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
@@ -39,7 +39,6 @@ import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
  */
 public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
@@ -54,37 +53,23 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
     private final ISqlJetBtree btree;
     private final SqlJetEncoding enc;
-    
-    private final Map<String, Integer> tables = new HashMap<String, Integer>();
+
     private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
     private final Map<String, Integer> indexes = new HashMap<String, Integer>();
-    private final Map<String, Set<String>> indexesOfTables = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
-
-    /**
-     * @param btree
-     * @throws SqlJetException
-     */
     public SqlJetBtreeSchema(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
         this.enc = SqlJetEncoding.UTF8;
         init();
     }
 
-    /**
-     * @param btree
-     * @throws SqlJetException
-     */
     public SqlJetBtreeSchema(ISqlJetBtree btree, SqlJetEncoding enc) throws SqlJetException {
         this.btree = btree;
         this.enc = enc;
         init();
     }
-    
-    /**
-     * @param btree
-     * @throws SqlJetException
-     */
+
     private void init() throws SqlJetException {
         final SqlJetBtreeTable bt = new SqlJetBtreeTable(btree, ISqlJetDb.MASTER_ROOT, false, false);
         try {
@@ -94,66 +79,31 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaTable
-     * #getBtree()
-     */
     public ISqlJetBtree getBtree() {
         return btree;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaTable
-     * #getTableNames()
-     */
     public Set<String> getTableNames() {
-        return tables.keySet();
+        return tableDefs.keySet();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema#getTable(java.lang.String)
-     */
     public ISqlJetTableDef getTable(String name) {
         return tableDefs.get(name);
     }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaTable
-     * #getTablePage(java.lang.String)
-     */
-    public int getTablePage(String tableName) {
-        final Integer p = tables.get(tableName);
-        if(null==p) return 0;
-        return p;
+
+    public Set<String> getTableIndexes(String tableName) {
+        final Set<String> indexNames = tableIndexes.get(tableName);
+        if (indexNames == null) {
+            return Collections.emptySet();
+        }
+        return Collections.unmodifiableSet(indexNames);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexesOfTable(java.lang.String)
-     */
-    public Set<String> getTableIndexes(String tableName) {
-        final Set<String> i = indexesOfTables.get(tableName);
-        if(null==i) return Collections.emptySet();
-        return Collections.unmodifiableSet(i);
-    }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchemaTable#getIndexePage(java.lang.String)
-     */
     public int getIndexPage(String indexName) {
-        final Integer p = indexes.get(indexName);
-        if(null==p) return 0;
-        return p;
+        final Integer page = indexes.get(indexName);
+        return page == null ? 0 : page;
     }
-    
+
     private void readShema(SqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
             final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, enc));
@@ -170,9 +120,8 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
             }
 
             if (TABLE_TYPE.equals(type)) {
-                tables.put(name, page);
                 String sql = record.getStringField(SQL_FIELD, enc);
-                //System.err.println(sql);
+                // System.err.println(sql);
                 CommonTree ast = parse(sql);
                 ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                 if (!name.equals(tableDef.getName())) {
@@ -185,9 +134,9 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
-                Set<String> indexNames = indexesOfTables.get(indexTableName);
+                Set<String> indexNames = tableIndexes.get(indexTableName);
                 if (null == indexNames) {
-                    indexesOfTables.put(indexTableName, indexNames = new HashSet<String>());
+                    tableIndexes.put(indexTableName, indexNames = new HashSet<String>());
                 }
                 indexNames.add(name);
             }
@@ -205,17 +154,17 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
     }
-    
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("Tables:\n");
-        for (ISqlJetTableDef tableDef: tableDefs.values()) {
+        for (ISqlJetTableDef tableDef : tableDefs.values()) {
             buffer.append(tableDef.toString());
             buffer.append('\n');
         }
         buffer.append("Indexes:\n");
-        for (String name: indexes.keySet()) {
+        for (String name : indexes.keySet()) {
             buffer.append(indexes.get(name));
             buffer.append(": ");
             buffer.append(name);

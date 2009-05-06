@@ -33,13 +33,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private long priorNewRowid;
 
     /**
-     * Open data table by name
+     * Open data table by name.
      * 
      * @throws SqlJetException
-     * 
      */
     public SqlJetBtreeDataTable(ISqlJetBtreeSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getTablePage(tableName), write, false);
+        super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false);
     }
 
     /*

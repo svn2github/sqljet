@@ -177,9 +177,10 @@ public class RepCacheDaoTest {
     public void insert() throws SqlJetException {
         boolean passed = false;
         Random random = new Random();
-        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), SqlJetUtility
-                .toUnsigned(random.nextInt()), SqlJetUtility.toUnsigned(random.nextInt()), SqlJetUtility
-                .toUnsigned(random.nextInt()), SqlJetUtility.toUnsigned(random.nextInt()));
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE))),
+                SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random
+                        .nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)),
+                SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)));
         passed = daoCopy.insert(repCache);
         Assert.assertTrue(passed);
         final RepCache byHash = daoCopy.getByHash(repCache.getHash());

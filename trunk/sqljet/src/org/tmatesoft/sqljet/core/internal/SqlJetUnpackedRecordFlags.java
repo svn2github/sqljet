@@ -1,5 +1,5 @@
 /**
- * SqlJetUpackedRecordFlags.java
+ * SqlJetUnpackedRecordFlags.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ package org.tmatesoft.sqljet.core.internal;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public enum SqlJetUpackedRecordFlags {
+public enum SqlJetUnpackedRecordFlags {
 
     /** Memory is from sqlite3Malloc() */
     NEED_FREE,  //     0x0001  

@@ -133,7 +133,7 @@ public class RepCacheDao {
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return null;
-            if (table.goToRow(rowId) < 0)
+            if (table.goToRow(rowId) < 0 && !table.next())
                 return null;
             return getRepCache();
         } finally {

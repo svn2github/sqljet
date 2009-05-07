@@ -20,7 +20,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.internal.ISqlJetCollSeq;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.internal.SqlJetUpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -55,7 +55,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
 
         SqlJetUnpackedRecord p = new SqlJetUnpackedRecord();
 
-        p.flags = EnumSet.of(SqlJetUpackedRecordFlags.NEED_DESTROY);
+        p.flags = EnumSet.of(SqlJetUnpackedRecordFlags.NEED_DESTROY);
         p.pKeyInfo = pKeyInfo;
         p.nField = pKeyInfo.nField + 1;
         p.aMem = pMem = new SqlJetVdbeMem[p.nField];

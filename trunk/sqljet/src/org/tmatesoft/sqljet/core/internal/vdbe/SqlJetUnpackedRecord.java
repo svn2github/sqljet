@@ -18,7 +18,7 @@ import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
-import org.tmatesoft.sqljet.core.internal.SqlJetUpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -35,7 +35,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
     int nField;
 
     /* Boolean settings. UNPACKED_... below */
-    EnumSet<SqlJetUpackedRecordFlags> flags;
+    EnumSet<SqlJetUnpackedRecordFlags> flags;
 
     /* Values */
     SqlJetVdbeMem[] aMem;
@@ -47,7 +47,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
 
         if (p != null) {
 
-            if (p.flags.contains(SqlJetUpackedRecordFlags.NEED_DESTROY)) {
+            if (p.flags.contains(SqlJetUnpackedRecordFlags.NEED_DESTROY)) {
                 for (int i = 0; i < p.nField; i++) {
                     final SqlJetVdbeMem pMem = p.aMem[i];
                     if (pMem.zMalloc != null) {
@@ -57,7 +57,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
             }
 
             /*
-             * if( p.flags.contains(SqlJetUpackedRecordFlags.NEED_FREE) ){
+             * if( p.flags.contains(SqlJetUnpackedRecordFlags.NEED_FREE) ){
              * p.pKeyInfo.db.free(p); }
              */
 
@@ -92,7 +92,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
 
         idx1 = SqlJetUtility.getVarint32(pKey1, szHdr1);
         d1 = szHdr1[0];
-        if (pPKey2.flags.contains(SqlJetUpackedRecordFlags.IGNORE_ROWID)) {
+        if (pPKey2.flags.contains(SqlJetUnpackedRecordFlags.IGNORE_ROWID)) {
             szHdr1[0]--;
         }
         nField = pKeyInfo.nField;
@@ -131,9 +131,9 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
              * is the* larger. As it happens, the pPKey2 will always be the
              * longer* if there is a difference.
              */
-            if (pPKey2.flags.contains(SqlJetUpackedRecordFlags.INCRKEY)) {
+            if (pPKey2.flags.contains(SqlJetUnpackedRecordFlags.INCRKEY)) {
                 rc = -1;
-            } else if (pPKey2.flags.contains(SqlJetUpackedRecordFlags.PREFIX_MATCH)) {
+            } else if (pPKey2.flags.contains(SqlJetUnpackedRecordFlags.PREFIX_MATCH)) {
                 /* Leave rc==0 */
             } else if (idx1 < szHdr1[0]) {
                 rc = 1;
@@ -148,14 +148,14 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
     /**
      * @return the flags
      */
-    public EnumSet<SqlJetUpackedRecordFlags> getFlags() {
+    public EnumSet<SqlJetUnpackedRecordFlags> getFlags() {
         return flags;
     }
 
     /**
      * @param flags the flags to set
      */
-    public void setFlags(EnumSet<SqlJetUpackedRecordFlags> flags) {
+    public void setFlags(EnumSet<SqlJetUnpackedRecordFlags> flags) {
         this.flags = flags;
     }
     

@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.SqlJetUpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
@@ -76,7 +76,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      */
     private int keyCompare(ByteBuffer key, ByteBuffer record) throws SqlJetException {
         final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(key.remaining(), key);
-        unpacked.getFlags().add(SqlJetUpackedRecordFlags.IGNORE_ROWID);
+        unpacked.getFlags().add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
         return unpacked.recordCompare(record.remaining(), record);
     }
 

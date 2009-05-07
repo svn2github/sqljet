@@ -18,13 +18,13 @@ import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
 
 import java.nio.ByteBuffer;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
+import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
@@ -2377,7 +2377,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getCursorDb()
      */
-    public ISqlJetDb getCursorDb() {
+    public ISqlJetDbHandle getCursorDb() {
         assert (mutex_held(pBtree.db.getMutex()));
         return pBtree.db;
     }

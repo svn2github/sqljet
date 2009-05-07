@@ -20,14 +20,14 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 
 /**
  * Implements {@link ISqlJetBtreeRecord}.
@@ -335,7 +335,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
     }
 
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord#getRealField(int)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord#getRealField(int)
      */
     public double getRealField(int field) {
         final ISqlJetVdbeMem f = fields.get(field);

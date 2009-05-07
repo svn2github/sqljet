@@ -16,11 +16,11 @@ package org.tmatesoft.sqljet.core.internal.vdbe;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.ISqlJetCollSeq;
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
-import org.tmatesoft.sqljet.core.SqlJetUpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.ISqlJetCollSeq;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.SqlJetUpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -31,7 +31,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 public class SqlJetKeyInfo implements ISqlJetKeyInfo {
 
     /* The database connection */
-    ISqlJetDb db;
+    ISqlJetDbHandle db;
 
     /* Text encoding - one of the TEXT_Utf* values */
     SqlJetEncoding enc;

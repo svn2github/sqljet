@@ -16,15 +16,15 @@ package org.tmatesoft.sqljet.core.lang;
 import java.io.File;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
+import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 
 /**
  * @author TMate Software Ltd.
@@ -32,11 +32,11 @@ import org.tmatesoft.sqljet.core.internal.db.SqlJetDb;
  */
 public class SqlJetConnection {
 
-    private ISqlJetDb db;
+    private ISqlJetDbHandle db;
     private ISqlJetBtree btree;
 
     protected SqlJetConnection(String fileName) throws SqlJetException {
-        db = new SqlJetDb();
+        db = new SqlJetDbHandle();
         db.getMutex().enter();
         btree = new SqlJetBtree();
         btree.open(new File(fileName), db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet

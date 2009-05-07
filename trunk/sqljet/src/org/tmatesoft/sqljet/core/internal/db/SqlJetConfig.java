@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.db;
 
-import org.tmatesoft.sqljet.core.ISqlJetConfig;
+import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
 
 /**
  * @author TMate Software Ltd.

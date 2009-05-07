@@ -19,11 +19,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetPageCache;
-import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetPageFlags;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPageCache;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPageCallback;
+import org.tmatesoft.sqljet.core.internal.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**

@@ -19,13 +19,13 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetFile;
-import org.tmatesoft.sqljet.core.ISqlJetMutex;
-import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetPager;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
@@ -61,7 +61,7 @@ public class SqlJetBtreeShared {
     ISqlJetPager pPager;
 
     /** Database connection currently using this Btree */
-    ISqlJetDb db;
+    ISqlJetDbHandle db;
 
     /** A list of all open cursors */
     SqlJetBtreeCursor pCursor;

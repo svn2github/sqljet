@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal.mutex;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.tmatesoft.sqljet.core.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 
 /**
  * @author TMate Software Ltd.

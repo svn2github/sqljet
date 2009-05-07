@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import org.tmatesoft.sqljet.core.SqlJetLockType;
+import org.tmatesoft.sqljet.core.internal.SqlJetLockType;
 
 /**
  * The page cache as a whole is always in one of the following states:

@@ -21,29 +21,29 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.tmatesoft.sqljet.core.ISqlJetBackend;
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetBusyHandler;
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetFile;
-import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
-import org.tmatesoft.sqljet.core.ISqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.ISqlJetPage;
-import org.tmatesoft.sqljet.core.ISqlJetPageCallback;
-import org.tmatesoft.sqljet.core.ISqlJetPager;
-import org.tmatesoft.sqljet.core.SqlJetAutoVacuumMode;
-import org.tmatesoft.sqljet.core.SqlJetBtreeFlags;
-import org.tmatesoft.sqljet.core.SqlJetBtreeTableCreateFlags;
-import org.tmatesoft.sqljet.core.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.SqlJetFileType;
-import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
-import org.tmatesoft.sqljet.core.SqlJetSavepointOperation;
-import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
+import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPageCallback;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
+import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
+import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
+import org.tmatesoft.sqljet.core.internal.SqlJetSavepointOperation;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
@@ -65,7 +65,7 @@ public class SqlJetBtree implements ISqlJetBtree {
     }
 
     /** The database connection holding this btree */
-    ISqlJetDb db;
+    ISqlJetDbHandle db;
 
     /** Sharable content of this btree */
     SqlJetBtreeShared pBt;
@@ -230,7 +230,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * org.tmatesoft.sqljet.core.ISqlJetDb, java.util.EnumSet,
      * org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)
      */
-    public void open(File filename, ISqlJetDb db, EnumSet<SqlJetBtreeFlags> flags, final SqlJetFileType type,
+    public void open(File filename, ISqlJetDbHandle db, EnumSet<SqlJetBtreeFlags> flags, final SqlJetFileType type,
             final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
         ISqlJetFileSystem pVfs; /* The VFS to use for this btree */
@@ -1411,7 +1411,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (db.getMutex().held());
         enter();
         try {
-            return queryTableLock(ISqlJetDb.MASTER_ROOT, SqlJetBtreeLockMode.READ);
+            return queryTableLock(ISqlJetDbHandle.MASTER_ROOT, SqlJetBtreeLockMode.READ);
         } finally {
             leave();
         }
@@ -1459,7 +1459,7 @@ public class SqlJetBtree implements ISqlJetBtree {
          * not change.
          */
         if (!db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) || eLock == SqlJetBtreeLockMode.WRITE
-                || iTab == ISqlJetDb.MASTER_ROOT) {
+                || iTab == ISqlJetDbHandle.MASTER_ROOT) {
             for (SqlJetBtreeLock pIter : pBt.pLock) {
                 if (pIter.pBtree != this && pIter.iTable == iTab
                         && (pIter.eLock != eLock || eLock != SqlJetBtreeLockMode.READ)) {
@@ -1519,7 +1519,7 @@ public class SqlJetBtree implements ISqlJetBtree {
          * ReadUncommitted flag.
          */
         if (db.getFlags().contains(SqlJetDbFlags.ReadUncommitted) && (eLock == SqlJetBtreeLockMode.READ)
-                && iTable != ISqlJetDb.MASTER_ROOT) {
+                && iTable != ISqlJetDbHandle.MASTER_ROOT) {
             return;
         }
 
@@ -2056,7 +2056,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             if (p.eState != CursorState.VALID)
                 continue;
             if (!p.wrFlag || p.isIncrblobHandle) {
-                ISqlJetDb dbOther = p.pBtree.db;
+                ISqlJetDbHandle dbOther = p.pBtree.db;
                 if (dbOther == null || (dbOther != db && !dbOther.getFlags().contains(SqlJetDbFlags.ReadUncommitted))) {
                     return true;
                 }

@@ -20,15 +20,15 @@ import java.io.RandomAccessFile;
 import java.security.SecureRandom;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.ISqlJetFile;
-import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetFileAccesPermission;
-import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.SqlJetFileType;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileAccesPermission;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 
 /**
  * Default implementation of ISqlJetFileSystem.

@@ -18,11 +18,11 @@ import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
 
 import java.nio.ByteBuffer;
 
-import org.tmatesoft.sqljet.core.ISqlJetConfig;
-import org.tmatesoft.sqljet.core.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.ISqlJetPage;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 

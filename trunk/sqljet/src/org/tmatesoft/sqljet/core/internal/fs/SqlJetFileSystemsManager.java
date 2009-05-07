@@ -16,10 +16,10 @@ package org.tmatesoft.sqljet.core.internal.fs;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.tmatesoft.sqljet.core.ISqlJetFileSystem;
-import org.tmatesoft.sqljet.core.ISqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystemsManager;
 
 /**
  * Singleton implementation of {@link ISqlJetFileSystemsManager}.

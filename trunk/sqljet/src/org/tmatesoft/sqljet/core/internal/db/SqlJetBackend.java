@@ -13,11 +13,11 @@
  */
 package org.tmatesoft.sqljet.core.internal.db;
 
-import org.tmatesoft.sqljet.core.ISqlJetBackend;
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.SqlJetSafetyLevel;
-import org.tmatesoft.sqljet.core.SqlJetTransactionState;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionState;
 
 /**
  * @author TMate Software Ltd.

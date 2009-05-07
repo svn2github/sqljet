@@ -18,17 +18,17 @@ import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeSchema;
-import org.tmatesoft.sqljet.core.ext.ISqlJetBtreeTable;
-import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.btree.ext.SqlJetBtreeSchema;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 
 /**
  * @author TMate Software Ltd.

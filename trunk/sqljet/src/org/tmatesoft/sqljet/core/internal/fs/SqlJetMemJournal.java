@@ -16,12 +16,12 @@ package org.tmatesoft.sqljet.core.internal.fs;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
-import org.tmatesoft.sqljet.core.ISqlJetFile;
-import org.tmatesoft.sqljet.core.SqlJetDeviceCharacteristics;
-import org.tmatesoft.sqljet.core.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.SqlJetFileType;
-import org.tmatesoft.sqljet.core.SqlJetLockType;
-import org.tmatesoft.sqljet.core.SqlJetSyncFlags;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.SqlJetDeviceCharacteristics;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
+import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.SqlJetLockType;
+import org.tmatesoft.sqljet.core.internal.SqlJetSyncFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**

@@ -20,19 +20,19 @@ import java.sql.Blob;
 import java.util.EnumSet;
 import java.util.Iterator;
 
-import org.tmatesoft.sqljet.core.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.ISqlJetCallback;
-import org.tmatesoft.sqljet.core.ISqlJetCollSeq;
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetFuncDef;
-import org.tmatesoft.sqljet.core.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.ISqlJetRowSet;
-import org.tmatesoft.sqljet.core.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetMemType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetCallback;
+import org.tmatesoft.sqljet.core.internal.ISqlJetCollSeq;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFuncDef;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetRowSet;
+import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
+import org.tmatesoft.sqljet.core.internal.SqlJetMemType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -72,7 +72,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     double r;
 
     /** The associated database connection */
-    ISqlJetDb db;
+    ISqlJetDbHandle db;
 
     /** String or BLOB value */
     ByteBuffer z;
@@ -101,7 +101,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         this.db = null;
     }
     
-    public SqlJetVdbeMem(ISqlJetDb db) {
+    public SqlJetVdbeMem(ISqlJetDbHandle db) {
         this.flags = EnumSet.of(SqlJetVdbeMemFlags.Null);
         this.type = SqlJetMemType.NULL;
         this.db = db;
@@ -855,7 +855,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      */
     public void setRowSet() {
         final SqlJetVdbeMem pMem = this;
-        final ISqlJetDb db = pMem.db;
+        final ISqlJetDbHandle db = pMem.db;
         assert( db!=null );
         if( pMem.flags.contains(SqlJetVdbeMemFlags.RowSet) ){
             pMem.pRowSet.clear();

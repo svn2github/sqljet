@@ -13,8 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.ISqlJetRowSet;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetRowSet;
 
 /**
  * @author TMate Software Ltd.
@@ -34,7 +34,7 @@ public class SqlJetRowSet implements ISqlJetRowSet {
     /**
      * 
      */
-    public SqlJetRowSet(ISqlJetDb db) {
+    public SqlJetRowSet(ISqlJetDbHandle db) {
         // TODO Auto-generated constructor stub
     }
     

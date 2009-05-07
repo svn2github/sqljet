@@ -1039,4 +1039,25 @@ public class SqlJetUtility {
         return Double.valueOf(s).doubleValue();
     }
 
+    /**
+     * @param str 
+     * @return
+     */
+    public static Long atoi64(String str) {
+        return Long.valueOf(str);
+    }
+
+    /**
+     * Returns absolute value of argument
+     * 
+     * @param i
+     * @return
+     */
+    public static long absolute(long i) {
+        long u;
+        u = i<0 ? -i : i;
+        if(u==Integer.MIN_VALUE||u==Long.MIN_VALUE) u=u-1;
+        return u;
+    }
+
 }

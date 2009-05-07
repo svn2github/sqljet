@@ -59,29 +59,29 @@ public class SqlJetVdbeSerialType {
             break;
         }
         case 1: { /* 1-byte signed integer */
-            pMem.i = SqlJetUtility.getUnsignedByte(buf, 0);
+            pMem.i = buf.get(0);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 1;
         }
         case 2: { /* 2-byte signed integer */
-            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1);
+            pMem.i = SqlJetUtility.fromUnsigned((int)((SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1)));
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 2;
         }
         case 3: { /* 3-byte signed integer */
-            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2);
+            pMem.i = SqlJetUtility.fromUnsigned((int)((SqlJetUtility.getUnsignedByte(buf, 0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2)));
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 3;
         }
         case 4: { /* 4-byte signed integer */
-            pMem.i = (SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3);
+            pMem.i = SqlJetUtility.fromUnsigned((long)((SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3)));
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 4;
         }
         case 5: { /* 6-byte signed integer */
             long x = (SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1);
             int y = (SqlJetUtility.getUnsignedByte(buf, 2) << 24) | (SqlJetUtility.getUnsignedByte(buf, 3) << 16) | (SqlJetUtility.getUnsignedByte(buf, 4) << 8) | SqlJetUtility.getUnsignedByte(buf, 5);
-            x = (x << 32) | y;
+            x = ((long)(short)x << 32) | SqlJetUtility.toUnsigned(y);
             pMem.i = x;
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 6;
@@ -92,7 +92,7 @@ public class SqlJetVdbeSerialType {
             int y;
             x = (SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3);
             y = (SqlJetUtility.getUnsignedByte(buf, 4) << 24) | (SqlJetUtility.getUnsignedByte(buf, 5) << 16) | (SqlJetUtility.getUnsignedByte(buf, 6) << 8) | SqlJetUtility.getUnsignedByte(buf, 7);
-            x = (x << 32) | y;
+            x = ((long)(int)x << 32) | SqlJetUtility.toUnsigned(y);
             if (serial_type == 6) {
                 pMem.i = x;
                 pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
@@ -144,7 +144,9 @@ public class SqlJetVdbeSerialType {
         if( file_format>=4 && (i&1)==i ){
           return 8+(int)i;
         }
-        u = i<0 ? -i : i;
+        
+        u = SqlJetUtility.absolute(i);
+            
         if( u<=127 ) return 1;
         if( u<=32767 ) return 2;
         if( u<=8388607 ) return 3;

@@ -21,6 +21,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sound.midi.ShortMessage;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -176,11 +178,37 @@ public class RepCacheDaoTest {
     @Test
     public void insert() throws SqlJetException {
         boolean passed = false;
-        Random random = new Random();
-        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE))),
-                SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random
-                        .nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)),
-                SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)));
+        final Random random = new Random();
+        for (int i = 0; i < 10; i++) {
+            RepCache repCache = new RepCache(
+                    Long.toString(SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE))), SqlJetUtility
+                            .toUnsigned(random.nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random
+                            .nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)),
+                    SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)));
+            passed = daoCopy.insert(repCache);
+            Assert.assertTrue(passed);
+            final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+            Assert.assertNotNull(byHash);
+            Assert.assertNotNull(byHash.getHash());
+            Assert.assertNotNull(byHash.getRevision());
+            Assert.assertNotNull(byHash.getOffset());
+            Assert.assertNotNull(byHash.getSize());
+            Assert.assertNotNull(byHash.getExpandedSize());
+            Assert.assertEquals(repCache.getHash(), byHash.getHash());
+            Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+            Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+            Assert.assertEquals(repCache.getSize(), byHash.getSize());
+            Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+        }
+    }
+
+    @Test
+    public void insertUnsignedLong() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long unsignedLong = Long.MAX_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), unsignedLong, unsignedLong,
+                unsignedLong, unsignedLong);
         passed = daoCopy.insert(repCache);
         Assert.assertTrue(passed);
         final RepCache byHash = daoCopy.getByHash(repCache.getHash());
@@ -197,4 +225,119 @@ public class RepCacheDaoTest {
         Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
     }
 
+    @Test
+    public void insertUnsignedInt() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long unsignedInt = Integer.MAX_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), unsignedInt, unsignedInt,
+                unsignedInt, unsignedInt);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+    
+    @Test
+    public void insertSignedByte() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long signedByte = Byte.MIN_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), signedByte, signedByte,
+                signedByte, signedByte);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+
+    @Test
+    public void insertSignedShort() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long signedShort = Short.MIN_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), signedShort, signedShort,
+                signedShort, signedShort);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+
+    @Test
+    public void insertSignedInt() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long signedInt = Integer.MIN_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), signedInt, signedInt,
+                signedInt, signedInt);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+
+    @Test
+    public void insertSignedLong() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long signedLong = Long.MIN_VALUE;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), signedLong, signedLong,
+                signedLong, signedLong);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+    
 }

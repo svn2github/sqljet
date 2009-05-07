@@ -653,7 +653,16 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
              * pMem->flags |= MEM_Str; if( sqlite3VdbeChangeEncoding(pMem,
              * SQLITE_UTF8) || sqlite3VdbeMemNulTerminate(pMem) ){ return 0; }
              * assert( pMem->z ); sqlite3Atoi64(pMem->z, &value);
-             */return value;
+             */
+            flags.add(SqlJetVdbeMemFlags.Str);
+            try {
+                changeEncoding(SqlJetEncoding.UTF8);
+                nulTerminate();
+            } catch (SqlJetException e) {
+                return 0;
+            }
+            value = SqlJetUtility.atoi64(SqlJetUtility.toString(this.z));
+            return value;
         } else {
             return 0;
         }

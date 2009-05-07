@@ -49,7 +49,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         List<ISqlJetTableConstraint> constraints = new ArrayList<ISqlJetTableConstraint>();
         if (ast.getChildCount() > 2) {
             CommonTree defNode = (CommonTree) ast.getChild(2);
-            if ("column_defs".equalsIgnoreCase(defNode.getText())) {
+            if ("columns".equalsIgnoreCase(defNode.getText())) {
                 for (int i = 0; i < defNode.getChildCount(); i++) {
                     columns.add(new SqlJetColumnDef((CommonTree) defNode.getChild(i)));
                 }
@@ -57,7 +57,27 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                     CommonTree constraintsNode = (CommonTree) ast.getChild(3);
                     assert "constraints".equalsIgnoreCase(constraintsNode.getText());
                     for (int i = 0; i < constraintsNode.getChildCount(); i++) {
-                        constraints.add(new SqlJetTableConstraint((CommonTree) constraintsNode.getChild(i)));
+                        CommonTree constraintRootNode = (CommonTree) constraintsNode.getChild(i);
+                        assert "table_constraint".equalsIgnoreCase(constraintRootNode.getText());
+                        CommonTree constraintNode = (CommonTree) constraintRootNode.getChild(0);
+                        String constraintType = constraintNode.getText();
+                        String constraintName = constraintRootNode.getChildCount() > 1 ? constraintRootNode.getChild(1)
+                                .getText() : null;
+                        if ("primary".equalsIgnoreCase(constraintType)) {
+                            constraints.add(new SqlJetTablePrimaryKey(constraintName, constraintNode));
+                        } else if ("unique".equalsIgnoreCase(constraintType)) {
+                            constraints.add(new SqlJetTableUnique(constraintName, constraintNode));
+                        } else if ("check".equalsIgnoreCase(constraintType)) {
+                            // constraints.add(new
+                            // SqlJetTableCheck(constraintName,
+                            // constraintNode));
+                        } else if ("foreign".equalsIgnoreCase(constraintType)) {
+                            // constraints.add(new
+                            // SqlJetTableForeignKey(constraintName,
+                            // constraintNode));
+                        } else {
+                            assert false;
+                        }
                     }
                 }
             } else {

@@ -13,15 +13,31 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree.table;
 
-import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableConstraint;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetTableConstraint implements ISqlJetTableConstraint {
+public abstract class SqlJetTableConstraint implements ISqlJetTableConstraint {
 
-    public SqlJetTableConstraint(CommonTree ast) {
+    private final String name;
+
+    public SqlJetTableConstraint(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        if (getName() != null) {
+            buffer.append("CONSTRAINT ");
+            buffer.append(getName());
+        }
+        return buffer.toString();
     }
 }

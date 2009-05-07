@@ -161,7 +161,7 @@ public class SqlJetPreparedStatement {
         }
         // All columns are grouped by RESULT_COLUMNS
         // For now we support only *
-        assert "result_columns".equalsIgnoreCase(child.getText());
+        assert "columns".equalsIgnoreCase(child.getText());
         if (child.getChildCount() != 1 && !"*".equals(child.getChild(0).getText())) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Can select only * for now.");
         }

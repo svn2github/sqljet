@@ -1,5 +1,5 @@
 /**
- * ISqlJetTableConstraint.java
+ * SqlJetTableUnique.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,13 +11,24 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.btree.table;
+
+import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableUnique;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetTableConstraint {
+public class SqlJetTableUnique extends SqlJetTableIndexConstraint implements ISqlJetTableUnique {
 
-    public String getName();
+    public SqlJetTableUnique(String name, CommonTree ast) {
+        super(name, ast);
+        assert "unique".equalsIgnoreCase(ast.getText());
+    }
+
+    @Override
+    protected String getConstraintName() {
+        return "UNIQUE";
+    }
 }

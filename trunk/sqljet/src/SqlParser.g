@@ -25,15 +25,14 @@ options {
 
 tokens {
 	ALIAS; // replaces AS
-	COLUMN_DEFS; // groups all column definitions
 	COLUMN_CONSTRAINT; // root for column_constraint
+	COLUMNS;
 	CONSTRAINTS; // groups all constraints
 	CREATE_TABLE;
 	DROP_TABLE;
 	NOT_NULL; // single token that replaces NOT NULL
 	OPTIONS;
 	ORDERING; // root for ordering_term
-	RESULT_COLUMNS; // groups all result columns within a select
 	SELECT_CORE; // root for simple select statement, part of a compound select
 	TABLE_CONSTRAINT; // root for table constraint
 	TYPE; // root for type_name
@@ -127,7 +126,8 @@ bind_parameter
   | AT id
   | DOLLAR name=TCL_ID;
 
-type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)? -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
+type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
+-> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
 
 raise_function: RAISE LPAREN (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA error_message=STRING) RPAREN;
 
@@ -181,7 +181,7 @@ select_core:
   SELECT (ALL | DISTINCT)? result_column (COMMA result_column)* (FROM join_source)? (WHERE where_expr=expr)?
   ( GROUP BY ordering_term (COMMA ordering_term)* (HAVING having_expr=expr)? )?
 -> ^(
-  SELECT_CORE (DISTINCT)? ^(RESULT_COLUMNS result_column+) ^(FROM join_source)? ^(WHERE $where_expr)?
+  SELECT_CORE (DISTINCT)? ^(COLUMNS result_column+) ^(FROM join_source)? ^(WHERE $where_expr)?
   ^(GROUP ordering_term+ ^(HAVING $having_expr)?)?
 );
 
@@ -254,9 +254,10 @@ create_table_stmt: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? (database_name=id DO
   ( LPAREN column_def (COMMA column_def)* (COMMA table_constraint)* RPAREN
   | AS select_stmt)
 -> ^(CREATE_TABLE ^(OPTIONS TEMPORARY? EXISTS?) ^($table_name $database_name?)
-  ^(COLUMN_DEFS column_def+)? ^(CONSTRAINTS table_constraint*)? select_stmt?);
+  ^(COLUMNS column_def+)? ^(CONSTRAINTS table_constraint*)? select_stmt?);
 
-column_def: name=id_column_def type_name? column_constraint* -> ^($name ^(CONSTRAINTS column_constraint*) type_name?);
+column_def: name=id_column_def type_name? column_constraint*
+-> ^($name ^(CONSTRAINTS column_constraint*) type_name?);
 
 column_constraint: (CONSTRAINT name=id)?
   ( column_constraint_pk
@@ -290,15 +291,28 @@ column_constraint_collate: COLLATE^ collation_name=id; // collation_name: (BINAR
 
 table_constraint: (CONSTRAINT name=id)?
   ( table_constraint_pk
+  | table_constraint_unique
   | table_constraint_check
-  | table_constraint_fk);
+  | table_constraint_fk)
+-> ^(TABLE_CONSTRAINT
+  table_constraint_pk?
+  table_constraint_unique?
+  table_constraint_check?
+  table_constraint_fk?
+  $name?);
 
-table_constraint_pk: (PRIMARY KEY | UNIQUE) LPAREN indexed_columns+=id (COMMA indexed_columns+=id)* RPAREN
-  table_conflict_clause?;
+table_constraint_pk: PRIMARY KEY
+  LPAREN indexed_columns+=id (COMMA indexed_columns+=id)* RPAREN table_conflict_clause?
+-> ^(PRIMARY ^(COLUMNS $indexed_columns+) table_conflict_clause?);
 
-table_constraint_check: CHECK LPAREN expr RPAREN;
+table_constraint_unique: UNIQUE
+  LPAREN indexed_columns+=id (COMMA indexed_columns+=id)* RPAREN table_conflict_clause?
+-> ^(UNIQUE ^(COLUMNS $indexed_columns+) table_conflict_clause?);
 
-table_constraint_fk: FOREIGN KEY LPAREN column_names+=id (COMMA column_names+=id)* RPAREN fk_clause;
+table_constraint_check: CHECK^ LPAREN! expr RPAREN!;
+
+table_constraint_fk: FOREIGN KEY LPAREN column_names+=id (COMMA column_names+=id)* RPAREN fk_clause
+-> ^(FOREIGN ^(COLUMNS $column_names+) fk_clause);
 
 fk_clause: REFERENCES^ foreign_table=id (LPAREN column_names+=id (COMMA column_names+=id)* RPAREN)?
   fk_clause_action+ fk_clause_deferrable?;

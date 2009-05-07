@@ -374,4 +374,30 @@ public class RepCacheDaoTest {
         Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
     }
 
+    // 5722908
+
+    @Test
+    public void insertWeird() throws SqlJetException {
+        boolean passed = false;
+        final Random random = new Random();
+        final long weird = 5722908;
+        RepCache repCache = new RepCache(Long.toString(SqlJetUtility.toUnsigned(random.nextInt())), weird,
+                weird, weird, weird);
+        passed = daoCopy.insert(repCache);
+        Assert.assertTrue(passed);
+        final RepCache byHash = daoCopy.getByHash(repCache.getHash());
+        Assert.assertNotNull(byHash);
+        Assert.assertNotNull(byHash.getHash());
+        Assert.assertNotNull(byHash.getRevision());
+        Assert.assertNotNull(byHash.getOffset());
+        Assert.assertNotNull(byHash.getSize());
+        Assert.assertNotNull(byHash.getExpandedSize());
+        Assert.assertEquals(repCache.getHash(), byHash.getHash());
+        Assert.assertEquals(repCache.getRevision(), byHash.getRevision());
+        Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
+        Assert.assertEquals(repCache.getSize(), byHash.getSize());
+        Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+    }
+    
+    
 }

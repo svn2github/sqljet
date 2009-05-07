@@ -26,11 +26,11 @@ import org.tmatesoft.sqljet.core.table.SqlJetRecord;
  */
 public class RepCache {
 
-    private String hash;
-    private Long revision;
-    private Long offset;
-    private Long size;
-    private Long expanded_size;
+    private String hash = "";
+    private Long revision = 0L;
+    private Long offset = 0L;
+    private Long size = 0L;
+    private Long expanded_size = 0L;
 
     public RepCache() {
     }
@@ -42,27 +42,39 @@ public class RepCache {
         this.size = size;
         this.expanded_size = expanded_size;
     }
-    
+
     RepCache(SqlJetRecord record) throws SqlJetException {
         final List<SqlJetValue> values = record.getValues();
-        this.hash = values.get(0).getString();
-        this.revision = values.get(1).getInteger();
-        this.offset = values.get(2).getInteger();
-        this.size = values.get(3).getInteger();
-        this.expanded_size = values.get(4).getInteger();
+        if(values.size()==0) return;
+        final SqlJetValue hash = values.get(0);
+        if (null != hash)
+            this.hash = hash.getString();
+        if(values.size()==1) return;
+        final SqlJetValue revision = values.get(1);
+        if (null != revision)
+            this.revision = revision.getInteger();
+        if(values.size()==2) return;
+        final SqlJetValue offset = values.get(2);
+        if (null != offset)
+            this.offset = offset.getInteger();
+        if(values.size()==3) return;
+        final SqlJetValue size = values.get(3);
+        if (null != size)
+            this.size = size.getInteger();
+        if(values.size()==4) return;
+        final SqlJetValue expanded_size = values.get(4);
+        if (null != expanded_size)
+            this.expanded_size = expanded_size.getInteger();
     }
 
     SqlJetRecord getRecord() throws SqlJetException {
-        return new SqlJetRecord(
-                new SqlJetValue(hash),
-                new SqlJetValue(revision),
-                new SqlJetValue(offset),
-                new SqlJetValue(size),
-                new SqlJetValue(expanded_size)
-        );
+        return new SqlJetRecord(new SqlJetValue(hash), new SqlJetValue(revision), new SqlJetValue(offset),
+                new SqlJetValue(size), new SqlJetValue(expanded_size));
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -77,7 +89,7 @@ public class RepCache {
         b.append(" )");
         return b.toString();
     }
-    
+
     /**
      * @return the hash
      */
@@ -86,7 +98,8 @@ public class RepCache {
     }
 
     /**
-     * @param hash the hash to set
+     * @param hash
+     *            the hash to set
      */
     public void setHash(String hash) {
         this.hash = hash;
@@ -100,7 +113,8 @@ public class RepCache {
     }
 
     /**
-     * @param revision the revision to set
+     * @param revision
+     *            the revision to set
      */
     public void setRevision(Long revision) {
         this.revision = revision;
@@ -114,7 +128,8 @@ public class RepCache {
     }
 
     /**
-     * @param offset the offset to set
+     * @param offset
+     *            the offset to set
      */
     public void setOffset(Long offset) {
         this.offset = offset;
@@ -128,7 +143,8 @@ public class RepCache {
     }
 
     /**
-     * @param size the size to set
+     * @param size
+     *            the size to set
      */
     public void setSize(Long size) {
         this.size = size;
@@ -142,7 +158,8 @@ public class RepCache {
     }
 
     /**
-     * @param expanded_size the expanded_size to set
+     * @param expanded_size
+     *            the expanded_size to set
      */
     public void setExpanded_size(Long expanded_size) {
         this.expanded_size = expanded_size;

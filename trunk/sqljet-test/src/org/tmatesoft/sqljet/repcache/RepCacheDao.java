@@ -148,7 +148,7 @@ public class RepCacheDao {
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return false;
-            if (table.goToRow(rowId) < 0)
+            if (table.goToRow(rowId) < 0 && !table.next())
                 return false;
             beginTransaction();
             index.delete(key);
@@ -170,8 +170,7 @@ public class RepCacheDao {
             }
             beginTransaction();
             final long newRowId = table.newRowId();
-            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash()),
-                    new SqlJetValue(newRowId));
+            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash()), new SqlJetValue(newRowId));
             index.insert(idxKey);
             table.insert(newRowId, repCache.getRecord());
             commit();
@@ -188,16 +187,10 @@ public class RepCacheDao {
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return false;
-            if (table.goToRow(rowId) < 0)
+            if (table.goToRow(rowId) < 0 && !table.next())
                 return false;
             beginTransaction();
-            index.delete(key);
-            table.delete(rowId);
-            final long newRowId = table.newRowId();
-            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash()),
-                    new SqlJetValue(newRowId));
-            index.insert(idxKey);
-            table.insert(newRowId, repCache.getRecord());
+            table.insert(rowId, repCache.getRecord());
             commit();
             return true;
         } finally {

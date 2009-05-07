@@ -69,7 +69,7 @@ public class SqlJetVdbeSerialType {
             return 2;
         }
         case 3: { /* 3-byte signed integer */
-            pMem.i = SqlJetUtility.fromUnsigned((int)((SqlJetUtility.getUnsignedByte(buf, 0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2)));
+            pMem.i = (buf.get(0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
             return 3;
         }

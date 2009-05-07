@@ -33,6 +33,8 @@ public interface ISqlJetTableDef {
 
     public List<ISqlJetColumnDef> getColumns();
 
+    public ISqlJetColumnDef getColumn(String name);
+
     public List<ISqlJetTableConstraint> getConstraints();
 
     public int getPage();

@@ -100,6 +100,15 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         return columns;
     }
 
+    public ISqlJetColumnDef getColumn(String name) {
+        for (ISqlJetColumnDef column : getColumns()) {
+            if (column.getName().equalsIgnoreCase(name)) {
+                return column;
+            }
+        }
+        return null;
+    }
+
     public List<ISqlJetTableConstraint> getConstraints() {
         return constraints;
     }

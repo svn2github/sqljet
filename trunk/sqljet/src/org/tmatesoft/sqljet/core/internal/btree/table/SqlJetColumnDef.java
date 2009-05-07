@@ -21,6 +21,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetTypeDef;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.
@@ -80,6 +81,22 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
 
     public ISqlJetTypeDef getType() {
         return type;
+    }
+
+    public SqlJetTypeAffinity getTypeAffinity() {
+        ISqlJetTypeDef type = getType();
+        if (type == null) {
+            return SqlJetTypeAffinity.decode(null);
+        }
+        List<String> typeNames = type.getNames();
+        if (typeNames.size() == 1) {
+            return SqlJetTypeAffinity.decode(typeNames.get(0)); // common case
+        }
+        String types = "";
+        for (String typeName : getType().getNames()) {
+            types += typeName + ' ';
+        }
+        return SqlJetTypeAffinity.decode(types);
     }
 
     public List<ISqlJetColumnConstraint> getConstraints() {

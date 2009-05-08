@@ -104,6 +104,10 @@ public class SqlJetDb {
         }
     }
 
+    public SqlJetEncoding getEncoding() {
+        return db.getEnc();
+    } 
+    
     /**
      * 
      */

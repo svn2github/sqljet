@@ -30,6 +30,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
 public class SqlJetValue {
 
     private ISqlJetVdbeMem mem;
+    private SqlJetEncoding encoding = SqlJetEncoding.UTF8;
 
     /**
      * 
@@ -60,11 +61,12 @@ public class SqlJetValue {
         return flags.contains(SqlJetVdbeMemFlags.Null);
     }
     
-    public SqlJetValue(String value) throws SqlJetException {
+    public SqlJetValue(String value, SqlJetEncoding encoding ) throws SqlJetException {
+        this.encoding =  encoding;
         mem = new SqlJetVdbeMem();
-        mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(value)), SqlJetEncoding.UTF8);
+        mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(value)), encoding);
     }
-
+    
     public SqlJetValue(Long value) {
         mem = new SqlJetVdbeMem();
         mem.setInt64(value);
@@ -77,7 +79,7 @@ public class SqlJetValue {
 
     public String getString() throws SqlJetException {
         if(isNull()) return null;
-        return SqlJetUtility.toString(mem.valueText(SqlJetEncoding.UTF8));
+        return SqlJetUtility.toString(mem.valueText(encoding));
     }
 
     public Long getInteger() {

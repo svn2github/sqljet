@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.table.SqlJetRecord;
@@ -67,8 +68,8 @@ public class RepCache {
             this.expanded_size = expanded_size.getInteger();
     }
 
-    SqlJetRecord getRecord() throws SqlJetException {
-        return new SqlJetRecord(new SqlJetValue(hash), new SqlJetValue(revision), new SqlJetValue(offset),
+    SqlJetRecord getRecord(SqlJetEncoding encoding) throws SqlJetException {
+        return new SqlJetRecord(new SqlJetValue(hash,encoding), new SqlJetValue(revision), new SqlJetValue(offset),
                 new SqlJetValue(size), new SqlJetValue(expanded_size));
     }
 

@@ -129,7 +129,7 @@ public class RepCacheDao {
     public RepCache getByHash(final String hash) throws SqlJetException {
         db.lock();
         try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash));
+            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return null;
@@ -144,7 +144,7 @@ public class RepCacheDao {
     public boolean deleteByHash(final String hash) throws SqlJetException {
         db.lock();
         try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash));
+            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return false;
@@ -163,16 +163,16 @@ public class RepCacheDao {
     public boolean insert(RepCache repCache) throws SqlJetException {
         db.lock();
         try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash()));
+            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
             final SqlJetRecord lookup = index.lookup(key);
             if (null != lookup) {
                 return false;
             }
             beginTransaction();
             final long newRowId = table.newRowId();
-            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash()), new SqlJetValue(newRowId));
+            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()), new SqlJetValue(newRowId));
             index.insert(idxKey);
-            table.insert(newRowId, repCache.getRecord());
+            table.insert(newRowId, repCache.getRecord(db.getEncoding()));
             commit();
             return true;
         } finally {
@@ -183,14 +183,14 @@ public class RepCacheDao {
     public boolean update(RepCache repCache) throws SqlJetException {
         db.lock();
         try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash()));
+            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
             final Long rowId = index.getRecordRowId(index.lookup(key));
             if (null == rowId)
                 return false;
             if (table.goToRow(rowId) < 0 && !table.next())
                 return false;
             beginTransaction();
-            table.insert(rowId, repCache.getRecord());
+            table.insert(rowId, repCache.getRecord(db.getEncoding()));
             commit();
             return true;
         } finally {

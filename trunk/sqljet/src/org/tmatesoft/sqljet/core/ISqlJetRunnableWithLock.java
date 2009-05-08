@@ -1,5 +1,5 @@
 /**
- * SqlJetDbFactory.java
+ * ISqlJetRunnableWithLock.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,17 +15,9 @@ package org.tmatesoft.sqljet.core;
 
 /**
  * @author TMate Software Ltd.
- * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public abstract class SqlJetDbFactory {
-    
-    private SqlJetDbFactory() {
-        
-    }
+public interface ISqlJetRunnableWithLock {
 
-    public static ISqlJetDb createDb() {
-        return new SqlJetDb();
-    } 
-    
+    public Object runWithLock() throws SqlJetException;
 }

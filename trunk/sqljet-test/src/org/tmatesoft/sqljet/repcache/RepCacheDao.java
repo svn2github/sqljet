@@ -15,8 +15,8 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.io.File;
 
-import org.tmatesoft.sqljet.core.ISqlJetDb;
-import org.tmatesoft.sqljet.core.SqlJetDbFactory;
+import org.tmatesoft.sqljet.core.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.SqlJetDb;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -37,7 +37,7 @@ public class RepCacheDao {
     public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp(REP_CACHE_DAO + ".REP_CACHE_TABLE",
             "rep_cache");
 
-    private ISqlJetDb db;
+    private SqlJetDb db;
     private SqlJetTable table;
     private SqlJetIndex index;
 
@@ -46,21 +46,21 @@ public class RepCacheDao {
      * 
      */
     public RepCacheDao(File file, boolean write) throws SqlJetException {
-        db = SqlJetDbFactory.createDb();
-        db.open(file, write);
+        db = SqlJetDb.open(file, write);
         table = db.openTable(REP_CACHE_TABLE);
-        index = db.openIndex(db.getIndexesNames(REP_CACHE_TABLE).iterator().next());
+        index = db.openIndex(db.getIndexNames(REP_CACHE_TABLE).iterator().next());
     }
 
     public void close() throws SqlJetException {
-        db.lock();
-        try {
-            table.close();
-            index.close();
-            db.close();
-        } finally {
-            db.unlock();
-        }
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                table.close();
+                index.close();
+                db.close();
+                return null;
+            }
+        });
     }
 
     public void beginTransaction() throws SqlJetException {
@@ -75,130 +75,129 @@ public class RepCacheDao {
         db.rollback();
     }
 
-    public boolean eof() {
-        db.lock();
-        try {
-            return table.eof();
-        } finally {
-            db.unlock();
-        }
+    public boolean eof() throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return table.eof();
+            }
+        });
     }
 
     public boolean first() throws SqlJetException {
-        db.lock();
-        try {
-            return table.first();
-        } finally {
-            db.unlock();
-        }
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return table.first();
+            }
+        });
     }
 
     public boolean last() throws SqlJetException {
-        db.lock();
-        try {
-            return table.last();
-        } finally {
-            db.unlock();
-        }
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return table.last();
+            }
+        });
     }
 
     public boolean next() throws SqlJetException {
-        db.lock();
-        try {
-            return table.next();
-        } finally {
-            db.unlock();
-        }
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return table.next();
+            }
+        });
     }
 
     public boolean previous() throws SqlJetException {
-        db.lock();
-        try {
-            return table.previous();
-        } finally {
-            db.unlock();
-        }
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return table.previous();
+            }
+        });
     }
 
     public RepCache getRepCache() throws SqlJetException {
-        db.lock();
-        try {
-            return new RepCache(table.getRecord());
-        } finally {
-            db.unlock();
-        }
+        return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                return new RepCache(table.getRecord());
+            }
+        });
     }
 
     public RepCache getByHash(final String hash) throws SqlJetException {
-        db.lock();
-        try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-            final Long rowId = index.getKeyRowId(index.lookup(key));
-            if (null == rowId)
-                return null;
-            if (table.goToRow(rowId) < 0 && !table.next())
-                return null;
-            return getRepCache();
-        } finally {
-            db.unlock();
-        }
+        return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
+                final Long rowId = index.getKeyRowId(index.lookup(key));
+                if (null == rowId)
+                    return null;
+                if (table.goToRow(rowId) < 0 && !table.next())
+                    return null;
+                return getRepCache();
+            }
+        });
     }
 
     public boolean deleteByHash(final String hash) throws SqlJetException {
-        db.lock();
-        try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-            final Long rowId = index.getKeyRowId(index.lookup(key));
-            if (null == rowId)
-                return false;
-            if (table.goToRow(rowId) < 0 && !table.next())
-                return false;
-            beginTransaction();
-            index.delete(key);
-            table.delete(rowId);
-            commit();
-            return true;
-        } finally {
-            db.unlock();
-        }
-    }
-
-    public boolean insert(RepCache repCache) throws SqlJetException {
-        db.lock();
-        try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-            final ISqlJetRecord lookup = index.lookup(key);
-            if (null != lookup) {
-                return false;
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
+                final Long rowId = index.getKeyRowId(index.lookup(key));
+                if (null == rowId)
+                    return false;
+                if (table.goToRow(rowId) < 0 && !table.next())
+                    return false;
+                beginTransaction();
+                index.delete(key);
+                table.delete(rowId);
+                commit();
+                return true;
             }
-            beginTransaction();
-            final long newRowId = table.newRowId();
-            final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()), new SqlJetValue(newRowId));
-            index.insert(idxKey);
-            table.insert(newRowId, repCache.getRecord(db.getEncoding()));
-            commit();
-            return true;
-        } finally {
-            db.unlock();
-        }
+        });
     }
 
-    public boolean update(RepCache repCache) throws SqlJetException {
-        db.lock();
-        try {
-            final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-            final Long rowId = index.getKeyRowId(index.lookup(key));
-            if (null == rowId)
-                return false;
-            if (table.goToRow(rowId) < 0 && !table.next())
-                return false;
-            beginTransaction();
-            table.insert(rowId, repCache.getRecord(db.getEncoding()));
-            commit();
-            return true;
-        } finally {
-            db.unlock();
-        }
+    public boolean insert(final RepCache repCache) throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
+                final ISqlJetRecord lookup = index.lookup(key);
+                if (null != lookup) {
+                    return false;
+                }
+                beginTransaction();
+                final long newRowId = table.newRowId();
+                final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()), new SqlJetValue(newRowId));
+                index.insert(idxKey);
+                table.insert(newRowId, repCache.getRecord(db.getEncoding()));
+                commit();
+                return true;
+            }
+        });
     }
 
+    public boolean update(final RepCache repCache) throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+            
+            public Object runWithLock() throws SqlJetException {
+                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
+                final Long rowId = index.getKeyRowId(index.lookup(key));
+                if (null == rowId)
+                    return false;
+                if (table.goToRow(rowId) < 0 && !table.next())
+                    return false;
+                beginTransaction();
+                table.insert(rowId, repCache.getRecord(db.getEncoding()));
+                commit();
+                return true;
+            }
+        });
+    }
 }

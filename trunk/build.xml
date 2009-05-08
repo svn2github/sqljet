@@ -78,7 +78,7 @@
 			<sysproperty key="SQLJET_PAGER_LOG" value="false"/>
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
 			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true"/>
-			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="1000"/>
+			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100"/>
 		</junit>
 	</target>
 	

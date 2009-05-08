@@ -127,7 +127,7 @@ public class SqlJetDb {
     }
 
     public Set<String> getIndexNames(String tableName) {
-        return schema.getTableIndexes(tableName);
+        return schema.getIndexNames(tableName);
     }
 
     public SqlJetTable openTable(final String tableName) throws SqlJetException {

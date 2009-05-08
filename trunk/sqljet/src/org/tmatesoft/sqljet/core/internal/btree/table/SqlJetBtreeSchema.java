@@ -54,7 +54,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     private final SqlJetBtreeSchemaMeta meta;
 
     private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
-    private final Map<String, Integer> indexes = new HashMap<String, Integer>();
+    private final Map<String, Integer> indexPages = new HashMap<String, Integer>();
     private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
     public SqlJetBtreeSchema(ISqlJetBtree btree) throws SqlJetException {
@@ -91,7 +91,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
         return tableDefs.get(name);
     }
 
-    public Set<String> getTableIndexes(String tableName) {
+    public Set<String> getIndexNames(String tableName) {
         final Set<String> indexNames = tableIndexes.get(tableName);
         if (indexNames == null) {
             return Collections.emptySet();
@@ -100,7 +100,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     }
 
     public int getIndexPage(String indexName) {
-        final Integer page = indexes.get(indexName);
+        final Integer page = indexPages.get(indexName);
         return page == null ? 0 : page;
     }
 
@@ -129,7 +129,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
                 }
                 tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
-                indexes.put(name, page);
+                indexPages.put(name, page);
                 final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, meta.getEncoding() ));
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
@@ -164,8 +164,8 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
             buffer.append('\n');
         }
         buffer.append("Indexes:\n");
-        for (String name : indexes.keySet()) {
-            buffer.append(indexes.get(name));
+        for (String name : indexPages.keySet()) {
+            buffer.append(indexPages.get(name));
             buffer.append(": ");
             buffer.append(name);
             buffer.append('\n');

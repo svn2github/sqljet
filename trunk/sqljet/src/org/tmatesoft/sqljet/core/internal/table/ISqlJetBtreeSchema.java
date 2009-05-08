@@ -29,7 +29,7 @@ public interface ISqlJetBtreeSchema {
 
     ISqlJetTableDef getTable(String name);
 
-    Set<String> getTableIndexes(String tableName);
+    Set<String> getIndexNames(String tableName);
 
     int getIndexPage(String indexName);
     

@@ -48,6 +48,8 @@ public class RepCacheDaoTest {
             "sqljet-test/db/rep-cache/rep-cache.db");
 
     private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(REP_CACHE_DAO_TEST + ".DELETE_COPY", true);
+    private static final boolean CHECK_PASS_COUNT = SqlJetUtility.getBoolSysProp(REP_CACHE_DAO_TEST + ".CHECK_PASS_COUNT", true);
+    private static final int PASS_COUNT = SqlJetUtility.getIntSysProp(REP_CACHE_DAO_TEST + ".PASS_COUNT", 100);
 
     private File repCache = new File(REP_CACHE_DB);
     private File repCacheCopy;
@@ -91,6 +93,7 @@ public class RepCacheDaoTest {
 
     @Test
     public void readAll() throws SqlJetException {
+        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             do {
@@ -103,6 +106,7 @@ public class RepCacheDaoTest {
                 Assert.assertNotNull(repCache.getExpandedSize());
                 logger.info(repCache.toString());
                 passed = true;
+                if(CHECK_PASS_COUNT&&pass++>PASS_COUNT) break;
             } while (dao.next());
         }
         Assert.assertTrue(passed);
@@ -110,6 +114,7 @@ public class RepCacheDaoTest {
 
     @Test
     public void searchAll() throws SqlJetException {
+        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             do {
@@ -130,6 +135,7 @@ public class RepCacheDaoTest {
                 Assert.assertEquals(byHash.getSize(), repCache.getSize());
                 Assert.assertEquals(byHash.getExpandedSize(), repCache.getExpandedSize());
                 passed = true;
+                if(CHECK_PASS_COUNT&&pass++>PASS_COUNT) break;
             } while (dao.next());
         }
         Assert.assertTrue(passed);
@@ -137,6 +143,7 @@ public class RepCacheDaoTest {
 
     @Test
     public void deleteAll() throws SqlJetException {
+        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             do {
@@ -146,15 +153,19 @@ public class RepCacheDaoTest {
                 Assert.assertNotNull(hash);
                 passed = daoCopy.deleteByHash(hash);
                 Assert.assertTrue(passed);
+                if(CHECK_PASS_COUNT&&pass++>PASS_COUNT) break;
             } while (dao.next());
         }
-        daoCopy.first();
-        Assert.assertFalse(daoCopy.next());
         Assert.assertTrue(passed);
+        if(!CHECK_PASS_COUNT) {
+            daoCopy.first();
+            Assert.assertFalse(daoCopy.next());
+        }
     }
 
     @Test
     public void update() throws SqlJetException {
+        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             final RepCache repCache = dao.getRepCache();
@@ -182,6 +193,7 @@ public class RepCacheDaoTest {
 
     @Test
     public void updateAll() throws SqlJetException {
+        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             do {
@@ -204,6 +216,7 @@ public class RepCacheDaoTest {
                 Assert.assertEquals(repCache.getOffset(), byHash.getOffset());
                 Assert.assertEquals(repCache.getSize(), byHash.getSize());
                 Assert.assertEquals(repCache.getExpandedSize(), byHash.getExpandedSize());
+                if(CHECK_PASS_COUNT&&pass++>PASS_COUNT) break;
             } while (dao.next());
         }
         Assert.assertTrue(passed);
@@ -213,7 +226,7 @@ public class RepCacheDaoTest {
     public void insert() throws SqlJetException {
         boolean passed = false;
         final Random random = new Random();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < PASS_COUNT; i++) {
             RepCache repCache = new RepCache(
                     Long.toString(SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE))), SqlJetUtility
                             .toUnsigned(random.nextInt(Integer.MAX_VALUE)), SqlJetUtility.toUnsigned(random

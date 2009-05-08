@@ -24,7 +24,6 @@ import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
@@ -52,7 +51,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     private static final String INDEX_TYPE = "index";
 
     private final ISqlJetBtree btree;
-    private final SqlJetEncoding enc;
+    private final SqlJetBtreeSchemaMeta meta;
 
     private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
     private final Map<String, Integer> indexes = new HashMap<String, Integer>();
@@ -60,13 +59,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
     public SqlJetBtreeSchema(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
-        this.enc = SqlJetEncoding.UTF8;
-        init();
-    }
-
-    public SqlJetBtreeSchema(ISqlJetBtree btree, SqlJetEncoding enc) throws SqlJetException {
-        this.btree = btree;
-        this.enc = enc;
+        this.meta = new SqlJetBtreeSchemaMeta(btree);
         init();
     }
 
@@ -78,11 +71,18 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
             bt.close();
         }
     }
-
+    
     public ISqlJetBtree getBtree() {
         return btree;
     }
 
+    /**
+     * @return the meta
+     */
+    public SqlJetBtreeSchemaMeta getMeta() {
+        return meta;
+    }
+    
     public Set<String> getTableNames() {
         return tableDefs.keySet();
     }
@@ -106,11 +106,11 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
 
     private void readShema(SqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
-            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, enc));
+            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, meta.getEncoding() ));
             if (null == type) {
                 continue;
             }
-            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, enc));
+            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, meta.getEncoding() ));
             if (null == name) {
                 continue;
             }
@@ -120,7 +120,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
             }
 
             if (TABLE_TYPE.equals(type)) {
-                String sql = record.getStringField(SQL_FIELD, enc);
+                String sql = record.getStringField(SQL_FIELD, meta.getEncoding() );
                 // System.err.println(sql);
                 CommonTree ast = parse(sql);
                 ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
@@ -130,7 +130,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
                 tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
                 indexes.put(name, page);
-                final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, enc));
+                final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, meta.getEncoding() ));
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }

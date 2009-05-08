@@ -48,7 +48,7 @@ public class SqlJetBtreeSchemaMeta {
     /**
      * Db text encoding. 
      */
-    private SqlJetEncoding encoding;
+    private SqlJetEncoding encoding = SqlJetEncoding.UTF8;
     
     /**
      * The user cookie. Used by the application.
@@ -124,7 +124,7 @@ public class SqlJetBtreeSchemaMeta {
             encoding = SqlJetEncoding.UTF16BE;
             break;
         default:
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+            encoding = SqlJetEncoding.UTF8;
         }
         userCookie = btree.getMeta(6);
         incrementalVacuum = btree.getMeta(7) != 0;

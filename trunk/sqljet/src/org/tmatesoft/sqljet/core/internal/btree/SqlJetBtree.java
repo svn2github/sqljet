@@ -2105,7 +2105,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * The b-tree does not have a reference to page 1 of the
                  * database file. Obtain one from the pager layer.
                  */
-                pDbPage = pBt.pPager.getPage(1);
+                pDbPage = pBt.pPager.acquirePage(1,true);
                 pP1 = pDbPage.getData();
             }
 
@@ -2119,13 +2119,6 @@ public class SqlJetBtree implements ISqlJetBtree {
             if (pBt.pPage1 == null) {
                 pDbPage.unref();
             }
-
-            /*
-             * If autovacuumed is disabled in this build but we are trying to
-             * access an autovacuumed database, then make the database readonly.
-             */
-            if (idx == 4 && pMeta > 0)
-                pBt.readOnly = true;
 
             /* Grab the read-lock on page 1. */
             lockTable(1, SqlJetBtreeLockMode.READ);

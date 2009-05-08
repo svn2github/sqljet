@@ -17,13 +17,14 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchemaMeta;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeSchemaMeta {
+public class SqlJetBtreeSchemaMeta implements ISqlJetBtreeSchemaMeta {
 
     /**
      * Schema cookie. Changes with each schema change.
@@ -124,70 +125,56 @@ public class SqlJetBtreeSchemaMeta {
             encoding = SqlJetEncoding.UTF16BE;
             break;
         default:
-            encoding = SqlJetEncoding.UTF8;
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         userCookie = btree.getMeta(6);
         incrementalVacuum = btree.getMeta(7) != 0;
     }
 
-    /**
-     * Schema cookie. Changes with each schema change.
-     * 
-     * @return the schemaCookie
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getSchemaCookie()
      */
     public int getSchemaCookie() {
         return schemaCookie;
     }
 
-    /**
-     * File format of schema layer.
-     * 
-     * @return the fileFormat
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getFileFormat()
      */
     public int getFileFormat() {
         return fileFormat;
     }
 
-    /**
-     * Size of the page cache.
-     * 
-     * @return the pageCacheSize
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getPageCacheSize()
      */
     public int getPageCacheSize() {
         return pageCacheSize;
     }
 
-    /**
-     * Use freelist if false. Autovacuum if true.
-     * 
-     * @return the autovacuum
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#isAutovacuum()
      */
     public boolean isAutovacuum() {
         return autovacuum;
     }
 
-    /**
-     * Db text encoding. 
-     * 
-     * @return the encoding
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getEncoding()
      */
     public SqlJetEncoding getEncoding() {
         return encoding;
     }
 
-    /**
-     * The user cookie. Used by the application.
-     * 
-     * @return the userCookie
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getUserCookie()
      */
     public int getUserCookie() {
         return userCookie;
     }
 
-    /**
-     * Incremental-vacuum flag.
-     * 
-     * @return the incrementalVacuum
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#isIncrementalVacuum()
      */
     public boolean isIncrementalVacuum() {
         return incrementalVacuum;

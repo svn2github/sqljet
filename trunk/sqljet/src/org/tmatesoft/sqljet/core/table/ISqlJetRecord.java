@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.SqlJetValue;
 
 /**
  * @author TMate Software Ltd.

@@ -15,15 +15,15 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.io.File;
 
-import org.tmatesoft.sqljet.core.ISqlJetRunnableWithLock;
-import org.tmatesoft.sqljet.core.SqlJetDb;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.tmatesoft.sqljet.core.table.SqlJetIndex;
 import org.tmatesoft.sqljet.core.table.SqlJetRecord;
 import org.tmatesoft.sqljet.core.table.SqlJetTable;
+import org.tmatesoft.sqljet.core.table.SqlJetValue;
 
 /**
  * @author TMate Software Ltd.

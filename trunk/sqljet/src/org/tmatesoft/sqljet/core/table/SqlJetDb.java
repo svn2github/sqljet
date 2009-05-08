@@ -11,12 +11,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core;
+package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
@@ -31,8 +33,6 @@ import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
-import org.tmatesoft.sqljet.core.table.SqlJetIndex;
-import org.tmatesoft.sqljet.core.table.SqlJetTable;
 
 /**
  * Connection to database.

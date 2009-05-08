@@ -15,12 +15,12 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.util.List;
 
-import org.tmatesoft.sqljet.core.ISqlJetValue;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
+import org.tmatesoft.sqljet.core.table.ISqlJetValue;
 import org.tmatesoft.sqljet.core.table.SqlJetRecord;
+import org.tmatesoft.sqljet.core.table.SqlJetValue;
 
 /**
  * @author TMate Software Ltd.

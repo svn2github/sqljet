@@ -16,7 +16,6 @@ package org.tmatesoft.sqljet.core.table;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 

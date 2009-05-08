@@ -108,4 +108,11 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     public SqlJetEncoding getEnc() {
         return enc;
     }
+    
+    /**
+     * @param enc the enc to set
+     */
+    public void setEnc(SqlJetEncoding enc) {
+        this.enc = enc;
+    }
 }

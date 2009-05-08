@@ -78,6 +78,7 @@ public class SqlJetDb {
         btree.enter();
         try {
             schema = new SqlJetBtreeSchema(btree);
+            db.setEnc(schema.getMeta().getEncoding());
         } finally {
             btree.leave();
             db.getMutex().leave();

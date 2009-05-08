@@ -77,5 +77,6 @@ public interface ISqlJetDbHandle {
     int getSavepointNum();
     
     SqlJetEncoding getEnc();
-    
+
+    void setEnc(SqlJetEncoding enc);    
 }

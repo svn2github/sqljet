@@ -15,9 +15,11 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.ISqlJetValue;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValue;
+import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.table.SqlJetRecord;
 
 /**
@@ -44,26 +46,26 @@ public class RepCache {
         this.expanded_size = expanded_size;
     }
 
-    RepCache(SqlJetRecord record) throws SqlJetException {
+    RepCache(ISqlJetRecord record) throws SqlJetException {
         final List<SqlJetValue> values = record.getValues();
         if(values.size()==0) return;
-        final SqlJetValue hash = values.get(0);
+        final ISqlJetValue hash = values.get(0);
         if (null != hash)
             this.hash = hash.getString();
         if(values.size()==1) return;
-        final SqlJetValue revision = values.get(1);
+        final ISqlJetValue revision = values.get(1);
         if (null != revision)
             this.revision = revision.getInteger();
         if(values.size()==2) return;
-        final SqlJetValue offset = values.get(2);
+        final ISqlJetValue offset = values.get(2);
         if (null != offset)
             this.offset = offset.getInteger();
         if(values.size()==3) return;
-        final SqlJetValue size = values.get(3);
+        final ISqlJetValue size = values.get(3);
         if (null != size)
             this.size = size.getInteger();
         if(values.size()==4) return;
-        final SqlJetValue expanded_size = values.get(4);
+        final ISqlJetValue expanded_size = values.get(4);
         if (null != expanded_size)
             this.expanded_size = expanded_size.getInteger();
     }

@@ -28,6 +28,8 @@ import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.table.SqlJetIndex;
 import org.tmatesoft.sqljet.core.table.SqlJetTable;
@@ -39,7 +41,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetTable;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetDb {
+public class SqlJetDb implements ISqlJetDb {
 
     private static final EnumSet<SqlJetBtreeFlags> READ_FLAGS = EnumSet.of(SqlJetBtreeFlags.READONLY);
     private static final EnumSet<SqlJetFileOpenPermission> READ_PERMISSIONS = EnumSet
@@ -55,17 +57,26 @@ public class SqlJetDb {
     private ISqlJetBtree btree;
     private ISqlJetBtreeSchema schema;
 
-    /**
-     * Open data base.
-     * 
-     * @param file
-     *            path to database
-     * @param write
-     *            false for read-only
-     * 
-     * @throws SqlJetException
+    public static class SqlJetDataTable extends SqlJetTable {
+        SqlJetDataTable(ISqlJetBtreeDataTable dataTable) {
+            super(dataTable);
+        }
+    }
+
+    public static class SqlJetIndexTable extends SqlJetIndex {
+        SqlJetIndexTable(ISqlJetBtreeIndexTable indexTable) {
+            super(indexTable);
+        }
+    }
+    
+    SqlJetDb() {
+        
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#open(java.io.File, boolean)
      */
-    public SqlJetDb(File file, boolean write) throws SqlJetException {
+    public void open(File file, boolean write) throws SqlJetException {
 
         this.file = file;
         this.write = write;
@@ -85,15 +96,15 @@ public class SqlJetDb {
         }
     }
 
-    /**
-     * @return the write
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#isWrite()
      */
     public boolean isWrite() {
         return write;
     }
 
-    /**
-     * @throws SqlJetException
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#close()
      */
     public void close() throws SqlJetException {
         lock();
@@ -104,67 +115,84 @@ public class SqlJetDb {
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEncoding()
+     */
     public SqlJetEncoding getEncoding() {
         return db.getEnc();
     } 
     
-    /**
-     * 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#lock()
      */
     public void lock() {
         db.getMutex().enter();
     }
 
-    /**
-     * 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#unlock()
      */
     public void unlock() {
         db.getMutex().leave();
     }
 
-    /**
-     * @return
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#getTablesNames()
      */
     public Set<String> getTablesNames() {
         return schema.getTableNames();
     }
 
-    /**
-     * @param tableName
-     * @return
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#getIndexesNames(java.lang.String)
      */
     public Set<String> getIndexesNames(String tableName) {
         return schema.getTableIndexes(tableName);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#openTable(java.lang.String)
+     */
     public SqlJetTable openTable(String tableName) throws SqlJetException {
         lock();
         try {
-            return new SqlJetTable(new SqlJetBtreeDataTable(schema, tableName, write));
+            return new SqlJetDataTable(new SqlJetBtreeDataTable(schema, tableName, write));
         } finally {
             unlock();
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#openIndex(java.lang.String)
+     */
     public SqlJetIndex openIndex(String indexName) throws SqlJetException {
         lock();
         try {
-            return new SqlJetIndex(new SqlJetBtreeIndexTable(schema, indexName, write));
+            return new SqlJetIndexTable(new SqlJetBtreeIndexTable(schema, indexName, write));
         } finally {
             unlock();
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#beginTransaction()
+     */
     public void beginTransaction() throws SqlJetException {
         if (write)
             btree.beginTrans(SqlJetTransactionMode.WRITE);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#commit()
+     */
     public void commit() throws SqlJetException {
         if (write)
             btree.commit();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetDb#rollback()
+     */
     public void rollback() throws SqlJetException {
         if (write)
             btree.rollback();

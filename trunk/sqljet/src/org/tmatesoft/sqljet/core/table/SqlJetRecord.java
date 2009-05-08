@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.ISqlJetValue;
 import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
@@ -28,7 +29,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetRecord {
+public class SqlJetRecord implements ISqlJetRecord {
 
     private List<SqlJetValue> values;
 
@@ -50,7 +51,7 @@ public class SqlJetRecord {
     ISqlJetBtreeRecord getRecord() {
         List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.size());
         if(values!=null)
-        for (SqlJetValue value : values) {
+        for (ISqlJetValue value : values) {
             fields.add(value.getMem());
         }
         return new SqlJetBtreeRecord(fields);
@@ -63,8 +64,8 @@ public class SqlJetRecord {
         this.values = Arrays.asList(values);
     }
 
-    /**
-     * @return the values
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetRecord#getValues()
      */
     public List<SqlJetValue> getValues() {
         if(null==values) return null;
@@ -83,7 +84,7 @@ public class SqlJetRecord {
         s.append("=[");
         if (values != null) {
             boolean first = true;
-            for (SqlJetValue value : values) {
+            for (ISqlJetValue value : values) {
                 if (!first) {
                     s.append(",");
                 } else {

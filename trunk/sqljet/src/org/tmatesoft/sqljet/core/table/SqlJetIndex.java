@@ -25,41 +25,47 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetIndex extends SqlJetCursor {
+public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
 
     private ISqlJetBtreeIndexTable indexTable;
 
     /**
      * 
      */
-    public SqlJetIndex(ISqlJetBtreeIndexTable indexTable) {
+    protected SqlJetIndex(ISqlJetBtreeIndexTable indexTable) {
         super(indexTable);
         this.indexTable = indexTable;
     }
 
-    public SqlJetRecord lookup(SqlJetRecord key) throws SqlJetException{
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookup(org.tmatesoft.sqljet.core.table.SqlJetRecord)
+     */
+    public ISqlJetRecord lookup(SqlJetRecord key) throws SqlJetException{
         final ISqlJetBtreeRecord lookup = indexTable.lookup(key.getRecord());
         if(null==lookup) return null;
         return new SqlJetRecord(lookup);
     }
     
-    public Long getRecordRowId(SqlJetRecord record) {
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#getRecordRowId(org.tmatesoft.sqljet.core.table.SqlJetRecord)
+     */
+    public Long getKeyRowId(ISqlJetRecord record) {
         if(null == record) return null;
         final List<SqlJetValue> values = record.getValues();
         if( null == values || 0 == values.size()) return null;
         return values.get(values.size()-1).getInteger();
     }
 
-    /**
-     * Writes key into the index.
-     *  
-     * @param key
-     * @throws SqlJetException
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#insert(org.tmatesoft.sqljet.core.table.SqlJetRecord)
      */
     public void insert(SqlJetRecord key) throws SqlJetException {
         indexTable.insert(key.getRecord(), true);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(org.tmatesoft.sqljet.core.table.SqlJetRecord)
+     */
     public void delete(SqlJetRecord key) throws SqlJetException {
         indexTable.delete(key.getRecord());
     }

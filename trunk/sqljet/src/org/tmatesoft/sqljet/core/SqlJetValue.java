@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
-import org.tmatesoft.sqljet.core.internal.SqlJetMemType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
@@ -27,7 +26,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetValue {
+public class SqlJetValue implements ISqlJetValue {
 
     private ISqlJetVdbeMem mem;
     private SqlJetEncoding encoding = SqlJetEncoding.UTF8;
@@ -39,8 +38,8 @@ public class SqlJetValue {
         this.mem = mem;
     }
 
-    /**
-     * @return the mem
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#getMem()
      */
     public ISqlJetVdbeMem getMem() {
         return mem;
@@ -54,6 +53,9 @@ public class SqlJetValue {
         mem.setNull();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#isNull()
+     */
     public boolean isNull() {
         if(null==mem) return true;
         final EnumSet<SqlJetVdbeMemFlags> flags = mem.getFlags();
@@ -77,16 +79,25 @@ public class SqlJetValue {
         mem.setDouble(value);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#getString()
+     */
     public String getString() throws SqlJetException {
         if(isNull()) return null;
         return SqlJetUtility.toString(mem.valueText(encoding));
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#getInteger()
+     */
     public Long getInteger() {
         if(isNull()) return null;
         return mem.intValue();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#getReal()
+     */
     public Double getReal() {
         if(isNull()) return null;
         return mem.realValue();
@@ -94,6 +105,9 @@ public class SqlJetValue {
 
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
+     */
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.ISqlJetValue#toString()
      */
     @Override
     public String toString() {

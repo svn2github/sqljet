@@ -15,10 +15,12 @@ package org.tmatesoft.sqljet.repcache;
 
 import java.io.File;
 
-import org.tmatesoft.sqljet.core.SqlJetDb;
+import org.tmatesoft.sqljet.core.ISqlJetDb;
+import org.tmatesoft.sqljet.core.SqlJetDbFactory;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValue;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.table.SqlJetIndex;
 import org.tmatesoft.sqljet.core.table.SqlJetRecord;
 import org.tmatesoft.sqljet.core.table.SqlJetTable;
@@ -35,7 +37,7 @@ public class RepCacheDao {
     public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp(REP_CACHE_DAO + ".REP_CACHE_TABLE",
             "rep_cache");
 
-    private SqlJetDb db;
+    private ISqlJetDb db;
     private SqlJetTable table;
     private SqlJetIndex index;
 
@@ -44,7 +46,8 @@ public class RepCacheDao {
      * 
      */
     public RepCacheDao(File file, boolean write) throws SqlJetException {
-        db = new SqlJetDb(file, write);
+        db = SqlJetDbFactory.createDb();
+        db.open(file, write);
         table = db.openTable(REP_CACHE_TABLE);
         index = db.openIndex(db.getIndexesNames(REP_CACHE_TABLE).iterator().next());
     }
@@ -130,7 +133,7 @@ public class RepCacheDao {
         db.lock();
         try {
             final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-            final Long rowId = index.getRecordRowId(index.lookup(key));
+            final Long rowId = index.getKeyRowId(index.lookup(key));
             if (null == rowId)
                 return null;
             if (table.goToRow(rowId) < 0 && !table.next())
@@ -145,7 +148,7 @@ public class RepCacheDao {
         db.lock();
         try {
             final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-            final Long rowId = index.getRecordRowId(index.lookup(key));
+            final Long rowId = index.getKeyRowId(index.lookup(key));
             if (null == rowId)
                 return false;
             if (table.goToRow(rowId) < 0 && !table.next())
@@ -164,7 +167,7 @@ public class RepCacheDao {
         db.lock();
         try {
             final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-            final SqlJetRecord lookup = index.lookup(key);
+            final ISqlJetRecord lookup = index.lookup(key);
             if (null != lookup) {
                 return false;
             }
@@ -184,7 +187,7 @@ public class RepCacheDao {
         db.lock();
         try {
             final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-            final Long rowId = index.getRecordRowId(index.lookup(key));
+            final Long rowId = index.getKeyRowId(index.lookup(key));
             if (null == rowId)
                 return false;
             if (table.goToRow(rowId) < 0 && !table.next())

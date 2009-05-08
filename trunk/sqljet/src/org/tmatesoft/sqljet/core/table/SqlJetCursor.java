@@ -26,7 +26,7 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public abstract class SqlJetCursor {
+public abstract class SqlJetCursor implements ISqlJetCursor {
     
     private ISqlJetBtreeTable btreeTable;
     
@@ -37,31 +37,52 @@ public abstract class SqlJetCursor {
         this.btreeTable = table;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
+     */
     public void close() throws SqlJetException {
         btreeTable.close();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#eof()
+     */
     public boolean eof() {
         return btreeTable.eof();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#first()
+     */
     public boolean first() throws SqlJetException {
         return btreeTable.first();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#last()
+     */
     public boolean last() throws SqlJetException {
         return btreeTable.last();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#next()
+     */
     public boolean next() throws SqlJetException {
         return btreeTable.next();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#previous()
+     */
     public boolean previous() throws SqlJetException {
         return btreeTable.previous();
     }
 
-    public SqlJetRecord getRecord() throws SqlJetException {
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRecord()
+     */
+    public ISqlJetRecord getRecord() throws SqlJetException {
         return new SqlJetRecord(btreeTable.getRecord());
     }
 

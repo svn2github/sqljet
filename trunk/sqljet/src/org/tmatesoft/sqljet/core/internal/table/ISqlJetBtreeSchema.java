@@ -32,4 +32,6 @@ public interface ISqlJetBtreeSchema {
     Set<String> getTableIndexes(String tableName);
 
     int getIndexPage(String indexName);
+    
+    ISqlJetBtreeSchemaMeta getMeta();
 }

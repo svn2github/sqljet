@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetAbstractLoggedTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
@@ -72,7 +73,6 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(BTREE_TABLE_TEST + ".DELETE_COPY", false);
 
-    
     private File repCacheDb = new File(REP_CACHE_DB);
     private File repCacheDbCopy;
 
@@ -167,10 +167,24 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         Assert.assertTrue(passed);
     }
 
+    private SqlJetEncoding getEncoding(ISqlJetBtree btree) throws SqlJetException {
+        switch (btree.getMeta(5)) {
+        case 1:
+            return SqlJetEncoding.UTF8;
+        case 2:
+            return SqlJetEncoding.UTF16LE;
+        case 3:
+            return SqlJetEncoding.UTF16BE;
+        default:
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+        }
+    }
+
     @Test
     public void testTableReadMaster() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable t = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        final ISqlJetBtreeTable t = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
+                getEncoding(btree));
         try {
             Assert.assertTrue(!t.eof());
             for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
@@ -193,7 +207,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testTableReadData() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
+                getEncoding(btree));
         try {
             Assert.assertTrue(!master.eof());
             for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
@@ -207,7 +222,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
                 if ("table".equals(type.trim())) {
                     logger.info(name.trim());
                     Assert.assertTrue(page > 0);
-                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, false);
+                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, false,
+                            getEncoding(btree));
                     Assert.assertTrue(!data.eof());
                     for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
@@ -231,7 +247,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testTableReadIndex() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
+                getEncoding(btree));
         try {
             Assert.assertTrue(!master.eof());
             for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
@@ -244,7 +261,8 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
                 final long page = r1.getFields().get(3).intValue();
                 if ("index".equals(type.trim())) {
                     Assert.assertTrue(page > 0);
-                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, true);
+                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, true,
+                            getEncoding(btree));
                     Assert.assertTrue(!data.eof());
                     for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
@@ -607,7 +625,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
         try {
             final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
-            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
+            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), schema.getMeta().getEncoding());
             index.delete(new SqlJetBtreeRecord(mem));
         } finally {
             index.close();

@@ -39,13 +39,15 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected ISqlJetBtreeCursor cursor;
 
     protected SqlJetKeyInfo keyInfo;
-    protected SqlJetEncoding encoding = SqlJetEncoding.UTF8;
 
     /**
+     * @param encoding
+     *            TODO
      * @throws SqlJetException
      * 
      */
-    public SqlJetBtreeTable(ISqlJetBtree btree, int rootPage, boolean write, boolean index) throws SqlJetException {
+    public SqlJetBtreeTable(ISqlJetBtree btree, int rootPage, boolean write, boolean index, SqlJetEncoding encoding)
+            throws SqlJetException {
 
         this.btree = btree;
         this.rootPage = rootPage;
@@ -78,7 +80,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public ISqlJetBtreeCursor getCursor() {
         return cursor;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -187,12 +189,15 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         }
     }
 
-
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#lockTable(boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#lockTable(
+     * boolean)
      */
     public void lockTable(boolean write) {
         btree.lockTable(rootPage, write);
     }
-    
+
 }

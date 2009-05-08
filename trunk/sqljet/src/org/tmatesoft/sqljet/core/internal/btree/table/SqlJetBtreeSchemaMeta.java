@@ -77,31 +77,31 @@ public class SqlJetBtreeSchemaMeta implements ISqlJetBtreeSchemaMeta {
      * 
      * <table border="1">
      * <tr>
-     * <td>meta[0]</td>
+     * <td>meta[1]</td>
      * <td>Schema cookie. Changes with each schema change.</td>
      * </tr>
      * <tr>
-     * <td>meta[1]</td>
+     * <td>meta[2]</td>
      * <td>File format of schema layer.</td>
      * </tr>
      * <tr>
-     * <td>meta[2]</td>
+     * <td>meta[3]</td>
      * <td>Size of the page cache.</td>
      * </tr>
      * <tr>
-     * <td>meta[3]</td>
+     * <td>meta[4]</td>
      * <td>Use freelist if 0. Autovacuum if greater than zero.</td>
      * </tr>
      * <tr>
-     * <td>meta[4]</td>
+     * <td>meta[5]</td>
      * <td>Db text encoding. 1:UTF-8 2:UTF-16LE 3:UTF-16BE</td>
      * </tr>
      * <tr>
-     * <td>meta[5]</td>
+     * <td>meta[6]</td>
      * <td>The user cookie. Used by the application.</td>
      * </tr>
      * <tr>
-     * <td>meta[6]</td>
+     * <td>meta[7]</td>
      * <td>Incremental-vacuum flag.</td>
      * </tr>
      * </table>

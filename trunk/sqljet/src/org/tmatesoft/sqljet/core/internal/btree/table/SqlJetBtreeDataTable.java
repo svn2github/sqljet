@@ -38,15 +38,15 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(ISqlJetBtreeSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false);
+        super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false, schema.getMeta().getEncoding());
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeDataTable#goToRow
-     * (int)
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeDataTable#
+     * goToRow (int)
      */
     public int goToRow(long rowId) throws SqlJetException {
         lock();
@@ -60,7 +60,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#getKey()
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#getKey()
      */
     public long getKey() throws SqlJetException {
         lock();
@@ -74,7 +75,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#newRowId(long)
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#newRowId
+     * (long)
      */
     public long newRowId(long prev) throws SqlJetException {
         /*
@@ -170,8 +173,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert(long,
-     * org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord)
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
+     * (long, org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord)
      */
     public void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException {
         lock();
@@ -186,7 +190,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#delete(long)
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#delete
+     * (long)
      */
     public void delete(long rowId) throws SqlJetException {
         lock();

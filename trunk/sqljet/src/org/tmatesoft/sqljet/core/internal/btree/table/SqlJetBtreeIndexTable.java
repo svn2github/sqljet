@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.internal.btree.table;
 
 import java.nio.ByteBuffer;
 
-import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
@@ -37,15 +36,15 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * 
      */
     public SqlJetBtreeIndexTable(ISqlJetBtreeSchema schema, String indexName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getIndexPage(indexName), write, true);
+        super(schema.getBtree(), schema.getIndexPage(indexName), write, true, schema.getMeta().getEncoding());
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeIndexTable#lookup
-     * (org.tmatesoft.sqljet.core.internal.table.ISqlJetRecord)
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeIndexTable
+     * #lookup (org.tmatesoft.sqljet.core.internal.table.ISqlJetRecord)
      */
     public ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException {
         lock();
@@ -93,8 +92,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert(org.tmatesoft
-     * .sqljet.core.ext.ISqlJetBtreeRecord, boolean)
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert
+     * (org.tmatesoft .sqljet.core.ext.ISqlJetBtreeRecord, boolean)
      */
     public void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException {
         lock();
@@ -110,8 +109,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete(org.tmatesoft
-     * .sqljet.core.ext.ISqlJetBtreeRecord)
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete
+     * (org.tmatesoft .sqljet.core.ext.ISqlJetBtreeRecord)
      */
     public void delete(ISqlJetBtreeRecord key) throws SqlJetException {
         lock();

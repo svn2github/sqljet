@@ -1,5 +1,5 @@
 /**
- * SqlJetBtreeShemaTable.java
+ * SqlJetSchema.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,17 +29,17 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
+ * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
+public class SqlJetSchema implements ISqlJetSchema {
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;
@@ -51,15 +51,15 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     private static final String INDEX_TYPE = "index";
 
     private final ISqlJetBtree btree;
-    private final SqlJetBtreeSchemaMeta meta;
+    private final SqlJetSchemaMeta meta;
 
     private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
     private final Map<String, Integer> indexPages = new HashMap<String, Integer>();
     private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
-    public SqlJetBtreeSchema(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetSchema(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
-        this.meta = new SqlJetBtreeSchemaMeta(btree);
+        this.meta = new SqlJetSchemaMeta(btree);
         init();
     }
 
@@ -79,7 +79,7 @@ public class SqlJetBtreeSchema implements ISqlJetBtreeSchema {
     /**
      * @return the meta
      */
-    public SqlJetBtreeSchemaMeta getMeta() {
+    public SqlJetSchemaMeta getMeta() {
         return meta;
     }
     

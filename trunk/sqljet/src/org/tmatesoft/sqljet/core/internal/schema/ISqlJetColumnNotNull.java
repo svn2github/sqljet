@@ -1,5 +1,5 @@
 /**
- * SqlJetTablePrimaryKey.java
+ * ISqlJetColumnPrimaryKey.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,24 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
-
-import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetTablePrimaryKey;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetTablePrimaryKey extends SqlJetTableIndexConstraint implements ISqlJetTablePrimaryKey {
+public interface ISqlJetColumnNotNull extends ISqlJetColumnConstraint {
 
-    public SqlJetTablePrimaryKey(String name, CommonTree ast) {
-        super(name, ast);
-        assert "primary".equalsIgnoreCase(ast.getText());
-    }
-
-    @Override
-    protected String getConstraintName() {
-        return "PRIMARY KEY";
-    }
+    public SqlJetConflictAction getConflictAction();
 }

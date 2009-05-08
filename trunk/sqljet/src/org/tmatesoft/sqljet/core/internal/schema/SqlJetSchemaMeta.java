@@ -1,5 +1,5 @@
 /**
- * SqlJetBtreeSchemaMeta.java
+ * SqlJetSchemaMeta.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,20 +11,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchemaMeta;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeSchemaMeta implements ISqlJetBtreeSchemaMeta {
+public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
 
     /**
      * Schema cookie. Changes with each schema change.
@@ -66,7 +65,7 @@ public class SqlJetBtreeSchemaMeta implements ISqlJetBtreeSchemaMeta {
      * 
      * @throws SqlJetException 
      */
-    public SqlJetBtreeSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
         readMeta(btree);
     }
 

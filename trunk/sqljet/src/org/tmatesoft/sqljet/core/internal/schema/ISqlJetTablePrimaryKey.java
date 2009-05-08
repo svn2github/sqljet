@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetTableUnique extends ISqlJetTableConstraint {
+public interface ISqlJetTablePrimaryKey extends ISqlJetTableConstraint {
 
     public List<String> getColumns();
 

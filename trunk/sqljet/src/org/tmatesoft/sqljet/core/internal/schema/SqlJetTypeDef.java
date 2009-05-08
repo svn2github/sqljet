@@ -11,14 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetTypeDef;
 
 /**
  * @author TMate Software Ltd.

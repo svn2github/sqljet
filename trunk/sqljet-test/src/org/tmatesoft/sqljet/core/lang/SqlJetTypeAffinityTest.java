@@ -22,12 +22,12 @@ import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetColumnDef;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableDef;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTypeAffinity;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.

@@ -41,13 +41,13 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
@@ -286,7 +286,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testSchema() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema s = new SqlJetSchema(btree);
         for (String tableName : s.getTableNames()) {
             logger.info(tableName);
             passed = true;
@@ -297,7 +297,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testDataTable() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema s = new SqlJetSchema(btree);
         final ISqlJetBtreeTable t = new SqlJetBtreeDataTable(s, REP_CACHE_TABLE, false);
         for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
             final int fields = r.getFieldsCount();
@@ -312,7 +312,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testIndexTable() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema s = new SqlJetSchema(btree);
         final String index = s.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(index);
         final ISqlJetBtreeTable t = new SqlJetBtreeIndexTable(s, index, false);
@@ -328,7 +328,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testRecordCompare() throws SqlJetException {
-        final ISqlJetBtreeSchema s = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema s = new SqlJetSchema(btree);
         final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE_TABLE, false);
         final ISqlJetBtreeRecord r = d.getRecord();
         final ISqlJetVdbeMem f = r.getFields().get(0);
@@ -354,7 +354,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
     @Test
     public void testIndexLookup() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema schema = new SqlJetSchema(btree);
         for (int i = 0; i < REPEATS_COUNT; i++) {
             final String hash = getRandomHash(schema);
             if (null == hash)
@@ -367,7 +367,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testIndexLookupIncorrect() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        final ISqlJetSchema schema = new SqlJetSchema(btree);
         boolean failed = hashIndexLookupTest(schema, "incorrect");
         Assert.assertTrue(!failed);
     }
@@ -376,7 +376,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @param schema
      * @throws SqlJetException
      */
-    private boolean hashIndexLookupTest(final ISqlJetBtreeSchema schema, String hash) throws SqlJetException {
+    private boolean hashIndexLookupTest(final ISqlJetSchema schema, String hash) throws SqlJetException {
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, false);
         try {
             final long row = locateHash(schema, hash);
@@ -399,7 +399,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @return
      * @throws SqlJetException
      */
-    private long locateHash(final ISqlJetBtreeSchema schema, final String hash) throws SqlJetException {
+    private long locateHash(final ISqlJetSchema schema, final String hash) throws SqlJetException {
         final String i = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, false);
@@ -421,7 +421,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @return
      * @throws SqlJetException
      */
-    private String getRandomHash(final ISqlJetBtreeSchema schema) throws SqlJetException {
+    private String getRandomHash(final ISqlJetSchema schema) throws SqlJetException {
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, false);
         try {
             data.last();
@@ -442,7 +442,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testInsertOnce() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(idx);
@@ -454,7 +454,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testInsertRepeatlyShort() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(idx);
@@ -468,7 +468,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testInsertRepeatlyLong() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(idx);
@@ -482,7 +482,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testInsertRandomShort() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(idx);
@@ -497,7 +497,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testInsertRandomLong() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(idx);
@@ -510,7 +510,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         btreeCopy.commit();
     }
 
-    public void insertHash(ISqlJetBtreeSchema schema, ISqlJetBtreeDataTable data, ISqlJetBtreeIndexTable index,
+    public void insertHash(ISqlJetSchema schema, ISqlJetBtreeDataTable data, ISqlJetBtreeIndexTable index,
             String hash) throws SqlJetException {
 
         ISqlJetVdbeMem hashMem = new SqlJetVdbeMem();
@@ -544,7 +544,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testDeleteOnce() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         final String hash = getRandomHash(schema);
@@ -557,7 +557,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testDeleteRepeatlyShort() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         for (int i = 0; i < REPEATS_COUNT; i++) {
             final String hash = getRandomHash(schema);
@@ -573,7 +573,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testDeleteRepeatlyLong() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         for (int i = 0; i < REPEATS_COUNT; i++) {
@@ -589,7 +589,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
 
     @Test
     public void testDeleteCorrupt() throws SqlJetException {
-        final ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btreeCopy);
+        final ISqlJetSchema schema = new SqlJetSchema(btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         String hash = "8e204eb864658660ffa6e28dda57dcecb95b1847";
@@ -604,7 +604,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @param data
      * @throws SqlJetException
      */
-    private void deleteHash(final ISqlJetBtreeSchema schema, final ISqlJetBtreeDataTable data, String hash)
+    private void deleteHash(final ISqlJetSchema schema, final ISqlJetBtreeDataTable data, String hash)
             throws SqlJetException {
         final long rowId = locateHash(schema, hash);
         if (rowId > 0) {
@@ -619,7 +619,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @return
      * @throws SqlJetException
      */
-    private void deleteIndex(final ISqlJetBtreeSchema schema, final String hash) throws SqlJetException {
+    private void deleteIndex(final ISqlJetSchema schema, final String hash) throws SqlJetException {
         final String i = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);

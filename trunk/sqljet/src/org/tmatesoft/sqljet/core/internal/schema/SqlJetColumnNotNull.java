@@ -1,5 +1,5 @@
 /**
- * SqlJetColumnUnique.java
+ * SqlJetColumnNotNull.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,23 +11,21 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetColumnUnique;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetConflictAction;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetColumnUnique extends SqlJetColumnConstraint implements ISqlJetColumnUnique {
+public class SqlJetColumnNotNull extends SqlJetColumnConstraint implements ISqlJetColumnNotNull {
 
     private SqlJetConflictAction conflictAction;
 
-    public SqlJetColumnUnique(String name, CommonTree ast) {
+    public SqlJetColumnNotNull(String name, CommonTree ast) {
         super(name);
-        assert "unique".equalsIgnoreCase(ast.getText());
+        assert "not_null".equalsIgnoreCase(ast.getText());
         for (int i = 0; i < ast.getChildCount(); i++) {
             CommonTree child = (CommonTree) ast.getChild(i);
             if ("conflict".equalsIgnoreCase(child.getText())) {
@@ -51,7 +49,7 @@ public class SqlJetColumnUnique extends SqlJetColumnConstraint implements ISqlJe
         if (buffer.length() > 0) {
             buffer.append(' ');
         }
-        buffer.append("UNIQUE");
+        buffer.append("NOT NULL");
         if (conflictAction != null) {
             buffer.append(" ON CONFLICT ");
             buffer.append(conflictAction);

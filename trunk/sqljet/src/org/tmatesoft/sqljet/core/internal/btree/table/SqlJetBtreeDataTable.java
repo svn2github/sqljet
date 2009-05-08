@@ -19,9 +19,9 @@ import java.util.Random;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -37,7 +37,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * 
      * @throws SqlJetException
      */
-    public SqlJetBtreeDataTable(ISqlJetBtreeSchema schema, String tableName, boolean write) throws SqlJetException {
+    public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false, schema.getMeta().getEncoding());
     }
 

@@ -11,17 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnPrimaryKey extends ISqlJetColumnConstraint {
+public interface ISqlJetColumnCollate extends ISqlJetColumnConstraint {
 
-    public Boolean isAscending();
-
-    public boolean isAutoincremented();
-
-    public SqlJetConflictAction getConflictAction();
+    public String getCollation();
 }

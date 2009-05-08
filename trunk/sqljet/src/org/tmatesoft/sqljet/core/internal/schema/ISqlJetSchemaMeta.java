@@ -1,5 +1,5 @@
 /**
- * ISqlJetBtreeSchemaMeta.java
+ * ISqlJetSchemaMeta.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 
@@ -20,7 +20,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetBtreeSchemaMeta {
+public interface ISqlJetSchemaMeta {
 
     /**
      * Schema cookie. Changes with each schema change.

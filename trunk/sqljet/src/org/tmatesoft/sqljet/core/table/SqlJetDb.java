@@ -28,11 +28,11 @@ import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
 
 /**
  * Connection to database.
@@ -54,7 +54,7 @@ public class SqlJetDb {
     private final boolean write;
     private ISqlJetDbHandle db;
     private ISqlJetBtree btree;
-    private ISqlJetBtreeSchema schema;
+    private ISqlJetSchema schema;
 
     public static class SqlJetDataTable extends SqlJetTable {
         SqlJetDataTable(ISqlJetBtreeDataTable dataTable) {
@@ -79,7 +79,7 @@ public class SqlJetDb {
             public Object runWithLock() throws SqlJetException {
                 btree.enter();
                 try {
-                    schema = new SqlJetBtreeSchema(btree);
+                    schema = new SqlJetSchema(btree);
                     db.setEnc(schema.getMeta().getEncoding());
                 } finally {
                     btree.leave();

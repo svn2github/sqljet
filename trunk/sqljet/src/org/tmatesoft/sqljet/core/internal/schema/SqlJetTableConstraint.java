@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnPrimaryKey.java
+ * SqlJetTableConstraint.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,13 +11,32 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.schema;
+
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnUnique extends ISqlJetColumnConstraint {
+public abstract class SqlJetTableConstraint implements ISqlJetTableConstraint {
 
-    public SqlJetConflictAction getConflictAction();
+    private final String name;
+
+    public SqlJetTableConstraint(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        if (getName() != null) {
+            buffer.append("CONSTRAINT ");
+            buffer.append(getName());
+        }
+        return buffer.toString();
+    }
 }

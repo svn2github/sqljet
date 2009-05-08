@@ -23,11 +23,11 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 
 /**
@@ -182,7 +182,7 @@ public class SqlJetPreparedStatement {
         if (selectCore.getChildCount() > i) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported select syntax.");
         }
-        ISqlJetBtreeSchema schema = new SqlJetBtreeSchema(btree);
+        ISqlJetSchema schema = new SqlJetSchema(btree);
         //System.err.println(schema.toString());
         if (schema.getTableNames().contains(tableName)) {
             table = new SqlJetBtreeDataTable(schema, tableName, false);

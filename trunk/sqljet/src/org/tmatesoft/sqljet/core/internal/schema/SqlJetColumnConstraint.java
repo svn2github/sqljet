@@ -1,5 +1,5 @@
 /**
- * SqlJetTableConstraint.java
+ * SqlJetColumnConstraint.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,19 +11,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableConstraint;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public abstract class SqlJetTableConstraint implements ISqlJetTableConstraint {
+public abstract class SqlJetColumnConstraint implements ISqlJetColumnConstraint {
 
     private final String name;
 
-    public SqlJetTableConstraint(String name) {
+    public SqlJetColumnConstraint(String name) {
         this.name = name;
     }
 

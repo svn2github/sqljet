@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnPrimaryKey.java
+ * ISqlJetColumnConstraint.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,13 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.table;
+package org.tmatesoft.sqljet.core.internal.schema;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnCollate extends ISqlJetColumnConstraint {
+public interface ISqlJetColumnConstraint {
 
-    public String getCollation();
+    public String getName();
 }

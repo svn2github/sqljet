@@ -22,9 +22,11 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
 
+    // TODO: Return boolean to indicate success.
+    // Now returns 0 if the underlying cursor has moved to row and -1 otherwise (check).
     int goToRow(long rowId) throws SqlJetException;
 
-    long getKey() throws SqlJetException;
+    long getRowId() throws SqlJetException;
 
     /**
      * Get a new integer record number (a.k.a "rowid") used as the key to a

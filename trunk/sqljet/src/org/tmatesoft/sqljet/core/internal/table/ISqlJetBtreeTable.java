@@ -14,9 +14,6 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
-
 
 /**
  * @author TMate Software Ltd.
@@ -25,14 +22,12 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
  */
 public interface ISqlJetBtreeTable {
 
-    ISqlJetBtree getBtree();
-    
     void close() throws SqlJetException;
 
     void lock();
-    
+
     void unlock();
-    
+
     boolean eof();
 
     boolean first() throws SqlJetException;
@@ -44,8 +39,6 @@ public interface ISqlJetBtreeTable {
     boolean previous() throws SqlJetException;
 
     ISqlJetBtreeRecord getRecord() throws SqlJetException;
-    
-    ISqlJetBtreeCursor getCursor();
- 
+
     void lockTable(boolean write);
 }

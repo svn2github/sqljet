@@ -17,9 +17,8 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 
 /**
  * @author TMate Software Ltd.
@@ -61,22 +60,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
         first();
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#getBtree()
-     */
-    public ISqlJetBtree getBtree() {
-        return btree;
-    }
-
-    /**
-     * @return the cursor
-     */
-    public ISqlJetBtreeCursor getCursor() {
-        return cursor;
     }
 
     /*

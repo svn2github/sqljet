@@ -41,7 +41,7 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getKey()
      */
     public long getRowId() throws SqlJetException {
-        return dataTable.getKey();
+        return dataTable.getRowId();
     }
 
     /* (non-Javadoc)

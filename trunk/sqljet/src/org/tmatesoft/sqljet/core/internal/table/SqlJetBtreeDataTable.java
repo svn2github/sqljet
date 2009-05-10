@@ -61,7 +61,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#getKey()
      */
-    public long getKey() throws SqlJetException {
+    public long getRowId() throws SqlJetException {
         lock();
         try {
             return cursor.getKeySize();

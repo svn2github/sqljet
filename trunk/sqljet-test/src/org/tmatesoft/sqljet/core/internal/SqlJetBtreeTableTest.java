@@ -425,7 +425,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, false);
         try {
             data.last();
-            long lastKey = data.getKey();
+            long lastKey = data.getRowId();
             if (lastKey <= 0)
                 return null;
             Random random = new Random();

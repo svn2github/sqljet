@@ -11,15 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**

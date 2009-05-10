@@ -26,13 +26,13 @@ import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 
 /**
  * Connection to database.

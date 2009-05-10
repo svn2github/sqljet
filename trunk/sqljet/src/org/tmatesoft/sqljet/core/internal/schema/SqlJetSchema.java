@@ -29,10 +29,10 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 
 /**
  * @author TMate Software Ltd.

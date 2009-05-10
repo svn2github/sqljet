@@ -11,15 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 

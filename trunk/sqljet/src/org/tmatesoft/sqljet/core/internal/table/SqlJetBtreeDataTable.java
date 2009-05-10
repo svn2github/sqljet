@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.btree.table;
+package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
@@ -20,8 +20,6 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 
 /**
  * @author TMate Software Ltd.

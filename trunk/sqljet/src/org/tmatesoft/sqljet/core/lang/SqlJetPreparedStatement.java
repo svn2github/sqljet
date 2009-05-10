@@ -22,13 +22,13 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.btree.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
 
 /**
  * @author TMate Software Ltd.

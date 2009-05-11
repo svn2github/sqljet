@@ -28,6 +28,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.table.ISqlJetValue;
 
 /**
  * Implements {@link ISqlJetBtreeRecord}.
@@ -55,12 +56,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         return Collections.unmodifiableList(fields);
     }
 
-    /**
-     * 
-     * 
-     * @throws SqlJetException
-     * 
-     */
     public SqlJetBtreeRecord(ISqlJetBtreeCursor cursor, boolean isIndex) throws SqlJetException {
         this.cursor = cursor;
         this.isIndex = isIndex;
@@ -72,9 +67,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         fieldsCount = values.size();
     }
     
-    /**
-     * 
-     */
     public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
         this.file_format = file_format;
         initFields(values);
@@ -84,14 +76,31 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         initFields(values);
     }
 
-    /**
-     * @param values
-     */
     private void initFields(ISqlJetVdbeMem[] values) {
         fields.addAll(Arrays.asList(values));
         fieldsCount = values.length;
     }
     
+    public static ISqlJetBtreeRecord getRecord(Object... values) throws SqlJetException {
+        List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
+        for (int i = 0; i < values.length; i++) {
+            Object value = values[i];
+            ISqlJetVdbeMem mem = new SqlJetVdbeMem();
+            if (value instanceof String) {
+                mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)), SqlJetEncoding.UTF8);
+            } else if (value instanceof Integer) {
+                mem.setInt64((Integer) value);
+            } else if (value instanceof Long) {
+                mem.setInt64((Long) value);
+            } else if (value instanceof Double) {
+                mem.setDouble((Double) value);
+            } else {
+                mem.setNull();
+            }
+            fields.add(mem);
+        }
+        return new SqlJetBtreeRecord(fields);
+    }
     
     /*
      * (non-Javadoc)

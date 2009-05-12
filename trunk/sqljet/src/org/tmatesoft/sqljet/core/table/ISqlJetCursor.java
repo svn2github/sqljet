@@ -34,6 +34,14 @@ public interface ISqlJetCursor {
 
     boolean previous() throws SqlJetException;
 
-    ISqlJetRecord getRecord() throws SqlJetException;
-
+    int getFieldsCount() throws SqlJetException;
+    
+    boolean isNull(int field) throws SqlJetException;
+    
+    String getString(int field) throws SqlJetException;
+    
+    long getInteger(int field) throws SqlJetException;
+    
+    double getReal(int field) throws SqlJetException;
+    
 }

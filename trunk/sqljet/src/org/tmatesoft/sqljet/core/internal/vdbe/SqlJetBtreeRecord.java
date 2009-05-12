@@ -28,7 +28,6 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.table.ISqlJetValue;
 
 /**
  * Implements {@link ISqlJetBtreeRecord}.
@@ -66,7 +65,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         fields.addAll(values);
         fieldsCount = values.size();
     }
-    
+
     public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
         this.file_format = file_format;
         initFields(values);
@@ -80,7 +79,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         fields.addAll(Arrays.asList(values));
         fieldsCount = values.length;
     }
-    
+
     public static ISqlJetBtreeRecord getRecord(Object... values) throws SqlJetException {
         List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
         for (int i = 0; i < values.length; i++) {
@@ -88,20 +87,26 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
             ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             if (value instanceof String) {
                 mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)), SqlJetEncoding.UTF8);
+            } else if (value instanceof Byte) {
+                mem.setInt64((Byte) value);
+            } else if (value instanceof Short) {
+                mem.setInt64((Short) value);
             } else if (value instanceof Integer) {
                 mem.setInt64((Integer) value);
             } else if (value instanceof Long) {
                 mem.setInt64((Long) value);
             } else if (value instanceof Double) {
                 mem.setDouble((Double) value);
-            } else {
+            } else if (null == value) {
                 mem.setNull();
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value " + value.toString());
             }
             fields.add(mem);
         }
         return new SqlJetBtreeRecord(fields);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -343,8 +348,12 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         return f.intValue();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord#getRealField(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord#getRealField
+     * (int)
      */
     public double getRealField(int field) {
         final ISqlJetVdbeMem f = fields.get(field);
@@ -352,7 +361,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
             return 0;
         return f.realValue();
     }
-    
+
     /**
      * Assuming the record contains N fields, the record format looks like this:
      * 

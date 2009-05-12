@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -34,6 +35,7 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)
      */
     public int goToRow(long rowId) throws SqlJetException{
+        clearCachedRecord();
         return dataTable.goToRow(rowId);
     }
 
@@ -55,14 +57,16 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#delete(long)
      */
     public void delete(long rowId) throws SqlJetException {
+        clearCachedRecord();
         dataTable.delete(rowId); 
      }
     
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(long, org.tmatesoft.sqljet.core.table.SqlJetRecord)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(long, java.lang.Object[])
      */
-    public void insert(long rowId, SqlJetRecord data) throws SqlJetException {
-        dataTable.insert(rowId, data.getRecord(), true);
+    public void insert(long rowId, Object ... values) throws SqlJetException {
+        clearCachedRecord();
+        dataTable.insert(rowId, SqlJetBtreeRecord.getRecord(values), true);
     }
         
 }

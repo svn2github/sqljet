@@ -13,11 +13,12 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 
@@ -29,18 +30,21 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 public abstract class SqlJetCursor implements ISqlJetCursor {
     
     private ISqlJetBtreeTable btreeTable;
+    private ISqlJetBtreeRecord cachedRecord;
     
     /**
      * 
      */
     SqlJetCursor(ISqlJetBtreeTable table) {
         this.btreeTable = table;
+        this.cachedRecord = null;
     }
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
      */
     public void close() throws SqlJetException {
+        clearCachedRecord();
         btreeTable.close();
     }
 
@@ -55,6 +59,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#first()
      */
     public boolean first() throws SqlJetException {
+        clearCachedRecord();
         return btreeTable.first();
     }
 
@@ -62,6 +67,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#last()
      */
     public boolean last() throws SqlJetException {
+        clearCachedRecord();
         return btreeTable.last();
     }
 
@@ -69,6 +75,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#next()
      */
     public boolean next() throws SqlJetException {
+        clearCachedRecord();
         return btreeTable.next();
     }
 
@@ -76,14 +83,75 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#previous()
      */
     public boolean previous() throws SqlJetException {
+        clearCachedRecord();
         return btreeTable.previous();
     }
 
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRecord()
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldsCount()
      */
-    public ISqlJetRecord getRecord() throws SqlJetException {
-        return new SqlJetRecord(btreeTable.getRecord());
+    public int getFieldsCount() throws SqlJetException {
+        final ISqlJetBtreeRecord r = getCachedRecord();
+        if(null==r) return 0;
+        return r.getFieldsCount();
     }
-
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#isNull(int)
+     */
+    public boolean isNull(int field) throws SqlJetException {
+        final ISqlJetVdbeMem value = getValue(field);
+        if(null==value) return true;
+        return value.isNull();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getString(int)
+     */
+    public String getString(int field) throws SqlJetException {
+        if(isNull(field)) return null;
+        return SqlJetUtility.toString(getValue(field).valueText(btreeTable.getEncoding()));
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getInteger(int)
+     */
+    public long getInteger(int field) throws SqlJetException {
+        if(isNull(field)) return 0;
+        return getValue(field).intValue();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getReal(int)
+     */
+    public double getReal(int field) throws SqlJetException {
+        if(isNull(field)) return 0;
+        return getValue(field).realValue();
+    }
+        
+    protected void clearCachedRecord() {
+        cachedRecord = null;
+    }
+    
+    protected ISqlJetBtreeRecord getCachedRecord() throws SqlJetException {
+        if(null == cachedRecord) {
+            cachedRecord = btreeTable.getRecord();
+        }
+        return cachedRecord;
+    } 
+    
+    protected void checkField(int field) throws SqlJetException {
+        if( field<0 || field>=getFieldsCount() )
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad field number " + field);
+    }
+    
+    protected ISqlJetVdbeMem getValue(int field) throws SqlJetException {
+        checkField(field);
+        final ISqlJetBtreeRecord r = getCachedRecord();
+        if(null==r) return null;
+        final List<ISqlJetVdbeMem> fields = r.getFields();
+        if(null==fields) return null;
+        return fields.get(field);
+    }
+    
 }

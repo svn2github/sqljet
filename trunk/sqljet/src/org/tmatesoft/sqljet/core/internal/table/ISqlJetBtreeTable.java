@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
@@ -41,4 +42,10 @@ public interface ISqlJetBtreeTable {
     ISqlJetBtreeRecord getRecord() throws SqlJetException;
 
     void lockTable(boolean write);
+
+    /**
+     * @return
+     * @throws SqlJetException 
+     */
+    SqlJetEncoding getEncoding() throws SqlJetException;
 }

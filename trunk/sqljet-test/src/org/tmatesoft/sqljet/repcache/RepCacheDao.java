@@ -17,13 +17,10 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.tmatesoft.sqljet.core.table.SqlJetIndex;
-import org.tmatesoft.sqljet.core.table.SqlJetRecord;
 import org.tmatesoft.sqljet.core.table.SqlJetTable;
-import org.tmatesoft.sqljet.core.table.SqlJetValue;
 
 /**
  * @author TMate Software Ltd.
@@ -124,7 +121,7 @@ public class RepCacheDao {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                return new RepCache(table.getRecord());
+                return new RepCache(table);
             }
         });
     }
@@ -133,9 +130,8 @@ public class RepCacheDao {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-                final Long rowId = index.getKeyRowId(index.lookup(key));
-                if (null == rowId)
+                final long rowId = index.lookup(hash);
+                if (0 == rowId)
                     return null;
                 if (table.goToRow(rowId) < 0 && !table.next())
                     return null;
@@ -148,14 +144,13 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(hash, db.getEncoding()));
-                final Long rowId = index.getKeyRowId(index.lookup(key));
-                if (null == rowId)
-                    return false;
+                final long rowId = index.lookup(hash);
+                if (0 == rowId)
+                    return null;
                 if (table.goToRow(rowId) < 0 && !table.next())
                     return false;
                 beginTransaction();
-                index.delete(key);
+                index.delete(hash);
                 table.delete(rowId);
                 commit();
                 return true;
@@ -167,16 +162,16 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-                final ISqlJetRecord lookup = index.lookup(key);
-                if (null != lookup) {
+                final long rowId = index.lookup(repCache.getHash());
+                if (0 != rowId) {
                     return false;
                 }
                 beginTransaction();
                 final long newRowId = table.newRowId();
-                final SqlJetRecord idxKey = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()), new SqlJetValue(newRowId));
-                index.insert(idxKey);
-                table.insert(newRowId, repCache.getRecord(db.getEncoding()));
+                index.insert(repCache.getHash(), newRowId);
+                table.insert(newRowId, repCache.getHash(),
+                        repCache.getRevision(), repCache.getOffset(), 
+                        repCache.getSize(), repCache.getExpandedSize());
                 commit();
                 return true;
             }
@@ -187,14 +182,15 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final SqlJetRecord key = new SqlJetRecord(new SqlJetValue(repCache.getHash(), db.getEncoding()));
-                final Long rowId = index.getKeyRowId(index.lookup(key));
-                if (null == rowId)
+                final long rowId = index.lookup(repCache.getHash());
+                if (0 == rowId)
                     return false;
                 if (table.goToRow(rowId) < 0 && !table.next())
                     return false;
                 beginTransaction();
-                table.insert(rowId, repCache.getRecord(db.getEncoding()));
+                table.insert(rowId, repCache.getHash(),
+                        repCache.getRevision(), repCache.getOffset(), 
+                        repCache.getSize(), repCache.getExpandedSize());
                 commit();
                 return true;
             }

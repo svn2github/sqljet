@@ -181,4 +181,11 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         btree.lockTable(rootPage, write);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
+     */
+    public SqlJetEncoding getEncoding() throws SqlJetException {
+        return cursor.getCursorDb().getEnc();
+    }
+    
 }

@@ -311,5 +311,10 @@ public interface ISqlJetVdbeMem {
      void setTypeFlag(SqlJetVdbeMemFlags f);
      
      EnumSet<SqlJetVdbeMemFlags> getFlags();
+
+    /**
+     * @return
+     */
+    boolean isNull();
      
 }

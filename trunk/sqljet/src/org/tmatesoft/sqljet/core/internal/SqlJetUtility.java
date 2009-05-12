@@ -1059,4 +1059,16 @@ public class SqlJetUtility {
         return u;
     }
 
+    /**
+     * @param key
+     * @param dataRowId
+     * @return
+     */
+    public static Object addValues(Object[] array, Object ... values) {
+        Object[] a = new Object[array.length + values.length];
+        System.arraycopy(array, 0, a, 0, array.length);
+        System.arraycopy(values, 0, a, array.length, values.length);
+        return a;
+    }
+
 }

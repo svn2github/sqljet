@@ -38,6 +38,6 @@ public interface ISqlJetTable {
      * @param data
      * @throws SqlJetException 
      */
-    void insert(long rowId, SqlJetRecord data) throws SqlJetException;
+    void insert(long rowId, Object ... data) throws SqlJetException;
 
 }

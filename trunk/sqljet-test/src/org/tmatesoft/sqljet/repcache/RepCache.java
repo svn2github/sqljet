@@ -17,10 +17,9 @@ import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.table.ISqlJetRecord;
-import org.tmatesoft.sqljet.core.table.ISqlJetValue;
-import org.tmatesoft.sqljet.core.table.SqlJetRecord;
-import org.tmatesoft.sqljet.core.table.SqlJetValue;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
 /**
  * @author TMate Software Ltd.
@@ -28,6 +27,12 @@ import org.tmatesoft.sqljet.core.table.SqlJetValue;
  * 
  */
 public class RepCache {
+    
+    public static int HASH_FIELD = 0;
+    public static int REVISION_FIELD = 1;
+    public static int OFFSET_FIELD = 2;
+    public static int SIZE_FIELD = 3;
+    public static int EXPANDED_SIZE_FIELD = 4;
 
     private String hash = "";
     private Long revision = 0L;
@@ -46,33 +51,23 @@ public class RepCache {
         this.expanded_size = expanded_size;
     }
 
-    RepCache(ISqlJetRecord record) throws SqlJetException {
-        final List<SqlJetValue> values = record.getValues();
-        if(values.size()==0) return;
-        final ISqlJetValue hash = values.get(0);
-        if (null != hash)
-            this.hash = hash.getString();
-        if(values.size()==1) return;
-        final ISqlJetValue revision = values.get(1);
-        if (null != revision)
-            this.revision = revision.getInteger();
-        if(values.size()==2) return;
-        final ISqlJetValue offset = values.get(2);
-        if (null != offset)
-            this.offset = offset.getInteger();
-        if(values.size()==3) return;
-        final ISqlJetValue size = values.get(3);
-        if (null != size)
-            this.size = size.getInteger();
-        if(values.size()==4) return;
-        final ISqlJetValue expanded_size = values.get(4);
-        if (null != expanded_size)
-            this.expanded_size = expanded_size.getInteger();
-    }
-
-    SqlJetRecord getRecord(SqlJetEncoding encoding) throws SqlJetException {
-        return new SqlJetRecord(new SqlJetValue(hash,encoding), new SqlJetValue(revision), new SqlJetValue(offset),
-                new SqlJetValue(size), new SqlJetValue(expanded_size));
+    RepCache(ISqlJetCursor cursor) throws SqlJetException {
+        final int fieldsCount = cursor.getFieldsCount();
+        if(fieldsCount==0) return;
+        if(!cursor.isNull(HASH_FIELD))
+        this.hash = cursor.getString(HASH_FIELD);
+        if(fieldsCount==1) return;
+        if(!cursor.isNull(REVISION_FIELD))
+        this.revision = cursor.getInteger(REVISION_FIELD);
+        if(fieldsCount==2) return;
+        if(!cursor.isNull(OFFSET_FIELD))
+        this.offset = cursor.getInteger(OFFSET_FIELD);
+        if(fieldsCount==3) return;
+        if(!cursor.isNull(SIZE_FIELD))
+        this.size = cursor.getInteger(SIZE_FIELD);
+        if(fieldsCount==4) return;
+        if(!cursor.isNull(EXPANDED_SIZE_FIELD))
+        this.expanded_size = cursor.getInteger(EXPANDED_SIZE_FIELD);
     }
 
     /*

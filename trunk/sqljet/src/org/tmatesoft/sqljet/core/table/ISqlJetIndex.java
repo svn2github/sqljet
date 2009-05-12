@@ -18,22 +18,52 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetIndex {
 
-    ISqlJetRecord lookup(SqlJetRecord key) throws SqlJetException;
-
-    Long getKeyRowId(ISqlJetRecord record);
+    /**
+     * Lookup first index entry which matches to key and return rowId from it.
+     * If there isn't any entry matched to key it returns 0.
+     * 
+     * @param key
+     * @return
+     * @throws SqlJetException
+     */
+    long lookup(Object... key) throws SqlJetException;
 
     /**
-     * Writes key into the index.
-     *  
+     * Lookup next index entry which matches to key and return rowId from it. If
+     * there isn't any entry matched to key it returns 0. This method must be
+     * called after sucessful call of {@link ISqlJetIndex#lookup(Object...)}.
+     * 
+     * @param key
+     * @return
+     * @throws SqlJetException
+     */
+    long lookupNext(Object... key) throws SqlJetException;
+
+    /**
+     * Writes index entry into the index. Entry is data table's rowId and key
+     * @param record
+     * 
+     * @throws SqlJetException
+     */
+    void insert(Object... indexEntry) throws SqlJetException;
+
+    /**
+     * Delete current entry from index.
+     * 
+     * @throws SqlJetException
+     */
+    void delete() throws SqlJetException;
+
+    /**
+     * Delete entry which matches to key.
+     * 
      * @param key
      * @throws SqlJetException
      */
-    void insert(SqlJetRecord key) throws SqlJetException;
-
-    void delete(SqlJetRecord key) throws SqlJetException;
+    void delete(Object... key) throws SqlJetException;
 
 }

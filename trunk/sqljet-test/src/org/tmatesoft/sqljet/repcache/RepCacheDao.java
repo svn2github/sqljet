@@ -168,7 +168,7 @@ public class RepCacheDao {
                 }
                 beginTransaction();
                 final long newRowId = table.newRowId();
-                index.insert(repCache.getHash(), newRowId);
+                index.insert(newRowId, repCache.getHash());
                 table.insert(newRowId, repCache.getHash(),
                         repCache.getRevision(), repCache.getOffset(), 
                         repCache.getSize(), repCache.getExpandedSize());

@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -26,7 +25,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
 
@@ -37,51 +36,68 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
         this.indexTable = indexTable;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookup(java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookup(java.lang.Object[])
      */
-    public long lookup(Object ... values) throws SqlJetException{
+    public long lookup(Object... values) throws SqlJetException {
         clearCachedRecord();
         return getKeyRowId(indexTable.lookup(SqlJetBtreeRecord.getRecord(values)));
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookupNext(java.lang.Object[])
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookupNext(java.lang.Object
+     * [])
      */
     public long lookupNext(Object... key) throws SqlJetException {
         clearCachedRecord();
         // TODO Auto-generated method stub
         return 0;
     }
-    
+
     private long getKeyRowId(ISqlJetBtreeRecord record) {
-        if(null == record) return 0;
+        if (null == record)
+            return 0;
         final List<ISqlJetVdbeMem> fields = record.getFields();
-        if( null == fields || 0 == fields.size()) return 0;
-        return fields.get(fields.size()-1).intValue();
+        if (null == fields || 0 == fields.size())
+            return 0;
+        return fields.get(fields.size() - 1).intValue();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#insert(long, java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#insert(long,
+     * java.lang.Object[])
      */
-    public void insert(Object... indexEntry) throws SqlJetException {
-        indexTable.insert(SqlJetBtreeRecord.getRecord(indexEntry), true);
+    public void insert(long rowId, Object... key) throws SqlJetException {
+        indexTable.insert(SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)), true);
         clearCachedRecord();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(java.lang.Object[])
      */
     public void delete(Object... key) throws SqlJetException {
         indexTable.delete(SqlJetBtreeRecord.getRecord(key));
         clearCachedRecord();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete()
      */
     public void delete() throws SqlJetException {
         clearCachedRecord();
-        // TODO Auto-generated method stub        
+        // TODO Auto-generated method stub
     }
 }

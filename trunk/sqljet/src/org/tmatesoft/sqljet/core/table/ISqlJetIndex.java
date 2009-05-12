@@ -49,7 +49,7 @@ public interface ISqlJetIndex {
      * 
      * @throws SqlJetException
      */
-    void insert(Object... indexEntry) throws SqlJetException;
+    void insert(long rowId, Object... key) throws SqlJetException;
 
     /**
      * Delete current entry from index.

@@ -150,7 +150,7 @@ public class RepCacheDao {
                 if (!table.goToRow(rowId) && !table.next())
                     return false;
                 beginTransaction();
-                index.delete(hash);
+                index.delete(rowId,hash);
                 table.delete(rowId);
                 commit();
                 return true;

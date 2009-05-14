@@ -33,6 +33,8 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      */
     ISqlJetBtreeRecord lookup(boolean next, ISqlJetBtreeRecord key) throws SqlJetException;
 
+    long getKeyRowId(ISqlJetBtreeRecord record);
+    
     /**
      * Writes key into the index. Data for the entry is nil.
      * 
@@ -45,6 +47,6 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      */
     void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException;
 
-    boolean delete(ISqlJetBtreeRecord key) throws SqlJetException;
+    boolean delete(long rowId, ISqlJetBtreeRecord key) throws SqlJetException;
     
 }

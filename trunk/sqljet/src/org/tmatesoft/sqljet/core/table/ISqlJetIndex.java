@@ -43,7 +43,7 @@ public interface ISqlJetIndex {
     long lookup(boolean next, Object... key) throws SqlJetException;
 
     /**
-     * Delete entry which matches to key.
+     * Delete entry which matches to key and point to given rowId.
      * 
      * @param key
      * 
@@ -51,7 +51,7 @@ public interface ISqlJetIndex {
      * 
      * @throws SqlJetException
      */
-    boolean delete(Object... key) throws SqlJetException;
+    boolean delete(long rowId, Object... key) throws SqlJetException;
 
     /**
      * Write an entry into the table. A new entry is created if it doesn't

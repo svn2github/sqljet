@@ -44,16 +44,7 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      */
     public long lookup(boolean next, Object... values) throws SqlJetException {
         clearCachedRecord();
-        return getKeyRowId(indexTable.lookup(next, SqlJetBtreeRecord.getRecord(values)));
-    }
-
-    private long getKeyRowId(ISqlJetBtreeRecord record) {
-        if (null == record)
-            return 0;
-        final List<ISqlJetVdbeMem> fields = record.getFields();
-        if (null == fields || 0 == fields.size())
-            return 0;
-        return fields.get(fields.size() - 1).intValue();
+        return indexTable.getKeyRowId(indexTable.lookup(next, SqlJetBtreeRecord.getRecord(values)));
     }
 
     /*
@@ -71,11 +62,11 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(java.lang.Object[])
+     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(long,java.lang.Object[])
      */
-    public boolean delete(Object... key) throws SqlJetException {
+    public boolean delete(long rowId,Object... key) throws SqlJetException {
         clearCachedRecord();
-        return indexTable.delete(SqlJetBtreeRecord.getRecord(key));
+        return indexTable.delete(rowId, SqlJetBtreeRecord.getRecord(key));
     }
 
 }

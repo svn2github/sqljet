@@ -129,15 +129,22 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
+                final SqlJetTable table = dbCopy.openTable(TABLE);
                 final SqlJetIndex nameIndex = dbCopy.openIndex(NAME_INDEX);
-
-                final boolean deleteFirst = nameIndex.delete(TEST);
+                
+                Assert.assertTrue(table.first());
+                final boolean deleteFirst = nameIndex.delete(table.getRowId(),TEST);
                 Assert.assertTrue(deleteFirst);
+                
+                Assert.assertTrue(table.next());
+                final boolean deleteSecondFail = nameIndex.delete(table.getRowId(), TEST);
+                Assert.assertFalse(deleteSecondFail);
 
-                final boolean deleteSecond = nameIndex.delete(TEST);
+                Assert.assertTrue(table.next());
+                final boolean deleteSecond = nameIndex.delete(table.getRowId(), TEST);
                 Assert.assertTrue(deleteSecond);
-
-                final boolean deleteLast = nameIndex.delete(TEST);
+                
+                final boolean deleteLast = nameIndex.delete(table.getRowId(),TEST);
                 Assert.assertFalse(deleteLast);
 
                 final long rowFirst = nameIndex.lookup(false, TEST);

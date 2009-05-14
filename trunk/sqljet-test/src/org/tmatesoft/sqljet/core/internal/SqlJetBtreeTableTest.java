@@ -590,7 +590,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
             throws SqlJetException {
         final long rowId = locateHash(schema, hash);
         if (rowId > 0) {
-            deleteIndex(schema, hash);
+            deleteIndex(schema, hash, rowId);
             data.delete(rowId);
         }
     }
@@ -601,14 +601,14 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
      * @return
      * @throws SqlJetException
      */
-    private void deleteIndex(final ISqlJetSchema schema, final String hash) throws SqlJetException {
+    private void deleteIndex(final ISqlJetSchema schema, final String hash, long rowId) throws SqlJetException {
         final String i = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
         try {
             final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), schema.getMeta().getEncoding());
-            index.delete(new SqlJetBtreeRecord(mem));
+            index.delete(rowId, new SqlJetBtreeRecord(mem));
         } finally {
             index.close();
         }

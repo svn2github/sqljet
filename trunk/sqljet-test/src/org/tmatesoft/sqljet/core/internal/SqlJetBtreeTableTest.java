@@ -16,28 +16,19 @@ package org.tmatesoft.sqljet.core.internal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.Random;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.tmatesoft.sqljet.core.SqlJetAbstractLoggedTest;
+import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
-import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
-import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
-import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
@@ -59,7 +50,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
+public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
 
     public static final String BTREE_TABLE_TEST = "SqlJetBtreeTableTest";
 
@@ -106,16 +97,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
      * @throws FileNotFoundException
      */
     private void copyRepCache() throws IOException, FileNotFoundException {
-        repCacheDbCopy = File.createTempFile("rep-cache", null);
-        if (DELETE_COPY)
-            repCacheDbCopy.deleteOnExit();
-        RandomAccessFile in = new RandomAccessFile(repCacheDb, "r");
-        RandomAccessFile out = new RandomAccessFile(repCacheDbCopy, "rw");
-        byte[] b = new byte[4096];
-        for (int i = in.read(b); i > 0; i = in.read(b))
-            out.write(b, 0, i);
-        in.close();
-        out.close();
+        repCacheDbCopy = copyFile(repCacheDb, DELETE_COPY);
     }
 
     /**
@@ -406,7 +388,7 @@ public class SqlJetBtreeTableTest extends SqlJetAbstractLoggedTest {
         try {
             final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-            final ISqlJetBtreeRecord record = index.lookup(new SqlJetBtreeRecord(mem));
+            final ISqlJetBtreeRecord record = index.lookup(false, new SqlJetBtreeRecord(mem));
             if (null == record)
                 return 0;
             final long row = record.getFields().get(1).intValue();

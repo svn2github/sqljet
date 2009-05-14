@@ -46,10 +46,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeDataTable#
      * goToRow (int)
      */
-    public int goToRow(long rowId) throws SqlJetException {
+    public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
-            return cursor.moveTo(null, rowId, false);
+            return cursor.moveTo(null, rowId, false)==0;
         } finally {
             unlock();
         }
@@ -195,7 +195,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public void delete(long rowId) throws SqlJetException {
         lock();
         try {
-            if (goToRow(rowId) == 0) {
+            if (goToRow(rowId)) {
                 cursor.delete();
             }
         } finally {

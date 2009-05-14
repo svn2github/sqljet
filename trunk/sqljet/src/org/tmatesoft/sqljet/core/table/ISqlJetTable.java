@@ -22,7 +22,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetTable {
 
-    int goToRow(long rowId) throws SqlJetException;
+    boolean goToRow(long rowId) throws SqlJetException;
 
     long getRowId() throws SqlJetException;
 
@@ -39,5 +39,5 @@ public interface ISqlJetTable {
      * @throws SqlJetException 
      */
     void insert(long rowId, Object ... data) throws SqlJetException;
-
+    
 }

@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.internal.vdbe;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
+import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -56,26 +57,31 @@ public class SqlJetVdbeSerialType {
         case 11: /* Reserved for future use */
         case 0: { /* NULL */
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Null);
+            pMem.type = SqlJetValueType.NULL;
             break;
         }
         case 1: { /* 1-byte signed integer */
             pMem.i = buf.get(0);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 1;
         }
         case 2: { /* 2-byte signed integer */
             pMem.i = SqlJetUtility.fromUnsigned((int)((SqlJetUtility.getUnsignedByte(buf, 0) << 8) | SqlJetUtility.getUnsignedByte(buf, 1)));
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 2;
         }
         case 3: { /* 3-byte signed integer */
             pMem.i = (buf.get(0) << 16) | (SqlJetUtility.getUnsignedByte(buf, 1) << 8) | SqlJetUtility.getUnsignedByte(buf, 2);
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 3;
         }
         case 4: { /* 4-byte signed integer */
             pMem.i = SqlJetUtility.fromUnsigned((long)((SqlJetUtility.getUnsignedByte(buf, 0) << 24) | (SqlJetUtility.getUnsignedByte(buf, 1) << 16) | (SqlJetUtility.getUnsignedByte(buf, 2) << 8) | SqlJetUtility.getUnsignedByte(buf, 3)));
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 4;
         }
         case 5: { /* 6-byte signed integer */
@@ -84,6 +90,7 @@ public class SqlJetVdbeSerialType {
             x = ((long)(short)x << 32) | SqlJetUtility.toUnsigned(y);
             pMem.i = x;
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 6;
         }
         case 6: /* 8-byte signed integer */
@@ -96,6 +103,7 @@ public class SqlJetVdbeSerialType {
             if (serial_type == 6) {
                 pMem.i = x;
                 pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+                pMem.type = SqlJetValueType.INTEGER;
             } else {
                 // assert( sizeof(x)==8 && sizeof(pMem->r)==8 );
                 // swapMixedEndianFloat(x);
@@ -103,6 +111,7 @@ public class SqlJetVdbeSerialType {
                 //pMem.r = ByteBuffer.allocate(8).putLong(x).getDouble();
                 pMem.r = (double) x;
                 pMem.flags = EnumSet.of(pMem.r == Double.NaN ? SqlJetVdbeMemFlags.Null : SqlJetVdbeMemFlags.Real);
+                pMem.type = pMem.r == Double.NaN ? SqlJetValueType.NULL : SqlJetValueType.FLOAT;
             }
             return 8;
         }
@@ -110,6 +119,7 @@ public class SqlJetVdbeSerialType {
         case 9: { /* Integer 1 */
             pMem.i = serial_type - 8;
             pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Int);
+            pMem.type = SqlJetValueType.INTEGER;
             return 0;
         }
         default: {
@@ -119,8 +129,10 @@ public class SqlJetVdbeSerialType {
             pMem.xDel = null;
             if ((serial_type & 0x01) != 0) {
                 pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Str, SqlJetVdbeMemFlags.Ephem);
+                pMem.type = SqlJetValueType.TEXT;
             } else {
                 pMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Blob, SqlJetVdbeMemFlags.Ephem);
+                pMem.type = SqlJetValueType.BLOB;
             }
             return len;
         }

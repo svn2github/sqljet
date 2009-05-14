@@ -34,7 +34,7 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)
      */
-    public int goToRow(long rowId) throws SqlJetException{
+    public boolean goToRow(long rowId) throws SqlJetException{
         clearCachedRecord();
         return dataTable.goToRow(rowId);
     }

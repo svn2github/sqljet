@@ -85,7 +85,9 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         for (int i = 0; i < values.length; i++) {
             Object value = values[i];
             ISqlJetVdbeMem mem = new SqlJetVdbeMem();
-            if (value instanceof String) {
+            if (value instanceof ByteBuffer) {
+                mem.setStr((ByteBuffer) value, SqlJetEncoding.UTF8);
+            } else if (value instanceof String) {
                 mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)), SqlJetEncoding.UTF8);
             } else if (value instanceof Byte) {
                 mem.setInt64((Byte) value);
@@ -100,7 +102,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
             } else if (null == value) {
                 mem.setNull();
             } else {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value " + value.toString());
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value #" + i + " " + value.toString());
             }
             fields.add(mem);
         }

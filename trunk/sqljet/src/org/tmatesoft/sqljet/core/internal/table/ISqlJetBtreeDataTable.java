@@ -24,7 +24,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
 
     // TODO: Return boolean to indicate success.
     // Now returns 0 if the underlying cursor has moved to row and -1 otherwise (check).
-    int goToRow(long rowId) throws SqlJetException;
+    boolean goToRow(long rowId) throws SqlJetException;
 
     long getRowId() throws SqlJetException;
 

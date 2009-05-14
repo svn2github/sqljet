@@ -44,12 +44,12 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeIndexTable
      * #lookup (org.tmatesoft.sqljet.core.internal.table.ISqlJetRecord)
      */
-    public ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException {
+    public ISqlJetBtreeRecord lookup(boolean next, ISqlJetBtreeRecord key) throws SqlJetException {
         lock();
         try {
             adjustKeyInfo(key);
             final ByteBuffer k = key.getRawRecord();
-            if (cursor.moveTo(k, k.remaining(), false) < 0) {
+            if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
             }
             final ISqlJetBtreeRecord record = getRecord();
@@ -110,7 +110,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete
      * (org.tmatesoft .sqljet.core.ext.ISqlJetBtreeRecord)
      */
-    public void delete(ISqlJetBtreeRecord key) throws SqlJetException {
+    public boolean delete(ISqlJetBtreeRecord key) throws SqlJetException {
         lock();
         try {
             adjustKeyInfo(key);
@@ -120,7 +120,9 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             }
             if (!eof()) {
                 cursor.delete();
+                return true;
             }
+            return false;
         } finally {
             unlock();
         }

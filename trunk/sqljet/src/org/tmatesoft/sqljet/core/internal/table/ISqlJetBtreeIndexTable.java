@@ -22,7 +22,16 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
 
-    ISqlJetBtreeRecord lookup(ISqlJetBtreeRecord key) throws SqlJetException;
+    /**
+     * Lookup index entry by key values. If 'next' is true then just check next entry in index.
+     * 
+     * @param next just check next index entry
+     * @param key the key values
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetBtreeRecord lookup(boolean next, ISqlJetBtreeRecord key) throws SqlJetException;
 
     /**
      * Writes key into the index. Data for the entry is nil.
@@ -36,6 +45,6 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      */
     void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException;
 
-    void delete(ISqlJetBtreeRecord key) throws SqlJetException;
+    boolean delete(ISqlJetBtreeRecord key) throws SqlJetException;
     
 }

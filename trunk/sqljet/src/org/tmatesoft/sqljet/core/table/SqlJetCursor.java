@@ -13,10 +13,12 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
@@ -140,18 +142,32 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return cachedRecord;
     } 
     
-    protected void checkField(int field) throws SqlJetException {
-        if( field<0 || field>=getFieldsCount() )
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad field number " + field);
+    protected boolean checkField(int field) throws SqlJetException {
+        return (field>=0 && field<getFieldsCount());
     }
     
     protected ISqlJetVdbeMem getValue(int field) throws SqlJetException {
-        checkField(field);
+        if(!checkField(field)) return null;
         final ISqlJetBtreeRecord r = getCachedRecord();
         if(null==r) return null;
         final List<ISqlJetVdbeMem> fields = r.getFields();
         if(null==fields) return null;
         return fields.get(field);
     }
-    
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldType(int)
+     */
+    public SqlJetValueType getFieldType(int field) throws SqlJetException {
+        if(isNull(field)) return SqlJetValueType.NULL;
+        return getValue(field).getType();
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlob(int)
+     */
+    public ByteBuffer getBlob(int field) throws SqlJetException {
+        if(isNull(field)) return null;
+        return getValue(field).valueBlob();
+    }
 }

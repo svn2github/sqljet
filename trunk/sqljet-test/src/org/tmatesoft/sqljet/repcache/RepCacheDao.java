@@ -130,10 +130,10 @@ public class RepCacheDao {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final long rowId = index.lookup(hash);
+                final long rowId = index.lookup(false, hash);
                 if (0 == rowId)
                     return null;
-                if (table.goToRow(rowId) < 0 && !table.next())
+                if (!table.goToRow(rowId) && !table.next())
                     return null;
                 return getRepCache();
             }
@@ -144,10 +144,10 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final long rowId = index.lookup(hash);
+                final long rowId = index.lookup(false, hash);
                 if (0 == rowId)
                     return null;
-                if (table.goToRow(rowId) < 0 && !table.next())
+                if (!table.goToRow(rowId) && !table.next())
                     return false;
                 beginTransaction();
                 index.delete(hash);
@@ -162,7 +162,7 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final long rowId = index.lookup(repCache.getHash());
+                final long rowId = index.lookup(false, repCache.getHash());
                 if (0 != rowId) {
                     return false;
                 }
@@ -182,10 +182,10 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
             
             public Object runWithLock() throws SqlJetException {
-                final long rowId = index.lookup(repCache.getHash());
+                final long rowId = index.lookup(false, repCache.getHash());
                 if (0 == rowId)
                     return false;
-                if (table.goToRow(rowId) < 0 && !table.next())
+                if (!table.goToRow(rowId) && !table.next())
                     return false;
                 beginTransaction();
                 table.insert(rowId, repCache.getHash(),

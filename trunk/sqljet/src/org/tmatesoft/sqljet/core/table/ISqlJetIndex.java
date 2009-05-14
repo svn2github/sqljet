@@ -23,47 +23,44 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 public interface ISqlJetIndex {
 
     /**
-     * Lookup first index entry which matches to key and return rowId from it.
-     * If there isn't any entry matched to key it returns 0.
+     * If 'next' is false then lookup a first index entry which matches to key
+     * and return rowId from it. If there isn't any entry matched to key it
+     * returns 0.
+     * 
+     * If 'next' is false then lookup the next index entry which matches to key
+     * and return rowId from it. If there isn't any entry matched to key it
+     * returns 0.
+     * 
+     * @param next
+     *            lookup next entry which matches key
      * 
      * @param key
+     *            key value
+     * 
      * @return
      * @throws SqlJetException
      */
-    long lookup(Object... key) throws SqlJetException;
-
-    /**
-     * Lookup next index entry which matches to key and return rowId from it. If
-     * there isn't any entry matched to key it returns 0. This method must be
-     * called after sucessful call of {@link ISqlJetIndex#lookup(Object...)}.
-     * 
-     * @param key
-     * @return
-     * @throws SqlJetException
-     */
-    long lookupNext(Object... key) throws SqlJetException;
-
-    /**
-     * Writes index entry into the index. Entry is data table's rowId and key
-     * @param record
-     * 
-     * @throws SqlJetException
-     */
-    void insert(long rowId, Object... key) throws SqlJetException;
-
-    /**
-     * Delete current entry from index.
-     * 
-     * @throws SqlJetException
-     */
-    void delete() throws SqlJetException;
+    long lookup(boolean next, Object... key) throws SqlJetException;
 
     /**
      * Delete entry which matches to key.
      * 
      * @param key
+     * 
+     * @return true if there was deleted entry which matches to key.
+     * 
      * @throws SqlJetException
      */
-    void delete(Object... key) throws SqlJetException;
+    boolean delete(Object... key) throws SqlJetException;
 
+    /**
+     * Write an entry into the table. A new entry is created if it doesn't
+     * already exist or the data for an existing entry is overwritten.
+     * 
+     * @param rowId
+     * @param data
+     * @throws SqlJetException 
+     */
+    void insert(long rowId, Object ... data) throws SqlJetException;
+    
 }

@@ -13,7 +13,10 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.nio.ByteBuffer;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetValueType;
 
 /**
  * @author TMate Software Ltd.
@@ -35,6 +38,8 @@ public interface ISqlJetCursor {
     boolean previous() throws SqlJetException;
 
     int getFieldsCount() throws SqlJetException;
+
+    SqlJetValueType getFieldType(int field) throws SqlJetException;
     
     boolean isNull(int field) throws SqlJetException;
     
@@ -43,5 +48,6 @@ public interface ISqlJetCursor {
     long getInteger(int field) throws SqlJetException;
     
     double getReal(int field) throws SqlJetException;
-    
+
+    ByteBuffer getBlob(int field) throws SqlJetException;
 }

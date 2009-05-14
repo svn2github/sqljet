@@ -18,13 +18,13 @@ import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
-
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetVdbeMem {
 
@@ -35,7 +35,7 @@ public interface ISqlJetVdbeMem {
      * 
      */
     void release();
- 
+
     /**
      * If pMem is an object with a valid string representation, this routine
      * ensures the internal encoding for the string representation is
@@ -50,7 +50,7 @@ public interface ISqlJetVdbeMem {
      * between formats.
      * 
      * @param enc
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void changeEncoding(SqlJetEncoding desiredEnc) throws SqlJetException;
 
@@ -58,31 +58,30 @@ public interface ISqlJetVdbeMem {
      * This routine transforms the internal text encoding used by pMem to
      * desiredEnc. It is an error if the string is already of the desired
      * encoding, or if *pMem does not contain a string value.
-     *
+     * 
      * @param desiredEnc
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void translate(SqlJetEncoding desiredEnc) throws SqlJetException;
 
     /**
-    * This routine checks for a byte-order mark at the beginning of the 
-    * UTF-16 string stored in *pMem. If one is present, it is removed and
-    * the encoding of the Mem adjusted. This routine does not do any
-    * byte-swapping, it just sets Mem.enc appropriately.
-    *
-    * The allocation (static, dynamic etc.) and encoding of the Mem may be
-    * changed by this function.
-    */
+     * This routine checks for a byte-order mark at the beginning of the UTF-16
+     * string stored in *pMem. If one is present, it is removed and the encoding
+     * of the Mem adjusted. This routine does not do any byte-swapping, it just
+     * sets Mem.enc appropriately.
+     * 
+     * The allocation (static, dynamic etc.) and encoding of the Mem may be
+     * changed by this function.
+     */
     void handleBom();
-    
-    
+
     /**
      * If the given Mem* has a zero-filled tail, turn it into an ordinary blob
      * stored in dynamically allocated space.
      * 
      */
     void expandBlob();
-    
+
     /**
      * This function is only available internally, it is not part of the
      * external API. It works in a similar way to sqlite3_value_text(), except
@@ -95,7 +94,7 @@ public interface ISqlJetVdbeMem {
      * 
      * @param enc
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     ByteBuffer valueText(SqlJetEncoding enc) throws SqlJetException;
 
@@ -148,173 +147,189 @@ public interface ISqlJetVdbeMem {
     void makeWriteable();
 
     /**
-     * Return some kind of integer value which is the best we can do
-     * at representing the value that *pMem describes as an integer.
-     * If pMem is an integer, then the value is exact.  If pMem is
-     * a floating-point then the value returned is the integer part.
-     * If pMem is a string or blob, then we make an attempt to convert
-     * it into a integer and return that.  If pMem is NULL, return 0.
-     *
+     * Return some kind of integer value which is the best we can do at
+     * representing the value that *pMem describes as an integer. If pMem is an
+     * integer, then the value is exact. If pMem is a floating-point then the
+     * value returned is the integer part. If pMem is a string or blob, then we
+     * make an attempt to convert it into a integer and return that. If pMem is
+     * NULL, return 0.
+     * 
      * If pMem is a string, its encoding might be changed.
      */
-     long intValue();
-    
-     /**
-      * Delete any previous value and set the value stored in *pMem to NULL.
-      */
-     void setNull();
-     
-     /**
-      * Change the value of a Mem to be a string or a BLOB.
-      *
-      * The memory management strategy depends on the value of the xDel
-      * parameter. If the value passed is SQLITE_TRANSIENT, then the 
-      * string is copied into a (possibly existing) buffer managed by the 
-      * Mem structure. Otherwise, any existing buffer is freed and the
-      * pointer copied.
-      *
-       * @throws SqlJetException 
-      */
-     void setStr( ByteBuffer z, SqlJetEncoding enc ) throws SqlJetException;
+    long intValue();
 
-     /**
-      * Delete any previous value and set the value stored in *pMem to val,
-      * manifest type INTEGER.
-      */
-     void setInt64(long val);
- 
-     /**
-      * Make sure the given Mem is nul terminated.
-      * 
-      */
-     void nulTerminate();
-     
-     /**
-      * Add MEM_Str to the set of representations for the given Mem. Numbers are
-      * converted using sqlite3_snprintf(). Converting a BLOB to a string is a
-      * no-op.
-      * 
-      * Existing representations MEM_Int and MEM_Real are *not* invalidated.
-      * 
-      * A MEM_Null value will never be passed to this function. This function is
-      * used for converting values to text for returning to the user (i.e. via
-      * sqlite3_value_text()), or for ensuring that values to be used as btree
-      * keys are strings. In the former case a NULL pointer is returned the user
-      * and the later is an internal programming error.
-      * 
-      * @param enc
-      * @throws SqlJetException 
-      */
-     void stringify(SqlJetEncoding enc) throws SqlJetException;
-  
-     /**
-     * Return the best representation of pMem that we can get into a
-     * double.  If pMem is already a double or an integer, return its
-     * value.  If it is a string or blob, try to convert it to a double.
-     * If it is a NULL, return 0.0.
+    /**
+     * Delete any previous value and set the value stored in *pMem to NULL.
      */
-     double realValue();
-     
-     /**
-     * The MEM structure is already a MEM_Real.  Try to also make it a
-     * MEM_Int if we can.
-     */
-     void integerAffinity();
-     
-     /**
-     * Convert pMem to type integer.  Invalidate any prior representations.
-     */
-     void integerify();
-     
-     /**
-     * Convert pMem so that it is of type MEM_Real.
-     * Invalidate any prior representations.
-     */
-     void realify();
-     
-     /**
-     * Convert pMem so that it has types MEM_Real or MEM_Int or both.
-     * Invalidate any prior representations.
-     */
-     void numerify();
+    void setNull();
 
-     /**
-     * Delete any previous value and set the value to be a BLOB of length
-     * n containing all zeros.
+    /**
+     * Change the value of a Mem to be a string or a BLOB.
+     * 
+     * The memory management strategy depends on the value of the xDel
+     * parameter. If the value passed is SQLITE_TRANSIENT, then the string is
+     * copied into a (possibly existing) buffer managed by the Mem structure.
+     * Otherwise, any existing buffer is freed and the pointer copied.
+     * 
+     * @throws SqlJetException
      */
-     void setZeroBlob(int n);
+    void setStr(ByteBuffer z, SqlJetEncoding enc) throws SqlJetException;
 
-     /**
+    /**
+     * Delete any previous value and set the value stored in *pMem to val,
+     * manifest type INTEGER.
+     */
+    void setInt64(long val);
+
+    /**
+     * Make sure the given Mem is nul terminated.
+     * 
+     */
+    void nulTerminate();
+
+    /**
+     * Add MEM_Str to the set of representations for the given Mem. Numbers are
+     * converted using sqlite3_snprintf(). Converting a BLOB to a string is a
+     * no-op.
+     * 
+     * Existing representations MEM_Int and MEM_Real are *not* invalidated.
+     * 
+     * A MEM_Null value will never be passed to this function. This function is
+     * used for converting values to text for returning to the user (i.e. via
+     * sqlite3_value_text()), or for ensuring that values to be used as btree
+     * keys are strings. In the former case a NULL pointer is returned the user
+     * and the later is an internal programming error.
+     * 
+     * @param enc
+     * @throws SqlJetException
+     */
+    void stringify(SqlJetEncoding enc) throws SqlJetException;
+
+    /**
+     * Return the best representation of pMem that we can get into a double. If
+     * pMem is already a double or an integer, return its value. If it is a
+     * string or blob, try to convert it to a double. If it is a NULL, return
+     * 0.0.
+     */
+    double realValue();
+
+    /**
+     * The MEM structure is already a MEM_Real. Try to also make it a MEM_Int if
+     * we can.
+     */
+    void integerAffinity();
+
+    /**
+     * Convert pMem to type integer. Invalidate any prior representations.
+     */
+    void integerify();
+
+    /**
+     * Convert pMem so that it is of type MEM_Real. Invalidate any prior
+     * representations.
+     */
+    void realify();
+
+    /**
+     * Convert pMem so that it has types MEM_Real or MEM_Int or both. Invalidate
+     * any prior representations.
+     */
+    void numerify();
+
+    /**
+     * Delete any previous value and set the value to be a BLOB of length n
+     * containing all zeros.
+     */
+    void setZeroBlob(int n);
+
+    /**
      * Delete any previous value and set the value stored in *pMem to val,
      * manifest type REAL.
      */
-     void setDouble(double val);
+    void setDouble(double val);
 
-     /**
-     * Delete any previous value and set the value of pMem to be an
-     * empty boolean index.
+    /**
+     * Delete any previous value and set the value of pMem to be an empty
+     * boolean index.
      */
-     void setRowSet();
+    void setRowSet();
 
-     /**
-     * Return true if the Mem object contains a TEXT or BLOB that is
-     * too large - whose size exceeds SQLITE_MAX_LENGTH.
+    /**
+     * Return true if the Mem object contains a TEXT or BLOB that is too large -
+     * whose size exceeds SQLITE_MAX_LENGTH.
      */
-     boolean isTooBig();
- 
-     /**
-      ** Make an shallow copy. The pFrom->z field is not duplicated. If pFrom->z
-      * is used, then pTo->z points to the same thing as pFrom->z and flags gets
-      * srcType (either MEM_Ephem or MEM_Static).
-      * 
-      * @param srcType
-      * 
-      * @throws SqlJetException
-      */
-     ISqlJetVdbeMem shallowCopy(SqlJetVdbeMemFlags srcType) throws SqlJetException;
+    boolean isTooBig();
 
-     /**
-     * Make a full copy of pFrom into pTo.  Prior contents of pTo are
-     * freed before the copy is made.
-     * @throws SqlJetException 
+    /**
+     ** Make an shallow copy. The pFrom->z field is not duplicated. If pFrom->z
+     * is used, then pTo->z points to the same thing as pFrom->z and flags gets
+     * srcType (either MEM_Ephem or MEM_Static).
+     * 
+     * @param srcType
+     * 
+     * @throws SqlJetException
      */
-     ISqlJetVdbeMem copy() throws SqlJetException;
+    ISqlJetVdbeMem shallowCopy(SqlJetVdbeMemFlags srcType) throws SqlJetException;
 
-     /**
+    /**
+     * Make a full copy of pFrom into pTo. Prior contents of pTo are freed
+     * before the copy is made.
+     * 
+     * @throws SqlJetException
+     */
+    ISqlJetVdbeMem copy() throws SqlJetException;
+
+    /**
      * Transfer the contents of pFrom to pTo. Any existing value in pTo is
      * freed. If pFrom contains ephemeral data, a copy is made.
-     *
-     * pFrom contains an SQL NULL when this routine returns.
-     * @throws SqlJetException 
-     */
-     ISqlJetVdbeMem move() throws SqlJetException;
-     
-     /**
-     * Perform various checks on the memory cell pMem. An assert() will
-     * fail if pMem is internally inconsistent.
-     */
-     void sanity();
-
-     /**
-     * Return the number of bytes in the sqlite3_value object assuming
-     * that it uses the encoding "enc"
      * 
-     * @throws SqlJetException 
+     * pFrom contains an SQL NULL when this routine returns.
+     * 
+     * @throws SqlJetException
      */
-     int valueBytes(SqlJetEncoding enc) throws SqlJetException;     
- 
-     /** 
-      * Clear any existing type flags from a Mem and replace them with f
-      * 
-      * @param real
-      */
-     void setTypeFlag(SqlJetVdbeMemFlags f);
-     
-     EnumSet<SqlJetVdbeMemFlags> getFlags();
+    ISqlJetVdbeMem move() throws SqlJetException;
+
+    /**
+     * Perform various checks on the memory cell pMem. An assert() will fail if
+     * pMem is internally inconsistent.
+     */
+    void sanity();
+
+    /**
+     * Return the number of bytes in the sqlite3_value object assuming that it
+     * uses the encoding "enc"
+     * 
+     * @throws SqlJetException
+     */
+    int valueBytes(SqlJetEncoding enc) throws SqlJetException;
+
+    /**
+     * Clear any existing type flags from a Mem and replace them with f
+     * 
+     * @param real
+     */
+    void setTypeFlag(SqlJetVdbeMemFlags f);
+
+    EnumSet<SqlJetVdbeMemFlags> getFlags();
 
     /**
      * @return
      */
     boolean isNull();
-     
+
+    /**
+     * @return
+     */
+    SqlJetValueType getType();
+
+    /**
+     * Converts the object V into a BLOB and then returns a pointer to the
+     * converted value.
+     * 
+     * @return
+     * 
+     * @throws SqlJetException 
+     */
+    ByteBuffer valueBlob() throws SqlJetException;
+    
 }

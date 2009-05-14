@@ -42,22 +42,9 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookup(java.lang.Object[])
      */
-    public long lookup(Object... values) throws SqlJetException {
+    public long lookup(boolean next, Object... values) throws SqlJetException {
         clearCachedRecord();
-        return getKeyRowId(indexTable.lookup(SqlJetBtreeRecord.getRecord(values)));
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookupNext(java.lang.Object
-     * [])
-     */
-    public long lookupNext(Object... key) throws SqlJetException {
-        clearCachedRecord();
-        // TODO Auto-generated method stub
-        return 0;
+        return getKeyRowId(indexTable.lookup(next, SqlJetBtreeRecord.getRecord(values)));
     }
 
     private long getKeyRowId(ISqlJetBtreeRecord record) {
@@ -76,8 +63,8 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * java.lang.Object[])
      */
     public void insert(long rowId, Object... key) throws SqlJetException {
-        indexTable.insert(SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)), true);
         clearCachedRecord();
+        indexTable.insert(SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)), true);
     }
 
     /*
@@ -86,18 +73,9 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(java.lang.Object[])
      */
-    public void delete(Object... key) throws SqlJetException {
-        indexTable.delete(SqlJetBtreeRecord.getRecord(key));
+    public boolean delete(Object... key) throws SqlJetException {
         clearCachedRecord();
+        return indexTable.delete(SqlJetBtreeRecord.getRecord(key));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete()
-     */
-    public void delete() throws SqlJetException {
-        clearCachedRecord();
-        // TODO Auto-generated method stub
-    }
 }

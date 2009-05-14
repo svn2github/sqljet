@@ -18,6 +18,8 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
+ * Implementation of {@link ISqlJetTable}.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *

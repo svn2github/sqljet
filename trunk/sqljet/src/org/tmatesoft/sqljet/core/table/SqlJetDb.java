@@ -56,6 +56,8 @@ public class SqlJetDb {
     private ISqlJetBtree btree;
     private ISqlJetSchema schema;
 
+    private boolean transaction = false;
+
     public static class SqlJetDataTable extends SqlJetTable {
         SqlJetDataTable(ISqlJetBtreeDataTable dataTable) {
             super(dataTable);
@@ -68,6 +70,13 @@ public class SqlJetDb {
         }
     }
 
+    /**
+     * Create connection to data base.
+     * 
+     * @param file path to data base
+     * @param write if true then allow data modification
+     * @throws SqlJetException
+     */
     protected SqlJetDb(File file, boolean write) throws SqlJetException {
         this.write = write;
         db = new SqlJetDbHandle();
@@ -89,10 +98,22 @@ public class SqlJetDb {
         });
     }
 
+    /**
+     * Open connection to data base.
+     * 
+     * @param file path to data base
+     * @param write if true then allow data modification
+     * @throws SqlJetException
+     */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
         return new SqlJetDb(file, write);
     }
 
+    /**
+     * Close connection to data base.
+     * 
+     * @throws SqlJetException
+     */
     public void close() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -103,6 +124,13 @@ public class SqlJetDb {
         });
     }
 
+    /**
+     * Do some actions with locking data base.
+     * 
+     * @param op
+     * @return
+     * @throws SqlJetException
+     */
     public Object runWithLock(ISqlJetRunnableWithLock op) throws SqlJetException {
         Object result = null;
         db.getMutex().enter();
@@ -114,22 +142,50 @@ public class SqlJetDb {
         return result;
     }
 
+    /**
+     * Check write access to data base.
+     * 
+     * @return true if modification is allowed
+     */
     public boolean isWrite() {
         return write;
     }
 
+    /**
+     * Get data base's encoding.
+     * 
+     * @return data base's encoding
+     */
     public SqlJetEncoding getEncoding() {
         return db.getEnc();
     }
 
+    /**
+     * Get all tables names from data base.
+     * 
+     * @return set with all tables names
+     */
     public Set<String> getTableNames() {
         return schema.getTableNames();
     }
 
+    /**
+     * Get all indexes names which are linked with given table.
+     * 
+     * @param tableName name of table
+     * @return set of indexes names wich are linked with table
+     */
     public Set<String> getIndexNames(String tableName) {
         return schema.getIndexNames(tableName);
     }
 
+    /**
+     * Open table.
+     * 
+     * @param tableName table name
+     * @return opened table
+     * @throws SqlJetException
+     */
     public SqlJetTable openTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -139,6 +195,13 @@ public class SqlJetDb {
         });
     }
 
+    /**
+     * Open index.
+     * 
+     * @param indexName index name
+     * @return opened index
+     * @throws SqlJetException
+     */
     public SqlJetIndex openIndex(final String indexName) throws SqlJetException {
         return (SqlJetIndexTable) runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -148,21 +211,40 @@ public class SqlJetDb {
         });
     }
 
+    /**
+     * Begin transaction if write access is allowed.
+     * 
+     * @throws SqlJetException
+     */
     public void beginTransaction() throws SqlJetException {
         if (write) {
             btree.beginTrans(SqlJetTransactionMode.WRITE);
+            transaction = true;
         }
     }
 
+    /**
+     * Commit transaction.
+     * 
+     * @throws SqlJetException
+     */
     public void commit() throws SqlJetException {
-        if (write) {
+        if (write && transaction) {
             btree.commit();
+            transaction = false;
         }
     }
 
+    /**
+     * Rollback transaction.
+     * 
+     * @throws SqlJetException
+     */
     public void rollback() throws SqlJetException {
-        if (write) {
+        if (write && transaction) {
             btree.rollback();
+            transaction = false;
         }
     }
+
 }

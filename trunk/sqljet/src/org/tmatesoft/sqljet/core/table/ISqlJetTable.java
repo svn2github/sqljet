@@ -16,18 +16,45 @@ package org.tmatesoft.sqljet.core.table;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
+ * Table's interface.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
 public interface ISqlJetTable {
 
+    /**
+     * Go to record which has given row's ID (taken from index).
+     * 
+     * @param rowId row's ID which was taken from index
+     * @return true if record exists
+     * @throws SqlJetException
+     */
     boolean goToRow(long rowId) throws SqlJetException;
 
+    /**
+     * Get row's ID of current record.
+     * 
+     * @return row ID of current record
+     * @throws SqlJetException
+     */
     long getRowId() throws SqlJetException;
 
+    /**
+     * Generat new row's ID for new record.
+     * 
+     * @return new row's ID
+     * @throws SqlJetException
+     */
     long newRowId() throws SqlJetException;
 
+    /**
+     * Delete record by row's ID.
+     * 
+     * @param rowId
+     * @throws SqlJetException
+     */
     void delete(long rowId) throws SqlJetException;
 
     /**

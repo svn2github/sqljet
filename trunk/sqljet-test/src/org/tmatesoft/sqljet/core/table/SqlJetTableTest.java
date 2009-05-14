@@ -60,8 +60,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Before
     public void setUp() throws Exception {
         fileDbCopy = copyFile(fileDb, DELETE_COPY);
-        db = new SqlJetDb(fileDb, false);
-        dbCopy = new SqlJetDb(fileDbCopy, true);
+        db = SqlJetDb.open(fileDb, false);
+        dbCopy = SqlJetDb.open(fileDbCopy, true);
     }
 
     /**

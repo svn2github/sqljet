@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.table;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
+ * Index's interface.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 

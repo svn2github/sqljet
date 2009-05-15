@@ -40,6 +40,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public static final String DB = SqlJetUtility.getSysProp(TABLE_TEST + ".DB", "sqljet-test/db/testdb.sqlite");
 
     public static final String TABLE = SqlJetUtility.getSysProp(TABLE_TEST + ".TABLE", "test1");
+    public static final String TABLE2 = SqlJetUtility.getSysProp(TABLE_TEST + ".TABLE", "test2");
 
     private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(TABLE_TEST + ".DELETE_COPY", true);
 
@@ -225,6 +226,78 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 
                 Assert.assertNotNull(columns);
                 Assert.assertEquals(4, columns.size());
+                
+                return null;
+                
+            }
+        });
+        
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void insertNotNull() throws SqlJetException {
+        
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+                
+                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                
+                table.insert(table.newRowId(), null, null);
+
+                dbCopy.rollback();
+
+                Assert.assertTrue(false);
+                
+                return null;
+                
+            }
+        });
+                
+    }
+
+    @Test
+    public void insertFieldCountOK() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+                
+                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                
+                final long newRowId = table.newRowId();
+                table.insert(newRowId, newRowId, "test", "test" );
+        
+                dbCopy.commit();
+                
+                return null;
+                
+            }
+        });
+        
+    }
+    
+    @Test(expected=SqlJetException.class)
+    public void insertFieldCountFail() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+                
+                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                
+                final long newRowId = table.newRowId();
+                table.insert(newRowId, newRowId, "test", "test", "test");
+        
+                dbCopy.rollback();
+
+                Assert.assertTrue(false);
                 
                 return null;
                 

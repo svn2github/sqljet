@@ -14,11 +14,16 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Random;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnConstraint;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 
@@ -30,7 +35,7 @@ import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
     private long priorNewRowid;
-    
+
     protected ISqlJetTableDef tableDef;
 
     /**
@@ -49,7 +54,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public ISqlJetTableDef getTableDef() {
         return tableDef;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -60,7 +65,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
-            return cursor.moveTo(null, rowId, false)==0;
+            return cursor.moveTo(null, rowId, false) == 0;
         } finally {
             unlock();
         }
@@ -189,11 +194,47 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException {
         lock();
         try {
+            if (rowId <= 0)
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
+            if (data == null)
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data is missing");
             final ByteBuffer pData = data.getRawRecord();
-            cursor.insert(null, rowId, pData, pData.remaining(), 0, append);
+            if (checkFields(data)) {
+                cursor.insert(null, rowId, pData, pData.remaining(), 0, append);
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
+            }
         } finally {
             unlock();
         }
+    }
+
+    /**
+     * @param data
+     * @return
+     */
+    private boolean checkFields(ISqlJetBtreeRecord data) throws SqlJetException {
+        final List<ISqlJetVdbeMem> fields = data.getFields();
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        final int fieldsSize = fields.size();
+        final int columnsSize = columns.size();
+        if (fieldsSize > columnsSize)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data values count is more than columns in table");
+        int i = 0;
+        for (final ISqlJetColumnDef column : columns) {
+            if (null != column.getConstraints()) {
+                for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
+                    if (constraint instanceof ISqlJetColumnNotNull) {
+                        if (i >= fieldsSize || null == fields.get(i) || fields.get(i).isNull()) {
+                            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName()
+                                    + " is NOT NULL");
+                        }
+                    }
+                }
+            }
+            i++;
+        }
+        return true;
     }
 
     /*

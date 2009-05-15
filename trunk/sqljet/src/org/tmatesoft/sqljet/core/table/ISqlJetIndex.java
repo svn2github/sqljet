@@ -29,10 +29,6 @@ public interface ISqlJetIndex {
      * and return rowId from it. If there isn't any entry matched to key it
      * returns 0.
      * 
-     * If 'next' is false then lookup the next index entry which matches to key
-     * and return rowId from it. If there isn't any entry matched to key it
-     * returns 0.
-     * 
      * @param next
      *            lookup next entry which matches key
      * 

@@ -20,6 +20,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -29,6 +30,8 @@ import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
     private long priorNewRowid;
+    
+    protected ISqlJetTableDef tableDef;
 
     /**
      * Open data table by name.
@@ -37,8 +40,16 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false, schema.getMeta().getEncoding());
+        this.tableDef = schema.getTable(tableName);
     }
 
+    /**
+     * @return the tableDef
+     */
+    public ISqlJetTableDef getTableDef() {
+        return tableDef;
+    }
+    
     /*
      * (non-Javadoc)
      * 

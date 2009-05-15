@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -22,12 +23,31 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
 
-    // TODO: Return boolean to indicate success.
-    // Now returns 0 if the underlying cursor has moved to row and -1 otherwise (check).
+    /**
+     * Get table's schema definition.
+     * 
+     * @return
+     */
+    ISqlJetTableDef getTableDef();
+    
+    /**
+     * Go to record with given rowID.
+     * Return boolean to indicate success.
+     * 
+     * @param rowId
+     * @return
+     * @throws SqlJetException
+     */
     boolean goToRow(long rowId) throws SqlJetException;
 
+    /**
+     * Generate new rowID.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
     long getRowId() throws SqlJetException;
-
+    
     /**
      * Get a new integer record number (a.k.a "rowid") used as the key to a
      * table. The record number is not previously used as a key in the database

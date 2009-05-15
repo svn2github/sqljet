@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -24,6 +25,8 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -200,4 +203,34 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
     }
 
+    @Test
+    public void tableDef() throws SqlJetException {
+        
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+                
+                final ISqlJetTableDef tableDef = table.getTableDef();
+                
+                Assert.assertNotNull(tableDef);
+                
+                final String tableName = tableDef.getName();
+                
+                Assert.assertNotNull(tableName);
+                Assert.assertEquals(TABLE, tableName);
+                
+                final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+                
+                Assert.assertNotNull(columns);
+                Assert.assertEquals(4, columns.size());
+                
+                return null;
+                
+            }
+        });
+        
+    }
+    
 }

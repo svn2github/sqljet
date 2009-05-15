@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 
 /**
  * Table's interface.
@@ -24,6 +25,13 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetTable {
 
+    /**
+     * Get table's schema definition.
+     * 
+     * @return
+     */
+    ISqlJetTableDef getTableDef();
+    
     /**
      * Go to record which has given row's ID (taken from index).
      * 

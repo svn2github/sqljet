@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
@@ -32,6 +33,10 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
         super(dataTable);
         this.dataTable = dataTable;
     }
+
+    public ISqlJetTableDef getTableDef() {
+        return dataTable.getTableDef();
+    };
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)

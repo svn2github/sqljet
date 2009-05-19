@@ -272,7 +272,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getReal(int)
      */
-    public double getReal(int field) throws SqlJetException {
+    public double getFloat(int field) throws SqlJetException {
         if (isNull(field))
             return 0;
         return getValue(field).realValue();

@@ -137,8 +137,8 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getReal(int)
      */
-    public double getReal(int field) throws SqlJetException {
-        return btreeTable.getReal(field);
+    public double getFloat(int field) throws SqlJetException {
+        return btreeTable.getFloat(field);
     }
 
     /*

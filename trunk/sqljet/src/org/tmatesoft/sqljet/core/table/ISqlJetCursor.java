@@ -124,7 +124,7 @@ public interface ISqlJetCursor {
      * @return field's value as real
      * @throws SqlJetException
      */
-    double getReal(int field) throws SqlJetException;
+    double getFloat(int field) throws SqlJetException;
 
     /**
      * Get field's value as BLOB.

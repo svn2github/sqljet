@@ -19,7 +19,6 @@ import java.util.Random;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;

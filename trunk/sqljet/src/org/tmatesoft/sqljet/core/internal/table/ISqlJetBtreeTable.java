@@ -29,24 +29,24 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
 public interface ISqlJetBtreeTable {
 
     /**
-     * Close cursor.
+     * Close B-Tree table cursor.
      * 
      * @throws SqlJetException
      */
     void close() throws SqlJetException;
 
     /**
-     * Lock cursor's mutex.
+     * Lock B-Tree table cursor's mutex.
      */
     void lock();
 
     /**
-     * Unlock cursror's mutex.
+     * Unlock B-Tree table cursror's mutex.
      */
     void unlock();
 
     /**
-     * Check of end of cursor.
+     * Check of end of B-Tree table cursor.
      * 
      * @return true if there is not more records.
      */
@@ -152,7 +152,7 @@ public interface ISqlJetBtreeTable {
      * @return field's value as real
      * @throws SqlJetException
      */
-    double getReal(int field) throws SqlJetException;
+    double getFloat(int field) throws SqlJetException;
 
     /**
      * Get field's value as BLOB.

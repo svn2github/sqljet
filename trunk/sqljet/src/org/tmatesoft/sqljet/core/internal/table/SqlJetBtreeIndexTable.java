@@ -19,7 +19,9 @@ import java.util.List;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**
@@ -39,16 +41,14 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         super(schema.getBtree(), schema.getIndexPage(indexName), write, true, schema.getMeta().getEncoding());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeIndexTable
-     * #lookup (org.tmatesoft.sqljet.core.internal.table.ISqlJetRecord)
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#lookup(boolean, java.lang.Object[])
      */
-    public ISqlJetBtreeRecord lookup(boolean next, ISqlJetBtreeRecord key) throws SqlJetException {
+    public long lookup(boolean next, Object... values) throws SqlJetException {
         lock();
         try {
+            clearCachedRecord();
+            ISqlJetBtreeRecord key=SqlJetBtreeRecord.getRecord(values);
             adjustKeyInfo(key);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
@@ -56,10 +56,10 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             }
             final ISqlJetBtreeRecord record = getRecord();
             if (null == record)
-                return null;
+                return 0;
             if (keyCompare(k, record.getRawRecord()) != 0)
-                return null;
-            return record;
+                return 0;
+            return getKeyRowId(record);
         } finally {
             unlock();
         }
@@ -88,35 +88,30 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert
-     * (org.tmatesoft .sqljet.core.ext.ISqlJetBtreeRecord, boolean)
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert(long, boolean, java.lang.Object[])
      */
-    public void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException {
+    public void insert(long rowId, boolean append, Object... key) throws SqlJetException {
         lock();
         try {
-            final ByteBuffer zKey = key.getRawRecord();
+            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)).getRawRecord();
             cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
+            clearCachedRecord();
         } finally {
             unlock();
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete
-     * (long,org.tmatesoft .sqljet.core.ext.ISqlJetBtreeRecord)
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete(long, java.lang.Object[])
      */
-    public boolean delete(long rowId, ISqlJetBtreeRecord key) throws SqlJetException {
+    public boolean delete(long rowId, Object... key) throws SqlJetException {
         lock();
         try {
-            adjustKeyInfo(key);
-            final ByteBuffer k = key.getRawRecord();
+            clearCachedRecord();
+            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(key);
+            adjustKeyInfo(rec);
+            final ByteBuffer k = rec.getRawRecord();
             if (cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
             }

@@ -14,9 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
  * Implementation of {@link ISqlJetIndex}
@@ -41,8 +39,7 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * org.tmatesoft.sqljet.core.table.ISqlJetIndex#lookup(java.lang.Object[])
      */
     public long lookup(boolean next, Object... values) throws SqlJetException {
-        clearCachedRecord();
-        return indexTable.getKeyRowId(indexTable.lookup(next, SqlJetBtreeRecord.getRecord(values)));
+        return indexTable.lookup(next, values);
     }
 
     /*
@@ -52,8 +49,7 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * java.lang.Object[])
      */
     public void insert(long rowId, Object... key) throws SqlJetException {
-        clearCachedRecord();
-        indexTable.insert(SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)), true);
+        indexTable.insert(rowId, true, key);
     }
 
     /*
@@ -63,8 +59,7 @@ public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
      * org.tmatesoft.sqljet.core.table.ISqlJetIndex#delete(long,java.lang.Object[])
      */
     public boolean delete(long rowId,Object... key) throws SqlJetException {
-        clearCachedRecord();
-        return indexTable.delete(rowId, SqlJetBtreeRecord.getRecord(key));
+        return indexTable.delete(rowId, key);
     }
 
 }

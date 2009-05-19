@@ -42,7 +42,6 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)
      */
     public boolean goToRow(long rowId) throws SqlJetException{
-        clearCachedRecord();
         return dataTable.goToRow(rowId);
     }
 
@@ -64,7 +63,6 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#delete(long)
      */
     public void delete(long rowId) throws SqlJetException {
-        clearCachedRecord();
         dataTable.delete(rowId); 
      }
     
@@ -72,8 +70,7 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(long, java.lang.Object[])
      */
     public void insert(long rowId, Object ... values) throws SqlJetException {
-        clearCachedRecord();
-        dataTable.insert(rowId, SqlJetBtreeRecord.getRecord(values), true);
+        dataTable.insert(rowId, true, values);
     }
         
 }

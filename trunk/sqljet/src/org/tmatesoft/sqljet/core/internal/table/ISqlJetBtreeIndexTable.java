@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.internal.table;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
+ * 
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
@@ -26,14 +28,12 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      * Lookup index entry by key values. If 'next' is true then just check next entry in index.
      * 
      * @param next just check next index entry
-     * @param key the key values
+     * @param values the key values
      * 
      * @return
      * @throws SqlJetException
      */
-    ISqlJetBtreeRecord lookup(boolean next, ISqlJetBtreeRecord key) throws SqlJetException;
-
-    long getKeyRowId(ISqlJetBtreeRecord record);
+    long lookup(boolean next, Object... values) throws SqlJetException;
     
     /**
      * Writes key into the index. Data for the entry is nil.
@@ -41,12 +41,23 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      * Append flag that provides a hint to the b-tree layer that this insert is
      * likely to be an append.
      * 
-     * @param record
+     * @param rowId
      * @param append
+     * @param key
      * @throws SqlJetException
      */
-    void insert(ISqlJetBtreeRecord key, boolean append) throws SqlJetException;
+    void insert(long rowId, boolean append, Object... key) throws SqlJetException;
 
-    boolean delete(long rowId, ISqlJetBtreeRecord key) throws SqlJetException;
+    /**
+     * Delete entry which matches to key and point to given rowId.
+     * 
+     * @param rowId
+     * @param key
+     * 
+     * @return true if there was deleted entry which matches to key.
+     * 
+     * @throws SqlJetException
+     */
+    boolean delete(long rowId, Object... key) throws SqlJetException;
     
 }

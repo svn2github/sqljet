@@ -73,8 +73,14 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param data
      * @throws SqlJetException 
      */
-    void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException;
+    void insert(long rowId, boolean append, Object ... values) throws SqlJetException;
     
+    /**
+     * Delete record by row's ID.
+     * 
+     * @param rowId
+     * @throws SqlJetException
+     */
     void delete(long rowId) throws SqlJetException;
     
 }

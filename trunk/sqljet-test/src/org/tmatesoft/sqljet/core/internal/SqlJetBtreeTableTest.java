@@ -386,13 +386,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, false);
         try {
-            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
-            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-            final ISqlJetBtreeRecord record = index.lookup(false, new SqlJetBtreeRecord(mem));
-            if (null == record)
-                return 0;
-            final long row = record.getFields().get(1).intValue();
-            return row;
+            return index.lookup(false, hash);
         } finally {
             index.close();
         }
@@ -495,32 +489,13 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void insertHash(ISqlJetSchema schema, ISqlJetBtreeDataTable data, ISqlJetBtreeIndexTable index,
             String hash) throws SqlJetException {
 
-        ISqlJetVdbeMem hashMem = new SqlJetVdbeMem();
-        hashMem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), SqlJetEncoding.UTF8);
-
-        ISqlJetVdbeMem f1 = new SqlJetVdbeMem();
-        f1.setInt64(1);
-        ISqlJetVdbeMem f2 = new SqlJetVdbeMem();
-        f2.setInt64(1);
-        ISqlJetVdbeMem f3 = new SqlJetVdbeMem();
-        f3.setInt64(1);
-        ISqlJetVdbeMem f4 = new SqlJetVdbeMem();
-        f4.setInt64(1);
-
-        ISqlJetBtreeRecord dataRecord = new SqlJetBtreeRecord(hashMem, f1, f2, f3, f4);
-
         final long rowId = data.newRowId(0);
-
-        ISqlJetVdbeMem rowIdMem = new SqlJetVdbeMem();
-        rowIdMem.setInt64(rowId);
-
-        ISqlJetBtreeRecord indexRecord = new SqlJetBtreeRecord(hashMem, rowIdMem);
 
         index.lockTable(true);
         data.lockTable(true);
 
-        index.insert(indexRecord, false);
-        data.insert(rowId, dataRecord, false);
+        index.insert(rowId, false, hash);
+        data.insert(rowId, false, hash, 1, 1, 1, 1);
 
     }
 
@@ -606,9 +581,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
         try {
-            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
-            mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes(hash)), schema.getMeta().getEncoding());
-            index.delete(rowId, new SqlJetBtreeRecord(mem));
+            index.delete(rowId, hash);
         } finally {
             index.close();
         }

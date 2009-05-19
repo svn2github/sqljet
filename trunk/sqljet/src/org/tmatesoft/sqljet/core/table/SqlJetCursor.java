@@ -34,14 +34,12 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 public abstract class SqlJetCursor implements ISqlJetCursor {
 
     private ISqlJetBtreeTable btreeTable;
-    private ISqlJetBtreeRecord cachedRecord;
 
     /**
      * 
      */
     SqlJetCursor(ISqlJetBtreeTable table) {
         this.btreeTable = table;
-        this.cachedRecord = null;
     }
 
     /*
@@ -50,7 +48,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
      */
     public void close() throws SqlJetException {
-        clearCachedRecord();
         btreeTable.close();
     }
 
@@ -69,7 +66,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#first()
      */
     public boolean first() throws SqlJetException {
-        clearCachedRecord();
         return btreeTable.first();
     }
 
@@ -79,7 +75,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#last()
      */
     public boolean last() throws SqlJetException {
-        clearCachedRecord();
         return btreeTable.last();
     }
 
@@ -89,7 +84,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#next()
      */
     public boolean next() throws SqlJetException {
-        clearCachedRecord();
         return btreeTable.next();
     }
 
@@ -99,7 +93,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#previous()
      */
     public boolean previous() throws SqlJetException {
-        clearCachedRecord();
         return btreeTable.previous();
     }
 
@@ -109,10 +102,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldsCount()
      */
     public int getFieldsCount() throws SqlJetException {
-        final ISqlJetBtreeRecord r = getCachedRecord();
-        if (null == r)
-            return 0;
-        return r.getFieldsCount();
+        return btreeTable.getFieldsCount();
     }
 
     /*
@@ -121,10 +111,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#isNull(int)
      */
     public boolean isNull(int field) throws SqlJetException {
-        final ISqlJetVdbeMem value = getValue(field);
-        if (null == value)
-            return true;
-        return value.isNull();
+        return btreeTable.isNull(field);
     }
 
     /*
@@ -133,10 +120,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getString(int)
      */
     public String getString(int field) throws SqlJetException {
-        if (isNull(field))
-            return null;
-        return SqlJetUtility.toString(getValue(field).valueText(btreeTable.getEncoding()),
-                ISqlJetBtreeRecord.INTERNAL_ENCODING);
+        return btreeTable.getString(field);
     }
 
     /*
@@ -145,9 +129,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getInteger(int)
      */
     public long getInteger(int field) throws SqlJetException {
-        if (isNull(field))
-            return 0;
-        return getValue(field).intValue();
+        return btreeTable.getInteger(field);
     }
 
     /*
@@ -156,36 +138,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getReal(int)
      */
     public double getReal(int field) throws SqlJetException {
-        if (isNull(field))
-            return 0;
-        return getValue(field).realValue();
-    }
-
-    protected void clearCachedRecord() {
-        cachedRecord = null;
-    }
-
-    protected ISqlJetBtreeRecord getCachedRecord() throws SqlJetException {
-        if (null == cachedRecord) {
-            cachedRecord = btreeTable.getRecord();
-        }
-        return cachedRecord;
-    }
-
-    protected boolean checkField(int field) throws SqlJetException {
-        return (field >= 0 && field < getFieldsCount());
-    }
-
-    protected ISqlJetVdbeMem getValue(int field) throws SqlJetException {
-        if (!checkField(field))
-            return null;
-        final ISqlJetBtreeRecord r = getCachedRecord();
-        if (null == r)
-            return null;
-        final List<ISqlJetVdbeMem> fields = r.getFields();
-        if (null == fields)
-            return null;
-        return fields.get(field);
+        return btreeTable.getReal(field);
     }
 
     /*
@@ -194,9 +147,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldType(int)
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
-        if (isNull(field))
-            return SqlJetValueType.NULL;
-        return getValue(field).getType();
+        return btreeTable.getFieldType(field);
     }
 
     /*
@@ -205,8 +156,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlob(int)
      */
     public ByteBuffer getBlob(int field) throws SqlJetException {
-        if (isNull(field))
-            return null;
-        return getValue(field).valueBlob();
+        return btreeTable.getBlob(field);
     }
 }

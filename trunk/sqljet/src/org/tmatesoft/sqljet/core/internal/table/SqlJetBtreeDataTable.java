@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
  * @author TMate Software Ltd.
@@ -65,6 +66,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
+            clearCachedRecord();
             return cursor.moveTo(null, rowId, false) == 0;
         } finally {
             unlock();
@@ -191,16 +193,15 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
      * (long, org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord)
      */
-    public void insert(long rowId, ISqlJetBtreeRecord data, boolean append) throws SqlJetException {
+    public void insert(long rowId, boolean append, Object ... values) throws SqlJetException {
         lock();
         try {
             if (rowId <= 0)
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            if (data == null)
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data is missing");
-            final ByteBuffer pData = data.getRawRecord();
-            if (checkFields(data)) {
+            if (checkFields(values)) {
+                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(values).getRawRecord();
                 cursor.insert(null, rowId, pData, pData.remaining(), 0, append);
+                clearCachedRecord();
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
             }
@@ -213,10 +214,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @param data
      * @return
      */
-    private boolean checkFields(ISqlJetBtreeRecord data) throws SqlJetException {
-        final List<ISqlJetVdbeMem> fields = data.getFields();
+    private boolean checkFields(Object ... values) throws SqlJetException {
+        if (values == null)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
+        final int fieldsSize = values.length;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final int fieldsSize = fields.size();
         final int columnsSize = columns.size();
         if (fieldsSize > columnsSize)
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data values count is more than columns in table");
@@ -225,7 +227,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (null != column.getConstraints()) {
                 for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
                     if (constraint instanceof ISqlJetColumnNotNull) {
-                        if (i >= fieldsSize || null == fields.get(i) || fields.get(i).isNull()) {
+                        if (i >= fieldsSize || null == values[i]) {
                             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName()
                                     + " is NOT NULL");
                         }

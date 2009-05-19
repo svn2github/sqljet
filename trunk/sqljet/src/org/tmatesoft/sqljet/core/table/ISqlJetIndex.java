@@ -43,6 +43,7 @@ public interface ISqlJetIndex {
     /**
      * Delete entry which matches to key and point to given rowId.
      * 
+     * @param rowId
      * @param key
      * 
      * @return true if there was deleted entry which matches to key.

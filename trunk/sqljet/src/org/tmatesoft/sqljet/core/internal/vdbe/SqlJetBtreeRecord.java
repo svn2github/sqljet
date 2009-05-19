@@ -86,9 +86,10 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
             Object value = values[i];
             ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             if (value instanceof ByteBuffer) {
-                mem.setStr((ByteBuffer) value, SqlJetEncoding.UTF8);
+                mem.setStr((ByteBuffer) value, ISqlJetBtreeRecord.INTERNAL_ENCODING);
             } else if (value instanceof String) {
-                mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)), SqlJetEncoding.UTF8);
+                mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)),
+                        ISqlJetBtreeRecord.INTERNAL_ENCODING);
             } else if (value instanceof Byte) {
                 mem.setInt64((Byte) value);
             } else if (value instanceof Short) {

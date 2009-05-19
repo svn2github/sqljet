@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -135,11 +136,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
                 final SqlJetIndex nameIndex = dbCopy.openIndex(NAME_INDEX);
-                
+
                 Assert.assertTrue(table.first());
-                final boolean deleteFirst = nameIndex.delete(table.getRowId(),TEST);
+                final boolean deleteFirst = nameIndex.delete(table.getRowId(), TEST);
                 Assert.assertTrue(deleteFirst);
-                
+
                 Assert.assertTrue(table.next());
                 final boolean deleteSecondFail = nameIndex.delete(table.getRowId(), TEST);
                 Assert.assertFalse(deleteSecondFail);
@@ -147,8 +148,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(table.next());
                 final boolean deleteSecond = nameIndex.delete(table.getRowId(), TEST);
                 Assert.assertTrue(deleteSecond);
-                
-                final boolean deleteLast = nameIndex.delete(table.getRowId(),TEST);
+
+                final boolean deleteLast = nameIndex.delete(table.getRowId(), TEST);
                 Assert.assertFalse(deleteLast);
 
                 final long rowFirst = nameIndex.lookup(false, TEST);
@@ -206,56 +207,56 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void tableDef() throws SqlJetException {
-        
+
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock() throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
-                
+
                 final ISqlJetTableDef tableDef = table.getTableDef();
-                
+
                 Assert.assertNotNull(tableDef);
-                
+
                 final String tableName = tableDef.getName();
-                
+
                 Assert.assertNotNull(tableName);
                 Assert.assertEquals(TABLE, tableName);
-                
+
                 final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-                
+
                 Assert.assertNotNull(columns);
                 Assert.assertEquals(4, columns.size());
-                
+
                 return null;
-                
+
             }
         });
-        
+
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void insertNotNull() throws SqlJetException {
-        
+
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock() throws SqlJetException {
 
                 dbCopy.beginTransaction();
-                
+
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
-                
+
                 table.insert(table.newRowId(), null, null);
 
                 dbCopy.rollback();
 
                 Assert.assertTrue(false);
-                
+
                 return null;
-                
+
             }
         });
-                
+
     }
 
     @Test
@@ -266,22 +267,22 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             public Object runWithLock() throws SqlJetException {
 
                 dbCopy.beginTransaction();
-                
+
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
-                
+
                 final long newRowId = table.newRowId();
-                table.insert(newRowId, newRowId, "test", "test" );
-        
+                table.insert(newRowId, newRowId, "test", "test");
+
                 dbCopy.commit();
-                
+
                 return null;
-                
+
             }
         });
-        
+
     }
-    
-    @Test(expected=SqlJetException.class)
+
+    @Test(expected = SqlJetException.class)
     public void insertFieldCountFail() throws SqlJetException {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
@@ -289,21 +290,69 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             public Object runWithLock() throws SqlJetException {
 
                 dbCopy.beginTransaction();
-                
+
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
-                
+
                 final long newRowId = table.newRowId();
                 table.insert(newRowId, newRowId, "test", "test", "test");
-        
+
                 dbCopy.rollback();
 
                 Assert.assertTrue(false);
-                
+
                 return null;
-                
+
             }
         });
-        
+
     }
-    
+
+    /**
+     * @param testString
+     * @throws SqlJetException
+     */
+    private void testEncoding(final String testString) throws SqlJetException {
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+
+                final long newRowId = table.newRowId();
+                table.insert(newRowId, newRowId, testString, null, null);
+
+                dbCopy.commit();
+
+                table.goToRow(newRowId);
+                final String stringField = table.getString(NAME_FIELD);
+                Assert.assertEquals(testString, stringField);
+
+                return null;
+
+            }
+        });
+    }
+
+    @Test
+    public void encodingKOI8() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0364, (byte) 0305, (byte) 0323, (byte) 0324 }, "koi8");
+        testEncoding(testString);
+    }
+
+    @Test
+    public void encodingUTF8() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0xD0, (byte) 0xA2, (byte) 0xD0, (byte) 0xB5,
+                (byte) 0xD1, (byte) 0x81, (byte) 0xD1, (byte) 0x82 }, "utf8");
+        testEncoding(testString);
+    }
+
+    @Test
+    public void encodingUTF16() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
+                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, "utf16");
+        testEncoding(testString);
+    }
+
 }

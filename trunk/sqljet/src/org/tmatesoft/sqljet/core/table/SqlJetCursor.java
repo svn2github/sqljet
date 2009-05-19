@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.table;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
@@ -31,10 +32,10 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
  * 
  */
 public abstract class SqlJetCursor implements ISqlJetCursor {
-    
+
     private ISqlJetBtreeTable btreeTable;
     private ISqlJetBtreeRecord cachedRecord;
-    
+
     /**
      * 
      */
@@ -43,7 +44,9 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         this.cachedRecord = null;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
      */
     public void close() throws SqlJetException {
@@ -51,14 +54,18 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         btreeTable.close();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#eof()
      */
     public boolean eof() {
         return btreeTable.eof();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#first()
      */
     public boolean first() throws SqlJetException {
@@ -66,7 +73,9 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.first();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#last()
      */
     public boolean last() throws SqlJetException {
@@ -74,7 +83,9 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.last();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#next()
      */
     public boolean next() throws SqlJetException {
@@ -82,7 +93,9 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.next();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#previous()
      */
     public boolean previous() throws SqlJetException {
@@ -90,85 +103,110 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.previous();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldsCount()
      */
     public int getFieldsCount() throws SqlJetException {
         final ISqlJetBtreeRecord r = getCachedRecord();
-        if(null==r) return 0;
+        if (null == r)
+            return 0;
         return r.getFieldsCount();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#isNull(int)
      */
     public boolean isNull(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValue(field);
-        if(null==value) return true;
+        if (null == value)
+            return true;
         return value.isNull();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getString(int)
      */
     public String getString(int field) throws SqlJetException {
-        if(isNull(field)) return null;
-        return SqlJetUtility.toString(getValue(field).valueText(btreeTable.getEncoding()));
+        if (isNull(field))
+            return null;
+        return SqlJetUtility.toString(getValue(field).valueText(btreeTable.getEncoding()),
+                ISqlJetBtreeRecord.INTERNAL_ENCODING);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getInteger(int)
      */
     public long getInteger(int field) throws SqlJetException {
-        if(isNull(field)) return 0;
+        if (isNull(field))
+            return 0;
         return getValue(field).intValue();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getReal(int)
      */
     public double getReal(int field) throws SqlJetException {
-        if(isNull(field)) return 0;
+        if (isNull(field))
+            return 0;
         return getValue(field).realValue();
     }
-        
+
     protected void clearCachedRecord() {
         cachedRecord = null;
     }
-    
+
     protected ISqlJetBtreeRecord getCachedRecord() throws SqlJetException {
-        if(null == cachedRecord) {
+        if (null == cachedRecord) {
             cachedRecord = btreeTable.getRecord();
         }
         return cachedRecord;
-    } 
-    
-    protected boolean checkField(int field) throws SqlJetException {
-        return (field>=0 && field<getFieldsCount());
     }
-    
+
+    protected boolean checkField(int field) throws SqlJetException {
+        return (field >= 0 && field < getFieldsCount());
+    }
+
     protected ISqlJetVdbeMem getValue(int field) throws SqlJetException {
-        if(!checkField(field)) return null;
+        if (!checkField(field))
+            return null;
         final ISqlJetBtreeRecord r = getCachedRecord();
-        if(null==r) return null;
+        if (null == r)
+            return null;
         final List<ISqlJetVdbeMem> fields = r.getFields();
-        if(null==fields) return null;
+        if (null == fields)
+            return null;
         return fields.get(field);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldType(int)
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
-        if(isNull(field)) return SqlJetValueType.NULL;
+        if (isNull(field))
+            return SqlJetValueType.NULL;
         return getValue(field).getType();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlob(int)
      */
     public ByteBuffer getBlob(int field) throws SqlJetException {
-        if(isNull(field)) return null;
+        if (isNull(field))
+            return null;
         return getValue(field).valueBlob();
     }
 }

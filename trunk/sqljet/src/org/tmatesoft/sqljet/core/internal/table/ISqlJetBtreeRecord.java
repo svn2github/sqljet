@@ -20,16 +20,21 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
-
+import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
- * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to fields. 
+ * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to
+ * fields.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetBtreeRecord {
+
+    SqlJetEncoding INTERNAL_ENCODING = SqlJetUtility.getEnumSysProp("SQLJET_TABLE_INTERNAL_ENCODING",
+            SqlJetEncoding.UTF8);
 
     /**
      * @return the fieldsCount
@@ -45,24 +50,24 @@ public interface ISqlJetBtreeRecord {
      * @return
      */
     ByteBuffer getRawRecord();
-    
+
     /**
      * @param field
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     String getStringField(int field, SqlJetEncoding enc) throws SqlJetException;
-    
+
     /**
      * @param field
      * @return
      */
     long getIntField(int field);
-    
+
     /**
      * @param field
      * @return
      */
     double getRealField(int field);
-    
+
 }

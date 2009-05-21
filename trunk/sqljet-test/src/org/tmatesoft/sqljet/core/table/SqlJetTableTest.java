@@ -331,7 +331,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertNotNull(table);
 
                 final long newRowId = table.newRowId();
-                table.insert(newRowId, newRowId, testString, null, null);
+                table.insert(newRowId, newRowId, testString);
 
                 db.commit();
 

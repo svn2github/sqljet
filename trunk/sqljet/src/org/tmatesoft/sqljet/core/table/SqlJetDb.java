@@ -88,8 +88,7 @@ public class SqlJetDb {
             public Object runWithLock() throws SqlJetException {
                 btree.enter();
                 try {
-                    schema = new SqlJetSchema(btree);
-                    db.setEnc(schema.getMeta().getEncoding());
+                    schema = new SqlJetSchema(db,btree);
                 } finally {
                     btree.leave();
                 }
@@ -190,6 +189,7 @@ public class SqlJetDb {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock() throws SqlJetException {
+                if(!getTableNames().contains(tableName)) return null;
                 return new SqlJetDataTable(new SqlJetBtreeDataTable(schema, tableName, write));
             }
         });

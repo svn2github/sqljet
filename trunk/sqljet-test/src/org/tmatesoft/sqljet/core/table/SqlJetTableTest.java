@@ -40,6 +40,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     public static final String DB = SqlJetUtility.getSysProp(TABLE_TEST + ".DB", "sqljet-test/db/testdb.sqlite");
 
+    public static final String DB2 = SqlJetUtility.getSysProp(TABLE_TEST + ".DB", "sqljet-test/db/test2.sqlite");
+
     public static final String TABLE = SqlJetUtility.getSysProp(TABLE_TEST + ".TABLE", "test1");
     public static final String TABLE2 = SqlJetUtility.getSysProp(TABLE_TEST + ".TABLE", "test2");
 
@@ -56,8 +58,12 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     private File fileDb = new File(DB);
     private File fileDbCopy;
 
-    private SqlJetDb db;
+    private File file2Db = new File(DB2);
+    private File file2DbCopy;
+
     private SqlJetDb dbCopy;
+
+    private SqlJetDb db2Copy;
 
     /**
      * @throws java.lang.Exception
@@ -65,7 +71,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Before
     public void setUp() throws Exception {
         fileDbCopy = copyFile(fileDb, DELETE_COPY);
-        db = SqlJetDb.open(fileDb, false);
+        file2DbCopy = copyFile(file2Db, DELETE_COPY);
         dbCopy = SqlJetDb.open(fileDbCopy, true);
     }
 
@@ -75,9 +81,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @After
     public void tearDown() throws Exception {
         try {
-            dbCopy.close();
+            if (null != dbCopy)
+                dbCopy.close();
         } finally {
-            db.close();
+            if (null != db2Copy)
+                db2Copy.close();
         }
     }
 
@@ -311,19 +319,21 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
      * @param testString
      * @throws SqlJetException
      */
-    private void testEncoding(final String testString) throws SqlJetException {
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+    private void testEncoding(final SqlJetDb db, final String tableName, final String testString)
+            throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock() throws SqlJetException {
 
-                dbCopy.beginTransaction();
+                db.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = db.openTable(tableName);
+                Assert.assertNotNull(table);
 
                 final long newRowId = table.newRowId();
                 table.insert(newRowId, newRowId, testString, null, null);
 
-                dbCopy.commit();
+                db.commit();
 
                 table.goToRow(newRowId);
                 final String stringField = table.getString(NAME_FIELD);
@@ -338,21 +348,44 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void encodingKOI8() throws SqlJetException, UnsupportedEncodingException {
         final String testString = new String(new byte[] { (byte) 0364, (byte) 0305, (byte) 0323, (byte) 0324 }, "koi8");
-        testEncoding(testString);
+        testEncoding(dbCopy, TABLE, testString);
     }
 
     @Test
     public void encodingUTF8() throws SqlJetException, UnsupportedEncodingException {
         final String testString = new String(new byte[] { (byte) 0xD0, (byte) 0xA2, (byte) 0xD0, (byte) 0xB5,
                 (byte) 0xD1, (byte) 0x81, (byte) 0xD1, (byte) 0x82 }, "utf8");
-        testEncoding(testString);
+        testEncoding(dbCopy, TABLE, testString);
     }
 
     @Test
     public void encodingUTF16() throws SqlJetException, UnsupportedEncodingException {
         final String testString = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
                 (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, "utf16");
-        testEncoding(testString);
+        testEncoding(dbCopy, TABLE, testString);
+    }
+
+    @Test
+    public void encoding2KOI8() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0364, (byte) 0305, (byte) 0323, (byte) 0324 }, "koi8");
+        db2Copy = SqlJetDb.open(file2DbCopy, true);
+        testEncoding(db2Copy, TEST, testString);
+    }
+
+    @Test
+    public void encoding2UTF8() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0xD0, (byte) 0xA2, (byte) 0xD0, (byte) 0xB5,
+                (byte) 0xD1, (byte) 0x81, (byte) 0xD1, (byte) 0x82 }, "utf8");
+        db2Copy = SqlJetDb.open(file2DbCopy, true);
+        testEncoding(db2Copy, TEST, testString);
+    }
+
+    @Test
+    public void encoding2UTF16() throws SqlJetException, UnsupportedEncodingException {
+        final String testString = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
+                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, "utf16");
+        db2Copy = SqlJetDb.open(file2DbCopy, true);
+        testEncoding(db2Copy, TEST, testString);
     }
 
 }

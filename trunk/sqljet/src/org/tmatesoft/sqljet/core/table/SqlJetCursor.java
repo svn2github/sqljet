@@ -14,14 +14,9 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
-import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 
 /**

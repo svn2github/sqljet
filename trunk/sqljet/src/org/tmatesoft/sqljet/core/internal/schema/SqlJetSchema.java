@@ -57,9 +57,17 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final Map<String, Integer> indexPages = new HashMap<String, Integer>();
     private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
-    public SqlJetSchema(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetSchema(ISqlJetDbHandle db,ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
+        
+        /* TODO meta seems as must be moved to ISqlJetDbHandle
+         * because ISqlJetDbHandle must be initialized by proper encoding
+         * before to any reads from ISqlJetDbHandle, 
+         * otherwise it will fail on charsets handling.
+         */
         this.meta = new SqlJetSchemaMeta(btree);
+        db.setEnc(this.meta.getEncoding());
+        
         init();
     }
 

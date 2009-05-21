@@ -51,7 +51,7 @@ public class SqlJetConnection {
         if (sql == null || sql.trim().length() == 0) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "SQL statement is empty");
         }
-        return new SqlJetPreparedStatement(btree, sql);
+        return new SqlJetPreparedStatement(db, btree, sql);
     }
 
     public void exec(String sql, SqlJetExecCallback callback) throws SqlJetException {

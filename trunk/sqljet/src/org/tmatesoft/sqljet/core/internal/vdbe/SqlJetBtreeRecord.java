@@ -336,7 +336,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         final ByteBuffer v = f.valueText(enc);
         if (null == v)
             return null;
-        return SqlJetUtility.toString(v);
+        return SqlJetUtility.toString(v,enc);
     }
 
     /*

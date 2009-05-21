@@ -123,8 +123,8 @@ bind_parameter
   : QUESTION
   | QUESTION number=INTEGER
   | COLON id
-  | AT id
-  | DOLLAR name=TCL_ID;
+  | AT id;
+//  | DOLLAR name=TCL_ID;
 
 type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
 -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);

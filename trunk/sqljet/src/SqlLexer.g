@@ -200,7 +200,7 @@ WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
 ID: ID_START (ID_START|'0'..'9')*;
-TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
+//TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 STRING: '\'' ( ~('\'') )* '\'';
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;

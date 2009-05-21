@@ -72,6 +72,13 @@ public class SqlJetParserTest extends TestCase {
                 "select * from x intersect select * from y union select * from z;");
     }
 
+    public void testCreateTable() throws Exception {
+        assertParses("create_table{options}{emps}{columns{name{constraints}{type{type_params}{int}}}}",
+                "create table emps (name int);");
+        assertParses("create_table{options}{emps}{columns{name{constraints}{type{type_params}{int}}}}",
+                "create table emps( name int);");
+    }
+
     protected void assertParses(String curlyDump, String sql) throws Exception {
         CommonTree tree = parse(sql);
         String treeDump = dump(tree);

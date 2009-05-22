@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+
 /**
  * Each database file to be accessed by the system is an instance
  * of the following structure.  There are normally two of these structures

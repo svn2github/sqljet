@@ -15,9 +15,9 @@ package org.tmatesoft.sqljet.core.internal.db;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionState;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -25,45 +25,69 @@ import org.tmatesoft.sqljet.core.internal.SqlJetTransactionState;
  *
  */
 public class SqlJetBackend implements ISqlJetBackend {
+    
+    private ISqlJetBtree btree;
+    private String name;
+    private SqlJetSafetyLevel safetyLevel;
+    private ISqlJetSchema schema;
+    private SqlJetTransactionState transactionState;
 
+    /**
+     * 
+     */
+    public SqlJetBackend(String name, ISqlJetBtree btree, ISqlJetSchema schema) {
+        this.name = name;
+        this.btree = btree;
+        this.schema = schema;
+    }
+    
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBackend#getBtree()
      */
     public ISqlJetBtree getBtree() {
-        // TODO Auto-generated method stub
-        return null;
+        return btree;
     }
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBackend#getName()
      */
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return name;
     }
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBackend#getSafetyLevel()
      */
     public SqlJetSafetyLevel getSafetyLevel() {
-        // TODO Auto-generated method stub
-        return null;
+        return safetyLevel;
     }
 
+    /**
+     * @param safetyLevel the safetyLevel to set
+     */
+    public void setSafetyLevel(SqlJetSafetyLevel safetyLevel) {
+        this.safetyLevel = safetyLevel;
+    }
+    
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBackend#getSchema()
      */
     public ISqlJetSchema getSchema() {
-        // TODO Auto-generated method stub
-        return null;
+        return schema;
     }
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetBackend#getTransactionState()
      */
     public SqlJetTransactionState getTransactionState() {
-        // TODO Auto-generated method stub
-        return null;
+        return transactionState;
     }
 
+    /**
+     * @param transactionState the transactionState to set
+     */
+    public void setTransactionState(SqlJetTransactionState transactionState) {
+        this.transactionState = transactionState;
+    }
+    
 }

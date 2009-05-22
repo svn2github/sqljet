@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.internal.schema;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 
 /**
  * @author TMate Software Ltd.
@@ -23,6 +24,8 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
  */
 public interface ISqlJetSchema {
 
+    ISqlJetDbHandle getDb();
+    
     ISqlJetBtree getBtree();
 
     Set<String> getTableNames();
@@ -33,5 +36,4 @@ public interface ISqlJetSchema {
 
     int getIndexPage(String indexName);
     
-    ISqlJetSchemaMeta getMeta();
 }

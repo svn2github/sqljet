@@ -38,7 +38,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * 
      */
     public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getIndexPage(indexName), write, true, schema.getMeta().getEncoding());
+        super(schema.getBtree(), schema.getIndexPage(indexName), write, true, schema.getDb().getEncoding());
     }
 
     /* (non-Javadoc)

@@ -105,14 +105,14 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
      */
-    public SqlJetEncoding getEnc() {
+    public SqlJetEncoding getEncoding() {
         return enc;
     }
     
     /**
      * @param enc the enc to set
      */
-    public void setEnc(SqlJetEncoding enc) {
+    public void setEncoding(SqlJetEncoding enc) {
         this.enc = enc;
     }
 }

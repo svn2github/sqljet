@@ -29,6 +29,7 @@ import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
@@ -55,7 +56,8 @@ public class SqlJetDb {
     private ISqlJetDbHandle db;
     private ISqlJetBtree btree;
     private ISqlJetSchema schema;
-
+    private SqlJetSchemaMeta meta;
+    
     private boolean transaction = false;
 
     public static class SqlJetDataTable extends SqlJetTable {
@@ -88,6 +90,8 @@ public class SqlJetDb {
             public Object runWithLock() throws SqlJetException {
                 btree.enter();
                 try {
+                    meta = new SqlJetSchemaMeta(btree);
+                    db.setEncoding(meta.getEncoding());                    
                     schema = new SqlJetSchema(db,btree);
                 } finally {
                     btree.leave();
@@ -156,7 +160,7 @@ public class SqlJetDb {
      * @return data base's encoding
      */
     public SqlJetEncoding getEncoding() {
-        return db.getEnc();
+        return db.getEncoding();
     }
 
     /**

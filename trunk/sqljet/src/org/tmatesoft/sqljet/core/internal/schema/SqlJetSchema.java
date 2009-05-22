@@ -50,29 +50,21 @@ public class SqlJetSchema implements ISqlJetSchema {
     private static final String TABLE_TYPE = "table";
     private static final String INDEX_TYPE = "index";
 
+    private final ISqlJetDbHandle db;    
     private final ISqlJetBtree btree;
-    private final SqlJetSchemaMeta meta;
-
+    
     private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
     private final Map<String, Integer> indexPages = new HashMap<String, Integer>();
     private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
     public SqlJetSchema(ISqlJetDbHandle db,ISqlJetBtree btree) throws SqlJetException {
-        this.btree = btree;
-        
-        /* TODO meta seems as must be moved to ISqlJetDbHandle
-         * because ISqlJetDbHandle must be initialized by proper encoding
-         * before to any reads from ISqlJetDbHandle, 
-         * otherwise it will fail on charsets handling.
-         */
-        this.meta = new SqlJetSchemaMeta(btree);
-        db.setEnc(this.meta.getEncoding());
-        
+        this.db = db;
+        this.btree = btree;        
         init();
     }
 
     private void init() throws SqlJetException {
-        final SqlJetBtreeTable bt = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false, meta.getEncoding());
+        final SqlJetBtreeTable bt = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false, db.getEncoding());
         try {
             readShema(bt);
         } finally {
@@ -80,15 +72,15 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
     
+    /**
+     * @return the db
+     */
+    public ISqlJetDbHandle getDb() {
+        return db;
+    }
+    
     public ISqlJetBtree getBtree() {
         return btree;
-    }
-
-    /**
-     * @return the meta
-     */
-    public SqlJetSchemaMeta getMeta() {
-        return meta;
     }
     
     public Set<String> getTableNames() {
@@ -114,11 +106,11 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private void readShema(SqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
-            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, meta.getEncoding() ));
+            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, db.getEncoding() ));
             if (null == type) {
                 continue;
             }
-            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, meta.getEncoding() ));
+            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, db.getEncoding() ));
             if (null == name) {
                 continue;
             }
@@ -128,7 +120,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             }
 
             if (TABLE_TYPE.equals(type)) {
-                String sql = record.getStringField(SQL_FIELD, meta.getEncoding() );
+                String sql = record.getStringField(SQL_FIELD, db.getEncoding() );
                 // System.err.println(sql);
                 CommonTree ast = parse(sql);
                 ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
@@ -138,7 +130,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
                 indexPages.put(name, page);
-                final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, meta.getEncoding() ));
+                final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, db.getEncoding() ));
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }

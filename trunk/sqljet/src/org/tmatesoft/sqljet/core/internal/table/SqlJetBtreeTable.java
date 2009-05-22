@@ -200,7 +200,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
      */
     public SqlJetEncoding getEncoding() throws SqlJetException {
-        return cursor.getCursorDb().getEnc();
+        return cursor.getCursorDb().getEncoding();
     }
 
     protected void clearCachedRecord() {

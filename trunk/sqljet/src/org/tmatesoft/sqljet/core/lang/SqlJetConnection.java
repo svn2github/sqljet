@@ -14,17 +14,11 @@
 package org.tmatesoft.sqljet.core.lang;
 
 import java.io.File;
-import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
-import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
-import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.
@@ -32,15 +26,10 @@ import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
  */
 public class SqlJetConnection {
 
-    private ISqlJetDbHandle db;
-    private ISqlJetBtree btree;
+    private SqlJetDb db;
 
     protected SqlJetConnection(String fileName) throws SqlJetException {
-        db = new SqlJetDbHandle();
-        db.getMutex().enter();
-        btree = new SqlJetBtree();
-        btree.open(new File(fileName), db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
-                .of(SqlJetFileOpenPermission.READONLY));
+        db = SqlJetDb.open(new File(fileName), false);
     }
 
     public static SqlJetConnection open(String fileName) throws SqlJetException {
@@ -51,31 +40,29 @@ public class SqlJetConnection {
         if (sql == null || sql.trim().length() == 0) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "SQL statement is empty");
         }
-        return new SqlJetPreparedStatement(db, btree, sql);
+        return new SqlJetPreparedStatement(db, sql);
     }
 
-    public void exec(String sql, SqlJetExecCallback callback) throws SqlJetException {
-        SqlJetPreparedStatement stmt = prepare(sql);
-        try {
-            while (stmt.step()) {
-                if (callback != null) {
-                    callback.processRow(stmt);
+    public void exec(final String sql, final SqlJetExecCallback callback) throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                SqlJetPreparedStatement stmt = prepare(sql);
+                try {
+                    while (stmt.step()) {
+                        if (callback != null) {
+                            callback.processRow(stmt);
+                        }
+                    }
+                } finally {
+                    stmt.close();
                 }
+                return null;
             }
-        } finally {
-            stmt.close();
-        }
+        });
     }
 
     public void close() throws SqlJetException {
-        try {
-            if (btree != null) {
-                btree.close();
-                btree = null;
-            }
-        } finally {
-            db.getMutex().leave();
-            db = null;
-        }
+        db.close();
     }
 }

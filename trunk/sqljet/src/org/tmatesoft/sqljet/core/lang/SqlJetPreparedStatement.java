@@ -13,23 +13,22 @@
  */
 package org.tmatesoft.sqljet.core.lang;
 
+import java.nio.ByteBuffer;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetTable;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.tmatesoft.sqljet.core.table.SqlJetTable;
 
 /**
  * @author TMate Software Ltd.
@@ -37,22 +36,24 @@ import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
  */
 public class SqlJetPreparedStatement {
 
-    private final ISqlJetDbHandle db;
-    private final ISqlJetBtree btree;
+    private final SqlJetDb db;
     private final String sql;
     private CommonTree ast;
-    private ISqlJetBtreeTable table;
+    private ISqlJetTable table;
+    private ISqlJetCursor cursor;
 
-    public SqlJetPreparedStatement(ISqlJetDbHandle db, ISqlJetBtree btree, String sql) {
+    public SqlJetPreparedStatement(SqlJetDb db, String sql) {
         this.db = db;
-        this.btree = btree;
         this.sql = sql;
     }
 
     public void close() throws SqlJetException {
         if (table != null) {
-            table.close();
             table = null;
+        }
+        if (cursor != null) {
+            cursor.close();
+            cursor = null;
         }
     }
 
@@ -126,12 +127,12 @@ public class SqlJetPreparedStatement {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, e);
             }
         } else {
-            if (table != null) {
-                table.next();
+            if (cursor != null) {
+                cursor.next();
             }
         }
-        if (table != null) {
-            return !table.eof();
+        if (cursor != null) {
+            return !cursor.eof();
         }
         return false;
     }
@@ -185,41 +186,38 @@ public class SqlJetPreparedStatement {
         if (selectCore.getChildCount() > i) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported select syntax.");
         }
-        ISqlJetSchema schema = new SqlJetSchema(db,btree);
-        //System.err.println(schema.toString());
-        if (schema.getTableNames().contains(tableName)) {
-            table = new SqlJetBtreeDataTable(schema, tableName, false);
+        table = db.openTable(tableName);
+        if (table != null) {
+            cursor = (SqlJetTable) table;
         }
     }
 
     public int getColumnsCount() throws SqlJetException {
-        ISqlJetBtreeRecord record = table.getRecord();
-        return record.getFieldsCount();
+        return cursor.getFieldsCount();
     }
 
-    public SqlJetColumnType getColumnType(int columnIndex) throws SqlJetException {
-        return SqlJetColumnType.TEXT;
+    public SqlJetValueType getColumnType(int columnIndex) throws SqlJetException {
+        return cursor.getFieldType(columnIndex);
     }
 
-    public byte[] getBLOB(int columnIndex) throws SqlJetException {
-        return null;
+    public long getInteger(int columnIndex) throws SqlJetException {
+        return cursor.getInteger(columnIndex);
     }
 
-    public double getDouble(int columnIndex) throws SqlJetException {
-        return 0.0;
-    }
-
-    public int getInteger(int columnIndex) throws SqlJetException {
-        return 0;
-    }
-
-    public long getLong(int columnIndex) throws SqlJetException {
-        return 0;
+    public double getFloat(int columnIndex) throws SqlJetException {
+        return cursor.getFloat(columnIndex);
     }
 
     public String getText(int columnIndex) throws SqlJetException {
-        ISqlJetBtreeRecord record = table.getRecord();
-        return record.getStringField(columnIndex, SqlJetEncoding.UTF8);
+        return cursor.getString(columnIndex);
+    }
+
+    public ByteBuffer getBlob(int columnIndex) throws SqlJetException {
+        return cursor.getBlob(columnIndex);
+    }
+
+    public boolean isNull(int columnIndex) throws SqlJetException {
+        return cursor.isNull(columnIndex);
     }
 
     public void reset() throws SqlJetException {

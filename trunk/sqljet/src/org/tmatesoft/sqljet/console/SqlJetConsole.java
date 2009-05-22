@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.console;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.lang.SqlJetConnection;
@@ -35,6 +36,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
             return;
         }
         SqlJetConnection conn = SqlJetConnection.open(args[0]);
+        System.out.println("SQLJet version 1.0");
         System.out.println("Connected to " + args[0]);
         try {
             new SqlJetConsole().repl(conn);
@@ -60,7 +62,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
                 buffer.setLength(0);
                 System.out.print("sqljet> ");
             } else {
-                System.out.print("> ");
+                System.out.print("   ...> ");
             }
         }
     }
@@ -77,34 +79,34 @@ public class SqlJetConsole implements SqlJetExecCallback {
         }
         for (int i = 0; i < stmt.getColumnsCount(); i++) {
             switch (stmt.getColumnType(i)) {
-            case BLOB:
-                buffer.append(getHexedBLOB(stmt.getBLOB(i)));
-                break;
-            case DOUBLE:
-                buffer.append(stmt.getDouble(i));
-                break;
             case INTEGER:
                 buffer.append(stmt.getInteger(i));
                 break;
-            case LONG:
-                buffer.append(stmt.getLong(i));
+            case FLOAT:
+                buffer.append(stmt.getFloat(i));
                 break;
             case TEXT:
                 buffer.append(String.valueOf(stmt.getText(i)));
                 break;
+            case BLOB:
+                buffer.append(getHexedBlob(stmt.getBlob(i)));
+                break;
+            case NULL:
+                buffer.append("NULL");
+                break;
             }
-            buffer.append(" \t");
+            buffer.append("|");
         }
         System.out.println(buffer.toString());
     }
 
-    private String getHexedBLOB(byte[] data) {
+    private String getHexedBlob(ByteBuffer data) {
         if (data == null) {
             return "null";
         }
         StringBuffer buffer = new StringBuffer("x'");
-        for (int i = 0; i < data.length; i++) {
-            byte b = data[i];
+        while (data.remaining() > 0) {
+            byte b = data.get();
             buffer.append((char) (b / 16 > 9 ? 'a' + b / 16 - 10 : '0' + b / 16));
             buffer.append((char) (b % 16 > 9 ? 'a' + b % 16 - 10 : '0' + b % 16));
         }

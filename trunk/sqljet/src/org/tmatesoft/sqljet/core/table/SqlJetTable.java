@@ -22,7 +22,7 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
 
@@ -36,40 +36,52 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
     public ISqlJetTableDef getTableDef() {
         return dataTable.getTableDef();
     };
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)
      */
-    public boolean goToRow(long rowId) throws SqlJetException{
+    public boolean goToRow(long rowId) throws SqlJetException {
         return dataTable.goToRow(rowId);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getKey()
      */
     public long getRowId() throws SqlJetException {
         return dataTable.getRowId();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#newRowId()
-     */
-    public long newRowId() throws SqlJetException {
-        return dataTable.newRowId(0);
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#delete(long)
      */
     public void delete(long rowId) throws SqlJetException {
-        dataTable.delete(rowId); 
-     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(long, java.lang.Object[])
-     */
-    public void insert(long rowId, Object ... values) throws SqlJetException {
-        dataTable.insert(rowId, true, values);
+        dataTable.delete(rowId);
     }
-        
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(java.lang.Object[])
+     */
+    public long insert(Object... values) throws SqlJetException {
+        return dataTable.insert(values);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#update(long,
+     * java.lang.Object[])
+     */
+    public void update(long rowId, Object... values) throws SqlJetException {
+        dataTable.update(rowId, values);
+    }
+
 }

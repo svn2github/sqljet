@@ -21,7 +21,7 @@ import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetTable {
 
@@ -31,11 +31,12 @@ public interface ISqlJetTable {
      * @return
      */
     ISqlJetTableDef getTableDef();
-    
+
     /**
      * Go to record which has given row's ID (taken from index).
      * 
-     * @param rowId row's ID which was taken from index
+     * @param rowId
+     *            row's ID which was taken from index
      * @return true if record exists
      * @throws SqlJetException
      */
@@ -50,14 +51,6 @@ public interface ISqlJetTable {
     long getRowId() throws SqlJetException;
 
     /**
-     * Generat new row's ID for new record.
-     * 
-     * @return new row's ID
-     * @throws SqlJetException
-     */
-    long newRowId() throws SqlJetException;
-
-    /**
      * Delete record by row's ID.
      * 
      * @param rowId
@@ -66,13 +59,20 @@ public interface ISqlJetTable {
     void delete(long rowId) throws SqlJetException;
 
     /**
-     * Write an entry into the table. A new entry is created if it doesn't
-     * already exist or the data for an existing entry is overwritten.
+     * Write an new entry into the table.
+     * 
+     * @param values
+     * @throws SqlJetException
+     */
+    long insert(Object... values) throws SqlJetException;
+
+    /**
+     * Update an entry in the table.
      * 
      * @param rowId
-     * @param data
-     * @throws SqlJetException 
+     * @param values
+     * @throws SqlJetException
      */
-    void insert(long rowId, Object ... data) throws SqlJetException;
-    
+    void update(long rowId, Object... values) throws SqlJetException;
+
 }

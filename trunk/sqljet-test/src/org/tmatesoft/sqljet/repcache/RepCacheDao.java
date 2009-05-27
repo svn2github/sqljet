@@ -50,7 +50,7 @@ public class RepCacheDao {
 
     public void close() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 table.close();
                 index.close();
@@ -74,7 +74,7 @@ public class RepCacheDao {
 
     public boolean eof() throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return table.eof();
             }
@@ -83,7 +83,7 @@ public class RepCacheDao {
 
     public boolean first() throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return table.first();
             }
@@ -92,7 +92,7 @@ public class RepCacheDao {
 
     public boolean last() throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return table.last();
             }
@@ -101,7 +101,7 @@ public class RepCacheDao {
 
     public boolean next() throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return table.next();
             }
@@ -110,7 +110,7 @@ public class RepCacheDao {
 
     public boolean previous() throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return table.previous();
             }
@@ -119,7 +119,7 @@ public class RepCacheDao {
 
     public RepCache getRepCache() throws SqlJetException {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 return new RepCache(table);
             }
@@ -128,7 +128,7 @@ public class RepCacheDao {
 
     public RepCache getByHash(final String hash) throws SqlJetException {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 final long rowId = index.lookup(false, hash);
                 if (0 == rowId)
@@ -142,7 +142,7 @@ public class RepCacheDao {
 
     public boolean deleteByHash(final String hash) throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 final long rowId = index.lookup(false, hash);
                 if (0 == rowId)
@@ -150,7 +150,7 @@ public class RepCacheDao {
                 if (!table.goToRow(rowId) && !table.next())
                     return false;
                 beginTransaction();
-                index.delete(rowId,hash);
+                index.delete(rowId, hash);
                 table.delete(rowId);
                 commit();
                 return true;
@@ -160,18 +160,16 @@ public class RepCacheDao {
 
     public boolean insert(final RepCache repCache) throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 final long rowId = index.lookup(false, repCache.getHash());
                 if (0 != rowId) {
                     return false;
                 }
                 beginTransaction();
-                final long newRowId = table.newRowId();
-                index.insert(newRowId, repCache.getHash());
-                table.insert(newRowId, repCache.getHash(),
-                        repCache.getRevision(), repCache.getOffset(), 
+                final long newRowId = table.insert(repCache.getHash(), repCache.getRevision(), repCache.getOffset(),
                         repCache.getSize(), repCache.getExpandedSize());
+                index.insert(newRowId, repCache.getHash());
                 commit();
                 return true;
             }
@@ -180,7 +178,7 @@ public class RepCacheDao {
 
     public boolean update(final RepCache repCache) throws SqlJetException {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-            
+
             public Object runWithLock() throws SqlJetException {
                 final long rowId = index.lookup(false, repCache.getHash());
                 if (0 == rowId)
@@ -188,9 +186,8 @@ public class RepCacheDao {
                 if (!table.goToRow(rowId) && !table.next())
                     return false;
                 beginTransaction();
-                table.insert(rowId, repCache.getHash(),
-                        repCache.getRevision(), repCache.getOffset(), 
-                        repCache.getSize(), repCache.getExpandedSize());
+                table.update(rowId, repCache.getHash(), repCache.getRevision(), repCache.getOffset(), repCache
+                        .getSize(), repCache.getExpandedSize());
                 commit();
                 return true;
             }

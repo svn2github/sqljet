@@ -29,10 +29,9 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @return
      */
     ISqlJetTableDef getTableDef();
-    
+
     /**
-     * Go to record with given rowID.
-     * Return boolean to indicate success.
+     * Go to record with given rowID. Return boolean to indicate success.
      * 
      * @param rowId
      * @return
@@ -47,34 +46,23 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     long getRowId() throws SqlJetException;
-    
-    /**
-     * Get a new integer record number (a.k.a "rowid") used as the key to a
-     * table. The record number is not previously used as a key in the database
-     * table that cursor P1 points to. The new record number is written written
-     * to register P2.
-     * 
-     * Prev is the largest previously generated record number. No new record
-     * numbers are allowed to be less than this value. When this value reaches
-     * its maximum, a SQLITE_FULL error is generated. This mechanism is used to
-     * help implement the AUTOINCREMENT feature.
-     * 
-     * @param prev
-     * @return
-     * @throws SqlJetException
-     */
-    long newRowId(long prev) throws SqlJetException;
 
     /**
-     * Write an entry into the table. A new entry is created if it doesn't
-     * already exist or the data for an existing entry is overwritten.
+     * Write an new entry into the table.
      * 
-     * @param rowId
-     * @param data
-     * @throws SqlJetException 
+     * @param values
+     * @throws SqlJetException
      */
-    void insert(long rowId, boolean append, Object ... values) throws SqlJetException;
-    
+    long insert(Object... values) throws SqlJetException;
+
+    /**
+     * Update an entry in the table.
+     * 
+     * @param values
+     * @throws SqlJetException
+     */
+    void update(long rowId, Object... values) throws SqlJetException;
+
     /**
      * Delete record by row's ID.
      * 
@@ -82,5 +70,5 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     void delete(long rowId) throws SqlJetException;
-    
+
 }

@@ -68,7 +68,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     private File file3Db = new File(DB3);
     private File file3DbCopy;
     private SqlJetDb db3Copy;
-    
+
     /**
      * @throws java.lang.Exception
      */
@@ -261,7 +261,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
 
-                table.insert(table.newRowId(), null, null);
+                table.insert(null, null);
 
                 dbCopy.rollback();
 
@@ -285,8 +285,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
 
-                final long newRowId = table.newRowId();
-                table.insert(newRowId, newRowId, "test", "test");
+                table.insert("test", "test");
 
                 dbCopy.commit();
 
@@ -308,8 +307,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
 
-                final long newRowId = table.newRowId();
-                table.insert(newRowId, newRowId, "test", "test", "test");
+                table.insert("test", "test", "test");
 
                 dbCopy.rollback();
 
@@ -337,8 +335,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final SqlJetTable table = db.openTable(tableName);
                 Assert.assertNotNull(table);
 
-                final long newRowId = table.newRowId();
-                table.insert(newRowId, newRowId, testString);
+                final long newRowId = table.insert(testString);
 
                 db.commit();
 
@@ -368,7 +365,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void encodingUTF16() throws SqlJetException, UnsupportedEncodingException {
         final String testUTF16 = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
-                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16.getCharsetName());
+                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16
+                .getCharsetName());
         testEncoding(dbCopy, TABLE, testUTF16);
     }
 
@@ -388,7 +386,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void encoding2UTF16() throws SqlJetException, UnsupportedEncodingException {
         final String testUTF16 = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
-                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16.getCharsetName());
+                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16
+                .getCharsetName());
         testEncoding(db3Copy, TEST, testUTF16);
     }
 
@@ -408,8 +407,9 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void encoding3UTF16() throws SqlJetException, UnsupportedEncodingException {
         final String testUTF16 = new String(new byte[] { (byte) 0xFF, (byte) 0xFE, (byte) 0x22, (byte) 0x04,
-                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16.getCharsetName());
+                (byte) 0x35, (byte) 0x04, (byte) 0x41, (byte) 0x04, (byte) 0x42, (byte) 0x04 }, SqlJetEncoding.UTF16
+                .getCharsetName());
         testEncoding(db3Copy, TEST, testUTF16);
     }
-    
+
 }

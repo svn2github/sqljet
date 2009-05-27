@@ -20,11 +20,14 @@ import java.util.Random;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnNotNull;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnPrimaryKey;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetTypeAffinity;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 
 /**
@@ -38,6 +41,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     protected ISqlJetTableDef tableDef;
 
+    protected long lastNewRowId = 0;
+
+    protected boolean isRowIdPrimaryKey;
+
     /**
      * Open data table by name.
      * 
@@ -46,6 +53,30 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false, schema.getDb().getEncoding());
         this.tableDef = schema.getTable(tableName);
+        isRowIdPrimaryKey = getIsRowIdPrimaryKey(this.tableDef);
+    }
+
+    /**
+     * @param tableDef2
+     * @return
+     */
+    private boolean getIsRowIdPrimaryKey(ISqlJetTableDef tableDef) {
+        if (null == tableDef)
+            return false;
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        if (null == columns)
+            return false;
+        for (final ISqlJetColumnDef column : columns) {
+            final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
+            if (null == constraints)
+                continue;
+            for (ISqlJetColumnConstraint constraint : constraints) {
+                if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                    return (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER);
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -87,14 +118,22 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Get a new integer record number (a.k.a "rowid") used as the key to a
+     * table. The record number is not previously used as a key in the database
+     * table that cursor P1 points to. The new record number is written written
+     * to register P2.
      * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#newRowId
-     * (long)
+     * Prev is the largest previously generated record number. No new record
+     * numbers are allowed to be less than this value. When this value reaches
+     * its maximum, a SQLITE_FULL error is generated. This mechanism is used to
+     * help implement the AUTOINCREMENT feature.
+     * 
+     * @param prev
+     * @return
+     * @throws SqlJetException
      */
-    public long newRowId(long prev) throws SqlJetException {
+    protected long newRowId(long prev) throws SqlJetException {
         /*
          * The next rowid or record number (different terms for the same thing)
          * is obtained in a two-step algorithm. First we attempt to find the
@@ -190,16 +229,43 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * 
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
-     * (long, org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord)
+     * (java.lang.Object[])
      */
-    public void insert(long rowId, boolean append, Object ... values) throws SqlJetException {
+    public long insert(Object... values) throws SqlJetException {
         lock();
         try {
-            if (rowId <= 0)
+            long rowId = newRowId(lastNewRowId);
+            final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            if (checkFields(row)) {
+                lastNewRowId = rowId;
+                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+                cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
+                clearCachedRecord();
+                return lastNewRowId;
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
+            }
+        } finally {
+            unlock();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
+     * (long, java.lang.Object[])
+     */
+    public void update(long rowId, Object... values) throws SqlJetException {
+        lock();
+        try {
+            if (rowId <= 0 || !goToRow(rowId))
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            if (checkFields(values)) {
-                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(values).getRawRecord();
-                cursor.insert(null, rowId, pData, pData.remaining(), 0, append);
+            final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            if (checkFields(row)) {
+                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+                cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
                 clearCachedRecord();
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
@@ -213,7 +279,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @param data
      * @return
      */
-    private boolean checkFields(Object ... values) throws SqlJetException {
+    private boolean checkFields(Object... values) throws SqlJetException {
         if (values == null)
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
         final int fieldsSize = values.length;

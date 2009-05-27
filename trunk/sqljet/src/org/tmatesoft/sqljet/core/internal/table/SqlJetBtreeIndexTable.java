@@ -41,14 +41,18 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         super(schema.getBtree(), schema.getIndexPage(indexName), write, true, schema.getDb().getEncoding());
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#lookup(boolean, java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#lookup
+     * (boolean, java.lang.Object[])
      */
     public long lookup(boolean next, Object... values) throws SqlJetException {
         lock();
         try {
             clearCachedRecord();
-            ISqlJetBtreeRecord key=SqlJetBtreeRecord.getRecord(values);
+            ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(values);
             adjustKeyInfo(key);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
@@ -88,13 +92,18 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert(long, boolean, java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#insert
+     * (long, boolean, java.lang.Object[])
      */
     public void insert(long rowId, boolean append, Object... key) throws SqlJetException {
         lock();
         try {
-            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(SqlJetUtility.addValues(key, rowId)).getRawRecord();
+            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(SqlJetUtility.addArrays(key, new Object[] { rowId }))
+                    .getRawRecord();
             cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
             clearCachedRecord();
         } finally {
@@ -102,8 +111,12 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete(long, java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#delete
+     * (long, java.lang.Object[])
      */
     public boolean delete(long rowId, Object... key) throws SqlJetException {
         lock();
@@ -121,11 +134,11 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
                     return false;
                 if (keyCompare(k, record.getRawRecord()) != 0)
                     return false;
-                if(getKeyRowId(record)==rowId) {
+                if (getKeyRowId(record) == rowId) {
                     cursor.delete();
                     return true;
                 }
-            } while(next());
+            } while (next());
             return false;
         } finally {
             unlock();
@@ -140,5 +153,5 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             return 0;
         return fields.get(fields.size() - 1).intValue();
     }
-    
+
 }

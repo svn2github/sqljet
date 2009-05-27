@@ -1064,10 +1064,10 @@ public class SqlJetUtility {
      * @param dataRowId
      * @return
      */
-    public static Object[] addValues(Object[] array, Object ... values) {
-        Object[] a = new Object[array.length + values.length];
-        System.arraycopy(array, 0, a, 0, array.length);
-        System.arraycopy(values, 0, a, array.length, values.length);
+    public static Object[] addArrays(Object[] array1, Object[] array2) {
+        Object[] a = new Object[array1.length + array2.length];
+        System.arraycopy(array1, 0, a, 0, array1.length);
+        System.arraycopy(array2, 0, a, array1.length, array2.length);
         return a;
     }
 

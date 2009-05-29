@@ -29,6 +29,7 @@ tokens {
 	COLUMNS;
 	CONSTRAINTS; // groups all constraints
 	CREATE_TABLE;
+	CREATE_INDEX;
 	DROP_TABLE;
 	NOT_NULL; // single token that replaces NOT NULL
 	OPTIONS;
@@ -338,9 +339,11 @@ drop_view_stmt: DROP VIEW (IF EXISTS)? (database_name=id DOT)? view_name=id;
 
 // CREATE INDEX
 create_index_stmt: CREATE (UNIQUE)? INDEX (IF NOT EXISTS)? (database_name=id DOT)? index_name=id
-  ON table_name=id LPAREN columns+=indexed_column (COMMA columns+=indexed_column)* RPAREN;
+  ON table_name=id LPAREN columns+=indexed_column (COMMA columns+=indexed_column)* RPAREN
+-> ^(CREATE_INDEX ^(OPTIONS UNIQUE? EXISTS?) ^($index_name $database_name?) $table_name ^(COLUMNS $columns+)?);
 
-indexed_column: column_name=id (COLLATE collation_name=id)? (ASC | DESC)?;
+indexed_column: column_name=id (COLLATE collation_name=id)? (ASC | DESC)?
+-> ^($column_name ^(COLLATE $collation_name)? ASC? DESC?);
 
 // DROP INDEX
 drop_index_stmt: DROP INDEX (IF EXISTS)? (database_name=id DOT)? index_name=id;

@@ -45,7 +45,7 @@ public class RepCacheDao {
     public RepCacheDao(File file, boolean write) throws SqlJetException {
         db = SqlJetDb.open(file, write);
         table = db.openTable(REP_CACHE_TABLE);
-        index = db.openIndex(db.getIndexNames(REP_CACHE_TABLE).iterator().next());
+        index = db.openIndex(db.getSchema().getIndexes(REP_CACHE_TABLE).iterator().next().getName());
     }
 
     public void close() throws SqlJetException {

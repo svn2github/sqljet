@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
-import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
@@ -45,7 +44,6 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.
@@ -145,6 +143,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Assert.assertTrue(passed);
     }
 
+    /*
     private SqlJetEncoding getEncoding(ISqlJetBtree btree) throws SqlJetException {
         switch (btree.getMeta(5)) {
         case 1:
@@ -157,6 +156,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
     }
+    */
 
     @Test
     public void testTableReadMaster() throws SqlJetException, UnsupportedEncodingException {
@@ -286,7 +286,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testIndexTable() throws SqlJetException {
         boolean passed = false;
         final ISqlJetSchema s = new SqlJetSchema(db, btreeCopy);
-        final String index = s.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String index = s.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(index);
         final ISqlJetBtreeTable t = new SqlJetBtreeIndexTable(s, index, false);
         for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
@@ -373,7 +373,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
      * @throws SqlJetException
      */
     private long locateHash(final ISqlJetSchema schema, final String hash) throws SqlJetException {
-        final String i = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String i = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, false);
         try {
@@ -411,7 +411,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testInsertOnce() throws SqlJetException {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
-        final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
@@ -423,7 +423,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testInsertRepeatlyShort() throws SqlJetException {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
-        final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         for (int i = 0; i < REPEATS_COUNT; i++) {
@@ -437,7 +437,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testInsertRepeatlyLong() throws SqlJetException {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
-        final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
@@ -451,7 +451,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testInsertRandomShort() throws SqlJetException {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
-        final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         Random random = new Random();
@@ -466,7 +466,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     public void testInsertRandomLong() throws SqlJetException {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
-        final String idx = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         Random random = new Random();
@@ -566,7 +566,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
      * @throws SqlJetException
      */
     private void deleteIndex(final ISqlJetSchema schema, final String hash, long rowId) throws SqlJetException {
-        final String i = schema.getIndexNames(REP_CACHE_TABLE).iterator().next();
+        final String i = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
         Assert.assertNotNull(i);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, i, true);
         try {

@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnDef.java
+ * SqlJetSortingOrder.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -13,22 +13,29 @@
  */
 package org.tmatesoft.sqljet.core.schema;
 
-import java.util.List;
-
-
 /**
- * Column Definition.
- * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnDef {
+public enum SqlJetSortingOrder {
+    ASC, DESC;
 
-    public String getName();
+    public static SqlJetSortingOrder decode(String s) {
+        if ("asc".equalsIgnoreCase(s)) {
+            return ASC;
+        } else if ("desc".equalsIgnoreCase(s)) {
+            return DESC;
+        }
+        return null;
+    }
 
-    public ISqlJetTypeDef getType();
-
-    public SqlJetTypeAffinity getTypeAffinity();
-
-    public List<ISqlJetColumnConstraint> getConstraints();
+    public String toString() {
+        switch (this) {
+        case ASC:
+            return "ASC";
+        case DESC:
+            return "DESC";
+        }
+        return "";
+    }
 }

@@ -25,9 +25,9 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetTypeAffinity;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.

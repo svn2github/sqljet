@@ -25,5 +25,9 @@ public interface ISqlJetSchema {
 
     ISqlJetTableDef getTable(String name);
 
-    Set<String> getIndexNames(String tableName);
+    Set<String> getIndexNames();
+
+    ISqlJetIndexDef getIndex(String name);
+
+    Set<ISqlJetIndexDef> getIndexes(String tableName);
 }

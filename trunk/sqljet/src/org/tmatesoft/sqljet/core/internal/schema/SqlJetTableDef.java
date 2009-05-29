@@ -140,15 +140,15 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(page);
+        buffer.append(getPage());
         buffer.append(": CREATE ");
         if (isTemporary()) {
             buffer.append("TEMPORARY ");
         }
+        buffer.append("TABLE ");
         if (isKeepExisting()) {
             buffer.append("IF NOT EXISTS ");
         }
-        buffer.append("TABLE ");
         if (getDatabaseName() != null) {
             buffer.append(getDatabaseName());
             buffer.append('.');

@@ -79,6 +79,12 @@ public class SqlJetParserTest extends TestCase {
                 "create table emps( name int);");
     }
 
+    public void testCreateIndex() throws Exception {
+        assertParses("create_index{options}{idx}{tbl}{columns{name}}", "create index idx on tbl (name);");
+        assertParses("create_index{options{unique}}{idx{db}}{tbl}{columns{name}{age}}", "create unique index db.idx on tbl (name, age);");
+        assertParses("create_index{options{exists}}{idx}{tbl}{columns{name{collate{aaa}}{asc}}}", "create index if not exists idx on tbl (name collate aaa asc);");
+    }
+
     protected void assertParses(String curlyDump, String sql) throws Exception {
         CommonTree tree = parse(sql);
         String treeDump = dump(tree);

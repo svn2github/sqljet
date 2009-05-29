@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnDef.java
+ * ISqlJetIndexDef.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,20 +15,21 @@ package org.tmatesoft.sqljet.core.schema;
 
 import java.util.List;
 
-
 /**
- * Column Definition.
+ * Index Definition.
  * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetColumnDef {
+public interface ISqlJetIndexDef {
 
     public String getName();
 
-    public ISqlJetTypeDef getType();
+    public String getTableName();
 
-    public SqlJetTypeAffinity getTypeAffinity();
+    public boolean isUnique();
 
-    public List<ISqlJetColumnConstraint> getConstraints();
+    public List<ISqlJetIndexedColumn> getColumns();
+
+    public ISqlJetIndexedColumn getColumn(String name);
 }

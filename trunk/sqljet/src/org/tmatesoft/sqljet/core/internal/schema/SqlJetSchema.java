@@ -33,6 +33,7 @@ import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
@@ -52,16 +53,15 @@ public class SqlJetSchema implements ISqlJetSchema {
     private static final String TABLE_TYPE = "table";
     private static final String INDEX_TYPE = "index";
 
-    private final ISqlJetDbHandle db;    
+    private final ISqlJetDbHandle db;
     private final ISqlJetBtree btree;
-    
-    private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
-    private final Map<String, Integer> indexPages = new HashMap<String, Integer>();
-    private final Map<String, Set<String>> tableIndexes = new HashMap<String, Set<String>>();
 
-    public SqlJetSchema(ISqlJetDbHandle db,ISqlJetBtree btree) throws SqlJetException {
+    private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
+    private final Map<String, ISqlJetIndexDef> indexDefs = new HashMap<String, ISqlJetIndexDef>();
+
+    public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
-        this.btree = btree;        
+        this.btree = btree;
         init();
     }
 
@@ -73,18 +73,15 @@ public class SqlJetSchema implements ISqlJetSchema {
             bt.close();
         }
     }
-    
-    /**
-     * @return the db
-     */
+
     public ISqlJetDbHandle getDb() {
         return db;
     }
-    
+
     public ISqlJetBtree getBtree() {
         return btree;
     }
-    
+
     public Set<String> getTableNames() {
         return tableDefs.keySet();
     }
@@ -93,26 +90,31 @@ public class SqlJetSchema implements ISqlJetSchema {
         return tableDefs.get(name);
     }
 
-    public Set<String> getIndexNames(String tableName) {
-        final Set<String> indexNames = tableIndexes.get(tableName);
-        if (indexNames == null) {
-            return Collections.emptySet();
-        }
-        return Collections.unmodifiableSet(indexNames);
+    public Set<String> getIndexNames() {
+        return indexDefs.keySet();
     }
 
-    public int getIndexPage(String indexName) {
-        final Integer page = indexPages.get(indexName);
-        return page == null ? 0 : page;
+    public ISqlJetIndexDef getIndex(String name) {
+        return indexDefs.get(name);
+    }
+
+    public Set<ISqlJetIndexDef> getIndexes(String tableName) {
+        Set<ISqlJetIndexDef> result = new HashSet<ISqlJetIndexDef>();
+        for (ISqlJetIndexDef index : indexDefs.values()) {
+            if (index.getTableName().equals(tableName)) {
+                result.add(index);
+            }
+        }
+        return Collections.unmodifiableSet(result);
     }
 
     private void readShema(SqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
-            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, db.getEncoding() ));
+            final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, db.getEncoding()));
             if (null == type) {
                 continue;
             }
-            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, db.getEncoding() ));
+            final String name = SqlJetUtility.trim(record.getStringField(NAME_FIELD, db.getEncoding()));
             if (null == name) {
                 continue;
             }
@@ -122,36 +124,58 @@ public class SqlJetSchema implements ISqlJetSchema {
             }
 
             if (TABLE_TYPE.equals(type)) {
-                String sql = record.getStringField(SQL_FIELD, db.getEncoding() );
+                String sql = record.getStringField(SQL_FIELD, db.getEncoding());
                 // System.err.println(sql);
-                CommonTree ast = parse(sql);
+                CommonTree ast = parseTable(sql);
                 ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                 if (!name.equals(tableDef.getName())) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
-                indexPages.put(name, page);
-                final String indexTableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, db.getEncoding() ));
+                final String tableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, db.getEncoding()));
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
-                Set<String> indexNames = tableIndexes.get(indexTableName);
-                if (null == indexNames) {
-                    tableIndexes.put(indexTableName, indexNames = new HashSet<String>());
+                if (record.getFieldsCount() < SQL_FIELD) {
+                    String sql = record.getStringField(SQL_FIELD, db.getEncoding());
+                    //System.err.println(sql);
+                    CommonTree ast = parseIndex(sql);
+                    ISqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
+                    if (!name.equals(indexDef.getName())) {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                    }
+                    if (!tableName.equals(indexDef.getTableName())) {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                    }
+                    indexDefs.put(name, indexDef);
+                } else {
+                    ISqlJetIndexDef indexDef = new SqlJetBaseIndexDef(name, tableName, page);
+                    indexDefs.put(name, indexDef);
                 }
-                indexNames.add(name);
             }
         }
     }
 
-    private CommonTree parse(String sql) throws SqlJetException {
+    private CommonTree parseTable(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
             return (CommonTree) parser.create_table_stmt().getTree();
+        } catch (RecognitionException re) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
+        }
+    }
+
+    private CommonTree parseIndex(String sql) throws SqlJetException {
+        try {
+            CharStream chars = new ANTLRStringStream(sql);
+            SqlLexer lexer = new SqlLexer(chars);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            SqlParser parser = new SqlParser(tokens);
+            return (CommonTree) parser.create_index_stmt().getTree();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -166,10 +190,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             buffer.append('\n');
         }
         buffer.append("Indexes:\n");
-        for (String name : indexPages.keySet()) {
-            buffer.append(indexPages.get(name));
-            buffer.append(": ");
-            buffer.append(name);
+        for (ISqlJetIndexDef indexDef : indexDefs.values()) {
+            buffer.append(indexDef.toString());
             buffer.append('\n');
         }
         return buffer.toString();

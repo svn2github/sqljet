@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
 import java.util.EnumSet;
-import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -57,7 +56,7 @@ public class SqlJetDb {
     private ISqlJetBtree btree;
     private ISqlJetSchema schema;
     private SqlJetSchemaMeta meta;
-    
+
     private boolean transaction = false;
 
     public static class SqlJetDataTable extends SqlJetTable {
@@ -75,8 +74,10 @@ public class SqlJetDb {
     /**
      * Create connection to data base.
      * 
-     * @param file path to data base
-     * @param write if true then allow data modification
+     * @param file
+     *            path to data base
+     * @param write
+     *            if true then allow data modification
      * @throws SqlJetException
      */
     protected SqlJetDb(File file, boolean write) throws SqlJetException {
@@ -91,8 +92,8 @@ public class SqlJetDb {
                 btree.enter();
                 try {
                     meta = new SqlJetSchemaMeta(btree);
-                    db.setMeta(meta);                    
-                    schema = new SqlJetSchema(db,btree);
+                    db.setMeta(meta);
+                    schema = new SqlJetSchema(db, btree);
                 } finally {
                     btree.leave();
                 }
@@ -104,8 +105,10 @@ public class SqlJetDb {
     /**
      * Open connection to data base.
      * 
-     * @param file path to data base
-     * @param write if true then allow data modification
+     * @param file
+     *            path to data base
+     * @param write
+     *            if true then allow data modification
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
@@ -163,29 +166,15 @@ public class SqlJetDb {
         return db.getEncoding();
     }
 
-    /**
-     * Get all tables names from data base.
-     * 
-     * @return set with all tables names
-     */
-    public Set<String> getTableNames() {
-        return schema.getTableNames();
-    }
-
-    /**
-     * Get all indexes names which are linked with given table.
-     * 
-     * @param tableName name of table
-     * @return set of indexes names wich are linked with table
-     */
-    public Set<String> getIndexNames(String tableName) {
-        return schema.getIndexNames(tableName);
+    public ISqlJetSchema getSchema() {
+        return schema;
     }
 
     /**
      * Open table.
      * 
-     * @param tableName table name
+     * @param tableName
+     *            table name
      * @return opened table
      * @throws SqlJetException
      */
@@ -193,7 +182,9 @@ public class SqlJetDb {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock() throws SqlJetException {
-                if(!getTableNames().contains(tableName)) return null;
+                if (!schema.getTableNames().contains(tableName)) {
+                    return null;
+                }
                 return new SqlJetDataTable(new SqlJetBtreeDataTable(schema, tableName, write));
             }
         });
@@ -202,7 +193,8 @@ public class SqlJetDb {
     /**
      * Open index.
      * 
-     * @param indexName index name
+     * @param indexName
+     *            index name
      * @return opened index
      * @throws SqlJetException
      */

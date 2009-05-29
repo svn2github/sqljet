@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * Table's interface.

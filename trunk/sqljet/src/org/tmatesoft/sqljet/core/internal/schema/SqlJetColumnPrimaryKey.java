@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
  * @author TMate Software Ltd.

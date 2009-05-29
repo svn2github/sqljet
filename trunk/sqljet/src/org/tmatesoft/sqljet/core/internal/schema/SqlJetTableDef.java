@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.

@@ -33,6 +33,8 @@ import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.

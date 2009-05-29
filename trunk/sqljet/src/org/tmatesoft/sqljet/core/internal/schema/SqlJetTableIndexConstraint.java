@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
  * @author TMate Software Ltd.

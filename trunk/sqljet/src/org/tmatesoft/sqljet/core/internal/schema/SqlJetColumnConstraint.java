@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.schema;
 
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
+
 
 /**
  * @author TMate Software Ltd.

@@ -27,8 +27,8 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.

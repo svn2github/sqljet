@@ -17,7 +17,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionState;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.

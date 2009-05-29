@@ -1,5 +1,5 @@
 /**
- * ISqlJetColumnPrimaryKey.java
+ * ISqlJetSchema.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,17 +11,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.schema;
+package org.tmatesoft.sqljet.core.schema;
+
+import java.util.Set;
 
 /**
  * @author TMate Software Ltd.
- * @author Dmitry Stadnik (dtrace@seznam.cz)
+ * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  */
-public interface ISqlJetColumnPrimaryKey extends ISqlJetColumnConstraint {
+public interface ISqlJetSchema {
 
-    public Boolean isAscending();
+    Set<String> getTableNames();
 
-    public boolean isAutoincremented();
+    ISqlJetTableDef getTable(String name);
 
-    public SqlJetConflictAction getConflictAction();
+    Set<String> getIndexNames(String tableName);
 }

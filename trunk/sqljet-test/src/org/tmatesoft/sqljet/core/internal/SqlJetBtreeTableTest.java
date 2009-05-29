@@ -31,7 +31,6 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
@@ -45,6 +44,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**

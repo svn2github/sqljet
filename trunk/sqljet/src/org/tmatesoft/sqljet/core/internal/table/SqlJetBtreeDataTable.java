@@ -21,14 +21,16 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnConstraint;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnNotNull;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnPrimaryKey;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTypeAffinity;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -51,7 +53,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(schema.getDb(), schema.getBtree(), schema.getTable(tableName).getPage(), write, false);
+        super(((SqlJetSchema)schema).getDb(), ((SqlJetSchema)schema).getBtree(), ((SqlJetTableDef)schema.getTable(tableName)).getPage(), write, false);
         this.tableDef = schema.getTable(tableName);
         isRowIdPrimaryKey = getIsRowIdPrimaryKey(this.tableDef);
     }

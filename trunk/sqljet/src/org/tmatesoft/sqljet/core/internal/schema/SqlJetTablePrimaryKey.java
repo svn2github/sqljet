@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 
 /**
  * @author TMate Software Ltd.

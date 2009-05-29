@@ -24,10 +24,10 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetColumnDef;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTypeAffinity;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.

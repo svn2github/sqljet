@@ -1,5 +1,5 @@
 /**
- * ISqlJetTableDef.java
+ * ISqlJetTypeDef.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -11,31 +11,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.internal.schema;
+package org.tmatesoft.sqljet.core.schema;
 
 import java.util.List;
 
 /**
- * Table Definition.
- * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetTableDef {
+public interface ISqlJetTypeDef {
 
-    public String getName();
+    public List<String> getNames();
 
-    public String getDatabaseName();
+    public Double getSize1();
 
-    public boolean isTemporary();
-
-    public boolean isKeepExisting();
-
-    public List<ISqlJetColumnDef> getColumns();
-
-    public ISqlJetColumnDef getColumn(String name);
-
-    public List<ISqlJetTableConstraint> getConstraints();
-
-    public int getPage();
+    public Double getSize2();
 }

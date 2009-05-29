@@ -20,9 +20,10 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -38,7 +39,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * 
      */
     public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, boolean write) throws SqlJetException {
-        super(schema.getDb(), schema.getBtree(), schema.getIndexPage(indexName), write, true);
+        super(((SqlJetSchema)schema).getDb(), ((SqlJetSchema)schema).getBtree(), ((SqlJetSchema)schema).getIndexPage(indexName), write, true);
     }
 
     /*

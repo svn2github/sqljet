@@ -91,7 +91,7 @@ public class SqlJetDb {
                 btree.enter();
                 try {
                     meta = new SqlJetSchemaMeta(btree);
-                    db.setEncoding(meta.getEncoding());                    
+                    db.setMeta(meta);                    
                     schema = new SqlJetSchema(db,btree);
                 } finally {
                     btree.leave();

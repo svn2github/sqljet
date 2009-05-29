@@ -37,8 +37,9 @@ public interface ISqlJetBtreeTable {
 
     /**
      * Lock B-Tree table cursor's mutex.
+     * @throws SqlJetException 
      */
-    void lock();
+    void lock() throws SqlJetException;
 
     /**
      * Unlock B-Tree table cursror's mutex.

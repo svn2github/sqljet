@@ -25,6 +25,8 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
  */
 public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
 
+    private ISqlJetBtree btree;    
+    
     /**
      * Schema cookie. Changes with each schema change.
      */
@@ -66,6 +68,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @throws SqlJetException 
      */
     public SqlJetSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
+        this.btree = btree;
         readMeta(btree);
     }
 
@@ -179,4 +182,22 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
         return incrementalVacuum;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#verifySchemaCookie(boolean)
+     */
+    public boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
+        final boolean stale = (schemaCookie != btree.getMeta(1));
+        if(stale && throwIfStale)
+            throw new SqlJetException(SqlJetErrorCode.SCHEMA);
+        return !stale;
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#changeSchemaCookie()
+     */
+    public void changeSchemaCookie() throws SqlJetException {
+        verifySchemaCookie(true);
+        schemaCookie++;
+        btree.updateMeta(1, schemaCookie);
+    }
 }

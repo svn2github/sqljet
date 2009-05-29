@@ -51,7 +51,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(schema.getBtree(), schema.getTable(tableName).getPage(), write, false, schema.getDb().getEncoding());
+        super(schema.getDb(), schema.getBtree(), schema.getTable(tableName).getPage(), write, false);
         this.tableDef = schema.getTable(tableName);
         isRowIdPrimaryKey = getIsRowIdPrimaryKey(this.tableDef);
     }

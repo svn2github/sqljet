@@ -21,6 +21,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
@@ -33,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
+    protected ISqlJetDbHandle db;
     protected ISqlJetBtree btree;
     protected int rootPage;
 
@@ -51,9 +53,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @throws SqlJetException
      * 
      */
-    public SqlJetBtreeTable(ISqlJetBtree btree, int rootPage, boolean write, boolean index, SqlJetEncoding encoding)
+    public SqlJetBtreeTable(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
             throws SqlJetException {
 
+        this.db = db;
         this.btree = btree;
         this.rootPage = rootPage;
         this.write = write;
@@ -61,7 +64,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
         if (index) {
             this.keyInfo = new SqlJetKeyInfo();
-            this.keyInfo.setEnc(encoding);
+            this.keyInfo.setEnc(db.getEncoding());
         }
 
         this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
@@ -96,7 +99,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#lock()
      */
-    public void lock() {
+    public void lock() throws SqlJetException {
+        verifySchemaCookie(true);
         cursor.enterCursor();
     }
 
@@ -294,6 +298,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         if (isNull(field))
             return null;
         return getValue(field).valueBlob();
+    }
+    
+    protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
+        return db.getMeta().verifySchemaCookie(throwIfStale);
     }
     
 }

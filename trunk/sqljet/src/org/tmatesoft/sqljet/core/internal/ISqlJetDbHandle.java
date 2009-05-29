@@ -17,6 +17,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
 
 /**
  * @author TMate Software Ltd.
@@ -78,5 +79,10 @@ public interface ISqlJetDbHandle {
     
     SqlJetEncoding getEncoding();
 
-    void setEncoding(SqlJetEncoding enc);    
+    void setEncoding(SqlJetEncoding enc);
+    
+    ISqlJetSchemaMeta getMeta();
+    
+    void setMeta(ISqlJetSchemaMeta meta);
+    
 }

@@ -64,7 +64,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        final SqlJetBtreeTable bt = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false, db.getEncoding());
+        final SqlJetBtreeTable bt = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             readShema(bt);
         } finally {

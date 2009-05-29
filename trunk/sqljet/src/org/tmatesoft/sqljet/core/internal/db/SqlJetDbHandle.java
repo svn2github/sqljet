@@ -27,6 +27,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
 
 /**
  * @author TMate Software Ltd.
@@ -41,6 +42,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
     private SqlJetEncoding enc = SqlJetEncoding.UTF8;
+    private ISqlJetSchemaMeta meta;
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()
@@ -115,4 +117,20 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     public void setEncoding(SqlJetEncoding enc) {
         this.enc = enc;
     }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#getMeta()
+     */
+    public ISqlJetSchemaMeta getMeta() {
+        return meta;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#setMeta(org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta)
+     */
+    public void setMeta(ISqlJetSchemaMeta meta) {
+        this.meta = meta;
+        setEncoding(meta.getEncoding());
+    }
+    
 }

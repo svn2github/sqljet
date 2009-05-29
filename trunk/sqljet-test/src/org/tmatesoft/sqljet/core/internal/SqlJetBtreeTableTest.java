@@ -33,6 +33,7 @@ import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
@@ -44,6 +45,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMem;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.
@@ -68,7 +70,6 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     private File repCacheDbCopy;
 
     private ISqlJetDbHandle db;
-    private ISqlJetBtree btree;
     private ISqlJetBtree btreeCopy;
 
     /**
@@ -81,15 +82,15 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
 
         db = new SqlJetDbHandle();
         db.getMutex().enter();
-        btree = new SqlJetBtree();
-        btree.open(repCacheDb, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
-                .of(SqlJetFileOpenPermission.READONLY));
 
         btreeCopy = new SqlJetBtree();
         btreeCopy
                 .open(repCacheDbCopy, db, EnumSet.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
                         SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.READWRITE,
                                 SqlJetFileOpenPermission.CREATE));
+        
+        db.setMeta(new SqlJetSchemaMeta(btreeCopy));
+        
     }
 
     /**
@@ -106,10 +107,6 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @After
     public void tearDown() throws Exception {
         try {
-            try {
-                if (null != btree)
-                    btree.close();
-            } finally {
                 try {
                     if (null != btreeCopy)
                         btreeCopy.close();
@@ -117,7 +114,6 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                     if (DELETE_COPY)
                         repCacheDbCopy.delete();
                 }
-            }
         } finally {
             db.getMutex().leave();
         }
@@ -126,7 +122,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testRecordReadMaster() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeCursor c = btree.getCursor(ISqlJetDbHandle.MASTER_ROOT, false, null);
+        final ISqlJetBtreeCursor c = btreeCopy.getCursor(ISqlJetDbHandle.MASTER_ROOT, false, null);
         c.enterCursor();
         try {
             if (!c.first())
@@ -165,8 +161,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testTableReadMaster() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable t = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
-                getEncoding(btree));
+        final ISqlJetBtreeTable t = new SqlJetBtreeTable(db, btreeCopy, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!t.eof());
             for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
@@ -189,8 +184,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testTableReadData() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
-                getEncoding(btree));
+        final ISqlJetBtreeTable master = new SqlJetBtreeTable(db, btreeCopy, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!master.eof());
             for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
@@ -204,8 +198,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                 if ("table".equals(type.trim())) {
                     logger.info(name.trim());
                     Assert.assertTrue(page > 0);
-                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, false,
-                            getEncoding(btree));
+                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(db, btreeCopy, (int) page, false, false);
                     Assert.assertTrue(!data.eof());
                     for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
@@ -229,8 +222,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testTableReadIndex() throws SqlJetException, UnsupportedEncodingException {
         boolean passed = false;
-        final ISqlJetBtreeTable master = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false,
-                getEncoding(btree));
+        final ISqlJetBtreeTable master = new SqlJetBtreeTable(db, btreeCopy, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             Assert.assertTrue(!master.eof());
             for (ISqlJetBtreeRecord r1 = master.getRecord(); !master.eof(); master.next(), r1 = master.getRecord()) {
@@ -243,8 +235,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                 final long page = r1.getFields().get(3).intValue();
                 if ("index".equals(type.trim())) {
                     Assert.assertTrue(page > 0);
-                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(btree, (int) page, false, true,
-                            getEncoding(btree));
+                    final ISqlJetBtreeTable data = new SqlJetBtreeTable(db, btreeCopy, (int) page, false, true);
                     Assert.assertTrue(!data.eof());
                     for (ISqlJetBtreeRecord r2 = data.getRecord(); !data.eof(); data.next(), r2 = data.getRecord()) {
                         Assert.assertNotNull(r2.getFields());
@@ -268,7 +259,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testSchema() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetSchema s = new SqlJetSchema(db, btree);
+        final ISqlJetSchema s = new SqlJetSchema(db, btreeCopy);
         for (String tableName : s.getTableNames()) {
             logger.info(tableName);
             passed = true;
@@ -279,7 +270,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testDataTable() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetSchema s = new SqlJetSchema(db, btree);
+        final ISqlJetSchema s = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeTable t = new SqlJetBtreeDataTable(s, REP_CACHE_TABLE, false);
         for (ISqlJetBtreeRecord r = t.getRecord(); !t.eof(); t.next(), r = t.getRecord()) {
             final int fields = r.getFieldsCount();
@@ -294,7 +285,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testIndexTable() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetSchema s = new SqlJetSchema(db, btree);
+        final ISqlJetSchema s = new SqlJetSchema(db, btreeCopy);
         final String index = s.getIndexNames(REP_CACHE_TABLE).iterator().next();
         Assert.assertNotNull(index);
         final ISqlJetBtreeTable t = new SqlJetBtreeIndexTable(s, index, false);
@@ -310,7 +301,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
 
     @Test
     public void testRecordCompare() throws SqlJetException {
-        final ISqlJetSchema s = new SqlJetSchema(db, btree);
+        final ISqlJetSchema s = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable d = new SqlJetBtreeDataTable(s, REP_CACHE_TABLE, false);
         final ISqlJetBtreeRecord r = d.getRecord();
         final ISqlJetVdbeMem f = r.getFields().get(0);
@@ -336,7 +327,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @Test
     public void testIndexLookup() throws SqlJetException {
         boolean passed = false;
-        final ISqlJetSchema schema = new SqlJetSchema(db, btree);
+        final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         for (int i = 0; i < REPEATS_COUNT; i++) {
             final String hash = getRandomHash(schema);
             if (null == hash)
@@ -349,7 +340,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
 
     @Test
     public void testIndexLookupIncorrect() throws SqlJetException {
-        final ISqlJetSchema schema = new SqlJetSchema(db, btree);
+        final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         boolean failed = hashIndexLookupTest(schema, "incorrect");
         Assert.assertTrue(!failed);
     }
@@ -585,4 +576,17 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         }
     }
 
+    @Test(expected = SqlJetException.class)
+    public void verifySchemaCookie() throws SqlJetException {
+        final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
+        final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
+        data.first();
+        final SqlJetSchemaMeta meta = new SqlJetSchemaMeta(btreeCopy);
+        btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
+        meta.changeSchemaCookie();
+        btreeCopy.commit();
+        data.first();        
+        Assert.assertTrue(false);
+    }
+    
 }

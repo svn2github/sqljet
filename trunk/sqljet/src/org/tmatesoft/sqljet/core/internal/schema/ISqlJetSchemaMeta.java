@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
@@ -28,7 +29,22 @@ public interface ISqlJetSchemaMeta {
      * @return the schemaCookie
      */
     int getSchemaCookie();
+    
+    /**
+     * Change SchemaCookie.
+     */
+    void changeSchemaCookie() throws SqlJetException;
 
+    /**
+     * Verify schema cookie and return true if it is unchanged by other process.
+     * If throwIfStale is true then throw exception if cookie is changed by other process.
+     * 
+     * @param throwIfStale
+     * @return
+     * @throws SqlJetException
+     */
+    boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException;
+    
     /**
      * File format of schema layer.
      * 

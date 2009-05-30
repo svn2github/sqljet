@@ -13,7 +13,10 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import java.util.Set;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
@@ -30,6 +33,15 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      */
     ISqlJetTableDef getTableDef();
 
+    
+    /**
+     * Get definitions of table's indexes. 
+     * 
+     * @return
+     */
+    Set<ISqlJetIndexDef> getIndexesDefs();
+    
+    
     /**
      * Go to record with given rowID. Return boolean to indicate success.
      * 

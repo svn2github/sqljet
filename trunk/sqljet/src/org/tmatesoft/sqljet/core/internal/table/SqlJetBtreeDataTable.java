@@ -14,8 +14,12 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -28,6 +32,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
@@ -39,13 +45,28 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  */
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
-    private long priorNewRowid;
+    private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
-    protected ISqlJetTableDef tableDef;
+    private long priorNewRowid = 0;
 
-    protected long lastNewRowId = 0;
+    private long lastNewRowId = 0;
 
-    protected boolean isRowIdPrimaryKey;
+    private boolean isRowIdPrimaryKey = false;
+
+    private ISqlJetTableDef tableDef;
+
+    private Set<ISqlJetIndexDef> indexesDefs;
+
+    private Map<String, SqlJetBtreeIndexTable> indexesTables;
+
+    private String primaryKeyIndexName;
+    private SqlJetBtreeIndexTable primaryKeyIndex;
+
+    private List<ISqlJetColumnDef> primaryKeyColumns;
+
+    private enum Action {
+        INSERT, UPDATE, DELETE
+    };
 
     /**
      * Open data table by name.
@@ -53,32 +74,55 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
-        super(((SqlJetSchema)schema).getDb(), ((SqlJetSchema)schema).getBtree(), ((SqlJetTableDef)schema.getTable(tableName)).getPage(), write, false);
+        super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetTableDef) schema
+                .getTable(tableName)).getPage(), write, false);
         this.tableDef = schema.getTable(tableName);
-        isRowIdPrimaryKey = getIsRowIdPrimaryKey(this.tableDef);
+        this.indexesDefs = schema.getIndexes(tableName);
+        openIndexes(schema);
+        resolvePrimaryKey();
     }
 
     /**
-     * @param tableDef2
+     * @param tableDef
      * @return
      */
-    private boolean getIsRowIdPrimaryKey(ISqlJetTableDef tableDef) {
+    private void resolvePrimaryKey() {
         if (null == tableDef)
-            return false;
+            return;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns)
-            return false;
+            return;
+        primaryKeyColumns = new ArrayList<ISqlJetColumnDef>();
         for (final ISqlJetColumnDef column : columns) {
             final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
             if (null == constraints)
                 continue;
             for (ISqlJetColumnConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
-                    return (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER);
+                    if (0 == primaryKeyColumns.size()) {
+                        isRowIdPrimaryKey = (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER);
+                    }
+                    primaryKeyColumns.add(column);
                 }
             }
         }
-        return false;
+        if (0 != primaryKeyColumns.size()) {
+            primaryKeyIndexName = String.format(AUTOINDEX, tableDef.getName(), 1);
+            primaryKeyIndex = indexesTables.get(primaryKeyIndexName);
+        }
+    }
+
+    /**
+     * Open all indexes
+     * 
+     * @throws SqlJetException
+     * 
+     */
+    private void openIndexes(ISqlJetSchema schema) throws SqlJetException {
+        indexesTables = new HashMap<String, SqlJetBtreeIndexTable>();
+        for (final ISqlJetIndexDef indexDef : indexesDefs) {
+            indexesTables.put(indexDef.getName(), new SqlJetBtreeIndexTable(schema, indexDef.getName(), this.write));
+        }
     }
 
     /**
@@ -86,6 +130,13 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     public ISqlJetTableDef getTableDef() {
         return tableDef;
+    }
+
+    /**
+     * @return the indexesDefs
+     */
+    public Set<ISqlJetIndexDef> getIndexesDefs() {
+        return indexesDefs;
     }
 
     /*
@@ -135,7 +186,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return
      * @throws SqlJetException
      */
-    protected long newRowId(long prev) throws SqlJetException {
+    private long newRowId(long prev) throws SqlJetException {
         /*
          * The next rowid or record number (different terms for the same thing)
          * is obtained in a two-step algorithm. First we attempt to find the
@@ -238,15 +289,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             long rowId = newRowId(lastNewRowId);
             final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
-            if (checkFields(row)) {
-                lastNewRowId = rowId;
-                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
-                cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
-                clearCachedRecord();
-                return lastNewRowId;
-            } else {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
-            }
+            doActionWithIndexes(Action.INSERT, rowId, row);
+            lastNewRowId = rowId;
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
+            clearCachedRecord();
+            return lastNewRowId;
         } finally {
             unlock();
         }
@@ -265,45 +313,13 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (rowId <= 0 || !goToRow(rowId))
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
             final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
-            if (checkFields(row)) {
-                final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
-                cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
-                clearCachedRecord();
-            } else {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect data");
-            }
+            doActionWithIndexes(Action.UPDATE, rowId, row);
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
+            clearCachedRecord();
         } finally {
             unlock();
         }
-    }
-
-    /**
-     * @param data
-     * @return
-     */
-    private boolean checkFields(Object... values) throws SqlJetException {
-        if (values == null)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
-        final int fieldsSize = values.length;
-        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final int columnsSize = columns.size();
-        if (fieldsSize > columnsSize)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data values count is more than columns in table");
-        int i = 0;
-        for (final ISqlJetColumnDef column : columns) {
-            if (null != column.getConstraints()) {
-                for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
-                    if (constraint instanceof ISqlJetColumnNotNull) {
-                        if (i >= fieldsSize || null == values[i]) {
-                            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName()
-                                    + " is NOT NULL");
-                        }
-                    }
-                }
-            }
-            i++;
-        }
-        return true;
     }
 
     /*
@@ -317,10 +333,123 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             if (goToRow(rowId)) {
+                doActionWithIndexes(Action.DELETE, rowId);
                 cursor.delete();
             }
         } finally {
             unlock();
+        }
+    }
+
+    /**
+     * @param row
+     * @return
+     * @throws SqlJetException
+     */
+    private void doActionWithIndexes(Action action, long rowId, Object... row) throws SqlJetException {
+
+        final Map<String, Object[]> indexKeys = new HashMap<String, Object[]>();
+
+        final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFields(row) : null;
+
+        // check unique indexes
+        if (Action.DELETE != action) {
+            for (final ISqlJetIndexDef indexDef : indexesDefs) {
+                if (indexDef.isUnique() || primaryKeyIndexName.equals(indexDef.getName()) ) {
+                    final Object[] indexKey = getKeyForIndex(fields, indexDef);
+                    indexKeys.put(indexDef.getName(), indexKey);
+                    final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+                    final long lookup = indexTable.lookup(false, indexKey);
+                    if (lookup != 0 || (Action.UPDATE == action && lookup != rowId)) {
+                        throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Unique index " + indexDef.getName()
+                                + " prevents this insertion");
+                    }
+                }
+            }
+        }
+
+        // insert into indexes
+        for (final ISqlJetIndexDef indexDef : indexesDefs) {
+            final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+            if (Action.INSERT != action) {
+                indexTable.delete(rowId, getKeyForIndex(getAsNamedFields(getValues()), indexDef));
+            }
+            if (Action.DELETE != action) {
+                final Object[] indexKey = indexDef.isUnique() ? indexKeys.get(indexDef.getName()) : getKeyForIndex(
+                        fields, indexDef);
+                indexTable.insert(rowId, true, indexKey);
+            }
+        }
+
+    }
+
+    /**
+     * @param values
+     * @return
+     */
+    private Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
+
+        if (values == null)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
+
+        final int fieldsSize = values.length;
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        final int columnsSize = columns.size();
+        if (fieldsSize > columnsSize) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data values count is more than columns in table");
+        }
+
+        final Map<String, Object> namedFields = new HashMap<String, Object>();
+
+        int i = 0;
+        for (final ISqlJetColumnDef column : columns) {
+            if (null != column.getConstraints()) {
+                for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
+                    if (constraint instanceof ISqlJetColumnNotNull) {
+                        if (i >= fieldsSize || null == values[i]) {
+                            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName()
+                                    + " is NOT NULL");
+                        }
+                    }
+                }
+            }
+            namedFields.put(column.getName(), (i < fieldsSize ? values[i] : null));
+            i++;
+        }
+
+        return namedFields;
+    }
+
+    /**
+     * @param fields
+     * @param indexDef
+     * @return
+     */
+    private Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
+
+        if( primaryKeyIndexName.equals(indexDef.getName())) {
+            
+            final int columnsCount = primaryKeyColumns.size();
+            final Object[] key = new Object[columnsCount];
+            int i = 0;
+            for (final ISqlJetColumnDef column : primaryKeyColumns) {
+                key[i] = fields.get(column.getName());
+                i++;
+            }
+            return key;
+            
+        } else {
+            
+            final List<ISqlJetIndexedColumn> indexedColumns = indexDef.getColumns();
+            final int columnsCount = indexedColumns.size();
+            final Object[] key = new Object[columnsCount];
+            int i = 0;
+            for (final ISqlJetIndexedColumn column : indexedColumns) {
+                key[i] = fields.get(column.getName());
+                i++;
+            }
+            return key;
+            
         }
     }
 

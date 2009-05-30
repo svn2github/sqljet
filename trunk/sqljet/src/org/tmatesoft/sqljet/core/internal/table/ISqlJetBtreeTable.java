@@ -163,5 +163,9 @@ public interface ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     ByteBuffer getBlob(int field) throws SqlJetException;
+
+    Object[] getValues() throws SqlJetException;
+    
+    Object getValue(int field) throws SqlJetException;
     
 }

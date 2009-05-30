@@ -46,12 +46,14 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected SqlJetKeyInfo keyInfo;
 
     protected ISqlJetBtreeRecord cachedRecord;
-    
+
     /**
-     * @param encoding
-     *            TODO
+     * @param db
+     * @param btree
+     * @param rootPage
+     * @param write
+     * @param index
      * @throws SqlJetException
-     * 
      */
     public SqlJetBtreeTable(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
             throws SqlJetException {
@@ -70,7 +72,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
 
         this.cachedRecord = null;
-        
+
         first();
 
     }
@@ -200,8 +202,11 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         btree.lockTable(rootPage, write);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
      */
     public SqlJetEncoding getEncoding() throws SqlJetException {
         return cursor.getCursorDb().getEncoding();
@@ -222,7 +227,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return (field >= 0 && field < getFieldsCount());
     }
 
-    protected ISqlJetVdbeMem getValue(int field) throws SqlJetException {
+    protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
         if (!checkField(field))
             return null;
         final ISqlJetBtreeRecord r = getCachedRecord();
@@ -234,8 +239,32 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return fields.get(field);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getFieldsCount()
+    public Object getValue(int field) throws SqlJetException {
+        if (isNull(field))
+            return null;
+        switch (getFieldType(field)) {
+        case INTEGER:
+            return getInteger(field);
+        case FLOAT:
+            return getFloat(field);
+        case TEXT:
+            return getString(field);
+        case BLOB:
+            return getBlob(field);
+        case NULL:
+            break;
+        default:
+            break;
+        }
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getFieldsCount
+     * ()
      */
     public int getFieldsCount() throws SqlJetException {
         final ISqlJetBtreeRecord r = getCachedRecord();
@@ -244,64 +273,96 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return r.getFieldsCount();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#isNull(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#isNull(int)
      */
     public boolean isNull(int field) throws SqlJetException {
-        final ISqlJetVdbeMem value = getValue(field);
+        final ISqlJetVdbeMem value = getValueMem(field);
         if (null == value)
             return true;
         return value.isNull();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getString(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getString(int)
      */
     public String getString(int field) throws SqlJetException {
         if (isNull(field))
             return null;
-        return SqlJetUtility.toString(getValue(field).valueText(getEncoding()),
-                ISqlJetBtreeRecord.INTERNAL_ENCODING);
+        return SqlJetUtility
+                .toString(getValueMem(field).valueText(getEncoding()), ISqlJetBtreeRecord.INTERNAL_ENCODING);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getInteger(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getInteger
+     * (int)
      */
     public long getInteger(int field) throws SqlJetException {
         if (isNull(field))
             return 0;
-        return getValue(field).intValue();
+        return getValueMem(field).intValue();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getReal(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getReal(int)
      */
     public double getFloat(int field) throws SqlJetException {
         if (isNull(field))
             return 0;
-        return getValue(field).realValue();
+        return getValueMem(field).realValue();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getFieldType(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getFieldType
+     * (int)
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
         if (isNull(field))
             return SqlJetValueType.NULL;
-        return getValue(field).getType();
+        return getValueMem(field).getType();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getBlob(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getBlob(int)
      */
     public ByteBuffer getBlob(int field) throws SqlJetException {
         if (isNull(field))
             return null;
-        return getValue(field).valueBlob();
+        return getValueMem(field).valueBlob();
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getValues()
+     */
+    public Object[] getValues() throws SqlJetException {
+        final int fieldsCount = getFieldsCount();
+        final Object[] values = new Object[fieldsCount]; 
+        for(int i=0; i<fieldsCount; i++) {
+            values[i] = getValue(i);
+        }
+        return values;
     }
     
     protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
         return db.getMeta().verifySchemaCookie(throwIfStale);
     }
-    
+
 }

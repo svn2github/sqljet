@@ -14,7 +14,6 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,14 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
 import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
@@ -59,10 +62,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private Map<String, SqlJetBtreeIndexTable> indexesTables;
 
-    private String primaryKeyIndexName;
-    private SqlJetBtreeIndexTable primaryKeyIndex;
-
-    private List<ISqlJetColumnDef> primaryKeyColumns;
+    private Map<String, String> columnsConstraintsIndexes;
+    private Map<String, List<String>> tableConstraintsIndexes;
 
     private enum Action {
         INSERT, UPDATE, DELETE
@@ -78,38 +79,65 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 .getTable(tableName)).getPage(), write, false);
         this.tableDef = schema.getTable(tableName);
         this.indexesDefs = schema.getIndexes(tableName);
+        resolveConstraints();
         openIndexes(schema);
-        resolvePrimaryKey();
     }
 
     /**
      * @param tableDef
      * @return
      */
-    private void resolvePrimaryKey() {
+    private void resolveConstraints() {
+
+        columnsConstraintsIndexes = new HashMap<String, String>();
+        tableConstraintsIndexes = new HashMap<String, List<String>>();
+
         if (null == tableDef)
             return;
+
+        int i = 0;
+
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        if (null == columns)
-            return;
-        primaryKeyColumns = new ArrayList<ISqlJetColumnDef>();
-        for (final ISqlJetColumnDef column : columns) {
-            final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
-            if (null == constraints)
-                continue;
-            for (ISqlJetColumnConstraint constraint : constraints) {
-                if (constraint instanceof ISqlJetColumnPrimaryKey) {
-                    if (0 == primaryKeyColumns.size()) {
-                        isRowIdPrimaryKey = (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER);
+        if (null != columns) {
+            for (final ISqlJetColumnDef column : columns) {
+                final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
+                if (null == constraints)
+                    continue;
+                for (final ISqlJetColumnConstraint constraint : constraints) {
+                    if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                        if (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER) {
+                            isRowIdPrimaryKey = true;
+                        } else {
+                            columnsConstraintsIndexes.put(generateAutoIndexName(++i), column.getName());
+                        }
+                    } else if (constraint instanceof ISqlJetColumnUnique) {
+                        columnsConstraintsIndexes.put(generateAutoIndexName(++i), column.getName());
                     }
-                    primaryKeyColumns.add(column);
                 }
             }
         }
-        if (0 != primaryKeyColumns.size()) {
-            primaryKeyIndexName = String.format(AUTOINDEX, tableDef.getName(), 1);
-            primaryKeyIndex = indexesTables.get(primaryKeyIndexName);
+
+        final List<ISqlJetTableConstraint> constraints = tableDef.getConstraints();
+        if (null != constraints) {
+            for (final ISqlJetTableConstraint constraint : constraints) {
+                if (constraint instanceof ISqlJetTablePrimaryKey) {
+                    tableConstraintsIndexes.put(generateAutoIndexName(++i), ((ISqlJetTablePrimaryKey) constraint)
+                            .getColumns());
+                } else if (constraint instanceof ISqlJetTableUnique) {
+                    tableConstraintsIndexes.put(generateAutoIndexName(++i), ((ISqlJetTableUnique) constraint)
+                            .getColumns());
+                }
+            }
         }
+
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    private String generateAutoIndexName(int i) {
+        return String.format(AUTOINDEX, tableDef.getName(), i);
     }
 
     /**
@@ -355,7 +383,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         // check unique indexes
         if (Action.DELETE != action) {
             for (final ISqlJetIndexDef indexDef : indexesDefs) {
-                if (indexDef.isUnique() || primaryKeyIndexName.equals(indexDef.getName()) ) {
+                if (indexDef.isUnique() || columnsConstraintsIndexes.containsKey(indexDef.getName())
+                        || tableConstraintsIndexes.containsKey(indexDef.getName())) {
                     final Object[] indexKey = getKeyForIndex(fields, indexDef);
                     indexKeys.put(indexDef.getName(), indexKey);
                     final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
@@ -427,29 +456,33 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
 
-        if( primaryKeyIndexName.equals(indexDef.getName())) {
-            
-            final int columnsCount = primaryKeyColumns.size();
+        if (columnsConstraintsIndexes.containsKey(indexDef.getName())) {
+
+            final String column = columnsConstraintsIndexes.get(indexDef.getName());
+            return new Object[] { fields.get(column) };
+
+        } else if (tableConstraintsIndexes.containsKey(indexDef.getName())) {
+
+            final List<String> columns = tableConstraintsIndexes.get(indexDef.getName());
+            final int columnsCount = columns.size();
             final Object[] key = new Object[columnsCount];
             int i = 0;
-            for (final ISqlJetColumnDef column : primaryKeyColumns) {
-                key[i] = fields.get(column.getName());
-                i++;
+            for (final String column : columns) {
+                key[i++] = fields.get(column);
             }
             return key;
-            
+
         } else {
-            
+
             final List<ISqlJetIndexedColumn> indexedColumns = indexDef.getColumns();
             final int columnsCount = indexedColumns.size();
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final ISqlJetIndexedColumn column : indexedColumns) {
-                key[i] = fields.get(column.getName());
-                i++;
+                key[i++] = fields.get(column.getName());
             }
             return key;
-            
+
         }
     }
 

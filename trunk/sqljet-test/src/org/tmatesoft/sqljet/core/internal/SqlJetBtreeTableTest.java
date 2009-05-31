@@ -129,10 +129,14 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                     Assert.assertNotNull(r.getFields());
                     Assert.assertTrue(!r.getFields().isEmpty());
                     for (ISqlJetVdbeMem field : r.getFields()) {
-                        final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
-                        Assert.assertNotNull(value);
-                        String s = new String(value.array());
-                        logger.info(s);
+                        if( !field.isNull() ) {
+                            final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
+                            Assert.assertNotNull(value);
+                            String s = new String(value.array());
+                            logger.info(s);
+                        } else {
+                            logger.info("null");
+                        }
                         passed = true;
                     }
                 } while (!c.next());
@@ -168,10 +172,14 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                 Assert.assertNotNull(r.getFields());
                 Assert.assertTrue(!r.getFields().isEmpty());
                 for (ISqlJetVdbeMem field : r.getFields()) {
-                    final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
-                    Assert.assertNotNull(value);
-                    String s = new String(value.array());
-                    logger.info(s);
+                    if( !field.isNull() ) {
+                        final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
+                        Assert.assertNotNull(value);
+                        String s = new String(value.array());
+                        logger.info(s);
+                    } else {
+                        logger.info("null");
+                    }
                     passed = true;
                 }
             }

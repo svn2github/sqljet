@@ -389,9 +389,14 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                     indexKeys.put(indexDef.getName(), indexKey);
                     final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
                     final long lookup = indexTable.lookup(false, indexKey);
-                    if (lookup != 0 || (Action.UPDATE == action && lookup != rowId)) {
-                        throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Unique index " + indexDef.getName()
-                                + " prevents this insertion");
+                    if (lookup != 0) {
+                        if (Action.INSERT == action) {
+                            throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Insert fails: unique index "
+                                    + indexDef.getName());
+                        } else if (Action.UPDATE == action && lookup != rowId) {
+                            throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Update fails: unique index "
+                                    + indexDef.getName());
+                        }
                     }
                 }
             }

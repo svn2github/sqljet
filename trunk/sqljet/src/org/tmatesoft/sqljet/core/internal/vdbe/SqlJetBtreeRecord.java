@@ -195,7 +195,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
              */
             fieldsCount = 0;
             for (i = 0; i < ISqlJetLimits.SQLJET_MAX_COLUMN && zIdx.arrayOffset() < zEndHdr.arrayOffset()
-                    && offset[0] < payloadSize; i++, fieldsCount++) {
+                    && offset[0] <= payloadSize; i++, fieldsCount++) {
                 aOffset.add(i, offset[0]);
                 int[] a = { 0 };
                 zIdx = SqlJetUtility.slice(zIdx, SqlJetUtility.getVarint32(zIdx, a));

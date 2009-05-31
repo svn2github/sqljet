@@ -17,6 +17,8 @@ import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetCollSeq;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
@@ -110,6 +112,26 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
      */
     public void setEnc(SqlJetEncoding enc) {
         this.enc = enc;
+    }
+    
+    public void setSortOrder(int i, boolean desc) throws SqlJetException {
+        if(i>=nField) throw new SqlJetException(SqlJetErrorCode.ERROR);
+        this.aSortOrder[i]=desc;
+    }
+    
+    public boolean getSortOrder(int i) throws SqlJetException {
+        if(i>=nField) throw new SqlJetException(SqlJetErrorCode.ERROR);
+        return this.aSortOrder[i];
+    }
+
+    public void setCollating(int i, ISqlJetCollSeq coll) throws SqlJetException {
+        if(i>=nField) throw new SqlJetException(SqlJetErrorCode.ERROR);
+        this.aColl[i]=coll;
+    }
+    
+    public ISqlJetCollSeq getCollating(int i) throws SqlJetException {
+        if(i>=nField) throw new SqlJetException(SqlJetErrorCode.ERROR);
+        return this.aColl[i];
     }
     
 }

@@ -86,9 +86,9 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                 .open(repCacheDbCopy, db, EnumSet.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
                         SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.READWRITE,
                                 SqlJetFileOpenPermission.CREATE));
-        
+
         db.setMeta(new SqlJetSchemaMeta(btreeCopy));
-        
+
     }
 
     /**
@@ -105,13 +105,13 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     @After
     public void tearDown() throws Exception {
         try {
-                try {
-                    if (null != btreeCopy)
-                        btreeCopy.close();
-                } finally {
-                    if (DELETE_COPY)
-                        repCacheDbCopy.delete();
-                }
+            try {
+                if (null != btreeCopy)
+                    btreeCopy.close();
+            } finally {
+                if (DELETE_COPY)
+                    repCacheDbCopy.delete();
+            }
         } finally {
             db.getMutex().leave();
         }
@@ -129,7 +129,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                     Assert.assertNotNull(r.getFields());
                     Assert.assertTrue(!r.getFields().isEmpty());
                     for (ISqlJetVdbeMem field : r.getFields()) {
-                        if( !field.isNull() ) {
+                        if (!field.isNull()) {
                             final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
                             Assert.assertNotNull(value);
                             String s = new String(value.array());
@@ -148,19 +148,12 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
     }
 
     /*
-    private SqlJetEncoding getEncoding(ISqlJetBtree btree) throws SqlJetException {
-        switch (btree.getMeta(5)) {
-        case 1:
-            return SqlJetEncoding.UTF8;
-        case 2:
-            return SqlJetEncoding.UTF16LE;
-        case 3:
-            return SqlJetEncoding.UTF16BE;
-        default:
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-        }
-    }
-    */
+     * private SqlJetEncoding getEncoding(ISqlJetBtree btree) throws
+     * SqlJetException { switch (btree.getMeta(5)) { case 1: return
+     * SqlJetEncoding.UTF8; case 2: return SqlJetEncoding.UTF16LE; case 3:
+     * return SqlJetEncoding.UTF16BE; default: throw new
+     * SqlJetException(SqlJetErrorCode.CORRUPT); } }
+     */
 
     @Test
     public void testTableReadMaster() throws SqlJetException, UnsupportedEncodingException {
@@ -172,7 +165,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
                 Assert.assertNotNull(r.getFields());
                 Assert.assertTrue(!r.getFields().isEmpty());
                 for (ISqlJetVdbeMem field : r.getFields()) {
-                    if( !field.isNull() ) {
+                    if (!field.isNull()) {
                         final ByteBuffer value = field.valueText(SqlJetEncoding.UTF8);
                         Assert.assertNotNull(value);
                         String s = new String(value.array());
@@ -465,7 +458,10 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Random random = new Random();
         for (int i = 0; i < REPEATS_COUNT; i++) {
             btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
-            insertHash(schema, data, index, String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt())));
+            final String hash = String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt()));
+            if (locateHash(schema, hash) == 0) {
+                insertHash(schema, data, index, hash);
+            }
             btreeCopy.commit();
         }
     }
@@ -480,7 +476,10 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Random random = new Random();
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         for (int i = 0; i < REPEATS_COUNT; i++) {
-            insertHash(schema, data, index, String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt())));
+            final String hash = String.valueOf(SqlJetUtility.fromUnsigned(random.nextInt()));
+            if (locateHash(schema, hash) == 0) {
+                insertHash(schema, data, index, hash);
+            }
         }
         btreeCopy.commit();
     }
@@ -593,8 +592,8 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         meta.changeSchemaCookie();
         btreeCopy.commit();
-        data.first();        
+        data.first();
         Assert.assertTrue(false);
     }
-    
+
 }

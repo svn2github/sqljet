@@ -24,7 +24,10 @@ import org.tmatesoft.sqljet.core.internal.schema.SqlJetBaseIndexDef;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.SqlJetSortingOrder;
 
 /**
  * @author TMate Software Ltd.
@@ -33,6 +36,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
  */
 public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBtreeIndexTable {
 
+    private ISqlJetIndexDef indexDef;
+
     /**
      * Open index by name
      * 
@@ -40,7 +45,17 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * 
      */
     public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, boolean write) throws SqlJetException {
-        super(((SqlJetSchema)schema).getDb(), ((SqlJetSchema)schema).getBtree(), ((SqlJetBaseIndexDef)schema.getIndex(indexName)).getPage(), write, true);
+        super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetBaseIndexDef) schema
+                .getIndex(indexName)).getPage(), write, true);
+        indexDef = schema.getIndex(indexName);
+        adjustKeyInfo();
+    }
+
+    /**
+     * @return the indexDef
+     */
+    public ISqlJetIndexDef getIndexDef() {
+        return indexDef;
     }
 
     /*
@@ -55,7 +70,6 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         try {
             clearCachedRecord();
             ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(values);
-            adjustKeyInfo(key);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
@@ -87,10 +101,17 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
 
     /**
      * @param key
+     * 
+     * @throws SqlJetException
      */
-    private void adjustKeyInfo(ISqlJetBtreeRecord key) {
-        if (null != keyInfo) {
-            keyInfo.setNField(key.getFieldsCount());
+    private void adjustKeyInfo() throws SqlJetException {
+        final List<ISqlJetIndexedColumn> columns = indexDef.getColumns();
+        if (null != keyInfo && null != columns) {
+            keyInfo.setNField(columns.size());
+            int i = 0;
+            for (final ISqlJetIndexedColumn column : columns) {
+                keyInfo.setSortOrder(i++, column.getSortingOrder() == SqlJetSortingOrder.DESC);
+            }
         }
     }
 
@@ -125,7 +146,6 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         try {
             clearCachedRecord();
             final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(key);
-            adjustKeyInfo(rec);
             final ByteBuffer k = rec.getRawRecord();
             if (cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();

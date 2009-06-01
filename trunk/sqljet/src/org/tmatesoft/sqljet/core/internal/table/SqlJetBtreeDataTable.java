@@ -145,14 +145,14 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /**
      * @return the tableDef
      */
-    public ISqlJetTableDef getTableDef() {
+    public ISqlJetTableDef getDefinition() {
         return tableDef;
     }
 
     /**
      * @return the indexesDefs
      */
-    public Set<ISqlJetIndexDef> getIndexesDefs() {
+    public Set<ISqlJetIndexDef> getIndexDefinitions() {
         return indexesDefs;
     }
 

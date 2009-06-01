@@ -236,7 +236,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
 
-                final ISqlJetTableDef tableDef = table.getTableDef();
+                final ISqlJetTableDef tableDef = table.getDefinition();
 
                 Assert.assertNotNull(tableDef);
 

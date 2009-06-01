@@ -30,7 +30,7 @@ public interface ISqlJetTable {
      * 
      * @return
      */
-    ISqlJetTableDef getTableDef();
+    ISqlJetTableDef getDefinition();
 
     /**
      * Go to record which has given row's ID (taken from index).

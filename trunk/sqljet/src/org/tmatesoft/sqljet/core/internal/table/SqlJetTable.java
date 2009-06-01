@@ -33,8 +33,8 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
         this.dataTable = dataTable;
     }
 
-    public ISqlJetTableDef getTableDef() {
-        return dataTable.getTableDef();
+    public ISqlJetTableDef getDefinition() {
+        return dataTable.getDefinition();
     };
 
     /*

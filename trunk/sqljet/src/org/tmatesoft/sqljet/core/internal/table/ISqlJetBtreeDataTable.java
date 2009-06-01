@@ -31,17 +31,15 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * 
      * @return
      */
-    ISqlJetTableDef getTableDef();
+    ISqlJetTableDef getDefinition();
 
-    
     /**
      * Get definitions of table's indexes. 
      * 
      * @return
      */
-    Set<ISqlJetIndexDef> getIndexesDefs();
-    
-    
+    Set<ISqlJetIndexDef> getIndexDefinitions();
+
     /**
      * Go to record with given rowID. Return boolean to indicate success.
      * 

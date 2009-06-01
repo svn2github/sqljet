@@ -32,8 +32,8 @@ public interface ISqlJetSchema {
     ISqlJetIndexDef getIndex(String name);
 
     Set<ISqlJetIndexDef> getIndexes(String tableName);
-    
-    ISqlJetTableDef createTable(String sql) throws SqlJetException; 
+
+    ISqlJetTableDef createTable(String sql) throws SqlJetException;
+
     ISqlJetIndexDef createIndex(String sql) throws SqlJetException;
-    
 }

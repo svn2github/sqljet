@@ -28,8 +28,9 @@ tokens {
 	COLUMN_CONSTRAINT; // root for column_constraint
 	COLUMNS;
 	CONSTRAINTS; // groups all constraints
-	CREATE_TABLE;
 	CREATE_INDEX;
+	CREATE_TABLE;
+	DROP_INDEX;
 	DROP_TABLE;
 	NOT_NULL; // single token that replaces NOT NULL
 	OPTIONS;
@@ -346,7 +347,8 @@ indexed_column: column_name=id (COLLATE collation_name=id)? (ASC | DESC)?
 -> ^($column_name ^(COLLATE $collation_name)? ASC? DESC?);
 
 // DROP INDEX
-drop_index_stmt: DROP INDEX (IF EXISTS)? (database_name=id DOT)? index_name=id;
+drop_index_stmt: DROP INDEX (IF EXISTS)? (database_name=id DOT)? index_name=id
+-> ^(DROP_INDEX ^(OPTIONS EXISTS?) ^($index_name $database_name?));
 
 // CREATE TRIGGER
 create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=id DOT)? trigger_name=id

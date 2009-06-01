@@ -137,6 +137,14 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         return page;
     }
 
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public void drop() {
+        // TODO Auto-generated method stub
+    }
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -178,12 +186,5 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         buffer.append(')');
         return buffer.toString();
-    }
-    
-    /**
-     * @param page the page to set
-     */
-    public void setPage(int page) {
-        this.page = page;
     }
 }

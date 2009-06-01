@@ -67,6 +67,10 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
         return page;
     }
 
+    public void drop() {
+        // TODO Auto-generated method stub
+    }
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();

@@ -1,4 +1,4 @@
-// $ANTLR 3.1.3 Mar 17, 2009 19:23:44 SqlParser.g 2009-05-29 16:46:24
+// $ANTLR 3.1.3 Mar 17, 2009 19:23:44 SqlParser.g 2009-06-01 13:47:20
 
   package org.tmatesoft.sqljet.core.internal.lang;
 
@@ -13,16 +13,16 @@ import org.antlr.runtime.tree.*;
 
 public class SqlParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "EQUALS", "EQUALS2", "NOT_EQUALS", "NOT_EQUALS2", "LESS", "LESS_OR_EQ", "GREATER", "GREATER_OR_EQ", "SHIFT_LEFT", "SHIFT_RIGHT", "AMPERSAND", "PIPE", "DOUBLE_PIPE", "PLUS", "MINUS", "TILDA", "ASTERISK", "SLASH", "PERCENT", "SEMI", "DOT", "COMMA", "LPAREN", "RPAREN", "QUESTION", "COLON", "AT", "DOLLAR", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "ABORT", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN", "BY", "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT", "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_TIME", "CURRENT_DATE", "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE", "DEFERRED", "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH", "ELSE", "END", "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN", "FAIL", "FOR", "FOREIGN", "FROM", "GLOB", "GROUP", "HAVING", "IF", "IGNORE", "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER", "INSERT", "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "KEY", "LEFT", "LIKE", "LIMIT", "MATCH", "NATURAL", "NOT", "NOTNULL", "NULL", "OF", "OFFSET", "ON", "OR", "ORDER", "OUTER", "PLAN", "PRAGMA", "PRIMARY", "QUERY", "RAISE", "REFERENCES", "REGEXP", "REINDEX", "RELEASE", "RENAME", "REPLACE", "RESTRICT", "ROLLBACK", "ROW", "SAVEPOINT", "SELECT", "SET", "TABLE", "TEMPORARY", "THEN", "TO", "TRANSACTION", "TRIGGER", "UNION", "UNIQUE", "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE", "ID_START", "ID", "STRING", "INTEGER", "FLOAT_EXP", "FLOAT", "SIGNED_NUMBER", "BLOB", "COMMENT", "LINE_COMMENT", "WS", "ALIAS", "COLUMN_CONSTRAINT", "COLUMNS", "CONSTRAINTS", "CREATE_TABLE", "CREATE_INDEX", "DROP_TABLE", "NOT_NULL", "OPTIONS", "ORDERING", "SELECT_CORE", "TABLE_CONSTRAINT", "TYPE", "TYPE_PARAMS"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "EQUALS", "EQUALS2", "NOT_EQUALS", "NOT_EQUALS2", "LESS", "LESS_OR_EQ", "GREATER", "GREATER_OR_EQ", "SHIFT_LEFT", "SHIFT_RIGHT", "AMPERSAND", "PIPE", "DOUBLE_PIPE", "PLUS", "MINUS", "TILDA", "ASTERISK", "SLASH", "PERCENT", "SEMI", "DOT", "COMMA", "LPAREN", "RPAREN", "QUESTION", "COLON", "AT", "DOLLAR", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "ABORT", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ATTACH", "AUTOINCREMENT", "BEFORE", "BEGIN", "BETWEEN", "BY", "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT", "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_TIME", "CURRENT_DATE", "CURRENT_TIMESTAMP", "DATABASE", "DEFAULT", "DEFERRABLE", "DEFERRED", "DELETE", "DESC", "DETACH", "DISTINCT", "DROP", "EACH", "ELSE", "END", "ESCAPE", "EXCEPT", "EXCLUSIVE", "EXISTS", "EXPLAIN", "FAIL", "FOR", "FOREIGN", "FROM", "GLOB", "GROUP", "HAVING", "IF", "IGNORE", "IMMEDIATE", "IN", "INDEX", "INDEXED", "INITIALLY", "INNER", "INSERT", "INSTEAD", "INTERSECT", "INTO", "IS", "ISNULL", "JOIN", "KEY", "LEFT", "LIKE", "LIMIT", "MATCH", "NATURAL", "NOT", "NOTNULL", "NULL", "OF", "OFFSET", "ON", "OR", "ORDER", "OUTER", "PLAN", "PRAGMA", "PRIMARY", "QUERY", "RAISE", "REFERENCES", "REGEXP", "REINDEX", "RELEASE", "RENAME", "REPLACE", "RESTRICT", "ROLLBACK", "ROW", "SAVEPOINT", "SELECT", "SET", "TABLE", "TEMPORARY", "THEN", "TO", "TRANSACTION", "TRIGGER", "UNION", "UNIQUE", "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE", "ID_START", "ID", "STRING", "INTEGER", "FLOAT_EXP", "FLOAT", "SIGNED_NUMBER", "BLOB", "COMMENT", "LINE_COMMENT", "WS", "ALIAS", "COLUMN_CONSTRAINT", "COLUMNS", "CONSTRAINTS", "CREATE_INDEX", "CREATE_TABLE", "DROP_INDEX", "DROP_TABLE", "NOT_NULL", "OPTIONS", "ORDERING", "SELECT_CORE", "TABLE_CONSTRAINT", "TYPE", "TYPE_PARAMS"
     };
     public static final int ROW=154;
-    public static final int TYPE_PARAMS=198;
+    public static final int TYPE_PARAMS=199;
     public static final int NOT=132;
     public static final int EXCEPT=100;
     public static final int FOREIGN=106;
     public static final int EOF=-1;
     public static final int SIGNED_NUMBER=180;
-    public static final int TYPE=197;
+    public static final int TYPE=198;
     public static final int RPAREN=27;
     public static final int CREATE=82;
     public static final int USING=167;
@@ -69,6 +69,7 @@ public class SqlParser extends Parser {
     public static final int Z=57;
     public static final int GROUP=109;
     public static final int INTERSECT=121;
+    public static final int DROP_INDEX=191;
     public static final int WS=184;
     public static final int PLAN=141;
     public static final int ALIAS=185;
@@ -81,7 +82,7 @@ public class SqlParser extends Parser {
     public static final int FLOAT=179;
     public static final int NOTNULL=133;
     public static final int NOT_EQUALS=6;
-    public static final int NOT_NULL=192;
+    public static final int NOT_NULL=193;
     public static final int LPAREN=26;
     public static final int ASTERISK=20;
     public static final int GREATER_OR_EQ=11;
@@ -124,10 +125,10 @@ public class SqlParser extends Parser {
     public static final int WHEN=172;
     public static final int NATURAL=131;
     public static final int BETWEEN=71;
-    public static final int OPTIONS=193;
+    public static final int OPTIONS=194;
     public static final int STRING=176;
     public static final int CAST=75;
-    public static final int TABLE_CONSTRAINT=196;
+    public static final int TABLE_CONSTRAINT=197;
     public static final int TRIGGER=163;
     public static final int CURRENT_TIME=84;
     public static final int CASE=74;
@@ -175,7 +176,7 @@ public class SqlParser extends Parser {
     public static final int UPDATE=166;
     public static final int FOR=105;
     public static final int DEFERRED=90;
-    public static final int SELECT_CORE=195;
+    public static final int SELECT_CORE=196;
     public static final int EXCLUSIVE=101;
     public static final int ID=175;
     public static final int AND=64;
@@ -184,7 +185,7 @@ public class SqlParser extends Parser {
     public static final int INDEX=115;
     public static final int TILDA=19;
     public static final int IN=114;
-    public static final int CREATE_TABLE=189;
+    public static final int CREATE_TABLE=190;
     public static final int REFERENCES=146;
     public static final int COMMA=25;
     public static final int IS=123;
@@ -204,12 +205,12 @@ public class SqlParser extends Parser {
     public static final int INSTEAD=120;
     public static final int JOIN=125;
     public static final int INDEXED=116;
-    public static final int CREATE_INDEX=190;
+    public static final int CREATE_INDEX=189;
     public static final int QUESTION=28;
-    public static final int ORDERING=194;
+    public static final int ORDERING=195;
     public static final int IMMEDIATE=113;
     public static final int DESC=92;
-    public static final int DROP_TABLE=191;
+    public static final int DROP_TABLE=192;
     public static final int ID_START=174;
 
     // delegates
@@ -243,7 +244,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "sql_stmt_list"
-    // SqlParser.g:48:1: sql_stmt_list : ( sql_stmt )+ ;
+    // SqlParser.g:49:1: sql_stmt_list : ( sql_stmt )+ ;
     public final SqlParser.sql_stmt_list_return sql_stmt_list() throws RecognitionException {
         SqlParser.sql_stmt_list_return retval = new SqlParser.sql_stmt_list_return();
         retval.start = input.LT(1);
@@ -255,12 +256,12 @@ public class SqlParser extends Parser {
 
 
         try {
-            // SqlParser.g:48:14: ( ( sql_stmt )+ )
-            // SqlParser.g:48:16: ( sql_stmt )+
+            // SqlParser.g:49:14: ( ( sql_stmt )+ )
+            // SqlParser.g:49:16: ( sql_stmt )+
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:48:16: ( sql_stmt )+
+            // SqlParser.g:49:16: ( sql_stmt )+
             int cnt1=0;
             loop1:
             do {
@@ -268,9 +269,9 @@ public class SqlParser extends Parser {
                 alt1 = dfa1.predict(input);
                 switch (alt1) {
             	case 1 :
-            	    // SqlParser.g:48:17: sql_stmt
+            	    // SqlParser.g:49:17: sql_stmt
             	    {
-            	    pushFollow(FOLLOW_sql_stmt_in_sql_stmt_list128);
+            	    pushFollow(FOLLOW_sql_stmt_in_sql_stmt_list132);
             	    sql_stmt1=sql_stmt();
 
             	    state._fsp--;
@@ -316,7 +317,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "sql_stmt"
-    // SqlParser.g:50:1: sql_stmt : ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI ;
+    // SqlParser.g:51:1: sql_stmt : ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI ;
     public final SqlParser.sql_stmt_return sql_stmt() throws RecognitionException {
         SqlParser.sql_stmt_return retval = new SqlParser.sql_stmt_return();
         retval.start = input.LT(1);
@@ -336,34 +337,34 @@ public class SqlParser extends Parser {
         Object SEMI6_tree=null;
 
         try {
-            // SqlParser.g:50:9: ( ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI )
-            // SqlParser.g:50:11: ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI
+            // SqlParser.g:51:9: ( ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI )
+            // SqlParser.g:51:11: ( EXPLAIN ( QUERY PLAN )? )? sql_stmt_core SEMI
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:50:11: ( EXPLAIN ( QUERY PLAN )? )?
+            // SqlParser.g:51:11: ( EXPLAIN ( QUERY PLAN )? )?
             int alt3=2;
             alt3 = dfa3.predict(input);
             switch (alt3) {
                 case 1 :
-                    // SqlParser.g:50:12: EXPLAIN ( QUERY PLAN )?
+                    // SqlParser.g:51:12: EXPLAIN ( QUERY PLAN )?
                     {
-                    EXPLAIN2=(Token)match(input,EXPLAIN,FOLLOW_EXPLAIN_in_sql_stmt138); 
+                    EXPLAIN2=(Token)match(input,EXPLAIN,FOLLOW_EXPLAIN_in_sql_stmt142); 
                     EXPLAIN2_tree = (Object)adaptor.create(EXPLAIN2);
                     adaptor.addChild(root_0, EXPLAIN2_tree);
 
-                    // SqlParser.g:50:20: ( QUERY PLAN )?
+                    // SqlParser.g:51:20: ( QUERY PLAN )?
                     int alt2=2;
                     alt2 = dfa2.predict(input);
                     switch (alt2) {
                         case 1 :
-                            // SqlParser.g:50:21: QUERY PLAN
+                            // SqlParser.g:51:21: QUERY PLAN
                             {
-                            QUERY3=(Token)match(input,QUERY,FOLLOW_QUERY_in_sql_stmt141); 
+                            QUERY3=(Token)match(input,QUERY,FOLLOW_QUERY_in_sql_stmt145); 
                             QUERY3_tree = (Object)adaptor.create(QUERY3);
                             adaptor.addChild(root_0, QUERY3_tree);
 
-                            PLAN4=(Token)match(input,PLAN,FOLLOW_PLAN_in_sql_stmt143); 
+                            PLAN4=(Token)match(input,PLAN,FOLLOW_PLAN_in_sql_stmt147); 
                             PLAN4_tree = (Object)adaptor.create(PLAN4);
                             adaptor.addChild(root_0, PLAN4_tree);
 
@@ -379,13 +380,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_sql_stmt_core_in_sql_stmt149);
+            pushFollow(FOLLOW_sql_stmt_core_in_sql_stmt153);
             sql_stmt_core5=sql_stmt_core();
 
             state._fsp--;
 
             adaptor.addChild(root_0, sql_stmt_core5.getTree());
-            SEMI6=(Token)match(input,SEMI,FOLLOW_SEMI_in_sql_stmt151); 
+            SEMI6=(Token)match(input,SEMI,FOLLOW_SEMI_in_sql_stmt155); 
 
             }
 
@@ -413,7 +414,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "sql_stmt_core"
-    // SqlParser.g:52:1: sql_stmt_core : ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt );
+    // SqlParser.g:53:1: sql_stmt_core : ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt );
     public final SqlParser.sql_stmt_core_return sql_stmt_core() throws RecognitionException {
         SqlParser.sql_stmt_core_return retval = new SqlParser.sql_stmt_core_return();
         retval.start = input.LT(1);
@@ -473,16 +474,16 @@ public class SqlParser extends Parser {
 
 
         try {
-            // SqlParser.g:53:3: ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt )
+            // SqlParser.g:54:3: ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt )
             int alt4=25;
             alt4 = dfa4.predict(input);
             switch (alt4) {
                 case 1 :
-                    // SqlParser.g:53:5: pragma_stmt
+                    // SqlParser.g:54:5: pragma_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_pragma_stmt_in_sql_stmt_core162);
+                    pushFollow(FOLLOW_pragma_stmt_in_sql_stmt_core166);
                     pragma_stmt7=pragma_stmt();
 
                     state._fsp--;
@@ -492,11 +493,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:54:5: attach_stmt
+                    // SqlParser.g:55:5: attach_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_attach_stmt_in_sql_stmt_core168);
+                    pushFollow(FOLLOW_attach_stmt_in_sql_stmt_core172);
                     attach_stmt8=attach_stmt();
 
                     state._fsp--;
@@ -506,11 +507,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:55:5: detach_stmt
+                    // SqlParser.g:56:5: detach_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_detach_stmt_in_sql_stmt_core174);
+                    pushFollow(FOLLOW_detach_stmt_in_sql_stmt_core178);
                     detach_stmt9=detach_stmt();
 
                     state._fsp--;
@@ -520,11 +521,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:56:5: analyze_stmt
+                    // SqlParser.g:57:5: analyze_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_analyze_stmt_in_sql_stmt_core180);
+                    pushFollow(FOLLOW_analyze_stmt_in_sql_stmt_core184);
                     analyze_stmt10=analyze_stmt();
 
                     state._fsp--;
@@ -534,11 +535,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // SqlParser.g:57:5: reindex_stmt
+                    // SqlParser.g:58:5: reindex_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_reindex_stmt_in_sql_stmt_core186);
+                    pushFollow(FOLLOW_reindex_stmt_in_sql_stmt_core190);
                     reindex_stmt11=reindex_stmt();
 
                     state._fsp--;
@@ -548,11 +549,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 6 :
-                    // SqlParser.g:58:5: vacuum_stmt
+                    // SqlParser.g:59:5: vacuum_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_vacuum_stmt_in_sql_stmt_core192);
+                    pushFollow(FOLLOW_vacuum_stmt_in_sql_stmt_core196);
                     vacuum_stmt12=vacuum_stmt();
 
                     state._fsp--;
@@ -562,11 +563,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 7 :
-                    // SqlParser.g:60:5: select_stmt
+                    // SqlParser.g:61:5: select_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_select_stmt_in_sql_stmt_core201);
+                    pushFollow(FOLLOW_select_stmt_in_sql_stmt_core205);
                     select_stmt13=select_stmt();
 
                     state._fsp--;
@@ -576,11 +577,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 8 :
-                    // SqlParser.g:61:5: insert_stmt
+                    // SqlParser.g:62:5: insert_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_insert_stmt_in_sql_stmt_core207);
+                    pushFollow(FOLLOW_insert_stmt_in_sql_stmt_core211);
                     insert_stmt14=insert_stmt();
 
                     state._fsp--;
@@ -590,11 +591,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 9 :
-                    // SqlParser.g:62:5: update_stmt
+                    // SqlParser.g:63:5: update_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_update_stmt_in_sql_stmt_core213);
+                    pushFollow(FOLLOW_update_stmt_in_sql_stmt_core217);
                     update_stmt15=update_stmt();
 
                     state._fsp--;
@@ -604,11 +605,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 10 :
-                    // SqlParser.g:63:5: delete_stmt
+                    // SqlParser.g:64:5: delete_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_delete_stmt_in_sql_stmt_core219);
+                    pushFollow(FOLLOW_delete_stmt_in_sql_stmt_core223);
                     delete_stmt16=delete_stmt();
 
                     state._fsp--;
@@ -618,11 +619,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 11 :
-                    // SqlParser.g:64:5: begin_stmt
+                    // SqlParser.g:65:5: begin_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_begin_stmt_in_sql_stmt_core225);
+                    pushFollow(FOLLOW_begin_stmt_in_sql_stmt_core229);
                     begin_stmt17=begin_stmt();
 
                     state._fsp--;
@@ -632,11 +633,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 12 :
-                    // SqlParser.g:65:5: commit_stmt
+                    // SqlParser.g:66:5: commit_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_commit_stmt_in_sql_stmt_core231);
+                    pushFollow(FOLLOW_commit_stmt_in_sql_stmt_core235);
                     commit_stmt18=commit_stmt();
 
                     state._fsp--;
@@ -646,11 +647,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 13 :
-                    // SqlParser.g:66:5: rollback_stmt
+                    // SqlParser.g:67:5: rollback_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_rollback_stmt_in_sql_stmt_core237);
+                    pushFollow(FOLLOW_rollback_stmt_in_sql_stmt_core241);
                     rollback_stmt19=rollback_stmt();
 
                     state._fsp--;
@@ -660,11 +661,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 14 :
-                    // SqlParser.g:67:5: savepoint_stmt
+                    // SqlParser.g:68:5: savepoint_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_savepoint_stmt_in_sql_stmt_core243);
+                    pushFollow(FOLLOW_savepoint_stmt_in_sql_stmt_core247);
                     savepoint_stmt20=savepoint_stmt();
 
                     state._fsp--;
@@ -674,11 +675,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 15 :
-                    // SqlParser.g:68:5: release_stmt
+                    // SqlParser.g:69:5: release_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_release_stmt_in_sql_stmt_core249);
+                    pushFollow(FOLLOW_release_stmt_in_sql_stmt_core253);
                     release_stmt21=release_stmt();
 
                     state._fsp--;
@@ -688,11 +689,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 16 :
-                    // SqlParser.g:70:5: create_virtual_table_stmt
+                    // SqlParser.g:71:5: create_virtual_table_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_create_virtual_table_stmt_in_sql_stmt_core258);
+                    pushFollow(FOLLOW_create_virtual_table_stmt_in_sql_stmt_core262);
                     create_virtual_table_stmt22=create_virtual_table_stmt();
 
                     state._fsp--;
@@ -702,11 +703,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 17 :
-                    // SqlParser.g:71:5: create_table_stmt
+                    // SqlParser.g:72:5: create_table_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_create_table_stmt_in_sql_stmt_core264);
+                    pushFollow(FOLLOW_create_table_stmt_in_sql_stmt_core268);
                     create_table_stmt23=create_table_stmt();
 
                     state._fsp--;
@@ -716,11 +717,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 18 :
-                    // SqlParser.g:72:5: drop_table_stmt
+                    // SqlParser.g:73:5: drop_table_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_drop_table_stmt_in_sql_stmt_core270);
+                    pushFollow(FOLLOW_drop_table_stmt_in_sql_stmt_core274);
                     drop_table_stmt24=drop_table_stmt();
 
                     state._fsp--;
@@ -730,11 +731,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 19 :
-                    // SqlParser.g:73:5: alter_table_stmt
+                    // SqlParser.g:74:5: alter_table_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_alter_table_stmt_in_sql_stmt_core276);
+                    pushFollow(FOLLOW_alter_table_stmt_in_sql_stmt_core280);
                     alter_table_stmt25=alter_table_stmt();
 
                     state._fsp--;
@@ -744,11 +745,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 20 :
-                    // SqlParser.g:74:5: create_view_stmt
+                    // SqlParser.g:75:5: create_view_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_create_view_stmt_in_sql_stmt_core282);
+                    pushFollow(FOLLOW_create_view_stmt_in_sql_stmt_core286);
                     create_view_stmt26=create_view_stmt();
 
                     state._fsp--;
@@ -758,11 +759,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 21 :
-                    // SqlParser.g:75:5: drop_view_stmt
+                    // SqlParser.g:76:5: drop_view_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_drop_view_stmt_in_sql_stmt_core288);
+                    pushFollow(FOLLOW_drop_view_stmt_in_sql_stmt_core292);
                     drop_view_stmt27=drop_view_stmt();
 
                     state._fsp--;
@@ -772,11 +773,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 22 :
-                    // SqlParser.g:76:5: create_index_stmt
+                    // SqlParser.g:77:5: create_index_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_create_index_stmt_in_sql_stmt_core294);
+                    pushFollow(FOLLOW_create_index_stmt_in_sql_stmt_core298);
                     create_index_stmt28=create_index_stmt();
 
                     state._fsp--;
@@ -786,11 +787,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 23 :
-                    // SqlParser.g:77:5: drop_index_stmt
+                    // SqlParser.g:78:5: drop_index_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_drop_index_stmt_in_sql_stmt_core300);
+                    pushFollow(FOLLOW_drop_index_stmt_in_sql_stmt_core304);
                     drop_index_stmt29=drop_index_stmt();
 
                     state._fsp--;
@@ -800,11 +801,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 24 :
-                    // SqlParser.g:78:5: create_trigger_stmt
+                    // SqlParser.g:79:5: create_trigger_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_create_trigger_stmt_in_sql_stmt_core306);
+                    pushFollow(FOLLOW_create_trigger_stmt_in_sql_stmt_core310);
                     create_trigger_stmt30=create_trigger_stmt();
 
                     state._fsp--;
@@ -814,11 +815,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 25 :
-                    // SqlParser.g:79:5: drop_trigger_stmt
+                    // SqlParser.g:80:5: drop_trigger_stmt
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_drop_trigger_stmt_in_sql_stmt_core312);
+                    pushFollow(FOLLOW_drop_trigger_stmt_in_sql_stmt_core316);
                     drop_trigger_stmt31=drop_trigger_stmt();
 
                     state._fsp--;
@@ -853,7 +854,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "qualified_table_name"
-    // SqlParser.g:81:1: qualified_table_name : (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )? ;
+    // SqlParser.g:82:1: qualified_table_name : (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )? ;
     public final SqlParser.qualified_table_name_return qualified_table_name() throws RecognitionException {
         SqlParser.qualified_table_name_return retval = new SqlParser.qualified_table_name_return();
         retval.start = input.LT(1);
@@ -879,25 +880,25 @@ public class SqlParser extends Parser {
         Object INDEXED36_tree=null;
 
         try {
-            // SqlParser.g:81:21: ( (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )? )
-            // SqlParser.g:81:23: (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )?
+            // SqlParser.g:82:21: ( (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )? )
+            // SqlParser.g:82:23: (database_name= id DOT )? table_name= id ( INDEXED BY index_name= id | NOT INDEXED )?
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:81:23: (database_name= id DOT )?
+            // SqlParser.g:82:23: (database_name= id DOT )?
             int alt5=2;
             alt5 = dfa5.predict(input);
             switch (alt5) {
                 case 1 :
-                    // SqlParser.g:81:24: database_name= id DOT
+                    // SqlParser.g:82:24: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_qualified_table_name322);
+                    pushFollow(FOLLOW_id_in_qualified_table_name326);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT32=(Token)match(input,DOT,FOLLOW_DOT_in_qualified_table_name324); 
+                    DOT32=(Token)match(input,DOT,FOLLOW_DOT_in_qualified_table_name328); 
                     DOT32_tree = (Object)adaptor.create(DOT32);
                     adaptor.addChild(root_0, DOT32_tree);
 
@@ -907,13 +908,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_qualified_table_name330);
+            pushFollow(FOLLOW_id_in_qualified_table_name334);
             table_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, table_name.getTree());
-            // SqlParser.g:81:61: ( INDEXED BY index_name= id | NOT INDEXED )?
+            // SqlParser.g:82:61: ( INDEXED BY index_name= id | NOT INDEXED )?
             int alt6=3;
             int LA6_0 = input.LA(1);
 
@@ -925,17 +926,17 @@ public class SqlParser extends Parser {
             }
             switch (alt6) {
                 case 1 :
-                    // SqlParser.g:81:62: INDEXED BY index_name= id
+                    // SqlParser.g:82:62: INDEXED BY index_name= id
                     {
-                    INDEXED33=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_qualified_table_name333); 
+                    INDEXED33=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_qualified_table_name337); 
                     INDEXED33_tree = (Object)adaptor.create(INDEXED33);
                     adaptor.addChild(root_0, INDEXED33_tree);
 
-                    BY34=(Token)match(input,BY,FOLLOW_BY_in_qualified_table_name335); 
+                    BY34=(Token)match(input,BY,FOLLOW_BY_in_qualified_table_name339); 
                     BY34_tree = (Object)adaptor.create(BY34);
                     adaptor.addChild(root_0, BY34_tree);
 
-                    pushFollow(FOLLOW_id_in_qualified_table_name339);
+                    pushFollow(FOLLOW_id_in_qualified_table_name343);
                     index_name=id();
 
                     state._fsp--;
@@ -945,13 +946,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:81:89: NOT INDEXED
+                    // SqlParser.g:82:89: NOT INDEXED
                     {
-                    NOT35=(Token)match(input,NOT,FOLLOW_NOT_in_qualified_table_name343); 
+                    NOT35=(Token)match(input,NOT,FOLLOW_NOT_in_qualified_table_name347); 
                     NOT35_tree = (Object)adaptor.create(NOT35);
                     adaptor.addChild(root_0, NOT35_tree);
 
-                    INDEXED36=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_qualified_table_name345); 
+                    INDEXED36=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_qualified_table_name349); 
                     INDEXED36_tree = (Object)adaptor.create(INDEXED36);
                     adaptor.addChild(root_0, INDEXED36_tree);
 
@@ -988,7 +989,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "expr"
-    // SqlParser.g:83:1: expr : or_subexpr ( OR or_subexpr )* ;
+    // SqlParser.g:84:1: expr : or_subexpr ( OR or_subexpr )* ;
     public final SqlParser.expr_return expr() throws RecognitionException {
         SqlParser.expr_return retval = new SqlParser.expr_return();
         retval.start = input.LT(1);
@@ -1004,31 +1005,31 @@ public class SqlParser extends Parser {
         Object OR38_tree=null;
 
         try {
-            // SqlParser.g:83:5: ( or_subexpr ( OR or_subexpr )* )
-            // SqlParser.g:83:7: or_subexpr ( OR or_subexpr )*
+            // SqlParser.g:84:5: ( or_subexpr ( OR or_subexpr )* )
+            // SqlParser.g:84:7: or_subexpr ( OR or_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_or_subexpr_in_expr354);
+            pushFollow(FOLLOW_or_subexpr_in_expr358);
             or_subexpr37=or_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, or_subexpr37.getTree());
-            // SqlParser.g:83:18: ( OR or_subexpr )*
+            // SqlParser.g:84:18: ( OR or_subexpr )*
             loop7:
             do {
                 int alt7=2;
                 alt7 = dfa7.predict(input);
                 switch (alt7) {
             	case 1 :
-            	    // SqlParser.g:83:19: OR or_subexpr
+            	    // SqlParser.g:84:19: OR or_subexpr
             	    {
-            	    OR38=(Token)match(input,OR,FOLLOW_OR_in_expr357); 
+            	    OR38=(Token)match(input,OR,FOLLOW_OR_in_expr361); 
             	    OR38_tree = (Object)adaptor.create(OR38);
             	    root_0 = (Object)adaptor.becomeRoot(OR38_tree, root_0);
 
-            	    pushFollow(FOLLOW_or_subexpr_in_expr360);
+            	    pushFollow(FOLLOW_or_subexpr_in_expr364);
             	    or_subexpr39=or_subexpr();
 
             	    state._fsp--;
@@ -1070,7 +1071,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "or_subexpr"
-    // SqlParser.g:85:1: or_subexpr : and_subexpr ( AND and_subexpr )* ;
+    // SqlParser.g:86:1: or_subexpr : and_subexpr ( AND and_subexpr )* ;
     public final SqlParser.or_subexpr_return or_subexpr() throws RecognitionException {
         SqlParser.or_subexpr_return retval = new SqlParser.or_subexpr_return();
         retval.start = input.LT(1);
@@ -1086,31 +1087,31 @@ public class SqlParser extends Parser {
         Object AND41_tree=null;
 
         try {
-            // SqlParser.g:85:11: ( and_subexpr ( AND and_subexpr )* )
-            // SqlParser.g:85:13: and_subexpr ( AND and_subexpr )*
+            // SqlParser.g:86:11: ( and_subexpr ( AND and_subexpr )* )
+            // SqlParser.g:86:13: and_subexpr ( AND and_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_and_subexpr_in_or_subexpr369);
+            pushFollow(FOLLOW_and_subexpr_in_or_subexpr373);
             and_subexpr40=and_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, and_subexpr40.getTree());
-            // SqlParser.g:85:25: ( AND and_subexpr )*
+            // SqlParser.g:86:25: ( AND and_subexpr )*
             loop8:
             do {
                 int alt8=2;
                 alt8 = dfa8.predict(input);
                 switch (alt8) {
             	case 1 :
-            	    // SqlParser.g:85:26: AND and_subexpr
+            	    // SqlParser.g:86:26: AND and_subexpr
             	    {
-            	    AND41=(Token)match(input,AND,FOLLOW_AND_in_or_subexpr372); 
+            	    AND41=(Token)match(input,AND,FOLLOW_AND_in_or_subexpr376); 
             	    AND41_tree = (Object)adaptor.create(AND41);
             	    root_0 = (Object)adaptor.becomeRoot(AND41_tree, root_0);
 
-            	    pushFollow(FOLLOW_and_subexpr_in_or_subexpr375);
+            	    pushFollow(FOLLOW_and_subexpr_in_or_subexpr379);
             	    and_subexpr42=and_subexpr();
 
             	    state._fsp--;
@@ -1152,7 +1153,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "and_subexpr"
-    // SqlParser.g:87:1: and_subexpr : ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr );
+    // SqlParser.g:88:1: and_subexpr : ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr );
     public final SqlParser.and_subexpr_return and_subexpr() throws RecognitionException {
         SqlParser.and_subexpr_return retval = new SqlParser.and_subexpr_return();
         retval.start = input.LT(1);
@@ -1224,29 +1225,29 @@ public class SqlParser extends Parser {
         Object AND70_tree=null;
 
         try {
-            // SqlParser.g:87:12: ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr )
+            // SqlParser.g:88:12: ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr )
             int alt19=5;
             alt19 = dfa19.predict(input);
             switch (alt19) {
                 case 1 :
-                    // SqlParser.g:87:14: eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*
+                    // SqlParser.g:88:14: eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr384);
+                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr388);
                     eq_subexpr43=eq_subexpr();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, eq_subexpr43.getTree());
-                    // SqlParser.g:88:3: ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*
+                    // SqlParser.g:89:3: ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*
                     loop9:
                     do {
                         int alt9=2;
                         alt9 = dfa9.predict(input);
                         switch (alt9) {
                     	case 1 :
-                    	    // SqlParser.g:88:5: ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr
+                    	    // SqlParser.g:89:5: ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr
                     	    {
                     	    set44=(Token)input.LT(1);
                     	    if ( (input.LA(1)>=EQUALS && input.LA(1)<=NOT_EQUALS2) ) {
@@ -1259,7 +1260,7 @@ public class SqlParser extends Parser {
                     	        throw mse;
                     	    }
 
-                    	    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr406);
+                    	    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr410);
                     	    eq_subexpr45=eq_subexpr();
 
                     	    state._fsp--;
@@ -1278,11 +1279,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:89:5: ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )?
+                    // SqlParser.g:90:5: ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )?
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:89:5: ( NOT )?
+                    // SqlParser.g:90:5: ( NOT )?
                     int alt10=2;
                     int LA10_0 = input.LA(1);
 
@@ -1291,9 +1292,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt10) {
                         case 1 :
-                            // SqlParser.g:89:6: NOT
+                            // SqlParser.g:90:6: NOT
                             {
-                            NOT46=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr415); 
+                            NOT46=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr419); 
                             NOT46_tree = (Object)adaptor.create(NOT46);
                             adaptor.addChild(root_0, NOT46_tree);
 
@@ -1314,24 +1315,24 @@ public class SqlParser extends Parser {
                         throw mse;
                     }
 
-                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr435);
+                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr439);
                     eq_subexpr48=eq_subexpr();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, eq_subexpr48.getTree());
-                    // SqlParser.g:89:54: ( ESCAPE eq_subexpr )?
+                    // SqlParser.g:90:54: ( ESCAPE eq_subexpr )?
                     int alt11=2;
                     alt11 = dfa11.predict(input);
                     switch (alt11) {
                         case 1 :
-                            // SqlParser.g:89:55: ESCAPE eq_subexpr
+                            // SqlParser.g:90:55: ESCAPE eq_subexpr
                             {
-                            ESCAPE49=(Token)match(input,ESCAPE,FOLLOW_ESCAPE_in_and_subexpr438); 
+                            ESCAPE49=(Token)match(input,ESCAPE,FOLLOW_ESCAPE_in_and_subexpr442); 
                             ESCAPE49_tree = (Object)adaptor.create(ESCAPE49);
                             adaptor.addChild(root_0, ESCAPE49_tree);
 
-                            pushFollow(FOLLOW_eq_subexpr_in_and_subexpr440);
+                            pushFollow(FOLLOW_eq_subexpr_in_and_subexpr444);
                             eq_subexpr50=eq_subexpr();
 
                             state._fsp--;
@@ -1347,11 +1348,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:90:5: ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id )
+                    // SqlParser.g:91:5: ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id )
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:90:5: ( NOT )?
+                    // SqlParser.g:91:5: ( NOT )?
                     int alt12=2;
                     int LA12_0 = input.LA(1);
 
@@ -1360,9 +1361,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt12) {
                         case 1 :
-                            // SqlParser.g:90:6: NOT
+                            // SqlParser.g:91:6: NOT
                             {
-                            NOT51=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr449); 
+                            NOT51=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr453); 
                             NOT51_tree = (Object)adaptor.create(NOT51);
                             adaptor.addChild(root_0, NOT51_tree);
 
@@ -1372,11 +1373,11 @@ public class SqlParser extends Parser {
 
                     }
 
-                    IN52=(Token)match(input,IN,FOLLOW_IN_in_and_subexpr453); 
+                    IN52=(Token)match(input,IN,FOLLOW_IN_in_and_subexpr457); 
                     IN52_tree = (Object)adaptor.create(IN52);
                     adaptor.addChild(root_0, IN52_tree);
 
-                    // SqlParser.g:90:15: ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id )
+                    // SqlParser.g:91:15: ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id )
                     int alt16=2;
                     int LA16_0 = input.LA(1);
 
@@ -1394,20 +1395,20 @@ public class SqlParser extends Parser {
                     }
                     switch (alt16) {
                         case 1 :
-                            // SqlParser.g:90:16: LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN
+                            // SqlParser.g:91:16: LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN
                             {
-                            LPAREN53=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_and_subexpr456); 
+                            LPAREN53=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_and_subexpr460); 
                             LPAREN53_tree = (Object)adaptor.create(LPAREN53);
                             adaptor.addChild(root_0, LPAREN53_tree);
 
-                            // SqlParser.g:90:23: ( select_stmt | expr ( COMMA expr )* )?
+                            // SqlParser.g:91:23: ( select_stmt | expr ( COMMA expr )* )?
                             int alt14=3;
                             alt14 = dfa14.predict(input);
                             switch (alt14) {
                                 case 1 :
-                                    // SqlParser.g:90:24: select_stmt
+                                    // SqlParser.g:91:24: select_stmt
                                     {
-                                    pushFollow(FOLLOW_select_stmt_in_and_subexpr459);
+                                    pushFollow(FOLLOW_select_stmt_in_and_subexpr463);
                                     select_stmt54=select_stmt();
 
                                     state._fsp--;
@@ -1417,15 +1418,15 @@ public class SqlParser extends Parser {
                                     }
                                     break;
                                 case 2 :
-                                    // SqlParser.g:90:38: expr ( COMMA expr )*
+                                    // SqlParser.g:91:38: expr ( COMMA expr )*
                                     {
-                                    pushFollow(FOLLOW_expr_in_and_subexpr463);
+                                    pushFollow(FOLLOW_expr_in_and_subexpr467);
                                     expr55=expr();
 
                                     state._fsp--;
 
                                     adaptor.addChild(root_0, expr55.getTree());
-                                    // SqlParser.g:90:43: ( COMMA expr )*
+                                    // SqlParser.g:91:43: ( COMMA expr )*
                                     loop13:
                                     do {
                                         int alt13=2;
@@ -1438,13 +1439,13 @@ public class SqlParser extends Parser {
 
                                         switch (alt13) {
                                     	case 1 :
-                                    	    // SqlParser.g:90:44: COMMA expr
+                                    	    // SqlParser.g:91:44: COMMA expr
                                     	    {
-                                    	    COMMA56=(Token)match(input,COMMA,FOLLOW_COMMA_in_and_subexpr466); 
+                                    	    COMMA56=(Token)match(input,COMMA,FOLLOW_COMMA_in_and_subexpr470); 
                                     	    COMMA56_tree = (Object)adaptor.create(COMMA56);
                                     	    adaptor.addChild(root_0, COMMA56_tree);
 
-                                    	    pushFollow(FOLLOW_expr_in_and_subexpr468);
+                                    	    pushFollow(FOLLOW_expr_in_and_subexpr472);
                                     	    expr57=expr();
 
                                     	    state._fsp--;
@@ -1465,7 +1466,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            RPAREN58=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_and_subexpr474); 
+                            RPAREN58=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_and_subexpr478); 
                             RPAREN58_tree = (Object)adaptor.create(RPAREN58);
                             adaptor.addChild(root_0, RPAREN58_tree);
 
@@ -1473,22 +1474,22 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:90:68: (database_name= id DOT )? table_name= id
+                            // SqlParser.g:91:68: (database_name= id DOT )? table_name= id
                             {
-                            // SqlParser.g:90:68: (database_name= id DOT )?
+                            // SqlParser.g:91:68: (database_name= id DOT )?
                             int alt15=2;
                             alt15 = dfa15.predict(input);
                             switch (alt15) {
                                 case 1 :
-                                    // SqlParser.g:90:69: database_name= id DOT
+                                    // SqlParser.g:91:69: database_name= id DOT
                                     {
-                                    pushFollow(FOLLOW_id_in_and_subexpr481);
+                                    pushFollow(FOLLOW_id_in_and_subexpr485);
                                     database_name=id();
 
                                     state._fsp--;
 
                                     adaptor.addChild(root_0, database_name.getTree());
-                                    DOT59=(Token)match(input,DOT,FOLLOW_DOT_in_and_subexpr483); 
+                                    DOT59=(Token)match(input,DOT,FOLLOW_DOT_in_and_subexpr487); 
                                     DOT59_tree = (Object)adaptor.create(DOT59);
                                     adaptor.addChild(root_0, DOT59_tree);
 
@@ -1498,7 +1499,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            pushFollow(FOLLOW_id_in_and_subexpr489);
+                            pushFollow(FOLLOW_id_in_and_subexpr493);
                             table_name=id();
 
                             state._fsp--;
@@ -1514,11 +1515,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:91:5: ( ISNULL | NOTNULL | IS NULL | IS NOT NULL )
+                    // SqlParser.g:92:5: ( ISNULL | NOTNULL | IS NULL | IS NOT NULL )
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:91:5: ( ISNULL | NOTNULL | IS NULL | IS NOT NULL )
+                    // SqlParser.g:92:5: ( ISNULL | NOTNULL | IS NULL | IS NOT NULL )
                     int alt17=4;
                     switch ( input.LA(1) ) {
                     case ISNULL:
@@ -1558,9 +1559,9 @@ public class SqlParser extends Parser {
 
                     switch (alt17) {
                         case 1 :
-                            // SqlParser.g:91:6: ISNULL
+                            // SqlParser.g:92:6: ISNULL
                             {
-                            ISNULL60=(Token)match(input,ISNULL,FOLLOW_ISNULL_in_and_subexpr497); 
+                            ISNULL60=(Token)match(input,ISNULL,FOLLOW_ISNULL_in_and_subexpr501); 
                             ISNULL60_tree = (Object)adaptor.create(ISNULL60);
                             adaptor.addChild(root_0, ISNULL60_tree);
 
@@ -1568,9 +1569,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:91:15: NOTNULL
+                            // SqlParser.g:92:15: NOTNULL
                             {
-                            NOTNULL61=(Token)match(input,NOTNULL,FOLLOW_NOTNULL_in_and_subexpr501); 
+                            NOTNULL61=(Token)match(input,NOTNULL,FOLLOW_NOTNULL_in_and_subexpr505); 
                             NOTNULL61_tree = (Object)adaptor.create(NOTNULL61);
                             adaptor.addChild(root_0, NOTNULL61_tree);
 
@@ -1578,13 +1579,13 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 3 :
-                            // SqlParser.g:91:25: IS NULL
+                            // SqlParser.g:92:25: IS NULL
                             {
-                            IS62=(Token)match(input,IS,FOLLOW_IS_in_and_subexpr505); 
+                            IS62=(Token)match(input,IS,FOLLOW_IS_in_and_subexpr509); 
                             IS62_tree = (Object)adaptor.create(IS62);
                             adaptor.addChild(root_0, IS62_tree);
 
-                            NULL63=(Token)match(input,NULL,FOLLOW_NULL_in_and_subexpr507); 
+                            NULL63=(Token)match(input,NULL,FOLLOW_NULL_in_and_subexpr511); 
                             NULL63_tree = (Object)adaptor.create(NULL63);
                             adaptor.addChild(root_0, NULL63_tree);
 
@@ -1592,17 +1593,17 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 4 :
-                            // SqlParser.g:91:88: IS NOT NULL
+                            // SqlParser.g:92:88: IS NOT NULL
                             {
-                            IS64=(Token)match(input,IS,FOLLOW_IS_in_and_subexpr512); 
+                            IS64=(Token)match(input,IS,FOLLOW_IS_in_and_subexpr516); 
                             IS64_tree = (Object)adaptor.create(IS64);
                             adaptor.addChild(root_0, IS64_tree);
 
-                            NOT65=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr514); 
+                            NOT65=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr518); 
                             NOT65_tree = (Object)adaptor.create(NOT65);
                             adaptor.addChild(root_0, NOT65_tree);
 
-                            NULL66=(Token)match(input,NULL,FOLLOW_NULL_in_and_subexpr516); 
+                            NULL66=(Token)match(input,NULL,FOLLOW_NULL_in_and_subexpr520); 
                             NULL66_tree = (Object)adaptor.create(NULL66);
                             adaptor.addChild(root_0, NULL66_tree);
 
@@ -1616,11 +1617,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // SqlParser.g:92:5: ( NOT )? BETWEEN eq_subexpr AND eq_subexpr
+                    // SqlParser.g:93:5: ( NOT )? BETWEEN eq_subexpr AND eq_subexpr
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:92:5: ( NOT )?
+                    // SqlParser.g:93:5: ( NOT )?
                     int alt18=2;
                     int LA18_0 = input.LA(1);
 
@@ -1629,9 +1630,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt18) {
                         case 1 :
-                            // SqlParser.g:92:6: NOT
+                            // SqlParser.g:93:6: NOT
                             {
-                            NOT67=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr524); 
+                            NOT67=(Token)match(input,NOT,FOLLOW_NOT_in_and_subexpr528); 
                             NOT67_tree = (Object)adaptor.create(NOT67);
                             adaptor.addChild(root_0, NOT67_tree);
 
@@ -1641,21 +1642,21 @@ public class SqlParser extends Parser {
 
                     }
 
-                    BETWEEN68=(Token)match(input,BETWEEN,FOLLOW_BETWEEN_in_and_subexpr528); 
+                    BETWEEN68=(Token)match(input,BETWEEN,FOLLOW_BETWEEN_in_and_subexpr532); 
                     BETWEEN68_tree = (Object)adaptor.create(BETWEEN68);
                     adaptor.addChild(root_0, BETWEEN68_tree);
 
-                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr530);
+                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr534);
                     eq_subexpr69=eq_subexpr();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, eq_subexpr69.getTree());
-                    AND70=(Token)match(input,AND,FOLLOW_AND_in_and_subexpr532); 
+                    AND70=(Token)match(input,AND,FOLLOW_AND_in_and_subexpr536); 
                     AND70_tree = (Object)adaptor.create(AND70);
                     adaptor.addChild(root_0, AND70_tree);
 
-                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr534);
+                    pushFollow(FOLLOW_eq_subexpr_in_and_subexpr538);
                     eq_subexpr71=eq_subexpr();
 
                     state._fsp--;
@@ -1690,7 +1691,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "eq_subexpr"
-    // SqlParser.g:94:1: eq_subexpr : neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )* ;
+    // SqlParser.g:95:1: eq_subexpr : neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )* ;
     public final SqlParser.eq_subexpr_return eq_subexpr() throws RecognitionException {
         SqlParser.eq_subexpr_return retval = new SqlParser.eq_subexpr_return();
         retval.start = input.LT(1);
@@ -1706,25 +1707,25 @@ public class SqlParser extends Parser {
         Object set73_tree=null;
 
         try {
-            // SqlParser.g:94:11: ( neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )* )
-            // SqlParser.g:94:13: neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*
+            // SqlParser.g:95:11: ( neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )* )
+            // SqlParser.g:95:13: neq_subexpr ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_neq_subexpr_in_eq_subexpr541);
+            pushFollow(FOLLOW_neq_subexpr_in_eq_subexpr545);
             neq_subexpr72=neq_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, neq_subexpr72.getTree());
-            // SqlParser.g:94:25: ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*
+            // SqlParser.g:95:25: ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*
             loop20:
             do {
                 int alt20=2;
                 alt20 = dfa20.predict(input);
                 switch (alt20) {
             	case 1 :
-            	    // SqlParser.g:94:26: ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr
+            	    // SqlParser.g:95:26: ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr
             	    {
             	    set73=(Token)input.LT(1);
             	    set73=(Token)input.LT(1);
@@ -1738,7 +1739,7 @@ public class SqlParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_neq_subexpr_in_eq_subexpr561);
+            	    pushFollow(FOLLOW_neq_subexpr_in_eq_subexpr565);
             	    neq_subexpr74=neq_subexpr();
 
             	    state._fsp--;
@@ -1780,7 +1781,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "neq_subexpr"
-    // SqlParser.g:96:1: neq_subexpr : bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )* ;
+    // SqlParser.g:97:1: neq_subexpr : bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )* ;
     public final SqlParser.neq_subexpr_return neq_subexpr() throws RecognitionException {
         SqlParser.neq_subexpr_return retval = new SqlParser.neq_subexpr_return();
         retval.start = input.LT(1);
@@ -1796,25 +1797,25 @@ public class SqlParser extends Parser {
         Object set76_tree=null;
 
         try {
-            // SqlParser.g:96:12: ( bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )* )
-            // SqlParser.g:96:14: bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*
+            // SqlParser.g:97:12: ( bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )* )
+            // SqlParser.g:97:14: bit_subexpr ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_bit_subexpr_in_neq_subexpr570);
+            pushFollow(FOLLOW_bit_subexpr_in_neq_subexpr574);
             bit_subexpr75=bit_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, bit_subexpr75.getTree());
-            // SqlParser.g:96:26: ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*
+            // SqlParser.g:97:26: ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*
             loop21:
             do {
                 int alt21=2;
                 alt21 = dfa21.predict(input);
                 switch (alt21) {
             	case 1 :
-            	    // SqlParser.g:96:27: ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr
+            	    // SqlParser.g:97:27: ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr
             	    {
             	    set76=(Token)input.LT(1);
             	    set76=(Token)input.LT(1);
@@ -1828,7 +1829,7 @@ public class SqlParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_bit_subexpr_in_neq_subexpr590);
+            	    pushFollow(FOLLOW_bit_subexpr_in_neq_subexpr594);
             	    bit_subexpr77=bit_subexpr();
 
             	    state._fsp--;
@@ -1870,7 +1871,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "bit_subexpr"
-    // SqlParser.g:98:1: bit_subexpr : add_subexpr ( ( PLUS | MINUS ) add_subexpr )* ;
+    // SqlParser.g:99:1: bit_subexpr : add_subexpr ( ( PLUS | MINUS ) add_subexpr )* ;
     public final SqlParser.bit_subexpr_return bit_subexpr() throws RecognitionException {
         SqlParser.bit_subexpr_return retval = new SqlParser.bit_subexpr_return();
         retval.start = input.LT(1);
@@ -1886,25 +1887,25 @@ public class SqlParser extends Parser {
         Object set79_tree=null;
 
         try {
-            // SqlParser.g:98:12: ( add_subexpr ( ( PLUS | MINUS ) add_subexpr )* )
-            // SqlParser.g:98:14: add_subexpr ( ( PLUS | MINUS ) add_subexpr )*
+            // SqlParser.g:99:12: ( add_subexpr ( ( PLUS | MINUS ) add_subexpr )* )
+            // SqlParser.g:99:14: add_subexpr ( ( PLUS | MINUS ) add_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_add_subexpr_in_bit_subexpr599);
+            pushFollow(FOLLOW_add_subexpr_in_bit_subexpr603);
             add_subexpr78=add_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, add_subexpr78.getTree());
-            // SqlParser.g:98:26: ( ( PLUS | MINUS ) add_subexpr )*
+            // SqlParser.g:99:26: ( ( PLUS | MINUS ) add_subexpr )*
             loop22:
             do {
                 int alt22=2;
                 alt22 = dfa22.predict(input);
                 switch (alt22) {
             	case 1 :
-            	    // SqlParser.g:98:27: ( PLUS | MINUS ) add_subexpr
+            	    // SqlParser.g:99:27: ( PLUS | MINUS ) add_subexpr
             	    {
             	    set79=(Token)input.LT(1);
             	    set79=(Token)input.LT(1);
@@ -1918,7 +1919,7 @@ public class SqlParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_add_subexpr_in_bit_subexpr611);
+            	    pushFollow(FOLLOW_add_subexpr_in_bit_subexpr615);
             	    add_subexpr80=add_subexpr();
 
             	    state._fsp--;
@@ -1960,7 +1961,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "add_subexpr"
-    // SqlParser.g:100:1: add_subexpr : mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )* ;
+    // SqlParser.g:101:1: add_subexpr : mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )* ;
     public final SqlParser.add_subexpr_return add_subexpr() throws RecognitionException {
         SqlParser.add_subexpr_return retval = new SqlParser.add_subexpr_return();
         retval.start = input.LT(1);
@@ -1976,25 +1977,25 @@ public class SqlParser extends Parser {
         Object set82_tree=null;
 
         try {
-            // SqlParser.g:100:12: ( mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )* )
-            // SqlParser.g:100:14: mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*
+            // SqlParser.g:101:12: ( mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )* )
+            // SqlParser.g:101:14: mul_subexpr ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_mul_subexpr_in_add_subexpr620);
+            pushFollow(FOLLOW_mul_subexpr_in_add_subexpr624);
             mul_subexpr81=mul_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, mul_subexpr81.getTree());
-            // SqlParser.g:100:26: ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*
+            // SqlParser.g:101:26: ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*
             loop23:
             do {
                 int alt23=2;
                 alt23 = dfa23.predict(input);
                 switch (alt23) {
             	case 1 :
-            	    // SqlParser.g:100:27: ( ASTERISK | SLASH | PERCENT ) mul_subexpr
+            	    // SqlParser.g:101:27: ( ASTERISK | SLASH | PERCENT ) mul_subexpr
             	    {
             	    set82=(Token)input.LT(1);
             	    set82=(Token)input.LT(1);
@@ -2008,7 +2009,7 @@ public class SqlParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_mul_subexpr_in_add_subexpr636);
+            	    pushFollow(FOLLOW_mul_subexpr_in_add_subexpr640);
             	    mul_subexpr83=mul_subexpr();
 
             	    state._fsp--;
@@ -2050,7 +2051,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "mul_subexpr"
-    // SqlParser.g:102:1: mul_subexpr : con_subexpr ( DOUBLE_PIPE con_subexpr )* ;
+    // SqlParser.g:103:1: mul_subexpr : con_subexpr ( DOUBLE_PIPE con_subexpr )* ;
     public final SqlParser.mul_subexpr_return mul_subexpr() throws RecognitionException {
         SqlParser.mul_subexpr_return retval = new SqlParser.mul_subexpr_return();
         retval.start = input.LT(1);
@@ -2066,31 +2067,31 @@ public class SqlParser extends Parser {
         Object DOUBLE_PIPE85_tree=null;
 
         try {
-            // SqlParser.g:102:12: ( con_subexpr ( DOUBLE_PIPE con_subexpr )* )
-            // SqlParser.g:102:14: con_subexpr ( DOUBLE_PIPE con_subexpr )*
+            // SqlParser.g:103:12: ( con_subexpr ( DOUBLE_PIPE con_subexpr )* )
+            // SqlParser.g:103:14: con_subexpr ( DOUBLE_PIPE con_subexpr )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_con_subexpr_in_mul_subexpr645);
+            pushFollow(FOLLOW_con_subexpr_in_mul_subexpr649);
             con_subexpr84=con_subexpr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, con_subexpr84.getTree());
-            // SqlParser.g:102:26: ( DOUBLE_PIPE con_subexpr )*
+            // SqlParser.g:103:26: ( DOUBLE_PIPE con_subexpr )*
             loop24:
             do {
                 int alt24=2;
                 alt24 = dfa24.predict(input);
                 switch (alt24) {
             	case 1 :
-            	    // SqlParser.g:102:27: DOUBLE_PIPE con_subexpr
+            	    // SqlParser.g:103:27: DOUBLE_PIPE con_subexpr
             	    {
-            	    DOUBLE_PIPE85=(Token)match(input,DOUBLE_PIPE,FOLLOW_DOUBLE_PIPE_in_mul_subexpr648); 
+            	    DOUBLE_PIPE85=(Token)match(input,DOUBLE_PIPE,FOLLOW_DOUBLE_PIPE_in_mul_subexpr652); 
             	    DOUBLE_PIPE85_tree = (Object)adaptor.create(DOUBLE_PIPE85);
             	    root_0 = (Object)adaptor.becomeRoot(DOUBLE_PIPE85_tree, root_0);
 
-            	    pushFollow(FOLLOW_con_subexpr_in_mul_subexpr651);
+            	    pushFollow(FOLLOW_con_subexpr_in_mul_subexpr655);
             	    con_subexpr86=con_subexpr();
 
             	    state._fsp--;
@@ -2132,7 +2133,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "con_subexpr"
-    // SqlParser.g:104:1: con_subexpr : ( PLUS | MINUS | TILDA | NOT )? unary_subexpr ;
+    // SqlParser.g:105:1: con_subexpr : ( PLUS | MINUS | TILDA | NOT )? unary_subexpr ;
     public final SqlParser.con_subexpr_return con_subexpr() throws RecognitionException {
         SqlParser.con_subexpr_return retval = new SqlParser.con_subexpr_return();
         retval.start = input.LT(1);
@@ -2146,12 +2147,12 @@ public class SqlParser extends Parser {
         Object set87_tree=null;
 
         try {
-            // SqlParser.g:104:12: ( ( PLUS | MINUS | TILDA | NOT )? unary_subexpr )
-            // SqlParser.g:104:14: ( PLUS | MINUS | TILDA | NOT )? unary_subexpr
+            // SqlParser.g:105:12: ( ( PLUS | MINUS | TILDA | NOT )? unary_subexpr )
+            // SqlParser.g:105:14: ( PLUS | MINUS | TILDA | NOT )? unary_subexpr
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:104:14: ( PLUS | MINUS | TILDA | NOT )?
+            // SqlParser.g:105:14: ( PLUS | MINUS | TILDA | NOT )?
             int alt25=2;
             alt25 = dfa25.predict(input);
             switch (alt25) {
@@ -2175,7 +2176,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_unary_subexpr_in_con_subexpr677);
+            pushFollow(FOLLOW_unary_subexpr_in_con_subexpr681);
             unary_subexpr88=unary_subexpr();
 
             state._fsp--;
@@ -2208,7 +2209,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "unary_subexpr"
-    // SqlParser.g:106:1: unary_subexpr : atom_expr ( COLLATE collation_name= ID )? ;
+    // SqlParser.g:107:1: unary_subexpr : atom_expr ( COLLATE collation_name= ID )? ;
     public final SqlParser.unary_subexpr_return unary_subexpr() throws RecognitionException {
         SqlParser.unary_subexpr_return retval = new SqlParser.unary_subexpr_return();
         retval.start = input.LT(1);
@@ -2224,29 +2225,29 @@ public class SqlParser extends Parser {
         Object COLLATE90_tree=null;
 
         try {
-            // SqlParser.g:106:14: ( atom_expr ( COLLATE collation_name= ID )? )
-            // SqlParser.g:106:16: atom_expr ( COLLATE collation_name= ID )?
+            // SqlParser.g:107:14: ( atom_expr ( COLLATE collation_name= ID )? )
+            // SqlParser.g:107:16: atom_expr ( COLLATE collation_name= ID )?
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_atom_expr_in_unary_subexpr684);
+            pushFollow(FOLLOW_atom_expr_in_unary_subexpr688);
             atom_expr89=atom_expr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, atom_expr89.getTree());
-            // SqlParser.g:106:26: ( COLLATE collation_name= ID )?
+            // SqlParser.g:107:26: ( COLLATE collation_name= ID )?
             int alt26=2;
             alt26 = dfa26.predict(input);
             switch (alt26) {
                 case 1 :
-                    // SqlParser.g:106:27: COLLATE collation_name= ID
+                    // SqlParser.g:107:27: COLLATE collation_name= ID
                     {
-                    COLLATE90=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_unary_subexpr687); 
+                    COLLATE90=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_unary_subexpr691); 
                     COLLATE90_tree = (Object)adaptor.create(COLLATE90);
                     root_0 = (Object)adaptor.becomeRoot(COLLATE90_tree, root_0);
 
-                    collation_name=(Token)match(input,ID,FOLLOW_ID_in_unary_subexpr692); 
+                    collation_name=(Token)match(input,ID,FOLLOW_ID_in_unary_subexpr696); 
                     collation_name_tree = (Object)adaptor.create(collation_name);
                     adaptor.addChild(root_0, collation_name_tree);
 
@@ -2283,7 +2284,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "atom_expr"
-    // SqlParser.g:108:1: atom_expr : ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function );
+    // SqlParser.g:109:1: atom_expr : ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function );
     public final SqlParser.atom_expr_return atom_expr() throws RecognitionException {
         SqlParser.atom_expr_return retval = new SqlParser.atom_expr_return();
         retval.start = input.LT(1);
@@ -2369,16 +2370,16 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_LPAREN=new RewriteRuleTokenStream(adaptor,"token LPAREN");
         RewriteRuleSubtreeStream stream_expr=new RewriteRuleSubtreeStream(adaptor,"rule expr");
         try {
-            // SqlParser.g:109:3: ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function )
+            // SqlParser.g:110:3: ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function )
             int alt36=9;
             alt36 = dfa36.predict(input);
             switch (alt36) {
                 case 1 :
-                    // SqlParser.g:109:5: literal_value
+                    // SqlParser.g:110:5: literal_value
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_literal_value_in_atom_expr704);
+                    pushFollow(FOLLOW_literal_value_in_atom_expr708);
                     literal_value91=literal_value();
 
                     state._fsp--;
@@ -2388,11 +2389,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:110:5: bind_parameter
+                    // SqlParser.g:111:5: bind_parameter
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_bind_parameter_in_atom_expr710);
+                    pushFollow(FOLLOW_bind_parameter_in_atom_expr714);
                     bind_parameter92=bind_parameter();
 
                     state._fsp--;
@@ -2402,31 +2403,31 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:111:5: ( (database_name= id DOT )? table_name= id DOT )? column_name= ID
+                    // SqlParser.g:112:5: ( (database_name= id DOT )? table_name= id DOT )? column_name= ID
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:111:5: ( (database_name= id DOT )? table_name= id DOT )?
+                    // SqlParser.g:112:5: ( (database_name= id DOT )? table_name= id DOT )?
                     int alt28=2;
                     alt28 = dfa28.predict(input);
                     switch (alt28) {
                         case 1 :
-                            // SqlParser.g:111:6: (database_name= id DOT )? table_name= id DOT
+                            // SqlParser.g:112:6: (database_name= id DOT )? table_name= id DOT
                             {
-                            // SqlParser.g:111:6: (database_name= id DOT )?
+                            // SqlParser.g:112:6: (database_name= id DOT )?
                             int alt27=2;
                             alt27 = dfa27.predict(input);
                             switch (alt27) {
                                 case 1 :
-                                    // SqlParser.g:111:7: database_name= id DOT
+                                    // SqlParser.g:112:7: database_name= id DOT
                                     {
-                                    pushFollow(FOLLOW_id_in_atom_expr720);
+                                    pushFollow(FOLLOW_id_in_atom_expr724);
                                     database_name=id();
 
                                     state._fsp--;
 
                                     adaptor.addChild(root_0, database_name.getTree());
-                                    DOT93=(Token)match(input,DOT,FOLLOW_DOT_in_atom_expr722); 
+                                    DOT93=(Token)match(input,DOT,FOLLOW_DOT_in_atom_expr726); 
                                     DOT93_tree = (Object)adaptor.create(DOT93);
                                     adaptor.addChild(root_0, DOT93_tree);
 
@@ -2436,13 +2437,13 @@ public class SqlParser extends Parser {
 
                             }
 
-                            pushFollow(FOLLOW_id_in_atom_expr728);
+                            pushFollow(FOLLOW_id_in_atom_expr732);
                             table_name=id();
 
                             state._fsp--;
 
                             adaptor.addChild(root_0, table_name.getTree());
-                            DOT94=(Token)match(input,DOT,FOLLOW_DOT_in_atom_expr730); 
+                            DOT94=(Token)match(input,DOT,FOLLOW_DOT_in_atom_expr734); 
                             DOT94_tree = (Object)adaptor.create(DOT94);
                             adaptor.addChild(root_0, DOT94_tree);
 
@@ -2452,7 +2453,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    column_name=(Token)match(input,ID,FOLLOW_ID_in_atom_expr736); 
+                    column_name=(Token)match(input,ID,FOLLOW_ID_in_atom_expr740); 
                     column_name_tree = (Object)adaptor.create(column_name);
                     adaptor.addChild(root_0, column_name_tree);
 
@@ -2460,33 +2461,33 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:112:5: function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN
+                    // SqlParser.g:113:5: function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    function_name=(Token)match(input,ID,FOLLOW_ID_in_atom_expr744); 
+                    function_name=(Token)match(input,ID,FOLLOW_ID_in_atom_expr748); 
                     function_name_tree = (Object)adaptor.create(function_name);
                     adaptor.addChild(root_0, function_name_tree);
 
-                    LPAREN95=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr746); 
+                    LPAREN95=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr750); 
                     LPAREN95_tree = (Object)adaptor.create(LPAREN95);
                     adaptor.addChild(root_0, LPAREN95_tree);
 
-                    // SqlParser.g:112:29: ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )?
+                    // SqlParser.g:113:29: ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )?
                     int alt31=3;
                     alt31 = dfa31.predict(input);
                     switch (alt31) {
                         case 1 :
-                            // SqlParser.g:112:30: ( DISTINCT )? args+= expr ( COMMA args+= expr )*
+                            // SqlParser.g:113:30: ( DISTINCT )? args+= expr ( COMMA args+= expr )*
                             {
-                            // SqlParser.g:112:30: ( DISTINCT )?
+                            // SqlParser.g:113:30: ( DISTINCT )?
                             int alt29=2;
                             alt29 = dfa29.predict(input);
                             switch (alt29) {
                                 case 1 :
-                                    // SqlParser.g:112:31: DISTINCT
+                                    // SqlParser.g:113:31: DISTINCT
                                     {
-                                    DISTINCT96=(Token)match(input,DISTINCT,FOLLOW_DISTINCT_in_atom_expr750); 
+                                    DISTINCT96=(Token)match(input,DISTINCT,FOLLOW_DISTINCT_in_atom_expr754); 
                                     DISTINCT96_tree = (Object)adaptor.create(DISTINCT96);
                                     adaptor.addChild(root_0, DISTINCT96_tree);
 
@@ -2496,7 +2497,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            pushFollow(FOLLOW_expr_in_atom_expr756);
+                            pushFollow(FOLLOW_expr_in_atom_expr760);
                             args=expr();
 
                             state._fsp--;
@@ -2505,7 +2506,7 @@ public class SqlParser extends Parser {
                             if (list_args==null) list_args=new ArrayList();
                             list_args.add(args.getTree());
 
-                            // SqlParser.g:112:53: ( COMMA args+= expr )*
+                            // SqlParser.g:113:53: ( COMMA args+= expr )*
                             loop30:
                             do {
                                 int alt30=2;
@@ -2518,13 +2519,13 @@ public class SqlParser extends Parser {
 
                                 switch (alt30) {
                             	case 1 :
-                            	    // SqlParser.g:112:54: COMMA args+= expr
+                            	    // SqlParser.g:113:54: COMMA args+= expr
                             	    {
-                            	    COMMA97=(Token)match(input,COMMA,FOLLOW_COMMA_in_atom_expr759); 
+                            	    COMMA97=(Token)match(input,COMMA,FOLLOW_COMMA_in_atom_expr763); 
                             	    COMMA97_tree = (Object)adaptor.create(COMMA97);
                             	    adaptor.addChild(root_0, COMMA97_tree);
 
-                            	    pushFollow(FOLLOW_expr_in_atom_expr763);
+                            	    pushFollow(FOLLOW_expr_in_atom_expr767);
                             	    args=expr();
 
                             	    state._fsp--;
@@ -2546,9 +2547,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:112:75: ASTERISK
+                            // SqlParser.g:113:75: ASTERISK
                             {
-                            ASTERISK98=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_atom_expr769); 
+                            ASTERISK98=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_atom_expr773); 
                             ASTERISK98_tree = (Object)adaptor.create(ASTERISK98);
                             adaptor.addChild(root_0, ASTERISK98_tree);
 
@@ -2558,7 +2559,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    RPAREN99=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr773); 
+                    RPAREN99=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr777); 
                     RPAREN99_tree = (Object)adaptor.create(RPAREN99);
                     adaptor.addChild(root_0, RPAREN99_tree);
 
@@ -2566,18 +2567,18 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // SqlParser.g:113:5: LPAREN expr RPAREN
+                    // SqlParser.g:114:5: LPAREN expr RPAREN
                     {
-                    LPAREN100=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr779);  
+                    LPAREN100=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr783);  
                     stream_LPAREN.add(LPAREN100);
 
-                    pushFollow(FOLLOW_expr_in_atom_expr781);
+                    pushFollow(FOLLOW_expr_in_atom_expr785);
                     expr101=expr();
 
                     state._fsp--;
 
                     stream_expr.add(expr101.getTree());
-                    RPAREN102=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr783);  
+                    RPAREN102=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr787);  
                     stream_RPAREN.add(RPAREN102);
 
 
@@ -2593,7 +2594,7 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 113:24: -> expr
+                    // 114:24: -> expr
                     {
                         adaptor.addChild(root_0, stream_expr.nextTree());
 
@@ -2603,35 +2604,35 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 6 :
-                    // SqlParser.g:114:5: CAST LPAREN expr AS type_name RPAREN
+                    // SqlParser.g:115:5: CAST LPAREN expr AS type_name RPAREN
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    CAST103=(Token)match(input,CAST,FOLLOW_CAST_in_atom_expr793); 
+                    CAST103=(Token)match(input,CAST,FOLLOW_CAST_in_atom_expr797); 
                     CAST103_tree = (Object)adaptor.create(CAST103);
                     adaptor.addChild(root_0, CAST103_tree);
 
-                    LPAREN104=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr795); 
+                    LPAREN104=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr799); 
                     LPAREN104_tree = (Object)adaptor.create(LPAREN104);
                     adaptor.addChild(root_0, LPAREN104_tree);
 
-                    pushFollow(FOLLOW_expr_in_atom_expr797);
+                    pushFollow(FOLLOW_expr_in_atom_expr801);
                     expr105=expr();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, expr105.getTree());
-                    AS106=(Token)match(input,AS,FOLLOW_AS_in_atom_expr799); 
+                    AS106=(Token)match(input,AS,FOLLOW_AS_in_atom_expr803); 
                     AS106_tree = (Object)adaptor.create(AS106);
                     adaptor.addChild(root_0, AS106_tree);
 
-                    pushFollow(FOLLOW_type_name_in_atom_expr801);
+                    pushFollow(FOLLOW_type_name_in_atom_expr805);
                     type_name107=type_name();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, type_name107.getTree());
-                    RPAREN108=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr803); 
+                    RPAREN108=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr807); 
                     RPAREN108_tree = (Object)adaptor.create(RPAREN108);
                     adaptor.addChild(root_0, RPAREN108_tree);
 
@@ -2639,11 +2640,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 7 :
-                    // SqlParser.g:115:5: ( EXISTS )? LPAREN select_stmt RPAREN
+                    // SqlParser.g:116:5: ( EXISTS )? LPAREN select_stmt RPAREN
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:115:5: ( EXISTS )?
+                    // SqlParser.g:116:5: ( EXISTS )?
                     int alt32=2;
                     int LA32_0 = input.LA(1);
 
@@ -2652,9 +2653,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt32) {
                         case 1 :
-                            // SqlParser.g:115:53: EXISTS
+                            // SqlParser.g:116:53: EXISTS
                             {
-                            EXISTS109=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_atom_expr812); 
+                            EXISTS109=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_atom_expr816); 
                             EXISTS109_tree = (Object)adaptor.create(EXISTS109);
                             adaptor.addChild(root_0, EXISTS109_tree);
 
@@ -2664,17 +2665,17 @@ public class SqlParser extends Parser {
 
                     }
 
-                    LPAREN110=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr816); 
+                    LPAREN110=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_atom_expr820); 
                     LPAREN110_tree = (Object)adaptor.create(LPAREN110);
                     adaptor.addChild(root_0, LPAREN110_tree);
 
-                    pushFollow(FOLLOW_select_stmt_in_atom_expr818);
+                    pushFollow(FOLLOW_select_stmt_in_atom_expr822);
                     select_stmt111=select_stmt();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, select_stmt111.getTree());
-                    RPAREN112=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr820); 
+                    RPAREN112=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_atom_expr824); 
                     RPAREN112_tree = (Object)adaptor.create(RPAREN112);
                     adaptor.addChild(root_0, RPAREN112_tree);
 
@@ -2682,22 +2683,22 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 8 :
-                    // SqlParser.g:116:5: CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END
+                    // SqlParser.g:117:5: CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    CASE113=(Token)match(input,CASE,FOLLOW_CASE_in_atom_expr826); 
+                    CASE113=(Token)match(input,CASE,FOLLOW_CASE_in_atom_expr830); 
                     CASE113_tree = (Object)adaptor.create(CASE113);
                     adaptor.addChild(root_0, CASE113_tree);
 
-                    // SqlParser.g:116:10: ( expr )?
+                    // SqlParser.g:117:10: ( expr )?
                     int alt33=2;
                     alt33 = dfa33.predict(input);
                     switch (alt33) {
                         case 1 :
-                            // SqlParser.g:116:11: expr
+                            // SqlParser.g:117:11: expr
                             {
-                            pushFollow(FOLLOW_expr_in_atom_expr829);
+                            pushFollow(FOLLOW_expr_in_atom_expr833);
                             expr114=expr();
 
                             state._fsp--;
@@ -2709,7 +2710,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    // SqlParser.g:116:18: ( WHEN expr THEN expr )+
+                    // SqlParser.g:117:18: ( WHEN expr THEN expr )+
                     int cnt34=0;
                     loop34:
                     do {
@@ -2723,23 +2724,23 @@ public class SqlParser extends Parser {
 
                         switch (alt34) {
                     	case 1 :
-                    	    // SqlParser.g:116:19: WHEN expr THEN expr
+                    	    // SqlParser.g:117:19: WHEN expr THEN expr
                     	    {
-                    	    WHEN115=(Token)match(input,WHEN,FOLLOW_WHEN_in_atom_expr834); 
+                    	    WHEN115=(Token)match(input,WHEN,FOLLOW_WHEN_in_atom_expr838); 
                     	    WHEN115_tree = (Object)adaptor.create(WHEN115);
                     	    adaptor.addChild(root_0, WHEN115_tree);
 
-                    	    pushFollow(FOLLOW_expr_in_atom_expr836);
+                    	    pushFollow(FOLLOW_expr_in_atom_expr840);
                     	    expr116=expr();
 
                     	    state._fsp--;
 
                     	    adaptor.addChild(root_0, expr116.getTree());
-                    	    THEN117=(Token)match(input,THEN,FOLLOW_THEN_in_atom_expr838); 
+                    	    THEN117=(Token)match(input,THEN,FOLLOW_THEN_in_atom_expr842); 
                     	    THEN117_tree = (Object)adaptor.create(THEN117);
                     	    adaptor.addChild(root_0, THEN117_tree);
 
-                    	    pushFollow(FOLLOW_expr_in_atom_expr840);
+                    	    pushFollow(FOLLOW_expr_in_atom_expr844);
                     	    expr118=expr();
 
                     	    state._fsp--;
@@ -2758,7 +2759,7 @@ public class SqlParser extends Parser {
                         cnt34++;
                     } while (true);
 
-                    // SqlParser.g:116:41: ( ELSE expr )?
+                    // SqlParser.g:117:41: ( ELSE expr )?
                     int alt35=2;
                     int LA35_0 = input.LA(1);
 
@@ -2767,13 +2768,13 @@ public class SqlParser extends Parser {
                     }
                     switch (alt35) {
                         case 1 :
-                            // SqlParser.g:116:42: ELSE expr
+                            // SqlParser.g:117:42: ELSE expr
                             {
-                            ELSE119=(Token)match(input,ELSE,FOLLOW_ELSE_in_atom_expr845); 
+                            ELSE119=(Token)match(input,ELSE,FOLLOW_ELSE_in_atom_expr849); 
                             ELSE119_tree = (Object)adaptor.create(ELSE119);
                             adaptor.addChild(root_0, ELSE119_tree);
 
-                            pushFollow(FOLLOW_expr_in_atom_expr847);
+                            pushFollow(FOLLOW_expr_in_atom_expr851);
                             expr120=expr();
 
                             state._fsp--;
@@ -2785,7 +2786,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    END121=(Token)match(input,END,FOLLOW_END_in_atom_expr851); 
+                    END121=(Token)match(input,END,FOLLOW_END_in_atom_expr855); 
                     END121_tree = (Object)adaptor.create(END121);
                     adaptor.addChild(root_0, END121_tree);
 
@@ -2793,11 +2794,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 9 :
-                    // SqlParser.g:117:5: raise_function
+                    // SqlParser.g:118:5: raise_function
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_raise_function_in_atom_expr857);
+                    pushFollow(FOLLOW_raise_function_in_atom_expr861);
                     raise_function122=raise_function();
 
                     state._fsp--;
@@ -2832,7 +2833,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "literal_value"
-    // SqlParser.g:119:1: literal_value : ( INTEGER | FLOAT | STRING | BLOB | NULL | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP );
+    // SqlParser.g:120:1: literal_value : ( INTEGER | FLOAT | STRING | BLOB | NULL | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP );
     public final SqlParser.literal_value_return literal_value() throws RecognitionException {
         SqlParser.literal_value_return retval = new SqlParser.literal_value_return();
         retval.start = input.LT(1);
@@ -2844,7 +2845,7 @@ public class SqlParser extends Parser {
         Object set123_tree=null;
 
         try {
-            // SqlParser.g:119:14: ( INTEGER | FLOAT | STRING | BLOB | NULL | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP )
+            // SqlParser.g:120:14: ( INTEGER | FLOAT | STRING | BLOB | NULL | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP )
             // SqlParser.g:
             {
             root_0 = (Object)adaptor.nil();
@@ -2887,7 +2888,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "signed_number"
-    // SqlParser.g:121:1: signed_number : ( INTEGER | FLOAT | SIGNED_NUMBER );
+    // SqlParser.g:122:1: signed_number : ( INTEGER | FLOAT | SIGNED_NUMBER );
     public final SqlParser.signed_number_return signed_number() throws RecognitionException {
         SqlParser.signed_number_return retval = new SqlParser.signed_number_return();
         retval.start = input.LT(1);
@@ -2899,7 +2900,7 @@ public class SqlParser extends Parser {
         Object set124_tree=null;
 
         try {
-            // SqlParser.g:121:14: ( INTEGER | FLOAT | SIGNED_NUMBER )
+            // SqlParser.g:122:14: ( INTEGER | FLOAT | SIGNED_NUMBER )
             // SqlParser.g:
             {
             root_0 = (Object)adaptor.nil();
@@ -2942,7 +2943,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "bind_parameter"
-    // SqlParser.g:123:1: bind_parameter : ( QUESTION | QUESTION number= INTEGER | COLON id | AT id );
+    // SqlParser.g:124:1: bind_parameter : ( QUESTION | QUESTION number= INTEGER | COLON id | AT id );
     public final SqlParser.bind_parameter_return bind_parameter() throws RecognitionException {
         SqlParser.bind_parameter_return retval = new SqlParser.bind_parameter_return();
         retval.start = input.LT(1);
@@ -2966,16 +2967,16 @@ public class SqlParser extends Parser {
         Object AT129_tree=null;
 
         try {
-            // SqlParser.g:124:3: ( QUESTION | QUESTION number= INTEGER | COLON id | AT id )
+            // SqlParser.g:125:3: ( QUESTION | QUESTION number= INTEGER | COLON id | AT id )
             int alt37=4;
             alt37 = dfa37.predict(input);
             switch (alt37) {
                 case 1 :
-                    // SqlParser.g:124:5: QUESTION
+                    // SqlParser.g:125:5: QUESTION
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    QUESTION125=(Token)match(input,QUESTION,FOLLOW_QUESTION_in_bind_parameter917); 
+                    QUESTION125=(Token)match(input,QUESTION,FOLLOW_QUESTION_in_bind_parameter921); 
                     QUESTION125_tree = (Object)adaptor.create(QUESTION125);
                     adaptor.addChild(root_0, QUESTION125_tree);
 
@@ -2983,15 +2984,15 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:125:5: QUESTION number= INTEGER
+                    // SqlParser.g:126:5: QUESTION number= INTEGER
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    QUESTION126=(Token)match(input,QUESTION,FOLLOW_QUESTION_in_bind_parameter923); 
+                    QUESTION126=(Token)match(input,QUESTION,FOLLOW_QUESTION_in_bind_parameter927); 
                     QUESTION126_tree = (Object)adaptor.create(QUESTION126);
                     adaptor.addChild(root_0, QUESTION126_tree);
 
-                    number=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_bind_parameter927); 
+                    number=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_bind_parameter931); 
                     number_tree = (Object)adaptor.create(number);
                     adaptor.addChild(root_0, number_tree);
 
@@ -2999,15 +3000,15 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:126:5: COLON id
+                    // SqlParser.g:127:5: COLON id
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    COLON127=(Token)match(input,COLON,FOLLOW_COLON_in_bind_parameter933); 
+                    COLON127=(Token)match(input,COLON,FOLLOW_COLON_in_bind_parameter937); 
                     COLON127_tree = (Object)adaptor.create(COLON127);
                     adaptor.addChild(root_0, COLON127_tree);
 
-                    pushFollow(FOLLOW_id_in_bind_parameter935);
+                    pushFollow(FOLLOW_id_in_bind_parameter939);
                     id128=id();
 
                     state._fsp--;
@@ -3017,15 +3018,15 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:127:5: AT id
+                    // SqlParser.g:128:5: AT id
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    AT129=(Token)match(input,AT,FOLLOW_AT_in_bind_parameter941); 
+                    AT129=(Token)match(input,AT,FOLLOW_AT_in_bind_parameter945); 
                     AT129_tree = (Object)adaptor.create(AT129);
                     adaptor.addChild(root_0, AT129_tree);
 
-                    pushFollow(FOLLOW_id_in_bind_parameter943);
+                    pushFollow(FOLLOW_id_in_bind_parameter947);
                     id130=id();
 
                     state._fsp--;
@@ -3060,7 +3061,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "type_name"
-    // SqlParser.g:130:1: type_name : (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )? -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ ) ;
+    // SqlParser.g:131:1: type_name : (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )? -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ ) ;
     public final SqlParser.type_name_return type_name() throws RecognitionException {
         SqlParser.type_name_return retval = new SqlParser.type_name_return();
         retval.start = input.LT(1);
@@ -3087,10 +3088,10 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_LPAREN=new RewriteRuleTokenStream(adaptor,"token LPAREN");
         RewriteRuleSubtreeStream stream_signed_number=new RewriteRuleSubtreeStream(adaptor,"rule signed_number");
         try {
-            // SqlParser.g:130:10: ( (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )? -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ ) )
-            // SqlParser.g:130:12: (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?
+            // SqlParser.g:131:10: ( (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )? -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ ) )
+            // SqlParser.g:131:12: (names+= ID )+ ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?
             {
-            // SqlParser.g:130:17: (names+= ID )+
+            // SqlParser.g:131:17: (names+= ID )+
             int cnt38=0;
             loop38:
             do {
@@ -3098,9 +3099,9 @@ public class SqlParser extends Parser {
                 alt38 = dfa38.predict(input);
                 switch (alt38) {
             	case 1 :
-            	    // SqlParser.g:130:17: names+= ID
+            	    // SqlParser.g:131:17: names+= ID
             	    {
-            	    names=(Token)match(input,ID,FOLLOW_ID_in_type_name953);  
+            	    names=(Token)match(input,ID,FOLLOW_ID_in_type_name957);  
             	    stream_ID.add(names);
 
             	    if (list_names==null) list_names=new ArrayList();
@@ -3119,23 +3120,23 @@ public class SqlParser extends Parser {
                 cnt38++;
             } while (true);
 
-            // SqlParser.g:130:23: ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?
+            // SqlParser.g:131:23: ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?
             int alt40=2;
             alt40 = dfa40.predict(input);
             switch (alt40) {
                 case 1 :
-                    // SqlParser.g:130:24: LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN
+                    // SqlParser.g:131:24: LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN
                     {
-                    LPAREN131=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_type_name957);  
+                    LPAREN131=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_type_name961);  
                     stream_LPAREN.add(LPAREN131);
 
-                    pushFollow(FOLLOW_signed_number_in_type_name961);
+                    pushFollow(FOLLOW_signed_number_in_type_name965);
                     size1=signed_number();
 
                     state._fsp--;
 
                     stream_signed_number.add(size1.getTree());
-                    // SqlParser.g:130:51: ( COMMA size2= signed_number )?
+                    // SqlParser.g:131:51: ( COMMA size2= signed_number )?
                     int alt39=2;
                     int LA39_0 = input.LA(1);
 
@@ -3144,12 +3145,12 @@ public class SqlParser extends Parser {
                     }
                     switch (alt39) {
                         case 1 :
-                            // SqlParser.g:130:52: COMMA size2= signed_number
+                            // SqlParser.g:131:52: COMMA size2= signed_number
                             {
-                            COMMA132=(Token)match(input,COMMA,FOLLOW_COMMA_in_type_name964);  
+                            COMMA132=(Token)match(input,COMMA,FOLLOW_COMMA_in_type_name968);  
                             stream_COMMA.add(COMMA132);
 
-                            pushFollow(FOLLOW_signed_number_in_type_name968);
+                            pushFollow(FOLLOW_signed_number_in_type_name972);
                             size2=signed_number();
 
                             state._fsp--;
@@ -3161,7 +3162,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    RPAREN133=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_type_name972);  
+                    RPAREN133=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_type_name976);  
                     stream_RPAREN.add(RPAREN133);
 
 
@@ -3186,25 +3187,25 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_size1=new RewriteRuleSubtreeStream(adaptor,"rule size1",size1!=null?size1.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 131:1: -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ )
+            // 132:1: -> ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ )
             {
-                // SqlParser.g:131:4: ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ )
+                // SqlParser.g:132:4: ^( TYPE ^( TYPE_PARAMS ( $size1)? ( $size2)? ) ( $names)+ )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(TYPE, "TYPE"), root_1);
 
-                // SqlParser.g:131:11: ^( TYPE_PARAMS ( $size1)? ( $size2)? )
+                // SqlParser.g:132:11: ^( TYPE_PARAMS ( $size1)? ( $size2)? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(TYPE_PARAMS, "TYPE_PARAMS"), root_2);
 
-                // SqlParser.g:131:25: ( $size1)?
+                // SqlParser.g:132:25: ( $size1)?
                 if ( stream_size1.hasNext() ) {
                     adaptor.addChild(root_2, stream_size1.nextTree());
 
                 }
                 stream_size1.reset();
-                // SqlParser.g:131:33: ( $size2)?
+                // SqlParser.g:132:33: ( $size2)?
                 if ( stream_size2.hasNext() ) {
                     adaptor.addChild(root_2, stream_size2.nextTree());
 
@@ -3254,7 +3255,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "raise_function"
-    // SqlParser.g:133:1: raise_function : RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN ;
+    // SqlParser.g:134:1: raise_function : RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN ;
     public final SqlParser.raise_function_return raise_function() throws RecognitionException {
         SqlParser.raise_function_return retval = new SqlParser.raise_function_return();
         retval.start = input.LT(1);
@@ -3278,20 +3279,20 @@ public class SqlParser extends Parser {
         Object RPAREN139_tree=null;
 
         try {
-            // SqlParser.g:133:15: ( RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN )
-            // SqlParser.g:133:17: RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN
+            // SqlParser.g:134:15: ( RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN )
+            // SqlParser.g:134:17: RAISE LPAREN ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING ) RPAREN
             {
             root_0 = (Object)adaptor.nil();
 
-            RAISE134=(Token)match(input,RAISE,FOLLOW_RAISE_in_raise_function1003); 
+            RAISE134=(Token)match(input,RAISE,FOLLOW_RAISE_in_raise_function1007); 
             RAISE134_tree = (Object)adaptor.create(RAISE134);
             adaptor.addChild(root_0, RAISE134_tree);
 
-            LPAREN135=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_raise_function1005); 
+            LPAREN135=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_raise_function1009); 
             LPAREN135_tree = (Object)adaptor.create(LPAREN135);
             adaptor.addChild(root_0, LPAREN135_tree);
 
-            // SqlParser.g:133:30: ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING )
+            // SqlParser.g:134:30: ( IGNORE | ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING )
             int alt41=2;
             int LA41_0 = input.LA(1);
 
@@ -3309,9 +3310,9 @@ public class SqlParser extends Parser {
             }
             switch (alt41) {
                 case 1 :
-                    // SqlParser.g:133:31: IGNORE
+                    // SqlParser.g:134:31: IGNORE
                     {
-                    IGNORE136=(Token)match(input,IGNORE,FOLLOW_IGNORE_in_raise_function1008); 
+                    IGNORE136=(Token)match(input,IGNORE,FOLLOW_IGNORE_in_raise_function1012); 
                     IGNORE136_tree = (Object)adaptor.create(IGNORE136);
                     adaptor.addChild(root_0, IGNORE136_tree);
 
@@ -3319,7 +3320,7 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:133:40: ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING
+                    // SqlParser.g:134:40: ( ROLLBACK | ABORT | FAIL ) COMMA error_message= STRING
                     {
                     set137=(Token)input.LT(1);
                     if ( input.LA(1)==ABORT||input.LA(1)==FAIL||input.LA(1)==ROLLBACK ) {
@@ -3332,11 +3333,11 @@ public class SqlParser extends Parser {
                         throw mse;
                     }
 
-                    COMMA138=(Token)match(input,COMMA,FOLLOW_COMMA_in_raise_function1024); 
+                    COMMA138=(Token)match(input,COMMA,FOLLOW_COMMA_in_raise_function1028); 
                     COMMA138_tree = (Object)adaptor.create(COMMA138);
                     adaptor.addChild(root_0, COMMA138_tree);
 
-                    error_message=(Token)match(input,STRING,FOLLOW_STRING_in_raise_function1028); 
+                    error_message=(Token)match(input,STRING,FOLLOW_STRING_in_raise_function1032); 
                     error_message_tree = (Object)adaptor.create(error_message);
                     adaptor.addChild(root_0, error_message_tree);
 
@@ -3346,7 +3347,7 @@ public class SqlParser extends Parser {
 
             }
 
-            RPAREN139=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_raise_function1031); 
+            RPAREN139=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_raise_function1035); 
             RPAREN139_tree = (Object)adaptor.create(RPAREN139);
             adaptor.addChild(root_0, RPAREN139_tree);
 
@@ -3377,7 +3378,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "pragma_stmt"
-    // SqlParser.g:136:1: pragma_stmt : PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )? ;
+    // SqlParser.g:137:1: pragma_stmt : PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )? ;
     public final SqlParser.pragma_stmt_return pragma_stmt() throws RecognitionException {
         SqlParser.pragma_stmt_return retval = new SqlParser.pragma_stmt_return();
         retval.start = input.LT(1);
@@ -3405,29 +3406,29 @@ public class SqlParser extends Parser {
         Object RPAREN146_tree=null;
 
         try {
-            // SqlParser.g:136:12: ( PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )? )
-            // SqlParser.g:136:14: PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )?
+            // SqlParser.g:137:12: ( PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )? )
+            // SqlParser.g:137:14: PRAGMA (database_name= id DOT )? pragma_name= id ( EQUALS pragma_value | LPAREN pragma_value RPAREN )?
             {
             root_0 = (Object)adaptor.nil();
 
-            PRAGMA140=(Token)match(input,PRAGMA,FOLLOW_PRAGMA_in_pragma_stmt1039); 
+            PRAGMA140=(Token)match(input,PRAGMA,FOLLOW_PRAGMA_in_pragma_stmt1043); 
             PRAGMA140_tree = (Object)adaptor.create(PRAGMA140);
             adaptor.addChild(root_0, PRAGMA140_tree);
 
-            // SqlParser.g:136:21: (database_name= id DOT )?
+            // SqlParser.g:137:21: (database_name= id DOT )?
             int alt42=2;
             alt42 = dfa42.predict(input);
             switch (alt42) {
                 case 1 :
-                    // SqlParser.g:136:22: database_name= id DOT
+                    // SqlParser.g:137:22: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_pragma_stmt1044);
+                    pushFollow(FOLLOW_id_in_pragma_stmt1048);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT141=(Token)match(input,DOT,FOLLOW_DOT_in_pragma_stmt1046); 
+                    DOT141=(Token)match(input,DOT,FOLLOW_DOT_in_pragma_stmt1050); 
                     DOT141_tree = (Object)adaptor.create(DOT141);
                     adaptor.addChild(root_0, DOT141_tree);
 
@@ -3437,13 +3438,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_pragma_stmt1052);
+            pushFollow(FOLLOW_id_in_pragma_stmt1056);
             pragma_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, pragma_name.getTree());
-            // SqlParser.g:136:60: ( EQUALS pragma_value | LPAREN pragma_value RPAREN )?
+            // SqlParser.g:137:60: ( EQUALS pragma_value | LPAREN pragma_value RPAREN )?
             int alt43=3;
             int LA43_0 = input.LA(1);
 
@@ -3455,13 +3456,13 @@ public class SqlParser extends Parser {
             }
             switch (alt43) {
                 case 1 :
-                    // SqlParser.g:136:61: EQUALS pragma_value
+                    // SqlParser.g:137:61: EQUALS pragma_value
                     {
-                    EQUALS142=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_pragma_stmt1055); 
+                    EQUALS142=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_pragma_stmt1059); 
                     EQUALS142_tree = (Object)adaptor.create(EQUALS142);
                     adaptor.addChild(root_0, EQUALS142_tree);
 
-                    pushFollow(FOLLOW_pragma_value_in_pragma_stmt1057);
+                    pushFollow(FOLLOW_pragma_value_in_pragma_stmt1061);
                     pragma_value143=pragma_value();
 
                     state._fsp--;
@@ -3471,19 +3472,19 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:136:83: LPAREN pragma_value RPAREN
+                    // SqlParser.g:137:83: LPAREN pragma_value RPAREN
                     {
-                    LPAREN144=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_pragma_stmt1061); 
+                    LPAREN144=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_pragma_stmt1065); 
                     LPAREN144_tree = (Object)adaptor.create(LPAREN144);
                     adaptor.addChild(root_0, LPAREN144_tree);
 
-                    pushFollow(FOLLOW_pragma_value_in_pragma_stmt1063);
+                    pushFollow(FOLLOW_pragma_value_in_pragma_stmt1067);
                     pragma_value145=pragma_value();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, pragma_value145.getTree());
-                    RPAREN146=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_pragma_stmt1065); 
+                    RPAREN146=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_pragma_stmt1069); 
                     RPAREN146_tree = (Object)adaptor.create(RPAREN146);
                     adaptor.addChild(root_0, RPAREN146_tree);
 
@@ -3520,7 +3521,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "pragma_value"
-    // SqlParser.g:138:1: pragma_value : ( signed_number | name= id | STRING );
+    // SqlParser.g:139:1: pragma_value : ( signed_number | name= id | STRING );
     public final SqlParser.pragma_value_return pragma_value() throws RecognitionException {
         SqlParser.pragma_value_return retval = new SqlParser.pragma_value_return();
         retval.start = input.LT(1);
@@ -3536,7 +3537,7 @@ public class SqlParser extends Parser {
         Object STRING148_tree=null;
 
         try {
-            // SqlParser.g:138:13: ( signed_number | name= id | STRING )
+            // SqlParser.g:139:13: ( signed_number | name= id | STRING )
             int alt44=3;
             switch ( input.LA(1) ) {
             case INTEGER:
@@ -3681,11 +3682,11 @@ public class SqlParser extends Parser {
 
             switch (alt44) {
                 case 1 :
-                    // SqlParser.g:138:15: signed_number
+                    // SqlParser.g:139:15: signed_number
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_signed_number_in_pragma_value1074);
+                    pushFollow(FOLLOW_signed_number_in_pragma_value1078);
                     signed_number147=signed_number();
 
                     state._fsp--;
@@ -3695,11 +3696,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:138:31: name= id
+                    // SqlParser.g:139:31: name= id
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_id_in_pragma_value1080);
+                    pushFollow(FOLLOW_id_in_pragma_value1084);
                     name=id();
 
                     state._fsp--;
@@ -3709,11 +3710,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:138:41: STRING
+                    // SqlParser.g:139:41: STRING
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    STRING148=(Token)match(input,STRING,FOLLOW_STRING_in_pragma_value1084); 
+                    STRING148=(Token)match(input,STRING,FOLLOW_STRING_in_pragma_value1088); 
                     STRING148_tree = (Object)adaptor.create(STRING148);
                     adaptor.addChild(root_0, STRING148_tree);
 
@@ -3746,7 +3747,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "attach_stmt"
-    // SqlParser.g:141:1: attach_stmt : ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id ;
+    // SqlParser.g:142:1: attach_stmt : ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id ;
     public final SqlParser.attach_stmt_return attach_stmt() throws RecognitionException {
         SqlParser.attach_stmt_return retval = new SqlParser.attach_stmt_return();
         retval.start = input.LT(1);
@@ -3770,23 +3771,23 @@ public class SqlParser extends Parser {
         Object AS153_tree=null;
 
         try {
-            // SqlParser.g:141:12: ( ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id )
-            // SqlParser.g:141:14: ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id
+            // SqlParser.g:142:12: ( ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id )
+            // SqlParser.g:142:14: ATTACH ( DATABASE )? filename= ( STRING | id ) AS database_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            ATTACH149=(Token)match(input,ATTACH,FOLLOW_ATTACH_in_attach_stmt1092); 
+            ATTACH149=(Token)match(input,ATTACH,FOLLOW_ATTACH_in_attach_stmt1096); 
             ATTACH149_tree = (Object)adaptor.create(ATTACH149);
             adaptor.addChild(root_0, ATTACH149_tree);
 
-            // SqlParser.g:141:21: ( DATABASE )?
+            // SqlParser.g:142:21: ( DATABASE )?
             int alt45=2;
             alt45 = dfa45.predict(input);
             switch (alt45) {
                 case 1 :
-                    // SqlParser.g:141:22: DATABASE
+                    // SqlParser.g:142:22: DATABASE
                     {
-                    DATABASE150=(Token)match(input,DATABASE,FOLLOW_DATABASE_in_attach_stmt1095); 
+                    DATABASE150=(Token)match(input,DATABASE,FOLLOW_DATABASE_in_attach_stmt1099); 
                     DATABASE150_tree = (Object)adaptor.create(DATABASE150);
                     adaptor.addChild(root_0, DATABASE150_tree);
 
@@ -3796,7 +3797,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:141:42: ( STRING | id )
+            // SqlParser.g:142:42: ( STRING | id )
             int alt46=2;
             int LA46_0 = input.LA(1);
 
@@ -3814,9 +3815,9 @@ public class SqlParser extends Parser {
             }
             switch (alt46) {
                 case 1 :
-                    // SqlParser.g:141:43: STRING
+                    // SqlParser.g:142:43: STRING
                     {
-                    STRING151=(Token)match(input,STRING,FOLLOW_STRING_in_attach_stmt1102); 
+                    STRING151=(Token)match(input,STRING,FOLLOW_STRING_in_attach_stmt1106); 
                     STRING151_tree = (Object)adaptor.create(STRING151);
                     adaptor.addChild(root_0, STRING151_tree);
 
@@ -3824,9 +3825,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:141:52: id
+                    // SqlParser.g:142:52: id
                     {
-                    pushFollow(FOLLOW_id_in_attach_stmt1106);
+                    pushFollow(FOLLOW_id_in_attach_stmt1110);
                     id152=id();
 
                     state._fsp--;
@@ -3838,11 +3839,11 @@ public class SqlParser extends Parser {
 
             }
 
-            AS153=(Token)match(input,AS,FOLLOW_AS_in_attach_stmt1109); 
+            AS153=(Token)match(input,AS,FOLLOW_AS_in_attach_stmt1113); 
             AS153_tree = (Object)adaptor.create(AS153);
             adaptor.addChild(root_0, AS153_tree);
 
-            pushFollow(FOLLOW_id_in_attach_stmt1113);
+            pushFollow(FOLLOW_id_in_attach_stmt1117);
             database_name=id();
 
             state._fsp--;
@@ -3875,7 +3876,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "detach_stmt"
-    // SqlParser.g:144:1: detach_stmt : DETACH ( DATABASE )? database_name= id ;
+    // SqlParser.g:145:1: detach_stmt : DETACH ( DATABASE )? database_name= id ;
     public final SqlParser.detach_stmt_return detach_stmt() throws RecognitionException {
         SqlParser.detach_stmt_return retval = new SqlParser.detach_stmt_return();
         retval.start = input.LT(1);
@@ -3891,16 +3892,16 @@ public class SqlParser extends Parser {
         Object DATABASE155_tree=null;
 
         try {
-            // SqlParser.g:144:12: ( DETACH ( DATABASE )? database_name= id )
-            // SqlParser.g:144:14: DETACH ( DATABASE )? database_name= id
+            // SqlParser.g:145:12: ( DETACH ( DATABASE )? database_name= id )
+            // SqlParser.g:145:14: DETACH ( DATABASE )? database_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            DETACH154=(Token)match(input,DETACH,FOLLOW_DETACH_in_detach_stmt1121); 
+            DETACH154=(Token)match(input,DETACH,FOLLOW_DETACH_in_detach_stmt1125); 
             DETACH154_tree = (Object)adaptor.create(DETACH154);
             adaptor.addChild(root_0, DETACH154_tree);
 
-            // SqlParser.g:144:21: ( DATABASE )?
+            // SqlParser.g:145:21: ( DATABASE )?
             int alt47=2;
             int LA47_0 = input.LA(1);
 
@@ -3913,9 +3914,9 @@ public class SqlParser extends Parser {
             }
             switch (alt47) {
                 case 1 :
-                    // SqlParser.g:144:22: DATABASE
+                    // SqlParser.g:145:22: DATABASE
                     {
-                    DATABASE155=(Token)match(input,DATABASE,FOLLOW_DATABASE_in_detach_stmt1124); 
+                    DATABASE155=(Token)match(input,DATABASE,FOLLOW_DATABASE_in_detach_stmt1128); 
                     DATABASE155_tree = (Object)adaptor.create(DATABASE155);
                     adaptor.addChild(root_0, DATABASE155_tree);
 
@@ -3925,7 +3926,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_detach_stmt1130);
+            pushFollow(FOLLOW_id_in_detach_stmt1134);
             database_name=id();
 
             state._fsp--;
@@ -3958,7 +3959,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "analyze_stmt"
-    // SqlParser.g:147:1: analyze_stmt : ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )? ;
+    // SqlParser.g:148:1: analyze_stmt : ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )? ;
     public final SqlParser.analyze_stmt_return analyze_stmt() throws RecognitionException {
         SqlParser.analyze_stmt_return retval = new SqlParser.analyze_stmt_return();
         retval.start = input.LT(1);
@@ -3978,16 +3979,16 @@ public class SqlParser extends Parser {
         Object DOT157_tree=null;
 
         try {
-            // SqlParser.g:147:13: ( ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )? )
-            // SqlParser.g:147:15: ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )?
+            // SqlParser.g:148:13: ( ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )? )
+            // SqlParser.g:148:15: ANALYZE (database_or_table_name= id | database_name= id DOT table_name= id )?
             {
             root_0 = (Object)adaptor.nil();
 
-            ANALYZE156=(Token)match(input,ANALYZE,FOLLOW_ANALYZE_in_analyze_stmt1138); 
+            ANALYZE156=(Token)match(input,ANALYZE,FOLLOW_ANALYZE_in_analyze_stmt1142); 
             ANALYZE156_tree = (Object)adaptor.create(ANALYZE156);
             adaptor.addChild(root_0, ANALYZE156_tree);
 
-            // SqlParser.g:147:23: (database_or_table_name= id | database_name= id DOT table_name= id )?
+            // SqlParser.g:148:23: (database_or_table_name= id | database_name= id DOT table_name= id )?
             int alt48=3;
             int LA48_0 = input.LA(1);
 
@@ -4013,9 +4014,9 @@ public class SqlParser extends Parser {
             }
             switch (alt48) {
                 case 1 :
-                    // SqlParser.g:147:24: database_or_table_name= id
+                    // SqlParser.g:148:24: database_or_table_name= id
                     {
-                    pushFollow(FOLLOW_id_in_analyze_stmt1143);
+                    pushFollow(FOLLOW_id_in_analyze_stmt1147);
                     database_or_table_name=id();
 
                     state._fsp--;
@@ -4025,19 +4026,19 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:147:52: database_name= id DOT table_name= id
+                    // SqlParser.g:148:52: database_name= id DOT table_name= id
                     {
-                    pushFollow(FOLLOW_id_in_analyze_stmt1149);
+                    pushFollow(FOLLOW_id_in_analyze_stmt1153);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT157=(Token)match(input,DOT,FOLLOW_DOT_in_analyze_stmt1151); 
+                    DOT157=(Token)match(input,DOT,FOLLOW_DOT_in_analyze_stmt1155); 
                     DOT157_tree = (Object)adaptor.create(DOT157);
                     adaptor.addChild(root_0, DOT157_tree);
 
-                    pushFollow(FOLLOW_id_in_analyze_stmt1155);
+                    pushFollow(FOLLOW_id_in_analyze_stmt1159);
                     table_name=id();
 
                     state._fsp--;
@@ -4076,7 +4077,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "reindex_stmt"
-    // SqlParser.g:150:1: reindex_stmt : REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id ;
+    // SqlParser.g:151:1: reindex_stmt : REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id ;
     public final SqlParser.reindex_stmt_return reindex_stmt() throws RecognitionException {
         SqlParser.reindex_stmt_return retval = new SqlParser.reindex_stmt_return();
         retval.start = input.LT(1);
@@ -4094,16 +4095,16 @@ public class SqlParser extends Parser {
         Object DOT159_tree=null;
 
         try {
-            // SqlParser.g:150:13: ( REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id )
-            // SqlParser.g:150:15: REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id
+            // SqlParser.g:151:13: ( REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id )
+            // SqlParser.g:151:15: REINDEX (database_name= id DOT )? collation_or_table_or_index_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            REINDEX158=(Token)match(input,REINDEX,FOLLOW_REINDEX_in_reindex_stmt1165); 
+            REINDEX158=(Token)match(input,REINDEX,FOLLOW_REINDEX_in_reindex_stmt1169); 
             REINDEX158_tree = (Object)adaptor.create(REINDEX158);
             adaptor.addChild(root_0, REINDEX158_tree);
 
-            // SqlParser.g:150:23: (database_name= id DOT )?
+            // SqlParser.g:151:23: (database_name= id DOT )?
             int alt49=2;
             int LA49_0 = input.LA(1);
 
@@ -4123,15 +4124,15 @@ public class SqlParser extends Parser {
             }
             switch (alt49) {
                 case 1 :
-                    // SqlParser.g:150:24: database_name= id DOT
+                    // SqlParser.g:151:24: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_reindex_stmt1170);
+                    pushFollow(FOLLOW_id_in_reindex_stmt1174);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT159=(Token)match(input,DOT,FOLLOW_DOT_in_reindex_stmt1172); 
+                    DOT159=(Token)match(input,DOT,FOLLOW_DOT_in_reindex_stmt1176); 
                     DOT159_tree = (Object)adaptor.create(DOT159);
                     adaptor.addChild(root_0, DOT159_tree);
 
@@ -4141,7 +4142,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_reindex_stmt1178);
+            pushFollow(FOLLOW_id_in_reindex_stmt1182);
             collation_or_table_or_index_name=id();
 
             state._fsp--;
@@ -4174,7 +4175,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "vacuum_stmt"
-    // SqlParser.g:153:1: vacuum_stmt : VACUUM ;
+    // SqlParser.g:154:1: vacuum_stmt : VACUUM ;
     public final SqlParser.vacuum_stmt_return vacuum_stmt() throws RecognitionException {
         SqlParser.vacuum_stmt_return retval = new SqlParser.vacuum_stmt_return();
         retval.start = input.LT(1);
@@ -4186,12 +4187,12 @@ public class SqlParser extends Parser {
         Object VACUUM160_tree=null;
 
         try {
-            // SqlParser.g:153:12: ( VACUUM )
-            // SqlParser.g:153:14: VACUUM
+            // SqlParser.g:154:12: ( VACUUM )
+            // SqlParser.g:154:14: VACUUM
             {
             root_0 = (Object)adaptor.nil();
 
-            VACUUM160=(Token)match(input,VACUUM,FOLLOW_VACUUM_in_vacuum_stmt1186); 
+            VACUUM160=(Token)match(input,VACUUM,FOLLOW_VACUUM_in_vacuum_stmt1190); 
             VACUUM160_tree = (Object)adaptor.create(VACUUM160);
             adaptor.addChild(root_0, VACUUM160_tree);
 
@@ -4222,7 +4223,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "operation_conflict_clause"
-    // SqlParser.g:159:1: operation_conflict_clause : OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ;
+    // SqlParser.g:160:1: operation_conflict_clause : OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ;
     public final SqlParser.operation_conflict_clause_return operation_conflict_clause() throws RecognitionException {
         SqlParser.operation_conflict_clause_return retval = new SqlParser.operation_conflict_clause_return();
         retval.start = input.LT(1);
@@ -4236,12 +4237,12 @@ public class SqlParser extends Parser {
         Object set162_tree=null;
 
         try {
-            // SqlParser.g:159:26: ( OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) )
-            // SqlParser.g:159:28: OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
+            // SqlParser.g:160:26: ( OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) )
+            // SqlParser.g:160:28: OR ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
             {
             root_0 = (Object)adaptor.nil();
 
-            OR161=(Token)match(input,OR,FOLLOW_OR_in_operation_conflict_clause1197); 
+            OR161=(Token)match(input,OR,FOLLOW_OR_in_operation_conflict_clause1201); 
             OR161_tree = (Object)adaptor.create(OR161);
             adaptor.addChild(root_0, OR161_tree);
 
@@ -4283,7 +4284,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "ordering_term"
-    // SqlParser.g:161:1: ordering_term : expr ( ASC | DESC )? -> ^( ORDERING expr ( ASC )? ( DESC )? ) ;
+    // SqlParser.g:162:1: ordering_term : expr ( ASC | DESC )? -> ^( ORDERING expr ( ASC )? ( DESC )? ) ;
     public final SqlParser.ordering_term_return ordering_term() throws RecognitionException {
         SqlParser.ordering_term_return retval = new SqlParser.ordering_term_return();
         retval.start = input.LT(1);
@@ -4301,32 +4302,32 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_DESC=new RewriteRuleTokenStream(adaptor,"token DESC");
         RewriteRuleSubtreeStream stream_expr=new RewriteRuleSubtreeStream(adaptor,"rule expr");
         try {
-            // SqlParser.g:161:14: ( expr ( ASC | DESC )? -> ^( ORDERING expr ( ASC )? ( DESC )? ) )
-            // SqlParser.g:161:16: expr ( ASC | DESC )?
+            // SqlParser.g:162:14: ( expr ( ASC | DESC )? -> ^( ORDERING expr ( ASC )? ( DESC )? ) )
+            // SqlParser.g:162:16: expr ( ASC | DESC )?
             {
-            pushFollow(FOLLOW_expr_in_ordering_term1224);
+            pushFollow(FOLLOW_expr_in_ordering_term1228);
             expr163=expr();
 
             state._fsp--;
 
             stream_expr.add(expr163.getTree());
-            // SqlParser.g:161:82: ( ASC | DESC )?
+            // SqlParser.g:162:82: ( ASC | DESC )?
             int alt50=3;
             alt50 = dfa50.predict(input);
             switch (alt50) {
                 case 1 :
-                    // SqlParser.g:161:83: ASC
+                    // SqlParser.g:162:83: ASC
                     {
-                    ASC164=(Token)match(input,ASC,FOLLOW_ASC_in_ordering_term1229);  
+                    ASC164=(Token)match(input,ASC,FOLLOW_ASC_in_ordering_term1233);  
                     stream_ASC.add(ASC164);
 
 
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:161:89: DESC
+                    // SqlParser.g:162:89: DESC
                     {
-                    DESC165=(Token)match(input,DESC,FOLLOW_DESC_in_ordering_term1233);  
+                    DESC165=(Token)match(input,DESC,FOLLOW_DESC_in_ordering_term1237);  
                     stream_DESC.add(DESC165);
 
 
@@ -4348,21 +4349,21 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 162:1: -> ^( ORDERING expr ( ASC )? ( DESC )? )
+            // 163:1: -> ^( ORDERING expr ( ASC )? ( DESC )? )
             {
-                // SqlParser.g:162:4: ^( ORDERING expr ( ASC )? ( DESC )? )
+                // SqlParser.g:163:4: ^( ORDERING expr ( ASC )? ( DESC )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(ORDERING, "ORDERING"), root_1);
 
                 adaptor.addChild(root_1, stream_expr.nextTree());
-                // SqlParser.g:162:20: ( ASC )?
+                // SqlParser.g:163:20: ( ASC )?
                 if ( stream_ASC.hasNext() ) {
                     adaptor.addChild(root_1, stream_ASC.nextNode());
 
                 }
                 stream_ASC.reset();
-                // SqlParser.g:162:27: ( DESC )?
+                // SqlParser.g:163:27: ( DESC )?
                 if ( stream_DESC.hasNext() ) {
                     adaptor.addChild(root_1, stream_DESC.nextNode());
 
@@ -4401,7 +4402,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "operation_limited_clause"
-    // SqlParser.g:164:1: operation_limited_clause : ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? ;
+    // SqlParser.g:165:1: operation_limited_clause : ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? ;
     public final SqlParser.operation_limited_clause_return operation_limited_clause() throws RecognitionException {
         SqlParser.operation_limited_clause_return retval = new SqlParser.operation_limited_clause_return();
         retval.start = input.LT(1);
@@ -4429,12 +4430,12 @@ public class SqlParser extends Parser {
         Object set172_tree=null;
 
         try {
-            // SqlParser.g:164:25: ( ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )
-            // SqlParser.g:165:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )?
+            // SqlParser.g:165:25: ( ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )
+            // SqlParser.g:166:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )? LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )?
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:165:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )?
+            // SqlParser.g:166:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )?
             int alt52=2;
             int LA52_0 = input.LA(1);
 
@@ -4443,23 +4444,23 @@ public class SqlParser extends Parser {
             }
             switch (alt52) {
                 case 1 :
-                    // SqlParser.g:165:4: ORDER BY ordering_term ( COMMA ordering_term )*
+                    // SqlParser.g:166:4: ORDER BY ordering_term ( COMMA ordering_term )*
                     {
-                    ORDER166=(Token)match(input,ORDER,FOLLOW_ORDER_in_operation_limited_clause1263); 
+                    ORDER166=(Token)match(input,ORDER,FOLLOW_ORDER_in_operation_limited_clause1267); 
                     ORDER166_tree = (Object)adaptor.create(ORDER166);
                     adaptor.addChild(root_0, ORDER166_tree);
 
-                    BY167=(Token)match(input,BY,FOLLOW_BY_in_operation_limited_clause1265); 
+                    BY167=(Token)match(input,BY,FOLLOW_BY_in_operation_limited_clause1269); 
                     BY167_tree = (Object)adaptor.create(BY167);
                     adaptor.addChild(root_0, BY167_tree);
 
-                    pushFollow(FOLLOW_ordering_term_in_operation_limited_clause1267);
+                    pushFollow(FOLLOW_ordering_term_in_operation_limited_clause1271);
                     ordering_term168=ordering_term();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, ordering_term168.getTree());
-                    // SqlParser.g:165:27: ( COMMA ordering_term )*
+                    // SqlParser.g:166:27: ( COMMA ordering_term )*
                     loop51:
                     do {
                         int alt51=2;
@@ -4472,13 +4473,13 @@ public class SqlParser extends Parser {
 
                         switch (alt51) {
                     	case 1 :
-                    	    // SqlParser.g:165:28: COMMA ordering_term
+                    	    // SqlParser.g:166:28: COMMA ordering_term
                     	    {
-                    	    COMMA169=(Token)match(input,COMMA,FOLLOW_COMMA_in_operation_limited_clause1270); 
+                    	    COMMA169=(Token)match(input,COMMA,FOLLOW_COMMA_in_operation_limited_clause1274); 
                     	    COMMA169_tree = (Object)adaptor.create(COMMA169);
                     	    adaptor.addChild(root_0, COMMA169_tree);
 
-                    	    pushFollow(FOLLOW_ordering_term_in_operation_limited_clause1272);
+                    	    pushFollow(FOLLOW_ordering_term_in_operation_limited_clause1276);
                     	    ordering_term170=ordering_term();
 
                     	    state._fsp--;
@@ -4499,15 +4500,15 @@ public class SqlParser extends Parser {
 
             }
 
-            LIMIT171=(Token)match(input,LIMIT,FOLLOW_LIMIT_in_operation_limited_clause1280); 
+            LIMIT171=(Token)match(input,LIMIT,FOLLOW_LIMIT_in_operation_limited_clause1284); 
             LIMIT171_tree = (Object)adaptor.create(LIMIT171);
             adaptor.addChild(root_0, LIMIT171_tree);
 
-            limit=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_operation_limited_clause1284); 
+            limit=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_operation_limited_clause1288); 
             limit_tree = (Object)adaptor.create(limit);
             adaptor.addChild(root_0, limit_tree);
 
-            // SqlParser.g:166:23: ( ( OFFSET | COMMA ) offset= INTEGER )?
+            // SqlParser.g:167:23: ( ( OFFSET | COMMA ) offset= INTEGER )?
             int alt53=2;
             int LA53_0 = input.LA(1);
 
@@ -4516,7 +4517,7 @@ public class SqlParser extends Parser {
             }
             switch (alt53) {
                 case 1 :
-                    // SqlParser.g:166:24: ( OFFSET | COMMA ) offset= INTEGER
+                    // SqlParser.g:167:24: ( OFFSET | COMMA ) offset= INTEGER
                     {
                     set172=(Token)input.LT(1);
                     if ( input.LA(1)==COMMA||input.LA(1)==OFFSET ) {
@@ -4529,7 +4530,7 @@ public class SqlParser extends Parser {
                         throw mse;
                     }
 
-                    offset=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_operation_limited_clause1297); 
+                    offset=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_operation_limited_clause1301); 
                     offset_tree = (Object)adaptor.create(offset);
                     adaptor.addChild(root_0, offset_tree);
 
@@ -4566,7 +4567,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "select_stmt"
-    // SqlParser.g:169:1: select_stmt : select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )? -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? ) ;
+    // SqlParser.g:170:1: select_stmt : select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )? -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? ) ;
     public final SqlParser.select_stmt_return select_stmt() throws RecognitionException {
         SqlParser.select_stmt_return retval = new SqlParser.select_stmt_return();
         retval.start = input.LT(1);
@@ -4605,16 +4606,16 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_select_list=new RewriteRuleSubtreeStream(adaptor,"rule select_list");
         RewriteRuleSubtreeStream stream_ordering_term=new RewriteRuleSubtreeStream(adaptor,"rule ordering_term");
         try {
-            // SqlParser.g:169:12: ( select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )? -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? ) )
-            // SqlParser.g:169:14: select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )?
+            // SqlParser.g:170:12: ( select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )? -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? ) )
+            // SqlParser.g:170:14: select_list ( ORDER BY ordering_term ( COMMA ordering_term )* )? ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )?
             {
-            pushFollow(FOLLOW_select_list_in_select_stmt1307);
+            pushFollow(FOLLOW_select_list_in_select_stmt1311);
             select_list173=select_list();
 
             state._fsp--;
 
             stream_select_list.add(select_list173.getTree());
-            // SqlParser.g:170:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )?
+            // SqlParser.g:171:3: ( ORDER BY ordering_term ( COMMA ordering_term )* )?
             int alt55=2;
             int LA55_0 = input.LA(1);
 
@@ -4623,21 +4624,21 @@ public class SqlParser extends Parser {
             }
             switch (alt55) {
                 case 1 :
-                    // SqlParser.g:170:4: ORDER BY ordering_term ( COMMA ordering_term )*
+                    // SqlParser.g:171:4: ORDER BY ordering_term ( COMMA ordering_term )*
                     {
-                    ORDER174=(Token)match(input,ORDER,FOLLOW_ORDER_in_select_stmt1312);  
+                    ORDER174=(Token)match(input,ORDER,FOLLOW_ORDER_in_select_stmt1316);  
                     stream_ORDER.add(ORDER174);
 
-                    BY175=(Token)match(input,BY,FOLLOW_BY_in_select_stmt1314);  
+                    BY175=(Token)match(input,BY,FOLLOW_BY_in_select_stmt1318);  
                     stream_BY.add(BY175);
 
-                    pushFollow(FOLLOW_ordering_term_in_select_stmt1316);
+                    pushFollow(FOLLOW_ordering_term_in_select_stmt1320);
                     ordering_term176=ordering_term();
 
                     state._fsp--;
 
                     stream_ordering_term.add(ordering_term176.getTree());
-                    // SqlParser.g:170:27: ( COMMA ordering_term )*
+                    // SqlParser.g:171:27: ( COMMA ordering_term )*
                     loop54:
                     do {
                         int alt54=2;
@@ -4650,12 +4651,12 @@ public class SqlParser extends Parser {
 
                         switch (alt54) {
                     	case 1 :
-                    	    // SqlParser.g:170:28: COMMA ordering_term
+                    	    // SqlParser.g:171:28: COMMA ordering_term
                     	    {
-                    	    COMMA177=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_stmt1319);  
+                    	    COMMA177=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_stmt1323);  
                     	    stream_COMMA.add(COMMA177);
 
-                    	    pushFollow(FOLLOW_ordering_term_in_select_stmt1321);
+                    	    pushFollow(FOLLOW_ordering_term_in_select_stmt1325);
                     	    ordering_term178=ordering_term();
 
                     	    state._fsp--;
@@ -4676,7 +4677,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:171:3: ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )?
+            // SqlParser.g:172:3: ( LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )? )?
             int alt58=2;
             int LA58_0 = input.LA(1);
 
@@ -4685,15 +4686,15 @@ public class SqlParser extends Parser {
             }
             switch (alt58) {
                 case 1 :
-                    // SqlParser.g:171:4: LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )?
+                    // SqlParser.g:172:4: LIMIT limit= INTEGER ( ( OFFSET | COMMA ) offset= INTEGER )?
                     {
-                    LIMIT179=(Token)match(input,LIMIT,FOLLOW_LIMIT_in_select_stmt1330);  
+                    LIMIT179=(Token)match(input,LIMIT,FOLLOW_LIMIT_in_select_stmt1334);  
                     stream_LIMIT.add(LIMIT179);
 
-                    limit=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_select_stmt1334);  
+                    limit=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_select_stmt1338);  
                     stream_INTEGER.add(limit);
 
-                    // SqlParser.g:171:24: ( ( OFFSET | COMMA ) offset= INTEGER )?
+                    // SqlParser.g:172:24: ( ( OFFSET | COMMA ) offset= INTEGER )?
                     int alt57=2;
                     int LA57_0 = input.LA(1);
 
@@ -4702,9 +4703,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt57) {
                         case 1 :
-                            // SqlParser.g:171:25: ( OFFSET | COMMA ) offset= INTEGER
+                            // SqlParser.g:172:25: ( OFFSET | COMMA ) offset= INTEGER
                             {
-                            // SqlParser.g:171:25: ( OFFSET | COMMA )
+                            // SqlParser.g:172:25: ( OFFSET | COMMA )
                             int alt56=2;
                             int LA56_0 = input.LA(1);
 
@@ -4722,18 +4723,18 @@ public class SqlParser extends Parser {
                             }
                             switch (alt56) {
                                 case 1 :
-                                    // SqlParser.g:171:26: OFFSET
+                                    // SqlParser.g:172:26: OFFSET
                                     {
-                                    OFFSET180=(Token)match(input,OFFSET,FOLLOW_OFFSET_in_select_stmt1338);  
+                                    OFFSET180=(Token)match(input,OFFSET,FOLLOW_OFFSET_in_select_stmt1342);  
                                     stream_OFFSET.add(OFFSET180);
 
 
                                     }
                                     break;
                                 case 2 :
-                                    // SqlParser.g:171:35: COMMA
+                                    // SqlParser.g:172:35: COMMA
                                     {
-                                    COMMA181=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_stmt1342);  
+                                    COMMA181=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_stmt1346);  
                                     stream_COMMA.add(COMMA181);
 
 
@@ -4742,7 +4743,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            offset=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_select_stmt1347);  
+                            offset=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_select_stmt1351);  
                             stream_INTEGER.add(offset);
 
 
@@ -4772,17 +4773,17 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 172:1: -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? )
+            // 173:1: -> ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? )
             {
-                // SqlParser.g:172:4: ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? )
+                // SqlParser.g:173:4: ^( SELECT select_list ( ^( ORDER ( ordering_term )+ ) )? ( ^( LIMIT $limit ( $offset)? ) )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(SELECT, "SELECT"), root_1);
 
                 adaptor.addChild(root_1, stream_select_list.nextTree());
-                // SqlParser.g:173:22: ( ^( ORDER ( ordering_term )+ ) )?
+                // SqlParser.g:174:22: ( ^( ORDER ( ordering_term )+ ) )?
                 if ( stream_ORDER.hasNext()||stream_ordering_term.hasNext() ) {
-                    // SqlParser.g:173:22: ^( ORDER ( ordering_term )+ )
+                    // SqlParser.g:174:22: ^( ORDER ( ordering_term )+ )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_ORDER.nextNode(), root_2);
@@ -4802,15 +4803,15 @@ public class SqlParser extends Parser {
                 }
                 stream_ORDER.reset();
                 stream_ordering_term.reset();
-                // SqlParser.g:173:47: ( ^( LIMIT $limit ( $offset)? ) )?
+                // SqlParser.g:174:47: ( ^( LIMIT $limit ( $offset)? ) )?
                 if ( stream_LIMIT.hasNext()||stream_limit.hasNext()||stream_offset.hasNext() ) {
-                    // SqlParser.g:173:47: ^( LIMIT $limit ( $offset)? )
+                    // SqlParser.g:174:47: ^( LIMIT $limit ( $offset)? )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_LIMIT.nextNode(), root_2);
 
                     adaptor.addChild(root_2, stream_limit.nextNode());
-                    // SqlParser.g:173:62: ( $offset)?
+                    // SqlParser.g:174:62: ( $offset)?
                     if ( stream_offset.hasNext() ) {
                         adaptor.addChild(root_2, stream_offset.nextNode());
 
@@ -4857,7 +4858,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "select_list"
-    // SqlParser.g:176:1: select_list : select_core ( select_op select_core )* ;
+    // SqlParser.g:177:1: select_list : select_core ( select_op select_core )* ;
     public final SqlParser.select_list_return select_list() throws RecognitionException {
         SqlParser.select_list_return retval = new SqlParser.select_list_return();
         retval.start = input.LT(1);
@@ -4873,18 +4874,18 @@ public class SqlParser extends Parser {
 
 
         try {
-            // SqlParser.g:176:12: ( select_core ( select_op select_core )* )
-            // SqlParser.g:177:3: select_core ( select_op select_core )*
+            // SqlParser.g:177:12: ( select_core ( select_op select_core )* )
+            // SqlParser.g:178:3: select_core ( select_op select_core )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_select_core_in_select_list1392);
+            pushFollow(FOLLOW_select_core_in_select_list1396);
             select_core182=select_core();
 
             state._fsp--;
 
             adaptor.addChild(root_0, select_core182.getTree());
-            // SqlParser.g:177:15: ( select_op select_core )*
+            // SqlParser.g:178:15: ( select_op select_core )*
             loop59:
             do {
                 int alt59=2;
@@ -4897,15 +4898,15 @@ public class SqlParser extends Parser {
 
                 switch (alt59) {
             	case 1 :
-            	    // SqlParser.g:177:16: select_op select_core
+            	    // SqlParser.g:178:16: select_op select_core
             	    {
-            	    pushFollow(FOLLOW_select_op_in_select_list1395);
+            	    pushFollow(FOLLOW_select_op_in_select_list1399);
             	    select_op183=select_op();
 
             	    state._fsp--;
 
             	    root_0 = (Object)adaptor.becomeRoot(select_op183.getTree(), root_0);
-            	    pushFollow(FOLLOW_select_core_in_select_list1398);
+            	    pushFollow(FOLLOW_select_core_in_select_list1402);
             	    select_core184=select_core();
 
             	    state._fsp--;
@@ -4947,7 +4948,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "select_op"
-    // SqlParser.g:179:1: select_op : ( UNION ( ALL )? | INTERSECT | EXCEPT );
+    // SqlParser.g:180:1: select_op : ( UNION ( ALL )? | INTERSECT | EXCEPT );
     public final SqlParser.select_op_return select_op() throws RecognitionException {
         SqlParser.select_op_return retval = new SqlParser.select_op_return();
         retval.start = input.LT(1);
@@ -4965,7 +4966,7 @@ public class SqlParser extends Parser {
         Object EXCEPT188_tree=null;
 
         try {
-            // SqlParser.g:179:10: ( UNION ( ALL )? | INTERSECT | EXCEPT )
+            // SqlParser.g:180:10: ( UNION ( ALL )? | INTERSECT | EXCEPT )
             int alt61=3;
             switch ( input.LA(1) ) {
             case UNION:
@@ -4992,15 +4993,15 @@ public class SqlParser extends Parser {
 
             switch (alt61) {
                 case 1 :
-                    // SqlParser.g:179:12: UNION ( ALL )?
+                    // SqlParser.g:180:12: UNION ( ALL )?
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    UNION185=(Token)match(input,UNION,FOLLOW_UNION_in_select_op1407); 
+                    UNION185=(Token)match(input,UNION,FOLLOW_UNION_in_select_op1411); 
                     UNION185_tree = (Object)adaptor.create(UNION185);
                     root_0 = (Object)adaptor.becomeRoot(UNION185_tree, root_0);
 
-                    // SqlParser.g:179:19: ( ALL )?
+                    // SqlParser.g:180:19: ( ALL )?
                     int alt60=2;
                     int LA60_0 = input.LA(1);
 
@@ -5009,9 +5010,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt60) {
                         case 1 :
-                            // SqlParser.g:179:20: ALL
+                            // SqlParser.g:180:20: ALL
                             {
-                            ALL186=(Token)match(input,ALL,FOLLOW_ALL_in_select_op1411); 
+                            ALL186=(Token)match(input,ALL,FOLLOW_ALL_in_select_op1415); 
                             ALL186_tree = (Object)adaptor.create(ALL186);
                             adaptor.addChild(root_0, ALL186_tree);
 
@@ -5025,11 +5026,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:179:28: INTERSECT
+                    // SqlParser.g:180:28: INTERSECT
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    INTERSECT187=(Token)match(input,INTERSECT,FOLLOW_INTERSECT_in_select_op1417); 
+                    INTERSECT187=(Token)match(input,INTERSECT,FOLLOW_INTERSECT_in_select_op1421); 
                     INTERSECT187_tree = (Object)adaptor.create(INTERSECT187);
                     adaptor.addChild(root_0, INTERSECT187_tree);
 
@@ -5037,11 +5038,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:179:40: EXCEPT
+                    // SqlParser.g:180:40: EXCEPT
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    EXCEPT188=(Token)match(input,EXCEPT,FOLLOW_EXCEPT_in_select_op1421); 
+                    EXCEPT188=(Token)match(input,EXCEPT,FOLLOW_EXCEPT_in_select_op1425); 
                     EXCEPT188_tree = (Object)adaptor.create(EXCEPT188);
                     adaptor.addChild(root_0, EXCEPT188_tree);
 
@@ -5074,7 +5075,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "select_core"
-    // SqlParser.g:181:1: select_core : SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )? -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? ) ;
+    // SqlParser.g:182:1: select_core : SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )? -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? ) ;
     public final SqlParser.select_core_return select_core() throws RecognitionException {
         SqlParser.select_core_return retval = new SqlParser.select_core_return();
         retval.start = input.LT(1);
@@ -5130,29 +5131,29 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_expr=new RewriteRuleSubtreeStream(adaptor,"rule expr");
         RewriteRuleSubtreeStream stream_join_source=new RewriteRuleSubtreeStream(adaptor,"rule join_source");
         try {
-            // SqlParser.g:181:12: ( SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )? -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? ) )
-            // SqlParser.g:182:3: SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )?
+            // SqlParser.g:182:12: ( SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )? -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? ) )
+            // SqlParser.g:183:3: SELECT ( ALL | DISTINCT )? result_column ( COMMA result_column )* ( FROM join_source )? ( WHERE where_expr= expr )? ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )?
             {
-            SELECT189=(Token)match(input,SELECT,FOLLOW_SELECT_in_select_core1430);  
+            SELECT189=(Token)match(input,SELECT,FOLLOW_SELECT_in_select_core1434);  
             stream_SELECT.add(SELECT189);
 
-            // SqlParser.g:182:10: ( ALL | DISTINCT )?
+            // SqlParser.g:183:10: ( ALL | DISTINCT )?
             int alt62=3;
             alt62 = dfa62.predict(input);
             switch (alt62) {
                 case 1 :
-                    // SqlParser.g:182:11: ALL
+                    // SqlParser.g:183:11: ALL
                     {
-                    ALL190=(Token)match(input,ALL,FOLLOW_ALL_in_select_core1433);  
+                    ALL190=(Token)match(input,ALL,FOLLOW_ALL_in_select_core1437);  
                     stream_ALL.add(ALL190);
 
 
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:182:17: DISTINCT
+                    // SqlParser.g:183:17: DISTINCT
                     {
-                    DISTINCT191=(Token)match(input,DISTINCT,FOLLOW_DISTINCT_in_select_core1437);  
+                    DISTINCT191=(Token)match(input,DISTINCT,FOLLOW_DISTINCT_in_select_core1441);  
                     stream_DISTINCT.add(DISTINCT191);
 
 
@@ -5161,25 +5162,25 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_result_column_in_select_core1441);
+            pushFollow(FOLLOW_result_column_in_select_core1445);
             result_column192=result_column();
 
             state._fsp--;
 
             stream_result_column.add(result_column192.getTree());
-            // SqlParser.g:182:42: ( COMMA result_column )*
+            // SqlParser.g:183:42: ( COMMA result_column )*
             loop63:
             do {
                 int alt63=2;
                 alt63 = dfa63.predict(input);
                 switch (alt63) {
             	case 1 :
-            	    // SqlParser.g:182:43: COMMA result_column
+            	    // SqlParser.g:183:43: COMMA result_column
             	    {
-            	    COMMA193=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_core1444);  
+            	    COMMA193=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_core1448);  
             	    stream_COMMA.add(COMMA193);
 
-            	    pushFollow(FOLLOW_result_column_in_select_core1446);
+            	    pushFollow(FOLLOW_result_column_in_select_core1450);
             	    result_column194=result_column();
 
             	    state._fsp--;
@@ -5194,17 +5195,17 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            // SqlParser.g:182:65: ( FROM join_source )?
+            // SqlParser.g:183:65: ( FROM join_source )?
             int alt64=2;
             alt64 = dfa64.predict(input);
             switch (alt64) {
                 case 1 :
-                    // SqlParser.g:182:66: FROM join_source
+                    // SqlParser.g:183:66: FROM join_source
                     {
-                    FROM195=(Token)match(input,FROM,FOLLOW_FROM_in_select_core1451);  
+                    FROM195=(Token)match(input,FROM,FOLLOW_FROM_in_select_core1455);  
                     stream_FROM.add(FROM195);
 
-                    pushFollow(FOLLOW_join_source_in_select_core1453);
+                    pushFollow(FOLLOW_join_source_in_select_core1457);
                     join_source196=join_source();
 
                     state._fsp--;
@@ -5216,17 +5217,17 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:182:85: ( WHERE where_expr= expr )?
+            // SqlParser.g:183:85: ( WHERE where_expr= expr )?
             int alt65=2;
             alt65 = dfa65.predict(input);
             switch (alt65) {
                 case 1 :
-                    // SqlParser.g:182:86: WHERE where_expr= expr
+                    // SqlParser.g:183:86: WHERE where_expr= expr
                     {
-                    WHERE197=(Token)match(input,WHERE,FOLLOW_WHERE_in_select_core1458);  
+                    WHERE197=(Token)match(input,WHERE,FOLLOW_WHERE_in_select_core1462);  
                     stream_WHERE.add(WHERE197);
 
-                    pushFollow(FOLLOW_expr_in_select_core1462);
+                    pushFollow(FOLLOW_expr_in_select_core1466);
                     where_expr=expr();
 
                     state._fsp--;
@@ -5238,7 +5239,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:183:3: ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )?
+            // SqlParser.g:184:3: ( GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )? )?
             int alt68=2;
             int LA68_0 = input.LA(1);
 
@@ -5247,33 +5248,33 @@ public class SqlParser extends Parser {
             }
             switch (alt68) {
                 case 1 :
-                    // SqlParser.g:183:5: GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )?
+                    // SqlParser.g:184:5: GROUP BY ordering_term ( COMMA ordering_term )* ( HAVING having_expr= expr )?
                     {
-                    GROUP198=(Token)match(input,GROUP,FOLLOW_GROUP_in_select_core1470);  
+                    GROUP198=(Token)match(input,GROUP,FOLLOW_GROUP_in_select_core1474);  
                     stream_GROUP.add(GROUP198);
 
-                    BY199=(Token)match(input,BY,FOLLOW_BY_in_select_core1472);  
+                    BY199=(Token)match(input,BY,FOLLOW_BY_in_select_core1476);  
                     stream_BY.add(BY199);
 
-                    pushFollow(FOLLOW_ordering_term_in_select_core1474);
+                    pushFollow(FOLLOW_ordering_term_in_select_core1478);
                     ordering_term200=ordering_term();
 
                     state._fsp--;
 
                     stream_ordering_term.add(ordering_term200.getTree());
-                    // SqlParser.g:183:28: ( COMMA ordering_term )*
+                    // SqlParser.g:184:28: ( COMMA ordering_term )*
                     loop66:
                     do {
                         int alt66=2;
                         alt66 = dfa66.predict(input);
                         switch (alt66) {
                     	case 1 :
-                    	    // SqlParser.g:183:29: COMMA ordering_term
+                    	    // SqlParser.g:184:29: COMMA ordering_term
                     	    {
-                    	    COMMA201=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_core1477);  
+                    	    COMMA201=(Token)match(input,COMMA,FOLLOW_COMMA_in_select_core1481);  
                     	    stream_COMMA.add(COMMA201);
 
-                    	    pushFollow(FOLLOW_ordering_term_in_select_core1479);
+                    	    pushFollow(FOLLOW_ordering_term_in_select_core1483);
                     	    ordering_term202=ordering_term();
 
                     	    state._fsp--;
@@ -5288,7 +5289,7 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    // SqlParser.g:183:51: ( HAVING having_expr= expr )?
+                    // SqlParser.g:184:51: ( HAVING having_expr= expr )?
                     int alt67=2;
                     int LA67_0 = input.LA(1);
 
@@ -5297,12 +5298,12 @@ public class SqlParser extends Parser {
                     }
                     switch (alt67) {
                         case 1 :
-                            // SqlParser.g:183:52: HAVING having_expr= expr
+                            // SqlParser.g:184:52: HAVING having_expr= expr
                             {
-                            HAVING203=(Token)match(input,HAVING,FOLLOW_HAVING_in_select_core1484);  
+                            HAVING203=(Token)match(input,HAVING,FOLLOW_HAVING_in_select_core1488);  
                             stream_HAVING.add(HAVING203);
 
-                            pushFollow(FOLLOW_expr_in_select_core1488);
+                            pushFollow(FOLLOW_expr_in_select_core1492);
                             having_expr=expr();
 
                             state._fsp--;
@@ -5335,20 +5336,20 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_where_expr=new RewriteRuleSubtreeStream(adaptor,"rule where_expr",where_expr!=null?where_expr.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 184:1: -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? )
+            // 185:1: -> ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? )
             {
-                // SqlParser.g:184:4: ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? )
+                // SqlParser.g:185:4: ^( SELECT_CORE ( DISTINCT )? ^( COLUMNS ( result_column )+ ) ( ^( FROM join_source ) )? ( ^( WHERE $where_expr) )? ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(SELECT_CORE, "SELECT_CORE"), root_1);
 
-                // SqlParser.g:185:15: ( DISTINCT )?
+                // SqlParser.g:186:15: ( DISTINCT )?
                 if ( stream_DISTINCT.hasNext() ) {
                     adaptor.addChild(root_1, stream_DISTINCT.nextNode());
 
                 }
                 stream_DISTINCT.reset();
-                // SqlParser.g:185:27: ^( COLUMNS ( result_column )+ )
+                // SqlParser.g:186:27: ^( COLUMNS ( result_column )+ )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -5364,9 +5365,9 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:185:53: ( ^( FROM join_source ) )?
+                // SqlParser.g:186:53: ( ^( FROM join_source ) )?
                 if ( stream_join_source.hasNext()||stream_FROM.hasNext() ) {
-                    // SqlParser.g:185:53: ^( FROM join_source )
+                    // SqlParser.g:186:53: ^( FROM join_source )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_FROM.nextNode(), root_2);
@@ -5379,9 +5380,9 @@ public class SqlParser extends Parser {
                 }
                 stream_join_source.reset();
                 stream_FROM.reset();
-                // SqlParser.g:185:74: ( ^( WHERE $where_expr) )?
+                // SqlParser.g:186:74: ( ^( WHERE $where_expr) )?
                 if ( stream_where_expr.hasNext()||stream_WHERE.hasNext() ) {
-                    // SqlParser.g:185:74: ^( WHERE $where_expr)
+                    // SqlParser.g:186:74: ^( WHERE $where_expr)
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_WHERE.nextNode(), root_2);
@@ -5394,9 +5395,9 @@ public class SqlParser extends Parser {
                 }
                 stream_where_expr.reset();
                 stream_WHERE.reset();
-                // SqlParser.g:186:3: ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )?
+                // SqlParser.g:187:3: ( ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? ) )?
                 if ( stream_HAVING.hasNext()||stream_GROUP.hasNext()||stream_ordering_term.hasNext()||stream_having_expr.hasNext() ) {
-                    // SqlParser.g:186:3: ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? )
+                    // SqlParser.g:187:3: ^( GROUP ( ordering_term )+ ( ^( HAVING $having_expr) )? )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_GROUP.nextNode(), root_2);
@@ -5409,9 +5410,9 @@ public class SqlParser extends Parser {
 
                     }
                     stream_ordering_term.reset();
-                    // SqlParser.g:186:26: ( ^( HAVING $having_expr) )?
+                    // SqlParser.g:187:26: ( ^( HAVING $having_expr) )?
                     if ( stream_HAVING.hasNext()||stream_having_expr.hasNext() ) {
-                        // SqlParser.g:186:26: ^( HAVING $having_expr)
+                        // SqlParser.g:187:26: ^( HAVING $having_expr)
                         {
                         Object root_3 = (Object)adaptor.nil();
                         root_3 = (Object)adaptor.becomeRoot(stream_HAVING.nextNode(), root_3);
@@ -5466,7 +5467,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "result_column"
-    // SqlParser.g:189:1: result_column : ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) );
+    // SqlParser.g:190:1: result_column : ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) );
     public final SqlParser.result_column_return result_column() throws RecognitionException {
         SqlParser.result_column_return retval = new SqlParser.result_column_return();
         retval.start = input.LT(1);
@@ -5494,16 +5495,16 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_expr=new RewriteRuleSubtreeStream(adaptor,"rule expr");
         try {
-            // SqlParser.g:190:3: ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) )
+            // SqlParser.g:191:3: ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) )
             int alt71=3;
             alt71 = dfa71.predict(input);
             switch (alt71) {
                 case 1 :
-                    // SqlParser.g:190:5: ASTERISK
+                    // SqlParser.g:191:5: ASTERISK
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    ASTERISK204=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_result_column1558); 
+                    ASTERISK204=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_result_column1562); 
                     ASTERISK204_tree = (Object)adaptor.create(ASTERISK204);
                     adaptor.addChild(root_0, ASTERISK204_tree);
 
@@ -5511,18 +5512,18 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:191:5: table_name= id DOT ASTERISK
+                    // SqlParser.g:192:5: table_name= id DOT ASTERISK
                     {
-                    pushFollow(FOLLOW_id_in_result_column1566);
+                    pushFollow(FOLLOW_id_in_result_column1570);
                     table_name=id();
 
                     state._fsp--;
 
                     stream_id.add(table_name.getTree());
-                    DOT205=(Token)match(input,DOT,FOLLOW_DOT_in_result_column1568);  
+                    DOT205=(Token)match(input,DOT,FOLLOW_DOT_in_result_column1572);  
                     stream_DOT.add(DOT205);
 
-                    ASTERISK206=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_result_column1570);  
+                    ASTERISK206=(Token)match(input,ASTERISK,FOLLOW_ASTERISK_in_result_column1574);  
                     stream_ASTERISK.add(ASTERISK206);
 
 
@@ -5539,9 +5540,9 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_table_name=new RewriteRuleSubtreeStream(adaptor,"rule table_name",table_name!=null?table_name.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 191:32: -> ^( ASTERISK $table_name)
+                    // 192:32: -> ^( ASTERISK $table_name)
                     {
-                        // SqlParser.g:191:35: ^( ASTERISK $table_name)
+                        // SqlParser.g:192:35: ^( ASTERISK $table_name)
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot(stream_ASTERISK.nextNode(), root_1);
@@ -5557,29 +5558,29 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:192:5: expr ( ( AS )? column_alias= id )?
+                    // SqlParser.g:193:5: expr ( ( AS )? column_alias= id )?
                     {
-                    pushFollow(FOLLOW_expr_in_result_column1585);
+                    pushFollow(FOLLOW_expr_in_result_column1589);
                     expr207=expr();
 
                     state._fsp--;
 
                     stream_expr.add(expr207.getTree());
-                    // SqlParser.g:192:10: ( ( AS )? column_alias= id )?
+                    // SqlParser.g:193:10: ( ( AS )? column_alias= id )?
                     int alt70=2;
                     alt70 = dfa70.predict(input);
                     switch (alt70) {
                         case 1 :
-                            // SqlParser.g:192:11: ( AS )? column_alias= id
+                            // SqlParser.g:193:11: ( AS )? column_alias= id
                             {
-                            // SqlParser.g:192:11: ( AS )?
+                            // SqlParser.g:193:11: ( AS )?
                             int alt69=2;
                             alt69 = dfa69.predict(input);
                             switch (alt69) {
                                 case 1 :
-                                    // SqlParser.g:192:12: AS
+                                    // SqlParser.g:193:12: AS
                                     {
-                                    AS208=(Token)match(input,AS,FOLLOW_AS_in_result_column1589);  
+                                    AS208=(Token)match(input,AS,FOLLOW_AS_in_result_column1593);  
                                     stream_AS.add(AS208);
 
 
@@ -5588,7 +5589,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            pushFollow(FOLLOW_id_in_result_column1595);
+                            pushFollow(FOLLOW_id_in_result_column1599);
                             column_alias=id();
 
                             state._fsp--;
@@ -5614,15 +5615,15 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_column_alias=new RewriteRuleSubtreeStream(adaptor,"rule column_alias",column_alias!=null?column_alias.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 192:35: -> ^( ALIAS expr ( $column_alias)? )
+                    // 193:35: -> ^( ALIAS expr ( $column_alias)? )
                     {
-                        // SqlParser.g:192:38: ^( ALIAS expr ( $column_alias)? )
+                        // SqlParser.g:193:38: ^( ALIAS expr ( $column_alias)? )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(ALIAS, "ALIAS"), root_1);
 
                         adaptor.addChild(root_1, stream_expr.nextTree());
-                        // SqlParser.g:192:51: ( $column_alias)?
+                        // SqlParser.g:193:51: ( $column_alias)?
                         if ( stream_column_alias.hasNext() ) {
                             adaptor.addChild(root_1, stream_column_alias.nextTree());
 
@@ -5663,7 +5664,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "join_source"
-    // SqlParser.g:194:1: join_source : single_source ( join_op single_source ( join_constraint )? )* ;
+    // SqlParser.g:195:1: join_source : single_source ( join_op single_source ( join_constraint )? )* ;
     public final SqlParser.join_source_return join_source() throws RecognitionException {
         SqlParser.join_source_return retval = new SqlParser.join_source_return();
         retval.start = input.LT(1);
@@ -5681,46 +5682,46 @@ public class SqlParser extends Parser {
 
 
         try {
-            // SqlParser.g:194:12: ( single_source ( join_op single_source ( join_constraint )? )* )
-            // SqlParser.g:194:14: single_source ( join_op single_source ( join_constraint )? )*
+            // SqlParser.g:195:12: ( single_source ( join_op single_source ( join_constraint )? )* )
+            // SqlParser.g:195:14: single_source ( join_op single_source ( join_constraint )? )*
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_single_source_in_join_source1616);
+            pushFollow(FOLLOW_single_source_in_join_source1620);
             single_source209=single_source();
 
             state._fsp--;
 
             adaptor.addChild(root_0, single_source209.getTree());
-            // SqlParser.g:194:28: ( join_op single_source ( join_constraint )? )*
+            // SqlParser.g:195:28: ( join_op single_source ( join_constraint )? )*
             loop73:
             do {
                 int alt73=2;
                 alt73 = dfa73.predict(input);
                 switch (alt73) {
             	case 1 :
-            	    // SqlParser.g:194:29: join_op single_source ( join_constraint )?
+            	    // SqlParser.g:195:29: join_op single_source ( join_constraint )?
             	    {
-            	    pushFollow(FOLLOW_join_op_in_join_source1619);
+            	    pushFollow(FOLLOW_join_op_in_join_source1623);
             	    join_op210=join_op();
 
             	    state._fsp--;
 
             	    root_0 = (Object)adaptor.becomeRoot(join_op210.getTree(), root_0);
-            	    pushFollow(FOLLOW_single_source_in_join_source1622);
+            	    pushFollow(FOLLOW_single_source_in_join_source1626);
             	    single_source211=single_source();
 
             	    state._fsp--;
 
             	    adaptor.addChild(root_0, single_source211.getTree());
-            	    // SqlParser.g:194:52: ( join_constraint )?
+            	    // SqlParser.g:195:52: ( join_constraint )?
             	    int alt72=2;
             	    alt72 = dfa72.predict(input);
             	    switch (alt72) {
             	        case 1 :
-            	            // SqlParser.g:194:53: join_constraint
+            	            // SqlParser.g:195:53: join_constraint
             	            {
-            	            pushFollow(FOLLOW_join_constraint_in_join_source1625);
+            	            pushFollow(FOLLOW_join_constraint_in_join_source1629);
             	            join_constraint212=join_constraint();
 
             	            state._fsp--;
@@ -5768,7 +5769,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "single_source"
-    // SqlParser.g:196:1: single_source : ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN );
+    // SqlParser.g:197:1: single_source : ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN );
     public final SqlParser.single_source_return single_source() throws RecognitionException {
         SqlParser.single_source_return retval = new SqlParser.single_source_return();
         retval.start = input.LT(1);
@@ -5821,27 +5822,27 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_select_stmt=new RewriteRuleSubtreeStream(adaptor,"rule select_stmt");
         try {
-            // SqlParser.g:197:3: ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN )
+            // SqlParser.g:198:3: ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN )
             int alt80=3;
             alt80 = dfa80.predict(input);
             switch (alt80) {
                 case 1 :
-                    // SqlParser.g:197:5: (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )?
+                    // SqlParser.g:198:5: (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )?
                     {
-                    // SqlParser.g:197:5: (database_name= id DOT )?
+                    // SqlParser.g:198:5: (database_name= id DOT )?
                     int alt74=2;
                     alt74 = dfa74.predict(input);
                     switch (alt74) {
                         case 1 :
-                            // SqlParser.g:197:6: database_name= id DOT
+                            // SqlParser.g:198:6: database_name= id DOT
                             {
-                            pushFollow(FOLLOW_id_in_single_source1642);
+                            pushFollow(FOLLOW_id_in_single_source1646);
                             database_name=id();
 
                             state._fsp--;
 
                             stream_id.add(database_name.getTree());
-                            DOT213=(Token)match(input,DOT,FOLLOW_DOT_in_single_source1644);  
+                            DOT213=(Token)match(input,DOT,FOLLOW_DOT_in_single_source1648);  
                             stream_DOT.add(DOT213);
 
 
@@ -5850,17 +5851,17 @@ public class SqlParser extends Parser {
 
                     }
 
-                    table_name=(Token)match(input,ID,FOLLOW_ID_in_single_source1650);  
+                    table_name=(Token)match(input,ID,FOLLOW_ID_in_single_source1654);  
                     stream_ID.add(table_name);
 
-                    // SqlParser.g:197:43: ( ( AS )? table_alias= ID )?
+                    // SqlParser.g:198:43: ( ( AS )? table_alias= ID )?
                     int alt76=2;
                     alt76 = dfa76.predict(input);
                     switch (alt76) {
                         case 1 :
-                            // SqlParser.g:197:44: ( AS )? table_alias= ID
+                            // SqlParser.g:198:44: ( AS )? table_alias= ID
                             {
-                            // SqlParser.g:197:44: ( AS )?
+                            // SqlParser.g:198:44: ( AS )?
                             int alt75=2;
                             int LA75_0 = input.LA(1);
 
@@ -5869,9 +5870,9 @@ public class SqlParser extends Parser {
                             }
                             switch (alt75) {
                                 case 1 :
-                                    // SqlParser.g:197:45: AS
+                                    // SqlParser.g:198:45: AS
                                     {
-                                    AS214=(Token)match(input,AS,FOLLOW_AS_in_single_source1654);  
+                                    AS214=(Token)match(input,AS,FOLLOW_AS_in_single_source1658);  
                                     stream_AS.add(AS214);
 
 
@@ -5880,7 +5881,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            table_alias=(Token)match(input,ID,FOLLOW_ID_in_single_source1660);  
+                            table_alias=(Token)match(input,ID,FOLLOW_ID_in_single_source1664);  
                             stream_ID.add(table_alias);
 
 
@@ -5889,20 +5890,20 @@ public class SqlParser extends Parser {
 
                     }
 
-                    // SqlParser.g:197:67: ( INDEXED BY index_name= id | NOT INDEXED )?
+                    // SqlParser.g:198:67: ( INDEXED BY index_name= id | NOT INDEXED )?
                     int alt77=3;
                     alt77 = dfa77.predict(input);
                     switch (alt77) {
                         case 1 :
-                            // SqlParser.g:197:68: INDEXED BY index_name= id
+                            // SqlParser.g:198:68: INDEXED BY index_name= id
                             {
-                            INDEXED215=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_single_source1665);  
+                            INDEXED215=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_single_source1669);  
                             stream_INDEXED.add(INDEXED215);
 
-                            BY216=(Token)match(input,BY,FOLLOW_BY_in_single_source1667);  
+                            BY216=(Token)match(input,BY,FOLLOW_BY_in_single_source1671);  
                             stream_BY.add(BY216);
 
-                            pushFollow(FOLLOW_id_in_single_source1671);
+                            pushFollow(FOLLOW_id_in_single_source1675);
                             index_name=id();
 
                             state._fsp--;
@@ -5912,12 +5913,12 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:197:95: NOT INDEXED
+                            // SqlParser.g:198:95: NOT INDEXED
                             {
-                            NOT217=(Token)match(input,NOT,FOLLOW_NOT_in_single_source1675);  
+                            NOT217=(Token)match(input,NOT,FOLLOW_NOT_in_single_source1679);  
                             stream_NOT.add(NOT217);
 
-                            INDEXED218=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_single_source1677);  
+                            INDEXED218=(Token)match(input,INDEXED,FOLLOW_INDEXED_in_single_source1681);  
                             stream_INDEXED.add(INDEXED218);
 
 
@@ -5943,19 +5944,19 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 198:3: -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? )
+                    // 199:3: -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? )
                     {
-                        // SqlParser.g:198:6: ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? )
+                        // SqlParser.g:199:6: ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(ALIAS, "ALIAS"), root_1);
 
-                        // SqlParser.g:198:14: ^( $table_name ( $database_name)? )
+                        // SqlParser.g:199:14: ^( $table_name ( $database_name)? )
                         {
                         Object root_2 = (Object)adaptor.nil();
                         root_2 = (Object)adaptor.becomeRoot(stream_table_name.nextNode(), root_2);
 
-                        // SqlParser.g:198:28: ( $database_name)?
+                        // SqlParser.g:199:28: ( $database_name)?
                         if ( stream_database_name.hasNext() ) {
                             adaptor.addChild(root_2, stream_database_name.nextTree());
 
@@ -5964,26 +5965,26 @@ public class SqlParser extends Parser {
 
                         adaptor.addChild(root_1, root_2);
                         }
-                        // SqlParser.g:198:45: ( $table_alias)?
+                        // SqlParser.g:199:45: ( $table_alias)?
                         if ( stream_table_alias.hasNext() ) {
                             adaptor.addChild(root_1, stream_table_alias.nextNode());
 
                         }
                         stream_table_alias.reset();
-                        // SqlParser.g:198:59: ( ^( INDEXED ( NOT )? ( $index_name)? ) )?
+                        // SqlParser.g:199:59: ( ^( INDEXED ( NOT )? ( $index_name)? ) )?
                         if ( stream_index_name.hasNext()||stream_NOT.hasNext()||stream_INDEXED.hasNext() ) {
-                            // SqlParser.g:198:59: ^( INDEXED ( NOT )? ( $index_name)? )
+                            // SqlParser.g:199:59: ^( INDEXED ( NOT )? ( $index_name)? )
                             {
                             Object root_2 = (Object)adaptor.nil();
                             root_2 = (Object)adaptor.becomeRoot(stream_INDEXED.nextNode(), root_2);
 
-                            // SqlParser.g:198:69: ( NOT )?
+                            // SqlParser.g:199:69: ( NOT )?
                             if ( stream_NOT.hasNext() ) {
                                 adaptor.addChild(root_2, stream_NOT.nextNode());
 
                             }
                             stream_NOT.reset();
-                            // SqlParser.g:198:74: ( $index_name)?
+                            // SqlParser.g:199:74: ( $index_name)?
                             if ( stream_index_name.hasNext() ) {
                                 adaptor.addChild(root_2, stream_index_name.nextTree());
 
@@ -6007,28 +6008,28 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:199:5: LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )?
+                    // SqlParser.g:200:5: LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )?
                     {
-                    LPAREN219=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_single_source1718);  
+                    LPAREN219=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_single_source1722);  
                     stream_LPAREN.add(LPAREN219);
 
-                    pushFollow(FOLLOW_select_stmt_in_single_source1720);
+                    pushFollow(FOLLOW_select_stmt_in_single_source1724);
                     select_stmt220=select_stmt();
 
                     state._fsp--;
 
                     stream_select_stmt.add(select_stmt220.getTree());
-                    RPAREN221=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_single_source1722);  
+                    RPAREN221=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_single_source1726);  
                     stream_RPAREN.add(RPAREN221);
 
-                    // SqlParser.g:199:31: ( ( AS )? table_alias= ID )?
+                    // SqlParser.g:200:31: ( ( AS )? table_alias= ID )?
                     int alt79=2;
                     alt79 = dfa79.predict(input);
                     switch (alt79) {
                         case 1 :
-                            // SqlParser.g:199:32: ( AS )? table_alias= ID
+                            // SqlParser.g:200:32: ( AS )? table_alias= ID
                             {
-                            // SqlParser.g:199:32: ( AS )?
+                            // SqlParser.g:200:32: ( AS )?
                             int alt78=2;
                             int LA78_0 = input.LA(1);
 
@@ -6037,9 +6038,9 @@ public class SqlParser extends Parser {
                             }
                             switch (alt78) {
                                 case 1 :
-                                    // SqlParser.g:199:33: AS
+                                    // SqlParser.g:200:33: AS
                                     {
-                                    AS222=(Token)match(input,AS,FOLLOW_AS_in_single_source1726);  
+                                    AS222=(Token)match(input,AS,FOLLOW_AS_in_single_source1730);  
                                     stream_AS.add(AS222);
 
 
@@ -6048,7 +6049,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            table_alias=(Token)match(input,ID,FOLLOW_ID_in_single_source1732);  
+                            table_alias=(Token)match(input,ID,FOLLOW_ID_in_single_source1736);  
                             stream_ID.add(table_alias);
 
 
@@ -6071,15 +6072,15 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
                     root_0 = (Object)adaptor.nil();
-                    // 200:3: -> ^( ALIAS select_stmt ( $table_alias)? )
+                    // 201:3: -> ^( ALIAS select_stmt ( $table_alias)? )
                     {
-                        // SqlParser.g:200:6: ^( ALIAS select_stmt ( $table_alias)? )
+                        // SqlParser.g:201:6: ^( ALIAS select_stmt ( $table_alias)? )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(ALIAS, "ALIAS"), root_1);
 
                         adaptor.addChild(root_1, stream_select_stmt.nextTree());
-                        // SqlParser.g:200:26: ( $table_alias)?
+                        // SqlParser.g:201:26: ( $table_alias)?
                         if ( stream_table_alias.hasNext() ) {
                             adaptor.addChild(root_1, stream_table_alias.nextNode());
 
@@ -6095,18 +6096,18 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:201:5: LPAREN join_source RPAREN
+                    // SqlParser.g:202:5: LPAREN join_source RPAREN
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    LPAREN223=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_single_source1754); 
-                    pushFollow(FOLLOW_join_source_in_single_source1757);
+                    LPAREN223=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_single_source1758); 
+                    pushFollow(FOLLOW_join_source_in_single_source1761);
                     join_source224=join_source();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, join_source224.getTree());
-                    RPAREN225=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_single_source1759); 
+                    RPAREN225=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_single_source1763); 
 
                     }
                     break;
@@ -6136,7 +6137,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "join_op"
-    // SqlParser.g:203:1: join_op : ( COMMA | ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN );
+    // SqlParser.g:204:1: join_op : ( COMMA | ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN );
     public final SqlParser.join_op_return join_op() throws RecognitionException {
         SqlParser.join_op_return retval = new SqlParser.join_op_return();
         retval.start = input.LT(1);
@@ -6160,7 +6161,7 @@ public class SqlParser extends Parser {
         Object JOIN232_tree=null;
 
         try {
-            // SqlParser.g:204:3: ( COMMA | ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN )
+            // SqlParser.g:205:3: ( COMMA | ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN )
             int alt85=2;
             int LA85_0 = input.LA(1);
 
@@ -6178,11 +6179,11 @@ public class SqlParser extends Parser {
             }
             switch (alt85) {
                 case 1 :
-                    // SqlParser.g:204:5: COMMA
+                    // SqlParser.g:205:5: COMMA
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    COMMA226=(Token)match(input,COMMA,FOLLOW_COMMA_in_join_op1770); 
+                    COMMA226=(Token)match(input,COMMA,FOLLOW_COMMA_in_join_op1774); 
                     COMMA226_tree = (Object)adaptor.create(COMMA226);
                     adaptor.addChild(root_0, COMMA226_tree);
 
@@ -6190,11 +6191,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:205:5: ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN
+                    // SqlParser.g:206:5: ( NATURAL )? ( ( LEFT )? ( OUTER )? | INNER | CROSS ) JOIN
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    // SqlParser.g:205:5: ( NATURAL )?
+                    // SqlParser.g:206:5: ( NATURAL )?
                     int alt81=2;
                     int LA81_0 = input.LA(1);
 
@@ -6203,9 +6204,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt81) {
                         case 1 :
-                            // SqlParser.g:205:6: NATURAL
+                            // SqlParser.g:206:6: NATURAL
                             {
-                            NATURAL227=(Token)match(input,NATURAL,FOLLOW_NATURAL_in_join_op1777); 
+                            NATURAL227=(Token)match(input,NATURAL,FOLLOW_NATURAL_in_join_op1781); 
                             NATURAL227_tree = (Object)adaptor.create(NATURAL227);
                             adaptor.addChild(root_0, NATURAL227_tree);
 
@@ -6215,7 +6216,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    // SqlParser.g:205:16: ( ( LEFT )? ( OUTER )? | INNER | CROSS )
+                    // SqlParser.g:206:16: ( ( LEFT )? ( OUTER )? | INNER | CROSS )
                     int alt84=3;
                     switch ( input.LA(1) ) {
                     case JOIN:
@@ -6244,9 +6245,9 @@ public class SqlParser extends Parser {
 
                     switch (alt84) {
                         case 1 :
-                            // SqlParser.g:205:17: ( LEFT )? ( OUTER )?
+                            // SqlParser.g:206:17: ( LEFT )? ( OUTER )?
                             {
-                            // SqlParser.g:205:17: ( LEFT )?
+                            // SqlParser.g:206:17: ( LEFT )?
                             int alt82=2;
                             int LA82_0 = input.LA(1);
 
@@ -6255,9 +6256,9 @@ public class SqlParser extends Parser {
                             }
                             switch (alt82) {
                                 case 1 :
-                                    // SqlParser.g:205:18: LEFT
+                                    // SqlParser.g:206:18: LEFT
                                     {
-                                    LEFT228=(Token)match(input,LEFT,FOLLOW_LEFT_in_join_op1783); 
+                                    LEFT228=(Token)match(input,LEFT,FOLLOW_LEFT_in_join_op1787); 
                                     LEFT228_tree = (Object)adaptor.create(LEFT228);
                                     adaptor.addChild(root_0, LEFT228_tree);
 
@@ -6267,7 +6268,7 @@ public class SqlParser extends Parser {
 
                             }
 
-                            // SqlParser.g:205:25: ( OUTER )?
+                            // SqlParser.g:206:25: ( OUTER )?
                             int alt83=2;
                             int LA83_0 = input.LA(1);
 
@@ -6276,9 +6277,9 @@ public class SqlParser extends Parser {
                             }
                             switch (alt83) {
                                 case 1 :
-                                    // SqlParser.g:205:26: OUTER
+                                    // SqlParser.g:206:26: OUTER
                                     {
-                                    OUTER229=(Token)match(input,OUTER,FOLLOW_OUTER_in_join_op1788); 
+                                    OUTER229=(Token)match(input,OUTER,FOLLOW_OUTER_in_join_op1792); 
                                     OUTER229_tree = (Object)adaptor.create(OUTER229);
                                     adaptor.addChild(root_0, OUTER229_tree);
 
@@ -6292,9 +6293,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:205:36: INNER
+                            // SqlParser.g:206:36: INNER
                             {
-                            INNER230=(Token)match(input,INNER,FOLLOW_INNER_in_join_op1794); 
+                            INNER230=(Token)match(input,INNER,FOLLOW_INNER_in_join_op1798); 
                             INNER230_tree = (Object)adaptor.create(INNER230);
                             adaptor.addChild(root_0, INNER230_tree);
 
@@ -6302,9 +6303,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 3 :
-                            // SqlParser.g:205:44: CROSS
+                            // SqlParser.g:206:44: CROSS
                             {
-                            CROSS231=(Token)match(input,CROSS,FOLLOW_CROSS_in_join_op1798); 
+                            CROSS231=(Token)match(input,CROSS,FOLLOW_CROSS_in_join_op1802); 
                             CROSS231_tree = (Object)adaptor.create(CROSS231);
                             adaptor.addChild(root_0, CROSS231_tree);
 
@@ -6314,7 +6315,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    JOIN232=(Token)match(input,JOIN,FOLLOW_JOIN_in_join_op1801); 
+                    JOIN232=(Token)match(input,JOIN,FOLLOW_JOIN_in_join_op1805); 
                     JOIN232_tree = (Object)adaptor.create(JOIN232);
                     root_0 = (Object)adaptor.becomeRoot(JOIN232_tree, root_0);
 
@@ -6347,7 +6348,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "join_constraint"
-    // SqlParser.g:207:1: join_constraint : ( ON expr | USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN -> ^( USING ( $column_names)+ ) );
+    // SqlParser.g:208:1: join_constraint : ( ON expr | USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN -> ^( USING ( $column_names)+ ) );
     public final SqlParser.join_constraint_return join_constraint() throws RecognitionException {
         SqlParser.join_constraint_return retval = new SqlParser.join_constraint_return();
         retval.start = input.LT(1);
@@ -6375,7 +6376,7 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_LPAREN=new RewriteRuleTokenStream(adaptor,"token LPAREN");
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         try {
-            // SqlParser.g:208:3: ( ON expr | USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN -> ^( USING ( $column_names)+ ) )
+            // SqlParser.g:209:3: ( ON expr | USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN -> ^( USING ( $column_names)+ ) )
             int alt87=2;
             int LA87_0 = input.LA(1);
 
@@ -6393,15 +6394,15 @@ public class SqlParser extends Parser {
             }
             switch (alt87) {
                 case 1 :
-                    // SqlParser.g:208:5: ON expr
+                    // SqlParser.g:209:5: ON expr
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    ON233=(Token)match(input,ON,FOLLOW_ON_in_join_constraint1812); 
+                    ON233=(Token)match(input,ON,FOLLOW_ON_in_join_constraint1816); 
                     ON233_tree = (Object)adaptor.create(ON233);
                     root_0 = (Object)adaptor.becomeRoot(ON233_tree, root_0);
 
-                    pushFollow(FOLLOW_expr_in_join_constraint1815);
+                    pushFollow(FOLLOW_expr_in_join_constraint1819);
                     expr234=expr();
 
                     state._fsp--;
@@ -6411,15 +6412,15 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:209:5: USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
+                    // SqlParser.g:210:5: USING LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
                     {
-                    USING235=(Token)match(input,USING,FOLLOW_USING_in_join_constraint1821);  
+                    USING235=(Token)match(input,USING,FOLLOW_USING_in_join_constraint1825);  
                     stream_USING.add(USING235);
 
-                    LPAREN236=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_join_constraint1823);  
+                    LPAREN236=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_join_constraint1827);  
                     stream_LPAREN.add(LPAREN236);
 
-                    pushFollow(FOLLOW_id_in_join_constraint1827);
+                    pushFollow(FOLLOW_id_in_join_constraint1831);
                     column_names=id();
 
                     state._fsp--;
@@ -6428,7 +6429,7 @@ public class SqlParser extends Parser {
                     if (list_column_names==null) list_column_names=new ArrayList();
                     list_column_names.add(column_names.getTree());
 
-                    // SqlParser.g:209:35: ( COMMA column_names+= id )*
+                    // SqlParser.g:210:35: ( COMMA column_names+= id )*
                     loop86:
                     do {
                         int alt86=2;
@@ -6441,12 +6442,12 @@ public class SqlParser extends Parser {
 
                         switch (alt86) {
                     	case 1 :
-                    	    // SqlParser.g:209:36: COMMA column_names+= id
+                    	    // SqlParser.g:210:36: COMMA column_names+= id
                     	    {
-                    	    COMMA237=(Token)match(input,COMMA,FOLLOW_COMMA_in_join_constraint1830);  
+                    	    COMMA237=(Token)match(input,COMMA,FOLLOW_COMMA_in_join_constraint1834);  
                     	    stream_COMMA.add(COMMA237);
 
-                    	    pushFollow(FOLLOW_id_in_join_constraint1834);
+                    	    pushFollow(FOLLOW_id_in_join_constraint1838);
                     	    column_names=id();
 
                     	    state._fsp--;
@@ -6464,7 +6465,7 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    RPAREN238=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_join_constraint1838);  
+                    RPAREN238=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_join_constraint1842);  
                     stream_RPAREN.add(RPAREN238);
 
 
@@ -6480,9 +6481,9 @@ public class SqlParser extends Parser {
                     RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
                     RewriteRuleSubtreeStream stream_column_names=new RewriteRuleSubtreeStream(adaptor,"token column_names",list_column_names);
                     root_0 = (Object)adaptor.nil();
-                    // 209:68: -> ^( USING ( $column_names)+ )
+                    // 210:68: -> ^( USING ( $column_names)+ )
                     {
-                        // SqlParser.g:209:71: ^( USING ( $column_names)+ )
+                        // SqlParser.g:210:71: ^( USING ( $column_names)+ )
                         {
                         Object root_1 = (Object)adaptor.nil();
                         root_1 = (Object)adaptor.becomeRoot(stream_USING.nextNode(), root_1);
@@ -6530,7 +6531,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "insert_stmt"
-    // SqlParser.g:212:1: insert_stmt : ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES ) ;
+    // SqlParser.g:213:1: insert_stmt : ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES ) ;
     public final SqlParser.insert_stmt_return insert_stmt() throws RecognitionException {
         SqlParser.insert_stmt_return retval = new SqlParser.insert_stmt_return();
         retval.start = input.LT(1);
@@ -6579,12 +6580,12 @@ public class SqlParser extends Parser {
         Object VALUES253_tree=null;
 
         try {
-            // SqlParser.g:212:12: ( ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES ) )
-            // SqlParser.g:212:14: ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES )
+            // SqlParser.g:213:12: ( ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES ) )
+            // SqlParser.g:213:14: ( INSERT ( operation_conflict_clause )? | REPLACE ) INTO (database_name= id DOT )? table_name= id ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES )
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:212:14: ( INSERT ( operation_conflict_clause )? | REPLACE )
+            // SqlParser.g:213:14: ( INSERT ( operation_conflict_clause )? | REPLACE )
             int alt89=2;
             int LA89_0 = input.LA(1);
 
@@ -6602,13 +6603,13 @@ public class SqlParser extends Parser {
             }
             switch (alt89) {
                 case 1 :
-                    // SqlParser.g:212:15: INSERT ( operation_conflict_clause )?
+                    // SqlParser.g:213:15: INSERT ( operation_conflict_clause )?
                     {
-                    INSERT239=(Token)match(input,INSERT,FOLLOW_INSERT_in_insert_stmt1857); 
+                    INSERT239=(Token)match(input,INSERT,FOLLOW_INSERT_in_insert_stmt1861); 
                     INSERT239_tree = (Object)adaptor.create(INSERT239);
                     adaptor.addChild(root_0, INSERT239_tree);
 
-                    // SqlParser.g:212:22: ( operation_conflict_clause )?
+                    // SqlParser.g:213:22: ( operation_conflict_clause )?
                     int alt88=2;
                     int LA88_0 = input.LA(1);
 
@@ -6617,9 +6618,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt88) {
                         case 1 :
-                            // SqlParser.g:212:23: operation_conflict_clause
+                            // SqlParser.g:213:23: operation_conflict_clause
                             {
-                            pushFollow(FOLLOW_operation_conflict_clause_in_insert_stmt1860);
+                            pushFollow(FOLLOW_operation_conflict_clause_in_insert_stmt1864);
                             operation_conflict_clause240=operation_conflict_clause();
 
                             state._fsp--;
@@ -6635,9 +6636,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:212:53: REPLACE
+                    // SqlParser.g:213:53: REPLACE
                     {
-                    REPLACE241=(Token)match(input,REPLACE,FOLLOW_REPLACE_in_insert_stmt1866); 
+                    REPLACE241=(Token)match(input,REPLACE,FOLLOW_REPLACE_in_insert_stmt1870); 
                     REPLACE241_tree = (Object)adaptor.create(REPLACE241);
                     adaptor.addChild(root_0, REPLACE241_tree);
 
@@ -6647,24 +6648,24 @@ public class SqlParser extends Parser {
 
             }
 
-            INTO242=(Token)match(input,INTO,FOLLOW_INTO_in_insert_stmt1869); 
+            INTO242=(Token)match(input,INTO,FOLLOW_INTO_in_insert_stmt1873); 
             INTO242_tree = (Object)adaptor.create(INTO242);
             adaptor.addChild(root_0, INTO242_tree);
 
-            // SqlParser.g:212:67: (database_name= id DOT )?
+            // SqlParser.g:213:67: (database_name= id DOT )?
             int alt90=2;
             alt90 = dfa90.predict(input);
             switch (alt90) {
                 case 1 :
-                    // SqlParser.g:212:68: database_name= id DOT
+                    // SqlParser.g:213:68: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_insert_stmt1874);
+                    pushFollow(FOLLOW_id_in_insert_stmt1878);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT243=(Token)match(input,DOT,FOLLOW_DOT_in_insert_stmt1876); 
+                    DOT243=(Token)match(input,DOT,FOLLOW_DOT_in_insert_stmt1880); 
                     DOT243_tree = (Object)adaptor.create(DOT243);
                     adaptor.addChild(root_0, DOT243_tree);
 
@@ -6674,13 +6675,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_insert_stmt1882);
+            pushFollow(FOLLOW_id_in_insert_stmt1886);
             table_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, table_name.getTree());
-            // SqlParser.g:213:3: ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES )
+            // SqlParser.g:214:3: ( ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt ) | DEFAULT VALUES )
             int alt95=2;
             int LA95_0 = input.LA(1);
 
@@ -6698,9 +6699,9 @@ public class SqlParser extends Parser {
             }
             switch (alt95) {
                 case 1 :
-                    // SqlParser.g:213:5: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt )
+                    // SqlParser.g:214:5: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt )
                     {
-                    // SqlParser.g:213:5: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )?
+                    // SqlParser.g:214:5: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )?
                     int alt92=2;
                     int LA92_0 = input.LA(1);
 
@@ -6709,13 +6710,13 @@ public class SqlParser extends Parser {
                     }
                     switch (alt92) {
                         case 1 :
-                            // SqlParser.g:213:6: LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
+                            // SqlParser.g:214:6: LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
                             {
-                            LPAREN244=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_insert_stmt1889); 
+                            LPAREN244=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_insert_stmt1893); 
                             LPAREN244_tree = (Object)adaptor.create(LPAREN244);
                             adaptor.addChild(root_0, LPAREN244_tree);
 
-                            pushFollow(FOLLOW_id_in_insert_stmt1893);
+                            pushFollow(FOLLOW_id_in_insert_stmt1897);
                             column_names=id();
 
                             state._fsp--;
@@ -6724,7 +6725,7 @@ public class SqlParser extends Parser {
                             if (list_column_names==null) list_column_names=new ArrayList();
                             list_column_names.add(column_names.getTree());
 
-                            // SqlParser.g:213:30: ( COMMA column_names+= id )*
+                            // SqlParser.g:214:30: ( COMMA column_names+= id )*
                             loop91:
                             do {
                                 int alt91=2;
@@ -6737,13 +6738,13 @@ public class SqlParser extends Parser {
 
                                 switch (alt91) {
                             	case 1 :
-                            	    // SqlParser.g:213:31: COMMA column_names+= id
+                            	    // SqlParser.g:214:31: COMMA column_names+= id
                             	    {
-                            	    COMMA245=(Token)match(input,COMMA,FOLLOW_COMMA_in_insert_stmt1896); 
+                            	    COMMA245=(Token)match(input,COMMA,FOLLOW_COMMA_in_insert_stmt1900); 
                             	    COMMA245_tree = (Object)adaptor.create(COMMA245);
                             	    adaptor.addChild(root_0, COMMA245_tree);
 
-                            	    pushFollow(FOLLOW_id_in_insert_stmt1900);
+                            	    pushFollow(FOLLOW_id_in_insert_stmt1904);
                             	    column_names=id();
 
                             	    state._fsp--;
@@ -6761,7 +6762,7 @@ public class SqlParser extends Parser {
                                 }
                             } while (true);
 
-                            RPAREN246=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_insert_stmt1904); 
+                            RPAREN246=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_insert_stmt1908); 
                             RPAREN246_tree = (Object)adaptor.create(RPAREN246);
                             adaptor.addChild(root_0, RPAREN246_tree);
 
@@ -6771,7 +6772,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    // SqlParser.g:214:5: ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt )
+                    // SqlParser.g:215:5: ( VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN | select_stmt )
                     int alt94=2;
                     int LA94_0 = input.LA(1);
 
@@ -6789,17 +6790,17 @@ public class SqlParser extends Parser {
                     }
                     switch (alt94) {
                         case 1 :
-                            // SqlParser.g:214:6: VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN
+                            // SqlParser.g:215:6: VALUES LPAREN values+= expr ( COMMA values+= expr )* RPAREN
                             {
-                            VALUES247=(Token)match(input,VALUES,FOLLOW_VALUES_in_insert_stmt1913); 
+                            VALUES247=(Token)match(input,VALUES,FOLLOW_VALUES_in_insert_stmt1917); 
                             VALUES247_tree = (Object)adaptor.create(VALUES247);
                             adaptor.addChild(root_0, VALUES247_tree);
 
-                            LPAREN248=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_insert_stmt1915); 
+                            LPAREN248=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_insert_stmt1919); 
                             LPAREN248_tree = (Object)adaptor.create(LPAREN248);
                             adaptor.addChild(root_0, LPAREN248_tree);
 
-                            pushFollow(FOLLOW_expr_in_insert_stmt1919);
+                            pushFollow(FOLLOW_expr_in_insert_stmt1923);
                             values=expr();
 
                             state._fsp--;
@@ -6808,7 +6809,7 @@ public class SqlParser extends Parser {
                             if (list_values==null) list_values=new ArrayList();
                             list_values.add(values.getTree());
 
-                            // SqlParser.g:214:33: ( COMMA values+= expr )*
+                            // SqlParser.g:215:33: ( COMMA values+= expr )*
                             loop93:
                             do {
                                 int alt93=2;
@@ -6821,13 +6822,13 @@ public class SqlParser extends Parser {
 
                                 switch (alt93) {
                             	case 1 :
-                            	    // SqlParser.g:214:34: COMMA values+= expr
+                            	    // SqlParser.g:215:34: COMMA values+= expr
                             	    {
-                            	    COMMA249=(Token)match(input,COMMA,FOLLOW_COMMA_in_insert_stmt1922); 
+                            	    COMMA249=(Token)match(input,COMMA,FOLLOW_COMMA_in_insert_stmt1926); 
                             	    COMMA249_tree = (Object)adaptor.create(COMMA249);
                             	    adaptor.addChild(root_0, COMMA249_tree);
 
-                            	    pushFollow(FOLLOW_expr_in_insert_stmt1926);
+                            	    pushFollow(FOLLOW_expr_in_insert_stmt1930);
                             	    values=expr();
 
                             	    state._fsp--;
@@ -6845,7 +6846,7 @@ public class SqlParser extends Parser {
                                 }
                             } while (true);
 
-                            RPAREN250=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_insert_stmt1930); 
+                            RPAREN250=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_insert_stmt1934); 
                             RPAREN250_tree = (Object)adaptor.create(RPAREN250);
                             adaptor.addChild(root_0, RPAREN250_tree);
 
@@ -6853,9 +6854,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:214:64: select_stmt
+                            // SqlParser.g:215:64: select_stmt
                             {
-                            pushFollow(FOLLOW_select_stmt_in_insert_stmt1934);
+                            pushFollow(FOLLOW_select_stmt_in_insert_stmt1938);
                             select_stmt251=select_stmt();
 
                             state._fsp--;
@@ -6871,13 +6872,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:215:5: DEFAULT VALUES
+                    // SqlParser.g:216:5: DEFAULT VALUES
                     {
-                    DEFAULT252=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_insert_stmt1941); 
+                    DEFAULT252=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_insert_stmt1945); 
                     DEFAULT252_tree = (Object)adaptor.create(DEFAULT252);
                     adaptor.addChild(root_0, DEFAULT252_tree);
 
-                    VALUES253=(Token)match(input,VALUES,FOLLOW_VALUES_in_insert_stmt1943); 
+                    VALUES253=(Token)match(input,VALUES,FOLLOW_VALUES_in_insert_stmt1947); 
                     VALUES253_tree = (Object)adaptor.create(VALUES253);
                     adaptor.addChild(root_0, VALUES253_tree);
 
@@ -6914,7 +6915,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "update_stmt"
-    // SqlParser.g:218:1: update_stmt : UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )? ;
+    // SqlParser.g:219:1: update_stmt : UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )? ;
     public final SqlParser.update_stmt_return update_stmt() throws RecognitionException {
         SqlParser.update_stmt_return retval = new SqlParser.update_stmt_return();
         retval.start = input.LT(1);
@@ -6942,16 +6943,16 @@ public class SqlParser extends Parser {
         Object WHERE259_tree=null;
 
         try {
-            // SqlParser.g:218:12: ( UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )? )
-            // SqlParser.g:218:14: UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )?
+            // SqlParser.g:219:12: ( UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )? )
+            // SqlParser.g:219:14: UPDATE ( operation_conflict_clause )? qualified_table_name SET values+= update_set ( COMMA values+= update_set )* ( WHERE expr )? ( operation_limited_clause )?
             {
             root_0 = (Object)adaptor.nil();
 
-            UPDATE254=(Token)match(input,UPDATE,FOLLOW_UPDATE_in_update_stmt1953); 
+            UPDATE254=(Token)match(input,UPDATE,FOLLOW_UPDATE_in_update_stmt1957); 
             UPDATE254_tree = (Object)adaptor.create(UPDATE254);
             adaptor.addChild(root_0, UPDATE254_tree);
 
-            // SqlParser.g:218:21: ( operation_conflict_clause )?
+            // SqlParser.g:219:21: ( operation_conflict_clause )?
             int alt96=2;
             int LA96_0 = input.LA(1);
 
@@ -6964,9 +6965,9 @@ public class SqlParser extends Parser {
             }
             switch (alt96) {
                 case 1 :
-                    // SqlParser.g:218:22: operation_conflict_clause
+                    // SqlParser.g:219:22: operation_conflict_clause
                     {
-                    pushFollow(FOLLOW_operation_conflict_clause_in_update_stmt1956);
+                    pushFollow(FOLLOW_operation_conflict_clause_in_update_stmt1960);
                     operation_conflict_clause255=operation_conflict_clause();
 
                     state._fsp--;
@@ -6978,17 +6979,17 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_qualified_table_name_in_update_stmt1960);
+            pushFollow(FOLLOW_qualified_table_name_in_update_stmt1964);
             qualified_table_name256=qualified_table_name();
 
             state._fsp--;
 
             adaptor.addChild(root_0, qualified_table_name256.getTree());
-            SET257=(Token)match(input,SET,FOLLOW_SET_in_update_stmt1964); 
+            SET257=(Token)match(input,SET,FOLLOW_SET_in_update_stmt1968); 
             SET257_tree = (Object)adaptor.create(SET257);
             adaptor.addChild(root_0, SET257_tree);
 
-            pushFollow(FOLLOW_update_set_in_update_stmt1968);
+            pushFollow(FOLLOW_update_set_in_update_stmt1972);
             values=update_set();
 
             state._fsp--;
@@ -6997,7 +6998,7 @@ public class SqlParser extends Parser {
             if (list_values==null) list_values=new ArrayList();
             list_values.add(values.getTree());
 
-            // SqlParser.g:219:26: ( COMMA values+= update_set )*
+            // SqlParser.g:220:26: ( COMMA values+= update_set )*
             loop97:
             do {
                 int alt97=2;
@@ -7010,13 +7011,13 @@ public class SqlParser extends Parser {
 
                 switch (alt97) {
             	case 1 :
-            	    // SqlParser.g:219:27: COMMA values+= update_set
+            	    // SqlParser.g:220:27: COMMA values+= update_set
             	    {
-            	    COMMA258=(Token)match(input,COMMA,FOLLOW_COMMA_in_update_stmt1971); 
+            	    COMMA258=(Token)match(input,COMMA,FOLLOW_COMMA_in_update_stmt1975); 
             	    COMMA258_tree = (Object)adaptor.create(COMMA258);
             	    adaptor.addChild(root_0, COMMA258_tree);
 
-            	    pushFollow(FOLLOW_update_set_in_update_stmt1975);
+            	    pushFollow(FOLLOW_update_set_in_update_stmt1979);
             	    values=update_set();
 
             	    state._fsp--;
@@ -7034,7 +7035,7 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            // SqlParser.g:219:54: ( WHERE expr )?
+            // SqlParser.g:220:54: ( WHERE expr )?
             int alt98=2;
             int LA98_0 = input.LA(1);
 
@@ -7043,13 +7044,13 @@ public class SqlParser extends Parser {
             }
             switch (alt98) {
                 case 1 :
-                    // SqlParser.g:219:55: WHERE expr
+                    // SqlParser.g:220:55: WHERE expr
                     {
-                    WHERE259=(Token)match(input,WHERE,FOLLOW_WHERE_in_update_stmt1980); 
+                    WHERE259=(Token)match(input,WHERE,FOLLOW_WHERE_in_update_stmt1984); 
                     WHERE259_tree = (Object)adaptor.create(WHERE259);
                     adaptor.addChild(root_0, WHERE259_tree);
 
-                    pushFollow(FOLLOW_expr_in_update_stmt1982);
+                    pushFollow(FOLLOW_expr_in_update_stmt1986);
                     expr260=expr();
 
                     state._fsp--;
@@ -7061,7 +7062,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:219:68: ( operation_limited_clause )?
+            // SqlParser.g:220:68: ( operation_limited_clause )?
             int alt99=2;
             int LA99_0 = input.LA(1);
 
@@ -7070,9 +7071,9 @@ public class SqlParser extends Parser {
             }
             switch (alt99) {
                 case 1 :
-                    // SqlParser.g:219:69: operation_limited_clause
+                    // SqlParser.g:220:69: operation_limited_clause
                     {
-                    pushFollow(FOLLOW_operation_limited_clause_in_update_stmt1987);
+                    pushFollow(FOLLOW_operation_limited_clause_in_update_stmt1991);
                     operation_limited_clause261=operation_limited_clause();
 
                     state._fsp--;
@@ -7111,7 +7112,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "update_set"
-    // SqlParser.g:221:1: update_set : column_name= id EQUALS expr ;
+    // SqlParser.g:222:1: update_set : column_name= id EQUALS expr ;
     public final SqlParser.update_set_return update_set() throws RecognitionException {
         SqlParser.update_set_return retval = new SqlParser.update_set_return();
         retval.start = input.LT(1);
@@ -7127,22 +7128,22 @@ public class SqlParser extends Parser {
         Object EQUALS262_tree=null;
 
         try {
-            // SqlParser.g:221:11: (column_name= id EQUALS expr )
-            // SqlParser.g:221:13: column_name= id EQUALS expr
+            // SqlParser.g:222:11: (column_name= id EQUALS expr )
+            // SqlParser.g:222:13: column_name= id EQUALS expr
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_id_in_update_set1998);
+            pushFollow(FOLLOW_id_in_update_set2002);
             column_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, column_name.getTree());
-            EQUALS262=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_update_set2000); 
+            EQUALS262=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_update_set2004); 
             EQUALS262_tree = (Object)adaptor.create(EQUALS262);
             adaptor.addChild(root_0, EQUALS262_tree);
 
-            pushFollow(FOLLOW_expr_in_update_set2002);
+            pushFollow(FOLLOW_expr_in_update_set2006);
             expr263=expr();
 
             state._fsp--;
@@ -7175,7 +7176,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "delete_stmt"
-    // SqlParser.g:224:1: delete_stmt : DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )? ;
+    // SqlParser.g:225:1: delete_stmt : DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )? ;
     public final SqlParser.delete_stmt_return delete_stmt() throws RecognitionException {
         SqlParser.delete_stmt_return retval = new SqlParser.delete_stmt_return();
         retval.start = input.LT(1);
@@ -7197,26 +7198,26 @@ public class SqlParser extends Parser {
         Object WHERE267_tree=null;
 
         try {
-            // SqlParser.g:224:12: ( DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )? )
-            // SqlParser.g:224:14: DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )?
+            // SqlParser.g:225:12: ( DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )? )
+            // SqlParser.g:225:14: DELETE FROM qualified_table_name ( WHERE expr )? ( operation_limited_clause )?
             {
             root_0 = (Object)adaptor.nil();
 
-            DELETE264=(Token)match(input,DELETE,FOLLOW_DELETE_in_delete_stmt2010); 
+            DELETE264=(Token)match(input,DELETE,FOLLOW_DELETE_in_delete_stmt2014); 
             DELETE264_tree = (Object)adaptor.create(DELETE264);
             adaptor.addChild(root_0, DELETE264_tree);
 
-            FROM265=(Token)match(input,FROM,FOLLOW_FROM_in_delete_stmt2012); 
+            FROM265=(Token)match(input,FROM,FOLLOW_FROM_in_delete_stmt2016); 
             FROM265_tree = (Object)adaptor.create(FROM265);
             adaptor.addChild(root_0, FROM265_tree);
 
-            pushFollow(FOLLOW_qualified_table_name_in_delete_stmt2014);
+            pushFollow(FOLLOW_qualified_table_name_in_delete_stmt2018);
             qualified_table_name266=qualified_table_name();
 
             state._fsp--;
 
             adaptor.addChild(root_0, qualified_table_name266.getTree());
-            // SqlParser.g:224:47: ( WHERE expr )?
+            // SqlParser.g:225:47: ( WHERE expr )?
             int alt100=2;
             int LA100_0 = input.LA(1);
 
@@ -7225,13 +7226,13 @@ public class SqlParser extends Parser {
             }
             switch (alt100) {
                 case 1 :
-                    // SqlParser.g:224:48: WHERE expr
+                    // SqlParser.g:225:48: WHERE expr
                     {
-                    WHERE267=(Token)match(input,WHERE,FOLLOW_WHERE_in_delete_stmt2017); 
+                    WHERE267=(Token)match(input,WHERE,FOLLOW_WHERE_in_delete_stmt2021); 
                     WHERE267_tree = (Object)adaptor.create(WHERE267);
                     adaptor.addChild(root_0, WHERE267_tree);
 
-                    pushFollow(FOLLOW_expr_in_delete_stmt2019);
+                    pushFollow(FOLLOW_expr_in_delete_stmt2023);
                     expr268=expr();
 
                     state._fsp--;
@@ -7243,7 +7244,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:224:61: ( operation_limited_clause )?
+            // SqlParser.g:225:61: ( operation_limited_clause )?
             int alt101=2;
             int LA101_0 = input.LA(1);
 
@@ -7252,9 +7253,9 @@ public class SqlParser extends Parser {
             }
             switch (alt101) {
                 case 1 :
-                    // SqlParser.g:224:62: operation_limited_clause
+                    // SqlParser.g:225:62: operation_limited_clause
                     {
-                    pushFollow(FOLLOW_operation_limited_clause_in_delete_stmt2024);
+                    pushFollow(FOLLOW_operation_limited_clause_in_delete_stmt2028);
                     operation_limited_clause269=operation_limited_clause();
 
                     state._fsp--;
@@ -7293,7 +7294,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "begin_stmt"
-    // SqlParser.g:227:1: begin_stmt : BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )? ;
+    // SqlParser.g:228:1: begin_stmt : BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )? ;
     public final SqlParser.begin_stmt_return begin_stmt() throws RecognitionException {
         SqlParser.begin_stmt_return retval = new SqlParser.begin_stmt_return();
         retval.start = input.LT(1);
@@ -7309,16 +7310,16 @@ public class SqlParser extends Parser {
         Object TRANSACTION272_tree=null;
 
         try {
-            // SqlParser.g:227:11: ( BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )? )
-            // SqlParser.g:227:13: BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )?
+            // SqlParser.g:228:11: ( BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )? )
+            // SqlParser.g:228:13: BEGIN ( DEFERRED | IMMEDIATE | EXCLUSIVE )? ( TRANSACTION )?
             {
             root_0 = (Object)adaptor.nil();
 
-            BEGIN270=(Token)match(input,BEGIN,FOLLOW_BEGIN_in_begin_stmt2034); 
+            BEGIN270=(Token)match(input,BEGIN,FOLLOW_BEGIN_in_begin_stmt2038); 
             BEGIN270_tree = (Object)adaptor.create(BEGIN270);
             adaptor.addChild(root_0, BEGIN270_tree);
 
-            // SqlParser.g:227:19: ( DEFERRED | IMMEDIATE | EXCLUSIVE )?
+            // SqlParser.g:228:19: ( DEFERRED | IMMEDIATE | EXCLUSIVE )?
             int alt102=2;
             int LA102_0 = input.LA(1);
 
@@ -7346,7 +7347,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:227:55: ( TRANSACTION )?
+            // SqlParser.g:228:55: ( TRANSACTION )?
             int alt103=2;
             int LA103_0 = input.LA(1);
 
@@ -7355,9 +7356,9 @@ public class SqlParser extends Parser {
             }
             switch (alt103) {
                 case 1 :
-                    // SqlParser.g:227:56: TRANSACTION
+                    // SqlParser.g:228:56: TRANSACTION
                     {
-                    TRANSACTION272=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_begin_stmt2050); 
+                    TRANSACTION272=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_begin_stmt2054); 
                     TRANSACTION272_tree = (Object)adaptor.create(TRANSACTION272);
                     adaptor.addChild(root_0, TRANSACTION272_tree);
 
@@ -7394,7 +7395,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "commit_stmt"
-    // SqlParser.g:230:1: commit_stmt : ( COMMIT | END ) ( TRANSACTION )? ;
+    // SqlParser.g:231:1: commit_stmt : ( COMMIT | END ) ( TRANSACTION )? ;
     public final SqlParser.commit_stmt_return commit_stmt() throws RecognitionException {
         SqlParser.commit_stmt_return retval = new SqlParser.commit_stmt_return();
         retval.start = input.LT(1);
@@ -7408,8 +7409,8 @@ public class SqlParser extends Parser {
         Object TRANSACTION274_tree=null;
 
         try {
-            // SqlParser.g:230:12: ( ( COMMIT | END ) ( TRANSACTION )? )
-            // SqlParser.g:230:14: ( COMMIT | END ) ( TRANSACTION )?
+            // SqlParser.g:231:12: ( ( COMMIT | END ) ( TRANSACTION )? )
+            // SqlParser.g:231:14: ( COMMIT | END ) ( TRANSACTION )?
             {
             root_0 = (Object)adaptor.nil();
 
@@ -7424,7 +7425,7 @@ public class SqlParser extends Parser {
                 throw mse;
             }
 
-            // SqlParser.g:230:29: ( TRANSACTION )?
+            // SqlParser.g:231:29: ( TRANSACTION )?
             int alt104=2;
             int LA104_0 = input.LA(1);
 
@@ -7433,9 +7434,9 @@ public class SqlParser extends Parser {
             }
             switch (alt104) {
                 case 1 :
-                    // SqlParser.g:230:30: TRANSACTION
+                    // SqlParser.g:231:30: TRANSACTION
                     {
-                    TRANSACTION274=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_commit_stmt2069); 
+                    TRANSACTION274=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_commit_stmt2073); 
                     TRANSACTION274_tree = (Object)adaptor.create(TRANSACTION274);
                     adaptor.addChild(root_0, TRANSACTION274_tree);
 
@@ -7472,7 +7473,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "rollback_stmt"
-    // SqlParser.g:233:1: rollback_stmt : ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )? ;
+    // SqlParser.g:234:1: rollback_stmt : ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )? ;
     public final SqlParser.rollback_stmt_return rollback_stmt() throws RecognitionException {
         SqlParser.rollback_stmt_return retval = new SqlParser.rollback_stmt_return();
         retval.start = input.LT(1);
@@ -7492,16 +7493,16 @@ public class SqlParser extends Parser {
         Object SAVEPOINT278_tree=null;
 
         try {
-            // SqlParser.g:233:14: ( ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )? )
-            // SqlParser.g:233:16: ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )?
+            // SqlParser.g:234:14: ( ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )? )
+            // SqlParser.g:234:16: ROLLBACK ( TRANSACTION )? ( TO ( SAVEPOINT )? savepoint_name= id )?
             {
             root_0 = (Object)adaptor.nil();
 
-            ROLLBACK275=(Token)match(input,ROLLBACK,FOLLOW_ROLLBACK_in_rollback_stmt2079); 
+            ROLLBACK275=(Token)match(input,ROLLBACK,FOLLOW_ROLLBACK_in_rollback_stmt2083); 
             ROLLBACK275_tree = (Object)adaptor.create(ROLLBACK275);
             adaptor.addChild(root_0, ROLLBACK275_tree);
 
-            // SqlParser.g:233:25: ( TRANSACTION )?
+            // SqlParser.g:234:25: ( TRANSACTION )?
             int alt105=2;
             int LA105_0 = input.LA(1);
 
@@ -7510,9 +7511,9 @@ public class SqlParser extends Parser {
             }
             switch (alt105) {
                 case 1 :
-                    // SqlParser.g:233:26: TRANSACTION
+                    // SqlParser.g:234:26: TRANSACTION
                     {
-                    TRANSACTION276=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_rollback_stmt2082); 
+                    TRANSACTION276=(Token)match(input,TRANSACTION,FOLLOW_TRANSACTION_in_rollback_stmt2086); 
                     TRANSACTION276_tree = (Object)adaptor.create(TRANSACTION276);
                     adaptor.addChild(root_0, TRANSACTION276_tree);
 
@@ -7522,7 +7523,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:233:40: ( TO ( SAVEPOINT )? savepoint_name= id )?
+            // SqlParser.g:234:40: ( TO ( SAVEPOINT )? savepoint_name= id )?
             int alt107=2;
             int LA107_0 = input.LA(1);
 
@@ -7531,13 +7532,13 @@ public class SqlParser extends Parser {
             }
             switch (alt107) {
                 case 1 :
-                    // SqlParser.g:233:41: TO ( SAVEPOINT )? savepoint_name= id
+                    // SqlParser.g:234:41: TO ( SAVEPOINT )? savepoint_name= id
                     {
-                    TO277=(Token)match(input,TO,FOLLOW_TO_in_rollback_stmt2087); 
+                    TO277=(Token)match(input,TO,FOLLOW_TO_in_rollback_stmt2091); 
                     TO277_tree = (Object)adaptor.create(TO277);
                     adaptor.addChild(root_0, TO277_tree);
 
-                    // SqlParser.g:233:44: ( SAVEPOINT )?
+                    // SqlParser.g:234:44: ( SAVEPOINT )?
                     int alt106=2;
                     int LA106_0 = input.LA(1);
 
@@ -7550,9 +7551,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt106) {
                         case 1 :
-                            // SqlParser.g:233:45: SAVEPOINT
+                            // SqlParser.g:234:45: SAVEPOINT
                             {
-                            SAVEPOINT278=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_rollback_stmt2090); 
+                            SAVEPOINT278=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_rollback_stmt2094); 
                             SAVEPOINT278_tree = (Object)adaptor.create(SAVEPOINT278);
                             adaptor.addChild(root_0, SAVEPOINT278_tree);
 
@@ -7562,7 +7563,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    pushFollow(FOLLOW_id_in_rollback_stmt2096);
+                    pushFollow(FOLLOW_id_in_rollback_stmt2100);
                     savepoint_name=id();
 
                     state._fsp--;
@@ -7601,7 +7602,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "savepoint_stmt"
-    // SqlParser.g:236:1: savepoint_stmt : SAVEPOINT savepoint_name= id ;
+    // SqlParser.g:237:1: savepoint_stmt : SAVEPOINT savepoint_name= id ;
     public final SqlParser.savepoint_stmt_return savepoint_stmt() throws RecognitionException {
         SqlParser.savepoint_stmt_return retval = new SqlParser.savepoint_stmt_return();
         retval.start = input.LT(1);
@@ -7615,16 +7616,16 @@ public class SqlParser extends Parser {
         Object SAVEPOINT279_tree=null;
 
         try {
-            // SqlParser.g:236:15: ( SAVEPOINT savepoint_name= id )
-            // SqlParser.g:236:17: SAVEPOINT savepoint_name= id
+            // SqlParser.g:237:15: ( SAVEPOINT savepoint_name= id )
+            // SqlParser.g:237:17: SAVEPOINT savepoint_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            SAVEPOINT279=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_savepoint_stmt2106); 
+            SAVEPOINT279=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_savepoint_stmt2110); 
             SAVEPOINT279_tree = (Object)adaptor.create(SAVEPOINT279);
             adaptor.addChild(root_0, SAVEPOINT279_tree);
 
-            pushFollow(FOLLOW_id_in_savepoint_stmt2110);
+            pushFollow(FOLLOW_id_in_savepoint_stmt2114);
             savepoint_name=id();
 
             state._fsp--;
@@ -7657,7 +7658,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "release_stmt"
-    // SqlParser.g:239:1: release_stmt : RELEASE ( SAVEPOINT )? savepoint_name= id ;
+    // SqlParser.g:240:1: release_stmt : RELEASE ( SAVEPOINT )? savepoint_name= id ;
     public final SqlParser.release_stmt_return release_stmt() throws RecognitionException {
         SqlParser.release_stmt_return retval = new SqlParser.release_stmt_return();
         retval.start = input.LT(1);
@@ -7673,16 +7674,16 @@ public class SqlParser extends Parser {
         Object SAVEPOINT281_tree=null;
 
         try {
-            // SqlParser.g:239:13: ( RELEASE ( SAVEPOINT )? savepoint_name= id )
-            // SqlParser.g:239:15: RELEASE ( SAVEPOINT )? savepoint_name= id
+            // SqlParser.g:240:13: ( RELEASE ( SAVEPOINT )? savepoint_name= id )
+            // SqlParser.g:240:15: RELEASE ( SAVEPOINT )? savepoint_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            RELEASE280=(Token)match(input,RELEASE,FOLLOW_RELEASE_in_release_stmt2118); 
+            RELEASE280=(Token)match(input,RELEASE,FOLLOW_RELEASE_in_release_stmt2122); 
             RELEASE280_tree = (Object)adaptor.create(RELEASE280);
             adaptor.addChild(root_0, RELEASE280_tree);
 
-            // SqlParser.g:239:23: ( SAVEPOINT )?
+            // SqlParser.g:240:23: ( SAVEPOINT )?
             int alt108=2;
             int LA108_0 = input.LA(1);
 
@@ -7695,9 +7696,9 @@ public class SqlParser extends Parser {
             }
             switch (alt108) {
                 case 1 :
-                    // SqlParser.g:239:24: SAVEPOINT
+                    // SqlParser.g:240:24: SAVEPOINT
                     {
-                    SAVEPOINT281=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_release_stmt2121); 
+                    SAVEPOINT281=(Token)match(input,SAVEPOINT,FOLLOW_SAVEPOINT_in_release_stmt2125); 
                     SAVEPOINT281_tree = (Object)adaptor.create(SAVEPOINT281);
                     adaptor.addChild(root_0, SAVEPOINT281_tree);
 
@@ -7707,7 +7708,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_release_stmt2127);
+            pushFollow(FOLLOW_id_in_release_stmt2131);
             savepoint_name=id();
 
             state._fsp--;
@@ -7740,7 +7741,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_conflict_clause"
-    // SqlParser.g:246:1: table_conflict_clause : ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ;
+    // SqlParser.g:247:1: table_conflict_clause : ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) ;
     public final SqlParser.table_conflict_clause_return table_conflict_clause() throws RecognitionException {
         SqlParser.table_conflict_clause_return retval = new SqlParser.table_conflict_clause_return();
         retval.start = input.LT(1);
@@ -7756,13 +7757,13 @@ public class SqlParser extends Parser {
         Object set284_tree=null;
 
         try {
-            // SqlParser.g:246:22: ( ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) )
-            // SqlParser.g:246:24: ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
+            // SqlParser.g:247:22: ( ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE ) )
+            // SqlParser.g:247:24: ON CONFLICT ( ROLLBACK | ABORT | FAIL | IGNORE | REPLACE )
             {
             root_0 = (Object)adaptor.nil();
 
-            ON282=(Token)match(input,ON,FOLLOW_ON_in_table_conflict_clause2139); 
-            CONFLICT283=(Token)match(input,CONFLICT,FOLLOW_CONFLICT_in_table_conflict_clause2142); 
+            ON282=(Token)match(input,ON,FOLLOW_ON_in_table_conflict_clause2143); 
+            CONFLICT283=(Token)match(input,CONFLICT,FOLLOW_CONFLICT_in_table_conflict_clause2146); 
             CONFLICT283_tree = (Object)adaptor.create(CONFLICT283);
             root_0 = (Object)adaptor.becomeRoot(CONFLICT283_tree, root_0);
 
@@ -7804,7 +7805,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "create_virtual_table_stmt"
-    // SqlParser.g:250:1: create_virtual_table_stmt : CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )? ;
+    // SqlParser.g:251:1: create_virtual_table_stmt : CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )? ;
     public final SqlParser.create_virtual_table_stmt_return create_virtual_table_stmt() throws RecognitionException {
         SqlParser.create_virtual_table_stmt_return retval = new SqlParser.create_virtual_table_stmt_return();
         retval.start = input.LT(1);
@@ -7840,24 +7841,24 @@ public class SqlParser extends Parser {
         Object RPAREN294_tree=null;
 
         try {
-            // SqlParser.g:250:26: ( CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )? )
-            // SqlParser.g:250:28: CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )?
+            // SqlParser.g:251:26: ( CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )? )
+            // SqlParser.g:251:28: CREATE VIRTUAL TABLE (database_name= id DOT )? table_name= id USING module_name= id ( LPAREN column_def ( COMMA column_def )* RPAREN )?
             {
             root_0 = (Object)adaptor.nil();
 
-            CREATE285=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_virtual_table_stmt2172); 
+            CREATE285=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_virtual_table_stmt2176); 
             CREATE285_tree = (Object)adaptor.create(CREATE285);
             adaptor.addChild(root_0, CREATE285_tree);
 
-            VIRTUAL286=(Token)match(input,VIRTUAL,FOLLOW_VIRTUAL_in_create_virtual_table_stmt2174); 
+            VIRTUAL286=(Token)match(input,VIRTUAL,FOLLOW_VIRTUAL_in_create_virtual_table_stmt2178); 
             VIRTUAL286_tree = (Object)adaptor.create(VIRTUAL286);
             adaptor.addChild(root_0, VIRTUAL286_tree);
 
-            TABLE287=(Token)match(input,TABLE,FOLLOW_TABLE_in_create_virtual_table_stmt2176); 
+            TABLE287=(Token)match(input,TABLE,FOLLOW_TABLE_in_create_virtual_table_stmt2180); 
             TABLE287_tree = (Object)adaptor.create(TABLE287);
             adaptor.addChild(root_0, TABLE287_tree);
 
-            // SqlParser.g:250:49: (database_name= id DOT )?
+            // SqlParser.g:251:49: (database_name= id DOT )?
             int alt109=2;
             int LA109_0 = input.LA(1);
 
@@ -7877,15 +7878,15 @@ public class SqlParser extends Parser {
             }
             switch (alt109) {
                 case 1 :
-                    // SqlParser.g:250:50: database_name= id DOT
+                    // SqlParser.g:251:50: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_create_virtual_table_stmt2181);
+                    pushFollow(FOLLOW_id_in_create_virtual_table_stmt2185);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT288=(Token)match(input,DOT,FOLLOW_DOT_in_create_virtual_table_stmt2183); 
+                    DOT288=(Token)match(input,DOT,FOLLOW_DOT_in_create_virtual_table_stmt2187); 
                     DOT288_tree = (Object)adaptor.create(DOT288);
                     adaptor.addChild(root_0, DOT288_tree);
 
@@ -7895,23 +7896,23 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_create_virtual_table_stmt2189);
+            pushFollow(FOLLOW_id_in_create_virtual_table_stmt2193);
             table_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, table_name.getTree());
-            USING289=(Token)match(input,USING,FOLLOW_USING_in_create_virtual_table_stmt2193); 
+            USING289=(Token)match(input,USING,FOLLOW_USING_in_create_virtual_table_stmt2197); 
             USING289_tree = (Object)adaptor.create(USING289);
             adaptor.addChild(root_0, USING289_tree);
 
-            pushFollow(FOLLOW_id_in_create_virtual_table_stmt2197);
+            pushFollow(FOLLOW_id_in_create_virtual_table_stmt2201);
             module_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, module_name.getTree());
-            // SqlParser.g:251:24: ( LPAREN column_def ( COMMA column_def )* RPAREN )?
+            // SqlParser.g:252:24: ( LPAREN column_def ( COMMA column_def )* RPAREN )?
             int alt111=2;
             int LA111_0 = input.LA(1);
 
@@ -7920,19 +7921,19 @@ public class SqlParser extends Parser {
             }
             switch (alt111) {
                 case 1 :
-                    // SqlParser.g:251:25: LPAREN column_def ( COMMA column_def )* RPAREN
+                    // SqlParser.g:252:25: LPAREN column_def ( COMMA column_def )* RPAREN
                     {
-                    LPAREN290=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_virtual_table_stmt2200); 
+                    LPAREN290=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_virtual_table_stmt2204); 
                     LPAREN290_tree = (Object)adaptor.create(LPAREN290);
                     adaptor.addChild(root_0, LPAREN290_tree);
 
-                    pushFollow(FOLLOW_column_def_in_create_virtual_table_stmt2202);
+                    pushFollow(FOLLOW_column_def_in_create_virtual_table_stmt2206);
                     column_def291=column_def();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, column_def291.getTree());
-                    // SqlParser.g:251:43: ( COMMA column_def )*
+                    // SqlParser.g:252:43: ( COMMA column_def )*
                     loop110:
                     do {
                         int alt110=2;
@@ -7945,13 +7946,13 @@ public class SqlParser extends Parser {
 
                         switch (alt110) {
                     	case 1 :
-                    	    // SqlParser.g:251:44: COMMA column_def
+                    	    // SqlParser.g:252:44: COMMA column_def
                     	    {
-                    	    COMMA292=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_virtual_table_stmt2205); 
+                    	    COMMA292=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_virtual_table_stmt2209); 
                     	    COMMA292_tree = (Object)adaptor.create(COMMA292);
                     	    adaptor.addChild(root_0, COMMA292_tree);
 
-                    	    pushFollow(FOLLOW_column_def_in_create_virtual_table_stmt2207);
+                    	    pushFollow(FOLLOW_column_def_in_create_virtual_table_stmt2211);
                     	    column_def293=column_def();
 
                     	    state._fsp--;
@@ -7966,7 +7967,7 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    RPAREN294=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_virtual_table_stmt2211); 
+                    RPAREN294=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_virtual_table_stmt2215); 
                     RPAREN294_tree = (Object)adaptor.create(RPAREN294);
                     adaptor.addChild(root_0, RPAREN294_tree);
 
@@ -8003,7 +8004,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "create_table_stmt"
-    // SqlParser.g:254:1: create_table_stmt : CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt ) -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? ) ;
+    // SqlParser.g:255:1: create_table_stmt : CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt ) -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? ) ;
     public final SqlParser.create_table_stmt_return create_table_stmt() throws RecognitionException {
         SqlParser.create_table_stmt_return retval = new SqlParser.create_table_stmt_return();
         retval.start = input.LT(1);
@@ -8063,13 +8064,13 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_column_def=new RewriteRuleSubtreeStream(adaptor,"rule column_def");
         RewriteRuleSubtreeStream stream_table_constraint=new RewriteRuleSubtreeStream(adaptor,"rule table_constraint");
         try {
-            // SqlParser.g:254:18: ( CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt ) -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? ) )
-            // SqlParser.g:254:20: CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt )
+            // SqlParser.g:255:18: ( CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt ) -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? ) )
+            // SqlParser.g:255:20: CREATE ( TEMPORARY )? TABLE ( IF NOT EXISTS )? (database_name= id DOT )? table_name= id ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt )
             {
-            CREATE295=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_table_stmt2221);  
+            CREATE295=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_table_stmt2225);  
             stream_CREATE.add(CREATE295);
 
-            // SqlParser.g:254:27: ( TEMPORARY )?
+            // SqlParser.g:255:27: ( TEMPORARY )?
             int alt112=2;
             int LA112_0 = input.LA(1);
 
@@ -8078,9 +8079,9 @@ public class SqlParser extends Parser {
             }
             switch (alt112) {
                 case 1 :
-                    // SqlParser.g:254:27: TEMPORARY
+                    // SqlParser.g:255:27: TEMPORARY
                     {
-                    TEMPORARY296=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_table_stmt2223);  
+                    TEMPORARY296=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_table_stmt2227);  
                     stream_TEMPORARY.add(TEMPORARY296);
 
 
@@ -8089,10 +8090,10 @@ public class SqlParser extends Parser {
 
             }
 
-            TABLE297=(Token)match(input,TABLE,FOLLOW_TABLE_in_create_table_stmt2226);  
+            TABLE297=(Token)match(input,TABLE,FOLLOW_TABLE_in_create_table_stmt2230);  
             stream_TABLE.add(TABLE297);
 
-            // SqlParser.g:254:44: ( IF NOT EXISTS )?
+            // SqlParser.g:255:44: ( IF NOT EXISTS )?
             int alt113=2;
             int LA113_0 = input.LA(1);
 
@@ -8105,15 +8106,15 @@ public class SqlParser extends Parser {
             }
             switch (alt113) {
                 case 1 :
-                    // SqlParser.g:254:45: IF NOT EXISTS
+                    // SqlParser.g:255:45: IF NOT EXISTS
                     {
-                    IF298=(Token)match(input,IF,FOLLOW_IF_in_create_table_stmt2229);  
+                    IF298=(Token)match(input,IF,FOLLOW_IF_in_create_table_stmt2233);  
                     stream_IF.add(IF298);
 
-                    NOT299=(Token)match(input,NOT,FOLLOW_NOT_in_create_table_stmt2231);  
+                    NOT299=(Token)match(input,NOT,FOLLOW_NOT_in_create_table_stmt2235);  
                     stream_NOT.add(NOT299);
 
-                    EXISTS300=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_table_stmt2233);  
+                    EXISTS300=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_table_stmt2237);  
                     stream_EXISTS.add(EXISTS300);
 
 
@@ -8122,7 +8123,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:254:61: (database_name= id DOT )?
+            // SqlParser.g:255:61: (database_name= id DOT )?
             int alt114=2;
             int LA114_0 = input.LA(1);
 
@@ -8142,15 +8143,15 @@ public class SqlParser extends Parser {
             }
             switch (alt114) {
                 case 1 :
-                    // SqlParser.g:254:62: database_name= id DOT
+                    // SqlParser.g:255:62: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_create_table_stmt2240);
+                    pushFollow(FOLLOW_id_in_create_table_stmt2244);
                     database_name=id();
 
                     state._fsp--;
 
                     stream_id.add(database_name.getTree());
-                    DOT301=(Token)match(input,DOT,FOLLOW_DOT_in_create_table_stmt2242);  
+                    DOT301=(Token)match(input,DOT,FOLLOW_DOT_in_create_table_stmt2246);  
                     stream_DOT.add(DOT301);
 
 
@@ -8159,13 +8160,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_create_table_stmt2248);
+            pushFollow(FOLLOW_id_in_create_table_stmt2252);
             table_name=id();
 
             state._fsp--;
 
             stream_id.add(table_name.getTree());
-            // SqlParser.g:255:3: ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt )
+            // SqlParser.g:256:3: ( LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN | AS select_stmt )
             int alt117=2;
             int LA117_0 = input.LA(1);
 
@@ -8183,30 +8184,30 @@ public class SqlParser extends Parser {
             }
             switch (alt117) {
                 case 1 :
-                    // SqlParser.g:255:5: LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN
+                    // SqlParser.g:256:5: LPAREN column_def ( COMMA column_def )* ( COMMA table_constraint )* RPAREN
                     {
-                    LPAREN302=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_table_stmt2254);  
+                    LPAREN302=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_table_stmt2258);  
                     stream_LPAREN.add(LPAREN302);
 
-                    pushFollow(FOLLOW_column_def_in_create_table_stmt2256);
+                    pushFollow(FOLLOW_column_def_in_create_table_stmt2260);
                     column_def303=column_def();
 
                     state._fsp--;
 
                     stream_column_def.add(column_def303.getTree());
-                    // SqlParser.g:255:23: ( COMMA column_def )*
+                    // SqlParser.g:256:23: ( COMMA column_def )*
                     loop115:
                     do {
                         int alt115=2;
                         alt115 = dfa115.predict(input);
                         switch (alt115) {
                     	case 1 :
-                    	    // SqlParser.g:255:24: COMMA column_def
+                    	    // SqlParser.g:256:24: COMMA column_def
                     	    {
-                    	    COMMA304=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_table_stmt2259);  
+                    	    COMMA304=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_table_stmt2263);  
                     	    stream_COMMA.add(COMMA304);
 
-                    	    pushFollow(FOLLOW_column_def_in_create_table_stmt2261);
+                    	    pushFollow(FOLLOW_column_def_in_create_table_stmt2265);
                     	    column_def305=column_def();
 
                     	    state._fsp--;
@@ -8221,7 +8222,7 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    // SqlParser.g:255:43: ( COMMA table_constraint )*
+                    // SqlParser.g:256:43: ( COMMA table_constraint )*
                     loop116:
                     do {
                         int alt116=2;
@@ -8234,12 +8235,12 @@ public class SqlParser extends Parser {
 
                         switch (alt116) {
                     	case 1 :
-                    	    // SqlParser.g:255:44: COMMA table_constraint
+                    	    // SqlParser.g:256:44: COMMA table_constraint
                     	    {
-                    	    COMMA306=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_table_stmt2266);  
+                    	    COMMA306=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_table_stmt2270);  
                     	    stream_COMMA.add(COMMA306);
 
-                    	    pushFollow(FOLLOW_table_constraint_in_create_table_stmt2268);
+                    	    pushFollow(FOLLOW_table_constraint_in_create_table_stmt2272);
                     	    table_constraint307=table_constraint();
 
                     	    state._fsp--;
@@ -8254,19 +8255,19 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    RPAREN308=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_table_stmt2272);  
+                    RPAREN308=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_table_stmt2276);  
                     stream_RPAREN.add(RPAREN308);
 
 
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:256:5: AS select_stmt
+                    // SqlParser.g:257:5: AS select_stmt
                     {
-                    AS309=(Token)match(input,AS,FOLLOW_AS_in_create_table_stmt2278);  
+                    AS309=(Token)match(input,AS,FOLLOW_AS_in_create_table_stmt2282);  
                     stream_AS.add(AS309);
 
-                    pushFollow(FOLLOW_select_stmt_in_create_table_stmt2280);
+                    pushFollow(FOLLOW_select_stmt_in_create_table_stmt2284);
                     select_stmt310=select_stmt();
 
                     state._fsp--;
@@ -8293,25 +8294,25 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_table_name=new RewriteRuleSubtreeStream(adaptor,"rule table_name",table_name!=null?table_name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 257:1: -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? )
+            // 258:1: -> ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? )
             {
-                // SqlParser.g:257:4: ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? )
+                // SqlParser.g:258:4: ^( CREATE_TABLE ^( OPTIONS ( TEMPORARY )? ( EXISTS )? ) ^( $table_name ( $database_name)? ) ( ^( COLUMNS ( column_def )+ ) )? ( ^( CONSTRAINTS ( table_constraint )* ) )? ( select_stmt )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(CREATE_TABLE, "CREATE_TABLE"), root_1);
 
-                // SqlParser.g:257:19: ^( OPTIONS ( TEMPORARY )? ( EXISTS )? )
+                // SqlParser.g:258:19: ^( OPTIONS ( TEMPORARY )? ( EXISTS )? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(OPTIONS, "OPTIONS"), root_2);
 
-                // SqlParser.g:257:29: ( TEMPORARY )?
+                // SqlParser.g:258:29: ( TEMPORARY )?
                 if ( stream_TEMPORARY.hasNext() ) {
                     adaptor.addChild(root_2, stream_TEMPORARY.nextNode());
 
                 }
                 stream_TEMPORARY.reset();
-                // SqlParser.g:257:40: ( EXISTS )?
+                // SqlParser.g:258:40: ( EXISTS )?
                 if ( stream_EXISTS.hasNext() ) {
                     adaptor.addChild(root_2, stream_EXISTS.nextNode());
 
@@ -8320,12 +8321,12 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:257:49: ^( $table_name ( $database_name)? )
+                // SqlParser.g:258:49: ^( $table_name ( $database_name)? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot(stream_table_name.nextNode(), root_2);
 
-                // SqlParser.g:257:63: ( $database_name)?
+                // SqlParser.g:258:63: ( $database_name)?
                 if ( stream_database_name.hasNext() ) {
                     adaptor.addChild(root_2, stream_database_name.nextTree());
 
@@ -8334,9 +8335,9 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:258:3: ( ^( COLUMNS ( column_def )+ ) )?
+                // SqlParser.g:259:3: ( ^( COLUMNS ( column_def )+ ) )?
                 if ( stream_column_def.hasNext() ) {
-                    // SqlParser.g:258:3: ^( COLUMNS ( column_def )+ )
+                    // SqlParser.g:259:3: ^( COLUMNS ( column_def )+ )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -8355,14 +8356,14 @@ public class SqlParser extends Parser {
 
                 }
                 stream_column_def.reset();
-                // SqlParser.g:258:27: ( ^( CONSTRAINTS ( table_constraint )* ) )?
+                // SqlParser.g:259:27: ( ^( CONSTRAINTS ( table_constraint )* ) )?
                 if ( stream_table_constraint.hasNext() ) {
-                    // SqlParser.g:258:27: ^( CONSTRAINTS ( table_constraint )* )
+                    // SqlParser.g:259:27: ^( CONSTRAINTS ( table_constraint )* )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(CONSTRAINTS, "CONSTRAINTS"), root_2);
 
-                    // SqlParser.g:258:41: ( table_constraint )*
+                    // SqlParser.g:259:41: ( table_constraint )*
                     while ( stream_table_constraint.hasNext() ) {
                         adaptor.addChild(root_2, stream_table_constraint.nextTree());
 
@@ -8374,7 +8375,7 @@ public class SqlParser extends Parser {
 
                 }
                 stream_table_constraint.reset();
-                // SqlParser.g:258:61: ( select_stmt )?
+                // SqlParser.g:259:61: ( select_stmt )?
                 if ( stream_select_stmt.hasNext() ) {
                     adaptor.addChild(root_1, stream_select_stmt.nextTree());
 
@@ -8413,7 +8414,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_def"
-    // SqlParser.g:260:1: column_def : name= id_column_def ( type_name )? ( column_constraint )* -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? ) ;
+    // SqlParser.g:261:1: column_def : name= id_column_def ( type_name )? ( column_constraint )* -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? ) ;
     public final SqlParser.column_def_return column_def() throws RecognitionException {
         SqlParser.column_def_return retval = new SqlParser.column_def_return();
         retval.start = input.LT(1);
@@ -8431,23 +8432,23 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id_column_def=new RewriteRuleSubtreeStream(adaptor,"rule id_column_def");
         RewriteRuleSubtreeStream stream_type_name=new RewriteRuleSubtreeStream(adaptor,"rule type_name");
         try {
-            // SqlParser.g:260:11: (name= id_column_def ( type_name )? ( column_constraint )* -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? ) )
-            // SqlParser.g:260:13: name= id_column_def ( type_name )? ( column_constraint )*
+            // SqlParser.g:261:11: (name= id_column_def ( type_name )? ( column_constraint )* -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? ) )
+            // SqlParser.g:261:13: name= id_column_def ( type_name )? ( column_constraint )*
             {
-            pushFollow(FOLLOW_id_column_def_in_column_def2336);
+            pushFollow(FOLLOW_id_column_def_in_column_def2340);
             name=id_column_def();
 
             state._fsp--;
 
             stream_id_column_def.add(name.getTree());
-            // SqlParser.g:260:32: ( type_name )?
+            // SqlParser.g:261:32: ( type_name )?
             int alt118=2;
             alt118 = dfa118.predict(input);
             switch (alt118) {
                 case 1 :
-                    // SqlParser.g:260:32: type_name
+                    // SqlParser.g:261:32: type_name
                     {
-                    pushFollow(FOLLOW_type_name_in_column_def2338);
+                    pushFollow(FOLLOW_type_name_in_column_def2342);
                     type_name311=type_name();
 
                     state._fsp--;
@@ -8459,16 +8460,16 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:260:43: ( column_constraint )*
+            // SqlParser.g:261:43: ( column_constraint )*
             loop119:
             do {
                 int alt119=2;
                 alt119 = dfa119.predict(input);
                 switch (alt119) {
             	case 1 :
-            	    // SqlParser.g:260:43: column_constraint
+            	    // SqlParser.g:261:43: column_constraint
             	    {
-            	    pushFollow(FOLLOW_column_constraint_in_column_def2341);
+            	    pushFollow(FOLLOW_column_constraint_in_column_def2345);
             	    column_constraint312=column_constraint();
 
             	    state._fsp--;
@@ -8497,19 +8498,19 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_name=new RewriteRuleSubtreeStream(adaptor,"rule name",name!=null?name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 261:1: -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? )
+            // 262:1: -> ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? )
             {
-                // SqlParser.g:261:4: ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? )
+                // SqlParser.g:262:4: ^( $name ^( CONSTRAINTS ( column_constraint )* ) ( type_name )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(stream_name.nextNode(), root_1);
 
-                // SqlParser.g:261:12: ^( CONSTRAINTS ( column_constraint )* )
+                // SqlParser.g:262:12: ^( CONSTRAINTS ( column_constraint )* )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(CONSTRAINTS, "CONSTRAINTS"), root_2);
 
-                // SqlParser.g:261:26: ( column_constraint )*
+                // SqlParser.g:262:26: ( column_constraint )*
                 while ( stream_column_constraint.hasNext() ) {
                     adaptor.addChild(root_2, stream_column_constraint.nextTree());
 
@@ -8518,7 +8519,7 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:261:46: ( type_name )?
+                // SqlParser.g:262:46: ( type_name )?
                 if ( stream_type_name.hasNext() ) {
                     adaptor.addChild(root_1, stream_type_name.nextTree());
 
@@ -8557,7 +8558,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint"
-    // SqlParser.g:263:1: column_constraint : ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause ) -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? ) ;
+    // SqlParser.g:264:1: column_constraint : ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause ) -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? ) ;
     public final SqlParser.column_constraint_return column_constraint() throws RecognitionException {
         SqlParser.column_constraint_return retval = new SqlParser.column_constraint_return();
         retval.start = input.LT(1);
@@ -8593,10 +8594,10 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_fk_clause=new RewriteRuleSubtreeStream(adaptor,"rule fk_clause");
         RewriteRuleSubtreeStream stream_column_constraint_not_null=new RewriteRuleSubtreeStream(adaptor,"rule column_constraint_not_null");
         try {
-            // SqlParser.g:263:18: ( ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause ) -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? ) )
-            // SqlParser.g:263:20: ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause )
+            // SqlParser.g:264:18: ( ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause ) -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? ) )
+            // SqlParser.g:264:20: ( CONSTRAINT name= id )? ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause )
             {
-            // SqlParser.g:263:20: ( CONSTRAINT name= id )?
+            // SqlParser.g:264:20: ( CONSTRAINT name= id )?
             int alt120=2;
             int LA120_0 = input.LA(1);
 
@@ -8605,12 +8606,12 @@ public class SqlParser extends Parser {
             }
             switch (alt120) {
                 case 1 :
-                    // SqlParser.g:263:21: CONSTRAINT name= id
+                    // SqlParser.g:264:21: CONSTRAINT name= id
                     {
-                    CONSTRAINT313=(Token)match(input,CONSTRAINT,FOLLOW_CONSTRAINT_in_column_constraint2367);  
+                    CONSTRAINT313=(Token)match(input,CONSTRAINT,FOLLOW_CONSTRAINT_in_column_constraint2371);  
                     stream_CONSTRAINT.add(CONSTRAINT313);
 
-                    pushFollow(FOLLOW_id_in_column_constraint2371);
+                    pushFollow(FOLLOW_id_in_column_constraint2375);
                     name=id();
 
                     state._fsp--;
@@ -8622,7 +8623,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:264:3: ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause )
+            // SqlParser.g:265:3: ( column_constraint_pk | column_constraint_not_null | column_constraint_unique | column_constraint_check | column_constraint_default | column_constraint_collate | fk_clause )
             int alt121=7;
             switch ( input.LA(1) ) {
             case PRIMARY:
@@ -8669,9 +8670,9 @@ public class SqlParser extends Parser {
 
             switch (alt121) {
                 case 1 :
-                    // SqlParser.g:264:5: column_constraint_pk
+                    // SqlParser.g:265:5: column_constraint_pk
                     {
-                    pushFollow(FOLLOW_column_constraint_pk_in_column_constraint2379);
+                    pushFollow(FOLLOW_column_constraint_pk_in_column_constraint2383);
                     column_constraint_pk314=column_constraint_pk();
 
                     state._fsp--;
@@ -8681,9 +8682,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:265:5: column_constraint_not_null
+                    // SqlParser.g:266:5: column_constraint_not_null
                     {
-                    pushFollow(FOLLOW_column_constraint_not_null_in_column_constraint2385);
+                    pushFollow(FOLLOW_column_constraint_not_null_in_column_constraint2389);
                     column_constraint_not_null315=column_constraint_not_null();
 
                     state._fsp--;
@@ -8693,9 +8694,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:266:5: column_constraint_unique
+                    // SqlParser.g:267:5: column_constraint_unique
                     {
-                    pushFollow(FOLLOW_column_constraint_unique_in_column_constraint2391);
+                    pushFollow(FOLLOW_column_constraint_unique_in_column_constraint2395);
                     column_constraint_unique316=column_constraint_unique();
 
                     state._fsp--;
@@ -8705,9 +8706,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:267:5: column_constraint_check
+                    // SqlParser.g:268:5: column_constraint_check
                     {
-                    pushFollow(FOLLOW_column_constraint_check_in_column_constraint2397);
+                    pushFollow(FOLLOW_column_constraint_check_in_column_constraint2401);
                     column_constraint_check317=column_constraint_check();
 
                     state._fsp--;
@@ -8717,9 +8718,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 5 :
-                    // SqlParser.g:268:5: column_constraint_default
+                    // SqlParser.g:269:5: column_constraint_default
                     {
-                    pushFollow(FOLLOW_column_constraint_default_in_column_constraint2403);
+                    pushFollow(FOLLOW_column_constraint_default_in_column_constraint2407);
                     column_constraint_default318=column_constraint_default();
 
                     state._fsp--;
@@ -8729,9 +8730,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 6 :
-                    // SqlParser.g:269:5: column_constraint_collate
+                    // SqlParser.g:270:5: column_constraint_collate
                     {
-                    pushFollow(FOLLOW_column_constraint_collate_in_column_constraint2409);
+                    pushFollow(FOLLOW_column_constraint_collate_in_column_constraint2413);
                     column_constraint_collate319=column_constraint_collate();
 
                     state._fsp--;
@@ -8741,9 +8742,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 7 :
-                    // SqlParser.g:270:5: fk_clause
+                    // SqlParser.g:271:5: fk_clause
                     {
-                    pushFollow(FOLLOW_fk_clause_in_column_constraint2415);
+                    pushFollow(FOLLOW_fk_clause_in_column_constraint2419);
                     fk_clause320=fk_clause();
 
                     state._fsp--;
@@ -8769,56 +8770,56 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_name=new RewriteRuleSubtreeStream(adaptor,"rule name",name!=null?name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 271:1: -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? )
+            // 272:1: -> ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? )
             {
-                // SqlParser.g:271:4: ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? )
+                // SqlParser.g:272:4: ^( COLUMN_CONSTRAINT ( column_constraint_pk )? ( column_constraint_not_null )? ( column_constraint_unique )? ( column_constraint_check )? ( column_constraint_default )? ( column_constraint_collate )? ( fk_clause )? ( $name)? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMN_CONSTRAINT, "COLUMN_CONSTRAINT"), root_1);
 
-                // SqlParser.g:272:3: ( column_constraint_pk )?
+                // SqlParser.g:273:3: ( column_constraint_pk )?
                 if ( stream_column_constraint_pk.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_pk.nextTree());
 
                 }
                 stream_column_constraint_pk.reset();
-                // SqlParser.g:273:3: ( column_constraint_not_null )?
+                // SqlParser.g:274:3: ( column_constraint_not_null )?
                 if ( stream_column_constraint_not_null.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_not_null.nextTree());
 
                 }
                 stream_column_constraint_not_null.reset();
-                // SqlParser.g:274:3: ( column_constraint_unique )?
+                // SqlParser.g:275:3: ( column_constraint_unique )?
                 if ( stream_column_constraint_unique.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_unique.nextTree());
 
                 }
                 stream_column_constraint_unique.reset();
-                // SqlParser.g:275:3: ( column_constraint_check )?
+                // SqlParser.g:276:3: ( column_constraint_check )?
                 if ( stream_column_constraint_check.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_check.nextTree());
 
                 }
                 stream_column_constraint_check.reset();
-                // SqlParser.g:276:3: ( column_constraint_default )?
+                // SqlParser.g:277:3: ( column_constraint_default )?
                 if ( stream_column_constraint_default.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_default.nextTree());
 
                 }
                 stream_column_constraint_default.reset();
-                // SqlParser.g:277:3: ( column_constraint_collate )?
+                // SqlParser.g:278:3: ( column_constraint_collate )?
                 if ( stream_column_constraint_collate.hasNext() ) {
                     adaptor.addChild(root_1, stream_column_constraint_collate.nextTree());
 
                 }
                 stream_column_constraint_collate.reset();
-                // SqlParser.g:278:3: ( fk_clause )?
+                // SqlParser.g:279:3: ( fk_clause )?
                 if ( stream_fk_clause.hasNext() ) {
                     adaptor.addChild(root_1, stream_fk_clause.nextTree());
 
                 }
                 stream_fk_clause.reset();
-                // SqlParser.g:279:3: ( $name)?
+                // SqlParser.g:280:3: ( $name)?
                 if ( stream_name.hasNext() ) {
                     adaptor.addChild(root_1, stream_name.nextTree());
 
@@ -8857,7 +8858,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_pk"
-    // SqlParser.g:281:1: column_constraint_pk : PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )? ;
+    // SqlParser.g:282:1: column_constraint_pk : PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )? ;
     public final SqlParser.column_constraint_pk_return column_constraint_pk() throws RecognitionException {
         SqlParser.column_constraint_pk_return retval = new SqlParser.column_constraint_pk_return();
         retval.start = input.LT(1);
@@ -8877,17 +8878,17 @@ public class SqlParser extends Parser {
         Object AUTOINCREMENT325_tree=null;
 
         try {
-            // SqlParser.g:281:21: ( PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )? )
-            // SqlParser.g:281:23: PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )?
+            // SqlParser.g:282:21: ( PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )? )
+            // SqlParser.g:282:23: PRIMARY KEY ( ASC | DESC )? ( table_conflict_clause )? ( AUTOINCREMENT )?
             {
             root_0 = (Object)adaptor.nil();
 
-            PRIMARY321=(Token)match(input,PRIMARY,FOLLOW_PRIMARY_in_column_constraint_pk2470); 
+            PRIMARY321=(Token)match(input,PRIMARY,FOLLOW_PRIMARY_in_column_constraint_pk2474); 
             PRIMARY321_tree = (Object)adaptor.create(PRIMARY321);
             root_0 = (Object)adaptor.becomeRoot(PRIMARY321_tree, root_0);
 
-            KEY322=(Token)match(input,KEY,FOLLOW_KEY_in_column_constraint_pk2473); 
-            // SqlParser.g:281:37: ( ASC | DESC )?
+            KEY322=(Token)match(input,KEY,FOLLOW_KEY_in_column_constraint_pk2477); 
+            // SqlParser.g:282:37: ( ASC | DESC )?
             int alt122=2;
             alt122 = dfa122.predict(input);
             switch (alt122) {
@@ -8911,14 +8912,14 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:281:51: ( table_conflict_clause )?
+            // SqlParser.g:282:51: ( table_conflict_clause )?
             int alt123=2;
             alt123 = dfa123.predict(input);
             switch (alt123) {
                 case 1 :
-                    // SqlParser.g:281:51: table_conflict_clause
+                    // SqlParser.g:282:51: table_conflict_clause
                     {
-                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_pk2485);
+                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_pk2489);
                     table_conflict_clause324=table_conflict_clause();
 
                     state._fsp--;
@@ -8930,14 +8931,14 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:281:74: ( AUTOINCREMENT )?
+            // SqlParser.g:282:74: ( AUTOINCREMENT )?
             int alt124=2;
             alt124 = dfa124.predict(input);
             switch (alt124) {
                 case 1 :
-                    // SqlParser.g:281:75: AUTOINCREMENT
+                    // SqlParser.g:282:75: AUTOINCREMENT
                     {
-                    AUTOINCREMENT325=(Token)match(input,AUTOINCREMENT,FOLLOW_AUTOINCREMENT_in_column_constraint_pk2489); 
+                    AUTOINCREMENT325=(Token)match(input,AUTOINCREMENT,FOLLOW_AUTOINCREMENT_in_column_constraint_pk2493); 
                     AUTOINCREMENT325_tree = (Object)adaptor.create(AUTOINCREMENT325);
                     adaptor.addChild(root_0, AUTOINCREMENT325_tree);
 
@@ -8974,7 +8975,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_not_null"
-    // SqlParser.g:283:1: column_constraint_not_null : NOT NULL ( table_conflict_clause )? -> ^( NOT_NULL ( table_conflict_clause )? ) ;
+    // SqlParser.g:284:1: column_constraint_not_null : NOT NULL ( table_conflict_clause )? -> ^( NOT_NULL ( table_conflict_clause )? ) ;
     public final SqlParser.column_constraint_not_null_return column_constraint_not_null() throws RecognitionException {
         SqlParser.column_constraint_not_null_return retval = new SqlParser.column_constraint_not_null_return();
         retval.start = input.LT(1);
@@ -8992,23 +8993,23 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_NULL=new RewriteRuleTokenStream(adaptor,"token NULL");
         RewriteRuleSubtreeStream stream_table_conflict_clause=new RewriteRuleSubtreeStream(adaptor,"rule table_conflict_clause");
         try {
-            // SqlParser.g:283:27: ( NOT NULL ( table_conflict_clause )? -> ^( NOT_NULL ( table_conflict_clause )? ) )
-            // SqlParser.g:283:29: NOT NULL ( table_conflict_clause )?
+            // SqlParser.g:284:27: ( NOT NULL ( table_conflict_clause )? -> ^( NOT_NULL ( table_conflict_clause )? ) )
+            // SqlParser.g:284:29: NOT NULL ( table_conflict_clause )?
             {
-            NOT326=(Token)match(input,NOT,FOLLOW_NOT_in_column_constraint_not_null2498);  
+            NOT326=(Token)match(input,NOT,FOLLOW_NOT_in_column_constraint_not_null2502);  
             stream_NOT.add(NOT326);
 
-            NULL327=(Token)match(input,NULL,FOLLOW_NULL_in_column_constraint_not_null2500);  
+            NULL327=(Token)match(input,NULL,FOLLOW_NULL_in_column_constraint_not_null2504);  
             stream_NULL.add(NULL327);
 
-            // SqlParser.g:283:38: ( table_conflict_clause )?
+            // SqlParser.g:284:38: ( table_conflict_clause )?
             int alt125=2;
             alt125 = dfa125.predict(input);
             switch (alt125) {
                 case 1 :
-                    // SqlParser.g:283:38: table_conflict_clause
+                    // SqlParser.g:284:38: table_conflict_clause
                     {
-                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_not_null2502);
+                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_not_null2506);
                     table_conflict_clause328=table_conflict_clause();
 
                     state._fsp--;
@@ -9033,14 +9034,14 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 283:61: -> ^( NOT_NULL ( table_conflict_clause )? )
+            // 284:61: -> ^( NOT_NULL ( table_conflict_clause )? )
             {
-                // SqlParser.g:283:64: ^( NOT_NULL ( table_conflict_clause )? )
+                // SqlParser.g:284:64: ^( NOT_NULL ( table_conflict_clause )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(NOT_NULL, "NOT_NULL"), root_1);
 
-                // SqlParser.g:283:75: ( table_conflict_clause )?
+                // SqlParser.g:284:75: ( table_conflict_clause )?
                 if ( stream_table_conflict_clause.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_conflict_clause.nextTree());
 
@@ -9079,7 +9080,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_unique"
-    // SqlParser.g:285:1: column_constraint_unique : UNIQUE ( table_conflict_clause )? ;
+    // SqlParser.g:286:1: column_constraint_unique : UNIQUE ( table_conflict_clause )? ;
     public final SqlParser.column_constraint_unique_return column_constraint_unique() throws RecognitionException {
         SqlParser.column_constraint_unique_return retval = new SqlParser.column_constraint_unique_return();
         retval.start = input.LT(1);
@@ -9093,23 +9094,23 @@ public class SqlParser extends Parser {
         Object UNIQUE329_tree=null;
 
         try {
-            // SqlParser.g:285:25: ( UNIQUE ( table_conflict_clause )? )
-            // SqlParser.g:285:27: UNIQUE ( table_conflict_clause )?
+            // SqlParser.g:286:25: ( UNIQUE ( table_conflict_clause )? )
+            // SqlParser.g:286:27: UNIQUE ( table_conflict_clause )?
             {
             root_0 = (Object)adaptor.nil();
 
-            UNIQUE329=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_column_constraint_unique2519); 
+            UNIQUE329=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_column_constraint_unique2523); 
             UNIQUE329_tree = (Object)adaptor.create(UNIQUE329);
             root_0 = (Object)adaptor.becomeRoot(UNIQUE329_tree, root_0);
 
-            // SqlParser.g:285:35: ( table_conflict_clause )?
+            // SqlParser.g:286:35: ( table_conflict_clause )?
             int alt126=2;
             alt126 = dfa126.predict(input);
             switch (alt126) {
                 case 1 :
-                    // SqlParser.g:285:35: table_conflict_clause
+                    // SqlParser.g:286:35: table_conflict_clause
                     {
-                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_unique2522);
+                    pushFollow(FOLLOW_table_conflict_clause_in_column_constraint_unique2526);
                     table_conflict_clause330=table_conflict_clause();
 
                     state._fsp--;
@@ -9148,7 +9149,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_check"
-    // SqlParser.g:287:1: column_constraint_check : CHECK LPAREN expr RPAREN ;
+    // SqlParser.g:288:1: column_constraint_check : CHECK LPAREN expr RPAREN ;
     public final SqlParser.column_constraint_check_return column_constraint_check() throws RecognitionException {
         SqlParser.column_constraint_check_return retval = new SqlParser.column_constraint_check_return();
         retval.start = input.LT(1);
@@ -9166,23 +9167,23 @@ public class SqlParser extends Parser {
         Object RPAREN334_tree=null;
 
         try {
-            // SqlParser.g:287:24: ( CHECK LPAREN expr RPAREN )
-            // SqlParser.g:287:26: CHECK LPAREN expr RPAREN
+            // SqlParser.g:288:24: ( CHECK LPAREN expr RPAREN )
+            // SqlParser.g:288:26: CHECK LPAREN expr RPAREN
             {
             root_0 = (Object)adaptor.nil();
 
-            CHECK331=(Token)match(input,CHECK,FOLLOW_CHECK_in_column_constraint_check2530); 
+            CHECK331=(Token)match(input,CHECK,FOLLOW_CHECK_in_column_constraint_check2534); 
             CHECK331_tree = (Object)adaptor.create(CHECK331);
             root_0 = (Object)adaptor.becomeRoot(CHECK331_tree, root_0);
 
-            LPAREN332=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_column_constraint_check2533); 
-            pushFollow(FOLLOW_expr_in_column_constraint_check2536);
+            LPAREN332=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_column_constraint_check2537); 
+            pushFollow(FOLLOW_expr_in_column_constraint_check2540);
             expr333=expr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, expr333.getTree());
-            RPAREN334=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_column_constraint_check2538); 
+            RPAREN334=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_column_constraint_check2542); 
 
             }
 
@@ -9210,7 +9211,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_default"
-    // SqlParser.g:289:1: column_constraint_default : DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN ) ;
+    // SqlParser.g:290:1: column_constraint_default : DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN ) ;
     public final SqlParser.column_constraint_default_return column_constraint_default() throws RecognitionException {
         SqlParser.column_constraint_default_return retval = new SqlParser.column_constraint_default_return();
         retval.start = input.LT(1);
@@ -9232,16 +9233,16 @@ public class SqlParser extends Parser {
         Object RPAREN340_tree=null;
 
         try {
-            // SqlParser.g:289:26: ( DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN ) )
-            // SqlParser.g:289:28: DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN )
+            // SqlParser.g:290:26: ( DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN ) )
+            // SqlParser.g:290:28: DEFAULT ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN )
             {
             root_0 = (Object)adaptor.nil();
 
-            DEFAULT335=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_column_constraint_default2546); 
+            DEFAULT335=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_column_constraint_default2550); 
             DEFAULT335_tree = (Object)adaptor.create(DEFAULT335);
             root_0 = (Object)adaptor.becomeRoot(DEFAULT335_tree, root_0);
 
-            // SqlParser.g:289:37: ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN )
+            // SqlParser.g:290:37: ( SIGNED_NUMBER | literal_value | LPAREN expr RPAREN )
             int alt127=3;
             switch ( input.LA(1) ) {
             case SIGNED_NUMBER:
@@ -9275,9 +9276,9 @@ public class SqlParser extends Parser {
 
             switch (alt127) {
                 case 1 :
-                    // SqlParser.g:289:38: SIGNED_NUMBER
+                    // SqlParser.g:290:38: SIGNED_NUMBER
                     {
-                    SIGNED_NUMBER336=(Token)match(input,SIGNED_NUMBER,FOLLOW_SIGNED_NUMBER_in_column_constraint_default2550); 
+                    SIGNED_NUMBER336=(Token)match(input,SIGNED_NUMBER,FOLLOW_SIGNED_NUMBER_in_column_constraint_default2554); 
                     SIGNED_NUMBER336_tree = (Object)adaptor.create(SIGNED_NUMBER336);
                     adaptor.addChild(root_0, SIGNED_NUMBER336_tree);
 
@@ -9285,9 +9286,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:289:54: literal_value
+                    // SqlParser.g:290:54: literal_value
                     {
-                    pushFollow(FOLLOW_literal_value_in_column_constraint_default2554);
+                    pushFollow(FOLLOW_literal_value_in_column_constraint_default2558);
                     literal_value337=literal_value();
 
                     state._fsp--;
@@ -9297,16 +9298,16 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:289:70: LPAREN expr RPAREN
+                    // SqlParser.g:290:70: LPAREN expr RPAREN
                     {
-                    LPAREN338=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_column_constraint_default2558); 
-                    pushFollow(FOLLOW_expr_in_column_constraint_default2561);
+                    LPAREN338=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_column_constraint_default2562); 
+                    pushFollow(FOLLOW_expr_in_column_constraint_default2565);
                     expr339=expr();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, expr339.getTree());
-                    RPAREN340=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_column_constraint_default2563); 
+                    RPAREN340=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_column_constraint_default2567); 
 
                     }
                     break;
@@ -9340,7 +9341,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "column_constraint_collate"
-    // SqlParser.g:291:1: column_constraint_collate : COLLATE collation_name= id ;
+    // SqlParser.g:292:1: column_constraint_collate : COLLATE collation_name= id ;
     public final SqlParser.column_constraint_collate_return column_constraint_collate() throws RecognitionException {
         SqlParser.column_constraint_collate_return retval = new SqlParser.column_constraint_collate_return();
         retval.start = input.LT(1);
@@ -9354,16 +9355,16 @@ public class SqlParser extends Parser {
         Object COLLATE341_tree=null;
 
         try {
-            // SqlParser.g:291:26: ( COLLATE collation_name= id )
-            // SqlParser.g:291:28: COLLATE collation_name= id
+            // SqlParser.g:292:26: ( COLLATE collation_name= id )
+            // SqlParser.g:292:28: COLLATE collation_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            COLLATE341=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_column_constraint_collate2572); 
+            COLLATE341=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_column_constraint_collate2576); 
             COLLATE341_tree = (Object)adaptor.create(COLLATE341);
             root_0 = (Object)adaptor.becomeRoot(COLLATE341_tree, root_0);
 
-            pushFollow(FOLLOW_id_in_column_constraint_collate2577);
+            pushFollow(FOLLOW_id_in_column_constraint_collate2581);
             collation_name=id();
 
             state._fsp--;
@@ -9396,7 +9397,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_constraint"
-    // SqlParser.g:293:1: table_constraint : ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk ) -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? ) ;
+    // SqlParser.g:294:1: table_constraint : ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk ) -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? ) ;
     public final SqlParser.table_constraint_return table_constraint() throws RecognitionException {
         SqlParser.table_constraint_return retval = new SqlParser.table_constraint_return();
         retval.start = input.LT(1);
@@ -9423,10 +9424,10 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_table_constraint_unique=new RewriteRuleSubtreeStream(adaptor,"rule table_constraint_unique");
         RewriteRuleSubtreeStream stream_table_constraint_check=new RewriteRuleSubtreeStream(adaptor,"rule table_constraint_check");
         try {
-            // SqlParser.g:293:17: ( ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk ) -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? ) )
-            // SqlParser.g:293:19: ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk )
+            // SqlParser.g:294:17: ( ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk ) -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? ) )
+            // SqlParser.g:294:19: ( CONSTRAINT name= id )? ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk )
             {
-            // SqlParser.g:293:19: ( CONSTRAINT name= id )?
+            // SqlParser.g:294:19: ( CONSTRAINT name= id )?
             int alt128=2;
             int LA128_0 = input.LA(1);
 
@@ -9435,12 +9436,12 @@ public class SqlParser extends Parser {
             }
             switch (alt128) {
                 case 1 :
-                    // SqlParser.g:293:20: CONSTRAINT name= id
+                    // SqlParser.g:294:20: CONSTRAINT name= id
                     {
-                    CONSTRAINT342=(Token)match(input,CONSTRAINT,FOLLOW_CONSTRAINT_in_table_constraint2586);  
+                    CONSTRAINT342=(Token)match(input,CONSTRAINT,FOLLOW_CONSTRAINT_in_table_constraint2590);  
                     stream_CONSTRAINT.add(CONSTRAINT342);
 
-                    pushFollow(FOLLOW_id_in_table_constraint2590);
+                    pushFollow(FOLLOW_id_in_table_constraint2594);
                     name=id();
 
                     state._fsp--;
@@ -9452,7 +9453,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:294:3: ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk )
+            // SqlParser.g:295:3: ( table_constraint_pk | table_constraint_unique | table_constraint_check | table_constraint_fk )
             int alt129=4;
             switch ( input.LA(1) ) {
             case PRIMARY:
@@ -9484,9 +9485,9 @@ public class SqlParser extends Parser {
 
             switch (alt129) {
                 case 1 :
-                    // SqlParser.g:294:5: table_constraint_pk
+                    // SqlParser.g:295:5: table_constraint_pk
                     {
-                    pushFollow(FOLLOW_table_constraint_pk_in_table_constraint2598);
+                    pushFollow(FOLLOW_table_constraint_pk_in_table_constraint2602);
                     table_constraint_pk343=table_constraint_pk();
 
                     state._fsp--;
@@ -9496,9 +9497,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:295:5: table_constraint_unique
+                    // SqlParser.g:296:5: table_constraint_unique
                     {
-                    pushFollow(FOLLOW_table_constraint_unique_in_table_constraint2604);
+                    pushFollow(FOLLOW_table_constraint_unique_in_table_constraint2608);
                     table_constraint_unique344=table_constraint_unique();
 
                     state._fsp--;
@@ -9508,9 +9509,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:296:5: table_constraint_check
+                    // SqlParser.g:297:5: table_constraint_check
                     {
-                    pushFollow(FOLLOW_table_constraint_check_in_table_constraint2610);
+                    pushFollow(FOLLOW_table_constraint_check_in_table_constraint2614);
                     table_constraint_check345=table_constraint_check();
 
                     state._fsp--;
@@ -9520,9 +9521,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 4 :
-                    // SqlParser.g:297:5: table_constraint_fk
+                    // SqlParser.g:298:5: table_constraint_fk
                     {
-                    pushFollow(FOLLOW_table_constraint_fk_in_table_constraint2616);
+                    pushFollow(FOLLOW_table_constraint_fk_in_table_constraint2620);
                     table_constraint_fk346=table_constraint_fk();
 
                     state._fsp--;
@@ -9548,38 +9549,38 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_name=new RewriteRuleSubtreeStream(adaptor,"rule name",name!=null?name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 298:1: -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? )
+            // 299:1: -> ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? )
             {
-                // SqlParser.g:298:4: ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? )
+                // SqlParser.g:299:4: ^( TABLE_CONSTRAINT ( table_constraint_pk )? ( table_constraint_unique )? ( table_constraint_check )? ( table_constraint_fk )? ( $name)? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(TABLE_CONSTRAINT, "TABLE_CONSTRAINT"), root_1);
 
-                // SqlParser.g:299:3: ( table_constraint_pk )?
+                // SqlParser.g:300:3: ( table_constraint_pk )?
                 if ( stream_table_constraint_pk.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_constraint_pk.nextTree());
 
                 }
                 stream_table_constraint_pk.reset();
-                // SqlParser.g:300:3: ( table_constraint_unique )?
+                // SqlParser.g:301:3: ( table_constraint_unique )?
                 if ( stream_table_constraint_unique.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_constraint_unique.nextTree());
 
                 }
                 stream_table_constraint_unique.reset();
-                // SqlParser.g:301:3: ( table_constraint_check )?
+                // SqlParser.g:302:3: ( table_constraint_check )?
                 if ( stream_table_constraint_check.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_constraint_check.nextTree());
 
                 }
                 stream_table_constraint_check.reset();
-                // SqlParser.g:302:3: ( table_constraint_fk )?
+                // SqlParser.g:303:3: ( table_constraint_fk )?
                 if ( stream_table_constraint_fk.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_constraint_fk.nextTree());
 
                 }
                 stream_table_constraint_fk.reset();
-                // SqlParser.g:303:3: ( $name)?
+                // SqlParser.g:304:3: ( $name)?
                 if ( stream_name.hasNext() ) {
                     adaptor.addChild(root_1, stream_name.nextTree());
 
@@ -9618,7 +9619,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_constraint_pk"
-    // SqlParser.g:305:1: table_constraint_pk : PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) ;
+    // SqlParser.g:306:1: table_constraint_pk : PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) ;
     public final SqlParser.table_constraint_pk_return table_constraint_pk() throws RecognitionException {
         SqlParser.table_constraint_pk_return retval = new SqlParser.table_constraint_pk_return();
         retval.start = input.LT(1);
@@ -9648,19 +9649,19 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_table_conflict_clause=new RewriteRuleSubtreeStream(adaptor,"rule table_conflict_clause");
         try {
-            // SqlParser.g:305:20: ( PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) )
-            // SqlParser.g:305:22: PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )?
+            // SqlParser.g:306:20: ( PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) )
+            // SqlParser.g:306:22: PRIMARY KEY LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )?
             {
-            PRIMARY347=(Token)match(input,PRIMARY,FOLLOW_PRIMARY_in_table_constraint_pk2656);  
+            PRIMARY347=(Token)match(input,PRIMARY,FOLLOW_PRIMARY_in_table_constraint_pk2660);  
             stream_PRIMARY.add(PRIMARY347);
 
-            KEY348=(Token)match(input,KEY,FOLLOW_KEY_in_table_constraint_pk2658);  
+            KEY348=(Token)match(input,KEY,FOLLOW_KEY_in_table_constraint_pk2662);  
             stream_KEY.add(KEY348);
 
-            LPAREN349=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_pk2662);  
+            LPAREN349=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_pk2666);  
             stream_LPAREN.add(LPAREN349);
 
-            pushFollow(FOLLOW_id_in_table_constraint_pk2666);
+            pushFollow(FOLLOW_id_in_table_constraint_pk2670);
             indexed_columns=id();
 
             state._fsp--;
@@ -9669,7 +9670,7 @@ public class SqlParser extends Parser {
             if (list_indexed_columns==null) list_indexed_columns=new ArrayList();
             list_indexed_columns.add(indexed_columns.getTree());
 
-            // SqlParser.g:306:30: ( COMMA indexed_columns+= id )*
+            // SqlParser.g:307:30: ( COMMA indexed_columns+= id )*
             loop130:
             do {
                 int alt130=2;
@@ -9682,12 +9683,12 @@ public class SqlParser extends Parser {
 
                 switch (alt130) {
             	case 1 :
-            	    // SqlParser.g:306:31: COMMA indexed_columns+= id
+            	    // SqlParser.g:307:31: COMMA indexed_columns+= id
             	    {
-            	    COMMA350=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_pk2669);  
+            	    COMMA350=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_pk2673);  
             	    stream_COMMA.add(COMMA350);
 
-            	    pushFollow(FOLLOW_id_in_table_constraint_pk2673);
+            	    pushFollow(FOLLOW_id_in_table_constraint_pk2677);
             	    indexed_columns=id();
 
             	    state._fsp--;
@@ -9705,10 +9706,10 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            RPAREN351=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_pk2677);  
+            RPAREN351=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_pk2681);  
             stream_RPAREN.add(RPAREN351);
 
-            // SqlParser.g:306:66: ( table_conflict_clause )?
+            // SqlParser.g:307:66: ( table_conflict_clause )?
             int alt131=2;
             int LA131_0 = input.LA(1);
 
@@ -9717,9 +9718,9 @@ public class SqlParser extends Parser {
             }
             switch (alt131) {
                 case 1 :
-                    // SqlParser.g:306:66: table_conflict_clause
+                    // SqlParser.g:307:66: table_conflict_clause
                     {
-                    pushFollow(FOLLOW_table_conflict_clause_in_table_constraint_pk2679);
+                    pushFollow(FOLLOW_table_conflict_clause_in_table_constraint_pk2683);
                     table_conflict_clause352=table_conflict_clause();
 
                     state._fsp--;
@@ -9744,14 +9745,14 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
             RewriteRuleSubtreeStream stream_indexed_columns=new RewriteRuleSubtreeStream(adaptor,"token indexed_columns",list_indexed_columns);
             root_0 = (Object)adaptor.nil();
-            // 307:1: -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
+            // 308:1: -> ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
             {
-                // SqlParser.g:307:4: ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
+                // SqlParser.g:308:4: ^( PRIMARY ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(stream_PRIMARY.nextNode(), root_1);
 
-                // SqlParser.g:307:14: ^( COLUMNS ( $indexed_columns)+ )
+                // SqlParser.g:308:14: ^( COLUMNS ( $indexed_columns)+ )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -9767,7 +9768,7 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:307:43: ( table_conflict_clause )?
+                // SqlParser.g:308:43: ( table_conflict_clause )?
                 if ( stream_table_conflict_clause.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_conflict_clause.nextTree());
 
@@ -9806,7 +9807,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_constraint_unique"
-    // SqlParser.g:309:1: table_constraint_unique : UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) ;
+    // SqlParser.g:310:1: table_constraint_unique : UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) ;
     public final SqlParser.table_constraint_unique_return table_constraint_unique() throws RecognitionException {
         SqlParser.table_constraint_unique_return retval = new SqlParser.table_constraint_unique_return();
         retval.start = input.LT(1);
@@ -9833,16 +9834,16 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_table_conflict_clause=new RewriteRuleSubtreeStream(adaptor,"rule table_conflict_clause");
         try {
-            // SqlParser.g:309:24: ( UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) )
-            // SqlParser.g:309:26: UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )?
+            // SqlParser.g:310:24: ( UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )? -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? ) )
+            // SqlParser.g:310:26: UNIQUE LPAREN indexed_columns+= id ( COMMA indexed_columns+= id )* RPAREN ( table_conflict_clause )?
             {
-            UNIQUE353=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_table_constraint_unique2704);  
+            UNIQUE353=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_table_constraint_unique2708);  
             stream_UNIQUE.add(UNIQUE353);
 
-            LPAREN354=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_unique2708);  
+            LPAREN354=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_unique2712);  
             stream_LPAREN.add(LPAREN354);
 
-            pushFollow(FOLLOW_id_in_table_constraint_unique2712);
+            pushFollow(FOLLOW_id_in_table_constraint_unique2716);
             indexed_columns=id();
 
             state._fsp--;
@@ -9851,7 +9852,7 @@ public class SqlParser extends Parser {
             if (list_indexed_columns==null) list_indexed_columns=new ArrayList();
             list_indexed_columns.add(indexed_columns.getTree());
 
-            // SqlParser.g:310:30: ( COMMA indexed_columns+= id )*
+            // SqlParser.g:311:30: ( COMMA indexed_columns+= id )*
             loop132:
             do {
                 int alt132=2;
@@ -9864,12 +9865,12 @@ public class SqlParser extends Parser {
 
                 switch (alt132) {
             	case 1 :
-            	    // SqlParser.g:310:31: COMMA indexed_columns+= id
+            	    // SqlParser.g:311:31: COMMA indexed_columns+= id
             	    {
-            	    COMMA355=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_unique2715);  
+            	    COMMA355=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_unique2719);  
             	    stream_COMMA.add(COMMA355);
 
-            	    pushFollow(FOLLOW_id_in_table_constraint_unique2719);
+            	    pushFollow(FOLLOW_id_in_table_constraint_unique2723);
             	    indexed_columns=id();
 
             	    state._fsp--;
@@ -9887,10 +9888,10 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            RPAREN356=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_unique2723);  
+            RPAREN356=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_unique2727);  
             stream_RPAREN.add(RPAREN356);
 
-            // SqlParser.g:310:66: ( table_conflict_clause )?
+            // SqlParser.g:311:66: ( table_conflict_clause )?
             int alt133=2;
             int LA133_0 = input.LA(1);
 
@@ -9899,9 +9900,9 @@ public class SqlParser extends Parser {
             }
             switch (alt133) {
                 case 1 :
-                    // SqlParser.g:310:66: table_conflict_clause
+                    // SqlParser.g:311:66: table_conflict_clause
                     {
-                    pushFollow(FOLLOW_table_conflict_clause_in_table_constraint_unique2725);
+                    pushFollow(FOLLOW_table_conflict_clause_in_table_constraint_unique2729);
                     table_conflict_clause357=table_conflict_clause();
 
                     state._fsp--;
@@ -9926,14 +9927,14 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
             RewriteRuleSubtreeStream stream_indexed_columns=new RewriteRuleSubtreeStream(adaptor,"token indexed_columns",list_indexed_columns);
             root_0 = (Object)adaptor.nil();
-            // 311:1: -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
+            // 312:1: -> ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
             {
-                // SqlParser.g:311:4: ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
+                // SqlParser.g:312:4: ^( UNIQUE ^( COLUMNS ( $indexed_columns)+ ) ( table_conflict_clause )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(stream_UNIQUE.nextNode(), root_1);
 
-                // SqlParser.g:311:13: ^( COLUMNS ( $indexed_columns)+ )
+                // SqlParser.g:312:13: ^( COLUMNS ( $indexed_columns)+ )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -9949,7 +9950,7 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:311:42: ( table_conflict_clause )?
+                // SqlParser.g:312:42: ( table_conflict_clause )?
                 if ( stream_table_conflict_clause.hasNext() ) {
                     adaptor.addChild(root_1, stream_table_conflict_clause.nextTree());
 
@@ -9988,7 +9989,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_constraint_check"
-    // SqlParser.g:313:1: table_constraint_check : CHECK LPAREN expr RPAREN ;
+    // SqlParser.g:314:1: table_constraint_check : CHECK LPAREN expr RPAREN ;
     public final SqlParser.table_constraint_check_return table_constraint_check() throws RecognitionException {
         SqlParser.table_constraint_check_return retval = new SqlParser.table_constraint_check_return();
         retval.start = input.LT(1);
@@ -10006,23 +10007,23 @@ public class SqlParser extends Parser {
         Object RPAREN361_tree=null;
 
         try {
-            // SqlParser.g:313:23: ( CHECK LPAREN expr RPAREN )
-            // SqlParser.g:313:25: CHECK LPAREN expr RPAREN
+            // SqlParser.g:314:23: ( CHECK LPAREN expr RPAREN )
+            // SqlParser.g:314:25: CHECK LPAREN expr RPAREN
             {
             root_0 = (Object)adaptor.nil();
 
-            CHECK358=(Token)match(input,CHECK,FOLLOW_CHECK_in_table_constraint_check2750); 
+            CHECK358=(Token)match(input,CHECK,FOLLOW_CHECK_in_table_constraint_check2754); 
             CHECK358_tree = (Object)adaptor.create(CHECK358);
             root_0 = (Object)adaptor.becomeRoot(CHECK358_tree, root_0);
 
-            LPAREN359=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_check2753); 
-            pushFollow(FOLLOW_expr_in_table_constraint_check2756);
+            LPAREN359=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_check2757); 
+            pushFollow(FOLLOW_expr_in_table_constraint_check2760);
             expr360=expr();
 
             state._fsp--;
 
             adaptor.addChild(root_0, expr360.getTree());
-            RPAREN361=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_check2758); 
+            RPAREN361=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_check2762); 
 
             }
 
@@ -10050,7 +10051,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "table_constraint_fk"
-    // SqlParser.g:315:1: table_constraint_fk : FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause ) ;
+    // SqlParser.g:316:1: table_constraint_fk : FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause ) ;
     public final SqlParser.table_constraint_fk_return table_constraint_fk() throws RecognitionException {
         SqlParser.table_constraint_fk_return retval = new SqlParser.table_constraint_fk_return();
         retval.start = input.LT(1);
@@ -10080,19 +10081,19 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_fk_clause=new RewriteRuleSubtreeStream(adaptor,"rule fk_clause");
         try {
-            // SqlParser.g:315:20: ( FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause ) )
-            // SqlParser.g:315:22: FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause
+            // SqlParser.g:316:20: ( FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause ) )
+            // SqlParser.g:316:22: FOREIGN KEY LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN fk_clause
             {
-            FOREIGN362=(Token)match(input,FOREIGN,FOLLOW_FOREIGN_in_table_constraint_fk2766);  
+            FOREIGN362=(Token)match(input,FOREIGN,FOLLOW_FOREIGN_in_table_constraint_fk2770);  
             stream_FOREIGN.add(FOREIGN362);
 
-            KEY363=(Token)match(input,KEY,FOLLOW_KEY_in_table_constraint_fk2768);  
+            KEY363=(Token)match(input,KEY,FOLLOW_KEY_in_table_constraint_fk2772);  
             stream_KEY.add(KEY363);
 
-            LPAREN364=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_fk2770);  
+            LPAREN364=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_table_constraint_fk2774);  
             stream_LPAREN.add(LPAREN364);
 
-            pushFollow(FOLLOW_id_in_table_constraint_fk2774);
+            pushFollow(FOLLOW_id_in_table_constraint_fk2778);
             column_names=id();
 
             state._fsp--;
@@ -10101,7 +10102,7 @@ public class SqlParser extends Parser {
             if (list_column_names==null) list_column_names=new ArrayList();
             list_column_names.add(column_names.getTree());
 
-            // SqlParser.g:315:58: ( COMMA column_names+= id )*
+            // SqlParser.g:316:58: ( COMMA column_names+= id )*
             loop134:
             do {
                 int alt134=2;
@@ -10114,12 +10115,12 @@ public class SqlParser extends Parser {
 
                 switch (alt134) {
             	case 1 :
-            	    // SqlParser.g:315:59: COMMA column_names+= id
+            	    // SqlParser.g:316:59: COMMA column_names+= id
             	    {
-            	    COMMA365=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_fk2777);  
+            	    COMMA365=(Token)match(input,COMMA,FOLLOW_COMMA_in_table_constraint_fk2781);  
             	    stream_COMMA.add(COMMA365);
 
-            	    pushFollow(FOLLOW_id_in_table_constraint_fk2781);
+            	    pushFollow(FOLLOW_id_in_table_constraint_fk2785);
             	    column_names=id();
 
             	    state._fsp--;
@@ -10137,10 +10138,10 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            RPAREN366=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_fk2785);  
+            RPAREN366=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_table_constraint_fk2789);  
             stream_RPAREN.add(RPAREN366);
 
-            pushFollow(FOLLOW_fk_clause_in_table_constraint_fk2787);
+            pushFollow(FOLLOW_fk_clause_in_table_constraint_fk2791);
             fk_clause367=fk_clause();
 
             state._fsp--;
@@ -10159,14 +10160,14 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
             RewriteRuleSubtreeStream stream_column_names=new RewriteRuleSubtreeStream(adaptor,"token column_names",list_column_names);
             root_0 = (Object)adaptor.nil();
-            // 316:1: -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause )
+            // 317:1: -> ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause )
             {
-                // SqlParser.g:316:4: ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause )
+                // SqlParser.g:317:4: ^( FOREIGN ^( COLUMNS ( $column_names)+ ) fk_clause )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(stream_FOREIGN.nextNode(), root_1);
 
-                // SqlParser.g:316:14: ^( COLUMNS ( $column_names)+ )
+                // SqlParser.g:317:14: ^( COLUMNS ( $column_names)+ )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -10216,7 +10217,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "fk_clause"
-    // SqlParser.g:318:1: fk_clause : REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )? ;
+    // SqlParser.g:319:1: fk_clause : REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )? ;
     public final SqlParser.fk_clause_return fk_clause() throws RecognitionException {
         SqlParser.fk_clause_return retval = new SqlParser.fk_clause_return();
         retval.start = input.LT(1);
@@ -10242,22 +10243,22 @@ public class SqlParser extends Parser {
         Object RPAREN371_tree=null;
 
         try {
-            // SqlParser.g:318:10: ( REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )? )
-            // SqlParser.g:318:12: REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )?
+            // SqlParser.g:319:10: ( REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )? )
+            // SqlParser.g:319:12: REFERENCES foreign_table= id ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )? ( fk_clause_action )+ ( fk_clause_deferrable )?
             {
             root_0 = (Object)adaptor.nil();
 
-            REFERENCES368=(Token)match(input,REFERENCES,FOLLOW_REFERENCES_in_fk_clause2810); 
+            REFERENCES368=(Token)match(input,REFERENCES,FOLLOW_REFERENCES_in_fk_clause2814); 
             REFERENCES368_tree = (Object)adaptor.create(REFERENCES368);
             root_0 = (Object)adaptor.becomeRoot(REFERENCES368_tree, root_0);
 
-            pushFollow(FOLLOW_id_in_fk_clause2815);
+            pushFollow(FOLLOW_id_in_fk_clause2819);
             foreign_table=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, foreign_table.getTree());
-            // SqlParser.g:318:41: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )?
+            // SqlParser.g:319:41: ( LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN )?
             int alt136=2;
             int LA136_0 = input.LA(1);
 
@@ -10266,13 +10267,13 @@ public class SqlParser extends Parser {
             }
             switch (alt136) {
                 case 1 :
-                    // SqlParser.g:318:42: LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
+                    // SqlParser.g:319:42: LPAREN column_names+= id ( COMMA column_names+= id )* RPAREN
                     {
-                    LPAREN369=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_fk_clause2818); 
+                    LPAREN369=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_fk_clause2822); 
                     LPAREN369_tree = (Object)adaptor.create(LPAREN369);
                     adaptor.addChild(root_0, LPAREN369_tree);
 
-                    pushFollow(FOLLOW_id_in_fk_clause2822);
+                    pushFollow(FOLLOW_id_in_fk_clause2826);
                     column_names=id();
 
                     state._fsp--;
@@ -10281,7 +10282,7 @@ public class SqlParser extends Parser {
                     if (list_column_names==null) list_column_names=new ArrayList();
                     list_column_names.add(column_names.getTree());
 
-                    // SqlParser.g:318:66: ( COMMA column_names+= id )*
+                    // SqlParser.g:319:66: ( COMMA column_names+= id )*
                     loop135:
                     do {
                         int alt135=2;
@@ -10294,13 +10295,13 @@ public class SqlParser extends Parser {
 
                         switch (alt135) {
                     	case 1 :
-                    	    // SqlParser.g:318:67: COMMA column_names+= id
+                    	    // SqlParser.g:319:67: COMMA column_names+= id
                     	    {
-                    	    COMMA370=(Token)match(input,COMMA,FOLLOW_COMMA_in_fk_clause2825); 
+                    	    COMMA370=(Token)match(input,COMMA,FOLLOW_COMMA_in_fk_clause2829); 
                     	    COMMA370_tree = (Object)adaptor.create(COMMA370);
                     	    adaptor.addChild(root_0, COMMA370_tree);
 
-                    	    pushFollow(FOLLOW_id_in_fk_clause2829);
+                    	    pushFollow(FOLLOW_id_in_fk_clause2833);
                     	    column_names=id();
 
                     	    state._fsp--;
@@ -10318,7 +10319,7 @@ public class SqlParser extends Parser {
                         }
                     } while (true);
 
-                    RPAREN371=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_fk_clause2833); 
+                    RPAREN371=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_fk_clause2837); 
                     RPAREN371_tree = (Object)adaptor.create(RPAREN371);
                     adaptor.addChild(root_0, RPAREN371_tree);
 
@@ -10328,7 +10329,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:319:3: ( fk_clause_action )+
+            // SqlParser.g:320:3: ( fk_clause_action )+
             int cnt137=0;
             loop137:
             do {
@@ -10336,9 +10337,9 @@ public class SqlParser extends Parser {
                 alt137 = dfa137.predict(input);
                 switch (alt137) {
             	case 1 :
-            	    // SqlParser.g:319:3: fk_clause_action
+            	    // SqlParser.g:320:3: fk_clause_action
             	    {
-            	    pushFollow(FOLLOW_fk_clause_action_in_fk_clause2839);
+            	    pushFollow(FOLLOW_fk_clause_action_in_fk_clause2843);
             	    fk_clause_action372=fk_clause_action();
 
             	    state._fsp--;
@@ -10357,14 +10358,14 @@ public class SqlParser extends Parser {
                 cnt137++;
             } while (true);
 
-            // SqlParser.g:319:21: ( fk_clause_deferrable )?
+            // SqlParser.g:320:21: ( fk_clause_deferrable )?
             int alt138=2;
             alt138 = dfa138.predict(input);
             switch (alt138) {
                 case 1 :
-                    // SqlParser.g:319:21: fk_clause_deferrable
+                    // SqlParser.g:320:21: fk_clause_deferrable
                     {
-                    pushFollow(FOLLOW_fk_clause_deferrable_in_fk_clause2842);
+                    pushFollow(FOLLOW_fk_clause_deferrable_in_fk_clause2846);
                     fk_clause_deferrable373=fk_clause_deferrable();
 
                     state._fsp--;
@@ -10403,7 +10404,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "fk_clause_action"
-    // SqlParser.g:321:1: fk_clause_action : ( ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT ) | MATCH name= id );
+    // SqlParser.g:322:1: fk_clause_action : ( ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT ) | MATCH name= id );
     public final SqlParser.fk_clause_action_return fk_clause_action() throws RecognitionException {
         SqlParser.fk_clause_action_return retval = new SqlParser.fk_clause_action_return();
         retval.start = input.LT(1);
@@ -10433,7 +10434,7 @@ public class SqlParser extends Parser {
         Object MATCH382_tree=null;
 
         try {
-            // SqlParser.g:322:3: ( ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT ) | MATCH name= id )
+            // SqlParser.g:323:3: ( ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT ) | MATCH name= id )
             int alt140=2;
             int LA140_0 = input.LA(1);
 
@@ -10451,11 +10452,11 @@ public class SqlParser extends Parser {
             }
             switch (alt140) {
                 case 1 :
-                    // SqlParser.g:322:5: ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT )
+                    // SqlParser.g:323:5: ON ( DELETE | UPDATE | INSERT ) ( SET NULL | SET DEFAULT | CASCADE | RESTRICT )
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    ON374=(Token)match(input,ON,FOLLOW_ON_in_fk_clause_action2853); 
+                    ON374=(Token)match(input,ON,FOLLOW_ON_in_fk_clause_action2857); 
                     ON374_tree = (Object)adaptor.create(ON374);
                     adaptor.addChild(root_0, ON374_tree);
 
@@ -10470,7 +10471,7 @@ public class SqlParser extends Parser {
                         throw mse;
                     }
 
-                    // SqlParser.g:322:35: ( SET NULL | SET DEFAULT | CASCADE | RESTRICT )
+                    // SqlParser.g:323:35: ( SET NULL | SET DEFAULT | CASCADE | RESTRICT )
                     int alt139=4;
                     switch ( input.LA(1) ) {
                     case SET:
@@ -10510,13 +10511,13 @@ public class SqlParser extends Parser {
 
                     switch (alt139) {
                         case 1 :
-                            // SqlParser.g:322:36: SET NULL
+                            // SqlParser.g:323:36: SET NULL
                             {
-                            SET376=(Token)match(input,SET,FOLLOW_SET_in_fk_clause_action2868); 
+                            SET376=(Token)match(input,SET,FOLLOW_SET_in_fk_clause_action2872); 
                             SET376_tree = (Object)adaptor.create(SET376);
                             adaptor.addChild(root_0, SET376_tree);
 
-                            NULL377=(Token)match(input,NULL,FOLLOW_NULL_in_fk_clause_action2870); 
+                            NULL377=(Token)match(input,NULL,FOLLOW_NULL_in_fk_clause_action2874); 
                             NULL377_tree = (Object)adaptor.create(NULL377);
                             adaptor.addChild(root_0, NULL377_tree);
 
@@ -10524,13 +10525,13 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 2 :
-                            // SqlParser.g:322:47: SET DEFAULT
+                            // SqlParser.g:323:47: SET DEFAULT
                             {
-                            SET378=(Token)match(input,SET,FOLLOW_SET_in_fk_clause_action2874); 
+                            SET378=(Token)match(input,SET,FOLLOW_SET_in_fk_clause_action2878); 
                             SET378_tree = (Object)adaptor.create(SET378);
                             adaptor.addChild(root_0, SET378_tree);
 
-                            DEFAULT379=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_fk_clause_action2876); 
+                            DEFAULT379=(Token)match(input,DEFAULT,FOLLOW_DEFAULT_in_fk_clause_action2880); 
                             DEFAULT379_tree = (Object)adaptor.create(DEFAULT379);
                             adaptor.addChild(root_0, DEFAULT379_tree);
 
@@ -10538,9 +10539,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 3 :
-                            // SqlParser.g:322:61: CASCADE
+                            // SqlParser.g:323:61: CASCADE
                             {
-                            CASCADE380=(Token)match(input,CASCADE,FOLLOW_CASCADE_in_fk_clause_action2880); 
+                            CASCADE380=(Token)match(input,CASCADE,FOLLOW_CASCADE_in_fk_clause_action2884); 
                             CASCADE380_tree = (Object)adaptor.create(CASCADE380);
                             adaptor.addChild(root_0, CASCADE380_tree);
 
@@ -10548,9 +10549,9 @@ public class SqlParser extends Parser {
                             }
                             break;
                         case 4 :
-                            // SqlParser.g:322:71: RESTRICT
+                            // SqlParser.g:323:71: RESTRICT
                             {
-                            RESTRICT381=(Token)match(input,RESTRICT,FOLLOW_RESTRICT_in_fk_clause_action2884); 
+                            RESTRICT381=(Token)match(input,RESTRICT,FOLLOW_RESTRICT_in_fk_clause_action2888); 
                             RESTRICT381_tree = (Object)adaptor.create(RESTRICT381);
                             adaptor.addChild(root_0, RESTRICT381_tree);
 
@@ -10564,15 +10565,15 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:323:5: MATCH name= id
+                    // SqlParser.g:324:5: MATCH name= id
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    MATCH382=(Token)match(input,MATCH,FOLLOW_MATCH_in_fk_clause_action2891); 
+                    MATCH382=(Token)match(input,MATCH,FOLLOW_MATCH_in_fk_clause_action2895); 
                     MATCH382_tree = (Object)adaptor.create(MATCH382);
                     adaptor.addChild(root_0, MATCH382_tree);
 
-                    pushFollow(FOLLOW_id_in_fk_clause_action2895);
+                    pushFollow(FOLLOW_id_in_fk_clause_action2899);
                     name=id();
 
                     state._fsp--;
@@ -10607,7 +10608,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "fk_clause_deferrable"
-    // SqlParser.g:325:1: fk_clause_deferrable : ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )? ;
+    // SqlParser.g:326:1: fk_clause_deferrable : ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )? ;
     public final SqlParser.fk_clause_deferrable_return fk_clause_deferrable() throws RecognitionException {
         SqlParser.fk_clause_deferrable_return retval = new SqlParser.fk_clause_deferrable_return();
         retval.start = input.LT(1);
@@ -10629,12 +10630,12 @@ public class SqlParser extends Parser {
         Object IMMEDIATE388_tree=null;
 
         try {
-            // SqlParser.g:325:21: ( ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )? )
-            // SqlParser.g:325:23: ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?
+            // SqlParser.g:326:21: ( ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )? )
+            // SqlParser.g:326:23: ( NOT )? DEFERRABLE ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?
             {
             root_0 = (Object)adaptor.nil();
 
-            // SqlParser.g:325:23: ( NOT )?
+            // SqlParser.g:326:23: ( NOT )?
             int alt141=2;
             int LA141_0 = input.LA(1);
 
@@ -10643,9 +10644,9 @@ public class SqlParser extends Parser {
             }
             switch (alt141) {
                 case 1 :
-                    // SqlParser.g:325:24: NOT
+                    // SqlParser.g:326:24: NOT
                     {
-                    NOT383=(Token)match(input,NOT,FOLLOW_NOT_in_fk_clause_deferrable2903); 
+                    NOT383=(Token)match(input,NOT,FOLLOW_NOT_in_fk_clause_deferrable2907); 
                     NOT383_tree = (Object)adaptor.create(NOT383);
                     adaptor.addChild(root_0, NOT383_tree);
 
@@ -10655,22 +10656,22 @@ public class SqlParser extends Parser {
 
             }
 
-            DEFERRABLE384=(Token)match(input,DEFERRABLE,FOLLOW_DEFERRABLE_in_fk_clause_deferrable2907); 
+            DEFERRABLE384=(Token)match(input,DEFERRABLE,FOLLOW_DEFERRABLE_in_fk_clause_deferrable2911); 
             DEFERRABLE384_tree = (Object)adaptor.create(DEFERRABLE384);
             adaptor.addChild(root_0, DEFERRABLE384_tree);
 
-            // SqlParser.g:325:41: ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?
+            // SqlParser.g:326:41: ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?
             int alt142=3;
             alt142 = dfa142.predict(input);
             switch (alt142) {
                 case 1 :
-                    // SqlParser.g:325:42: INITIALLY DEFERRED
+                    // SqlParser.g:326:42: INITIALLY DEFERRED
                     {
-                    INITIALLY385=(Token)match(input,INITIALLY,FOLLOW_INITIALLY_in_fk_clause_deferrable2910); 
+                    INITIALLY385=(Token)match(input,INITIALLY,FOLLOW_INITIALLY_in_fk_clause_deferrable2914); 
                     INITIALLY385_tree = (Object)adaptor.create(INITIALLY385);
                     adaptor.addChild(root_0, INITIALLY385_tree);
 
-                    DEFERRED386=(Token)match(input,DEFERRED,FOLLOW_DEFERRED_in_fk_clause_deferrable2912); 
+                    DEFERRED386=(Token)match(input,DEFERRED,FOLLOW_DEFERRED_in_fk_clause_deferrable2916); 
                     DEFERRED386_tree = (Object)adaptor.create(DEFERRED386);
                     adaptor.addChild(root_0, DEFERRED386_tree);
 
@@ -10678,13 +10679,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:325:63: INITIALLY IMMEDIATE
+                    // SqlParser.g:326:63: INITIALLY IMMEDIATE
                     {
-                    INITIALLY387=(Token)match(input,INITIALLY,FOLLOW_INITIALLY_in_fk_clause_deferrable2916); 
+                    INITIALLY387=(Token)match(input,INITIALLY,FOLLOW_INITIALLY_in_fk_clause_deferrable2920); 
                     INITIALLY387_tree = (Object)adaptor.create(INITIALLY387);
                     adaptor.addChild(root_0, INITIALLY387_tree);
 
-                    IMMEDIATE388=(Token)match(input,IMMEDIATE,FOLLOW_IMMEDIATE_in_fk_clause_deferrable2918); 
+                    IMMEDIATE388=(Token)match(input,IMMEDIATE,FOLLOW_IMMEDIATE_in_fk_clause_deferrable2922); 
                     IMMEDIATE388_tree = (Object)adaptor.create(IMMEDIATE388);
                     adaptor.addChild(root_0, IMMEDIATE388_tree);
 
@@ -10721,7 +10722,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "drop_table_stmt"
-    // SqlParser.g:328:1: drop_table_stmt : DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) ) ;
+    // SqlParser.g:329:1: drop_table_stmt : DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) ) ;
     public final SqlParser.drop_table_stmt_return drop_table_stmt() throws RecognitionException {
         SqlParser.drop_table_stmt_return retval = new SqlParser.drop_table_stmt_return();
         retval.start = input.LT(1);
@@ -10750,16 +10751,16 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_IF=new RewriteRuleTokenStream(adaptor,"token IF");
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         try {
-            // SqlParser.g:328:16: ( DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) ) )
-            // SqlParser.g:328:18: DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id
+            // SqlParser.g:329:16: ( DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) ) )
+            // SqlParser.g:329:18: DROP TABLE ( IF EXISTS )? (database_name= id DOT )? table_name= id
             {
-            DROP389=(Token)match(input,DROP,FOLLOW_DROP_in_drop_table_stmt2928);  
+            DROP389=(Token)match(input,DROP,FOLLOW_DROP_in_drop_table_stmt2932);  
             stream_DROP.add(DROP389);
 
-            TABLE390=(Token)match(input,TABLE,FOLLOW_TABLE_in_drop_table_stmt2930);  
+            TABLE390=(Token)match(input,TABLE,FOLLOW_TABLE_in_drop_table_stmt2934);  
             stream_TABLE.add(TABLE390);
 
-            // SqlParser.g:328:29: ( IF EXISTS )?
+            // SqlParser.g:329:29: ( IF EXISTS )?
             int alt143=2;
             int LA143_0 = input.LA(1);
 
@@ -10772,12 +10773,12 @@ public class SqlParser extends Parser {
             }
             switch (alt143) {
                 case 1 :
-                    // SqlParser.g:328:30: IF EXISTS
+                    // SqlParser.g:329:30: IF EXISTS
                     {
-                    IF391=(Token)match(input,IF,FOLLOW_IF_in_drop_table_stmt2933);  
+                    IF391=(Token)match(input,IF,FOLLOW_IF_in_drop_table_stmt2937);  
                     stream_IF.add(IF391);
 
-                    EXISTS392=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_table_stmt2935);  
+                    EXISTS392=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_table_stmt2939);  
                     stream_EXISTS.add(EXISTS392);
 
 
@@ -10786,7 +10787,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:328:42: (database_name= id DOT )?
+            // SqlParser.g:329:42: (database_name= id DOT )?
             int alt144=2;
             int LA144_0 = input.LA(1);
 
@@ -10806,15 +10807,15 @@ public class SqlParser extends Parser {
             }
             switch (alt144) {
                 case 1 :
-                    // SqlParser.g:328:43: database_name= id DOT
+                    // SqlParser.g:329:43: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_drop_table_stmt2942);
+                    pushFollow(FOLLOW_id_in_drop_table_stmt2946);
                     database_name=id();
 
                     state._fsp--;
 
                     stream_id.add(database_name.getTree());
-                    DOT393=(Token)match(input,DOT,FOLLOW_DOT_in_drop_table_stmt2944);  
+                    DOT393=(Token)match(input,DOT,FOLLOW_DOT_in_drop_table_stmt2948);  
                     stream_DOT.add(DOT393);
 
 
@@ -10823,7 +10824,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_drop_table_stmt2950);
+            pushFollow(FOLLOW_id_in_drop_table_stmt2954);
             table_name=id();
 
             state._fsp--;
@@ -10844,19 +10845,19 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_table_name=new RewriteRuleSubtreeStream(adaptor,"rule table_name",table_name!=null?table_name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 329:1: -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) )
+            // 330:1: -> ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) )
             {
-                // SqlParser.g:329:4: ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) )
+                // SqlParser.g:330:4: ^( DROP_TABLE ^( OPTIONS ( EXISTS )? ) ^( $table_name ( $database_name)? ) )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(DROP_TABLE, "DROP_TABLE"), root_1);
 
-                // SqlParser.g:329:17: ^( OPTIONS ( EXISTS )? )
+                // SqlParser.g:330:17: ^( OPTIONS ( EXISTS )? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(OPTIONS, "OPTIONS"), root_2);
 
-                // SqlParser.g:329:27: ( EXISTS )?
+                // SqlParser.g:330:27: ( EXISTS )?
                 if ( stream_EXISTS.hasNext() ) {
                     adaptor.addChild(root_2, stream_EXISTS.nextNode());
 
@@ -10865,12 +10866,12 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:329:36: ^( $table_name ( $database_name)? )
+                // SqlParser.g:330:36: ^( $table_name ( $database_name)? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot(stream_table_name.nextNode(), root_2);
 
-                // SqlParser.g:329:50: ( $database_name)?
+                // SqlParser.g:330:50: ( $database_name)?
                 if ( stream_database_name.hasNext() ) {
                     adaptor.addChild(root_2, stream_database_name.nextTree());
 
@@ -10912,7 +10913,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "alter_table_stmt"
-    // SqlParser.g:332:1: alter_table_stmt : ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def ) ;
+    // SqlParser.g:333:1: alter_table_stmt : ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def ) ;
     public final SqlParser.alter_table_stmt_return alter_table_stmt() throws RecognitionException {
         SqlParser.alter_table_stmt_return retval = new SqlParser.alter_table_stmt_return();
         retval.start = input.LT(1);
@@ -10944,20 +10945,20 @@ public class SqlParser extends Parser {
         Object COLUMN400_tree=null;
 
         try {
-            // SqlParser.g:332:17: ( ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def ) )
-            // SqlParser.g:332:19: ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def )
+            // SqlParser.g:333:17: ( ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def ) )
+            // SqlParser.g:333:19: ALTER TABLE (database_name= id DOT )? table_name= id ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def )
             {
             root_0 = (Object)adaptor.nil();
 
-            ALTER394=(Token)match(input,ALTER,FOLLOW_ALTER_in_alter_table_stmt2980); 
+            ALTER394=(Token)match(input,ALTER,FOLLOW_ALTER_in_alter_table_stmt2984); 
             ALTER394_tree = (Object)adaptor.create(ALTER394);
             adaptor.addChild(root_0, ALTER394_tree);
 
-            TABLE395=(Token)match(input,TABLE,FOLLOW_TABLE_in_alter_table_stmt2982); 
+            TABLE395=(Token)match(input,TABLE,FOLLOW_TABLE_in_alter_table_stmt2986); 
             TABLE395_tree = (Object)adaptor.create(TABLE395);
             adaptor.addChild(root_0, TABLE395_tree);
 
-            // SqlParser.g:332:31: (database_name= id DOT )?
+            // SqlParser.g:333:31: (database_name= id DOT )?
             int alt145=2;
             int LA145_0 = input.LA(1);
 
@@ -10977,15 +10978,15 @@ public class SqlParser extends Parser {
             }
             switch (alt145) {
                 case 1 :
-                    // SqlParser.g:332:32: database_name= id DOT
+                    // SqlParser.g:333:32: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_alter_table_stmt2987);
+                    pushFollow(FOLLOW_id_in_alter_table_stmt2991);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT396=(Token)match(input,DOT,FOLLOW_DOT_in_alter_table_stmt2989); 
+                    DOT396=(Token)match(input,DOT,FOLLOW_DOT_in_alter_table_stmt2993); 
                     DOT396_tree = (Object)adaptor.create(DOT396);
                     adaptor.addChild(root_0, DOT396_tree);
 
@@ -10995,13 +10996,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_alter_table_stmt2995);
+            pushFollow(FOLLOW_id_in_alter_table_stmt2999);
             table_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, table_name.getTree());
-            // SqlParser.g:332:69: ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def )
+            // SqlParser.g:333:69: ( RENAME TO new_table_name= id | ADD ( COLUMN )? column_def )
             int alt147=2;
             int LA147_0 = input.LA(1);
 
@@ -11019,17 +11020,17 @@ public class SqlParser extends Parser {
             }
             switch (alt147) {
                 case 1 :
-                    // SqlParser.g:332:70: RENAME TO new_table_name= id
+                    // SqlParser.g:333:70: RENAME TO new_table_name= id
                     {
-                    RENAME397=(Token)match(input,RENAME,FOLLOW_RENAME_in_alter_table_stmt2998); 
+                    RENAME397=(Token)match(input,RENAME,FOLLOW_RENAME_in_alter_table_stmt3002); 
                     RENAME397_tree = (Object)adaptor.create(RENAME397);
                     adaptor.addChild(root_0, RENAME397_tree);
 
-                    TO398=(Token)match(input,TO,FOLLOW_TO_in_alter_table_stmt3000); 
+                    TO398=(Token)match(input,TO,FOLLOW_TO_in_alter_table_stmt3004); 
                     TO398_tree = (Object)adaptor.create(TO398);
                     adaptor.addChild(root_0, TO398_tree);
 
-                    pushFollow(FOLLOW_id_in_alter_table_stmt3004);
+                    pushFollow(FOLLOW_id_in_alter_table_stmt3008);
                     new_table_name=id();
 
                     state._fsp--;
@@ -11039,13 +11040,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:332:100: ADD ( COLUMN )? column_def
+                    // SqlParser.g:333:100: ADD ( COLUMN )? column_def
                     {
-                    ADD399=(Token)match(input,ADD,FOLLOW_ADD_in_alter_table_stmt3008); 
+                    ADD399=(Token)match(input,ADD,FOLLOW_ADD_in_alter_table_stmt3012); 
                     ADD399_tree = (Object)adaptor.create(ADD399);
                     adaptor.addChild(root_0, ADD399_tree);
 
-                    // SqlParser.g:332:104: ( COLUMN )?
+                    // SqlParser.g:333:104: ( COLUMN )?
                     int alt146=2;
                     int LA146_0 = input.LA(1);
 
@@ -11054,9 +11055,9 @@ public class SqlParser extends Parser {
                     }
                     switch (alt146) {
                         case 1 :
-                            // SqlParser.g:332:105: COLUMN
+                            // SqlParser.g:333:105: COLUMN
                             {
-                            COLUMN400=(Token)match(input,COLUMN,FOLLOW_COLUMN_in_alter_table_stmt3011); 
+                            COLUMN400=(Token)match(input,COLUMN,FOLLOW_COLUMN_in_alter_table_stmt3015); 
                             COLUMN400_tree = (Object)adaptor.create(COLUMN400);
                             adaptor.addChild(root_0, COLUMN400_tree);
 
@@ -11066,7 +11067,7 @@ public class SqlParser extends Parser {
 
                     }
 
-                    pushFollow(FOLLOW_column_def_in_alter_table_stmt3015);
+                    pushFollow(FOLLOW_column_def_in_alter_table_stmt3019);
                     column_def401=column_def();
 
                     state._fsp--;
@@ -11105,7 +11106,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "create_view_stmt"
-    // SqlParser.g:335:1: create_view_stmt : CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt ;
+    // SqlParser.g:336:1: create_view_stmt : CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt ;
     public final SqlParser.create_view_stmt_return create_view_stmt() throws RecognitionException {
         SqlParser.create_view_stmt_return retval = new SqlParser.create_view_stmt_return();
         retval.start = input.LT(1);
@@ -11137,16 +11138,16 @@ public class SqlParser extends Parser {
         Object AS409_tree=null;
 
         try {
-            // SqlParser.g:335:17: ( CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt )
-            // SqlParser.g:335:19: CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt
+            // SqlParser.g:336:17: ( CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt )
+            // SqlParser.g:336:19: CREATE ( TEMPORARY )? VIEW ( IF NOT EXISTS )? (database_name= id DOT )? view_name= id AS select_stmt
             {
             root_0 = (Object)adaptor.nil();
 
-            CREATE402=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_view_stmt3024); 
+            CREATE402=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_view_stmt3028); 
             CREATE402_tree = (Object)adaptor.create(CREATE402);
             adaptor.addChild(root_0, CREATE402_tree);
 
-            // SqlParser.g:335:26: ( TEMPORARY )?
+            // SqlParser.g:336:26: ( TEMPORARY )?
             int alt148=2;
             int LA148_0 = input.LA(1);
 
@@ -11155,9 +11156,9 @@ public class SqlParser extends Parser {
             }
             switch (alt148) {
                 case 1 :
-                    // SqlParser.g:335:26: TEMPORARY
+                    // SqlParser.g:336:26: TEMPORARY
                     {
-                    TEMPORARY403=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_view_stmt3026); 
+                    TEMPORARY403=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_view_stmt3030); 
                     TEMPORARY403_tree = (Object)adaptor.create(TEMPORARY403);
                     adaptor.addChild(root_0, TEMPORARY403_tree);
 
@@ -11167,11 +11168,11 @@ public class SqlParser extends Parser {
 
             }
 
-            VIEW404=(Token)match(input,VIEW,FOLLOW_VIEW_in_create_view_stmt3029); 
+            VIEW404=(Token)match(input,VIEW,FOLLOW_VIEW_in_create_view_stmt3033); 
             VIEW404_tree = (Object)adaptor.create(VIEW404);
             adaptor.addChild(root_0, VIEW404_tree);
 
-            // SqlParser.g:335:42: ( IF NOT EXISTS )?
+            // SqlParser.g:336:42: ( IF NOT EXISTS )?
             int alt149=2;
             int LA149_0 = input.LA(1);
 
@@ -11184,17 +11185,17 @@ public class SqlParser extends Parser {
             }
             switch (alt149) {
                 case 1 :
-                    // SqlParser.g:335:43: IF NOT EXISTS
+                    // SqlParser.g:336:43: IF NOT EXISTS
                     {
-                    IF405=(Token)match(input,IF,FOLLOW_IF_in_create_view_stmt3032); 
+                    IF405=(Token)match(input,IF,FOLLOW_IF_in_create_view_stmt3036); 
                     IF405_tree = (Object)adaptor.create(IF405);
                     adaptor.addChild(root_0, IF405_tree);
 
-                    NOT406=(Token)match(input,NOT,FOLLOW_NOT_in_create_view_stmt3034); 
+                    NOT406=(Token)match(input,NOT,FOLLOW_NOT_in_create_view_stmt3038); 
                     NOT406_tree = (Object)adaptor.create(NOT406);
                     adaptor.addChild(root_0, NOT406_tree);
 
-                    EXISTS407=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_view_stmt3036); 
+                    EXISTS407=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_view_stmt3040); 
                     EXISTS407_tree = (Object)adaptor.create(EXISTS407);
                     adaptor.addChild(root_0, EXISTS407_tree);
 
@@ -11204,7 +11205,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:335:59: (database_name= id DOT )?
+            // SqlParser.g:336:59: (database_name= id DOT )?
             int alt150=2;
             int LA150_0 = input.LA(1);
 
@@ -11224,15 +11225,15 @@ public class SqlParser extends Parser {
             }
             switch (alt150) {
                 case 1 :
-                    // SqlParser.g:335:60: database_name= id DOT
+                    // SqlParser.g:336:60: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_create_view_stmt3043);
+                    pushFollow(FOLLOW_id_in_create_view_stmt3047);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT408=(Token)match(input,DOT,FOLLOW_DOT_in_create_view_stmt3045); 
+                    DOT408=(Token)match(input,DOT,FOLLOW_DOT_in_create_view_stmt3049); 
                     DOT408_tree = (Object)adaptor.create(DOT408);
                     adaptor.addChild(root_0, DOT408_tree);
 
@@ -11242,17 +11243,17 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_create_view_stmt3051);
+            pushFollow(FOLLOW_id_in_create_view_stmt3055);
             view_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, view_name.getTree());
-            AS409=(Token)match(input,AS,FOLLOW_AS_in_create_view_stmt3053); 
+            AS409=(Token)match(input,AS,FOLLOW_AS_in_create_view_stmt3057); 
             AS409_tree = (Object)adaptor.create(AS409);
             adaptor.addChild(root_0, AS409_tree);
 
-            pushFollow(FOLLOW_select_stmt_in_create_view_stmt3055);
+            pushFollow(FOLLOW_select_stmt_in_create_view_stmt3059);
             select_stmt410=select_stmt();
 
             state._fsp--;
@@ -11285,7 +11286,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "drop_view_stmt"
-    // SqlParser.g:338:1: drop_view_stmt : DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id ;
+    // SqlParser.g:339:1: drop_view_stmt : DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id ;
     public final SqlParser.drop_view_stmt_return drop_view_stmt() throws RecognitionException {
         SqlParser.drop_view_stmt_return retval = new SqlParser.drop_view_stmt_return();
         retval.start = input.LT(1);
@@ -11309,20 +11310,20 @@ public class SqlParser extends Parser {
         Object DOT415_tree=null;
 
         try {
-            // SqlParser.g:338:15: ( DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id )
-            // SqlParser.g:338:17: DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id
+            // SqlParser.g:339:15: ( DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id )
+            // SqlParser.g:339:17: DROP VIEW ( IF EXISTS )? (database_name= id DOT )? view_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            DROP411=(Token)match(input,DROP,FOLLOW_DROP_in_drop_view_stmt3063); 
+            DROP411=(Token)match(input,DROP,FOLLOW_DROP_in_drop_view_stmt3067); 
             DROP411_tree = (Object)adaptor.create(DROP411);
             adaptor.addChild(root_0, DROP411_tree);
 
-            VIEW412=(Token)match(input,VIEW,FOLLOW_VIEW_in_drop_view_stmt3065); 
+            VIEW412=(Token)match(input,VIEW,FOLLOW_VIEW_in_drop_view_stmt3069); 
             VIEW412_tree = (Object)adaptor.create(VIEW412);
             adaptor.addChild(root_0, VIEW412_tree);
 
-            // SqlParser.g:338:27: ( IF EXISTS )?
+            // SqlParser.g:339:27: ( IF EXISTS )?
             int alt151=2;
             int LA151_0 = input.LA(1);
 
@@ -11335,13 +11336,13 @@ public class SqlParser extends Parser {
             }
             switch (alt151) {
                 case 1 :
-                    // SqlParser.g:338:28: IF EXISTS
+                    // SqlParser.g:339:28: IF EXISTS
                     {
-                    IF413=(Token)match(input,IF,FOLLOW_IF_in_drop_view_stmt3068); 
+                    IF413=(Token)match(input,IF,FOLLOW_IF_in_drop_view_stmt3072); 
                     IF413_tree = (Object)adaptor.create(IF413);
                     adaptor.addChild(root_0, IF413_tree);
 
-                    EXISTS414=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_view_stmt3070); 
+                    EXISTS414=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_view_stmt3074); 
                     EXISTS414_tree = (Object)adaptor.create(EXISTS414);
                     adaptor.addChild(root_0, EXISTS414_tree);
 
@@ -11351,7 +11352,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:338:40: (database_name= id DOT )?
+            // SqlParser.g:339:40: (database_name= id DOT )?
             int alt152=2;
             int LA152_0 = input.LA(1);
 
@@ -11371,15 +11372,15 @@ public class SqlParser extends Parser {
             }
             switch (alt152) {
                 case 1 :
-                    // SqlParser.g:338:41: database_name= id DOT
+                    // SqlParser.g:339:41: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_drop_view_stmt3077);
+                    pushFollow(FOLLOW_id_in_drop_view_stmt3081);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT415=(Token)match(input,DOT,FOLLOW_DOT_in_drop_view_stmt3079); 
+                    DOT415=(Token)match(input,DOT,FOLLOW_DOT_in_drop_view_stmt3083); 
                     DOT415_tree = (Object)adaptor.create(DOT415);
                     adaptor.addChild(root_0, DOT415_tree);
 
@@ -11389,7 +11390,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_drop_view_stmt3085);
+            pushFollow(FOLLOW_id_in_drop_view_stmt3089);
             view_name=id();
 
             state._fsp--;
@@ -11422,7 +11423,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "create_index_stmt"
-    // SqlParser.g:341:1: create_index_stmt : CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? ) ;
+    // SqlParser.g:342:1: create_index_stmt : CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? ) ;
     public final SqlParser.create_index_stmt_return create_index_stmt() throws RecognitionException {
         SqlParser.create_index_stmt_return retval = new SqlParser.create_index_stmt_return();
         retval.start = input.LT(1);
@@ -11474,13 +11475,13 @@ public class SqlParser extends Parser {
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         RewriteRuleSubtreeStream stream_indexed_column=new RewriteRuleSubtreeStream(adaptor,"rule indexed_column");
         try {
-            // SqlParser.g:341:18: ( CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? ) )
-            // SqlParser.g:341:20: CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN
+            // SqlParser.g:342:18: ( CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? ) )
+            // SqlParser.g:342:20: CREATE ( UNIQUE )? INDEX ( IF NOT EXISTS )? (database_name= id DOT )? index_name= id ON table_name= id LPAREN columns+= indexed_column ( COMMA columns+= indexed_column )* RPAREN
             {
-            CREATE416=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_index_stmt3093);  
+            CREATE416=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_index_stmt3097);  
             stream_CREATE.add(CREATE416);
 
-            // SqlParser.g:341:27: ( UNIQUE )?
+            // SqlParser.g:342:27: ( UNIQUE )?
             int alt153=2;
             int LA153_0 = input.LA(1);
 
@@ -11489,9 +11490,9 @@ public class SqlParser extends Parser {
             }
             switch (alt153) {
                 case 1 :
-                    // SqlParser.g:341:28: UNIQUE
+                    // SqlParser.g:342:28: UNIQUE
                     {
-                    UNIQUE417=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_create_index_stmt3096);  
+                    UNIQUE417=(Token)match(input,UNIQUE,FOLLOW_UNIQUE_in_create_index_stmt3100);  
                     stream_UNIQUE.add(UNIQUE417);
 
 
@@ -11500,10 +11501,10 @@ public class SqlParser extends Parser {
 
             }
 
-            INDEX418=(Token)match(input,INDEX,FOLLOW_INDEX_in_create_index_stmt3100);  
+            INDEX418=(Token)match(input,INDEX,FOLLOW_INDEX_in_create_index_stmt3104);  
             stream_INDEX.add(INDEX418);
 
-            // SqlParser.g:341:43: ( IF NOT EXISTS )?
+            // SqlParser.g:342:43: ( IF NOT EXISTS )?
             int alt154=2;
             int LA154_0 = input.LA(1);
 
@@ -11516,15 +11517,15 @@ public class SqlParser extends Parser {
             }
             switch (alt154) {
                 case 1 :
-                    // SqlParser.g:341:44: IF NOT EXISTS
+                    // SqlParser.g:342:44: IF NOT EXISTS
                     {
-                    IF419=(Token)match(input,IF,FOLLOW_IF_in_create_index_stmt3103);  
+                    IF419=(Token)match(input,IF,FOLLOW_IF_in_create_index_stmt3107);  
                     stream_IF.add(IF419);
 
-                    NOT420=(Token)match(input,NOT,FOLLOW_NOT_in_create_index_stmt3105);  
+                    NOT420=(Token)match(input,NOT,FOLLOW_NOT_in_create_index_stmt3109);  
                     stream_NOT.add(NOT420);
 
-                    EXISTS421=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_index_stmt3107);  
+                    EXISTS421=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_index_stmt3111);  
                     stream_EXISTS.add(EXISTS421);
 
 
@@ -11533,7 +11534,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:341:60: (database_name= id DOT )?
+            // SqlParser.g:342:60: (database_name= id DOT )?
             int alt155=2;
             int LA155_0 = input.LA(1);
 
@@ -11553,15 +11554,15 @@ public class SqlParser extends Parser {
             }
             switch (alt155) {
                 case 1 :
-                    // SqlParser.g:341:61: database_name= id DOT
+                    // SqlParser.g:342:61: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_create_index_stmt3114);
+                    pushFollow(FOLLOW_id_in_create_index_stmt3118);
                     database_name=id();
 
                     state._fsp--;
 
                     stream_id.add(database_name.getTree());
-                    DOT422=(Token)match(input,DOT,FOLLOW_DOT_in_create_index_stmt3116);  
+                    DOT422=(Token)match(input,DOT,FOLLOW_DOT_in_create_index_stmt3120);  
                     stream_DOT.add(DOT422);
 
 
@@ -11570,25 +11571,25 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_create_index_stmt3122);
+            pushFollow(FOLLOW_id_in_create_index_stmt3126);
             index_name=id();
 
             state._fsp--;
 
             stream_id.add(index_name.getTree());
-            ON423=(Token)match(input,ON,FOLLOW_ON_in_create_index_stmt3126);  
+            ON423=(Token)match(input,ON,FOLLOW_ON_in_create_index_stmt3130);  
             stream_ON.add(ON423);
 
-            pushFollow(FOLLOW_id_in_create_index_stmt3130);
+            pushFollow(FOLLOW_id_in_create_index_stmt3134);
             table_name=id();
 
             state._fsp--;
 
             stream_id.add(table_name.getTree());
-            LPAREN424=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_index_stmt3132);  
+            LPAREN424=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_create_index_stmt3136);  
             stream_LPAREN.add(LPAREN424);
 
-            pushFollow(FOLLOW_indexed_column_in_create_index_stmt3136);
+            pushFollow(FOLLOW_indexed_column_in_create_index_stmt3140);
             columns=indexed_column();
 
             state._fsp--;
@@ -11597,7 +11598,7 @@ public class SqlParser extends Parser {
             if (list_columns==null) list_columns=new ArrayList();
             list_columns.add(columns.getTree());
 
-            // SqlParser.g:342:51: ( COMMA columns+= indexed_column )*
+            // SqlParser.g:343:51: ( COMMA columns+= indexed_column )*
             loop156:
             do {
                 int alt156=2;
@@ -11610,12 +11611,12 @@ public class SqlParser extends Parser {
 
                 switch (alt156) {
             	case 1 :
-            	    // SqlParser.g:342:52: COMMA columns+= indexed_column
+            	    // SqlParser.g:343:52: COMMA columns+= indexed_column
             	    {
-            	    COMMA425=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_index_stmt3139);  
+            	    COMMA425=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_index_stmt3143);  
             	    stream_COMMA.add(COMMA425);
 
-            	    pushFollow(FOLLOW_indexed_column_in_create_index_stmt3143);
+            	    pushFollow(FOLLOW_indexed_column_in_create_index_stmt3147);
             	    columns=indexed_column();
 
             	    state._fsp--;
@@ -11633,7 +11634,7 @@ public class SqlParser extends Parser {
                 }
             } while (true);
 
-            RPAREN426=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_index_stmt3147);  
+            RPAREN426=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_create_index_stmt3151);  
             stream_RPAREN.add(RPAREN426);
 
 
@@ -11652,25 +11653,25 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_table_name=new RewriteRuleSubtreeStream(adaptor,"rule table_name",table_name!=null?table_name.tree:null);
             RewriteRuleSubtreeStream stream_columns=new RewriteRuleSubtreeStream(adaptor,"token columns",list_columns);
             root_0 = (Object)adaptor.nil();
-            // 343:1: -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? )
+            // 344:1: -> ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? )
             {
-                // SqlParser.g:343:4: ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? )
+                // SqlParser.g:344:4: ^( CREATE_INDEX ^( OPTIONS ( UNIQUE )? ( EXISTS )? ) ^( $index_name ( $database_name)? ) $table_name ( ^( COLUMNS ( $columns)+ ) )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(CREATE_INDEX, "CREATE_INDEX"), root_1);
 
-                // SqlParser.g:343:19: ^( OPTIONS ( UNIQUE )? ( EXISTS )? )
+                // SqlParser.g:344:19: ^( OPTIONS ( UNIQUE )? ( EXISTS )? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(OPTIONS, "OPTIONS"), root_2);
 
-                // SqlParser.g:343:29: ( UNIQUE )?
+                // SqlParser.g:344:29: ( UNIQUE )?
                 if ( stream_UNIQUE.hasNext() ) {
                     adaptor.addChild(root_2, stream_UNIQUE.nextNode());
 
                 }
                 stream_UNIQUE.reset();
-                // SqlParser.g:343:37: ( EXISTS )?
+                // SqlParser.g:344:37: ( EXISTS )?
                 if ( stream_EXISTS.hasNext() ) {
                     adaptor.addChild(root_2, stream_EXISTS.nextNode());
 
@@ -11679,12 +11680,12 @@ public class SqlParser extends Parser {
 
                 adaptor.addChild(root_1, root_2);
                 }
-                // SqlParser.g:343:46: ^( $index_name ( $database_name)? )
+                // SqlParser.g:344:46: ^( $index_name ( $database_name)? )
                 {
                 Object root_2 = (Object)adaptor.nil();
                 root_2 = (Object)adaptor.becomeRoot(stream_index_name.nextNode(), root_2);
 
-                // SqlParser.g:343:60: ( $database_name)?
+                // SqlParser.g:344:60: ( $database_name)?
                 if ( stream_database_name.hasNext() ) {
                     adaptor.addChild(root_2, stream_database_name.nextTree());
 
@@ -11694,9 +11695,9 @@ public class SqlParser extends Parser {
                 adaptor.addChild(root_1, root_2);
                 }
                 adaptor.addChild(root_1, stream_table_name.nextTree());
-                // SqlParser.g:343:89: ( ^( COLUMNS ( $columns)+ ) )?
+                // SqlParser.g:344:89: ( ^( COLUMNS ( $columns)+ ) )?
                 if ( stream_columns.hasNext() ) {
-                    // SqlParser.g:343:89: ^( COLUMNS ( $columns)+ )
+                    // SqlParser.g:344:89: ^( COLUMNS ( $columns)+ )
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(COLUMNS, "COLUMNS"), root_2);
@@ -11748,7 +11749,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "indexed_column"
-    // SqlParser.g:345:1: indexed_column : column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )? -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? ) ;
+    // SqlParser.g:346:1: indexed_column : column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )? -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? ) ;
     public final SqlParser.indexed_column_return indexed_column() throws RecognitionException {
         SqlParser.indexed_column_return retval = new SqlParser.indexed_column_return();
         retval.start = input.LT(1);
@@ -11771,16 +11772,16 @@ public class SqlParser extends Parser {
         RewriteRuleTokenStream stream_COLLATE=new RewriteRuleTokenStream(adaptor,"token COLLATE");
         RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         try {
-            // SqlParser.g:345:15: (column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )? -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? ) )
-            // SqlParser.g:345:17: column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )?
+            // SqlParser.g:346:15: (column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )? -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? ) )
+            // SqlParser.g:346:17: column_name= id ( COLLATE collation_name= id )? ( ASC | DESC )?
             {
-            pushFollow(FOLLOW_id_in_indexed_column3193);
+            pushFollow(FOLLOW_id_in_indexed_column3197);
             column_name=id();
 
             state._fsp--;
 
             stream_id.add(column_name.getTree());
-            // SqlParser.g:345:32: ( COLLATE collation_name= id )?
+            // SqlParser.g:346:32: ( COLLATE collation_name= id )?
             int alt157=2;
             int LA157_0 = input.LA(1);
 
@@ -11789,12 +11790,12 @@ public class SqlParser extends Parser {
             }
             switch (alt157) {
                 case 1 :
-                    // SqlParser.g:345:33: COLLATE collation_name= id
+                    // SqlParser.g:346:33: COLLATE collation_name= id
                     {
-                    COLLATE427=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_indexed_column3196);  
+                    COLLATE427=(Token)match(input,COLLATE,FOLLOW_COLLATE_in_indexed_column3200);  
                     stream_COLLATE.add(COLLATE427);
 
-                    pushFollow(FOLLOW_id_in_indexed_column3200);
+                    pushFollow(FOLLOW_id_in_indexed_column3204);
                     collation_name=id();
 
                     state._fsp--;
@@ -11806,7 +11807,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:345:61: ( ASC | DESC )?
+            // SqlParser.g:346:61: ( ASC | DESC )?
             int alt158=3;
             int LA158_0 = input.LA(1);
 
@@ -11818,18 +11819,18 @@ public class SqlParser extends Parser {
             }
             switch (alt158) {
                 case 1 :
-                    // SqlParser.g:345:62: ASC
+                    // SqlParser.g:346:62: ASC
                     {
-                    ASC428=(Token)match(input,ASC,FOLLOW_ASC_in_indexed_column3205);  
+                    ASC428=(Token)match(input,ASC,FOLLOW_ASC_in_indexed_column3209);  
                     stream_ASC.add(ASC428);
 
 
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:345:68: DESC
+                    // SqlParser.g:346:68: DESC
                     {
-                    DESC429=(Token)match(input,DESC,FOLLOW_DESC_in_indexed_column3209);  
+                    DESC429=(Token)match(input,DESC,FOLLOW_DESC_in_indexed_column3213);  
                     stream_DESC.add(DESC429);
 
 
@@ -11853,16 +11854,16 @@ public class SqlParser extends Parser {
             RewriteRuleSubtreeStream stream_column_name=new RewriteRuleSubtreeStream(adaptor,"rule column_name",column_name!=null?column_name.tree:null);
 
             root_0 = (Object)adaptor.nil();
-            // 346:1: -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? )
+            // 347:1: -> ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? )
             {
-                // SqlParser.g:346:4: ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? )
+                // SqlParser.g:347:4: ^( $column_name ( ^( COLLATE $collation_name) )? ( ASC )? ( DESC )? )
                 {
                 Object root_1 = (Object)adaptor.nil();
                 root_1 = (Object)adaptor.becomeRoot(stream_column_name.nextNode(), root_1);
 
-                // SqlParser.g:346:19: ( ^( COLLATE $collation_name) )?
+                // SqlParser.g:347:19: ( ^( COLLATE $collation_name) )?
                 if ( stream_collation_name.hasNext()||stream_COLLATE.hasNext() ) {
-                    // SqlParser.g:346:19: ^( COLLATE $collation_name)
+                    // SqlParser.g:347:19: ^( COLLATE $collation_name)
                     {
                     Object root_2 = (Object)adaptor.nil();
                     root_2 = (Object)adaptor.becomeRoot(stream_COLLATE.nextNode(), root_2);
@@ -11875,13 +11876,13 @@ public class SqlParser extends Parser {
                 }
                 stream_collation_name.reset();
                 stream_COLLATE.reset();
-                // SqlParser.g:346:47: ( ASC )?
+                // SqlParser.g:347:47: ( ASC )?
                 if ( stream_ASC.hasNext() ) {
                     adaptor.addChild(root_1, stream_ASC.nextNode());
 
                 }
                 stream_ASC.reset();
-                // SqlParser.g:346:52: ( DESC )?
+                // SqlParser.g:347:52: ( DESC )?
                 if ( stream_DESC.hasNext() ) {
                     adaptor.addChild(root_1, stream_DESC.nextNode());
 
@@ -11920,7 +11921,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "drop_index_stmt"
-    // SqlParser.g:349:1: drop_index_stmt : DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id ;
+    // SqlParser.g:350:1: drop_index_stmt : DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id -> ^( DROP_INDEX ^( OPTIONS ( EXISTS )? ) ^( $index_name ( $database_name)? ) ) ;
     public final SqlParser.drop_index_stmt_return drop_index_stmt() throws RecognitionException {
         SqlParser.drop_index_stmt_return retval = new SqlParser.drop_index_stmt_return();
         retval.start = input.LT(1);
@@ -11942,22 +11943,23 @@ public class SqlParser extends Parser {
         Object IF432_tree=null;
         Object EXISTS433_tree=null;
         Object DOT434_tree=null;
-
+        RewriteRuleTokenStream stream_INDEX=new RewriteRuleTokenStream(adaptor,"token INDEX");
+        RewriteRuleTokenStream stream_EXISTS=new RewriteRuleTokenStream(adaptor,"token EXISTS");
+        RewriteRuleTokenStream stream_DROP=new RewriteRuleTokenStream(adaptor,"token DROP");
+        RewriteRuleTokenStream stream_DOT=new RewriteRuleTokenStream(adaptor,"token DOT");
+        RewriteRuleTokenStream stream_IF=new RewriteRuleTokenStream(adaptor,"token IF");
+        RewriteRuleSubtreeStream stream_id=new RewriteRuleSubtreeStream(adaptor,"rule id");
         try {
-            // SqlParser.g:349:16: ( DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id )
-            // SqlParser.g:349:18: DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id
+            // SqlParser.g:350:16: ( DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id -> ^( DROP_INDEX ^( OPTIONS ( EXISTS )? ) ^( $index_name ( $database_name)? ) ) )
+            // SqlParser.g:350:18: DROP INDEX ( IF EXISTS )? (database_name= id DOT )? index_name= id
             {
-            root_0 = (Object)adaptor.nil();
+            DROP430=(Token)match(input,DROP,FOLLOW_DROP_in_drop_index_stmt3244);  
+            stream_DROP.add(DROP430);
 
-            DROP430=(Token)match(input,DROP,FOLLOW_DROP_in_drop_index_stmt3240); 
-            DROP430_tree = (Object)adaptor.create(DROP430);
-            adaptor.addChild(root_0, DROP430_tree);
+            INDEX431=(Token)match(input,INDEX,FOLLOW_INDEX_in_drop_index_stmt3246);  
+            stream_INDEX.add(INDEX431);
 
-            INDEX431=(Token)match(input,INDEX,FOLLOW_INDEX_in_drop_index_stmt3242); 
-            INDEX431_tree = (Object)adaptor.create(INDEX431);
-            adaptor.addChild(root_0, INDEX431_tree);
-
-            // SqlParser.g:349:29: ( IF EXISTS )?
+            // SqlParser.g:350:29: ( IF EXISTS )?
             int alt159=2;
             int LA159_0 = input.LA(1);
 
@@ -11970,15 +11972,13 @@ public class SqlParser extends Parser {
             }
             switch (alt159) {
                 case 1 :
-                    // SqlParser.g:349:30: IF EXISTS
+                    // SqlParser.g:350:30: IF EXISTS
                     {
-                    IF432=(Token)match(input,IF,FOLLOW_IF_in_drop_index_stmt3245); 
-                    IF432_tree = (Object)adaptor.create(IF432);
-                    adaptor.addChild(root_0, IF432_tree);
+                    IF432=(Token)match(input,IF,FOLLOW_IF_in_drop_index_stmt3249);  
+                    stream_IF.add(IF432);
 
-                    EXISTS433=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_index_stmt3247); 
-                    EXISTS433_tree = (Object)adaptor.create(EXISTS433);
-                    adaptor.addChild(root_0, EXISTS433_tree);
+                    EXISTS433=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_index_stmt3251);  
+                    stream_EXISTS.add(EXISTS433);
 
 
                     }
@@ -11986,7 +11986,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:349:42: (database_name= id DOT )?
+            // SqlParser.g:350:42: (database_name= id DOT )?
             int alt160=2;
             int LA160_0 = input.LA(1);
 
@@ -12006,17 +12006,16 @@ public class SqlParser extends Parser {
             }
             switch (alt160) {
                 case 1 :
-                    // SqlParser.g:349:43: database_name= id DOT
+                    // SqlParser.g:350:43: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_drop_index_stmt3254);
+                    pushFollow(FOLLOW_id_in_drop_index_stmt3258);
                     database_name=id();
 
                     state._fsp--;
 
-                    adaptor.addChild(root_0, database_name.getTree());
-                    DOT434=(Token)match(input,DOT,FOLLOW_DOT_in_drop_index_stmt3256); 
-                    DOT434_tree = (Object)adaptor.create(DOT434);
-                    adaptor.addChild(root_0, DOT434_tree);
+                    stream_id.add(database_name.getTree());
+                    DOT434=(Token)match(input,DOT,FOLLOW_DOT_in_drop_index_stmt3260);  
+                    stream_DOT.add(DOT434);
 
 
                     }
@@ -12024,13 +12023,69 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_drop_index_stmt3262);
+            pushFollow(FOLLOW_id_in_drop_index_stmt3266);
             index_name=id();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, index_name.getTree());
+            stream_id.add(index_name.getTree());
 
+
+            // AST REWRITE
+            // elements: EXISTS, index_name, database_name
+            // token labels: 
+            // rule labels: database_name, index_name, retval
+            // token list labels: 
+            // rule list labels: 
+            // wildcard labels: 
+            retval.tree = root_0;
+            RewriteRuleSubtreeStream stream_database_name=new RewriteRuleSubtreeStream(adaptor,"rule database_name",database_name!=null?database_name.tree:null);
+            RewriteRuleSubtreeStream stream_index_name=new RewriteRuleSubtreeStream(adaptor,"rule index_name",index_name!=null?index_name.tree:null);
+            RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
+
+            root_0 = (Object)adaptor.nil();
+            // 351:1: -> ^( DROP_INDEX ^( OPTIONS ( EXISTS )? ) ^( $index_name ( $database_name)? ) )
+            {
+                // SqlParser.g:351:4: ^( DROP_INDEX ^( OPTIONS ( EXISTS )? ) ^( $index_name ( $database_name)? ) )
+                {
+                Object root_1 = (Object)adaptor.nil();
+                root_1 = (Object)adaptor.becomeRoot((Object)adaptor.create(DROP_INDEX, "DROP_INDEX"), root_1);
+
+                // SqlParser.g:351:17: ^( OPTIONS ( EXISTS )? )
+                {
+                Object root_2 = (Object)adaptor.nil();
+                root_2 = (Object)adaptor.becomeRoot((Object)adaptor.create(OPTIONS, "OPTIONS"), root_2);
+
+                // SqlParser.g:351:27: ( EXISTS )?
+                if ( stream_EXISTS.hasNext() ) {
+                    adaptor.addChild(root_2, stream_EXISTS.nextNode());
+
+                }
+                stream_EXISTS.reset();
+
+                adaptor.addChild(root_1, root_2);
+                }
+                // SqlParser.g:351:36: ^( $index_name ( $database_name)? )
+                {
+                Object root_2 = (Object)adaptor.nil();
+                root_2 = (Object)adaptor.becomeRoot(stream_index_name.nextNode(), root_2);
+
+                // SqlParser.g:351:50: ( $database_name)?
+                if ( stream_database_name.hasNext() ) {
+                    adaptor.addChild(root_2, stream_database_name.nextTree());
+
+                }
+                stream_database_name.reset();
+
+                adaptor.addChild(root_1, root_2);
+                }
+
+                adaptor.addChild(root_0, root_1);
+                }
+
+            }
+
+            retval.tree = root_0;
             }
 
             retval.stop = input.LT(-1);
@@ -12057,7 +12112,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "create_trigger_stmt"
-    // SqlParser.g:352:1: create_trigger_stmt : CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END ;
+    // SqlParser.g:354:1: create_trigger_stmt : CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END ;
     public final SqlParser.create_trigger_stmt_return create_trigger_stmt() throws RecognitionException {
         SqlParser.create_trigger_stmt_return retval = new SqlParser.create_trigger_stmt_return();
         retval.start = input.LT(1);
@@ -12133,16 +12188,16 @@ public class SqlParser extends Parser {
         Object END463_tree=null;
 
         try {
-            // SqlParser.g:352:20: ( CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END )
-            // SqlParser.g:352:22: CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END
+            // SqlParser.g:354:20: ( CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END )
+            // SqlParser.g:354:22: CREATE ( TEMPORARY )? TRIGGER ( IF NOT EXISTS )? (database_name= id DOT )? trigger_name= id ( BEFORE | AFTER | INSTEAD OF )? ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? ) ON table_name= id ( FOR EACH ROW )? ( WHEN expr )? BEGIN ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+ END
             {
             root_0 = (Object)adaptor.nil();
 
-            CREATE435=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_trigger_stmt3270); 
+            CREATE435=(Token)match(input,CREATE,FOLLOW_CREATE_in_create_trigger_stmt3296); 
             CREATE435_tree = (Object)adaptor.create(CREATE435);
             adaptor.addChild(root_0, CREATE435_tree);
 
-            // SqlParser.g:352:29: ( TEMPORARY )?
+            // SqlParser.g:354:29: ( TEMPORARY )?
             int alt161=2;
             int LA161_0 = input.LA(1);
 
@@ -12151,9 +12206,9 @@ public class SqlParser extends Parser {
             }
             switch (alt161) {
                 case 1 :
-                    // SqlParser.g:352:29: TEMPORARY
+                    // SqlParser.g:354:29: TEMPORARY
                     {
-                    TEMPORARY436=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_trigger_stmt3272); 
+                    TEMPORARY436=(Token)match(input,TEMPORARY,FOLLOW_TEMPORARY_in_create_trigger_stmt3298); 
                     TEMPORARY436_tree = (Object)adaptor.create(TEMPORARY436);
                     adaptor.addChild(root_0, TEMPORARY436_tree);
 
@@ -12163,26 +12218,26 @@ public class SqlParser extends Parser {
 
             }
 
-            TRIGGER437=(Token)match(input,TRIGGER,FOLLOW_TRIGGER_in_create_trigger_stmt3275); 
+            TRIGGER437=(Token)match(input,TRIGGER,FOLLOW_TRIGGER_in_create_trigger_stmt3301); 
             TRIGGER437_tree = (Object)adaptor.create(TRIGGER437);
             adaptor.addChild(root_0, TRIGGER437_tree);
 
-            // SqlParser.g:352:48: ( IF NOT EXISTS )?
+            // SqlParser.g:354:48: ( IF NOT EXISTS )?
             int alt162=2;
             alt162 = dfa162.predict(input);
             switch (alt162) {
                 case 1 :
-                    // SqlParser.g:352:49: IF NOT EXISTS
+                    // SqlParser.g:354:49: IF NOT EXISTS
                     {
-                    IF438=(Token)match(input,IF,FOLLOW_IF_in_create_trigger_stmt3278); 
+                    IF438=(Token)match(input,IF,FOLLOW_IF_in_create_trigger_stmt3304); 
                     IF438_tree = (Object)adaptor.create(IF438);
                     adaptor.addChild(root_0, IF438_tree);
 
-                    NOT439=(Token)match(input,NOT,FOLLOW_NOT_in_create_trigger_stmt3280); 
+                    NOT439=(Token)match(input,NOT,FOLLOW_NOT_in_create_trigger_stmt3306); 
                     NOT439_tree = (Object)adaptor.create(NOT439);
                     adaptor.addChild(root_0, NOT439_tree);
 
-                    EXISTS440=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_trigger_stmt3282); 
+                    EXISTS440=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_create_trigger_stmt3308); 
                     EXISTS440_tree = (Object)adaptor.create(EXISTS440);
                     adaptor.addChild(root_0, EXISTS440_tree);
 
@@ -12192,20 +12247,20 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:352:65: (database_name= id DOT )?
+            // SqlParser.g:354:65: (database_name= id DOT )?
             int alt163=2;
             alt163 = dfa163.predict(input);
             switch (alt163) {
                 case 1 :
-                    // SqlParser.g:352:66: database_name= id DOT
+                    // SqlParser.g:354:66: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_create_trigger_stmt3289);
+                    pushFollow(FOLLOW_id_in_create_trigger_stmt3315);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT441=(Token)match(input,DOT,FOLLOW_DOT_in_create_trigger_stmt3291); 
+                    DOT441=(Token)match(input,DOT,FOLLOW_DOT_in_create_trigger_stmt3317); 
                     DOT441_tree = (Object)adaptor.create(DOT441);
                     adaptor.addChild(root_0, DOT441_tree);
 
@@ -12215,13 +12270,13 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_create_trigger_stmt3297);
+            pushFollow(FOLLOW_id_in_create_trigger_stmt3323);
             trigger_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, trigger_name.getTree());
-            // SqlParser.g:353:3: ( BEFORE | AFTER | INSTEAD OF )?
+            // SqlParser.g:355:3: ( BEFORE | AFTER | INSTEAD OF )?
             int alt164=4;
             switch ( input.LA(1) ) {
                 case BEFORE:
@@ -12243,9 +12298,9 @@ public class SqlParser extends Parser {
 
             switch (alt164) {
                 case 1 :
-                    // SqlParser.g:353:4: BEFORE
+                    // SqlParser.g:355:4: BEFORE
                     {
-                    BEFORE442=(Token)match(input,BEFORE,FOLLOW_BEFORE_in_create_trigger_stmt3302); 
+                    BEFORE442=(Token)match(input,BEFORE,FOLLOW_BEFORE_in_create_trigger_stmt3328); 
                     BEFORE442_tree = (Object)adaptor.create(BEFORE442);
                     adaptor.addChild(root_0, BEFORE442_tree);
 
@@ -12253,9 +12308,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:353:13: AFTER
+                    // SqlParser.g:355:13: AFTER
                     {
-                    AFTER443=(Token)match(input,AFTER,FOLLOW_AFTER_in_create_trigger_stmt3306); 
+                    AFTER443=(Token)match(input,AFTER,FOLLOW_AFTER_in_create_trigger_stmt3332); 
                     AFTER443_tree = (Object)adaptor.create(AFTER443);
                     adaptor.addChild(root_0, AFTER443_tree);
 
@@ -12263,13 +12318,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:353:21: INSTEAD OF
+                    // SqlParser.g:355:21: INSTEAD OF
                     {
-                    INSTEAD444=(Token)match(input,INSTEAD,FOLLOW_INSTEAD_in_create_trigger_stmt3310); 
+                    INSTEAD444=(Token)match(input,INSTEAD,FOLLOW_INSTEAD_in_create_trigger_stmt3336); 
                     INSTEAD444_tree = (Object)adaptor.create(INSTEAD444);
                     adaptor.addChild(root_0, INSTEAD444_tree);
 
-                    OF445=(Token)match(input,OF,FOLLOW_OF_in_create_trigger_stmt3312); 
+                    OF445=(Token)match(input,OF,FOLLOW_OF_in_create_trigger_stmt3338); 
                     OF445_tree = (Object)adaptor.create(OF445);
                     adaptor.addChild(root_0, OF445_tree);
 
@@ -12279,7 +12334,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:353:34: ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? )
+            // SqlParser.g:355:34: ( DELETE | INSERT | UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )? )
             int alt167=3;
             switch ( input.LA(1) ) {
             case DELETE:
@@ -12306,9 +12361,9 @@ public class SqlParser extends Parser {
 
             switch (alt167) {
                 case 1 :
-                    // SqlParser.g:353:35: DELETE
+                    // SqlParser.g:355:35: DELETE
                     {
-                    DELETE446=(Token)match(input,DELETE,FOLLOW_DELETE_in_create_trigger_stmt3317); 
+                    DELETE446=(Token)match(input,DELETE,FOLLOW_DELETE_in_create_trigger_stmt3343); 
                     DELETE446_tree = (Object)adaptor.create(DELETE446);
                     adaptor.addChild(root_0, DELETE446_tree);
 
@@ -12316,9 +12371,9 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:353:44: INSERT
+                    // SqlParser.g:355:44: INSERT
                     {
-                    INSERT447=(Token)match(input,INSERT,FOLLOW_INSERT_in_create_trigger_stmt3321); 
+                    INSERT447=(Token)match(input,INSERT,FOLLOW_INSERT_in_create_trigger_stmt3347); 
                     INSERT447_tree = (Object)adaptor.create(INSERT447);
                     adaptor.addChild(root_0, INSERT447_tree);
 
@@ -12326,13 +12381,13 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // SqlParser.g:353:53: UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )?
+                    // SqlParser.g:355:53: UPDATE ( OF column_names+= id ( COMMA column_names+= id )* )?
                     {
-                    UPDATE448=(Token)match(input,UPDATE,FOLLOW_UPDATE_in_create_trigger_stmt3325); 
+                    UPDATE448=(Token)match(input,UPDATE,FOLLOW_UPDATE_in_create_trigger_stmt3351); 
                     UPDATE448_tree = (Object)adaptor.create(UPDATE448);
                     adaptor.addChild(root_0, UPDATE448_tree);
 
-                    // SqlParser.g:353:60: ( OF column_names+= id ( COMMA column_names+= id )* )?
+                    // SqlParser.g:355:60: ( OF column_names+= id ( COMMA column_names+= id )* )?
                     int alt166=2;
                     int LA166_0 = input.LA(1);
 
@@ -12341,13 +12396,13 @@ public class SqlParser extends Parser {
                     }
                     switch (alt166) {
                         case 1 :
-                            // SqlParser.g:353:61: OF column_names+= id ( COMMA column_names+= id )*
+                            // SqlParser.g:355:61: OF column_names+= id ( COMMA column_names+= id )*
                             {
-                            OF449=(Token)match(input,OF,FOLLOW_OF_in_create_trigger_stmt3328); 
+                            OF449=(Token)match(input,OF,FOLLOW_OF_in_create_trigger_stmt3354); 
                             OF449_tree = (Object)adaptor.create(OF449);
                             adaptor.addChild(root_0, OF449_tree);
 
-                            pushFollow(FOLLOW_id_in_create_trigger_stmt3332);
+                            pushFollow(FOLLOW_id_in_create_trigger_stmt3358);
                             column_names=id();
 
                             state._fsp--;
@@ -12356,7 +12411,7 @@ public class SqlParser extends Parser {
                             if (list_column_names==null) list_column_names=new ArrayList();
                             list_column_names.add(column_names.getTree());
 
-                            // SqlParser.g:353:81: ( COMMA column_names+= id )*
+                            // SqlParser.g:355:81: ( COMMA column_names+= id )*
                             loop165:
                             do {
                                 int alt165=2;
@@ -12369,13 +12424,13 @@ public class SqlParser extends Parser {
 
                                 switch (alt165) {
                             	case 1 :
-                            	    // SqlParser.g:353:82: COMMA column_names+= id
+                            	    // SqlParser.g:355:82: COMMA column_names+= id
                             	    {
-                            	    COMMA450=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_trigger_stmt3335); 
+                            	    COMMA450=(Token)match(input,COMMA,FOLLOW_COMMA_in_create_trigger_stmt3361); 
                             	    COMMA450_tree = (Object)adaptor.create(COMMA450);
                             	    adaptor.addChild(root_0, COMMA450_tree);
 
-                            	    pushFollow(FOLLOW_id_in_create_trigger_stmt3339);
+                            	    pushFollow(FOLLOW_id_in_create_trigger_stmt3365);
                             	    column_names=id();
 
                             	    state._fsp--;
@@ -12405,17 +12460,17 @@ public class SqlParser extends Parser {
 
             }
 
-            ON451=(Token)match(input,ON,FOLLOW_ON_in_create_trigger_stmt3348); 
+            ON451=(Token)match(input,ON,FOLLOW_ON_in_create_trigger_stmt3374); 
             ON451_tree = (Object)adaptor.create(ON451);
             adaptor.addChild(root_0, ON451_tree);
 
-            pushFollow(FOLLOW_id_in_create_trigger_stmt3352);
+            pushFollow(FOLLOW_id_in_create_trigger_stmt3378);
             table_name=id();
 
             state._fsp--;
 
             adaptor.addChild(root_0, table_name.getTree());
-            // SqlParser.g:354:20: ( FOR EACH ROW )?
+            // SqlParser.g:356:20: ( FOR EACH ROW )?
             int alt168=2;
             int LA168_0 = input.LA(1);
 
@@ -12424,17 +12479,17 @@ public class SqlParser extends Parser {
             }
             switch (alt168) {
                 case 1 :
-                    // SqlParser.g:354:21: FOR EACH ROW
+                    // SqlParser.g:356:21: FOR EACH ROW
                     {
-                    FOR452=(Token)match(input,FOR,FOLLOW_FOR_in_create_trigger_stmt3355); 
+                    FOR452=(Token)match(input,FOR,FOLLOW_FOR_in_create_trigger_stmt3381); 
                     FOR452_tree = (Object)adaptor.create(FOR452);
                     adaptor.addChild(root_0, FOR452_tree);
 
-                    EACH453=(Token)match(input,EACH,FOLLOW_EACH_in_create_trigger_stmt3357); 
+                    EACH453=(Token)match(input,EACH,FOLLOW_EACH_in_create_trigger_stmt3383); 
                     EACH453_tree = (Object)adaptor.create(EACH453);
                     adaptor.addChild(root_0, EACH453_tree);
 
-                    ROW454=(Token)match(input,ROW,FOLLOW_ROW_in_create_trigger_stmt3359); 
+                    ROW454=(Token)match(input,ROW,FOLLOW_ROW_in_create_trigger_stmt3385); 
                     ROW454_tree = (Object)adaptor.create(ROW454);
                     adaptor.addChild(root_0, ROW454_tree);
 
@@ -12444,7 +12499,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:354:36: ( WHEN expr )?
+            // SqlParser.g:356:36: ( WHEN expr )?
             int alt169=2;
             int LA169_0 = input.LA(1);
 
@@ -12453,13 +12508,13 @@ public class SqlParser extends Parser {
             }
             switch (alt169) {
                 case 1 :
-                    // SqlParser.g:354:37: WHEN expr
+                    // SqlParser.g:356:37: WHEN expr
                     {
-                    WHEN455=(Token)match(input,WHEN,FOLLOW_WHEN_in_create_trigger_stmt3364); 
+                    WHEN455=(Token)match(input,WHEN,FOLLOW_WHEN_in_create_trigger_stmt3390); 
                     WHEN455_tree = (Object)adaptor.create(WHEN455);
                     adaptor.addChild(root_0, WHEN455_tree);
 
-                    pushFollow(FOLLOW_expr_in_create_trigger_stmt3366);
+                    pushFollow(FOLLOW_expr_in_create_trigger_stmt3392);
                     expr456=expr();
 
                     state._fsp--;
@@ -12471,11 +12526,11 @@ public class SqlParser extends Parser {
 
             }
 
-            BEGIN457=(Token)match(input,BEGIN,FOLLOW_BEGIN_in_create_trigger_stmt3372); 
+            BEGIN457=(Token)match(input,BEGIN,FOLLOW_BEGIN_in_create_trigger_stmt3398); 
             BEGIN457_tree = (Object)adaptor.create(BEGIN457);
             adaptor.addChild(root_0, BEGIN457_tree);
 
-            // SqlParser.g:355:9: ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+
+            // SqlParser.g:357:9: ( ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI )+
             int cnt171=0;
             loop171:
             do {
@@ -12489,9 +12544,9 @@ public class SqlParser extends Parser {
 
                 switch (alt171) {
             	case 1 :
-            	    // SqlParser.g:355:10: ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI
+            	    // SqlParser.g:357:10: ( update_stmt | insert_stmt | delete_stmt | select_stmt ) SEMI
             	    {
-            	    // SqlParser.g:355:10: ( update_stmt | insert_stmt | delete_stmt | select_stmt )
+            	    // SqlParser.g:357:10: ( update_stmt | insert_stmt | delete_stmt | select_stmt )
             	    int alt170=4;
             	    switch ( input.LA(1) ) {
             	    case UPDATE:
@@ -12524,9 +12579,9 @@ public class SqlParser extends Parser {
 
             	    switch (alt170) {
             	        case 1 :
-            	            // SqlParser.g:355:11: update_stmt
+            	            // SqlParser.g:357:11: update_stmt
             	            {
-            	            pushFollow(FOLLOW_update_stmt_in_create_trigger_stmt3376);
+            	            pushFollow(FOLLOW_update_stmt_in_create_trigger_stmt3402);
             	            update_stmt458=update_stmt();
 
             	            state._fsp--;
@@ -12536,9 +12591,9 @@ public class SqlParser extends Parser {
             	            }
             	            break;
             	        case 2 :
-            	            // SqlParser.g:355:25: insert_stmt
+            	            // SqlParser.g:357:25: insert_stmt
             	            {
-            	            pushFollow(FOLLOW_insert_stmt_in_create_trigger_stmt3380);
+            	            pushFollow(FOLLOW_insert_stmt_in_create_trigger_stmt3406);
             	            insert_stmt459=insert_stmt();
 
             	            state._fsp--;
@@ -12548,9 +12603,9 @@ public class SqlParser extends Parser {
             	            }
             	            break;
             	        case 3 :
-            	            // SqlParser.g:355:39: delete_stmt
+            	            // SqlParser.g:357:39: delete_stmt
             	            {
-            	            pushFollow(FOLLOW_delete_stmt_in_create_trigger_stmt3384);
+            	            pushFollow(FOLLOW_delete_stmt_in_create_trigger_stmt3410);
             	            delete_stmt460=delete_stmt();
 
             	            state._fsp--;
@@ -12560,9 +12615,9 @@ public class SqlParser extends Parser {
             	            }
             	            break;
             	        case 4 :
-            	            // SqlParser.g:355:53: select_stmt
+            	            // SqlParser.g:357:53: select_stmt
             	            {
-            	            pushFollow(FOLLOW_select_stmt_in_create_trigger_stmt3388);
+            	            pushFollow(FOLLOW_select_stmt_in_create_trigger_stmt3414);
             	            select_stmt461=select_stmt();
 
             	            state._fsp--;
@@ -12574,7 +12629,7 @@ public class SqlParser extends Parser {
 
             	    }
 
-            	    SEMI462=(Token)match(input,SEMI,FOLLOW_SEMI_in_create_trigger_stmt3391); 
+            	    SEMI462=(Token)match(input,SEMI,FOLLOW_SEMI_in_create_trigger_stmt3417); 
             	    SEMI462_tree = (Object)adaptor.create(SEMI462);
             	    adaptor.addChild(root_0, SEMI462_tree);
 
@@ -12591,7 +12646,7 @@ public class SqlParser extends Parser {
                 cnt171++;
             } while (true);
 
-            END463=(Token)match(input,END,FOLLOW_END_in_create_trigger_stmt3395); 
+            END463=(Token)match(input,END,FOLLOW_END_in_create_trigger_stmt3421); 
             END463_tree = (Object)adaptor.create(END463);
             adaptor.addChild(root_0, END463_tree);
 
@@ -12622,7 +12677,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "drop_trigger_stmt"
-    // SqlParser.g:358:1: drop_trigger_stmt : DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id ;
+    // SqlParser.g:360:1: drop_trigger_stmt : DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id ;
     public final SqlParser.drop_trigger_stmt_return drop_trigger_stmt() throws RecognitionException {
         SqlParser.drop_trigger_stmt_return retval = new SqlParser.drop_trigger_stmt_return();
         retval.start = input.LT(1);
@@ -12646,20 +12701,20 @@ public class SqlParser extends Parser {
         Object DOT468_tree=null;
 
         try {
-            // SqlParser.g:358:18: ( DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id )
-            // SqlParser.g:358:20: DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id
+            // SqlParser.g:360:18: ( DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id )
+            // SqlParser.g:360:20: DROP TRIGGER ( IF EXISTS )? (database_name= id DOT )? trigger_name= id
             {
             root_0 = (Object)adaptor.nil();
 
-            DROP464=(Token)match(input,DROP,FOLLOW_DROP_in_drop_trigger_stmt3403); 
+            DROP464=(Token)match(input,DROP,FOLLOW_DROP_in_drop_trigger_stmt3429); 
             DROP464_tree = (Object)adaptor.create(DROP464);
             adaptor.addChild(root_0, DROP464_tree);
 
-            TRIGGER465=(Token)match(input,TRIGGER,FOLLOW_TRIGGER_in_drop_trigger_stmt3405); 
+            TRIGGER465=(Token)match(input,TRIGGER,FOLLOW_TRIGGER_in_drop_trigger_stmt3431); 
             TRIGGER465_tree = (Object)adaptor.create(TRIGGER465);
             adaptor.addChild(root_0, TRIGGER465_tree);
 
-            // SqlParser.g:358:33: ( IF EXISTS )?
+            // SqlParser.g:360:33: ( IF EXISTS )?
             int alt172=2;
             int LA172_0 = input.LA(1);
 
@@ -12672,13 +12727,13 @@ public class SqlParser extends Parser {
             }
             switch (alt172) {
                 case 1 :
-                    // SqlParser.g:358:34: IF EXISTS
+                    // SqlParser.g:360:34: IF EXISTS
                     {
-                    IF466=(Token)match(input,IF,FOLLOW_IF_in_drop_trigger_stmt3408); 
+                    IF466=(Token)match(input,IF,FOLLOW_IF_in_drop_trigger_stmt3434); 
                     IF466_tree = (Object)adaptor.create(IF466);
                     adaptor.addChild(root_0, IF466_tree);
 
-                    EXISTS467=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_trigger_stmt3410); 
+                    EXISTS467=(Token)match(input,EXISTS,FOLLOW_EXISTS_in_drop_trigger_stmt3436); 
                     EXISTS467_tree = (Object)adaptor.create(EXISTS467);
                     adaptor.addChild(root_0, EXISTS467_tree);
 
@@ -12688,7 +12743,7 @@ public class SqlParser extends Parser {
 
             }
 
-            // SqlParser.g:358:46: (database_name= id DOT )?
+            // SqlParser.g:360:46: (database_name= id DOT )?
             int alt173=2;
             int LA173_0 = input.LA(1);
 
@@ -12708,15 +12763,15 @@ public class SqlParser extends Parser {
             }
             switch (alt173) {
                 case 1 :
-                    // SqlParser.g:358:47: database_name= id DOT
+                    // SqlParser.g:360:47: database_name= id DOT
                     {
-                    pushFollow(FOLLOW_id_in_drop_trigger_stmt3417);
+                    pushFollow(FOLLOW_id_in_drop_trigger_stmt3443);
                     database_name=id();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, database_name.getTree());
-                    DOT468=(Token)match(input,DOT,FOLLOW_DOT_in_drop_trigger_stmt3419); 
+                    DOT468=(Token)match(input,DOT,FOLLOW_DOT_in_drop_trigger_stmt3445); 
                     DOT468_tree = (Object)adaptor.create(DOT468);
                     adaptor.addChild(root_0, DOT468_tree);
 
@@ -12726,7 +12781,7 @@ public class SqlParser extends Parser {
 
             }
 
-            pushFollow(FOLLOW_id_in_drop_trigger_stmt3425);
+            pushFollow(FOLLOW_id_in_drop_trigger_stmt3451);
             trigger_name=id();
 
             state._fsp--;
@@ -12759,7 +12814,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "id"
-    // SqlParser.g:363:1: id : ( ID | keyword );
+    // SqlParser.g:365:1: id : ( ID | keyword );
     public final SqlParser.id_return id() throws RecognitionException {
         SqlParser.id_return retval = new SqlParser.id_return();
         retval.start = input.LT(1);
@@ -12773,7 +12828,7 @@ public class SqlParser extends Parser {
         Object ID469_tree=null;
 
         try {
-            // SqlParser.g:363:3: ( ID | keyword )
+            // SqlParser.g:365:3: ( ID | keyword )
             int alt174=2;
             int LA174_0 = input.LA(1);
 
@@ -12791,11 +12846,11 @@ public class SqlParser extends Parser {
             }
             switch (alt174) {
                 case 1 :
-                    // SqlParser.g:363:5: ID
+                    // SqlParser.g:365:5: ID
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    ID469=(Token)match(input,ID,FOLLOW_ID_in_id3435); 
+                    ID469=(Token)match(input,ID,FOLLOW_ID_in_id3461); 
                     ID469_tree = (Object)adaptor.create(ID469);
                     adaptor.addChild(root_0, ID469_tree);
 
@@ -12803,11 +12858,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:363:10: keyword
+                    // SqlParser.g:365:10: keyword
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_keyword_in_id3439);
+                    pushFollow(FOLLOW_keyword_in_id3465);
                     keyword470=keyword();
 
                     state._fsp--;
@@ -12842,7 +12897,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "keyword"
-    // SqlParser.g:365:1: keyword : ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) ;
+    // SqlParser.g:367:1: keyword : ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) ;
     public final SqlParser.keyword_return keyword() throws RecognitionException {
         SqlParser.keyword_return retval = new SqlParser.keyword_return();
         retval.start = input.LT(1);
@@ -12854,8 +12909,8 @@ public class SqlParser extends Parser {
         Object set471_tree=null;
 
         try {
-            // SqlParser.g:365:8: ( ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) )
-            // SqlParser.g:365:10: ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE )
+            // SqlParser.g:367:8: ( ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) )
+            // SqlParser.g:367:10: ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE )
             {
             root_0 = (Object)adaptor.nil();
 
@@ -12897,7 +12952,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "id_column_def"
-    // SqlParser.g:484:1: id_column_def : ( ID | keyword_column_def );
+    // SqlParser.g:486:1: id_column_def : ( ID | keyword_column_def );
     public final SqlParser.id_column_def_return id_column_def() throws RecognitionException {
         SqlParser.id_column_def_return retval = new SqlParser.id_column_def_return();
         retval.start = input.LT(1);
@@ -12911,7 +12966,7 @@ public class SqlParser extends Parser {
         Object ID472_tree=null;
 
         try {
-            // SqlParser.g:484:14: ( ID | keyword_column_def )
+            // SqlParser.g:486:14: ( ID | keyword_column_def )
             int alt175=2;
             int LA175_0 = input.LA(1);
 
@@ -12929,11 +12984,11 @@ public class SqlParser extends Parser {
             }
             switch (alt175) {
                 case 1 :
-                    // SqlParser.g:484:16: ID
+                    // SqlParser.g:486:16: ID
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    ID472=(Token)match(input,ID,FOLLOW_ID_in_id_column_def4153); 
+                    ID472=(Token)match(input,ID,FOLLOW_ID_in_id_column_def4179); 
                     ID472_tree = (Object)adaptor.create(ID472);
                     adaptor.addChild(root_0, ID472_tree);
 
@@ -12941,11 +12996,11 @@ public class SqlParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // SqlParser.g:484:21: keyword_column_def
+                    // SqlParser.g:486:21: keyword_column_def
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_keyword_column_def_in_id_column_def4157);
+                    pushFollow(FOLLOW_keyword_column_def_in_id_column_def4183);
                     keyword_column_def473=keyword_column_def();
 
                     state._fsp--;
@@ -12980,7 +13035,7 @@ public class SqlParser extends Parser {
     };
 
     // $ANTLR start "keyword_column_def"
-    // SqlParser.g:486:1: keyword_column_def : ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) ;
+    // SqlParser.g:488:1: keyword_column_def : ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) ;
     public final SqlParser.keyword_column_def_return keyword_column_def() throws RecognitionException {
         SqlParser.keyword_column_def_return retval = new SqlParser.keyword_column_def_return();
         retval.start = input.LT(1);
@@ -12992,8 +13047,8 @@ public class SqlParser extends Parser {
         Object set474_tree=null;
 
         try {
-            // SqlParser.g:486:19: ( ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) )
-            // SqlParser.g:486:21: ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE )
+            // SqlParser.g:488:19: ( ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE ) )
+            // SqlParser.g:488:21: ( ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COMMIT | CONFLICT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE )
             {
             root_0 = (Object)adaptor.nil();
 
@@ -13162,7 +13217,7 @@ public class SqlParser extends Parser {
             this.transition = DFA1_transition;
         }
         public String getDescription() {
-            return "()+ loopback of 48:16: ( sql_stmt )+";
+            return "()+ loopback of 49:16: ( sql_stmt )+";
         }
     }
     static final String DFA3_eotS =
@@ -13234,7 +13289,7 @@ public class SqlParser extends Parser {
             this.transition = DFA3_transition;
         }
         public String getDescription() {
-            return "50:11: ( EXPLAIN ( QUERY PLAN )? )?";
+            return "51:11: ( EXPLAIN ( QUERY PLAN )? )?";
         }
     }
     static final String DFA2_eotS =
@@ -13306,7 +13361,7 @@ public class SqlParser extends Parser {
             this.transition = DFA2_transition;
         }
         public String getDescription() {
-            return "50:20: ( QUERY PLAN )?";
+            return "51:20: ( QUERY PLAN )?";
         }
     }
     static final String DFA4_eotS =
@@ -13394,7 +13449,7 @@ public class SqlParser extends Parser {
             this.transition = DFA4_transition;
         }
         public String getDescription() {
-            return "52:1: sql_stmt_core : ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt );";
+            return "53:1: sql_stmt_core : ( pragma_stmt | attach_stmt | detach_stmt | analyze_stmt | reindex_stmt | vacuum_stmt | select_stmt | insert_stmt | update_stmt | delete_stmt | begin_stmt | commit_stmt | rollback_stmt | savepoint_stmt | release_stmt | create_virtual_table_stmt | create_table_stmt | drop_table_stmt | alter_table_stmt | create_view_stmt | drop_view_stmt | create_index_stmt | drop_index_stmt | create_trigger_stmt | drop_trigger_stmt );";
         }
     }
     static final String DFA5_eotS =
@@ -13463,7 +13518,7 @@ public class SqlParser extends Parser {
             this.transition = DFA5_transition;
         }
         public String getDescription() {
-            return "81:23: (database_name= id DOT )?";
+            return "82:23: (database_name= id DOT )?";
         }
     }
     static final String DFA7_eotS =
@@ -13615,7 +13670,7 @@ public class SqlParser extends Parser {
             this.transition = DFA7_transition;
         }
         public String getDescription() {
-            return "()* loopback of 83:18: ( OR or_subexpr )*";
+            return "()* loopback of 84:18: ( OR or_subexpr )*";
         }
     }
     static final String DFA8_eotS =
@@ -13768,7 +13823,7 @@ public class SqlParser extends Parser {
             this.transition = DFA8_transition;
         }
         public String getDescription() {
-            return "()* loopback of 85:25: ( AND and_subexpr )*";
+            return "()* loopback of 86:25: ( AND and_subexpr )*";
         }
     }
     static final String DFA19_eotS =
@@ -13997,7 +14052,7 @@ public class SqlParser extends Parser {
             this.transition = DFA19_transition;
         }
         public String getDescription() {
-            return "87:1: and_subexpr : ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr );";
+            return "88:1: and_subexpr : ( eq_subexpr ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )* | ( NOT )? ( LIKE | GLOB | REGEXP | MATCH ) eq_subexpr ( ESCAPE eq_subexpr )? | ( NOT )? IN ( LPAREN ( select_stmt | expr ( COMMA expr )* )? RPAREN | (database_name= id DOT )? table_name= id ) | ( ISNULL | NOTNULL | IS NULL | IS NOT NULL ) | ( NOT )? BETWEEN eq_subexpr AND eq_subexpr );";
         }
     }
     static final String DFA9_eotS =
@@ -14078,7 +14133,7 @@ public class SqlParser extends Parser {
             this.transition = DFA9_transition;
         }
         public String getDescription() {
-            return "()* loopback of 88:3: ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*";
+            return "()* loopback of 89:3: ( ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 ) eq_subexpr )*";
         }
     }
     static final String DFA11_eotS =
@@ -14226,7 +14281,7 @@ public class SqlParser extends Parser {
             this.transition = DFA11_transition;
         }
         public String getDescription() {
-            return "89:54: ( ESCAPE eq_subexpr )?";
+            return "90:54: ( ESCAPE eq_subexpr )?";
         }
     }
     static final String DFA14_eotS =
@@ -14323,7 +14378,7 @@ public class SqlParser extends Parser {
             this.transition = DFA14_transition;
         }
         public String getDescription() {
-            return "90:23: ( select_stmt | expr ( COMMA expr )* )?";
+            return "91:23: ( select_stmt | expr ( COMMA expr )* )?";
         }
     }
     static final String DFA15_eotS =
@@ -14436,7 +14491,7 @@ public class SqlParser extends Parser {
             this.transition = DFA15_transition;
         }
         public String getDescription() {
-            return "90:68: (database_name= id DOT )?";
+            return "91:68: (database_name= id DOT )?";
         }
     }
     static final String DFA20_eotS =
@@ -14519,7 +14574,7 @@ public class SqlParser extends Parser {
             this.transition = DFA20_transition;
         }
         public String getDescription() {
-            return "()* loopback of 94:25: ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*";
+            return "()* loopback of 95:25: ( ( LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ ) neq_subexpr )*";
         }
     }
     static final String DFA21_eotS =
@@ -14603,7 +14658,7 @@ public class SqlParser extends Parser {
             this.transition = DFA21_transition;
         }
         public String getDescription() {
-            return "()* loopback of 96:26: ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*";
+            return "()* loopback of 97:26: ( ( SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE ) bit_subexpr )*";
         }
     }
     static final String DFA22_eotS =
@@ -14688,7 +14743,7 @@ public class SqlParser extends Parser {
             this.transition = DFA22_transition;
         }
         public String getDescription() {
-            return "()* loopback of 98:26: ( ( PLUS | MINUS ) add_subexpr )*";
+            return "()* loopback of 99:26: ( ( PLUS | MINUS ) add_subexpr )*";
         }
     }
     static final String DFA23_eotS =
@@ -14774,7 +14829,7 @@ public class SqlParser extends Parser {
             this.transition = DFA23_transition;
         }
         public String getDescription() {
-            return "()* loopback of 100:26: ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*";
+            return "()* loopback of 101:26: ( ( ASTERISK | SLASH | PERCENT ) mul_subexpr )*";
         }
     }
     static final String DFA24_eotS =
@@ -14861,7 +14916,7 @@ public class SqlParser extends Parser {
             this.transition = DFA24_transition;
         }
         public String getDescription() {
-            return "()* loopback of 102:26: ( DOUBLE_PIPE con_subexpr )*";
+            return "()* loopback of 103:26: ( DOUBLE_PIPE con_subexpr )*";
         }
     }
     static final String DFA25_eotS =
@@ -14939,7 +14994,7 @@ public class SqlParser extends Parser {
             this.transition = DFA25_transition;
         }
         public String getDescription() {
-            return "104:14: ( PLUS | MINUS | TILDA | NOT )?";
+            return "105:14: ( PLUS | MINUS | TILDA | NOT )?";
         }
     }
     static final String DFA26_eotS =
@@ -15041,7 +15096,7 @@ public class SqlParser extends Parser {
             this.transition = DFA26_transition;
         }
         public String getDescription() {
-            return "106:26: ( COLLATE collation_name= ID )?";
+            return "107:26: ( COLLATE collation_name= ID )?";
         }
     }
     static final String DFA36_eotS =
@@ -15263,7 +15318,7 @@ public class SqlParser extends Parser {
             this.transition = DFA36_transition;
         }
         public String getDescription() {
-            return "108:1: atom_expr : ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function );";
+            return "109:1: atom_expr : ( literal_value | bind_parameter | ( (database_name= id DOT )? table_name= id DOT )? column_name= ID | function_name= ID LPAREN ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )? RPAREN | LPAREN expr RPAREN -> expr | CAST LPAREN expr AS type_name RPAREN | ( EXISTS )? LPAREN select_stmt RPAREN | CASE ( expr )? ( WHEN expr THEN expr )+ ( ELSE expr )? END | raise_function );";
         }
     }
     static final String DFA28_eotS =
@@ -15354,7 +15409,7 @@ public class SqlParser extends Parser {
             this.transition = DFA28_transition;
         }
         public String getDescription() {
-            return "111:5: ( (database_name= id DOT )? table_name= id DOT )?";
+            return "112:5: ( (database_name= id DOT )? table_name= id DOT )?";
         }
     }
     static final String DFA27_eotS =
@@ -15491,7 +15546,7 @@ public class SqlParser extends Parser {
             this.transition = DFA27_transition;
         }
         public String getDescription() {
-            return "111:6: (database_name= id DOT )?";
+            return "112:6: (database_name= id DOT )?";
         }
     }
     static final String DFA31_eotS =
@@ -15564,7 +15619,7 @@ public class SqlParser extends Parser {
             this.transition = DFA31_transition;
         }
         public String getDescription() {
-            return "112:29: ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )?";
+            return "113:29: ( ( DISTINCT )? args+= expr ( COMMA args+= expr )* | ASTERISK )?";
         }
     }
     static final String DFA29_eotS =
@@ -15657,7 +15712,7 @@ public class SqlParser extends Parser {
             this.transition = DFA29_transition;
         }
         public String getDescription() {
-            return "112:30: ( DISTINCT )?";
+            return "113:30: ( DISTINCT )?";
         }
     }
     static final String DFA33_eotS =
@@ -15750,7 +15805,7 @@ public class SqlParser extends Parser {
             this.transition = DFA33_transition;
         }
         public String getDescription() {
-            return "116:10: ( expr )?";
+            return "117:10: ( expr )?";
         }
     }
     static final String DFA37_eotS =
@@ -15842,7 +15897,7 @@ public class SqlParser extends Parser {
             this.transition = DFA37_transition;
         }
         public String getDescription() {
-            return "123:1: bind_parameter : ( QUESTION | QUESTION number= INTEGER | COLON id | AT id );";
+            return "124:1: bind_parameter : ( QUESTION | QUESTION number= INTEGER | COLON id | AT id );";
         }
     }
     static final String DFA38_eotS =
@@ -15905,7 +15960,7 @@ public class SqlParser extends Parser {
             this.transition = DFA38_transition;
         }
         public String getDescription() {
-            return "()+ loopback of 130:17: (names+= ID )+";
+            return "()+ loopback of 131:17: (names+= ID )+";
         }
     }
     static final String DFA40_eotS =
@@ -15967,7 +16022,7 @@ public class SqlParser extends Parser {
             this.transition = DFA40_transition;
         }
         public String getDescription() {
-            return "130:23: ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?";
+            return "131:23: ( LPAREN size1= signed_number ( COMMA size2= signed_number )? RPAREN )?";
         }
     }
     static final String DFA42_eotS =
@@ -16026,7 +16081,7 @@ public class SqlParser extends Parser {
             this.transition = DFA42_transition;
         }
         public String getDescription() {
-            return "136:21: (database_name= id DOT )?";
+            return "137:21: (database_name= id DOT )?";
         }
     }
     static final String DFA45_eotS =
@@ -16089,7 +16144,7 @@ public class SqlParser extends Parser {
             this.transition = DFA45_transition;
         }
         public String getDescription() {
-            return "141:21: ( DATABASE )?";
+            return "142:21: ( DATABASE )?";
         }
     }
     static final String DFA50_eotS =
@@ -16151,7 +16206,7 @@ public class SqlParser extends Parser {
             this.transition = DFA50_transition;
         }
         public String getDescription() {
-            return "161:82: ( ASC | DESC )?";
+            return "162:82: ( ASC | DESC )?";
         }
     }
     static final String DFA62_eotS =
@@ -16270,7 +16325,7 @@ public class SqlParser extends Parser {
             this.transition = DFA62_transition;
         }
         public String getDescription() {
-            return "182:10: ( ALL | DISTINCT )?";
+            return "183:10: ( ALL | DISTINCT )?";
         }
     }
     static final String DFA63_eotS =
@@ -16332,7 +16387,7 @@ public class SqlParser extends Parser {
             this.transition = DFA63_transition;
         }
         public String getDescription() {
-            return "()* loopback of 182:42: ( COMMA result_column )*";
+            return "()* loopback of 183:42: ( COMMA result_column )*";
         }
     }
     static final String DFA64_eotS =
@@ -16392,7 +16447,7 @@ public class SqlParser extends Parser {
             this.transition = DFA64_transition;
         }
         public String getDescription() {
-            return "182:65: ( FROM join_source )?";
+            return "183:65: ( FROM join_source )?";
         }
     }
     static final String DFA65_eotS =
@@ -16451,7 +16506,7 @@ public class SqlParser extends Parser {
             this.transition = DFA65_transition;
         }
         public String getDescription() {
-            return "182:85: ( WHERE where_expr= expr )?";
+            return "183:85: ( WHERE where_expr= expr )?";
         }
     }
     static final String DFA66_eotS =
@@ -16510,7 +16565,7 @@ public class SqlParser extends Parser {
             this.transition = DFA66_transition;
         }
         public String getDescription() {
-            return "()* loopback of 183:28: ( COMMA ordering_term )*";
+            return "()* loopback of 184:28: ( COMMA ordering_term )*";
         }
     }
     static final String DFA71_eotS =
@@ -16802,7 +16857,7 @@ public class SqlParser extends Parser {
             this.transition = DFA71_transition;
         }
         public String getDescription() {
-            return "189:1: result_column : ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) );";
+            return "190:1: result_column : ( ASTERISK | table_name= id DOT ASTERISK -> ^( ASTERISK $table_name) | expr ( ( AS )? column_alias= id )? -> ^( ALIAS expr ( $column_alias)? ) );";
         }
     }
     static final String DFA70_eotS =
@@ -17082,7 +17137,7 @@ public class SqlParser extends Parser {
             this.transition = DFA70_transition;
         }
         public String getDescription() {
-            return "192:10: ( ( AS )? column_alias= id )?";
+            return "193:10: ( ( AS )? column_alias= id )?";
         }
     }
     static final String DFA69_eotS =
@@ -17364,7 +17419,7 @@ public class SqlParser extends Parser {
             this.transition = DFA69_transition;
         }
         public String getDescription() {
-            return "192:11: ( AS )?";
+            return "193:11: ( AS )?";
         }
     }
     static final String DFA73_eotS =
@@ -17432,7 +17487,7 @@ public class SqlParser extends Parser {
             this.transition = DFA73_transition;
         }
         public String getDescription() {
-            return "()* loopback of 194:28: ( join_op single_source ( join_constraint )? )*";
+            return "()* loopback of 195:28: ( join_op single_source ( join_constraint )? )*";
         }
     }
     static final String DFA72_eotS =
@@ -17502,7 +17557,7 @@ public class SqlParser extends Parser {
             this.transition = DFA72_transition;
         }
         public String getDescription() {
-            return "194:52: ( join_constraint )?";
+            return "195:52: ( join_constraint )?";
         }
     }
     static final String DFA80_eotS =
@@ -17583,7 +17638,7 @@ public class SqlParser extends Parser {
             this.transition = DFA80_transition;
         }
         public String getDescription() {
-            return "196:1: single_source : ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN );";
+            return "197:1: single_source : ( (database_name= id DOT )? table_name= ID ( ( AS )? table_alias= ID )? ( INDEXED BY index_name= id | NOT INDEXED )? -> ^( ALIAS ^( $table_name ( $database_name)? ) ( $table_alias)? ( ^( INDEXED ( NOT )? ( $index_name)? ) )? ) | LPAREN select_stmt RPAREN ( ( AS )? table_alias= ID )? -> ^( ALIAS select_stmt ( $table_alias)? ) | LPAREN join_source RPAREN );";
         }
     }
     static final String DFA74_eotS =
@@ -17660,7 +17715,7 @@ public class SqlParser extends Parser {
             this.transition = DFA74_transition;
         }
         public String getDescription() {
-            return "197:5: (database_name= id DOT )?";
+            return "198:5: (database_name= id DOT )?";
         }
     }
     static final String DFA76_eotS =
@@ -17734,7 +17789,7 @@ public class SqlParser extends Parser {
             this.transition = DFA76_transition;
         }
         public String getDescription() {
-            return "197:43: ( ( AS )? table_alias= ID )?";
+            return "198:43: ( ( AS )? table_alias= ID )?";
         }
     }
     static final String DFA77_eotS =
@@ -17806,7 +17861,7 @@ public class SqlParser extends Parser {
             this.transition = DFA77_transition;
         }
         public String getDescription() {
-            return "197:67: ( INDEXED BY index_name= id | NOT INDEXED )?";
+            return "198:67: ( INDEXED BY index_name= id | NOT INDEXED )?";
         }
     }
     static final String DFA79_eotS =
@@ -17878,7 +17933,7 @@ public class SqlParser extends Parser {
             this.transition = DFA79_transition;
         }
         public String getDescription() {
-            return "199:31: ( ( AS )? table_alias= ID )?";
+            return "200:31: ( ( AS )? table_alias= ID )?";
         }
     }
     static final String DFA90_eotS =
@@ -17939,7 +17994,7 @@ public class SqlParser extends Parser {
             this.transition = DFA90_transition;
         }
         public String getDescription() {
-            return "212:67: (database_name= id DOT )?";
+            return "213:67: (database_name= id DOT )?";
         }
     }
     static final String DFA115_eotS =
@@ -18052,7 +18107,7 @@ public class SqlParser extends Parser {
             this.transition = DFA115_transition;
         }
         public String getDescription() {
-            return "()* loopback of 255:23: ( COMMA column_def )*";
+            return "()* loopback of 256:23: ( COMMA column_def )*";
         }
     }
     static final String DFA118_eotS =
@@ -18115,7 +18170,7 @@ public class SqlParser extends Parser {
             this.transition = DFA118_transition;
         }
         public String getDescription() {
-            return "260:32: ( type_name )?";
+            return "261:32: ( type_name )?";
         }
     }
     static final String DFA119_eotS =
@@ -18176,7 +18231,7 @@ public class SqlParser extends Parser {
             this.transition = DFA119_transition;
         }
         public String getDescription() {
-            return "()* loopback of 260:43: ( column_constraint )*";
+            return "()* loopback of 261:43: ( column_constraint )*";
         }
     }
     static final String DFA122_eotS =
@@ -18241,7 +18296,7 @@ public class SqlParser extends Parser {
             this.transition = DFA122_transition;
         }
         public String getDescription() {
-            return "281:37: ( ASC | DESC )?";
+            return "282:37: ( ASC | DESC )?";
         }
     }
     static final String DFA123_eotS =
@@ -18305,7 +18360,7 @@ public class SqlParser extends Parser {
             this.transition = DFA123_transition;
         }
         public String getDescription() {
-            return "281:51: ( table_conflict_clause )?";
+            return "282:51: ( table_conflict_clause )?";
         }
     }
     static final String DFA124_eotS =
@@ -18368,7 +18423,7 @@ public class SqlParser extends Parser {
             this.transition = DFA124_transition;
         }
         public String getDescription() {
-            return "281:74: ( AUTOINCREMENT )?";
+            return "282:74: ( AUTOINCREMENT )?";
         }
     }
     static final String DFA125_eotS =
@@ -18431,7 +18486,7 @@ public class SqlParser extends Parser {
             this.transition = DFA125_transition;
         }
         public String getDescription() {
-            return "283:38: ( table_conflict_clause )?";
+            return "284:38: ( table_conflict_clause )?";
         }
     }
     static final String DFA126_eotS =
@@ -18494,7 +18549,7 @@ public class SqlParser extends Parser {
             this.transition = DFA126_transition;
         }
         public String getDescription() {
-            return "285:35: ( table_conflict_clause )?";
+            return "286:35: ( table_conflict_clause )?";
         }
     }
     static final String DFA137_eotS =
@@ -18559,7 +18614,7 @@ public class SqlParser extends Parser {
             this.transition = DFA137_transition;
         }
         public String getDescription() {
-            return "()+ loopback of 319:3: ( fk_clause_action )+";
+            return "()+ loopback of 320:3: ( fk_clause_action )+";
         }
     }
     static final String DFA138_eotS =
@@ -18623,7 +18678,7 @@ public class SqlParser extends Parser {
             this.transition = DFA138_transition;
         }
         public String getDescription() {
-            return "319:21: ( fk_clause_deferrable )?";
+            return "320:21: ( fk_clause_deferrable )?";
         }
     }
     static final String DFA142_eotS =
@@ -18688,7 +18743,7 @@ public class SqlParser extends Parser {
             this.transition = DFA142_transition;
         }
         public String getDescription() {
-            return "325:41: ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?";
+            return "326:41: ( INITIALLY DEFERRED | INITIALLY IMMEDIATE )?";
         }
     }
     static final String DFA162_eotS =
@@ -18749,7 +18804,7 @@ public class SqlParser extends Parser {
             this.transition = DFA162_transition;
         }
         public String getDescription() {
-            return "352:48: ( IF NOT EXISTS )?";
+            return "354:48: ( IF NOT EXISTS )?";
         }
     }
     static final String DFA163_eotS =
@@ -18816,582 +18871,582 @@ public class SqlParser extends Parser {
             this.transition = DFA163_transition;
         }
         public String getDescription() {
-            return "352:65: (database_name= id DOT )?";
+            return "354:65: (database_name= id DOT )?";
         }
     }
  
 
-    public static final BitSet FOLLOW_sql_stmt_in_sql_stmt_list128 = new BitSet(new long[]{0xC000000000000002L,0x00800084A8048048L,0x000001401AB04000L});
-    public static final BitSet FOLLOW_EXPLAIN_in_sql_stmt138 = new BitSet(new long[]{0xC000000000800000L,0x00800084A8048048L,0x000001401AB14000L});
-    public static final BitSet FOLLOW_QUERY_in_sql_stmt141 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000002000L});
-    public static final BitSet FOLLOW_PLAN_in_sql_stmt143 = new BitSet(new long[]{0xC000000000800000L,0x00800084A8048048L,0x000001401AB04000L});
-    public static final BitSet FOLLOW_sql_stmt_core_in_sql_stmt149 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_SEMI_in_sql_stmt151 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_pragma_stmt_in_sql_stmt_core162 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_attach_stmt_in_sql_stmt_core168 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_detach_stmt_in_sql_stmt_core174 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_analyze_stmt_in_sql_stmt_core180 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_reindex_stmt_in_sql_stmt_core186 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_vacuum_stmt_in_sql_stmt_core192 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_select_stmt_in_sql_stmt_core201 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_insert_stmt_in_sql_stmt_core207 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_update_stmt_in_sql_stmt_core213 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_delete_stmt_in_sql_stmt_core219 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_begin_stmt_in_sql_stmt_core225 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_commit_stmt_in_sql_stmt_core231 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_rollback_stmt_in_sql_stmt_core237 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_savepoint_stmt_in_sql_stmt_core243 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_release_stmt_in_sql_stmt_core249 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_create_virtual_table_stmt_in_sql_stmt_core258 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_create_table_stmt_in_sql_stmt_core264 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_drop_table_stmt_in_sql_stmt_core270 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_alter_table_stmt_in_sql_stmt_core276 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_create_view_stmt_in_sql_stmt_core282 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_drop_view_stmt_in_sql_stmt_core288 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_create_index_stmt_in_sql_stmt_core294 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_drop_index_stmt_in_sql_stmt_core300 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_create_trigger_stmt_in_sql_stmt_core306 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_drop_trigger_stmt_in_sql_stmt_core312 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_qualified_table_name322 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_qualified_table_name324 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_qualified_table_name330 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_INDEXED_in_qualified_table_name333 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_BY_in_qualified_table_name335 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_qualified_table_name339 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_qualified_table_name343 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
-    public static final BitSet FOLLOW_INDEXED_in_qualified_table_name345 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_or_subexpr_in_expr354 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000400L});
-    public static final BitSet FOLLOW_OR_in_expr357 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_or_subexpr_in_expr360 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000400L});
-    public static final BitSet FOLLOW_and_subexpr_in_or_subexpr369 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000001L});
-    public static final BitSet FOLLOW_AND_in_or_subexpr372 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_and_subexpr_in_or_subexpr375 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000001L});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr384 = new BitSet(new long[]{0x00000000000000F2L});
-    public static final BitSet FOLLOW_set_in_and_subexpr390 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr406 = new BitSet(new long[]{0x00000000000000F2L});
-    public static final BitSet FOLLOW_NOT_in_and_subexpr415 = new BitSet(new long[]{0x0000000000000000L,0x0000100000000000L,0x0000000000080005L});
-    public static final BitSet FOLLOW_set_in_and_subexpr419 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr435 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
-    public static final BitSet FOLLOW_ESCAPE_in_and_subexpr438 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr440 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_and_subexpr449 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
-    public static final BitSet FOLLOW_IN_in_and_subexpr453 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_LPAREN_in_and_subexpr456 = new BitSet(new long[]{0xFC0000007C0E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_select_stmt_in_and_subexpr459 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_expr_in_and_subexpr463 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_and_subexpr466 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_and_subexpr468 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_and_subexpr474 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_and_subexpr481 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_and_subexpr483 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_and_subexpr489 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ISNULL_in_and_subexpr497 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOTNULL_in_and_subexpr501 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IS_in_and_subexpr505 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
-    public static final BitSet FOLLOW_NULL_in_and_subexpr507 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IS_in_and_subexpr512 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_NOT_in_and_subexpr514 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
-    public static final BitSet FOLLOW_NULL_in_and_subexpr516 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_and_subexpr524 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000080L});
-    public static final BitSet FOLLOW_BETWEEN_in_and_subexpr528 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr530 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
-    public static final BitSet FOLLOW_AND_in_and_subexpr532 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr534 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_neq_subexpr_in_eq_subexpr541 = new BitSet(new long[]{0x0000000000000F02L});
-    public static final BitSet FOLLOW_set_in_eq_subexpr544 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_neq_subexpr_in_eq_subexpr561 = new BitSet(new long[]{0x0000000000000F02L});
-    public static final BitSet FOLLOW_bit_subexpr_in_neq_subexpr570 = new BitSet(new long[]{0x000000000000F002L});
-    public static final BitSet FOLLOW_set_in_neq_subexpr573 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_bit_subexpr_in_neq_subexpr590 = new BitSet(new long[]{0x000000000000F002L});
-    public static final BitSet FOLLOW_add_subexpr_in_bit_subexpr599 = new BitSet(new long[]{0x0000000000060002L});
-    public static final BitSet FOLLOW_set_in_bit_subexpr602 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_add_subexpr_in_bit_subexpr611 = new BitSet(new long[]{0x0000000000060002L});
-    public static final BitSet FOLLOW_mul_subexpr_in_add_subexpr620 = new BitSet(new long[]{0x0000000000700002L});
-    public static final BitSet FOLLOW_set_in_add_subexpr623 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_mul_subexpr_in_add_subexpr636 = new BitSet(new long[]{0x0000000000700002L});
-    public static final BitSet FOLLOW_con_subexpr_in_mul_subexpr645 = new BitSet(new long[]{0x0000000000010002L});
-    public static final BitSet FOLLOW_DOUBLE_PIPE_in_mul_subexpr648 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_con_subexpr_in_mul_subexpr651 = new BitSet(new long[]{0x0000000000010002L});
-    public static final BitSet FOLLOW_set_in_con_subexpr660 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_unary_subexpr_in_con_subexpr677 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_atom_expr_in_unary_subexpr684 = new BitSet(new long[]{0x0000000000000002L,0x0000000000002000L});
-    public static final BitSet FOLLOW_COLLATE_in_unary_subexpr687 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_ID_in_unary_subexpr692 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_literal_value_in_atom_expr704 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_bind_parameter_in_atom_expr710 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_atom_expr720 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_atom_expr722 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_atom_expr728 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_atom_expr730 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_ID_in_atom_expr736 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_atom_expr744 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_atom_expr746 = new BitSet(new long[]{0xFC0000007C1E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_DISTINCT_in_atom_expr750 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr756 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_atom_expr759 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr763 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_ASTERISK_in_atom_expr769 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_atom_expr773 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_atom_expr779 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr781 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_atom_expr783 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CAST_in_atom_expr793 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_atom_expr795 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr797 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_AS_in_atom_expr799 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_type_name_in_atom_expr801 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_atom_expr803 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_EXISTS_in_atom_expr812 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_atom_expr816 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
-    public static final BitSet FOLLOW_select_stmt_in_atom_expr818 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_atom_expr820 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CASE_in_atom_expr826 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr829 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000100000000000L});
-    public static final BitSet FOLLOW_WHEN_in_atom_expr834 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr836 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000100000000L});
-    public static final BitSet FOLLOW_THEN_in_atom_expr838 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr840 = new BitSet(new long[]{0x0000000000000000L,0x0000000600000000L,0x0000100000000000L});
-    public static final BitSet FOLLOW_ELSE_in_atom_expr845 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_atom_expr847 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_END_in_atom_expr851 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_raise_function_in_atom_expr857 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_sql_stmt_in_sql_stmt_list132 = new BitSet(new long[]{0xC000000000000002L,0x00800084A8048048L,0x000001401AB04000L});
+    public static final BitSet FOLLOW_EXPLAIN_in_sql_stmt142 = new BitSet(new long[]{0xC000000000800000L,0x00800084A8048048L,0x000001401AB14000L});
+    public static final BitSet FOLLOW_QUERY_in_sql_stmt145 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000002000L});
+    public static final BitSet FOLLOW_PLAN_in_sql_stmt147 = new BitSet(new long[]{0xC000000000800000L,0x00800084A8048048L,0x000001401AB04000L});
+    public static final BitSet FOLLOW_sql_stmt_core_in_sql_stmt153 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_SEMI_in_sql_stmt155 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_pragma_stmt_in_sql_stmt_core166 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_attach_stmt_in_sql_stmt_core172 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_detach_stmt_in_sql_stmt_core178 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_analyze_stmt_in_sql_stmt_core184 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_reindex_stmt_in_sql_stmt_core190 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_vacuum_stmt_in_sql_stmt_core196 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_select_stmt_in_sql_stmt_core205 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_insert_stmt_in_sql_stmt_core211 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_update_stmt_in_sql_stmt_core217 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_delete_stmt_in_sql_stmt_core223 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_begin_stmt_in_sql_stmt_core229 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_commit_stmt_in_sql_stmt_core235 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_rollback_stmt_in_sql_stmt_core241 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_savepoint_stmt_in_sql_stmt_core247 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_release_stmt_in_sql_stmt_core253 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_create_virtual_table_stmt_in_sql_stmt_core262 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_create_table_stmt_in_sql_stmt_core268 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_drop_table_stmt_in_sql_stmt_core274 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_alter_table_stmt_in_sql_stmt_core280 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_create_view_stmt_in_sql_stmt_core286 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_drop_view_stmt_in_sql_stmt_core292 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_create_index_stmt_in_sql_stmt_core298 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_drop_index_stmt_in_sql_stmt_core304 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_create_trigger_stmt_in_sql_stmt_core310 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_drop_trigger_stmt_in_sql_stmt_core316 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_qualified_table_name326 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_qualified_table_name328 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_qualified_table_name334 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_INDEXED_in_qualified_table_name337 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_BY_in_qualified_table_name339 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_qualified_table_name343 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_qualified_table_name347 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
+    public static final BitSet FOLLOW_INDEXED_in_qualified_table_name349 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_or_subexpr_in_expr358 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000400L});
+    public static final BitSet FOLLOW_OR_in_expr361 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_or_subexpr_in_expr364 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000400L});
+    public static final BitSet FOLLOW_and_subexpr_in_or_subexpr373 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000001L});
+    public static final BitSet FOLLOW_AND_in_or_subexpr376 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_and_subexpr_in_or_subexpr379 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000001L});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr388 = new BitSet(new long[]{0x00000000000000F2L});
+    public static final BitSet FOLLOW_set_in_and_subexpr394 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr410 = new BitSet(new long[]{0x00000000000000F2L});
+    public static final BitSet FOLLOW_NOT_in_and_subexpr419 = new BitSet(new long[]{0x0000000000000000L,0x0000100000000000L,0x0000000000080005L});
+    public static final BitSet FOLLOW_set_in_and_subexpr423 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr439 = new BitSet(new long[]{0x0000000000000002L,0x0000000800000000L});
+    public static final BitSet FOLLOW_ESCAPE_in_and_subexpr442 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr444 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_and_subexpr453 = new BitSet(new long[]{0x0000000000000000L,0x0004000000000000L});
+    public static final BitSet FOLLOW_IN_in_and_subexpr457 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_LPAREN_in_and_subexpr460 = new BitSet(new long[]{0xFC0000007C0E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_select_stmt_in_and_subexpr463 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_expr_in_and_subexpr467 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_and_subexpr470 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_and_subexpr472 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_and_subexpr478 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_and_subexpr485 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_and_subexpr487 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_and_subexpr493 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ISNULL_in_and_subexpr501 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOTNULL_in_and_subexpr505 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IS_in_and_subexpr509 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
+    public static final BitSet FOLLOW_NULL_in_and_subexpr511 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IS_in_and_subexpr516 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_NOT_in_and_subexpr518 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
+    public static final BitSet FOLLOW_NULL_in_and_subexpr520 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_and_subexpr528 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000080L});
+    public static final BitSet FOLLOW_BETWEEN_in_and_subexpr532 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr534 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000001L});
+    public static final BitSet FOLLOW_AND_in_and_subexpr536 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_eq_subexpr_in_and_subexpr538 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_neq_subexpr_in_eq_subexpr545 = new BitSet(new long[]{0x0000000000000F02L});
+    public static final BitSet FOLLOW_set_in_eq_subexpr548 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_neq_subexpr_in_eq_subexpr565 = new BitSet(new long[]{0x0000000000000F02L});
+    public static final BitSet FOLLOW_bit_subexpr_in_neq_subexpr574 = new BitSet(new long[]{0x000000000000F002L});
+    public static final BitSet FOLLOW_set_in_neq_subexpr577 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_bit_subexpr_in_neq_subexpr594 = new BitSet(new long[]{0x000000000000F002L});
+    public static final BitSet FOLLOW_add_subexpr_in_bit_subexpr603 = new BitSet(new long[]{0x0000000000060002L});
+    public static final BitSet FOLLOW_set_in_bit_subexpr606 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_add_subexpr_in_bit_subexpr615 = new BitSet(new long[]{0x0000000000060002L});
+    public static final BitSet FOLLOW_mul_subexpr_in_add_subexpr624 = new BitSet(new long[]{0x0000000000700002L});
+    public static final BitSet FOLLOW_set_in_add_subexpr627 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_mul_subexpr_in_add_subexpr640 = new BitSet(new long[]{0x0000000000700002L});
+    public static final BitSet FOLLOW_con_subexpr_in_mul_subexpr649 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_DOUBLE_PIPE_in_mul_subexpr652 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_con_subexpr_in_mul_subexpr655 = new BitSet(new long[]{0x0000000000010002L});
+    public static final BitSet FOLLOW_set_in_con_subexpr664 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_unary_subexpr_in_con_subexpr681 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_atom_expr_in_unary_subexpr688 = new BitSet(new long[]{0x0000000000000002L,0x0000000000002000L});
+    public static final BitSet FOLLOW_COLLATE_in_unary_subexpr691 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_ID_in_unary_subexpr696 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_literal_value_in_atom_expr708 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_bind_parameter_in_atom_expr714 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_atom_expr724 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_atom_expr726 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_atom_expr732 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_atom_expr734 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_ID_in_atom_expr740 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_atom_expr748 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_atom_expr750 = new BitSet(new long[]{0xFC0000007C1E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_DISTINCT_in_atom_expr754 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr760 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_atom_expr763 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr767 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_ASTERISK_in_atom_expr773 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_atom_expr777 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_atom_expr783 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr785 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_atom_expr787 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CAST_in_atom_expr797 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_atom_expr799 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr801 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_AS_in_atom_expr803 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_type_name_in_atom_expr805 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_atom_expr807 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_EXISTS_in_atom_expr816 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_atom_expr820 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_select_stmt_in_atom_expr822 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_atom_expr824 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CASE_in_atom_expr830 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr833 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000100000000000L});
+    public static final BitSet FOLLOW_WHEN_in_atom_expr838 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr840 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000100000000L});
+    public static final BitSet FOLLOW_THEN_in_atom_expr842 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr844 = new BitSet(new long[]{0x0000000000000000L,0x0000000600000000L,0x0000100000000000L});
+    public static final BitSet FOLLOW_ELSE_in_atom_expr849 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_atom_expr851 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_END_in_atom_expr855 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_raise_function_in_atom_expr861 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_set_in_literal_value0 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_set_in_signed_number0 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUESTION_in_bind_parameter917 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_QUESTION_in_bind_parameter923 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_INTEGER_in_bind_parameter927 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COLON_in_bind_parameter933 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_bind_parameter935 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_AT_in_bind_parameter941 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_bind_parameter943 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_type_name953 = new BitSet(new long[]{0x0000000004000002L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_LPAREN_in_type_name957 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x001A000000000000L});
-    public static final BitSet FOLLOW_signed_number_in_type_name961 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_type_name964 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x001A000000000000L});
-    public static final BitSet FOLLOW_signed_number_in_type_name968 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_type_name972 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_RAISE_in_raise_function1003 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_raise_function1005 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002000000L});
-    public static final BitSet FOLLOW_IGNORE_in_raise_function1008 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_set_in_raise_function1012 = new BitSet(new long[]{0x0000000002000000L});
-    public static final BitSet FOLLOW_COMMA_in_raise_function1024 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0001000000000000L});
-    public static final BitSet FOLLOW_STRING_in_raise_function1028 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_raise_function1031 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PRAGMA_in_pragma_stmt1039 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_pragma_stmt1044 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_pragma_stmt1046 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_pragma_stmt1052 = new BitSet(new long[]{0x0000000004000012L});
-    public static final BitSet FOLLOW_EQUALS_in_pragma_stmt1055 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x001BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_pragma_value_in_pragma_stmt1057 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_pragma_stmt1061 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x001BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_pragma_value_in_pragma_stmt1063 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_pragma_stmt1065 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_signed_number_in_pragma_value1074 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_pragma_value1080 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_in_pragma_value1084 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ATTACH_in_attach_stmt1092 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0001BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_DATABASE_in_attach_stmt1095 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0001BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_STRING_in_attach_stmt1102 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_attach_stmt1106 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_AS_in_attach_stmt1109 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_attach_stmt1113 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DETACH_in_detach_stmt1121 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_DATABASE_in_detach_stmt1124 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_detach_stmt1130 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ANALYZE_in_analyze_stmt1138 = new BitSet(new long[]{0xFC00000000000002L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_analyze_stmt1143 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_analyze_stmt1149 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_analyze_stmt1151 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_analyze_stmt1155 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_REINDEX_in_reindex_stmt1165 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_reindex_stmt1170 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_reindex_stmt1172 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_reindex_stmt1178 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_VACUUM_in_vacuum_stmt1186 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_OR_in_operation_conflict_clause1197 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002800000L});
-    public static final BitSet FOLLOW_set_in_operation_conflict_clause1199 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_expr_in_ordering_term1224 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000004L});
-    public static final BitSet FOLLOW_ASC_in_ordering_term1229 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DESC_in_ordering_term1233 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ORDER_in_operation_limited_clause1263 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_BY_in_operation_limited_clause1265 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_operation_limited_clause1267 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_COMMA_in_operation_limited_clause1270 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_operation_limited_clause1272 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_LIMIT_in_operation_limited_clause1280 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_INTEGER_in_operation_limited_clause1284 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_set_in_operation_limited_clause1287 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_INTEGER_in_operation_limited_clause1297 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_select_list_in_select_stmt1307 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
-    public static final BitSet FOLLOW_ORDER_in_select_stmt1312 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_BY_in_select_stmt1314 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_select_stmt1316 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_COMMA_in_select_stmt1319 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_select_stmt1321 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_LIMIT_in_select_stmt1330 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_INTEGER_in_select_stmt1334 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_OFFSET_in_select_stmt1338 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_COMMA_in_select_stmt1342 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_INTEGER_in_select_stmt1347 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_select_core_in_select_list1392 = new BitSet(new long[]{0x0000000000000002L,0x0200001000000000L,0x0000001000000000L});
-    public static final BitSet FOLLOW_select_op_in_select_list1395 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
-    public static final BitSet FOLLOW_select_core_in_select_list1398 = new BitSet(new long[]{0x0000000000000002L,0x0200001000000000L,0x0000001000000000L});
-    public static final BitSet FOLLOW_UNION_in_select_op1407 = new BitSet(new long[]{0x2000000000000002L});
-    public static final BitSet FOLLOW_ALL_in_select_op1411 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTERSECT_in_select_op1417 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_EXCEPT_in_select_op1421 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SELECT_in_select_core1430 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ALL_in_select_core1433 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_DISTINCT_in_select_core1437 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_result_column_in_select_core1441 = new BitSet(new long[]{0x0000000002000002L,0x0000280000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_COMMA_in_select_core1444 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_result_column_in_select_core1446 = new BitSet(new long[]{0x0000000002000002L,0x0000280000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_FROM_in_select_core1451 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_join_source_in_select_core1453 = new BitSet(new long[]{0x0000000000000002L,0x0000200000000000L,0x0000200000000000L});
-    public static final BitSet FOLLOW_WHERE_in_select_core1458 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_select_core1462 = new BitSet(new long[]{0x0000000000000002L,0x0000200000000000L});
-    public static final BitSet FOLLOW_GROUP_in_select_core1470 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_BY_in_select_core1472 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_select_core1474 = new BitSet(new long[]{0x0000000002000002L,0x0000400000000000L});
-    public static final BitSet FOLLOW_COMMA_in_select_core1477 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_ordering_term_in_select_core1479 = new BitSet(new long[]{0x0000000002000002L,0x0000400000000000L});
-    public static final BitSet FOLLOW_HAVING_in_select_core1484 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_select_core1488 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ASTERISK_in_result_column1558 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_result_column1566 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_result_column1568 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_ASTERISK_in_result_column1570 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_expr_in_result_column1585 = new BitSet(new long[]{0xFC00000000000002L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_AS_in_result_column1589 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_result_column1595 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_single_source_in_join_source1616 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000000000001008L});
-    public static final BitSet FOLLOW_join_op_in_join_source1619 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_single_source_in_join_source1622 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000008000001208L});
-    public static final BitSet FOLLOW_join_constraint_in_join_source1625 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000000000001008L});
-    public static final BitSet FOLLOW_id_in_single_source1642 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_single_source1644 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_ID_in_single_source1650 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000002L,0x0000800000000010L});
-    public static final BitSet FOLLOW_AS_in_single_source1654 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_ID_in_single_source1660 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_INDEXED_in_single_source1665 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
-    public static final BitSet FOLLOW_BY_in_single_source1667 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_single_source1671 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_single_source1675 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
-    public static final BitSet FOLLOW_INDEXED_in_single_source1677 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_single_source1718 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
-    public static final BitSet FOLLOW_select_stmt_in_single_source1720 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_single_source1722 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000002L,0x0000800000000000L});
-    public static final BitSet FOLLOW_AS_in_single_source1726 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
-    public static final BitSet FOLLOW_ID_in_single_source1732 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_single_source1754 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_join_source_in_single_source1757 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_single_source1759 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COMMA_in_join_op1770 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NATURAL_in_join_op1777 = new BitSet(new long[]{0x0000000000000000L,0xA040000000080000L,0x0000000000001000L});
-    public static final BitSet FOLLOW_LEFT_in_join_op1783 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L,0x0000000000001000L});
-    public static final BitSet FOLLOW_OUTER_in_join_op1788 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
-    public static final BitSet FOLLOW_INNER_in_join_op1794 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
-    public static final BitSet FOLLOW_CROSS_in_join_op1798 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
-    public static final BitSet FOLLOW_JOIN_in_join_op1801 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ON_in_join_constraint1812 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_join_constraint1815 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_USING_in_join_constraint1821 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_join_constraint1823 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_join_constraint1827 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_join_constraint1830 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_join_constraint1834 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_join_constraint1838 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INSERT_in_insert_stmt1857 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L,0x0000000000000400L});
-    public static final BitSet FOLLOW_operation_conflict_clause_in_insert_stmt1860 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
-    public static final BitSet FOLLOW_REPLACE_in_insert_stmt1866 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
-    public static final BitSet FOLLOW_INTO_in_insert_stmt1869 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_insert_stmt1874 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_insert_stmt1876 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_insert_stmt1882 = new BitSet(new long[]{0x0000000004000000L,0x0000000001000000L,0x0000020010000000L});
-    public static final BitSet FOLLOW_LPAREN_in_insert_stmt1889 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_insert_stmt1893 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_insert_stmt1896 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_insert_stmt1900 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_insert_stmt1904 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000020010000000L});
-    public static final BitSet FOLLOW_VALUES_in_insert_stmt1913 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_insert_stmt1915 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_insert_stmt1919 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_insert_stmt1922 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_insert_stmt1926 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_insert_stmt1930 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_select_stmt_in_insert_stmt1934 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DEFAULT_in_insert_stmt1941 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000020000000000L});
-    public static final BitSet FOLLOW_VALUES_in_insert_stmt1943 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_UPDATE_in_update_stmt1953 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_operation_conflict_clause_in_update_stmt1956 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_qualified_table_name_in_update_stmt1960 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000020000000L});
-    public static final BitSet FOLLOW_SET_in_update_stmt1964 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_update_set_in_update_stmt1968 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000200000000802L});
-    public static final BitSet FOLLOW_COMMA_in_update_stmt1971 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_update_set_in_update_stmt1975 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000200000000802L});
-    public static final BitSet FOLLOW_WHERE_in_update_stmt1980 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_update_stmt1982 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
-    public static final BitSet FOLLOW_operation_limited_clause_in_update_stmt1987 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_update_set1998 = new BitSet(new long[]{0x0000000000000010L});
-    public static final BitSet FOLLOW_EQUALS_in_update_set2000 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_update_set2002 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DELETE_in_delete_stmt2010 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
-    public static final BitSet FOLLOW_FROM_in_delete_stmt2012 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_qualified_table_name_in_delete_stmt2014 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000200000000802L});
-    public static final BitSet FOLLOW_WHERE_in_delete_stmt2017 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_delete_stmt2019 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
-    public static final BitSet FOLLOW_operation_limited_clause_in_delete_stmt2024 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_BEGIN_in_begin_stmt2034 = new BitSet(new long[]{0x0000000000000002L,0x0002002004000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_set_in_begin_stmt2036 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_TRANSACTION_in_begin_stmt2050 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_commit_stmt2060 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_TRANSACTION_in_commit_stmt2069 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ROLLBACK_in_rollback_stmt2079 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000600000000L});
-    public static final BitSet FOLLOW_TRANSACTION_in_rollback_stmt2082 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000200000000L});
-    public static final BitSet FOLLOW_TO_in_rollback_stmt2087 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_SAVEPOINT_in_rollback_stmt2090 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_rollback_stmt2096 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SAVEPOINT_in_savepoint_stmt2106 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_savepoint_stmt2110 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_RELEASE_in_release_stmt2118 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_SAVEPOINT_in_release_stmt2121 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_release_stmt2127 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ON_in_table_conflict_clause2139 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_CONFLICT_in_table_conflict_clause2142 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002800000L});
-    public static final BitSet FOLLOW_set_in_table_conflict_clause2145 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CREATE_in_create_virtual_table_stmt2172 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000080000000000L});
-    public static final BitSet FOLLOW_VIRTUAL_in_create_virtual_table_stmt2174 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
-    public static final BitSet FOLLOW_TABLE_in_create_virtual_table_stmt2176 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2181 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_create_virtual_table_stmt2183 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2189 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000008000000000L});
-    public static final BitSet FOLLOW_USING_in_create_virtual_table_stmt2193 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2197 = new BitSet(new long[]{0x0000000004000002L});
-    public static final BitSet FOLLOW_LPAREN_in_create_virtual_table_stmt2200 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_column_def_in_create_virtual_table_stmt2202 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_create_virtual_table_stmt2205 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_column_def_in_create_virtual_table_stmt2207 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_create_virtual_table_stmt2211 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CREATE_in_create_table_stmt2221 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x00000000C0000000L});
-    public static final BitSet FOLLOW_TEMPORARY_in_create_table_stmt2223 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
-    public static final BitSet FOLLOW_TABLE_in_create_table_stmt2226 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_create_table_stmt2229 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_NOT_in_create_table_stmt2231 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_create_table_stmt2233 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_table_stmt2240 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_create_table_stmt2242 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_table_stmt2248 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_create_table_stmt2254 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_column_def_in_create_table_stmt2256 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_create_table_stmt2259 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_column_def_in_create_table_stmt2261 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_create_table_stmt2266 = new BitSet(new long[]{0x0000000000000000L,0x0000040000021000L,0x0000002000008000L});
-    public static final BitSet FOLLOW_table_constraint_in_create_table_stmt2268 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_create_table_stmt2272 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_AS_in_create_table_stmt2278 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
-    public static final BitSet FOLLOW_select_stmt_in_create_table_stmt2280 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_column_def_in_column_def2336 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000802000048010L});
-    public static final BitSet FOLLOW_type_name_in_column_def2338 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000002000048010L});
-    public static final BitSet FOLLOW_column_constraint_in_column_def2341 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000002000048010L});
-    public static final BitSet FOLLOW_CONSTRAINT_in_column_constraint2367 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_column_constraint2371 = new BitSet(new long[]{0x0000000000000000L,0x0000000001023000L,0x0000002000048010L});
-    public static final BitSet FOLLOW_column_constraint_pk_in_column_constraint2379 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_column_constraint_not_null_in_column_constraint2385 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_column_constraint_unique_in_column_constraint2391 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_column_constraint_check_in_column_constraint2397 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_column_constraint_default_in_column_constraint2403 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_column_constraint_collate_in_column_constraint2409 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_fk_clause_in_column_constraint2415 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PRIMARY_in_column_constraint_pk2470 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
-    public static final BitSet FOLLOW_KEY_in_column_constraint_pk2473 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000014L,0x0000000000000200L});
-    public static final BitSet FOLLOW_set_in_column_constraint_pk2476 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000010L,0x0000000000000200L});
-    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_pk2485 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000010L});
-    public static final BitSet FOLLOW_AUTOINCREMENT_in_column_constraint_pk2489 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_column_constraint_not_null2498 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
-    public static final BitSet FOLLOW_NULL_in_column_constraint_not_null2500 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_not_null2502 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_UNIQUE_in_column_constraint_unique2519 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_unique2522 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CHECK_in_column_constraint_check2530 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_column_constraint_check2533 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_column_constraint_check2536 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_column_constraint_check2538 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DEFAULT_in_column_constraint_default2546 = new BitSet(new long[]{0x0000000004000000L,0x0000000000700000L,0x003B000000000040L});
-    public static final BitSet FOLLOW_SIGNED_NUMBER_in_column_constraint_default2550 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_literal_value_in_column_constraint_default2554 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_column_constraint_default2558 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_column_constraint_default2561 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_column_constraint_default2563 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_COLLATE_in_column_constraint_collate2572 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_column_constraint_collate2577 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CONSTRAINT_in_table_constraint2586 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint2590 = new BitSet(new long[]{0x0000000000000000L,0x0000040000021000L,0x0000002000008000L});
-    public static final BitSet FOLLOW_table_constraint_pk_in_table_constraint2598 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_table_constraint_unique_in_table_constraint2604 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_table_constraint_check_in_table_constraint2610 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_table_constraint_fk_in_table_constraint2616 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_PRIMARY_in_table_constraint_pk2656 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
-    public static final BitSet FOLLOW_KEY_in_table_constraint_pk2658 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_table_constraint_pk2662 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_pk2666 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_table_constraint_pk2669 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_pk2673 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_table_constraint_pk2677 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_table_conflict_clause_in_table_constraint_pk2679 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_UNIQUE_in_table_constraint_unique2704 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_table_constraint_unique2708 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_unique2712 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_table_constraint_unique2715 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_unique2719 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_table_constraint_unique2723 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_table_conflict_clause_in_table_constraint_unique2725 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CHECK_in_table_constraint_check2750 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_table_constraint_check2753 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_table_constraint_check2756 = new BitSet(new long[]{0x0000000008000000L});
-    public static final BitSet FOLLOW_RPAREN_in_table_constraint_check2758 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FOREIGN_in_table_constraint_fk2766 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
-    public static final BitSet FOLLOW_KEY_in_table_constraint_fk2768 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_table_constraint_fk2770 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_fk2774 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_table_constraint_fk2777 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_table_constraint_fk2781 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_table_constraint_fk2785 = new BitSet(new long[]{0x0000000000000000L,0x0000000001023000L,0x0000002000048010L});
-    public static final BitSet FOLLOW_fk_clause_in_table_constraint_fk2787 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_REFERENCES_in_fk_clause2810 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_fk_clause2815 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000000L,0x0000000000000204L});
-    public static final BitSet FOLLOW_LPAREN_in_fk_clause2818 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_fk_clause2822 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_fk_clause2825 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_fk_clause2829 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_fk_clause2833 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000000L,0x0000000000000204L});
-    public static final BitSet FOLLOW_fk_clause_action_in_fk_clause2839 = new BitSet(new long[]{0x0000000004000002L,0x0000000002000000L,0x0000000000000214L});
-    public static final BitSet FOLLOW_fk_clause_deferrable_in_fk_clause2842 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ON_in_fk_clause_action2853 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_set_in_fk_clause_action2855 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000200L,0x0000000021000000L});
-    public static final BitSet FOLLOW_SET_in_fk_clause_action2868 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
-    public static final BitSet FOLLOW_NULL_in_fk_clause_action2870 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SET_in_fk_clause_action2874 = new BitSet(new long[]{0x0000000000000000L,0x0000000001000000L});
-    public static final BitSet FOLLOW_DEFAULT_in_fk_clause_action2876 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CASCADE_in_fk_clause_action2880 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_RESTRICT_in_fk_clause_action2884 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_MATCH_in_fk_clause_action2891 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_fk_clause_action2895 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_fk_clause_deferrable2903 = new BitSet(new long[]{0x0000000000000000L,0x0000000002000000L});
-    public static final BitSet FOLLOW_DEFERRABLE_in_fk_clause_deferrable2907 = new BitSet(new long[]{0x0000000000000002L,0x0020000000000000L});
-    public static final BitSet FOLLOW_INITIALLY_in_fk_clause_deferrable2910 = new BitSet(new long[]{0x0000000000000000L,0x0000000004000000L});
-    public static final BitSet FOLLOW_DEFERRED_in_fk_clause_deferrable2912 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INITIALLY_in_fk_clause_deferrable2916 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L});
-    public static final BitSet FOLLOW_IMMEDIATE_in_fk_clause_deferrable2918 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DROP_in_drop_table_stmt2928 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
-    public static final BitSet FOLLOW_TABLE_in_drop_table_stmt2930 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_drop_table_stmt2933 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_drop_table_stmt2935 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_table_stmt2942 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_drop_table_stmt2944 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_table_stmt2950 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ALTER_in_alter_table_stmt2980 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
-    public static final BitSet FOLLOW_TABLE_in_alter_table_stmt2982 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_alter_table_stmt2987 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_alter_table_stmt2989 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_alter_table_stmt2995 = new BitSet(new long[]{0x0800000000000000L,0x0000000000000000L,0x0000000000400000L});
-    public static final BitSet FOLLOW_RENAME_in_alter_table_stmt2998 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000200000000L});
-    public static final BitSet FOLLOW_TO_in_alter_table_stmt3000 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_alter_table_stmt3004 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ADD_in_alter_table_stmt3008 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_COLUMN_in_alter_table_stmt3011 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_column_def_in_alter_table_stmt3015 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CREATE_in_create_view_stmt3024 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040080000000L});
-    public static final BitSet FOLLOW_TEMPORARY_in_create_view_stmt3026 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040000000000L});
-    public static final BitSet FOLLOW_VIEW_in_create_view_stmt3029 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_create_view_stmt3032 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_NOT_in_create_view_stmt3034 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_create_view_stmt3036 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_view_stmt3043 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_create_view_stmt3045 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_view_stmt3051 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
-    public static final BitSet FOLLOW_AS_in_create_view_stmt3053 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
-    public static final BitSet FOLLOW_select_stmt_in_create_view_stmt3055 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DROP_in_drop_view_stmt3063 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040000000000L});
-    public static final BitSet FOLLOW_VIEW_in_drop_view_stmt3065 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_drop_view_stmt3068 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_drop_view_stmt3070 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_view_stmt3077 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_drop_view_stmt3079 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_view_stmt3085 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CREATE_in_create_index_stmt3093 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L,0x0000002000000000L});
-    public static final BitSet FOLLOW_UNIQUE_in_create_index_stmt3096 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_INDEX_in_create_index_stmt3100 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_create_index_stmt3103 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_NOT_in_create_index_stmt3105 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_create_index_stmt3107 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_index_stmt3114 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_create_index_stmt3116 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_index_stmt3122 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_ON_in_create_index_stmt3126 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_index_stmt3130 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_LPAREN_in_create_index_stmt3132 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_indexed_column_in_create_index_stmt3136 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_COMMA_in_create_index_stmt3139 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_indexed_column_in_create_index_stmt3143 = new BitSet(new long[]{0x000000000A000000L});
-    public static final BitSet FOLLOW_RPAREN_in_create_index_stmt3147 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_id_in_indexed_column3193 = new BitSet(new long[]{0x0000000000000002L,0x0000000010002004L});
-    public static final BitSet FOLLOW_COLLATE_in_indexed_column3196 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_indexed_column3200 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000004L});
-    public static final BitSet FOLLOW_ASC_in_indexed_column3205 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DESC_in_indexed_column3209 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DROP_in_drop_index_stmt3240 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
-    public static final BitSet FOLLOW_INDEX_in_drop_index_stmt3242 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_drop_index_stmt3245 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_drop_index_stmt3247 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_index_stmt3254 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_drop_index_stmt3256 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_index_stmt3262 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_CREATE_in_create_trigger_stmt3270 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000880000000L});
-    public static final BitSet FOLLOW_TEMPORARY_in_create_trigger_stmt3272 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000800000000L});
-    public static final BitSet FOLLOW_TRIGGER_in_create_trigger_stmt3275 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_create_trigger_stmt3278 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
-    public static final BitSet FOLLOW_NOT_in_create_trigger_stmt3280 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_create_trigger_stmt3282 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_trigger_stmt3289 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_create_trigger_stmt3291 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_trigger_stmt3297 = new BitSet(new long[]{0x1000000000000000L,0x0180000008000020L,0x0000004000000000L});
-    public static final BitSet FOLLOW_BEFORE_in_create_trigger_stmt3302 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_AFTER_in_create_trigger_stmt3306 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_INSTEAD_in_create_trigger_stmt3310 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
-    public static final BitSet FOLLOW_OF_in_create_trigger_stmt3312 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_DELETE_in_create_trigger_stmt3317 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_INSERT_in_create_trigger_stmt3321 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_UPDATE_in_create_trigger_stmt3325 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000280L});
-    public static final BitSet FOLLOW_OF_in_create_trigger_stmt3328 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_trigger_stmt3332 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_COMMA_in_create_trigger_stmt3335 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_trigger_stmt3339 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000200L});
-    public static final BitSet FOLLOW_ON_in_create_trigger_stmt3348 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_create_trigger_stmt3352 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000040L,0x0000100000000000L});
-    public static final BitSet FOLLOW_FOR_in_create_trigger_stmt3355 = new BitSet(new long[]{0x0000000000000000L,0x0000000100000000L});
-    public static final BitSet FOLLOW_EACH_in_create_trigger_stmt3357 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000004000000L});
-    public static final BitSet FOLLOW_ROW_in_create_trigger_stmt3359 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000040L,0x0000100000000000L});
-    public static final BitSet FOLLOW_WHEN_in_create_trigger_stmt3364 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_expr_in_create_trigger_stmt3366 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000040L});
-    public static final BitSet FOLLOW_BEGIN_in_create_trigger_stmt3372 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004010800000L});
-    public static final BitSet FOLLOW_update_stmt_in_create_trigger_stmt3376 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_insert_stmt_in_create_trigger_stmt3380 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_delete_stmt_in_create_trigger_stmt3384 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_select_stmt_in_create_trigger_stmt3388 = new BitSet(new long[]{0x0000000000800000L});
-    public static final BitSet FOLLOW_SEMI_in_create_trigger_stmt3391 = new BitSet(new long[]{0x0000000000000000L,0x0080000408000000L,0x0000004010800000L});
-    public static final BitSet FOLLOW_END_in_create_trigger_stmt3395 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DROP_in_drop_trigger_stmt3403 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000800000000L});
-    public static final BitSet FOLLOW_TRIGGER_in_drop_trigger_stmt3405 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_IF_in_drop_trigger_stmt3408 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
-    public static final BitSet FOLLOW_EXISTS_in_drop_trigger_stmt3410 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_trigger_stmt3417 = new BitSet(new long[]{0x0000000001000000L});
-    public static final BitSet FOLLOW_DOT_in_drop_trigger_stmt3419 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
-    public static final BitSet FOLLOW_id_in_drop_trigger_stmt3425 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_id3435 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_keyword_in_id3439 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_keyword3446 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ID_in_id_column_def4153 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_keyword_column_def_in_id_column_def4157 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_keyword_column_def4164 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUESTION_in_bind_parameter921 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_QUESTION_in_bind_parameter927 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_INTEGER_in_bind_parameter931 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COLON_in_bind_parameter937 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_bind_parameter939 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_AT_in_bind_parameter945 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_bind_parameter947 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_type_name957 = new BitSet(new long[]{0x0000000004000002L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_LPAREN_in_type_name961 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x001A000000000000L});
+    public static final BitSet FOLLOW_signed_number_in_type_name965 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_type_name968 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x001A000000000000L});
+    public static final BitSet FOLLOW_signed_number_in_type_name972 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_type_name976 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_RAISE_in_raise_function1007 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_raise_function1009 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002000000L});
+    public static final BitSet FOLLOW_IGNORE_in_raise_function1012 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_set_in_raise_function1016 = new BitSet(new long[]{0x0000000002000000L});
+    public static final BitSet FOLLOW_COMMA_in_raise_function1028 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0001000000000000L});
+    public static final BitSet FOLLOW_STRING_in_raise_function1032 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_raise_function1035 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PRAGMA_in_pragma_stmt1043 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_pragma_stmt1048 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_pragma_stmt1050 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_pragma_stmt1056 = new BitSet(new long[]{0x0000000004000012L});
+    public static final BitSet FOLLOW_EQUALS_in_pragma_stmt1059 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x001BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_pragma_value_in_pragma_stmt1061 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_pragma_stmt1065 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x001BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_pragma_value_in_pragma_stmt1067 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_pragma_stmt1069 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_signed_number_in_pragma_value1078 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_pragma_value1084 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_in_pragma_value1088 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ATTACH_in_attach_stmt1096 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0001BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_DATABASE_in_attach_stmt1099 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0001BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_STRING_in_attach_stmt1106 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_attach_stmt1110 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_AS_in_attach_stmt1113 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_attach_stmt1117 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DETACH_in_detach_stmt1125 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_DATABASE_in_detach_stmt1128 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_detach_stmt1134 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ANALYZE_in_analyze_stmt1142 = new BitSet(new long[]{0xFC00000000000002L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_analyze_stmt1147 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_analyze_stmt1153 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_analyze_stmt1155 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_analyze_stmt1159 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_REINDEX_in_reindex_stmt1169 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_reindex_stmt1174 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_reindex_stmt1176 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_reindex_stmt1182 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_VACUUM_in_vacuum_stmt1190 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_OR_in_operation_conflict_clause1201 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002800000L});
+    public static final BitSet FOLLOW_set_in_operation_conflict_clause1203 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expr_in_ordering_term1228 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000004L});
+    public static final BitSet FOLLOW_ASC_in_ordering_term1233 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DESC_in_ordering_term1237 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ORDER_in_operation_limited_clause1267 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_BY_in_operation_limited_clause1269 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_operation_limited_clause1271 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_COMMA_in_operation_limited_clause1274 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_operation_limited_clause1276 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_LIMIT_in_operation_limited_clause1284 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_INTEGER_in_operation_limited_clause1288 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_set_in_operation_limited_clause1291 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_INTEGER_in_operation_limited_clause1301 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_select_list_in_select_stmt1311 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
+    public static final BitSet FOLLOW_ORDER_in_select_stmt1316 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_BY_in_select_stmt1318 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_select_stmt1320 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_COMMA_in_select_stmt1323 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_select_stmt1325 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_LIMIT_in_select_stmt1334 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_INTEGER_in_select_stmt1338 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_OFFSET_in_select_stmt1342 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_COMMA_in_select_stmt1346 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_INTEGER_in_select_stmt1351 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_select_core_in_select_list1396 = new BitSet(new long[]{0x0000000000000002L,0x0200001000000000L,0x0000001000000000L});
+    public static final BitSet FOLLOW_select_op_in_select_list1399 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_select_core_in_select_list1402 = new BitSet(new long[]{0x0000000000000002L,0x0200001000000000L,0x0000001000000000L});
+    public static final BitSet FOLLOW_UNION_in_select_op1411 = new BitSet(new long[]{0x2000000000000002L});
+    public static final BitSet FOLLOW_ALL_in_select_op1415 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INTERSECT_in_select_op1421 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_EXCEPT_in_select_op1425 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SELECT_in_select_core1434 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ALL_in_select_core1437 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_DISTINCT_in_select_core1441 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_result_column_in_select_core1445 = new BitSet(new long[]{0x0000000002000002L,0x0000280000000000L,0x0000200000000000L});
+    public static final BitSet FOLLOW_COMMA_in_select_core1448 = new BitSet(new long[]{0xFC000000741E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_result_column_in_select_core1450 = new BitSet(new long[]{0x0000000002000002L,0x0000280000000000L,0x0000200000000000L});
+    public static final BitSet FOLLOW_FROM_in_select_core1455 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_join_source_in_select_core1457 = new BitSet(new long[]{0x0000000000000002L,0x0000200000000000L,0x0000200000000000L});
+    public static final BitSet FOLLOW_WHERE_in_select_core1462 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_select_core1466 = new BitSet(new long[]{0x0000000000000002L,0x0000200000000000L});
+    public static final BitSet FOLLOW_GROUP_in_select_core1474 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_BY_in_select_core1476 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_select_core1478 = new BitSet(new long[]{0x0000000002000002L,0x0000400000000000L});
+    public static final BitSet FOLLOW_COMMA_in_select_core1481 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_ordering_term_in_select_core1483 = new BitSet(new long[]{0x0000000002000002L,0x0000400000000000L});
+    public static final BitSet FOLLOW_HAVING_in_select_core1488 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_select_core1492 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ASTERISK_in_result_column1562 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_result_column1570 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_result_column1572 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_ASTERISK_in_result_column1574 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expr_in_result_column1589 = new BitSet(new long[]{0xFC00000000000002L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_AS_in_result_column1593 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_result_column1599 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_single_source_in_join_source1620 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000000000001008L});
+    public static final BitSet FOLLOW_join_op_in_join_source1623 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_single_source_in_join_source1626 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000008000001208L});
+    public static final BitSet FOLLOW_join_constraint_in_join_source1629 = new BitSet(new long[]{0x0000000002000002L,0xA040000000080000L,0x0000000000001008L});
+    public static final BitSet FOLLOW_id_in_single_source1646 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_single_source1648 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_ID_in_single_source1654 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000002L,0x0000800000000010L});
+    public static final BitSet FOLLOW_AS_in_single_source1658 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_ID_in_single_source1664 = new BitSet(new long[]{0x0000000000000002L,0x0010000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_INDEXED_in_single_source1669 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000100L});
+    public static final BitSet FOLLOW_BY_in_single_source1671 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_single_source1675 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_single_source1679 = new BitSet(new long[]{0x0000000000000000L,0x0010000000000000L});
+    public static final BitSet FOLLOW_INDEXED_in_single_source1681 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_single_source1722 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_select_stmt_in_single_source1724 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_single_source1726 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000002L,0x0000800000000000L});
+    public static final BitSet FOLLOW_AS_in_single_source1730 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000800000000000L});
+    public static final BitSet FOLLOW_ID_in_single_source1736 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_single_source1758 = new BitSet(new long[]{0xFC00000004000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_join_source_in_single_source1761 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_single_source1763 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COMMA_in_join_op1774 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NATURAL_in_join_op1781 = new BitSet(new long[]{0x0000000000000000L,0xA040000000080000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_LEFT_in_join_op1787 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L,0x0000000000001000L});
+    public static final BitSet FOLLOW_OUTER_in_join_op1792 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
+    public static final BitSet FOLLOW_INNER_in_join_op1798 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
+    public static final BitSet FOLLOW_CROSS_in_join_op1802 = new BitSet(new long[]{0x0000000000000000L,0x2000000000000000L});
+    public static final BitSet FOLLOW_JOIN_in_join_op1805 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ON_in_join_constraint1816 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_join_constraint1819 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_USING_in_join_constraint1825 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_join_constraint1827 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_join_constraint1831 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_join_constraint1834 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_join_constraint1838 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_join_constraint1842 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INSERT_in_insert_stmt1861 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L,0x0000000000000400L});
+    public static final BitSet FOLLOW_operation_conflict_clause_in_insert_stmt1864 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
+    public static final BitSet FOLLOW_REPLACE_in_insert_stmt1870 = new BitSet(new long[]{0x0000000000000000L,0x0400000000000000L});
+    public static final BitSet FOLLOW_INTO_in_insert_stmt1873 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_insert_stmt1878 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_insert_stmt1880 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_insert_stmt1886 = new BitSet(new long[]{0x0000000004000000L,0x0000000001000000L,0x0000020010000000L});
+    public static final BitSet FOLLOW_LPAREN_in_insert_stmt1893 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_insert_stmt1897 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_insert_stmt1900 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_insert_stmt1904 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_insert_stmt1908 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000020010000000L});
+    public static final BitSet FOLLOW_VALUES_in_insert_stmt1917 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_insert_stmt1919 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_insert_stmt1923 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_insert_stmt1926 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_insert_stmt1930 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_insert_stmt1934 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_select_stmt_in_insert_stmt1938 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DEFAULT_in_insert_stmt1945 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000020000000000L});
+    public static final BitSet FOLLOW_VALUES_in_insert_stmt1947 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_UPDATE_in_update_stmt1957 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_operation_conflict_clause_in_update_stmt1960 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_qualified_table_name_in_update_stmt1964 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000020000000L});
+    public static final BitSet FOLLOW_SET_in_update_stmt1968 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_update_set_in_update_stmt1972 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000200000000802L});
+    public static final BitSet FOLLOW_COMMA_in_update_stmt1975 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_update_set_in_update_stmt1979 = new BitSet(new long[]{0x0000000002000002L,0x0000000000000000L,0x0000200000000802L});
+    public static final BitSet FOLLOW_WHERE_in_update_stmt1984 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_update_stmt1986 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
+    public static final BitSet FOLLOW_operation_limited_clause_in_update_stmt1991 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_update_set2002 = new BitSet(new long[]{0x0000000000000010L});
+    public static final BitSet FOLLOW_EQUALS_in_update_set2004 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_update_set2006 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DELETE_in_delete_stmt2014 = new BitSet(new long[]{0x0000000000000000L,0x0000080000000000L});
+    public static final BitSet FOLLOW_FROM_in_delete_stmt2016 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_qualified_table_name_in_delete_stmt2018 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000200000000802L});
+    public static final BitSet FOLLOW_WHERE_in_delete_stmt2021 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_delete_stmt2023 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000802L});
+    public static final BitSet FOLLOW_operation_limited_clause_in_delete_stmt2028 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_BEGIN_in_begin_stmt2038 = new BitSet(new long[]{0x0000000000000002L,0x0002002004000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_set_in_begin_stmt2040 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_TRANSACTION_in_begin_stmt2054 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_commit_stmt2064 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_TRANSACTION_in_commit_stmt2073 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ROLLBACK_in_rollback_stmt2083 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000600000000L});
+    public static final BitSet FOLLOW_TRANSACTION_in_rollback_stmt2086 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_TO_in_rollback_stmt2091 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_SAVEPOINT_in_rollback_stmt2094 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_rollback_stmt2100 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SAVEPOINT_in_savepoint_stmt2110 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_savepoint_stmt2114 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_RELEASE_in_release_stmt2122 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_SAVEPOINT_in_release_stmt2125 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_release_stmt2131 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ON_in_table_conflict_clause2143 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_CONFLICT_in_table_conflict_clause2146 = new BitSet(new long[]{0x0400000000000000L,0x0001010000000000L,0x0000000002800000L});
+    public static final BitSet FOLLOW_set_in_table_conflict_clause2149 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CREATE_in_create_virtual_table_stmt2176 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000080000000000L});
+    public static final BitSet FOLLOW_VIRTUAL_in_create_virtual_table_stmt2178 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
+    public static final BitSet FOLLOW_TABLE_in_create_virtual_table_stmt2180 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2185 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_create_virtual_table_stmt2187 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2193 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000008000000000L});
+    public static final BitSet FOLLOW_USING_in_create_virtual_table_stmt2197 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_virtual_table_stmt2201 = new BitSet(new long[]{0x0000000004000002L});
+    public static final BitSet FOLLOW_LPAREN_in_create_virtual_table_stmt2204 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_column_def_in_create_virtual_table_stmt2206 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_create_virtual_table_stmt2209 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_column_def_in_create_virtual_table_stmt2211 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_create_virtual_table_stmt2215 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CREATE_in_create_table_stmt2225 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x00000000C0000000L});
+    public static final BitSet FOLLOW_TEMPORARY_in_create_table_stmt2227 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
+    public static final BitSet FOLLOW_TABLE_in_create_table_stmt2230 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_create_table_stmt2233 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_NOT_in_create_table_stmt2235 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_create_table_stmt2237 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_table_stmt2244 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_create_table_stmt2246 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_table_stmt2252 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_create_table_stmt2258 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_column_def_in_create_table_stmt2260 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_create_table_stmt2263 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_column_def_in_create_table_stmt2265 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_create_table_stmt2270 = new BitSet(new long[]{0x0000000000000000L,0x0000040000021000L,0x0000002000008000L});
+    public static final BitSet FOLLOW_table_constraint_in_create_table_stmt2272 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_create_table_stmt2276 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_AS_in_create_table_stmt2282 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_select_stmt_in_create_table_stmt2284 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_column_def_in_column_def2340 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000802000048010L});
+    public static final BitSet FOLLOW_type_name_in_column_def2342 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000002000048010L});
+    public static final BitSet FOLLOW_column_constraint_in_column_def2345 = new BitSet(new long[]{0x0000000000000002L,0x0000000001023000L,0x0000002000048010L});
+    public static final BitSet FOLLOW_CONSTRAINT_in_column_constraint2371 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_column_constraint2375 = new BitSet(new long[]{0x0000000000000000L,0x0000000001023000L,0x0000002000048010L});
+    public static final BitSet FOLLOW_column_constraint_pk_in_column_constraint2383 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_column_constraint_not_null_in_column_constraint2389 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_column_constraint_unique_in_column_constraint2395 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_column_constraint_check_in_column_constraint2401 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_column_constraint_default_in_column_constraint2407 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_column_constraint_collate_in_column_constraint2413 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_fk_clause_in_column_constraint2419 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PRIMARY_in_column_constraint_pk2474 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+    public static final BitSet FOLLOW_KEY_in_column_constraint_pk2477 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000014L,0x0000000000000200L});
+    public static final BitSet FOLLOW_set_in_column_constraint_pk2480 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000010L,0x0000000000000200L});
+    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_pk2489 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000010L});
+    public static final BitSet FOLLOW_AUTOINCREMENT_in_column_constraint_pk2493 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_column_constraint_not_null2502 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
+    public static final BitSet FOLLOW_NULL_in_column_constraint_not_null2504 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_not_null2506 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_UNIQUE_in_column_constraint_unique2523 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_table_conflict_clause_in_column_constraint_unique2526 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CHECK_in_column_constraint_check2534 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_column_constraint_check2537 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_column_constraint_check2540 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_column_constraint_check2542 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DEFAULT_in_column_constraint_default2550 = new BitSet(new long[]{0x0000000004000000L,0x0000000000700000L,0x003B000000000040L});
+    public static final BitSet FOLLOW_SIGNED_NUMBER_in_column_constraint_default2554 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_literal_value_in_column_constraint_default2558 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_column_constraint_default2562 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_column_constraint_default2565 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_column_constraint_default2567 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COLLATE_in_column_constraint_collate2576 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_column_constraint_collate2581 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CONSTRAINT_in_table_constraint2590 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint2594 = new BitSet(new long[]{0x0000000000000000L,0x0000040000021000L,0x0000002000008000L});
+    public static final BitSet FOLLOW_table_constraint_pk_in_table_constraint2602 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_table_constraint_unique_in_table_constraint2608 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_table_constraint_check_in_table_constraint2614 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_table_constraint_fk_in_table_constraint2620 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_PRIMARY_in_table_constraint_pk2660 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+    public static final BitSet FOLLOW_KEY_in_table_constraint_pk2662 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_table_constraint_pk2666 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_pk2670 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_table_constraint_pk2673 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_pk2677 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_table_constraint_pk2681 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_table_conflict_clause_in_table_constraint_pk2683 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_UNIQUE_in_table_constraint_unique2708 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_table_constraint_unique2712 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_unique2716 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_table_constraint_unique2719 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_unique2723 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_table_constraint_unique2727 = new BitSet(new long[]{0x0000000000000002L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_table_conflict_clause_in_table_constraint_unique2729 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CHECK_in_table_constraint_check2754 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_table_constraint_check2757 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_table_constraint_check2760 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_RPAREN_in_table_constraint_check2762 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FOREIGN_in_table_constraint_fk2770 = new BitSet(new long[]{0x0000000000000000L,0x4000000000000000L});
+    public static final BitSet FOLLOW_KEY_in_table_constraint_fk2772 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_table_constraint_fk2774 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_fk2778 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_table_constraint_fk2781 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_table_constraint_fk2785 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_table_constraint_fk2789 = new BitSet(new long[]{0x0000000000000000L,0x0000000001023000L,0x0000002000048010L});
+    public static final BitSet FOLLOW_fk_clause_in_table_constraint_fk2791 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_REFERENCES_in_fk_clause2814 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_fk_clause2819 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000000L,0x0000000000000204L});
+    public static final BitSet FOLLOW_LPAREN_in_fk_clause2822 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_fk_clause2826 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_fk_clause2829 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_fk_clause2833 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_fk_clause2837 = new BitSet(new long[]{0x0000000004000000L,0x0000000000000000L,0x0000000000000204L});
+    public static final BitSet FOLLOW_fk_clause_action_in_fk_clause2843 = new BitSet(new long[]{0x0000000004000002L,0x0000000002000000L,0x0000000000000214L});
+    public static final BitSet FOLLOW_fk_clause_deferrable_in_fk_clause2846 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ON_in_fk_clause_action2857 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_set_in_fk_clause_action2859 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000200L,0x0000000021000000L});
+    public static final BitSet FOLLOW_SET_in_fk_clause_action2872 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000040L});
+    public static final BitSet FOLLOW_NULL_in_fk_clause_action2874 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SET_in_fk_clause_action2878 = new BitSet(new long[]{0x0000000000000000L,0x0000000001000000L});
+    public static final BitSet FOLLOW_DEFAULT_in_fk_clause_action2880 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CASCADE_in_fk_clause_action2884 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_RESTRICT_in_fk_clause_action2888 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_MATCH_in_fk_clause_action2895 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_fk_clause_action2899 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_fk_clause_deferrable2907 = new BitSet(new long[]{0x0000000000000000L,0x0000000002000000L});
+    public static final BitSet FOLLOW_DEFERRABLE_in_fk_clause_deferrable2911 = new BitSet(new long[]{0x0000000000000002L,0x0020000000000000L});
+    public static final BitSet FOLLOW_INITIALLY_in_fk_clause_deferrable2914 = new BitSet(new long[]{0x0000000000000000L,0x0000000004000000L});
+    public static final BitSet FOLLOW_DEFERRED_in_fk_clause_deferrable2916 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INITIALLY_in_fk_clause_deferrable2920 = new BitSet(new long[]{0x0000000000000000L,0x0002000000000000L});
+    public static final BitSet FOLLOW_IMMEDIATE_in_fk_clause_deferrable2922 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DROP_in_drop_table_stmt2932 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
+    public static final BitSet FOLLOW_TABLE_in_drop_table_stmt2934 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_drop_table_stmt2937 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_drop_table_stmt2939 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_table_stmt2946 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_drop_table_stmt2948 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_table_stmt2954 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ALTER_in_alter_table_stmt2984 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000040000000L});
+    public static final BitSet FOLLOW_TABLE_in_alter_table_stmt2986 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_alter_table_stmt2991 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_alter_table_stmt2993 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_alter_table_stmt2999 = new BitSet(new long[]{0x0800000000000000L,0x0000000000000000L,0x0000000000400000L});
+    public static final BitSet FOLLOW_RENAME_in_alter_table_stmt3002 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000200000000L});
+    public static final BitSet FOLLOW_TO_in_alter_table_stmt3004 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_alter_table_stmt3008 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ADD_in_alter_table_stmt3012 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_COLUMN_in_alter_table_stmt3015 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFDBFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_column_def_in_alter_table_stmt3019 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CREATE_in_create_view_stmt3028 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040080000000L});
+    public static final BitSet FOLLOW_TEMPORARY_in_create_view_stmt3030 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040000000000L});
+    public static final BitSet FOLLOW_VIEW_in_create_view_stmt3033 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_create_view_stmt3036 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_NOT_in_create_view_stmt3038 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_create_view_stmt3040 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_view_stmt3047 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_create_view_stmt3049 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_view_stmt3055 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000002L});
+    public static final BitSet FOLLOW_AS_in_create_view_stmt3057 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000010000000L});
+    public static final BitSet FOLLOW_select_stmt_in_create_view_stmt3059 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DROP_in_drop_view_stmt3067 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000040000000000L});
+    public static final BitSet FOLLOW_VIEW_in_drop_view_stmt3069 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_drop_view_stmt3072 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_drop_view_stmt3074 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_view_stmt3081 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_drop_view_stmt3083 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_view_stmt3089 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CREATE_in_create_index_stmt3097 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L,0x0000002000000000L});
+    public static final BitSet FOLLOW_UNIQUE_in_create_index_stmt3100 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+    public static final BitSet FOLLOW_INDEX_in_create_index_stmt3104 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_create_index_stmt3107 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_NOT_in_create_index_stmt3109 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_create_index_stmt3111 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_index_stmt3118 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_create_index_stmt3120 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_index_stmt3126 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_ON_in_create_index_stmt3130 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_index_stmt3134 = new BitSet(new long[]{0x0000000004000000L});
+    public static final BitSet FOLLOW_LPAREN_in_create_index_stmt3136 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_indexed_column_in_create_index_stmt3140 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_COMMA_in_create_index_stmt3143 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_indexed_column_in_create_index_stmt3147 = new BitSet(new long[]{0x000000000A000000L});
+    public static final BitSet FOLLOW_RPAREN_in_create_index_stmt3151 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_id_in_indexed_column3197 = new BitSet(new long[]{0x0000000000000002L,0x0000000010002004L});
+    public static final BitSet FOLLOW_COLLATE_in_indexed_column3200 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_indexed_column3204 = new BitSet(new long[]{0x0000000000000002L,0x0000000010000004L});
+    public static final BitSet FOLLOW_ASC_in_indexed_column3209 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DESC_in_indexed_column3213 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DROP_in_drop_index_stmt3244 = new BitSet(new long[]{0x0000000000000000L,0x0008000000000000L});
+    public static final BitSet FOLLOW_INDEX_in_drop_index_stmt3246 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_drop_index_stmt3249 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_drop_index_stmt3251 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_index_stmt3258 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_drop_index_stmt3260 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_index_stmt3266 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_CREATE_in_create_trigger_stmt3296 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000880000000L});
+    public static final BitSet FOLLOW_TEMPORARY_in_create_trigger_stmt3298 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000800000000L});
+    public static final BitSet FOLLOW_TRIGGER_in_create_trigger_stmt3301 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_create_trigger_stmt3304 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000010L});
+    public static final BitSet FOLLOW_NOT_in_create_trigger_stmt3306 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_create_trigger_stmt3308 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_trigger_stmt3315 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_create_trigger_stmt3317 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_trigger_stmt3323 = new BitSet(new long[]{0x1000000000000000L,0x0180000008000020L,0x0000004000000000L});
+    public static final BitSet FOLLOW_BEFORE_in_create_trigger_stmt3328 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_AFTER_in_create_trigger_stmt3332 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_INSTEAD_in_create_trigger_stmt3336 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000080L});
+    public static final BitSet FOLLOW_OF_in_create_trigger_stmt3338 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_DELETE_in_create_trigger_stmt3343 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_INSERT_in_create_trigger_stmt3347 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_UPDATE_in_create_trigger_stmt3351 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000000000280L});
+    public static final BitSet FOLLOW_OF_in_create_trigger_stmt3354 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_trigger_stmt3358 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_COMMA_in_create_trigger_stmt3361 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_trigger_stmt3365 = new BitSet(new long[]{0x0000000002000000L,0x0000000000000000L,0x0000000000000200L});
+    public static final BitSet FOLLOW_ON_in_create_trigger_stmt3374 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_create_trigger_stmt3378 = new BitSet(new long[]{0x0000000000000000L,0x0000020000000040L,0x0000100000000000L});
+    public static final BitSet FOLLOW_FOR_in_create_trigger_stmt3381 = new BitSet(new long[]{0x0000000000000000L,0x0000000100000000L});
+    public static final BitSet FOLLOW_EACH_in_create_trigger_stmt3383 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000004000000L});
+    public static final BitSet FOLLOW_ROW_in_create_trigger_stmt3385 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000040L,0x0000100000000000L});
+    public static final BitSet FOLLOW_WHEN_in_create_trigger_stmt3390 = new BitSet(new long[]{0xFC000000740E0000L,0xFFFFFFFFFFFFFFFFL,0x002BBFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_expr_in_create_trigger_stmt3392 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000040L});
+    public static final BitSet FOLLOW_BEGIN_in_create_trigger_stmt3398 = new BitSet(new long[]{0x0000000000000000L,0x0080000008000000L,0x0000004010800000L});
+    public static final BitSet FOLLOW_update_stmt_in_create_trigger_stmt3402 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_insert_stmt_in_create_trigger_stmt3406 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_delete_stmt_in_create_trigger_stmt3410 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_select_stmt_in_create_trigger_stmt3414 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_SEMI_in_create_trigger_stmt3417 = new BitSet(new long[]{0x0000000000000000L,0x0080000408000000L,0x0000004010800000L});
+    public static final BitSet FOLLOW_END_in_create_trigger_stmt3421 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DROP_in_drop_trigger_stmt3429 = new BitSet(new long[]{0x0000000000000000L,0x0000000000000000L,0x0000000800000000L});
+    public static final BitSet FOLLOW_TRIGGER_in_drop_trigger_stmt3431 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_IF_in_drop_trigger_stmt3434 = new BitSet(new long[]{0x0000000000000000L,0x0000004000000000L});
+    public static final BitSet FOLLOW_EXISTS_in_drop_trigger_stmt3436 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_trigger_stmt3443 = new BitSet(new long[]{0x0000000001000000L});
+    public static final BitSet FOLLOW_DOT_in_drop_trigger_stmt3445 = new BitSet(new long[]{0xFC00000000000000L,0xFFFFFFFFFFFFFFFFL,0x0000BFFFFFFFFFFFL});
+    public static final BitSet FOLLOW_id_in_drop_trigger_stmt3451 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_id3461 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_keyword_in_id3465 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_keyword3472 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ID_in_id_column_def4179 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_keyword_column_def_in_id_column_def4183 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_keyword_column_def4190 = new BitSet(new long[]{0x0000000000000002L});
 
 }

@@ -26,6 +26,8 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -63,37 +65,31 @@ public class SqlJetPreparedStatement {
         return 0;
     }
 
-    public void setBLOB(int paramIndex, byte[] value) throws SqlJetException {
+    public void setInteger(int paramIndex, long value) throws SqlJetException {
     }
 
-    public void setDouble(int paramIndex, double value) throws SqlJetException {
-    }
-
-    public void setInteger(int paramIndex, int value) throws SqlJetException {
-    }
-
-    public void setLong(int paramIndex, long value) throws SqlJetException {
+    public void setFloat(int paramIndex, double value) throws SqlJetException {
     }
 
     public void setText(int paramIndex, String value) throws SqlJetException {
     }
 
+    public void setBlob(int paramIndex, byte[] value) throws SqlJetException {
+    }
+
     public void setNull(int paramIndex) throws SqlJetException {
     }
 
-    public void setBLOB(String paramName, byte[] value) throws SqlJetException {
+    public void setInteger(String paramName, long value) throws SqlJetException {
     }
 
-    public void setDouble(String paramName, double value) throws SqlJetException {
-    }
-
-    public void setInteger(String paramName, int value) throws SqlJetException {
-    }
-
-    public void setLong(String paramName, long value) throws SqlJetException {
+    public void setFloat(String paramName, double value) throws SqlJetException {
     }
 
     public void setText(String paramName, String value) throws SqlJetException {
+    }
+
+    public void setBlob(String paramName, byte[] value) throws SqlJetException {
     }
 
     public void setNull(String paramName) throws SqlJetException {
@@ -120,6 +116,14 @@ public class SqlJetPreparedStatement {
                 }
                 if ("select".equals(stmtName)) {
                     handleSelect();
+                } else if ("create_table".equals(stmtName)) {
+                    db.getSchema().createTable(sql);
+                } else if ("drop_table".equals(stmtName)) {
+                    handleDropTable();
+                } else if ("create_index".equals(stmtName)) {
+                    db.getSchema().createIndex(sql);
+                } else if ("drop_index".equals(stmtName)) {
+                    handleDropIndex();
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported statement.");
                 }
@@ -189,6 +193,30 @@ public class SqlJetPreparedStatement {
         table = db.openTable(tableName);
         if (table != null) {
             cursor = (SqlJetTable) table;
+        }
+    }
+
+    private void handleDropTable() throws SqlJetException {
+        CommonTree options = (CommonTree) ast.getChild(0);
+        boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
+        String tableName = ast.getChild(1).getText();
+        ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
+        if (tableDef != null) {
+            tableDef.drop();
+        } else if (!ifExists) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table does not exists.");
+        }
+    }
+
+    private void handleDropIndex() throws SqlJetException {
+        CommonTree options = (CommonTree) ast.getChild(0);
+        boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
+        String indexName = ast.getChild(1).getText();
+        ISqlJetIndexDef indexDef = db.getSchema().getIndex(indexName);
+        if (indexDef != null) {
+            indexDef.drop();
+        } else if (!ifExists) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index does not exists.");
         }
     }
 

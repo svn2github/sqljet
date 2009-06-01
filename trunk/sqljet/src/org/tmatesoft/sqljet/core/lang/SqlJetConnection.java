@@ -17,6 +17,7 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -64,5 +65,9 @@ public class SqlJetConnection {
 
     public void close() throws SqlJetException {
         db.close();
+    }
+
+    public ISqlJetSchema getSchema(String databaseName) {
+        return db.getSchema();
     }
 }

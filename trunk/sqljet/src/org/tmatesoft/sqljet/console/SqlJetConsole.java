@@ -28,42 +28,59 @@ import org.tmatesoft.sqljet.core.lang.SqlJetPreparedStatement;
  */
 public class SqlJetConsole implements SqlJetExecCallback {
 
+    private final String fileName;
     private boolean firstRow;
 
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.err.println("Exactly one database file name should be specified.");
+            println("Exactly one database file name should be specified.");
             return;
         }
         SqlJetConnection conn = SqlJetConnection.open(args[0]);
-        System.out.println("SQLJet version 1.0");
-        System.out.println("Connected to " + args[0]);
+        println("SQLJet version 1.0");
+        println("Enter \".help\" for instructions");
         try {
-            new SqlJetConsole().repl(conn);
+            new SqlJetConsole(args[0]).repl(conn);
         } finally {
             conn.close();
         }
+    }
+
+    private SqlJetConsole(String fileName) {
+        this.fileName = fileName;
     }
 
     private void repl(SqlJetConnection conn) throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         StringBuffer buffer = new StringBuffer();
         String line;
-        System.out.print("sqljet> ");
+        print("sqljet> ");
         while ((line = in.readLine()) != null) {
             buffer.append(line);
-            if (line.trim().endsWith(";")) {
-                firstRow = true;
-                try {
-                    conn.exec(buffer.toString(), this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                buffer.setLength(0);
-                System.out.print("sqljet> ");
+            String cmd = buffer.toString().trim().toLowerCase();
+            if (".help".equals(cmd)) {
+                printHelp();
+            } else if (".databases".equals(cmd)) {
+                printDatabases();
+            } else if (".schema".equals(cmd)) {
+                printSchema(conn);
+            } else if (".exit".equals(cmd) || ".quit".equals(cmd)) {
+                System.exit(0);
             } else {
-                System.out.print("   ...> ");
+                if (line.trim().endsWith(";")) {
+                    firstRow = true;
+                    try {
+                        conn.exec(buffer.toString(), this);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    print("   ...> ");
+                    continue;
+                }
             }
+            buffer.setLength(0);
+            print("sqljet> ");
         }
     }
 
@@ -73,7 +90,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
             for (int i = 0; i < 80; i++) {
                 buffer.append('-');
             }
-            System.out.println(buffer.toString());
+            println(buffer.toString());
             buffer.setLength(0);
             firstRow = false;
         }
@@ -97,7 +114,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
             }
             buffer.append("|");
         }
-        System.out.println(buffer.toString());
+        println(buffer.toString());
     }
 
     private String getHexedBlob(ByteBuffer data) {
@@ -112,5 +129,29 @@ public class SqlJetConsole implements SqlJetExecCallback {
         }
         buffer.append("'");
         return buffer.toString();
+    }
+
+    private void printHelp() {
+        println(".databases             List names and files of attached databases");
+        println(".exit                  Exit this program");
+        println(".help                  Show this message");
+        println(".quit                  Exit this program");
+        println(".schema ?TABLE?        Show the CREATE statements");
+    }
+
+    private void printDatabases() {
+        println(fileName);
+    }
+
+    private void printSchema(SqlJetConnection conn) {
+        println(conn.getSchema("main").toString());
+    }
+
+    private static void print(String s) {
+        System.out.print(s);
+    }
+
+    private static void println(String s) {
+        System.out.println(s);
     }
 }

@@ -143,7 +143,7 @@ public class SqlJetUtility {
      * Read a four-byte big-endian integer value.
      */
     public static int get4byte(byte[] p, int pos) {
-        return get4byte(ByteBuffer.wrap(p));
+        return get4byte(ByteBuffer.wrap(p), pos);
     }
 
     /**

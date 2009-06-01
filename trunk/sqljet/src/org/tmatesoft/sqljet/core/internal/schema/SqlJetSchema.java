@@ -13,7 +13,9 @@
  */
 package org.tmatesoft.sqljet.core.internal.schema;
 
+import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,11 +30,15 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
@@ -43,6 +49,9 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public class SqlJetSchema implements ISqlJetSchema {
+
+    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = EnumSet.of(
+            SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;
@@ -66,11 +75,11 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        final SqlJetBtreeTable bt = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        ISqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
-            readShema(bt);
+            readShema(table);
         } finally {
-            bt.close();
+            table.close();
         }
     }
 
@@ -108,7 +117,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         return Collections.unmodifiableSet(result);
     }
 
-    private void readShema(SqlJetBtreeTable table) throws SqlJetException {
+    private void readShema(ISqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
             final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, db.getEncoding()));
             if (null == type) {
@@ -139,7 +148,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
                 if (record.getFieldsCount() < SQL_FIELD) {
                     String sql = record.getStringField(SQL_FIELD, db.getEncoding());
-                    //System.err.println(sql);
+                    // System.err.println(sql);
                     CommonTree ast = parseIndex(sql);
                     ISqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
                     if (!name.equals(indexDef.getName())) {
@@ -196,4 +205,74 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
         return buffer.toString();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.schema.ISqlJetSchema#createTable(java.lang.
+     * String)
+     */
+    public ISqlJetTableDef createTable(String sql) throws SqlJetException {
+
+        final CommonTree ast = parseTable(sql);
+
+        final SqlJetTableDef tableDef = new SqlJetTableDef(ast, 0);
+        if (null == tableDef.getName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String name = tableDef.getName().trim();
+        if ("".equals(name))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+
+        try {
+
+            table.lock();
+
+            try {
+
+                for (table.first(); !table.eof(); table.next()) {
+                    if (TABLE_TYPE.equals(table.getString(TYPE_FIELD))) {
+                        final String n = table.getString(NAME_FIELD);
+                        if (null == n)
+                            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                        if (name.equals(n))
+                            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + name + "\" exists already");
+                    }
+                }
+
+                final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(TABLE_TYPE, name, name, page, tableDef
+                        .toSQL());
+                final ByteBuffer pData = record.getRawRecord();
+                table.getCursor().insert(null, table.newRowId(0), pData, pData.remaining(), 0, false);
+                db.getMeta().changeSchemaCookie();
+
+                tableDef.setPage(page);
+                tableDefs.put(name, tableDef);
+                return tableDef;
+
+            } finally {
+                table.unlock();
+            }
+
+        } finally {
+            table.close();
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.schema.ISqlJetSchema#createIndex(java.lang.
+     * String)
+     */
+    public ISqlJetIndexDef createIndex(String sql) throws SqlJetException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

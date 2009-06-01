@@ -34,7 +34,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private final boolean ifNotExists;
     private final List<ISqlJetColumnDef> columns;
     private final List<ISqlJetTableConstraint> constraints;
-    private final int page;
+    private int page;
 
     public SqlJetTableDef(CommonTree ast, int page) {
         CommonTree optionsNode = (CommonTree) ast.getChild(0);
@@ -141,7 +141,14 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(getPage());
-        buffer.append(": CREATE ");
+        buffer.append(": ");
+        buffer.append(toSQL());
+        return buffer.toString();
+    }
+
+    public String toSQL() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("CREATE ");
         if (isTemporary()) {
             buffer.append("TEMPORARY ");
         }
@@ -171,5 +178,12 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         buffer.append(')');
         return buffer.toString();
+    }
+    
+    /**
+     * @param page the page to set
+     */
+    public void setPage(int page) {
+        this.page = page;
     }
 }

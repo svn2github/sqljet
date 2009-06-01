@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -48,8 +49,8 @@ public interface ISqlJetBtree {
     ** The header string that appears at the beginning of every
     ** SQLite database.
     */
-    byte[] zMagicHeader = SqlJetUtility.addZeroByteEnd(
-        SqlJetUtility.getBytes(SQLITE_FILE_HEADER));
+    ByteBuffer zMagicHeader = ByteBuffer.wrap( SqlJetUtility.addZeroByteEnd(
+        SqlJetUtility.getBytes(SQLITE_FILE_HEADER)) );
     
     /**
      * Open a database file.

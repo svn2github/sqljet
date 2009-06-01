@@ -15,6 +15,8 @@ package org.tmatesoft.sqljet.core.schema;
 
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.SqlJetException;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -30,4 +32,8 @@ public interface ISqlJetSchema {
     ISqlJetIndexDef getIndex(String name);
 
     Set<ISqlJetIndexDef> getIndexes(String tableName);
+    
+    ISqlJetTableDef createTable(String sql) throws SqlJetException; 
+    ISqlJetIndexDef createIndex(String sql) throws SqlJetException;
+    
 }

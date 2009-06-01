@@ -50,11 +50,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
-    private long priorNewRowid = 0;
-
     private long lastNewRowId = 0;
 
     private boolean isRowIdPrimaryKey = false;
+    private boolean isAutoincrement = false;
 
     private ISqlJetTableDef tableDef;
 
@@ -107,6 +106,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                     if (constraint instanceof ISqlJetColumnPrimaryKey) {
                         if (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER) {
                             isRowIdPrimaryKey = true;
+                            isAutoincrement = ((ISqlJetColumnPrimaryKey)constraint).isAutoincremented();
                         } else {
                             columnsConstraintsIndexes.put(generateAutoIndexName(++i), column.getName());
                         }
@@ -194,112 +194,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             return cursor.getKeySize();
-        } finally {
-            unlock();
-        }
-    }
-
-    /**
-     * Get a new integer record number (a.k.a "rowid") used as the key to a
-     * table. The record number is not previously used as a key in the database
-     * table that cursor P1 points to. The new record number is written written
-     * to register P2.
-     * 
-     * Prev is the largest previously generated record number. No new record
-     * numbers are allowed to be less than this value. When this value reaches
-     * its maximum, a SQLITE_FULL error is generated. This mechanism is used to
-     * help implement the AUTOINCREMENT feature.
-     * 
-     * @param prev
-     * @return
-     * @throws SqlJetException
-     */
-    private long newRowId(long prev) throws SqlJetException {
-        /*
-         * The next rowid or record number (different terms for the same thing)
-         * is obtained in a two-step algorithm. First we attempt to find the
-         * largest existing rowid and add one to that. But if the largest
-         * existing rowid is already the maximum positive integer, we have to
-         * fall through to the second probabilistic algorithm. The second
-         * algorithm is to select a rowid at random and see if it already exists
-         * in the table. If it does not exist, we have succeeded. If the random
-         * rowid does exist, we select a new one and try again, up to 1000
-         * times.For a table with less than 2 billion entries, the probability
-         * of not finding a unused rowid is about 1.0e-300. This is a non-zero
-         * probability, but it is still vanishingly small and should never cause
-         * a problem. You are much, much more likely to have a hardware failure
-         * than for this algorithm to fail.
-         * 
-         * To promote locality of reference for repetitive inserts, the first
-         * few attempts at choosing a random rowid pick values just a little
-         * larger than the previous rowid. This has been shown experimentally to
-         * double the speed of the COPY operation.
-         */
-
-        lock();
-        try {
-            boolean useRandomRowid = false;
-            long v = 0;
-            int res = 0;
-            int cnt = 0;
-
-            if ((cursor.flags() & (SqlJetBtreeTableCreateFlags.INTKEY.getValue() | SqlJetBtreeTableCreateFlags.ZERODATA
-                    .getValue())) != SqlJetBtreeTableCreateFlags.INTKEY.getValue()) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-            }
-
-            assert ((cursor.flags() & SqlJetBtreeTableCreateFlags.INTKEY.getValue()) != 0);
-            assert ((cursor.flags() & SqlJetBtreeTableCreateFlags.ZERODATA.getValue()) == 0);
-
-            long MAX_ROWID = 0x7fffffff;
-
-            final boolean last = cursor.last();
-
-            if (last) {
-                v = 1;
-            } else {
-                v = cursor.getKeySize();
-                if (v == MAX_ROWID) {
-                    useRandomRowid = true;
-                } else {
-                    v++;
-                }
-
-                if (prev != 0) {
-                    if (prev == MAX_ROWID || useRandomRowid) {
-                        throw new SqlJetException(SqlJetErrorCode.FULL);
-                    }
-                    if (v < prev) {
-                        v = prev + 1;
-                    }
-                }
-
-                if (useRandomRowid) {
-                    v = priorNewRowid;
-                    Random random = new Random();
-                    /* SQLITE_FULL must have occurred prior to this */
-                    assert (prev == 0);
-                    cnt = 0;
-                    do {
-                        if (cnt == 0 && (v & 0xffffff) == v) {
-                            v++;
-                        } else {
-                            v = random.nextInt();
-                            if (cnt < 5)
-                                v &= 0xffffff;
-                        }
-                        if (v == 0)
-                            continue;
-                        res = cursor.moveToUnpacked(null, v, false);
-                        cnt++;
-                    } while (cnt < 100 && res == 0);
-                    priorNewRowid = v;
-                    if (res == 0) {
-                        throw new SqlJetException(SqlJetErrorCode.FULL);
-                    }
-                }
-            }
-            return v;
         } finally {
             unlock();
         }

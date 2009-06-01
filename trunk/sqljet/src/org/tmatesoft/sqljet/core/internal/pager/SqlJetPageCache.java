@@ -266,7 +266,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
      */
     public void drop(ISqlJetPage page) {
         SqlJetPage p = (SqlJetPage) page;
-        assert (p.nRef == 1);
+        assert (p.nRef >= 1);
         if (p.flags.contains(SqlJetPageFlags.DIRTY)) {
             removeFromDirtyList(p);
         }

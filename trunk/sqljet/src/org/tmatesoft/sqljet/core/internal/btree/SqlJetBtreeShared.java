@@ -281,7 +281,7 @@ public class SqlJetBtreeShared {
         assert (mutex.held());
 
         iPtrmap = PTRMAP_PAGENO(key);
-        pDbPage = pPager.getPage(iPtrmap);
+        pDbPage = pPager.acquirePage(iPtrmap,true);
         pPtrmap = pDbPage.getData();
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);

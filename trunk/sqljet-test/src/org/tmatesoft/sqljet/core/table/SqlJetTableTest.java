@@ -76,7 +76,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public void setUp() throws Exception {
         fileDbCopy = copyFile(fileDb, DELETE_COPY);
         file2DbCopy = copyFile(file2Db, DELETE_COPY);
-        file3DbCopy = copyFile(file2Db, DELETE_COPY);
+        file3DbCopy = copyFile(file3Db, DELETE_COPY);
         dbCopy = SqlJetDb.open(fileDbCopy, true);
         db2Copy = SqlJetDb.open(file2DbCopy, true);
         db3Copy = SqlJetDb.open(file3DbCopy, true);
@@ -91,8 +91,13 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             if (null != dbCopy)
                 dbCopy.close();
         } finally {
-            if (null != db2Copy)
-                db2Copy.close();
+            try {
+                if (null != db2Copy)
+                    db2Copy.close();
+            } finally {
+                if (null != db3Copy)
+                    db3Copy.close();
+            }
         }
     }
 

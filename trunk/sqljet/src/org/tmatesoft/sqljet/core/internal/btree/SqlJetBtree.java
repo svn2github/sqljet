@@ -667,15 +667,15 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                 int pageSize;
                 int usableSize;
-                byte[] page1 = pPage1.aData.array();
+                ByteBuffer page1 = pPage1.aData;
                 rc = SqlJetErrorCode.NOTADB;
                 if (SqlJetUtility.memcmp(page1, zMagicHeader, 16) != 0) {
                     throw new SqlJetException(rc);
                 }
-                if (page1[18] > 1) {
+                if (SqlJetUtility.getUnsignedByte(page1,18) > 1) {
                     pBt.readOnly = true;
                 }
-                if (page1[19] > 1) {
+                if (SqlJetUtility.getUnsignedByte(page1,19) > 1) {
                     throw new SqlJetException(rc);
                 }
 
@@ -686,7 +686,8 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * to vary, but as of version 3.6.0, we require them to be
                  * fixed.
                  */
-                if (SqlJetUtility.memcmp(page1, 21, new byte[] { (byte) 0100, (byte) 040, (byte) 040 }, 0, 3) != 0) {
+                if (SqlJetUtility.memcmp( SqlJetUtility.slice(page1, 21), 
+                        ByteBuffer.wrap( new byte[] { (byte) 0100, (byte) 040, (byte) 040 }), 3) != 0) {
                     throw new SqlJetException(rc);
                 }
 
@@ -697,7 +698,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     throw new SqlJetException(rc);
                 }
                 assert ((pageSize & 7) == 0);
-                usableSize = pageSize - page1[20];
+                usableSize = pageSize - SqlJetUtility.getUnsignedByte(page1,20);
                 if (pageSize != pBt.pageSize) {
                     /*
                      * After reading the first page of the database assuming a
@@ -770,8 +771,8 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (pP1 != null);
         ByteBuffer data = pP1.aData;
         pP1.pDbPage.write();
-        SqlJetUtility.memcpy(data, ByteBuffer.wrap(zMagicHeader), zMagicHeader.length);
-        assert (zMagicHeader.length == 16);
+        SqlJetUtility.memcpy(data, zMagicHeader, zMagicHeader.remaining());
+        assert (zMagicHeader.remaining() == 16);
         SqlJetUtility.put2byte(data, 16, pBt.pageSize);
         SqlJetUtility.putUnsignedByte(data, 18, (byte) 1);
         SqlJetUtility.putUnsignedByte(data, 19, (byte) 1);

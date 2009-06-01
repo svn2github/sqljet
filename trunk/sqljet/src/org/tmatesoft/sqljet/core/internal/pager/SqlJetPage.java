@@ -257,14 +257,14 @@ public class SqlJetPage implements ISqlJetPage {
          * moved there.
          */
         flags.remove(SqlJetPageFlags.NEED_SYNC);
-        pPgOld = (SqlJetPage) pPager.lookup(pgno);
-        assert (pPgOld == null || pPgOld.nRef == 1);
+        pPgOld = (SqlJetPage) pPager.lookup(pageNumber);
+        assert (pPgOld == null || pPgOld.nRef >= 1);
         if (pPgOld != null) {
             if (pPgOld.flags.contains(SqlJetPageFlags.NEED_SYNC))
                 flags.add(SqlJetPageFlags.NEED_SYNC);
         }
 
-        pPager.pageCache.move(this, pgno);
+        pPager.pageCache.move(this, pageNumber);
 
         if (pPgOld != null) {
             pPager.pageCache.drop(pPgOld);

@@ -37,6 +37,8 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
+    protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";    
+    
     protected ISqlJetDbHandle db;
     protected ISqlJetBtree btree;
     protected int rootPage;
@@ -51,6 +53,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected ISqlJetBtreeRecord cachedRecord;
 
     private long priorNewRowid = 0;
+    protected long lastNewRowId = 0;
     
     /**
      * @param db
@@ -370,6 +373,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return db.getMeta().verifySchemaCookie(throwIfStale);
     }
 
+    public long newRowId() throws SqlJetException {
+        lastNewRowId = newRowId(lastNewRowId);
+        return lastNewRowId;
+    }
+    
+    
     /**
      * Get a new integer record number (a.k.a "rowid") used as the key to a
      * table. The record number is not previously used as a key in the database
@@ -481,6 +490,14 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public ISqlJetBtreeCursor getCursor() {
         return cursor;
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    public static String generateAutoIndexName(String tableName, int i) {
+        return String.format(AUTOINDEX, tableName, i);
     }
     
 }

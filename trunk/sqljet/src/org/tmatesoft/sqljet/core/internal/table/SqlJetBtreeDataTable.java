@@ -48,10 +48,6 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  */
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
-    private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
-
-    private long lastNewRowId = 0;
-
     private boolean isRowIdPrimaryKey = false;
     private boolean isAutoincrement = false;
 
@@ -106,12 +102,13 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                     if (constraint instanceof ISqlJetColumnPrimaryKey) {
                         if (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER) {
                             isRowIdPrimaryKey = true;
-                            isAutoincrement = ((ISqlJetColumnPrimaryKey)constraint).isAutoincremented();
+                            isAutoincrement = ((ISqlJetColumnPrimaryKey) constraint).isAutoincremented();
                         } else {
-                            columnsConstraintsIndexes.put(generateAutoIndexName(++i), column.getName());
+                            columnsConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i), column
+                                    .getName());
                         }
                     } else if (constraint instanceof ISqlJetColumnUnique) {
-                        columnsConstraintsIndexes.put(generateAutoIndexName(++i), column.getName());
+                        columnsConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i), column.getName());
                     }
                 }
             }
@@ -121,23 +118,15 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (null != constraints) {
             for (final ISqlJetTableConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetTablePrimaryKey) {
-                    tableConstraintsIndexes.put(generateAutoIndexName(++i), ((ISqlJetTablePrimaryKey) constraint)
-                            .getColumns());
+                    tableConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i),
+                            ((ISqlJetTablePrimaryKey) constraint).getColumns());
                 } else if (constraint instanceof ISqlJetTableUnique) {
-                    tableConstraintsIndexes.put(generateAutoIndexName(++i), ((ISqlJetTableUnique) constraint)
-                            .getColumns());
+                    tableConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i),
+                            ((ISqlJetTableUnique) constraint).getColumns());
                 }
             }
         }
 
-    }
-
-    /**
-     * @param i
-     * @return
-     */
-    private String generateAutoIndexName(int i) {
-        return String.format(AUTOINDEX, tableDef.getName(), i);
     }
 
     /**

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,9 +40,17 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.
@@ -52,6 +61,9 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = EnumSet.of(
             SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
+
+    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = EnumSet.of(
+            SqlJetBtreeTableCreateFlags.ZERODATA);
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;
@@ -242,13 +254,49 @@ public class SqlJetSchema implements ISqlJetSchema {
                     }
                 }
 
+                db.getMeta().changeSchemaCookie();
+
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(TABLE_TYPE, name, name, page, tableDef
                         .toSQL());
                 final ByteBuffer pData = record.getRawRecord();
-                table.getCursor().insert(null, table.newRowId(0), pData, pData.remaining(), 0, false);
-                db.getMeta().changeSchemaCookie();
+                table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
 
+                int i = 0;
+                
+                final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+                if (null != columns) {
+                    for (final ISqlJetColumnDef column : columns) {
+                        final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
+                        if (null == constraints)
+                            continue;
+                        for (final ISqlJetColumnConstraint constraint : constraints) {
+                            if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                                if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
+                                    createAutoIndex(table,name,
+                                            SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                                }
+                            } else if (constraint instanceof ISqlJetColumnUnique) {
+                                createAutoIndex(table,name,
+                                        SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                            }
+                        }
+                    }
+                }
+
+                final List<ISqlJetTableConstraint> constraints = tableDef.getConstraints();
+                if (null != constraints) {
+                    for (final ISqlJetTableConstraint constraint : constraints) {
+                        if (constraint instanceof ISqlJetTablePrimaryKey) {
+                            createAutoIndex(table,name,
+                                    SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                        } else if (constraint instanceof ISqlJetTableUnique) {
+                            createAutoIndex(table,name,
+                                    SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                        }
+                    }
+                }
+                                
                 tableDef.setPage(page);
                 tableDefs.put(name, tableDef);
                 return tableDef;
@@ -261,6 +309,20 @@ public class SqlJetSchema implements ISqlJetSchema {
             table.close();
         }
 
+    }
+
+    /**
+     * @param table
+     * @param generateAutoIndexName
+     * 
+     * @throws SqlJetException 
+     */
+    private void createAutoIndex(SqlJetBtreeTable table,String tableName, String autoIndexName) throws SqlJetException {
+        final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
+        final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page);
+        final ByteBuffer pData = record.getRawRecord();
+        table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
+        indexDefs.put(autoIndexName, new SqlJetBaseIndexDef(autoIndexName,tableName,page));
     }
 
     /*

@@ -1072,7 +1072,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                             pPage1 = pBt.getPage(1, false);
                             SqlJetMemPage.releasePage(pPage1);
                         } finally {
-                            assert (pBt.countWriteCursors() == 0);
+                            //assert (pBt.countWriteCursors() == 0);
                             pBt.inTransaction = TransMode.READ;
                         }
                     }

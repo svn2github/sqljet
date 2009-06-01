@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.schema;
 import java.io.File;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
@@ -88,4 +89,80 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     }
 
+    @Test(expected=SqlJetException.class)
+    public void createTableTest1() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test1( id integer primary key, name text )");
+                    Assert.assertTrue(false);
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+
+        });
+
+    }
+
+    @Test
+    public void createTableTestUnique() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text unique )");
+                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+
+        });
+
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void createTableTestUniqueFail() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text unique )");
+                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    openTable.insert("test");
+                    db.commit();
+                    Assert.assertFalse(false);
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+
+        });
+
+    }
+    
+    
 }

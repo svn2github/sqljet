@@ -417,4 +417,62 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         testEncoding(db3Copy, TEST, testUTF16);
     }
 
+    @Test
+    public void indexAutoupdate1() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+
+                table.insert("test1", 1);
+                dbCopy.commit();
+                
+                final SqlJetIndex nameIndex = dbCopy.openIndex("test1_name_index");
+                final long lookup = nameIndex.lookup(false, "test1");
+                Assert.assertTrue(lookup!=0);
+                
+                final boolean goToRow = table.goToRow(lookup);
+                Assert.assertTrue(goToRow);
+                
+                final String nameField = table.getString(1);
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1",nameField);
+
+                return null;
+
+            }
+        });
+
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void indexAutoupdate2() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.openTable(TABLE2);
+
+                table.insert("test", "test");
+                table.insert("test", "test");
+
+                dbCopy.commit();
+                
+                Assert.assertFalse(true);
+
+                return null;
+
+            }
+        });
+
+    }
+    
+    
 }

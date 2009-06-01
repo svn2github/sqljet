@@ -146,7 +146,7 @@ public interface ISqlJetCursor {
      * @return field's value as BLOB
      * @throws SqlJetException
      * 
-     * @Deprecated use getBlobAsArray() or getBlobAsStream()
+     * @deprecated use getBlobAsArray() or getBlobAsStream()
      */
     ByteBuffer getBlob(int field) throws SqlJetException;
 

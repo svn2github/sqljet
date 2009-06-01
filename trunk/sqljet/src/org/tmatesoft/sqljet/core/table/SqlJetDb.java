@@ -32,6 +32,8 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetIndex;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
@@ -59,13 +61,13 @@ public class SqlJetDb {
 
     private boolean transaction = false;
 
-    public static class SqlJetDataTable extends SqlJetTable {
+    private static class SqlJetDataTable extends SqlJetTable {
         SqlJetDataTable(ISqlJetBtreeDataTable dataTable) {
             super(dataTable);
         }
     }
 
-    public static class SqlJetIndexTable extends SqlJetIndex {
+    private static class SqlJetIndexTable extends SqlJetIndex {
         SqlJetIndexTable(ISqlJetBtreeIndexTable indexTable) {
             super(indexTable);
         }

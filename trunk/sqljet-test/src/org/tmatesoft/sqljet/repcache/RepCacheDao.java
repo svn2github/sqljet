@@ -17,10 +17,10 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetIndex;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
-import org.tmatesoft.sqljet.core.table.SqlJetIndex;
-import org.tmatesoft.sqljet.core.table.SqlJetTable;
 
 /**
  * @author TMate Software Ltd.

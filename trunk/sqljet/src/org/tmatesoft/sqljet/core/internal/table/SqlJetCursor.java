@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.table;
+package org.tmatesoft.sqljet.core.internal.table;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
 /**
  * Base implementation of {@link ISqlJetCursor}.

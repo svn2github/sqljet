@@ -28,24 +28,26 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public abstract class SqlJetCursor implements ISqlJetCursor {
+public class SqlJetCursor implements ISqlJetCursor {
 
     private ISqlJetBtreeTable btreeTable;
 
-    /**
-     * 
-     */
     SqlJetCursor(ISqlJetBtreeTable table) {
         this.btreeTable = table;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
-     */
     public void close() throws SqlJetException {
         btreeTable.close();
+    }
+
+    public boolean goTo(long rowId) throws SqlJetException {
+        // TODO : Implement
+        return false;
+    }
+
+    public long getRowId() throws SqlJetException {
+        // TODO : Implement
+        return 0;
     }
 
     /*
@@ -174,5 +176,13 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     public InputStream getBlobAsStream(int field) throws SqlJetException {
         ByteBuffer buffer = btreeTable.getBlob(field);
         return new ByteArrayInputStream(buffer.array());
+    }
+    
+    public void update(Object... values) throws SqlJetException {
+        // TODO Auto-generated method stub
+    }
+    
+    public void delete() throws SqlJetException {
+        // TODO Auto-generated method stub
     }
 }

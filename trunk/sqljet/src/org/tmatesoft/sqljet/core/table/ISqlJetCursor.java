@@ -24,16 +24,33 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetCursor {
 
     /**
-     * Close cursor.
+     * Close the cursor.
      * 
      * @throws SqlJetException
      */
     void close() throws SqlJetException;
+
+    // Positioning
+
+    /**
+     * Get rowid of the current record.
+     * 
+     * @throws SqlJetException
+     */
+    long getRowId() throws SqlJetException;
+
+    /**
+     * Go to the record with the specified rowid.
+     * 
+     * @return True if cursor was moved successfully.
+     * @throws SqlJetException
+     */
+    boolean goTo(long rowId) throws SqlJetException;
 
     /**
      * Check of end of cursor.
@@ -45,7 +62,7 @@ public interface ISqlJetCursor {
     boolean eof();
 
     /**
-     * Go to first record.
+     * Go to the first record.
      * 
      * @return true if there is at least one record.
      * @throws SqlJetException
@@ -53,7 +70,7 @@ public interface ISqlJetCursor {
     boolean first() throws SqlJetException;
 
     /**
-     * Go to last record.
+     * Go to the last record.
      * 
      * @return true if there is at least one record.
      * @throws SqlJetException
@@ -64,11 +81,12 @@ public interface ISqlJetCursor {
      * Check that the next record is available.
      */
     boolean hasNext() throws SqlJetException;
-    
+
     /**
      * Go to next record.
      * 
-     * @return true if there is at least one record and end of cursor is not reached yet
+     * @return true if there is at least one record and end of cursor is not
+     *         reached yet
      * @throws SqlJetException
      */
     boolean next() throws SqlJetException;
@@ -81,10 +99,13 @@ public interface ISqlJetCursor {
     /**
      * Go to previous record.
      * 
-     * @return true if there is at least one record and begin of cursor is not reached yet
+     * @return true if there is at least one record and begin of cursor is not
+     *         reached yet
      * @throws SqlJetException
      */
     boolean previous() throws SqlJetException;
+
+    // Record Access
 
     /**
      * Get count of fields in current record.
@@ -97,43 +118,48 @@ public interface ISqlJetCursor {
     /**
      * Get type of field.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return type of field
      * @throws SqlJetException
      */
     SqlJetValueType getFieldType(int field) throws SqlJetException;
-    
+
     /**
      * Check to field has null value.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return true if field value is null
      * @throws SqlJetException
      */
     boolean isNull(int field) throws SqlJetException;
-    
+
     /**
      * Get field's value as string.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as string
      * @throws SqlJetException
      */
     String getString(int field) throws SqlJetException;
-    
+
     /**
      * Get field's value as integer.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as integer
      * @throws SqlJetException
      */
     long getInteger(int field) throws SqlJetException;
-    
+
     /**
      * Get field's value as real (float).
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as real
      * @throws SqlJetException
      */
@@ -142,7 +168,8 @@ public interface ISqlJetCursor {
     /**
      * Get field's value as BLOB.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as BLOB
      * @throws SqlJetException
      * 
@@ -153,7 +180,8 @@ public interface ISqlJetCursor {
     /**
      * Get field's value as BLOB.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as BLOB
      * @throws SqlJetException
      */
@@ -162,9 +190,28 @@ public interface ISqlJetCursor {
     /**
      * Get field's value as BLOB.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as BLOB
      * @throws SqlJetException
      */
     InputStream getBlobAsStream(int field) throws SqlJetException;
+
+    // Modification
+
+    /**
+     * Update the current record.
+     * 
+     * @param values
+     *            New record values.
+     * @throws SqlJetException
+     */
+    void update(Object... values) throws SqlJetException;
+
+    /**
+     * Delete the current record.
+     * 
+     * @throws SqlJetException
+     */
+    void delete() throws SqlJetException;
 }

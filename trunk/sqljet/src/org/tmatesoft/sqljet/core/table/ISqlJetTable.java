@@ -27,11 +27,36 @@ public interface ISqlJetTable {
 
     /**
      * Get table's schema definition.
-     * 
-     * @return
      */
     ISqlJetTableDef getDefinition();
 
+    /**
+     * Open cursor for all table records.
+     * Client is responsible to close the cursor after use.
+     */
+    ISqlJetCursor open() throws SqlJetException;
+    
+    /**
+     * Open cursor for indexed records.
+     * Client is responsible to close the cursor after use.
+     * 
+     * @param indexName Name of the searched index.
+     * @param key Key for the index lookup.
+     */
+    ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException;
+
+    /**
+     * Add new record to the table with specified values.
+     * All relevant indexes are updated automatically.
+     * 
+     * @param values Values for the new record.
+     */
+    long insert(Object... values) throws SqlJetException;
+
+    
+    // The following methods are deprecated and should be removed.
+    
+    
     /**
      * Go to record which has given row's ID (taken from index).
      * 
@@ -39,6 +64,9 @@ public interface ISqlJetTable {
      *            row's ID which was taken from index
      * @return true if record exists
      * @throws SqlJetException
+     * 
+     * 
+     * @deprecated use cursor
      */
     boolean goToRow(long rowId) throws SqlJetException;
 
@@ -47,6 +75,8 @@ public interface ISqlJetTable {
      * 
      * @return row ID of current record
      * @throws SqlJetException
+     * 
+     * @deprecated use cursor
      */
     long getRowId() throws SqlJetException;
 
@@ -55,16 +85,10 @@ public interface ISqlJetTable {
      * 
      * @param rowId
      * @throws SqlJetException
+     * 
+     * @deprecated use cursor method
      */
     void delete(long rowId) throws SqlJetException;
-
-    /**
-     * Write an new entry into the table.
-     * 
-     * @param values
-     * @throws SqlJetException
-     */
-    long insert(Object... values) throws SqlJetException;
 
     /**
      * Update an entry in the table.
@@ -72,7 +96,8 @@ public interface ISqlJetTable {
      * @param rowId
      * @param values
      * @throws SqlJetException
+     * 
+     * @deprecated use cursor method
      */
     void update(long rowId, Object... values) throws SqlJetException;
-
 }

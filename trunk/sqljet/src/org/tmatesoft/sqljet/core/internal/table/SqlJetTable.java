@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 
 /**
@@ -37,51 +38,35 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
         return dataTable.getDefinition();
     };
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#goToRow(long)
-     */
-    public boolean goToRow(long rowId) throws SqlJetException {
-        return dataTable.goToRow(rowId);
+    public ISqlJetCursor open() throws SqlJetException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getKey()
-     */
-    public long getRowId() throws SqlJetException {
-        return dataTable.getRowId();
+    public ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#delete(long)
-     */
-    public void delete(long rowId) throws SqlJetException {
-        dataTable.delete(rowId);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(java.lang.Object[])
-     */
     public long insert(Object... values) throws SqlJetException {
         return dataTable.insert(values);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#update(long,
-     * java.lang.Object[])
-     */
+    // Deprecated
+
+    public long getRowId() throws SqlJetException {
+        return dataTable.getRowId();
+    }
+
+    public boolean goToRow(long rowId) throws SqlJetException {
+        return dataTable.goToRow(rowId);
+    }
+
     public void update(long rowId, Object... values) throws SqlJetException {
         dataTable.update(rowId, values);
     }
 
+    public void delete(long rowId) throws SqlJetException {
+        dataTable.delete(rowId);
+    }
 }

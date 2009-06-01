@@ -38,6 +38,8 @@ public interface ISqlJetCursor {
      * Check of end of cursor.
      * 
      * @return true if there is not more records.
+     * 
+     * @deprecated use hasNext() and hasPrevious()
      */
     boolean eof();
 
@@ -58,12 +60,22 @@ public interface ISqlJetCursor {
     boolean last() throws SqlJetException;
 
     /**
+     * Check that the next record is available.
+     */
+    boolean hasNext() throws SqlJetException;
+    
+    /**
      * Go to next record.
      * 
      * @return true if there is at least one record and end of cursor is not reached yet
      * @throws SqlJetException
      */
     boolean next() throws SqlJetException;
+
+    /**
+     * Check that the previous record is available.
+     */
+    boolean hasPrevious() throws SqlJetException;
 
     /**
      * Go to previous record.

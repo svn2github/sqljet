@@ -73,6 +73,11 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.last();
     }
 
+    public boolean hasNext() throws SqlJetException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -82,6 +87,11 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.next();
     }
 
+    public boolean hasPrevious() throws SqlJetException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
     /*
      * (non-Javadoc)
      * 

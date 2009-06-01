@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -162,5 +164,15 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
      */
     public ByteBuffer getBlob(int field) throws SqlJetException {
         return btreeTable.getBlob(field);
+    }
+
+    public byte[] getBlobAsArray(int field) throws SqlJetException {
+        ByteBuffer buffer = btreeTable.getBlob(field);
+        return buffer.array();
+    }
+
+    public InputStream getBlobAsStream(int field) throws SqlJetException {
+        ByteBuffer buffer = btreeTable.getBlob(field);
+        return new ByteArrayInputStream(buffer.array());
     }
 }

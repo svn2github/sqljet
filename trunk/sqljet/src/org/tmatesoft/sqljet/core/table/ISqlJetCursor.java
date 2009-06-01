@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -144,6 +145,26 @@ public interface ISqlJetCursor {
      * @param field number of field begin from zero
      * @return field's value as BLOB
      * @throws SqlJetException
+     * 
+     * @Deprecated use getBlobAsArray() or getBlobAsStream()
      */
     ByteBuffer getBlob(int field) throws SqlJetException;
+
+    /**
+     * Get field's value as BLOB.
+     * 
+     * @param field number of field begin from zero
+     * @return field's value as BLOB
+     * @throws SqlJetException
+     */
+    byte[] getBlobAsArray(int field) throws SqlJetException;
+
+    /**
+     * Get field's value as BLOB.
+     * 
+     * @param field number of field begin from zero
+     * @return field's value as BLOB
+     * @throws SqlJetException
+     */
+    InputStream getBlobAsStream(int field) throws SqlJetException;
 }

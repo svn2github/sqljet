@@ -158,8 +158,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 if (null == type) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
-                if (record.getFieldsCount() < SQL_FIELD) {
-                    String sql = record.getStringField(SQL_FIELD, db.getEncoding());
+                final String sql = record.getStringField(SQL_FIELD, db.getEncoding());
+                if (null!=sql) {
                     // System.err.println(sql);
                     CommonTree ast = parseIndex(sql);
                     ISqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);

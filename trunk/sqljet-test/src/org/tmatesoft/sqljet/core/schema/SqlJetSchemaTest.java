@@ -74,7 +74,6 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void createTableTest() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 db.beginTransaction();
                 try {
@@ -91,38 +90,32 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 }
                 return null;
             }
-
         });
-
     }
 
     @Test(expected = SqlJetException.class)
     public void createTableTest1() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test1( id integer primary key, name text )");
-                    Assert.assertTrue(false);
                     db.commit();
                 } catch (SqlJetException e) {
                     db.rollback();
                     throw e;
                 }
+                Assert.assertTrue(false);
                 return null;
             }
-
         });
-
     }
 
     @Test
     public void createTableTestUnique() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 db.beginTransaction();
                 try {
@@ -139,15 +132,12 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 }
                 return null;
             }
-
         });
-
     }
 
     @Test(expected = SqlJetException.class)
     public void createTableTestUniqueFail() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 db.beginTransaction();
                 try {
@@ -159,22 +149,19 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     openTable.insert("test");
                     openTable.insert("test");
                     db.commit();
-                    Assert.assertFalse(false);
                 } catch (SqlJetException e) {
                     db.rollback();
                     throw e;
                 }
+                Assert.assertFalse(false);
                 return null;
             }
-
         });
-
     }
 
     @Test
     public void createIndexTest() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 db.beginTransaction();
                 try {
@@ -192,18 +179,82 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 }
                 return null;
             }
-
         });
-
     }
 
+    @Test(expected = SqlJetException.class)
+    public void createIndexFailTable() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                Assert.assertFalse(false);
+                return null;
+            }
+        });
+    }
+  
+    @Test(expected = SqlJetException.class)
+    public void createIndexFailColumn() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    schema.createIndex("CREATE INDEX test_name_index ON test(test);");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                Assert.assertFalse(false);
+                return null;
+            }
+        });
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void createIndexFailName() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                    schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                Assert.assertFalse(false);
+                return null;
+            }
+        });
+    }    
+    
     @Test
     public void createIndexRepCache() throws SqlJetException, FileNotFoundException, IOException {
-
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
 
         repCache.runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 repCache.beginTransaction();
                 try {
@@ -219,9 +270,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 }
                 return null;
             }
-
         });
-
     }
 
 }

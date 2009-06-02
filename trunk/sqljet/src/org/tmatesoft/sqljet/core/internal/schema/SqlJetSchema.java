@@ -319,7 +319,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     private void createAutoIndex(SqlJetBtreeTable table, String tableName, String autoIndexName) throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
-        final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page);
+        final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page, null);
         final ByteBuffer pData = record.getRawRecord();
         table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
         indexDefs.put(autoIndexName, new SqlJetBaseIndexDef(autoIndexName, tableName, page));

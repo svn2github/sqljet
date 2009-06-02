@@ -45,6 +45,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
@@ -236,7 +237,11 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(name))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        if (null == columns || 0 == columns.size())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -262,40 +267,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final ByteBuffer pData = record.getRawRecord();
                 table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
 
-                int i = 0;
-
-                final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-                if (null != columns) {
-                    for (final ISqlJetColumnDef column : columns) {
-                        final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
-                        if (null == constraints)
-                            continue;
-                        for (final ISqlJetColumnConstraint constraint : constraints) {
-                            if (constraint instanceof ISqlJetColumnPrimaryKey) {
-                                if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
-                                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef
-                                            .getName(), ++i));
-                                }
-                            } else if (constraint instanceof ISqlJetColumnUnique) {
-                                createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),
-                                        ++i));
-                            }
-                        }
-                    }
-                }
-
-                final List<ISqlJetTableConstraint> constraints = tableDef.getConstraints();
-                if (null != constraints) {
-                    for (final ISqlJetTableConstraint constraint : constraints) {
-                        if (constraint instanceof ISqlJetTablePrimaryKey) {
-                            createAutoIndex(table, name, SqlJetBtreeTable
-                                    .generateAutoIndexName(tableDef.getName(), ++i));
-                        } else if (constraint instanceof ISqlJetTableUnique) {
-                            createAutoIndex(table, name, SqlJetBtreeTable
-                                    .generateAutoIndexName(tableDef.getName(), ++i));
-                        }
-                    }
-                }
+                addConstraints(tableDef, table);
 
                 tableDef.setPage(page);
                 tableDefs.put(name, tableDef);
@@ -309,6 +281,44 @@ public class SqlJetSchema implements ISqlJetSchema {
             table.close();
         }
 
+    }
+
+    /**
+     * @param tableDef
+     * @param table
+     * @throws SqlJetException
+     */
+    private void addConstraints(final SqlJetTableDef tableDef, SqlJetBtreeTable table) throws SqlJetException {
+
+        final String name = tableDef.getName().trim();
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        int i = 0;
+
+        for (final ISqlJetColumnDef column : columns) {
+            final List<ISqlJetColumnConstraint> constraints = column.getConstraints();
+            if (null == constraints)
+                continue;
+            for (final ISqlJetColumnConstraint constraint : constraints) {
+                if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                    if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
+                        createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                    }
+                } else if (constraint instanceof ISqlJetColumnUnique) {
+                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                }
+            }
+        }
+
+        final List<ISqlJetTableConstraint> constraints = tableDef.getConstraints();
+        if (null != constraints) {
+            for (final ISqlJetTableConstraint constraint : constraints) {
+                if (constraint instanceof ISqlJetTablePrimaryKey) {
+                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                } else if (constraint instanceof ISqlJetTableUnique) {
+                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                }
+            }
+        }
     }
 
     /**
@@ -350,7 +360,26 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final List<ISqlJetIndexedColumn> columns = indexDef.getColumns();
+        if (null == columns)
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        final ISqlJetTableDef tableDef = getTable(tableName);
+        if (null == tableDef)
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        for (final ISqlJetIndexedColumn column : columns) {
+            if (null == column.getName())
+                throw new SqlJetException(SqlJetErrorCode.ERROR);
+            final String columnName = column.getName().trim();
+            if ("".equals(columnName))
+                throw new SqlJetException(SqlJetErrorCode.ERROR);
+            if (null == tableDef.getColumn(columnName))
+                throw new SqlJetException(SqlJetErrorCode.ERROR, "Column \"" + columnName + "\" not found in table \""
+                        + tableName + "\"");
+        }
+
+        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -379,7 +408,12 @@ public class SqlJetSchema implements ISqlJetSchema {
                 indexDef.setPage(page);
                 indexDefs.put(name, indexDef);
 
-                reindex(indexDef);
+                final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);
+                try {
+                    indexTable.reindex(this);
+                } finally {
+                    indexTable.close();
+                }
 
                 return indexDef;
 
@@ -390,16 +424,6 @@ public class SqlJetSchema implements ISqlJetSchema {
         } finally {
             table.close();
         }
-    }
-
-    /**
-     * @param indexDef
-     * 
-     * @throws SqlJetException 
-     */
-    private void reindex(SqlJetIndexDef indexDef) throws SqlJetException {
-        SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);
-        indexTable.reindex(this);
     }
 
 }

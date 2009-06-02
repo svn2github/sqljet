@@ -208,9 +208,10 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 repCache.beginTransaction();
                 try {
                     final ISqlJetSchema schema = repCache.getSchema();
-                    final SqlJetTable openTable = repCache.openTable(REP_CACHE_TABLE);
                     schema.createIndex("CREATE INDEX rep_cache_test_index ON "+REP_CACHE_TABLE+
                             "(hash, revision, offset, size, expanded_size);");
+                    final SqlJetTable openTable = repCache.openTable(REP_CACHE_TABLE);
+                    openTable.insert("test",1,2,3,4);
                     repCache.commit();
                 } catch (SqlJetException e) {
                     repCache.rollback();

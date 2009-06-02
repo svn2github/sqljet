@@ -589,10 +589,9 @@ public class SqlJetBtreeShared {
     }
 
     /**
-     ** Move the open database page pDbPage to location iFreePage in the
+     * Move the open database page pDbPage to location iFreePage in the
      * database. The pDbPage reference remains valid.
-     */
-    /**
+     * 
      * @param pDbPage
      *            Open page to move
      * @param s

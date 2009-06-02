@@ -264,12 +264,12 @@ public class SqlJetPage implements ISqlJetPage {
                 flags.add(SqlJetPageFlags.NEED_SYNC);
         }
 
-        pPager.pageCache.move(this, pageNumber);
-
         if (pPgOld != null) {
             pPager.pageCache.drop(pPgOld);
         }
 
+        pPager.pageCache.move(this, pageNumber);
+        
         pPager.pageCache.makeDirty(this);
         pPager.dirtyCache = true;
         pPager.dbModified = true;

@@ -32,12 +32,12 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
-import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
@@ -62,8 +62,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = EnumSet.of(
             SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
 
-    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = EnumSet.of(
-            SqlJetBtreeTableCreateFlags.ZERODATA);
+    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = EnumSet
+            .of(SqlJetBtreeTableCreateFlags.ZERODATA);
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;
@@ -159,7 +159,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 final String sql = record.getStringField(SQL_FIELD, db.getEncoding());
-                if (null!=sql) {
+                if (null != sql) {
                     // System.err.println(sql);
                     CommonTree ast = parseIndex(sql);
                     ISqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
@@ -263,7 +263,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
 
                 int i = 0;
-                
+
                 final List<ISqlJetColumnDef> columns = tableDef.getColumns();
                 if (null != columns) {
                     for (final ISqlJetColumnDef column : columns) {
@@ -273,12 +273,12 @@ public class SqlJetSchema implements ISqlJetSchema {
                         for (final ISqlJetColumnConstraint constraint : constraints) {
                             if (constraint instanceof ISqlJetColumnPrimaryKey) {
                                 if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
-                                    createAutoIndex(table,name,
-                                            SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef
+                                            .getName(), ++i));
                                 }
                             } else if (constraint instanceof ISqlJetColumnUnique) {
-                                createAutoIndex(table,name,
-                                        SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                                createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),
+                                        ++i));
                             }
                         }
                     }
@@ -288,15 +288,15 @@ public class SqlJetSchema implements ISqlJetSchema {
                 if (null != constraints) {
                     for (final ISqlJetTableConstraint constraint : constraints) {
                         if (constraint instanceof ISqlJetTablePrimaryKey) {
-                            createAutoIndex(table,name,
-                                    SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                            createAutoIndex(table, name, SqlJetBtreeTable
+                                    .generateAutoIndexName(tableDef.getName(), ++i));
                         } else if (constraint instanceof ISqlJetTableUnique) {
-                            createAutoIndex(table,name,
-                                    SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(),++i));
+                            createAutoIndex(table, name, SqlJetBtreeTable
+                                    .generateAutoIndexName(tableDef.getName(), ++i));
                         }
                     }
                 }
-                                
+
                 tableDef.setPage(page);
                 tableDefs.put(name, tableDef);
                 return tableDef;
@@ -315,14 +315,14 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @param table
      * @param generateAutoIndexName
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
-    private void createAutoIndex(SqlJetBtreeTable table,String tableName, String autoIndexName) throws SqlJetException {
+    private void createAutoIndex(SqlJetBtreeTable table, String tableName, String autoIndexName) throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
         final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page);
         final ByteBuffer pData = record.getRawRecord();
         table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
-        indexDefs.put(autoIndexName, new SqlJetBaseIndexDef(autoIndexName,tableName,page));
+        indexDefs.put(autoIndexName, new SqlJetBaseIndexDef(autoIndexName, tableName, page));
     }
 
     /*
@@ -333,8 +333,73 @@ public class SqlJetSchema implements ISqlJetSchema {
      * String)
      */
     public ISqlJetIndexDef createIndex(String sql) throws SqlJetException {
-        // TODO Auto-generated method stub
-        return null;
+
+        final CommonTree ast = parseIndex(sql);
+
+        final SqlJetIndexDef indexDef = new SqlJetIndexDef(ast, 0);
+
+        if (null == indexDef.getName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String name = indexDef.getName().trim();
+        if ("".equals(name))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (null == indexDef.getTableName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String tableName = indexDef.getTableName().trim();
+        if ("".equals(tableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+
+        try {
+
+            table.lock();
+
+            try {
+
+                for (table.first(); !table.eof(); table.next()) {
+                    if (INDEX_TYPE.equals(table.getString(TYPE_FIELD))) {
+                        final String n = table.getString(NAME_FIELD);
+                        if (null == n)
+                            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                        if (name.equals(n))
+                            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + name + "\" exists already");
+                    }
+                }
+
+                db.getMeta().changeSchemaCookie();
+
+                final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, name, tableName, page,
+                        indexDef.toSQL());
+                final ByteBuffer pData = record.getRawRecord();
+                table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
+
+                indexDef.setPage(page);
+                indexDefs.put(name, indexDef);
+
+                reindex(indexDef);
+
+                return indexDef;
+
+            } finally {
+                table.unlock();
+            }
+
+        } finally {
+            table.close();
+        }
+    }
+
+    /**
+     * @param indexDef
+     * 
+     * @throws SqlJetException 
+     */
+    private void reindex(SqlJetIndexDef indexDef) throws SqlJetException {
+        SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);
+        indexTable.reindex(this);
     }
 
 }

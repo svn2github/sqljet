@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.schema;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -41,6 +43,11 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     public static final String TABLE2 = SqlJetUtility.getSysProp(SCHEMA_TEST + ".TABLE", "test2");
 
     private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(SCHEMA_TEST + ".DELETE_COPY", true);
+
+    public static final String REP_CACHE_DB = SqlJetUtility.getSysProp(SCHEMA_TEST + ".REP_CACHE_DB",
+            "sqljet-test/db/rep-cache/rep-cache.db");
+    public static final String REP_CACHE_TABLE = SqlJetUtility
+            .getSysProp(SCHEMA_TEST + ".REP_CACHE_TABLE", "rep_cache");
 
     private File fileDb = new File(DB);
     private File fileDbCopy;
@@ -89,7 +96,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void createTableTest1() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -137,7 +144,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void createTableTestUniqueFail() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -163,6 +170,57 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         });
 
     }
-    
-    
+
+    @Test
+    public void createIndexTest() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+
+        });
+
+    }
+
+    @Test
+    public void createIndexRepCache() throws SqlJetException, FileNotFoundException, IOException {
+
+        final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
+
+        repCache.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+                repCache.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = repCache.getSchema();
+                    final SqlJetTable openTable = repCache.openTable(REP_CACHE_TABLE);
+                    schema.createIndex("CREATE INDEX rep_cache_test_index ON "+REP_CACHE_TABLE+
+                            "(hash, revision, offset, size, expanded_size);");
+                    repCache.commit();
+                } catch (SqlJetException e) {
+                    repCache.rollback();
+                    throw e;
+                }
+                return null;
+            }
+
+        });
+
+    }
+
 }

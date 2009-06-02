@@ -176,4 +176,27 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         return fields.get(fields.size() - 1).intValue();
     }
 
+    /**
+     * @throws SqlJetException
+     * 
+     */
+    public void reindex(ISqlJetSchema schema) throws SqlJetException {
+        lock();
+        try {
+            btree.clearTable(rootPage, null);
+            final SqlJetBtreeDataTable dataTable = new SqlJetBtreeDataTable(schema, indexDef.getTableName(), false);
+            try {
+                for (dataTable.first(); !dataTable.eof(); dataTable.next()) {
+                    final Object[] key = dataTable.getKeyForIndex(dataTable.getAsNamedFields(dataTable.getValues()),
+                            indexDef);
+                    insert(dataTable.getRowId(), true, key);
+                }
+            } finally {
+                dataTable.close();
+            }
+        } finally {
+            unlock();
+        }
+    }
+
 }

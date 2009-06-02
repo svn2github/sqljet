@@ -304,7 +304,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @param values
      * @return
      */
-    private Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
+    public Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
 
         if (values == null)
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
@@ -342,7 +342,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @param indexDef
      * @return
      */
-    private Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
+    public Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
 
         if (columnsConstraintsIndexes.containsKey(indexDef.getName())) {
 

@@ -1233,10 +1233,8 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (!pBt.readOnly);
 
         if (pBt.autoVacuum) {
-            int[] pgnoMove = new int[1]; /*
-                                          * Move a page here to make room for
-                                          * the root-page
-                                          */
+            /* Move a page here to make room for the root-page */            
+            int[] pgnoMove = new int[1];
             SqlJetMemPage pPageMove; /* The page to move to. */
 
             /*

@@ -162,7 +162,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             maxLocal = pBt.maxLocal;
             minLocal = pBt.minLocal;
         } else {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         return;
     }

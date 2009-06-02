@@ -978,7 +978,7 @@ public class SqlJetBtreeShared {
             } else {
                 /* Page not in cache. Acquire it. */
                 if (pgno > pPager.getPageCount()) {
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 pPage = getPage(pgno, false);
             }

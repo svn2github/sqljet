@@ -27,7 +27,7 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
 
     private String name;
     private String tableName;
-    private final int page;
+    private int page;
 
     public SqlJetBaseIndexDef(String name, String tableName, int page) {
         this.name = name;
@@ -80,5 +80,12 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
         buffer.append(" ON ");
         buffer.append(getTableName());
         return buffer.toString();
+    }
+    
+    /**
+     * @param page the page to set
+     */
+    public void setPage(int page) {
+        this.page = page;
     }
 }

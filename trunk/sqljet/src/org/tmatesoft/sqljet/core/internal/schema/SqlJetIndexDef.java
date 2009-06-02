@@ -92,7 +92,17 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(getPage());
-        buffer.append(": CREATE ");
+        buffer.append(": ");
+        buffer.append(toSQL());
+        return buffer.toString();
+    }
+
+    /**
+     * @return
+     */
+    public String toSQL() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("CREATE ");
         if (isUnique()) {
             buffer.append("UNIQUE ");
         }

@@ -60,7 +60,7 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
             } else if ("collate".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnCollate(constraintName, constraintNode));
             } else if ("references".equalsIgnoreCase(constraintType)) {
-                // add fk clause
+                constraints.add(new SqlJetColumnForeignKey(constraintName, constraintNode));
             } else {
                 assert false;
             }

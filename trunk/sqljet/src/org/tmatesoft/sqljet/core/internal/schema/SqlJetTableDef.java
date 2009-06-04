@@ -53,7 +53,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                 for (int i = 0; i < defNode.getChildCount(); i++) {
                     columns.add(new SqlJetColumnDef((CommonTree) defNode.getChild(i)));
                 }
-                if (ast.getChildCount() > 4) {
+                if (ast.getChildCount() > 3) {
                     CommonTree constraintsNode = (CommonTree) ast.getChild(3);
                     assert "constraints".equalsIgnoreCase(constraintsNode.getText());
                     for (int i = 0; i < constraintsNode.getChildCount(); i++) {
@@ -72,9 +72,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                             // SqlJetTableCheck(constraintName,
                             // constraintNode));
                         } else if ("foreign".equalsIgnoreCase(constraintType)) {
-                            // constraints.add(new
-                            // SqlJetTableForeignKey(constraintName,
-                            // constraintNode));
+                            constraints.add(new SqlJetTableForeignKey(constraintName, constraintNode));
                         } else {
                             assert false;
                         }

@@ -316,14 +316,15 @@ table_constraint_check: CHECK^ LPAREN! expr RPAREN!;
 table_constraint_fk: FOREIGN KEY LPAREN column_names+=id (COMMA column_names+=id)* RPAREN fk_clause
 -> ^(FOREIGN ^(COLUMNS $column_names+) fk_clause);
 
-fk_clause: REFERENCES^ foreign_table=id (LPAREN column_names+=id (COMMA column_names+=id)* RPAREN)?
-  fk_clause_action+ fk_clause_deferrable?;
+fk_clause: REFERENCES foreign_table=id (LPAREN column_names+=id (COMMA column_names+=id)* RPAREN)?
+  fk_clause_action+ fk_clause_deferrable?
+-> ^(REFERENCES $foreign_table ^(COLUMNS $column_names+) fk_clause_action+ fk_clause_deferrable?);
 
 fk_clause_action
-  : ON (DELETE | UPDATE | INSERT) (SET NULL | SET DEFAULT | CASCADE | RESTRICT)
-  | MATCH name=id;
+  : ON^ (DELETE | UPDATE | INSERT) (SET! NULL | SET! DEFAULT | CASCADE | RESTRICT)
+  | MATCH^ id;
 
-fk_clause_deferrable: (NOT)? DEFERRABLE (INITIALLY DEFERRED | INITIALLY IMMEDIATE)?;
+fk_clause_deferrable: (NOT)? DEFERRABLE^ (INITIALLY! DEFERRED | INITIALLY! IMMEDIATE)?;
 
 // DROP TABLE
 drop_table_stmt: DROP TABLE (IF EXISTS)? (database_name=id DOT)? table_name=id

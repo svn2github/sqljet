@@ -319,7 +319,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             }
         });
     }
-    
+
     @Test
     public void dropTableTest1() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
@@ -339,7 +339,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             }
         });
     }
-    
+
     @Test
     public void dropIndex() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
@@ -358,5 +358,35 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             }
         });
     }
-    
+
+    @Test
+    public void createDataBase() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                createDb.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = createDb.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    final SqlJetTable openTable = createDb.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    openTable.insert("test1");
+                    createDb.commit();
+                } catch (SqlJetException e) {
+                    createDb.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+
 }

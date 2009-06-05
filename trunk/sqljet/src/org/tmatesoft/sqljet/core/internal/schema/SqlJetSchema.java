@@ -440,6 +440,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table not found: " + tableName);
         final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
 
+        dropTableIndexes(tableDef);        
+        
         final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
@@ -469,8 +471,6 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         btree.dropTable(tableDef.getPage());
-
-        dropTableIndexes(tableDef);
 
         tableDefs.remove(tableName);
 

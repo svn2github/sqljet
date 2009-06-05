@@ -88,6 +88,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
+        if(db.getMeta().getSchemaCookie()==0) return;
         final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             table.lock();

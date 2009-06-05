@@ -152,5 +152,7 @@ public interface ISqlJetLimits {
     ** operator.
     */
     int SQLJET_MAX_LIKE_PATTERN_LENGTH = 50000;
+
+    int SQLJET_MAX_FILE_FORMAT = 4;
     
 }

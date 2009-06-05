@@ -17,6 +17,11 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.pager.SqlJetPageCache;
 
 /**
  * @author TMate Software Ltd.
@@ -25,51 +30,53 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
  */
 public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
 
-    private ISqlJetBtree btree;    
-    
+    private ISqlJetBtree btree;
+
     /**
      * Schema cookie. Changes with each schema change.
      */
     private int schemaCookie;
-    
+
     /**
      * File format of schema layer.
      */
-    private int fileFormat;
-    
+    private int fileFormat = ISqlJetLimits.SQLJET_MAX_FILE_FORMAT;
+
     /**
      * Size of the page cache.
      */
-    private int pageCacheSize;
-    
+    private int pageCacheSize = SqlJetPageCache.PAGE_CACHE_SIZE_DEFAULT;
+
     /**
      * Use freelist if false. Autovacuum if true.
      */
-    private boolean autovacuum;
-    
+    private boolean autovacuum = ISqlJetBtree.SQLJET_DEFAULT_AUTOVACUUM != SqlJetAutoVacuumMode.NONE;
+
     /**
-     * Db text encoding. 
+     * Db text encoding.
      */
-    private SqlJetEncoding encoding = SqlJetEncoding.UTF8;
-    
+    private SqlJetEncoding encoding = SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_ENCODING", SqlJetEncoding.UTF8);
+
     /**
      * The user cookie. Used by the application.
      */
     private int userCookie;
-    
+
     /**
      * Incremental-vacuum flag.
      */
-    private boolean incrementalVacuum;
+    private boolean incrementalVacuum = ISqlJetBtree.SQLJET_DEFAULT_AUTOVACUUM == SqlJetAutoVacuumMode.INCR;
 
     /**
      * @param btree
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public SqlJetSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
         readMeta(btree);
+        if (schemaCookie == 0)
+            initMeta(btree);
     }
 
     /**
@@ -113,10 +120,20 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      */
     private void readMeta(ISqlJetBtree btree) throws SqlJetException {
         schemaCookie = btree.getMeta(1);
+        if (schemaCookie == 0)
+            return;
         fileFormat = btree.getMeta(2);
+        if (fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         pageCacheSize = btree.getMeta(3);
         autovacuum = btree.getMeta(4) != 0;
+        userCookie = btree.getMeta(6);
+        incrementalVacuum = btree.getMeta(7) != 0;
         switch (btree.getMeta(5)) {
+        case 0:
+            if (schemaCookie != 0)
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+            break;
         case 1:
             encoding = SqlJetEncoding.UTF8;
             break;
@@ -129,75 +146,141 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
         default:
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
-        userCookie = btree.getMeta(6);
-        incrementalVacuum = btree.getMeta(7) != 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getSchemaCookie()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #getSchemaCookie()
      */
     public int getSchemaCookie() {
         return schemaCookie;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getFileFormat()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #getFileFormat()
      */
     public int getFileFormat() {
         return fileFormat;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getPageCacheSize()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #getPageCacheSize()
      */
     public int getPageCacheSize() {
         return pageCacheSize;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#isAutovacuum()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #isAutovacuum()
      */
     public boolean isAutovacuum() {
         return autovacuum;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getEncoding()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #getEncoding()
      */
     public SqlJetEncoding getEncoding() {
         return encoding;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#getUserCookie()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #getUserCookie()
      */
     public int getUserCookie() {
         return userCookie;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta#isIncrementalVacuum()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
+     * #isIncrementalVacuum()
      */
     public boolean isIncrementalVacuum() {
         return incrementalVacuum;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#verifySchemaCookie(boolean)
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
+     * verifySchemaCookie(boolean)
      */
     public boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
         final boolean stale = (schemaCookie != btree.getMeta(1));
-        if(stale && throwIfStale)
+        if (stale && throwIfStale)
             throw new SqlJetException(SqlJetErrorCode.SCHEMA);
         return !stale;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#changeSchemaCookie()
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
+     * changeSchemaCookie()
      */
     public void changeSchemaCookie() throws SqlJetException {
         verifySchemaCookie(true);
         schemaCookie++;
         btree.updateMeta(1, schemaCookie);
     }
+
+    /**
+     * @param btree2
+     * @throws SqlJetException
+     */
+    private void initMeta(ISqlJetBtree btree2) throws SqlJetException {
+        btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        try {
+            btree.updateMeta(2, fileFormat);
+            btree.updateMeta(3, pageCacheSize);
+            btree.updateMeta(4, autovacuum ? 1 : 0);
+            btree.updateMeta(7, incrementalVacuum ? 1 : 0);
+            switch (encoding) {
+            case UTF8:
+                btree.updateMeta(5, 1);
+                break;
+            case UTF16LE:
+                btree.updateMeta(5, 2);
+                break;
+            case UTF16BE:
+                btree.updateMeta(5, 3);
+                break;
+            default:
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+            }
+            schemaCookie = 1;
+            btree.updateMeta(1, schemaCookie);
+            btree.commit();
+        } catch (SqlJetException e) {
+            btree.rollback();
+            throw e;
+        }
+    }
+
 }

@@ -374,10 +374,10 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = createDb.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = createDb.openTable(createTable.getName());
                     logger.info(createTable.toString());
-                    openTable.insert("test");
                     schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    final SqlJetTable openTable = createDb.openTable(createTable.getName());
+                    openTable.insert("test");
                     openTable.insert("test1");
                     createDb.commit();
                 } catch (SqlJetException e) {

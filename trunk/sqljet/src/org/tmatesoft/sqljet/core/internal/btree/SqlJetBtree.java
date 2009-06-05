@@ -1903,7 +1903,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
         pPage = pBt.getPage(iTable, false);
         clearTable(iTable, null);
-        SqlJetMemPage.releasePage(pPage);
+        //SqlJetMemPage.releasePage(pPage);
 
         piMoved = 0;
 
@@ -1911,7 +1911,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             if (pBt.autoVacuum) {
                 int maxRootPgno;
                 maxRootPgno = getMeta(4);
-                SqlJetMemPage.releasePage(pPage);
+                //SqlJetMemPage.releasePage(pPage);
 
                 if (iTable == maxRootPgno) {
                     /*

@@ -35,6 +35,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private final List<ISqlJetColumnDef> columns;
     private final List<ISqlJetTableConstraint> constraints;
     private int page;
+    private long rowId;
 
     public SqlJetTableDef(CommonTree ast, int page) {
         CommonTree optionsNode = (CommonTree) ast.getChild(0);
@@ -185,4 +186,19 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         buffer.append(')');
         return buffer.toString();
     }
+    
+    /**
+     * @return the rowId
+     */
+    public long getRowId() {
+        return rowId;
+    }
+    
+    /**
+     * @param rowId the rowId to set
+     */
+    public void setRowId(long rowId) {
+        this.rowId = rowId;
+    }
+    
 }

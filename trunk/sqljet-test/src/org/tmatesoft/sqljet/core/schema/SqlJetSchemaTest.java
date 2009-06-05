@@ -200,7 +200,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             }
         });
     }
-  
+
     @Test(expected = SqlJetException.class)
     public void createIndexFailColumn() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
@@ -248,8 +248,8 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 return null;
             }
         });
-    }    
-    
+    }
+
     @Test
     public void createIndexRepCache() throws SqlJetException, FileNotFoundException, IOException {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
@@ -259,10 +259,10 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                 repCache.beginTransaction();
                 try {
                     final ISqlJetSchema schema = repCache.getSchema();
-                    schema.createIndex("CREATE INDEX rep_cache_test_index ON "+REP_CACHE_TABLE+
-                            "(hash, revision, offset, size, expanded_size);");
+                    schema.createIndex("CREATE INDEX rep_cache_test_index ON " + REP_CACHE_TABLE
+                            + "(hash, revision, offset, size, expanded_size);");
                     final SqlJetTable openTable = repCache.openTable(REP_CACHE_TABLE);
-                    openTable.insert("test",1,2,3,4);
+                    openTable.insert("test", 1, 2, 3, 4);
                     repCache.commit();
                 } catch (SqlJetException e) {
                     repCache.rollback();
@@ -273,4 +273,90 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         });
     }
 
+    @Test
+    public void createTableRepCache() throws SqlJetException, FileNotFoundException, IOException {
+        final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
+
+        repCache.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                repCache.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = repCache.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    final SqlJetTable openTable = repCache.openTable(createTable.getName());
+                    logger.info(createTable.toString());
+                    openTable.insert("test");
+                    schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    openTable.insert("test1");
+                    repCache.commit();
+                } catch (SqlJetException e) {
+                    repCache.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void dropTableRepCache() throws SqlJetException, FileNotFoundException, IOException {
+        final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
+        repCache.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                repCache.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = repCache.getSchema();
+                    schema.dropTable(REP_CACHE_TABLE);
+                    repCache.commit();
+                    final ISqlJetTableDef openTable = schema.getTable(REP_CACHE_TABLE);
+                    Assert.assertNull(openTable);
+                } catch (SqlJetException e) {
+                    repCache.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+    
+    @Test
+    public void dropTableTest1() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    schema.dropTable("test1");
+                    db.commit();
+                    final ISqlJetTableDef openTable = schema.getTable("test1");
+                    Assert.assertNull(openTable);
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+    
+    @Test
+    public void dropIndex() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                db.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = db.getSchema();
+                    schema.dropIndex("test1_name_index");
+                    schema.dropIndex("test1_value_index");
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+    
 }

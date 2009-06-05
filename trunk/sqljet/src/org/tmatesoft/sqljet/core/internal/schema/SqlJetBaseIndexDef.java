@@ -28,6 +28,7 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
     private String name;
     private String tableName;
     private int page;
+    private long rowId;    
 
     public SqlJetBaseIndexDef(String name, String tableName, int page) {
         this.name = name;
@@ -88,4 +89,19 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
     public void setPage(int page) {
         this.page = page;
     }
+    
+    /**
+     * @return the rowId
+     */
+    public long getRowId() {
+        return rowId;
+    }
+    
+    /**
+     * @param rowId the rowId to set
+     */
+    public void setRowId(long rowId) {
+        this.rowId = rowId;
+    }
+    
 }

@@ -16,11 +16,11 @@ package org.tmatesoft.sqljet.core.internal.schema;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -30,13 +30,13 @@ import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
@@ -78,8 +78,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final ISqlJetDbHandle db;
     private final ISqlJetBtree btree;
 
-    private final Map<String, ISqlJetTableDef> tableDefs = new HashMap<String, ISqlJetTableDef>();
-    private final Map<String, ISqlJetIndexDef> indexDefs = new HashMap<String, ISqlJetIndexDef>();
+    private final Map<String, ISqlJetTableDef> tableDefs = new ConcurrentHashMap<String, ISqlJetTableDef>();
+    private final Map<String, ISqlJetIndexDef> indexDefs = new ConcurrentHashMap<String, ISqlJetIndexDef>();
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -88,9 +88,14 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        ISqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
-            readShema(table);
+            table.lock();
+            try {
+                readShema(table);
+            } finally {
+                table.unlock();
+            }
         } finally {
             table.close();
         }
@@ -130,7 +135,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         return Collections.unmodifiableSet(result);
     }
 
-    private void readShema(ISqlJetBtreeTable table) throws SqlJetException {
+    private void readShema(SqlJetBtreeTable table) throws SqlJetException {
         for (ISqlJetBtreeRecord record = table.getRecord(); !table.eof(); table.next(), record = table.getRecord()) {
             final String type = SqlJetUtility.trim(record.getStringField(TYPE_FIELD, db.getEncoding()));
             if (null == type) {
@@ -148,11 +153,12 @@ public class SqlJetSchema implements ISqlJetSchema {
             if (TABLE_TYPE.equals(type)) {
                 String sql = record.getStringField(SQL_FIELD, db.getEncoding());
                 // System.err.println(sql);
-                CommonTree ast = parseTable(sql);
-                ISqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
+                final CommonTree ast = parseTable(sql);
+                final SqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                 if (!name.equals(tableDef.getName())) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
+                tableDef.setRowId(table.getCursor().getKeySize());
                 tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
                 final String tableName = SqlJetUtility.trim(record.getStringField(TABLE_FIELD, db.getEncoding()));
@@ -162,14 +168,15 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final String sql = record.getStringField(SQL_FIELD, db.getEncoding());
                 if (null != sql) {
                     // System.err.println(sql);
-                    CommonTree ast = parseIndex(sql);
-                    ISqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
+                    final CommonTree ast = parseIndex(sql);
+                    final SqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
                     if (!name.equals(indexDef.getName())) {
                         throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                     }
                     if (!tableName.equals(indexDef.getTableName())) {
                         throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                     }
+                    indexDef.setRowId(table.getCursor().getKeySize());
                     indexDefs.put(name, indexDef);
                 } else {
                     ISqlJetIndexDef indexDef = new SqlJetBaseIndexDef(name, tableName, page);
@@ -233,64 +240,58 @@ public class SqlJetSchema implements ISqlJetSchema {
         final SqlJetTableDef tableDef = new SqlJetTableDef(ast, 0);
         if (null == tableDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String name = tableDef.getName().trim();
-        if ("".equals(name))
+        final String tableName = tableDef.getName().trim();
+        if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (tableDefs.containsKey(tableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + tableName + "\" exists already");
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
-            table.lock();
+            schemaTable.lock();
 
             try {
-
-                for (table.first(); !table.eof(); table.next()) {
-                    if (TABLE_TYPE.equals(table.getString(TYPE_FIELD))) {
-                        final String n = table.getString(NAME_FIELD);
-                        if (null == n)
-                            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-                        if (name.equals(n))
-                            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + name + "\" exists already");
-                    }
-                }
 
                 db.getMeta().changeSchemaCookie();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
-                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(TABLE_TYPE, name, name, page, tableDef
-                        .toSQL());
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(TABLE_TYPE, tableName, tableName, page,
+                        tableDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
-                table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
+                schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
 
-                addConstraints(tableDef, table);
+                addConstraints(schemaTable, tableDef);
 
                 tableDef.setPage(page);
-                tableDefs.put(name, tableDef);
+                tableDef.setRowId(schemaTable.getCursor().getKeySize());
+                tableDefs.put(tableName, tableDef);
                 return tableDef;
 
             } finally {
-                table.unlock();
+                schemaTable.unlock();
             }
 
         } finally {
-            table.close();
+            schemaTable.close();
         }
 
     }
 
     /**
+     * @param schemaTable
      * @param tableDef
-     * @param table
      * @throws SqlJetException
      */
-    private void addConstraints(final SqlJetTableDef tableDef, SqlJetBtreeTable table) throws SqlJetException {
+    private void addConstraints(SqlJetBtreeTable schemaTable, final SqlJetTableDef tableDef) throws SqlJetException {
 
-        final String name = tableDef.getName().trim();
+        final String tableName = tableDef.getName().trim();
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         int i = 0;
 
@@ -301,10 +302,10 @@ public class SqlJetSchema implements ISqlJetSchema {
             for (final ISqlJetColumnConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
                     if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
-                        createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                        createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                     }
                 } else if (constraint instanceof ISqlJetColumnUnique) {
-                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                    createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                 }
             }
         }
@@ -313,26 +314,29 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (null != constraints) {
             for (final ISqlJetTableConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetTablePrimaryKey) {
-                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                    createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                 } else if (constraint instanceof ISqlJetTableUnique) {
-                    createAutoIndex(table, name, SqlJetBtreeTable.generateAutoIndexName(tableDef.getName(), ++i));
+                    createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                 }
             }
         }
     }
 
     /**
-     * @param table
+     * @param schemaTable
      * @param generateAutoIndexName
      * 
      * @throws SqlJetException
      */
-    private void createAutoIndex(SqlJetBtreeTable table, String tableName, String autoIndexName) throws SqlJetException {
+    private void createAutoIndex(SqlJetBtreeTable schemaTable, String tableName, String autoIndexName)
+            throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
         final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page, null);
         final ByteBuffer pData = record.getRawRecord();
-        table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
-        indexDefs.put(autoIndexName, new SqlJetBaseIndexDef(autoIndexName, tableName, page));
+        schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
+        final SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(autoIndexName, tableName, page);
+        indexDef.setRowId(schemaTable.getCursor().getKeySize());
+        indexDefs.put(autoIndexName, indexDef);
     }
 
     /*
@@ -350,9 +354,12 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         if (null == indexDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String name = indexDef.getName().trim();
-        if ("".equals(name))
+        final String indexName = indexDef.getName().trim();
+        if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (indexDefs.containsKey(indexName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
 
         if (null == indexDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -379,34 +386,25 @@ public class SqlJetSchema implements ISqlJetSchema {
                         + tableName + "\"");
         }
 
-        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
-            table.lock();
+            schemaTable.lock();
 
             try {
-
-                for (table.first(); !table.eof(); table.next()) {
-                    if (INDEX_TYPE.equals(table.getString(TYPE_FIELD))) {
-                        final String n = table.getString(NAME_FIELD);
-                        if (null == n)
-                            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-                        if (name.equals(n))
-                            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + name + "\" exists already");
-                    }
-                }
 
                 db.getMeta().changeSchemaCookie();
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
-                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, name, tableName, page,
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, indexName, tableName, page,
                         indexDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
-                table.getCursor().insert(null, table.newRowId(), pData, pData.remaining(), 0, false);
+                schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
 
                 indexDef.setPage(page);
-                indexDefs.put(name, indexDef);
+                indexDef.setRowId(schemaTable.getCursor().getKeySize());
+                indexDefs.put(indexName, indexDef);
 
                 final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);
                 try {
@@ -418,12 +416,164 @@ public class SqlJetSchema implements ISqlJetSchema {
                 return indexDef;
 
             } finally {
-                table.unlock();
+                schemaTable.unlock();
             }
 
         } finally {
-            table.close();
+            schemaTable.close();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.schema.ISqlJetSchema#dropTable(java.lang.String
+     * )
+     */
+    public void dropTable(String tableName) throws SqlJetException {
+
+        if (null == tableName || "".equals(tableName.trim()))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table name must be not empty");
+
+        if (!tableDefs.containsKey(tableName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table not found: " + tableName);
+        final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
+
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getMeta().changeSchemaCookie();
+
+                final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
+                if (cursor.moveTo(null, tableDef.getRowId(), false) == -1)
+                    schemaTable.next();
+                if (!TABLE_TYPE.equals(schemaTable.getString(TYPE_FIELD)))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                final String n = schemaTable.getString(NAME_FIELD);
+                if (null == n || !tableName.equals(n))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                cursor.delete();
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+
+        btree.dropTable(tableDef.getPage());
+
+        dropTableIndexes(tableDef);
+
+        tableDefs.remove(tableName);
+
+    }
+
+    /**
+     * @param schemaTable
+     * @param tableDef
+     * @throws SqlJetException
+     */
+    private void dropTableIndexes(SqlJetTableDef tableDef) throws SqlJetException {
+        final String tableName = tableDef.getName().trim();
+        for (Map.Entry<String, ISqlJetIndexDef> indexDefEntry : indexDefs.entrySet()) {
+            final String indexName = indexDefEntry.getKey();
+            final ISqlJetIndexDef indexDef = indexDefEntry.getValue();
+            if (indexDef.getTableName().trim().equals(tableName)) {
+                doDropIndex(indexName, true, false);
+            }
+        }
+    }
+
+    /**
+     * @param schemaTable
+     * @param name
+     * @param generateAutoIndexName
+     * @throws SqlJetException
+     */
+    private boolean doDropIndex(String indexName, boolean allowAutoIndex, boolean throwIfFial) throws SqlJetException {
+
+        if (!indexDefs.containsKey(indexName)) {
+            if (throwIfFial)
+                throw new SqlJetException(SqlJetErrorCode.MISUSE);
+            return false;
+        }
+        final SqlJetBaseIndexDef indexDef = (SqlJetBaseIndexDef) indexDefs.get(indexName);
+
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
+                if (cursor.moveTo(null, indexDef.getRowId(), false) == -1)
+                    schemaTable.next();
+                if (!INDEX_TYPE.equals(schemaTable.getString(TYPE_FIELD))) {
+                    if (throwIfFial)
+                        throw new SqlJetException(SqlJetErrorCode.INTERNAL);
+                    return false;
+                }
+                final String n = schemaTable.getString(NAME_FIELD);
+                if (null == n || !indexName.equals(n)) {
+                    if (throwIfFial)
+                        throw new SqlJetException(SqlJetErrorCode.INTERNAL);
+                    return false;
+                }
+
+                if (!allowAutoIndex && schemaTable.isNull(SQL_FIELD)) {
+                    if (throwIfFial)
+                        throw new SqlJetException(SqlJetErrorCode.MISUSE);
+                    return false;
+                }
+
+                cursor.delete();
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+
+        btree.dropTable(indexDef.getPage());
+
+        indexDefs.remove(indexName);
+
+        return true;
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.schema.ISqlJetSchema#dropIndex(java.lang.String
+     * )
+     */
+    public void dropIndex(String indexName) throws SqlJetException {
+
+        if (null == indexName || "".equals(indexName.trim()))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index name must be not empty");
+
+        if (!indexDefs.containsKey(indexName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
+
+        if (doDropIndex(indexName, false, true)) {
+            db.getMeta().changeSchemaCookie();
+            indexDefs.remove(indexName);
+        }
+
     }
 
 }

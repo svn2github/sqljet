@@ -36,4 +36,9 @@ public interface ISqlJetSchema {
     ISqlJetTableDef createTable(String sql) throws SqlJetException;
 
     ISqlJetIndexDef createIndex(String sql) throws SqlJetException;
+    
+    void dropTable(String tableName) throws SqlJetException;
+
+    void dropIndex(String indexName) throws SqlJetException;
+    
 }

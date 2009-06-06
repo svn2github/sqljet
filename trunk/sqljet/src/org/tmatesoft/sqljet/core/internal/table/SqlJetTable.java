@@ -52,6 +52,10 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
         return dataTable.insert(values);
     }
 
+    public long insertAutoId(Object... values) throws SqlJetException {
+        return dataTable.insertAutoId(values);        
+    }
+    
     // Deprecated
 
     public long getRowId() throws SqlJetException {

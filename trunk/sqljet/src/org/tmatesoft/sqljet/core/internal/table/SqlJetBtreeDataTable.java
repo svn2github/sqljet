@@ -17,12 +17,10 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
@@ -199,7 +197,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             long rowId = newRowId(lastNewRowId);
-            final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
             doActionWithIndexes(Action.INSERT, rowId, row);
             lastNewRowId = rowId;
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
@@ -215,6 +213,32 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (non-Javadoc)
      * 
      * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertAutoId
+     * (java.lang.Object[])
+     */
+    public long insertAutoId(Object... values) throws SqlJetException {
+        if(!isRowIdPrimaryKey)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        lock();
+        try {
+            long rowId = newRowId(lastNewRowId);
+            final Object[] row = SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            doActionWithIndexes(Action.INSERT, rowId, row);
+            lastNewRowId = rowId;
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
+            clearCachedRecord();
+            return lastNewRowId;
+        } finally {
+            unlock();
+        }
+    }
+    
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (long, java.lang.Object[])
      */
@@ -223,7 +247,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             if (rowId <= 0 || !goToRow(rowId))
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            final Object[] row = !isRowIdPrimaryKey ? values : SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
             doActionWithIndexes(Action.UPDATE, rowId, row);
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
             cursor.insert(null, rowId, pData, pData.remaining(), 0, false);

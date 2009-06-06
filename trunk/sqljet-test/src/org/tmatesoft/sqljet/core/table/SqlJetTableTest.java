@@ -314,7 +314,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE2);
 
-                table.insert("test", "test", "test");
+                table.insertAutoId("test", "test", "test");
 
                 dbCopy.rollback();
 
@@ -342,7 +342,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final SqlJetTable table = db.openTable(tableName);
                 Assert.assertNotNull(table);
 
-                final long newRowId = table.insert(testString);
+                final long newRowId = table.insertAutoId(testString);
 
                 db.commit();
 
@@ -430,7 +430,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
 
-                table.insert("test1", 1);
+                table.insertAutoId("test1", 1);
                 dbCopy.commit();
                 
                 final SqlJetIndex nameIndex = dbCopy.openIndex("test1_name_index");

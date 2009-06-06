@@ -31,32 +31,45 @@ public interface ISqlJetTable {
     ISqlJetTableDef getDefinition();
 
     /**
-     * Open cursor for all table records.
-     * Client is responsible to close the cursor after use.
+     * Open cursor for all table records. Client is responsible to close the
+     * cursor after use.
      */
     ISqlJetCursor open() throws SqlJetException;
-    
+
     /**
-     * Open cursor for indexed records.
-     * Client is responsible to close the cursor after use.
+     * Open cursor for indexed records. Client is responsible to close the
+     * cursor after use.
      * 
-     * @param indexName Name of the searched index.
-     * @param key Key for the index lookup.
+     * @param indexName
+     *            Name of the searched index.
+     * @param key
+     *            Key for the index lookup.
      */
     ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException;
 
     /**
-     * Add new record to the table with specified values.
-     * All relevant indexes are updated automatically.
+     * Add new record to the table with specified values. All relevant indexes
+     * are updated automatically. If table have INTEGER PRIMARY KEY
+     * AUTOINCREMENT field then 'values' should not have value for this field.
      * 
-     * @param values Values for the new record.
+     * @param values
+     *            Values for the new record.
      */
     long insert(Object... values) throws SqlJetException;
 
-    
+    /**
+     * Version of insert() for tables with INTEGER PRIMARY KEY field. Method
+     * implements AUTOINCREMENT even if it doesn't have AUTOINCREMENT in
+     * definition.
+     * 
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    long insertAutoId(Object... values) throws SqlJetException;
+
     // The following methods are deprecated and should be removed.
-    
-    
+
     /**
      * Go to record which has given row's ID (taken from index).
      * 

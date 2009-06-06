@@ -66,6 +66,13 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     long insert(Object... values) throws SqlJetException;
 
     /**
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    long insertAutoId(Object... values) throws SqlJetException;
+    
+    /**
      * Update an entry in the table.
      * 
      * @param values

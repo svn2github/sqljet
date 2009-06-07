@@ -52,6 +52,17 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     }
 
     /**
+     * @param indexTable
+     * 
+     * @throws SqlJetException 
+     */
+    public SqlJetBtreeIndexTable(SqlJetBtreeIndexTable indexTable) throws SqlJetException {
+        super((SqlJetBtreeTable)indexTable);
+        this.indexDef = indexTable.indexDef;
+        adjustKeyInfo();
+    }
+
+    /**
      * @return the indexDef
      */
     public ISqlJetIndexDef getIndexDef() {

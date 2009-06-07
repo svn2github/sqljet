@@ -111,35 +111,28 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             public Object runWithLock() throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
-                final SqlJetIndex nameIndex = dbCopy.openIndex(NAME_INDEX);
 
-                final long rowFirst = nameIndex.lookup(false, TEST);
-                Assert.assertTrue(rowFirst != 0);
-                final boolean gotoFirst = table.goToRow(rowFirst);
-                Assert.assertTrue(gotoFirst);
-                final boolean firstNull = table.isNull(NAME_FIELD);
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertTrue(!lookup.eof());
+                final boolean firstNull = lookup.isNull(NAME_FIELD);
                 Assert.assertFalse(firstNull);
-                final SqlJetValueType firstType = table.getFieldType(NAME_FIELD);
+                final SqlJetValueType firstType = lookup.getFieldType(NAME_FIELD);
                 Assert.assertTrue(firstType == SqlJetValueType.TEXT);
-                final String firstName = table.getString(NAME_FIELD);
+                final String firstName = lookup.getString(NAME_FIELD);
                 Assert.assertNotNull(firstName);
                 Assert.assertEquals(TEST, firstName);
 
-                final long rowSecond = nameIndex.lookup(true, TEST);
-                Assert.assertTrue(rowSecond != 0);
-                Assert.assertTrue(rowSecond != rowFirst);
-                final boolean gotoSecond = table.goToRow(rowSecond);
+                final boolean gotoSecond = lookup.next();
                 Assert.assertTrue(gotoSecond);
-                final boolean secondNull = table.isNull(NAME_FIELD);
+                final boolean secondNull = lookup.isNull(NAME_FIELD);
                 Assert.assertFalse(secondNull);
-                final SqlJetValueType secondType = table.getFieldType(NAME_FIELD);
+                final SqlJetValueType secondType = lookup.getFieldType(NAME_FIELD);
                 Assert.assertTrue(secondType == SqlJetValueType.TEXT);
-                final String secondName = table.getString(NAME_FIELD);
+                final String secondName = lookup.getString(NAME_FIELD);
                 Assert.assertNotNull(secondName);
                 Assert.assertEquals(TEST, secondName);
 
-                table.close();
-                nameIndex.close();
+                lookup.close();
 
                 return null;
 
@@ -157,29 +150,16 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
-                final SqlJetIndex nameIndex = dbCopy.openIndex(NAME_INDEX);
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertTrue(!lookup.eof());
 
-                Assert.assertTrue(table.first());
-                final boolean deleteFirst = nameIndex.delete(table.getRowId(), TEST);
-                Assert.assertTrue(deleteFirst);
-
-                Assert.assertTrue(table.next());
-                final boolean deleteSecondFail = nameIndex.delete(table.getRowId(), TEST);
-                Assert.assertFalse(deleteSecondFail);
-
-                Assert.assertTrue(table.next());
-                final boolean deleteSecond = nameIndex.delete(table.getRowId(), TEST);
-                Assert.assertTrue(deleteSecond);
-
-                final boolean deleteLast = nameIndex.delete(table.getRowId(), TEST);
-                Assert.assertFalse(deleteLast);
-
-                final long rowFirst = nameIndex.lookup(false, TEST);
-                Assert.assertTrue(rowFirst == 0);
-
+                lookup.delete();
+                Assert.assertTrue(lookup.next());
+                lookup.delete();
+                Assert.assertTrue(lookup.eof());
+                
                 dbCopy.commit();
-
-                nameIndex.close();
+                lookup.close();
 
                 return null;
 
@@ -195,37 +175,39 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             public Object runWithLock() throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.openTable(TABLE);
+                final ISqlJetCursor cursor = table.open();
 
-                Assert.assertTrue(table.first());
+                Assert.assertTrue(cursor.first());
 
-                Assert.assertFalse(table.isNull(DATA_FIELD));
-                final ByteBuffer firstData = table.getBlob(DATA_FIELD);
+                Assert.assertFalse(cursor.isNull(DATA_FIELD));
+                final ByteBuffer firstData = cursor.getBlob(DATA_FIELD);
                 Assert.assertNotNull(firstData);
                 Assert.assertTrue(firstData.remaining() > 0);
 
-                Assert.assertTrue(table.next());
+                Assert.assertTrue(cursor.next());
 
-                Assert.assertTrue(table.isNull(DATA_FIELD));
-                final ByteBuffer secondData = table.getBlob(DATA_FIELD);
+                Assert.assertTrue(cursor.isNull(DATA_FIELD));
+                final ByteBuffer secondData = cursor.getBlob(DATA_FIELD);
                 Assert.assertNull(secondData);
 
-                Assert.assertTrue(table.next());
+                Assert.assertTrue(cursor.next());
 
-                Assert.assertFalse(table.isNull(DATA_FIELD));
-                final ByteBuffer lastData = table.getBlob(DATA_FIELD);
+                Assert.assertFalse(cursor.isNull(DATA_FIELD));
+                final ByteBuffer lastData = cursor.getBlob(DATA_FIELD);
                 Assert.assertNotNull(lastData);
                 Assert.assertTrue(lastData.remaining() > 0);
 
-                Assert.assertFalse(table.next());
-                Assert.assertTrue(table.eof());
+                Assert.assertFalse(cursor.next());
+                Assert.assertTrue(cursor.eof());
 
-                table.close();
+                cursor.close();
 
                 return null;
 
             }
         });
     }
+
 
     @Test
     public void tableDef() throws SqlJetException {
@@ -256,6 +238,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
 
     }
+
 
     @Test(expected = SqlJetException.class)
     public void insertNotNull() throws SqlJetException {
@@ -303,6 +286,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
+
     @Test(expected = SqlJetException.class)
     public void insertFieldCountFail() throws SqlJetException {
 
@@ -327,10 +311,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
-    /**
-     * @param testString
-     * @throws SqlJetException
-     */
+
+
     private void testEncoding(final SqlJetDb db, final String tableName, final String testString)
             throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
@@ -346,8 +328,9 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 db.commit();
 
-                table.goToRow(newRowId);
-                final String stringField = table.getString(NAME_FIELD);
+                final ISqlJetCursor cursor = table.open();
+                cursor.goTo(newRowId);
+                final String stringField = cursor.getString(NAME_FIELD);
                 Assert.assertEquals(testString, stringField);
 
                 return null;
@@ -433,14 +416,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 table.insertAutoId("test1", 1);
                 dbCopy.commit();
                 
-                final SqlJetIndex nameIndex = dbCopy.openIndex("test1_name_index");
-                final long lookup = nameIndex.lookup(false, "test1");
-                Assert.assertTrue(lookup!=0);
-                
-                final boolean goToRow = table.goToRow(lookup);
-                Assert.assertTrue(goToRow);
-                
-                final String nameField = table.getString(1);
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertTrue(!lookup.eof());
+                                
+                final String nameField = lookup.getString(1);
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1",nameField);
 
@@ -475,6 +454,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
 
     }
-    
+
     
 }

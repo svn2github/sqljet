@@ -56,10 +56,11 @@ public interface ISqlJetCursor {
      * Check of end of cursor.
      * 
      * @return true if there is not more records.
+     * @throws SqlJetException 
      * 
      * @deprecated use hasNext() and hasPrevious()
      */
-    boolean eof();
+    boolean eof() throws SqlJetException;
 
     /**
      * Go to the first record.

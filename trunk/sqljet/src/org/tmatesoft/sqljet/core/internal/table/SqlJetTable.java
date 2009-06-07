@@ -13,6 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -25,12 +26,11 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
+public class SqlJetTable implements ISqlJetTable {
 
     private ISqlJetBtreeDataTable dataTable;
 
     protected SqlJetTable(ISqlJetBtreeDataTable dataTable) {
-        super(dataTable);
         this.dataTable = dataTable;
     }
 
@@ -38,39 +38,70 @@ public class SqlJetTable extends SqlJetCursor implements ISqlJetTable {
         return dataTable.getDefinition();
     };
 
-    public ISqlJetCursor open() throws SqlJetException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public long insert(Object... values) throws SqlJetException {
         return dataTable.insert(values);
     }
 
     public long insertAutoId(Object... values) throws SqlJetException {
-        return dataTable.insertAutoId(values);        
+        return dataTable.insertAutoId(values);
     }
-    
+
     // Deprecated
 
+    @Deprecated
     public long getRowId() throws SqlJetException {
         return dataTable.getRowId();
     }
 
+    @Deprecated
     public boolean goToRow(long rowId) throws SqlJetException {
         return dataTable.goToRow(rowId);
     }
 
+    @Deprecated
     public void update(long rowId, Object... values) throws SqlJetException {
         dataTable.update(rowId, values);
     }
 
+    @Deprecated
     public void delete(long rowId) throws SqlJetException {
         dataTable.delete(rowId);
+    }
+
+    public ISqlJetCursor open() throws SqlJetException {
+        return new SqlJetTableDataCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable));
+    }
+
+    public ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException {
+        if (!dataTable.getIndexDefinitions().containsKey(indexName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), indexName, key);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#isRowIdPrimaryKey()
+     */
+    public boolean isRowIdPrimaryKey() {
+        return dataTable.isRowIdPrimaryKey();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#isAutoincrement()
+     */
+    public boolean isAutoincrement() {
+        return dataTable.isAutoincrement();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getPrimaryKeyIndex()
+     */
+    public String getPrimaryKeyIndex() {
+        return dataTable.getPrimaryKeyIndex();
     }
 }

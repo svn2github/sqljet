@@ -28,9 +28,9 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetCursor implements ISqlJetCursor {
+public abstract class SqlJetCursor implements ISqlJetCursor {
 
-    private ISqlJetBtreeTable btreeTable;
+    protected ISqlJetBtreeTable btreeTable;
 
     SqlJetCursor(ISqlJetBtreeTable table) {
         this.btreeTable = table;
@@ -40,22 +40,12 @@ public class SqlJetCursor implements ISqlJetCursor {
         btreeTable.close();
     }
 
-    public boolean goTo(long rowId) throws SqlJetException {
-        // TODO : Implement
-        return false;
-    }
-
-    public long getRowId() throws SqlJetException {
-        // TODO : Implement
-        return 0;
-    }
-
     /*
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#eof()
      */
-    public boolean eof() {
+    public boolean eof() throws SqlJetException {
         return btreeTable.eof();
     }
 
@@ -178,11 +168,4 @@ public class SqlJetCursor implements ISqlJetCursor {
         return new ByteArrayInputStream(buffer.array());
     }
     
-    public void update(Object... values) throws SqlJetException {
-        // TODO Auto-generated method stub
-    }
-    
-    public void delete() throws SqlJetException {
-        // TODO Auto-generated method stub
-    }
 }

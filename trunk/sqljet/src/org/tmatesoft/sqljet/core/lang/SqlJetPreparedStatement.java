@@ -192,7 +192,7 @@ public class SqlJetPreparedStatement {
         }
         table = db.openTable(tableName);
         if (table != null) {
-            cursor = (SqlJetTable) table;
+            cursor = table.open();
         }
     }
 

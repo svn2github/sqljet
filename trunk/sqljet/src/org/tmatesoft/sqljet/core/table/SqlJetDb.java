@@ -193,23 +193,6 @@ public class SqlJetDb {
     }
 
     /**
-     * Open index.
-     * 
-     * @param indexName
-     *            index name
-     * @return opened index
-     * @throws SqlJetException
-     */
-    public SqlJetIndex openIndex(final String indexName) throws SqlJetException {
-        return (SqlJetIndexTable) runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock() throws SqlJetException {
-                return new SqlJetIndexTable(new SqlJetBtreeIndexTable(schema, indexName, write));
-            }
-        });
-    }
-
-    /**
      * Begin transaction if write access is allowed.
      * 
      * @throws SqlJetException

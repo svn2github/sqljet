@@ -113,4 +113,21 @@ public interface ISqlJetTable {
      * @deprecated use cursor method
      */
     void update(long rowId, Object... values) throws SqlJetException;
+    
+    /**
+     * @return the isRowIdPrimaryKey
+     */
+    boolean isRowIdPrimaryKey();
+    
+    /**
+     * @return the isAutoincrement
+     */
+    boolean isAutoincrement();
+    
+    /**
+     * @return the primaryKeyIndex
+     */
+    String getPrimaryKeyIndex();
+    
+    
 }

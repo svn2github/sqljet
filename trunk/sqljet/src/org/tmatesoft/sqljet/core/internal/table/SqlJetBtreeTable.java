@@ -66,6 +66,20 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public SqlJetBtreeTable(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
             throws SqlJetException {
 
+        init(db, btree, rootPage, write, index);
+
+    }
+
+    /**
+     * @param db
+     * @param btree
+     * @param rootPage
+     * @param write
+     * @param index
+     * @throws SqlJetException
+     */
+    private void init(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
+            throws SqlJetException {
         this.db = db;
         this.btree = btree;
         this.rootPage = rootPage;
@@ -82,9 +96,16 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         this.cachedRecord = null;
 
         first();
-
     }
 
+    /**
+     * @throws SqlJetException 
+     * 
+     */
+    public SqlJetBtreeTable(SqlJetBtreeTable btreeTable) throws SqlJetException {
+        init(btreeTable.db, btreeTable.btree, btreeTable.rootPage, btreeTable.write, btreeTable.index);
+    }
+    
     /*
      * (non-Javadoc)
      * 

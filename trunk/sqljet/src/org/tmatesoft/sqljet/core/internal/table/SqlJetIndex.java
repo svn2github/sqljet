@@ -23,12 +23,11 @@ import org.tmatesoft.sqljet.core.table.ISqlJetIndex;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetIndex extends SqlJetCursor implements ISqlJetIndex {
+public class SqlJetIndex implements ISqlJetIndex {
 
     private ISqlJetBtreeIndexTable indexTable;
 
     protected SqlJetIndex(ISqlJetBtreeIndexTable indexTable) {
-        super(indexTable);
         this.indexTable = indexTable;
     }
 

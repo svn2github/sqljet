@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
@@ -38,8 +38,8 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * 
      * @return
      */
-    Set<ISqlJetIndexDef> getIndexDefinitions();
-
+    Map<String, ISqlJetIndexDef> getIndexDefinitions();
+    
     /**
      * Go to record with given rowID. Return boolean to indicate success.
      * 
@@ -88,4 +88,29 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      */
     void delete(long rowId) throws SqlJetException;
 
+    /**
+     * @param indexName
+     * @param key
+     * @return
+     * @throws SqlJetException 
+     */
+    boolean checkIndex(String indexName, Object[] key) throws SqlJetException;
+
+    /**
+     * @return the isRowIdPrimaryKey
+     */
+    boolean isRowIdPrimaryKey();
+    
+    /**
+     * @return the isAutoincrement
+     */
+    boolean isAutoincrement();
+    
+    /**
+     * @return the primaryKeyIndex
+     */
+    String getPrimaryKeyIndex();
+    
+    public boolean locate(String indexName, boolean next, Object ... key) throws SqlJetException;
+    
 }

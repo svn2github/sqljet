@@ -1,5 +1,5 @@
 /**
- * SqlJetParserTest.java
+ * SqlJetSelectTest.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,10 +17,10 @@ package org.tmatesoft.sqljet.core.lang;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetParserTest extends SqlJetAbstractParserTest {
+public class SqlJetSelectTest extends SqlJetAbstractParserTest {
 
-    public SqlJetParserTest() {
-        super("Parser Test");
+    public SqlJetSelectTest() {
+        super("SELECT Test");
     }
 
     public void testSelectCore() throws Exception {
@@ -68,20 +68,5 @@ public class SqlJetParserTest extends SqlJetAbstractParserTest {
         assertParses(
                 "select{union{intersect{select_core{columns{*}}{from{alias{x}}}}{select_core{columns{*}}{from{alias{y}}}}}{select_core{columns{*}}{from{alias{z}}}}}",
                 "select * from x intersect select * from y union select * from z;");
-    }
-
-    public void testCreateTable() throws Exception {
-        assertParses("create_table{options}{emps}{columns{name{constraints}{type{type_params}{int}}}}",
-                "create table emps (name int);");
-        assertParses("create_table{options}{emps}{columns{name{constraints}{type{type_params}{int}}}}",
-                "create table emps( name int);");
-    }
-
-    public void testCreateIndex() throws Exception {
-        assertParses("create_index{options}{idx}{tbl}{columns{name}}", "create index idx on tbl (name);");
-        assertParses("create_index{options{unique}}{idx{db}}{tbl}{columns{name}{age}}",
-                "create unique index db.idx on tbl (name, age);");
-        assertParses("create_index{options{exists}}{idx}{tbl}{columns{name{collate{aaa}}{asc}}}",
-                "create index if not exists idx on tbl (name collate aaa asc);");
     }
 }

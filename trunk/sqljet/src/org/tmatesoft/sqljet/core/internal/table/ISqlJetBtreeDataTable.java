@@ -73,13 +73,22 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     long insertAutoId(Object... values) throws SqlJetException;
     
     /**
-     * Update an entry in the table.
+     * Update an entry in the table by rowId.
      * 
+     * @param rowId
      * @param values
      * @throws SqlJetException
      */
     void update(long rowId, Object... values) throws SqlJetException;
 
+    /**
+     * Update the current entry in the table.
+     * 
+     * @param values
+     * @throws SqlJetException
+     */
+    void update(Object... values) throws SqlJetException;
+    
     /**
      * Delete record by row's ID.
      * 
@@ -88,6 +97,13 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      */
     void delete(long rowId) throws SqlJetException;
 
+    /**
+     * Delete curent record.
+     * 
+     * @throws SqlJetException
+     */
+    void delete() throws SqlJetException;
+    
     /**
      * @param indexName
      * @param key

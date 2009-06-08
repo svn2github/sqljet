@@ -21,7 +21,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetTableDataCursor extends SqlJetCursor {
 
@@ -34,7 +34,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         if (table.eof())
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or current record doens't point to data row");
-        table.update(table.getRowId(), values);
+        table.update(values);
     }
 
     public boolean goTo(long rowId) throws SqlJetException {
@@ -55,7 +55,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         if (table.eof())
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or current record doens't point to data row");
-        table.delete(table.getRowId());
+        table.delete();
     }
-    
+
 }

@@ -79,11 +79,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /**
      * @param dataTable
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(SqlJetBtreeDataTable dataTable) throws SqlJetException {
-        super((SqlJetBtreeTable)dataTable);
-        
+        super((SqlJetBtreeTable) dataTable);
+
         this.isRowIdPrimaryKey = dataTable.isRowIdPrimaryKey;
         this.isAutoincrement = dataTable.isAutoincrement;
         this.tableDef = dataTable.tableDef;
@@ -91,12 +91,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         this.columnsConstraintsIndexes = dataTable.columnsConstraintsIndexes;
         this.tableConstraintsIndexes = dataTable.tableConstraintsIndexes;
         this.primaryKeyIndex = dataTable.primaryKeyIndex;
-        
+
         indexesTables = new HashMap<String, SqlJetBtreeIndexTable>();
-        for (Map.Entry<String, SqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet() ) {
+        for (Map.Entry<String, SqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
             indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable(entry.getValue()));
         }
-        
+
     }
 
     /**
@@ -273,14 +273,38 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             if (rowId <= 0 || !goToRow(rowId))
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
-            doActionWithIndexes(Action.UPDATE, rowId, row);
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
-            cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
-            clearCachedRecord();
+            doUpdate(rowId, values);
         } finally {
             unlock();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
+     * (java.lang.Object[])
+     */
+    public void update(Object... values) throws SqlJetException {
+        lock();
+        try {
+            doUpdate(getRowId(), values);
+        } finally {
+            unlock();
+        }
+    }
+
+    /**
+     * @param values
+     * @throws SqlJetException
+     */
+    private void doUpdate(long rowId, Object... values) throws SqlJetException {
+        final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
+        doActionWithIndexes(Action.UPDATE, rowId, row);
+        final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+        cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
+        clearCachedRecord();
     }
 
     /*
@@ -293,14 +317,38 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public void delete(long rowId) throws SqlJetException {
         lock();
         try {
-            if (goToRow(rowId)) {
-                doActionWithIndexes(Action.DELETE, rowId);
-                cursor.delete();
-                clearCachedRecord();
-            }
+            if (rowId <= 0 || !goToRow(rowId))
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
+            doDelete(rowId);
         } finally {
             unlock();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#delete()
+     */
+    public void delete() throws SqlJetException {
+        lock();
+        try {
+            if (eof())
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table is empty");
+            doDelete(getRowId());
+        } finally {
+            unlock();
+        }
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void doDelete(long rowId) throws SqlJetException {
+        doActionWithIndexes(Action.DELETE, rowId);
+        cursor.delete();
+        clearCachedRecord();
     }
 
     /**
@@ -437,21 +485,21 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
         return Arrays.equals(key, getKeyForIndex(getAsNamedFields(getValues()), indexesDefs.get(indexName)));
     }
-    
+
     /**
      * @return the isRowIdPrimaryKey
      */
     public boolean isRowIdPrimaryKey() {
         return isRowIdPrimaryKey;
     }
-    
+
     /**
      * @return the isAutoincrement
      */
     public boolean isAutoincrement() {
         return isAutoincrement;
     }
-    
+
     /**
      * @return the primaryKeyIndex
      */
@@ -459,11 +507,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return primaryKeyIndex;
     }
 
-    public boolean locate(String indexName, boolean next, Object ... key) throws SqlJetException {
+    public boolean locate(String indexName, boolean next, Object... key) throws SqlJetException {
         if (!indexesDefs.containsKey(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
         final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexName);
         final long lookup = indexTable.lookup(next, key);
-        return lookup!=0 && goToRow(lookup);
+        return lookup != 0 && goToRow(lookup);
     }
 }

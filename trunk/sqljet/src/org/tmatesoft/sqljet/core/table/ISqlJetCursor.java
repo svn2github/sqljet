@@ -53,12 +53,10 @@ public interface ISqlJetCursor {
     boolean goTo(long rowId) throws SqlJetException;
 
     /**
-     * Check of end of cursor.
+     * Check that the cursor is not positioned on the record.
      * 
-     * @return true if there is not more records.
-     * @throws SqlJetException 
-     * 
-     * @deprecated use hasNext() and hasPrevious()
+     * @return true if the cursor is not on a record and fields can't be read.
+     * @throws SqlJetException
      */
     boolean eof() throws SqlJetException;
 
@@ -79,11 +77,6 @@ public interface ISqlJetCursor {
     boolean last() throws SqlJetException;
 
     /**
-     * Check that the next record is available.
-     */
-    boolean hasNext() throws SqlJetException;
-
-    /**
      * Go to next record.
      * 
      * @return true if there is at least one record and end of cursor is not
@@ -91,11 +84,6 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     boolean next() throws SqlJetException;
-
-    /**
-     * Check that the previous record is available.
-     */
-    boolean hasPrevious() throws SqlJetException;
 
     /**
      * Go to previous record.

@@ -81,7 +81,9 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean next() throws SqlJetException {
-        return ((ISqlJetBtreeDataTable) btreeTable).locate(indexName, true, key);
+        final boolean locate = ((ISqlJetBtreeDataTable) btreeTable).locate(indexName, true, key);
+        if(!locate) super.next();
+        return locate;
     }
     
     /* (non-Javadoc)

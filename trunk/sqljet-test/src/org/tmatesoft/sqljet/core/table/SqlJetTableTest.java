@@ -132,6 +132,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertNotNull(secondName);
                 Assert.assertEquals(TEST, secondName);
 
+                final boolean gotoLast = lookup.next();
+                Assert.assertFalse(gotoLast);
+                final boolean eof = lookup.eof();
+                Assert.assertTrue(eof);
+                
                 lookup.close();
 
                 return null;

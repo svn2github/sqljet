@@ -296,6 +296,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (goToRow(rowId)) {
                 doActionWithIndexes(Action.DELETE, rowId);
                 cursor.delete();
+                clearCachedRecord();
             }
         } finally {
             unlock();

@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
@@ -28,11 +29,7 @@ import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetIndex;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
@@ -60,18 +57,6 @@ public class SqlJetDb {
     private SqlJetSchemaMeta meta;
 
     private boolean transaction = false;
-
-    private static class SqlJetDataTable extends SqlJetTable {
-        SqlJetDataTable(ISqlJetBtreeDataTable dataTable) {
-            super(dataTable);
-        }
-    }
-
-    private static class SqlJetIndexTable extends SqlJetIndex {
-        SqlJetIndexTable(ISqlJetBtreeIndexTable indexTable) {
-            super(indexTable);
-        }
-    }
 
     /**
      * Create connection to data base.
@@ -182,12 +167,10 @@ public class SqlJetDb {
      */
     public SqlJetTable openTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
-                if (!schema.getTableNames().contains(tableName)) {
-                    return null;
-                }
-                return new SqlJetDataTable(new SqlJetBtreeDataTable(schema, tableName, write));
+                if (!schema.getTableNames().contains(tableName))
+                    throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
+                return new SqlJetTable(new SqlJetBtreeDataTable(schema, tableName, write));
             }
         });
     }

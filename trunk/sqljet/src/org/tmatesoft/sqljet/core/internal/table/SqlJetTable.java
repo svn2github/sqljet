@@ -30,7 +30,7 @@ public class SqlJetTable implements ISqlJetTable {
 
     private ISqlJetBtreeDataTable dataTable;
 
-    protected SqlJetTable(ISqlJetBtreeDataTable dataTable) {
+    public SqlJetTable(ISqlJetBtreeDataTable dataTable) {
         this.dataTable = dataTable;
     }
 

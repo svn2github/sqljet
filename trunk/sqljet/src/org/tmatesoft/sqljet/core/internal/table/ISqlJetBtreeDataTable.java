@@ -41,6 +41,14 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     Map<String, ISqlJetIndexDef> getIndexDefinitions();
     
     /**
+     * Get indexes which are related with table.
+     * 
+     * @return
+     */
+    Map<String, ISqlJetBtreeIndexTable> getIndexesTables();
+    
+    
+    /**
      * Go to record with given rowID. Return boolean to indicate success.
      * 
      * @param rowId

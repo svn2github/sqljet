@@ -59,5 +59,16 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     boolean delete(long rowId, Object... key) throws SqlJetException;
+ 
+    /**
+     * Check current record against key.
+     * 
+     * @param key
+     * @return
+     * @throws SqlJetException
+     */
+    boolean checkKey(Object... key) throws SqlJetException;
+    
+    long getKeyRowId() throws SqlJetException;
     
 }

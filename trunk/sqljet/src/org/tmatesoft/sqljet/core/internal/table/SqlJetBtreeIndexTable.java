@@ -54,10 +54,10 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     /**
      * @param indexTable
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public SqlJetBtreeIndexTable(SqlJetBtreeIndexTable indexTable) throws SqlJetException {
-        super((SqlJetBtreeTable)indexTable);
+        super((SqlJetBtreeTable) indexTable);
         this.indexDef = indexTable.indexDef;
         adjustKeyInfo();
     }
@@ -108,6 +108,15 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(key.remaining(), key);
         unpacked.getFlags().add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
         return unpacked.recordCompare(record.remaining(), record);
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#checkKey(java.lang.Object[])
+     */
+    public boolean checkKey(Object... key) throws SqlJetException {
+        if(eof()) return false;
+        final ByteBuffer keyRecord = SqlJetBtreeRecord.getRecord(key).getRawRecord();
+        return 0 == keyCompare(keyRecord, getRecord().getRawRecord());
     }
 
     /**
@@ -178,7 +187,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         }
     }
 
-    public long getKeyRowId(ISqlJetBtreeRecord record) {
+    private long getKeyRowId(ISqlJetBtreeRecord record) {
         if (null == record)
             return 0;
         final List<ISqlJetVdbeMem> fields = record.getFields();
@@ -187,6 +196,10 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         return fields.get(fields.size() - 1).intValue();
     }
 
+    public long getKeyRowId() throws SqlJetException {
+        return getKeyRowId(getRecord());
+    }
+    
     /**
      * @throws SqlJetException
      * 

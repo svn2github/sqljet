@@ -15,6 +15,8 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private Map<String, ISqlJetIndexDef> indexesDefs;
 
-    private Map<String, SqlJetBtreeIndexTable> indexesTables;
+    private Map<String, ISqlJetBtreeIndexTable> indexesTables;
 
     private Map<String, String> columnsConstraintsIndexes;
     private Map<String, List<String>> tableConstraintsIndexes;
@@ -92,9 +94,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         this.tableConstraintsIndexes = dataTable.tableConstraintsIndexes;
         this.primaryKeyIndex = dataTable.primaryKeyIndex;
 
-        indexesTables = new HashMap<String, SqlJetBtreeIndexTable>();
-        for (Map.Entry<String, SqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
-            indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable(entry.getValue()));
+        indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
+        for (Map.Entry<String, ISqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
+            indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable)entry.getValue()));
         }
 
     }
@@ -160,7 +162,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private void openIndexes(ISqlJetSchema schema) throws SqlJetException {
         indexesDefs = new HashMap<String, ISqlJetIndexDef>();
-        indexesTables = new HashMap<String, SqlJetBtreeIndexTable>();
+        indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
         for (final ISqlJetIndexDef indexDef : schema.getIndexes(tableDef.getName())) {
             indexesDefs.put(indexDef.getName(), indexDef);
             indexesTables.put(indexDef.getName(), new SqlJetBtreeIndexTable(schema, indexDef.getName(), this.write));
@@ -178,7 +180,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return the indexesDefs
      */
     public Map<String, ISqlJetIndexDef> getIndexDefinitions() {
-        return indexesDefs;
+        return Collections.unmodifiableMap(indexesDefs);
     }
 
     /*
@@ -369,7 +371,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                         || tableConstraintsIndexes.containsKey(indexDef.getName())) {
                     final Object[] indexKey = getKeyForIndex(fields, indexDef);
                     indexKeys.put(indexDef.getName(), indexKey);
-                    final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+                    final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
                     final long lookup = indexTable.lookup(false, indexKey);
                     if (lookup != 0) {
                         if (Action.INSERT == action) {
@@ -386,7 +388,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         // insert into indexes
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
-            final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+            final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
             if (Action.INSERT != action) {
                 indexTable.delete(rowId, getKeyForIndex(getAsNamedFields(getValues()), indexDef));
             }
@@ -510,8 +512,16 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean locate(String indexName, boolean next, Object... key) throws SqlJetException {
         if (!indexesDefs.containsKey(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        final SqlJetBtreeIndexTable indexTable = indexesTables.get(indexName);
+        final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexName);
         final long lookup = indexTable.lookup(next, key);
         return lookup != 0 && goToRow(lookup);
     }
+    
+    /**
+     * @return the indexesTables
+     */
+    public Map<String, ISqlJetBtreeIndexTable> getIndexesTables() {
+        return Collections.unmodifiableMap(indexesTables);
+    }
+    
 }

@@ -417,7 +417,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 dbCopy.commit();
 
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-                Assert.assertTrue(!lookup.eof());
+                Assert.assertFalse(lookup.eof());
 
                 final String nameField = lookup.getString(1);
                 Assert.assertNotNull(nameField);
@@ -459,16 +459,132 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public void first() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
+                
                 final SqlJetTable table = dbCopy.openTable(TABLE);
-                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-                Assert.assertTrue(lookup.first());
-                Assert.assertFalse(lookup.eof());
+                
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+
                 Assert.assertFalse(lookupFail.first());
                 Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+
+                Assert.assertFalse(lookupFail.first());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+                
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                
+                Assert.assertTrue(lookup.first());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+
+                Assert.assertTrue(lookup.first());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                
                 return null;
             }
         });
     }
 
+    @Test
+    public void last() throws SqlJetException {
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+                
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                
+                Assert.assertFalse(lookupFail.last());
+                Assert.assertTrue(lookupFail.eof());
+
+                Assert.assertFalse(lookupFail.last());
+                Assert.assertTrue(lookupFail.eof());
+                
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                
+                Assert.assertTrue(lookup.last());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void prev() throws SqlJetException {
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+                
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                
+                Assert.assertFalse(lookupFail.previous());
+                Assert.assertTrue(lookupFail.eof());
+
+                Assert.assertFalse(lookupFail.previous());
+                Assert.assertTrue(lookupFail.eof());
+                
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+
+                Assert.assertTrue(lookup.first());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+
+                Assert.assertTrue(lookup.first());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.eof());
+                
+                return null;
+            }
+        });
+    }
+    
 }

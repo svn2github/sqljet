@@ -1,5 +1,5 @@
 /**
- * SqlJetParserTest.java
+ * SqlJetAbstractParserTest.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify

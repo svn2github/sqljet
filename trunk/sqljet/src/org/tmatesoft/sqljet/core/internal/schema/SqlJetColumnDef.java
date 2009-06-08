@@ -48,7 +48,7 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
                     : null;
             if ("primary".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnPrimaryKey(constraintName, constraintNode));
-            } else if ("notnull".equalsIgnoreCase(constraintType)) {
+            } else if ("not_null".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnNotNull(constraintName, constraintNode));
             } else if ("unique".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnUnique(constraintName, constraintNode));

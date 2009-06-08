@@ -29,10 +29,10 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
         String op = ast.getText().toLowerCase();
         if ("bind".equals(op) || "bind_name".equals(op)) {
             return new SqlJetBindParameter(ast);
-        } else if ("blob_literal".equals(op)) {
-            return new SqlJetBlobLiteral(ast);
         } else if ("column_expression".equals(op)) {
             return new SqlJetColumnExpression(ast);
+        } else if ("blob_literal".equals(op)) {
+            return new SqlJetBlobLiteral(ast);
         } else if ("float_literal".equals(op)) {
             return new SqlJetFloatLiteral(ast);
         } else if ("function_literal".equals(op)) {

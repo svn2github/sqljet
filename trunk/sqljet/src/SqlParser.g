@@ -39,6 +39,8 @@ tokens {
 	FLOAT_LITERAL;
 	FUNCTION_LITERAL;
 	INTEGER_LITERAL;
+	IS_NULL;
+	NOT_NULL;
 	OPTIONS;
 	ORDERING; // root for ordering_term
 	SELECT_CORE; // root for simple select statement, part of a compound select
@@ -89,6 +91,8 @@ sql_stmt_core
 
 qualified_table_name: (database_name=id DOT)? table_name=id (INDEXED BY index_name=id | NOT INDEXED)?;
 
+signed_number: (PLUS | MINUS)? (INTEGER | FLOAT);
+
 expr: or_subexpr (OR^ or_subexpr)*;
 
 or_subexpr: and_subexpr (AND^ and_subexpr)*;
@@ -102,7 +106,7 @@ and_subexpr
   : eq_subexpr ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)*
   | NOT? op=(LIKE | GLOB | REGEXP | MATCH) eq_subexpr (ESCAPE escape_subexpr=eq_subexpr)? -> ^($op eq_subexpr NOT? ^(ESCAPE $escape_subexpr)?)
   | NOT? IN^ in_source
-  | (ISNULL | NOTNULL | IS NULL -> ISNULL /* {ambiguous, parsed as 'NOT literal'} | NOT NULL */| IS NOT NULL -> NOTNULL)
+  | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL /* {ambiguous, parsed as 'NOT literal'} | NOT NULL */| IS NOT NULL -> NOT_NULL)
   | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN $e1 $e2 NOT?)
   ;
 
@@ -153,13 +157,13 @@ bind_parameter
 
 raise_function: RAISE^ LPAREN! (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA! error_message=STRING) RPAREN!;
 
-type_name: names+=ID+ (LPAREN size1=SIGNED_NUMBER (COMMA size2=SIGNED_NUMBER)? RPAREN)?
+type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
 -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
 
 // PRAGMA
 pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value | LPAREN pragma_value RPAREN)?;
 
-pragma_value: SIGNED_NUMBER | name=id | STRING;
+pragma_value: signed_number | name=id | STRING;
 
 // ATTACH
 attach_stmt: ATTACH (DATABASE)? filename=(STRING | id) AS database_name=id;
@@ -304,13 +308,14 @@ column_constraint: (CONSTRAINT name=id)?
 
 column_constraint_pk: PRIMARY^ KEY! (ASC | DESC)? table_conflict_clause? (AUTOINCREMENT)?;
 
-column_constraint_not_null: NOT NULL table_conflict_clause? -> ^(NOTNULL table_conflict_clause?);
+column_constraint_not_null: NOT NULL table_conflict_clause? -> ^(NOT_NULL table_conflict_clause?);
 
 column_constraint_unique: UNIQUE^ table_conflict_clause?;
 
 column_constraint_check: CHECK^ LPAREN! expr RPAREN!;
 
-column_constraint_default: DEFAULT^ (SIGNED_NUMBER | literal_value | LPAREN! expr RPAREN!);
+// Expand signed_number to avoid collisions with literal_value
+column_constraint_default: DEFAULT^ ((PLUS | MINUS) (INTEGER | FLOAT) | literal_value | LPAREN! expr RPAREN!);
 
 column_constraint_collate: COLLATE^ collation_name=id; // collation_name: (BINARY|NOCASE|RTRIM)
 

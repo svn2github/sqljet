@@ -209,7 +209,6 @@ FLOAT
     |   '.' ('0'..'9')+ FLOAT_EXP?
     |   ('0'..'9')+ FLOAT_EXP
     ;
-SIGNED_NUMBER: ('+'|'-')? (INTEGER | FLOAT);
 BLOB: ('x'|'X') '\'' ('0'..'9'|'a'..'f'|'A'..'F')+ '\'';
 
 fragment COMMENT: '/*' ( options {greedy=false;} : . )* '*/';

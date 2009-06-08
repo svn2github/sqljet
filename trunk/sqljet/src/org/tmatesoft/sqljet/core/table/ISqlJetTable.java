@@ -68,6 +68,21 @@ public interface ISqlJetTable {
      */
     long insertAutoId(Object... values) throws SqlJetException;
 
+    /**
+     * @return the isRowIdPrimaryKey
+     */
+    boolean isRowIdPrimaryKey();
+
+    /**
+     * @return the isAutoincrement
+     */
+    boolean isAutoincrement();
+
+    /**
+     * @return the primaryKeyIndex
+     */
+    String getPrimaryKeyIndex();
+
     // The following methods are deprecated and should be removed.
 
     /**
@@ -113,21 +128,4 @@ public interface ISqlJetTable {
      * @deprecated use cursor method
      */
     void update(long rowId, Object... values) throws SqlJetException;
-    
-    /**
-     * @return the isRowIdPrimaryKey
-     */
-    boolean isRowIdPrimaryKey();
-    
-    /**
-     * @return the isAutoincrement
-     */
-    boolean isAutoincrement();
-    
-    /**
-     * @return the primaryKeyIndex
-     */
-    String getPrimaryKeyIndex();
-    
-    
 }

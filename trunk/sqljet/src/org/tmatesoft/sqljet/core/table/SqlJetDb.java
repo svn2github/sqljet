@@ -168,9 +168,7 @@ public class SqlJetDb {
     public SqlJetTable openTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
-                if (!schema.getTableNames().contains(tableName))
-                    throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
-                return new SqlJetTable(new SqlJetBtreeDataTable(schema, tableName, write));
+                return new SqlJetTable(schema, tableName, write);
             }
         });
     }

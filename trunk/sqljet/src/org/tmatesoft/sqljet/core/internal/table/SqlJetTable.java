@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
@@ -30,8 +31,17 @@ public class SqlJetTable implements ISqlJetTable {
 
     private ISqlJetBtreeDataTable dataTable;
 
-    public SqlJetTable(ISqlJetBtreeDataTable dataTable) {
-        this.dataTable = dataTable;
+    /**
+     * @param schema
+     * @param tableName
+     * @param write
+     * 
+     * @throws SqlJetException 
+     */
+    public SqlJetTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
+        if (!schema.getTableNames().contains(tableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
+        this.dataTable = new SqlJetBtreeDataTable(schema, tableName, write);
     }
 
     public ISqlJetTableDef getDefinition() {

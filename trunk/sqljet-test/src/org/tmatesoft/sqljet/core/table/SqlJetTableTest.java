@@ -136,7 +136,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertFalse(gotoLast);
                 final boolean eof = lookup.eof();
                 Assert.assertTrue(eof);
-                
+
                 lookup.close();
 
                 return null;
@@ -162,7 +162,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.next());
                 lookup.delete();
                 Assert.assertTrue(lookup.eof());
-                
+
                 dbCopy.commit();
                 lookup.close();
 
@@ -213,7 +213,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
     }
 
-
     @Test
     public void tableDef() throws SqlJetException {
 
@@ -243,7 +242,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
 
     }
-
 
     @Test(expected = SqlJetException.class)
     public void insertNotNull() throws SqlJetException {
@@ -291,7 +289,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
-
     @Test(expected = SqlJetException.class)
     public void insertFieldCountFail() throws SqlJetException {
 
@@ -315,8 +312,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
 
     }
-
-
 
     private void testEncoding(final SqlJetDb db, final String tableName, final String testString)
             throws SqlJetException {
@@ -420,13 +415,13 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 table.insertAutoId("test1", 1);
                 dbCopy.commit();
-                
+
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
                 Assert.assertTrue(!lookup.eof());
-                                
+
                 final String nameField = lookup.getString(1);
                 Assert.assertNotNull(nameField);
-                Assert.assertEquals("test1",nameField);
+                Assert.assertEquals("test1", nameField);
 
                 return null;
 
@@ -435,7 +430,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void indexAutoupdate2() throws SqlJetException {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
@@ -450,7 +445,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 table.insert("test", "test");
 
                 dbCopy.commit();
-                
+
                 Assert.assertFalse(true);
 
                 return null;
@@ -460,5 +455,20 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
-    
+    @Test
+    public void first() throws SqlJetException {
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock() throws SqlJetException {
+                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertTrue(lookup.first());
+                Assert.assertFalse(lookup.eof());
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                Assert.assertFalse(lookupFail.first());
+                Assert.assertTrue(lookupFail.eof());
+                return null;
+            }
+        });
+    }
+
 }

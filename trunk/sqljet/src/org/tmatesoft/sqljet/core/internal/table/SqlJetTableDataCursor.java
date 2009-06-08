@@ -30,8 +30,15 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         super.first();
     }
 
+    /**
+     * @return
+     */
+    protected ISqlJetBtreeDataTable getBtreeDataTable() {
+        return (ISqlJetBtreeDataTable) btreeTable;
+    }
+    
     public void update(Object... values) throws SqlJetException {
-        final ISqlJetBtreeDataTable table = (ISqlJetBtreeDataTable) btreeTable;
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
         if (table.eof())
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or current record doens't point to data row");
@@ -39,12 +46,12 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public boolean goTo(long rowId) throws SqlJetException {
-        final ISqlJetBtreeDataTable table = (ISqlJetBtreeDataTable) btreeTable;
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
         return table.goToRow(rowId);
     }
 
     public long getRowId() throws SqlJetException {
-        final ISqlJetBtreeDataTable table = (ISqlJetBtreeDataTable) btreeTable;
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
         if (table.eof())
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or current record doens't point to data row");
@@ -52,7 +59,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public void delete() throws SqlJetException {
-        final ISqlJetBtreeDataTable table = (ISqlJetBtreeDataTable) btreeTable;
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
         if (table.eof())
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or current record doens't point to data row");

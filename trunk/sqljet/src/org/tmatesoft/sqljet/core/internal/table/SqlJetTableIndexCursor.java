@@ -65,7 +65,9 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean first() throws SqlJetException {
-        return ((ISqlJetBtreeDataTable) btreeTable).locate(indexName, false, key);
+        final boolean locate = getBtreeDataTable().locate(indexName, false, key);
+        if(!locate) super.first();
+        return locate;
     }
     
     /* (non-Javadoc)
@@ -81,7 +83,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean next() throws SqlJetException {
-        final boolean locate = ((ISqlJetBtreeDataTable) btreeTable).locate(indexName, true, key);
+        final boolean locate = getBtreeDataTable().locate(indexName, true, key);
         if(!locate) super.next();
         return locate;
     }
@@ -100,7 +102,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      * @throws SqlJetException 
      */
     private boolean check() throws SqlJetException {
-        return !super.eof() && ((ISqlJetBtreeDataTable) btreeTable).checkIndex(indexName, key);
+        return !super.eof() && getBtreeDataTable().checkIndex(indexName, key);
     }
     
 }

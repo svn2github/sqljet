@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
@@ -37,7 +38,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private int page;
     private long rowId;
 
-    public SqlJetTableDef(CommonTree ast, int page) {
+    public SqlJetTableDef(CommonTree ast, int page) throws SqlJetException {
         CommonTree optionsNode = (CommonTree) ast.getChild(0);
         temporary = hasOption(optionsNode, "temporary");
         ifNotExists = hasOption(optionsNode, "exists");
@@ -69,9 +70,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                         } else if ("unique".equalsIgnoreCase(constraintType)) {
                             constraints.add(new SqlJetTableUnique(constraintName, constraintNode));
                         } else if ("check".equalsIgnoreCase(constraintType)) {
-                            // constraints.add(new
-                            // SqlJetTableCheck(constraintName,
-                            // constraintNode));
+                            constraints.add(new SqlJetTableCheck(constraintName, constraintNode));
                         } else if ("foreign".equalsIgnoreCase(constraintType)) {
                             constraints.add(new SqlJetTableForeignKey(constraintName, constraintNode));
                         } else {
@@ -186,19 +185,20 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         buffer.append(')');
         return buffer.toString();
     }
-    
+
     /**
      * @return the rowId
      */
     public long getRowId() {
         return rowId;
     }
-    
+
     /**
-     * @param rowId the rowId to set
+     * @param rowId
+     *            the rowId to set
      */
     public void setRowId(long rowId) {
         this.rowId = rowId;
     }
-    
+
 }

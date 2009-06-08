@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.lang;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -25,7 +25,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -240,8 +239,12 @@ public class SqlJetPreparedStatement {
         return cursor.getString(columnIndex);
     }
 
-    public ByteBuffer getBlob(int columnIndex) throws SqlJetException {
-        return cursor.getBlob(columnIndex);
+    public byte[] getBlobAsArray(int columnIndex) throws SqlJetException {
+        return cursor.getBlobAsArray(columnIndex);
+    }
+
+    public InputStream getBlobAsStream(int columnIndex) throws SqlJetException {
+        return cursor.getBlobAsStream(columnIndex);
     }
 
     public boolean isNull(int columnIndex) throws SqlJetException {

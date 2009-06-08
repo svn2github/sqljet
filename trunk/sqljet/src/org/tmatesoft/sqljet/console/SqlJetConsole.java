@@ -15,9 +15,9 @@ package org.tmatesoft.sqljet.console;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetBlobLiteral;
 import org.tmatesoft.sqljet.core.lang.SqlJetConnection;
 import org.tmatesoft.sqljet.core.lang.SqlJetExecCallback;
 import org.tmatesoft.sqljet.core.lang.SqlJetPreparedStatement;
@@ -106,7 +106,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
                 buffer.append(String.valueOf(stmt.getText(i)));
                 break;
             case BLOB:
-                buffer.append(getHexedBlob(stmt.getBlob(i)));
+                buffer.append(asBlob(stmt.getBlobAsArray(i)));
                 break;
             case NULL:
                 buffer.append("NULL");
@@ -117,18 +117,11 @@ public class SqlJetConsole implements SqlJetExecCallback {
         println(buffer.toString());
     }
 
-    private String getHexedBlob(ByteBuffer data) {
+    private String asBlob(byte[] data) {
         if (data == null) {
-            return "null";
+            return "NULL";
         }
-        StringBuffer buffer = new StringBuffer("x'");
-        while (data.remaining() > 0) {
-            byte b = data.get();
-            buffer.append((char) (b / 16 > 9 ? 'a' + b / 16 - 10 : '0' + b / 16));
-            buffer.append((char) (b % 16 > 9 ? 'a' + b % 16 - 10 : '0' + b % 16));
-        }
-        buffer.append("'");
-        return buffer.toString();
+        return SqlJetBlobLiteral.asBlob(data);
     }
 
     private void printHelp() {

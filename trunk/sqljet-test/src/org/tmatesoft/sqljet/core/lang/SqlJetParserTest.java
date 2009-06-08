@@ -38,25 +38,34 @@ public class SqlJetParserTest extends TestCase {
     public void testSelectCore() throws Exception {
         assertParses("select{select_core{columns{*}}{from{alias{t}}}}", "select * from t;");
         assertParses("select{select_core{columns{*{x}}}{from{alias{t}}}}", "select x.* from t;");
-        assertParses("select{select_core{columns{alias{a}}}{from{alias{t}}}}", "select a from t;");
-        assertParses("select{select_core{columns{alias{+{a}{*{b}{c}}}}}{from{alias{d}}}}", "select a+b * c from d;");
-        assertParses("select{select_core{columns{alias{a}}{alias{b}}}{from{alias{t}}}}", "select a,b from t;");
-        assertParses("select{select_core{columns{alias{a}}}{from{alias{t}}}}", "select all a from t;");
-        assertParses("select{select_core{distinct}{columns{alias{a}}}{from{alias{t}}}}", "select distinct a from t;");
-        assertParses("select{select_core{columns{alias{a}{b}}}{from{alias{t}}}}", "select a as b from t;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{where{z}}}", "select * from t where z;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{n}}}}",
+        assertParses("select{select_core{columns{alias{column_literal{a}}}}{from{alias{t}}}}", "select a from t;");
+        assertParses(
+                "select{select_core{columns{alias{+{column_literal{a}}{*{column_literal{b}}{column_literal{c}}}}}}{from{alias{d}}}}",
+                "select a+b * c from d;");
+        assertParses(
+                "select{select_core{columns{alias{column_literal{a}}}{alias{column_literal{b}}}}{from{alias{t}}}}",
+                "select a,b from t;");
+        assertParses("select{select_core{columns{alias{column_literal{a}}}}{from{alias{t}}}}", "select all a from t;");
+        assertParses("select{select_core{distinct}{columns{alias{column_literal{a}}}}{from{alias{t}}}}",
+                "select distinct a from t;");
+        assertParses("select{select_core{columns{alias{column_literal{a}}{b}}}{from{alias{t}}}}",
+                "select a as b from t;");
+        assertParses("select{select_core{columns{*}}{from{alias{t}}}{where{column_literal{z}}}}",
+                "select * from t where z;");
+        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{column_literal{n}}}}}",
                 "select * from t group by n;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{n}}{ordering{r}}}}",
+        assertParses(
+                "select{select_core{columns{*}}{from{alias{t}}}{group{ordering{column_literal{n}}}{ordering{column_literal{r}}}}}",
                 "select * from t group by n,r;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{a}{asc}}}}",
+        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{column_literal{a}}{asc}}}}",
                 "select * from t group by a asc;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{d}{desc}}}}",
+        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{column_literal{d}}{desc}}}}",
                 "select * from t group by d desc;");
-        assertParses("select{select_core{columns{*}}{from{alias{t}}}{group{ordering{x}}{having{y}}}}",
+        assertParses(
+                "select{select_core{columns{*}}{from{alias{t}}}{group{ordering{column_literal{x}}}{having{column_literal{y}}}}}",
                 "select * from t group by x having y;");
         assertParses(
-                "select{select_core{columns{alias{+{a}{b}}}{alias{c}{n}}{alias{-{d}{e}}}}{from{alias{t}}}{where{<{i}{j}}}{group{ordering{x}{desc}}{ordering{y}}{having{*{z}{z}}}}}",
+                "select{select_core{columns{alias{+{column_literal{a}}{column_literal{b}}}}{alias{column_literal{c}}{n}}{alias{-{column_literal{d}}{column_literal{e}}}}}{from{alias{t}}}{where{<{column_literal{i}}{column_literal{j}}}}{group{ordering{column_literal{x}}{desc}}{ordering{column_literal{y}}}{having{*{column_literal{z}}{column_literal{z}}}}}}",
                 "select a+b,c as n,d-e from t where i<j group by x desc,y having z*z;");
     }
 
@@ -81,8 +90,10 @@ public class SqlJetParserTest extends TestCase {
 
     public void testCreateIndex() throws Exception {
         assertParses("create_index{options}{idx}{tbl}{columns{name}}", "create index idx on tbl (name);");
-        assertParses("create_index{options{unique}}{idx{db}}{tbl}{columns{name}{age}}", "create unique index db.idx on tbl (name, age);");
-        assertParses("create_index{options{exists}}{idx}{tbl}{columns{name{collate{aaa}}{asc}}}", "create index if not exists idx on tbl (name collate aaa asc);");
+        assertParses("create_index{options{unique}}{idx{db}}{tbl}{columns{name}{age}}",
+                "create unique index db.idx on tbl (name, age);");
+        assertParses("create_index{options{exists}}{idx}{tbl}{columns{name{collate{aaa}}{asc}}}",
+                "create index if not exists idx on tbl (name collate aaa asc);");
     }
 
     protected void assertParses(String curlyDump, String sql) throws Exception {

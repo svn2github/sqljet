@@ -25,17 +25,24 @@ options {
 
 tokens {
 	ALIAS; // replaces AS
+	BIND; // bind parameter, maybe with position
+	BIND_NAME; // bind parameter by name
+	BLOB_LITERAL;
 	COLUMN_CONSTRAINT; // root for column_constraint
+	COLUMN_LITERAL;
 	COLUMNS;
 	CONSTRAINTS; // groups all constraints
 	CREATE_INDEX;
 	CREATE_TABLE;
 	DROP_INDEX;
 	DROP_TABLE;
-	NOT_NULL; // single token that replaces NOT NULL
+	FLOAT_LITERAL;
+	FUNCTION_LITERAL;
+	INTEGER_LITERAL;
 	OPTIONS;
 	ORDERING; // root for ordering_term
 	SELECT_CORE; // root for simple select statement, part of a compound select
+	STRING_LITERAL;
 	TABLE_CONSTRAINT; // root for table constraint
 	TYPE; // root for type_name
 	TYPE_PARAMS; // root for numbers in type_name
@@ -77,7 +84,8 @@ sql_stmt_core
   | create_index_stmt
   | drop_index_stmt
   | create_trigger_stmt
-  | drop_trigger_stmt;
+  | drop_trigger_stmt
+  ;
 
 qualified_table_name: (database_name=id DOT)? table_name=id (INDEXED BY index_name=id | NOT INDEXED)?;
 
@@ -85,12 +93,18 @@ expr: or_subexpr (OR^ or_subexpr)*;
 
 or_subexpr: and_subexpr (AND^ and_subexpr)*;
 
-and_subexpr: eq_subexpr
-  ( (EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2) eq_subexpr)*
-  | (NOT)? (LIKE | GLOB | REGEXP | MATCH) eq_subexpr (ESCAPE eq_subexpr)?
-  | (NOT)? IN (LPAREN (select_stmt | expr (COMMA expr)*)? RPAREN | (database_name=id DOT)? table_name=id)
-  | (ISNULL | NOTNULL | IS NULL /* {ambiguous, parsed as 'NOT literal'} | NOT NULL */| IS NOT NULL)
-  | (NOT)? BETWEEN eq_subexpr AND eq_subexpr;
+in_source
+  : LPAREN (select_stmt | expr (COMMA expr)*)? RPAREN
+  | (database_name=id DOT)? table_name=id
+  ;
+
+and_subexpr
+  : eq_subexpr ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)*
+  | NOT? op=(LIKE | GLOB | REGEXP | MATCH) eq_subexpr (ESCAPE escape_subexpr=eq_subexpr)? -> ^($op eq_subexpr NOT? ^(ESCAPE $escape_subexpr)?)
+  | NOT? IN^ in_source
+  | (ISNULL | NOTNULL | IS NULL -> ISNULL /* {ambiguous, parsed as 'NOT literal'} | NOT NULL */| IS NOT NULL -> NOTNULL)
+  | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN $e1 $e2 NOT?)
+  ;
 
 eq_subexpr: neq_subexpr ((LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ)^ neq_subexpr)*;
 
@@ -109,29 +123,40 @@ unary_subexpr: atom_expr (COLLATE^ collation_name=ID)?;
 atom_expr
   : literal_value
   | bind_parameter
-  | ((database_name=id DOT)? table_name=id DOT)? column_name=ID
+  | ((database_name=id DOT)? table_name=id DOT)? column_name=ID -> ^(COLUMN_LITERAL ^($column_name ^($table_name $database_name?)?))
   | function_name=ID LPAREN ((DISTINCT)? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN
-  | LPAREN expr RPAREN -> expr
+  | LPAREN! expr RPAREN!
   | CAST LPAREN expr AS type_name RPAREN
   | (/* {ambiguous; parsed as unary expr} (NOT)? */ EXISTS)? LPAREN select_stmt RPAREN
   | CASE (expr)? (WHEN expr THEN expr)+ (ELSE expr)? END
-  | raise_function;
+  | raise_function
+  ;
 
-literal_value: INTEGER | FLOAT | STRING | BLOB | NULL | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP;
+literal_value
+  : INTEGER -> ^(INTEGER_LITERAL INTEGER)
+  | FLOAT -> ^(FLOAT_LITERAL FLOAT)
+  | STRING -> ^(STRING_LITERAL STRING)
+  | BLOB -> ^(BLOB_LITERAL BLOB)
+  | NULL
+  | CURRENT_TIME -> ^(FUNCTION_LITERAL CURRENT_TIME)
+  | CURRENT_DATE -> ^(FUNCTION_LITERAL CURRENT_DATE)
+  | CURRENT_TIMESTAMP -> ^(FUNCTION_LITERAL CURRENT_TIMESTAMP)
+  ;
+
+bind_parameter
+  : QUESTION -> BIND
+  | QUESTION position=INTEGER -> ^(BIND $position)
+  | COLON name=id -> ^(BIND_NAME $name)
+  | AT name=id -> ^(BIND_NAME $name)
+//  | DOLLAR name=TCL_ID
+  ;
+
+raise_function: RAISE^ LPAREN! (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA! error_message=STRING) RPAREN!;
 
 signed_number: INTEGER | FLOAT | SIGNED_NUMBER;
 
-bind_parameter
-  : QUESTION
-  | QUESTION number=INTEGER
-  | COLON id
-  | AT id;
-//  | DOLLAR name=TCL_ID;
-
 type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
 -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
-
-raise_function: RAISE LPAREN (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA error_message=STRING) RPAREN;
 
 // PRAGMA
 pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value | LPAREN pragma_value RPAREN)?;
@@ -281,7 +306,7 @@ column_constraint: (CONSTRAINT name=id)?
 
 column_constraint_pk: PRIMARY^ KEY! (ASC | DESC)? table_conflict_clause? (AUTOINCREMENT)?;
 
-column_constraint_not_null: NOT NULL table_conflict_clause? -> ^(NOT_NULL table_conflict_clause?);
+column_constraint_not_null: NOT NULL table_conflict_clause? -> ^(NOTNULL table_conflict_clause?);
 
 column_constraint_unique: UNIQUE^ table_conflict_clause?;
 

@@ -25,8 +25,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -199,9 +197,8 @@ public class SqlJetPreparedStatement {
         CommonTree options = (CommonTree) ast.getChild(0);
         boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
         String tableName = ast.getChild(1).getText();
-        ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
-        if (tableDef != null) {
-            tableDef.drop();
+        if (db.getSchema().getTable(tableName) != null) {
+            db.getSchema().dropTable(tableName);
         } else if (!ifExists) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Table does not exists.");
         }
@@ -211,9 +208,8 @@ public class SqlJetPreparedStatement {
         CommonTree options = (CommonTree) ast.getChild(0);
         boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
         String indexName = ast.getChild(1).getText();
-        ISqlJetIndexDef indexDef = db.getSchema().getIndex(indexName);
-        if (indexDef != null) {
-            indexDef.drop();
+        if (db.getSchema().getIndex(indexName) != null) {
+            db.getSchema().dropIndex(indexName);
         } else if (!ifExists) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Index does not exists.");
         }

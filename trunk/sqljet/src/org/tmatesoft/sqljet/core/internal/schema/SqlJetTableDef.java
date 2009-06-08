@@ -139,14 +139,20 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         this.page = page;
     }
 
-    public void drop() {
-        // TODO Auto-generated method stub
+    public long getRowId() {
+        return rowId;
+    }
+
+    public void setRowId(long rowId) {
+        this.rowId = rowId;
     }
 
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(getPage());
+        buffer.append("/");
+        buffer.append(getRowId());
         buffer.append(": ");
         buffer.append(toSQL());
         return buffer.toString();
@@ -185,20 +191,4 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         buffer.append(')');
         return buffer.toString();
     }
-
-    /**
-     * @return the rowId
-     */
-    public long getRowId() {
-        return rowId;
-    }
-
-    /**
-     * @param rowId
-     *            the rowId to set
-     */
-    public void setRowId(long rowId) {
-        this.rowId = rowId;
-    }
-
 }

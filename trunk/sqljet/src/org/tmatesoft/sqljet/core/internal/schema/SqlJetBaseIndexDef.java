@@ -28,7 +28,7 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
     private String name;
     private String tableName;
     private int page;
-    private long rowId;    
+    private long rowId;
 
     public SqlJetBaseIndexDef(String name, String tableName, int page) {
         this.name = name;
@@ -68,40 +68,28 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
         return page;
     }
 
-    public void drop() {
-        // TODO Auto-generated method stub
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public long getRowId() {
+        return rowId;
+    }
+
+    public void setRowId(long rowId) {
+        this.rowId = rowId;
     }
 
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(page);
+        buffer.append(getPage());
+        buffer.append("/");
+        buffer.append(getRowId());
         buffer.append(": ");
         buffer.append(getName());
         buffer.append(" ON ");
         buffer.append(getTableName());
         return buffer.toString();
     }
-    
-    /**
-     * @param page the page to set
-     */
-    public void setPage(int page) {
-        this.page = page;
-    }
-    
-    /**
-     * @return the rowId
-     */
-    public long getRowId() {
-        return rowId;
-    }
-    
-    /**
-     * @param rowId the rowId to set
-     */
-    public void setRowId(long rowId) {
-        this.rowId = rowId;
-    }
-    
 }

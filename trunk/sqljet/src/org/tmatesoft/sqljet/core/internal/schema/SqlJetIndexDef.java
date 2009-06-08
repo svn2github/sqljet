@@ -92,14 +92,13 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(getPage());
+        buffer.append("/");
+        buffer.append(getRowId());
         buffer.append(": ");
         buffer.append(toSQL());
         return buffer.toString();
     }
 
-    /**
-     * @return
-     */
     public String toSQL() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("CREATE ");

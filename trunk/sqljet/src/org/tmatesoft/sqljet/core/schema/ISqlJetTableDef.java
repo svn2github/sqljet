@@ -32,6 +32,4 @@ public interface ISqlJetTableDef {
     public ISqlJetColumnDef getColumn(String name);
 
     public List<ISqlJetTableConstraint> getConstraints();
-
-    public void drop();
 }

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTypeDef;
@@ -33,7 +34,7 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
     private final ISqlJetTypeDef type;
     private final List<ISqlJetColumnConstraint> constraints;
 
-    public SqlJetColumnDef(CommonTree ast) {
+    public SqlJetColumnDef(CommonTree ast) throws SqlJetException {
         name = ast.getText();
         CommonTree constraintsNode = (CommonTree) ast.getChild(0);
         assert "constraints".equalsIgnoreCase(constraintsNode.getText());
@@ -52,11 +53,9 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
             } else if ("unique".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnUnique(constraintName, constraintNode));
             } else if ("check".equalsIgnoreCase(constraintType)) {
-                // constraints.add(new SqlJetColumnCheck(constraintName,
-                // constraintNode));
+                constraints.add(new SqlJetColumnCheck(constraintName, constraintNode));
             } else if ("default".equalsIgnoreCase(constraintType)) {
-                // constraints.add(new SqlJetColumnDefault(constraintName,
-                // constraintNode));
+                constraints.add(new SqlJetColumnDefault(constraintName, constraintNode));
             } else if ("collate".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnCollate(constraintName, constraintNode));
             } else if ("references".equalsIgnoreCase(constraintType)) {

@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.EnumSet;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
-import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
@@ -29,7 +28,6 @@ import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
@@ -54,7 +52,6 @@ public class SqlJetDb {
     private ISqlJetDbHandle db;
     private ISqlJetBtree btree;
     private ISqlJetSchema schema;
-    private SqlJetSchemaMeta meta;
 
     private boolean transaction = false;
 
@@ -74,12 +71,10 @@ public class SqlJetDb {
         btree.open(file, db, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
                 : READ_PERMISSIONS);
         runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 btree.enter();
                 try {
-                    meta = new SqlJetSchemaMeta(btree);
-                    db.setMeta(meta);
+                    db.setMeta(new SqlJetSchemaMeta(btree));
                     schema = new SqlJetSchema(db, btree);
                 } finally {
                     btree.leave();
@@ -109,7 +104,6 @@ public class SqlJetDb {
      */
     public void close() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock() throws SqlJetException {
                 btree.close();
                 return null;

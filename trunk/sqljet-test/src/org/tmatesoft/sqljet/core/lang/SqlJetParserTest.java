@@ -13,23 +13,11 @@
  */
 package org.tmatesoft.sqljet.core.lang;
 
-import junit.framework.TestCase;
-
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.lang.CommonTreeDumper;
-import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
-import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetParserTest extends TestCase {
+public class SqlJetParserTest extends SqlJetAbstractParserTest {
 
     public SqlJetParserTest() {
         super("Parser Test");
@@ -45,7 +33,8 @@ public class SqlJetParserTest extends TestCase {
         assertParses(
                 "select{select_core{columns{alias{column_expression{a}}}{alias{column_expression{b}}}}{from{alias{t}}}}",
                 "select a,b from t;");
-        assertParses("select{select_core{columns{alias{column_expression{a}}}}{from{alias{t}}}}", "select all a from t;");
+        assertParses("select{select_core{columns{alias{column_expression{a}}}}{from{alias{t}}}}",
+                "select all a from t;");
         assertParses("select{select_core{distinct}{columns{alias{column_expression{a}}}}{from{alias{t}}}}",
                 "select distinct a from t;");
         assertParses("select{select_core{columns{alias{column_expression{a}}{b}}}{from{alias{t}}}}",
@@ -94,38 +83,5 @@ public class SqlJetParserTest extends TestCase {
                 "create unique index db.idx on tbl (name, age);");
         assertParses("create_index{options{exists}}{idx}{tbl}{columns{name{collate{aaa}}{asc}}}",
                 "create index if not exists idx on tbl (name collate aaa asc);");
-    }
-
-    protected void assertParses(String curlyDump, String sql) throws Exception {
-        CommonTree tree = parse(sql);
-        String treeDump = dump(tree);
-        assertEquals("Parsed SQL doesn't match", curlyDump, treeDump.toLowerCase());
-    }
-
-    protected CommonTree parse(String sql) throws SqlJetException, RecognitionException {
-        CharStream chars = new ANTLRStringStream(sql);
-        SqlLexer lexer = new SqlLexer(chars);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        SqlParser parser = new SqlParser(tokens);
-        return (CommonTree) parser.sql_stmt().getTree();
-    }
-
-    protected String dump(CommonTree tree) {
-        StringBuffer buffer = new StringBuffer();
-        new CurlyCommonTreeDumper().addTree(buffer, tree, 0);
-        return buffer.toString();
-    }
-
-    protected static class CurlyCommonTreeDumper extends CommonTreeDumper {
-
-        @Override
-        protected void addPrefix(StringBuffer buffer, int length) {
-            buffer.append("{");
-        }
-
-        @Override
-        protected void addSuffix(StringBuffer buffer, int length) {
-            buffer.append("}");
-        }
     }
 }

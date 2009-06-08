@@ -29,7 +29,7 @@ tokens {
 	BIND_NAME; // bind parameter by name
 	BLOB_LITERAL;
 	COLUMN_CONSTRAINT; // root for column_constraint
-	COLUMN_LITERAL;
+	COLUMN_EXPRESSION;
 	COLUMNS;
 	CONSTRAINTS; // groups all constraints
 	CREATE_INDEX;
@@ -123,7 +123,7 @@ unary_subexpr: atom_expr (COLLATE^ collation_name=ID)?;
 atom_expr
   : literal_value
   | bind_parameter
-  | ((database_name=id DOT)? table_name=id DOT)? column_name=ID -> ^(COLUMN_LITERAL ^($column_name ^($table_name $database_name?)?))
+  | ((database_name=id DOT)? table_name=id DOT)? column_name=ID -> ^(COLUMN_EXPRESSION ^($column_name ^($table_name $database_name?)?))
   | function_name=ID LPAREN ((DISTINCT)? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN
   | LPAREN! expr RPAREN!
   | CAST LPAREN expr AS type_name RPAREN
@@ -153,15 +153,13 @@ bind_parameter
 
 raise_function: RAISE^ LPAREN! (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA! error_message=STRING) RPAREN!;
 
-signed_number: INTEGER | FLOAT | SIGNED_NUMBER;
-
-type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
+type_name: names+=ID+ (LPAREN size1=SIGNED_NUMBER (COMMA size2=SIGNED_NUMBER)? RPAREN)?
 -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
 
 // PRAGMA
 pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value | LPAREN pragma_value RPAREN)?;
 
-pragma_value: signed_number | name=id | STRING;
+pragma_value: SIGNED_NUMBER | name=id | STRING;
 
 // ATTACH
 attach_stmt: ATTACH (DATABASE)? filename=(STRING | id) AS database_name=id;

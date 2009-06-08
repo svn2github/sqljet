@@ -1,5 +1,5 @@
 /**
- * SqlJetColumnLiteral.java
+ * SqlJetColumnExpression.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -14,18 +14,18 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
-import org.tmatesoft.sqljet.core.schema.ISqlJetColumnLiteral;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnExpression;
 
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetColumnLiteral extends SqlJetExpression implements ISqlJetColumnLiteral {
+public class SqlJetColumnExpression extends SqlJetExpression implements ISqlJetColumnExpression {
 
     private final String columnName, tableName, databaseName;
 
-    public SqlJetColumnLiteral(CommonTree ast) {
-        assert "column_literal".equalsIgnoreCase(ast.getText());
+    public SqlJetColumnExpression(CommonTree ast) {
+        assert "column_expression".equalsIgnoreCase(ast.getText());
         CommonTree columnNode = (CommonTree) ast.getChild(0);
         columnName = columnNode.getText();
         if (columnNode.getChildCount() > 0) {

@@ -31,8 +31,8 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetBindParameter(ast);
         } else if ("blob_literal".equals(op)) {
             return new SqlJetBlobLiteral(ast);
-        } else if ("column_literal".equals(op)) {
-            return new SqlJetColumnLiteral(ast);
+        } else if ("column_expression".equals(op)) {
+            return new SqlJetColumnExpression(ast);
         } else if ("float_literal".equals(op)) {
             return new SqlJetFloatLiteral(ast);
         } else if ("function_literal".equals(op)) {

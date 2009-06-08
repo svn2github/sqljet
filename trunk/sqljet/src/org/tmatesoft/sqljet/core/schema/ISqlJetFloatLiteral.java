@@ -17,7 +17,7 @@ package org.tmatesoft.sqljet.core.schema;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetFloatLiteral extends ISqlJetExpression {
+public interface ISqlJetFloatLiteral extends ISqlJetLiteralValue {
 
     public double getValue();
 }

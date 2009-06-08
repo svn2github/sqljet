@@ -1,5 +1,5 @@
 /**
- * ISqlJetStringLiteral.java
+ * ISqlJetLiteralValue.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,6 @@ package org.tmatesoft.sqljet.core.schema;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public interface ISqlJetStringLiteral extends ISqlJetLiteralValue {
+public interface ISqlJetLiteralValue extends ISqlJetExpression {
 
-    public String getValue();
 }

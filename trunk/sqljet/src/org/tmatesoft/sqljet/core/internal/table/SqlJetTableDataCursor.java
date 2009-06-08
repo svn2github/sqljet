@@ -27,6 +27,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
 
     public SqlJetTableDataCursor(ISqlJetBtreeDataTable table) throws SqlJetException {
         super(table);
+        super.first();
     }
 
     public void update(Object... values) throws SqlJetException {

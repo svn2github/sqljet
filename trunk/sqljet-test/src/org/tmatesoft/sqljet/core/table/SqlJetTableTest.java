@@ -110,7 +110,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
             public Object runWithLock() throws SqlJetException {
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
                 Assert.assertTrue(!lookup.eof());
@@ -154,7 +154,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
                 Assert.assertTrue(!lookup.eof());
 
@@ -179,7 +179,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
             public Object runWithLock() throws SqlJetException {
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
                 final ISqlJetCursor cursor = table.open();
 
                 Assert.assertTrue(cursor.first());
@@ -220,7 +220,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
             public Object runWithLock() throws SqlJetException {
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetTableDef tableDef = table.getDefinition();
 
@@ -252,7 +252,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                final SqlJetTable table = dbCopy.getTable(TABLE2);
 
                 table.insert(null, null);
 
@@ -276,7 +276,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                final SqlJetTable table = dbCopy.getTable(TABLE2);
 
                 table.insert("test", "test");
 
@@ -298,7 +298,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                final SqlJetTable table = dbCopy.getTable(TABLE2);
 
                 table.insertAutoId("test", "test", "test");
 
@@ -321,7 +321,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 db.beginTransaction();
 
-                final SqlJetTable table = db.openTable(tableName);
+                final SqlJetTable table = db.getTable(tableName);
                 Assert.assertNotNull(table);
 
                 final long newRowId = table.insertAutoId(testString);
@@ -411,7 +411,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 table.insertAutoId("test1", 1);
                 dbCopy.commit();
@@ -439,7 +439,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.beginTransaction();
 
-                final SqlJetTable table = dbCopy.openTable(TABLE2);
+                final SqlJetTable table = dbCopy.getTable(TABLE2);
 
                 table.insert("test", "test");
                 table.insert("test", "test");
@@ -460,7 +460,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
                 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
                 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
@@ -508,7 +508,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
                 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
                 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
                 
@@ -539,7 +539,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
                 
-                final SqlJetTable table = dbCopy.openTable(TABLE);
+                final SqlJetTable table = dbCopy.getTable(TABLE);
                 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
                 

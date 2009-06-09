@@ -48,7 +48,7 @@ public class RepCacheDao {
         db = SqlJetDb.open(file, write);
         db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
-                table = db.openTable(REP_CACHE_TABLE);
+                table = db.getTable(REP_CACHE_TABLE);
                 cursor = table.open();
                 return null;
             }

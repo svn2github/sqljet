@@ -185,7 +185,7 @@ public class SqlJetPreparedStatement {
         if (selectCore.getChildCount() > i) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported select syntax.");
         }
-        table = db.openTable(tableName);
+        table = db.getTable(tableName);
         if (table != null) {
             cursor = table.open();
         }

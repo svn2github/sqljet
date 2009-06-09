@@ -159,7 +159,7 @@ public class SqlJetDb {
      * @return opened table
      * @throws SqlJetException
      */
-    public SqlJetTable openTable(final String tableName) throws SqlJetException {
+    public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
                 return new SqlJetTable(schema, tableName, write);

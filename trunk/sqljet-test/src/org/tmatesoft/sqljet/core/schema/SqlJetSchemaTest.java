@@ -80,7 +80,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     db.commit();
@@ -122,7 +122,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text unique )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     db.commit();
@@ -144,7 +144,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text unique )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     openTable.insert("test");
@@ -168,7 +168,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     schema.createIndex("CREATE INDEX test_name_index ON test(name);");
@@ -210,7 +210,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     schema.createIndex("CREATE INDEX test_name_index ON test(test);");
@@ -234,7 +234,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = db.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = db.openTable(createTable.getName());
+                    final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     schema.createIndex("CREATE INDEX test_name_index ON test(name);");
@@ -261,7 +261,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = repCache.getSchema();
                     schema.createIndex("CREATE INDEX rep_cache_test_index ON " + REP_CACHE_TABLE
                             + "(hash, revision, offset, size, expanded_size);");
-                    final SqlJetTable openTable = repCache.openTable(REP_CACHE_TABLE);
+                    final SqlJetTable openTable = repCache.getTable(REP_CACHE_TABLE);
                     openTable.insert("test", 1, 2, 3, 4);
                     repCache.commit();
                 } catch (SqlJetException e) {
@@ -284,7 +284,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final ISqlJetSchema schema = repCache.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
-                    final SqlJetTable openTable = repCache.openTable(createTable.getName());
+                    final SqlJetTable openTable = repCache.getTable(createTable.getName());
                     logger.info(createTable.toString());
                     openTable.insert("test");
                     schema.createIndex("CREATE INDEX test_index ON test(name);");
@@ -376,7 +376,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                             .createTable("create table test( id integer primary key, name text )");
                     logger.info(createTable.toString());
                     schema.createIndex("CREATE INDEX test_index ON test(name);");
-                    final SqlJetTable openTable = createDb.openTable(createTable.getName());
+                    final SqlJetTable openTable = createDb.getTable(createTable.getName());
                     openTable.insert("test");
                     openTable.insert("test1");
                     createDb.commit();

@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.lang;
+package org.tmatesoft.sqljet.core.internal.lang;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 

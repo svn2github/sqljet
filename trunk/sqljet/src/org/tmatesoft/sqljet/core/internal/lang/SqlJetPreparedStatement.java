@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.core.lang;
+package org.tmatesoft.sqljet.core.internal.lang;
 
 import java.io.InputStream;
 
@@ -23,8 +23,6 @@ import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
-import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
-import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;

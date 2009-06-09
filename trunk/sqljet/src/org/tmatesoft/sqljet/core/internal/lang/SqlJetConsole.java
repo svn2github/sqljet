@@ -11,16 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package org.tmatesoft.sqljet.console;
+package org.tmatesoft.sqljet.core.internal.lang;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetBlobLiteral;
-import org.tmatesoft.sqljet.core.lang.SqlJetConnection;
-import org.tmatesoft.sqljet.core.lang.SqlJetExecCallback;
-import org.tmatesoft.sqljet.core.lang.SqlJetPreparedStatement;
 
 /**
  * @author TMate Software Ltd.

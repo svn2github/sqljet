@@ -714,6 +714,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             SqlJetMemPage pLeafPage = null;
 
             ByteBuffer pNext;
+            @SuppressWarnings("unused")
             boolean notUsed;
             ByteBuffer tempCell = null;
             assert (!pPage.intKey);

@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetIndex;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
@@ -110,7 +108,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
@@ -152,7 +150,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -179,7 +177,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
                 final ISqlJetCursor cursor = table.open();
@@ -187,22 +185,22 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(cursor.first());
 
                 Assert.assertFalse(cursor.isNull(DATA_FIELD));
-                final ByteBuffer firstData = cursor.getBlob(DATA_FIELD);
+                final byte[] firstData = cursor.getBlobAsArray(DATA_FIELD);
                 Assert.assertNotNull(firstData);
-                Assert.assertTrue(firstData.remaining() > 0);
+                Assert.assertTrue(firstData.length > 0);
 
                 Assert.assertTrue(cursor.next());
 
                 Assert.assertTrue(cursor.isNull(DATA_FIELD));
-                final ByteBuffer secondData = cursor.getBlob(DATA_FIELD);
+                final byte[] secondData = cursor.getBlobAsArray(DATA_FIELD);
                 Assert.assertNull(secondData);
 
                 Assert.assertTrue(cursor.next());
 
                 Assert.assertFalse(cursor.isNull(DATA_FIELD));
-                final ByteBuffer lastData = cursor.getBlob(DATA_FIELD);
+                final byte[] lastData = cursor.getBlobAsArray(DATA_FIELD);
                 Assert.assertNotNull(lastData);
-                Assert.assertTrue(lastData.remaining() > 0);
+                Assert.assertTrue(lastData.length > 0);
 
                 Assert.assertFalse(cursor.next());
                 Assert.assertTrue(cursor.eof());
@@ -220,7 +218,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
@@ -250,7 +248,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -274,7 +272,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -296,7 +294,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -319,7 +317,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 db.beginTransaction();
 
@@ -409,7 +407,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -437,7 +435,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -460,7 +458,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void first() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
@@ -508,7 +506,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void last() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
@@ -539,7 +537,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void prev() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
@@ -594,7 +592,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 
@@ -604,7 +602,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 values.put("name", "test1");
                 values.put("value", 1);
 
-                final long insertAutoId = table.insertAutoId(values);
+                table.insertAutoId(values);
                 dbCopy.commit();
 
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
@@ -626,7 +624,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
                 dbCopy.beginTransaction();
 

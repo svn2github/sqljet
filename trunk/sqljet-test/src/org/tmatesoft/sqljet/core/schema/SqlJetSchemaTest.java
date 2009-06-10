@@ -74,7 +74,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void createTableTest() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -96,12 +96,11 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void createTableTest1() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
-                    final ISqlJetTableDef createTable = schema
-                            .createTable("create table test1( id integer primary key, name text )");
+                    schema.createTable("create table test1( id integer primary key, name text )");
                     db.commit();
                 } catch (SqlJetException e) {
                     db.rollback();
@@ -116,7 +115,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void createTableTestUnique() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -138,7 +137,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void createTableTestUniqueFail() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -162,7 +161,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void createIndexTest() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -185,7 +184,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void createIndexFailTable() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -204,7 +203,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void createIndexFailColumn() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -228,7 +227,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void createIndexFailName() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -255,7 +254,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
 
         repCache.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 repCache.beginTransaction();
                 try {
                     final ISqlJetSchema schema = repCache.getSchema();
@@ -278,7 +277,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
 
         repCache.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 repCache.beginTransaction();
                 try {
                     final ISqlJetSchema schema = repCache.getSchema();
@@ -303,7 +302,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     public void dropTableRepCache() throws SqlJetException, FileNotFoundException, IOException {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
         repCache.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 repCache.beginTransaction();
                 try {
                     final ISqlJetSchema schema = repCache.getSchema();
@@ -323,7 +322,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void dropTableTest1() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -343,7 +342,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void dropIndex() throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 db.beginTransaction();
                 try {
                     final ISqlJetSchema schema = db.getSchema();
@@ -368,7 +367,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
         createDb.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 createDb.beginTransaction();
                 try {
                     final ISqlJetSchema schema = createDb.getSchema();

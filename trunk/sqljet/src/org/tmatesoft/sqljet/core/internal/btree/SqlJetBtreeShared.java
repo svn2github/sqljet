@@ -680,7 +680,6 @@ public class SqlJetBtreeShared {
         assert (mutex.held());
 
         if (!PTRMAP_ISPAGE(iLastPg) && iLastPg != PENDING_BYTE_PAGE()) {
-            int rc;
             short[] eType = { 0 };
             int[] iPtrPage = { 0 };
 

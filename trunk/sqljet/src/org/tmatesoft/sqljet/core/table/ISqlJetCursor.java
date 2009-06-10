@@ -14,7 +14,6 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -154,18 +153,6 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     double getFloat(int field) throws SqlJetException;
-
-    /**
-     * Get field's value as BLOB.
-     * 
-     * @param field
-     *            number of field begin from zero
-     * @return field's value as BLOB
-     * @throws SqlJetException
-     * 
-     * @deprecated use getBlobAsArray() or getBlobAsStream()
-     */
-    ByteBuffer getBlob(int field) throws SqlJetException;
 
     /**
      * Get field's value as BLOB.

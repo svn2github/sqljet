@@ -84,7 +84,7 @@ public class SqlJetUtility {
         if (null == defValue)
             throw new SqlJetError("Undefined default value");
         try {
-            return defValue.valueOf(defValue.getDeclaringClass(), System.getProperty(propName, defValue.toString()));
+            return Enum.valueOf(defValue.getDeclaringClass(), System.getProperty(propName, defValue.toString()));
         } catch (Throwable t) {
             throw new SqlJetError("Error while get int value for property " + propName, t);
         }
@@ -225,6 +225,7 @@ public class SqlJetUtility {
         memcpy(src, 0, dest, 0, length);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends SqlJetCloneable> T memcpy(T src) throws SqlJetException {
         try {
             return (T) src.clone();

@@ -47,7 +47,7 @@ public class SqlJetConnection {
     public void exec(final String sql, final SqlJetExecCallback callback) throws SqlJetException {
         db.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 SqlJetPreparedStatement stmt = prepare(sql);
                 try {
                     while (stmt.step()) {

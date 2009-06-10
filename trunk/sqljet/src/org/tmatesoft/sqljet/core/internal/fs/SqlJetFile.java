@@ -21,7 +21,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -141,7 +140,6 @@ public class SqlJetFile implements ISqlJetFile {
 
     private SqlJetFileType fileType;
     private EnumSet<SqlJetFileOpenPermission> permissions;
-    private SqlJetFileSystem fileSystem;
     private RandomAccessFile file;
     private File filePath;
     private String filePathResolved;
@@ -150,7 +148,6 @@ public class SqlJetFile implements ISqlJetFile {
     private SqlJetLockType lockType = SqlJetLockType.NONE;
     private Map<SqlJetLockType, FileLock> locks = new ConcurrentHashMap<SqlJetLockType, FileLock>();
 
-    private Thread thread = Thread.currentThread();
     private OpenFile openCount = null;
     private LockInfo lockInfo = null;
 
@@ -165,8 +162,6 @@ public class SqlJetFile implements ISqlJetFile {
 
     SqlJetFile(final SqlJetFileSystem fileSystem, final RandomAccessFile file, final File filePath,
             final SqlJetFileType fileType, final EnumSet<SqlJetFileOpenPermission> permissions, final boolean noLock) {
-
-        this.fileSystem = fileSystem;
         this.file = file;
         this.filePath = filePath;
         this.filePathResolved = filePath.getAbsolutePath();

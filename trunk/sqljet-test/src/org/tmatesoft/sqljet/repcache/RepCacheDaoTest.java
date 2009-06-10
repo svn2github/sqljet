@@ -165,7 +165,6 @@ public class RepCacheDaoTest {
 
     @Test
     public void update() throws SqlJetException {
-        int pass = 0;
         boolean passed = false;
         if (dao.first()) {
             final RepCache repCache = dao.getRepCache();

@@ -49,7 +49,7 @@ public class SqlJetDb {
             SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE);
 
     private final boolean write;
-    private ISqlJetDbHandle db;
+    private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
     private ISqlJetSchema schema;
 
@@ -66,16 +66,16 @@ public class SqlJetDb {
      */
     protected SqlJetDb(File file, boolean write) throws SqlJetException {
         this.write = write;
-        db = new SqlJetDbHandle();
+        dbHandle = new SqlJetDbHandle();
         btree = new SqlJetBtree();
-        btree.open(file, db, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
+        btree.open(file, dbHandle, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
                 : READ_PERMISSIONS);
         runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 btree.enter();
                 try {
-                    db.setMeta(new SqlJetSchemaMeta(btree));
-                    schema = new SqlJetSchema(db, btree);
+                    dbHandle.setMeta(new SqlJetSchemaMeta(btree));
+                    schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
                     btree.leave();
                 }
@@ -104,7 +104,7 @@ public class SqlJetDb {
      */
     public void close() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 btree.close();
                 return null;
             }
@@ -120,11 +120,11 @@ public class SqlJetDb {
      */
     public Object runWithLock(ISqlJetRunnableWithLock op) throws SqlJetException {
         Object result = null;
-        db.getMutex().enter();
+        dbHandle.getMutex().enter();
         try {
-            result = op.runWithLock();
+            result = op.runWithLock(this);
         } finally {
-            db.getMutex().leave();
+            dbHandle.getMutex().leave();
         }
         return result;
     }
@@ -144,7 +144,7 @@ public class SqlJetDb {
      * @return data base's encoding
      */
     public SqlJetEncoding getEncoding() {
-        return db.getEncoding();
+        return dbHandle.getEncoding();
     }
 
     public ISqlJetSchema getSchema() {
@@ -161,7 +161,7 @@ public class SqlJetDb {
      */
     public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock() throws SqlJetException {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(schema, tableName, write);
             }
         });

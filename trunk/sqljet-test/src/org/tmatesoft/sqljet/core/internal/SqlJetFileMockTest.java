@@ -109,7 +109,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
         file.write(wb, 1, 0);
         final ByteBuffer rb = ByteBuffer.allocate(1);
-        final int r = file.read(rb, 1, 0);
+        file.read(rb, 1, 0);
         Assert.assertArrayEquals("Reading should get the same data as it was written", 
                 wb.array(), rb.array());
     }

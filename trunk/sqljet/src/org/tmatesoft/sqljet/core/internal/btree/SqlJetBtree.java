@@ -1934,7 +1934,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     SqlJetMemPage.releasePage(pPage);
                     pMove = pBt.getPage(maxRootPgno, false);
                     try {
-                        pBt.relocatePage(pMove, pBt.PTRMAP_ROOTPAGE, 0, iTable, false);
+                        pBt.relocatePage(pMove, SqlJetBtreeShared.PTRMAP_ROOTPAGE, 0, iTable, false);
                     } finally {
                         SqlJetMemPage.releasePage(pMove);
                     }

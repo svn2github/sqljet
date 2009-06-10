@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.util.EnumSet;
 
 /**
  * Each SQL function is defined by an instance of the following

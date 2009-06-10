@@ -23,6 +23,11 @@ public class SqlJetError extends Error {
     /**
      * 
      */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 
+     */
     public SqlJetError() {
     }
 

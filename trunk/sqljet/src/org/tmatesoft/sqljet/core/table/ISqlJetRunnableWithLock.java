@@ -21,5 +21,5 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetRunnableWithLock {
 
-    public Object runWithLock() throws SqlJetException;
+    public Object runWithLock(SqlJetDb db) throws SqlJetException;
 }

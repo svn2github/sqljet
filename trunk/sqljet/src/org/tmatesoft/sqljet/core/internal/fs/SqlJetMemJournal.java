@@ -173,9 +173,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
         assert(size==0);
         pChunk = p.pFirst;
         while( pChunk!=null ){
-          FileChunk pTmp = pChunk;
           pChunk = pChunk.pNext;
-          pTmp=null;
         }
         
         //sqlite3MemJournalOpen(pJfd);

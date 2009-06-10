@@ -90,11 +90,11 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
 
     public byte[] getBlobAsArray(int field) throws SqlJetException {
         ByteBuffer buffer = btreeTable.getBlob(field);
-        return buffer.array();
+        return buffer != null ? buffer.array() : null;
     }
 
     public InputStream getBlobAsStream(int field) throws SqlJetException {
         ByteBuffer buffer = btreeTable.getBlob(field);
-        return new ByteArrayInputStream(buffer.array());
+        return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
     }
 }

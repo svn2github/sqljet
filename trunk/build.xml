@@ -53,6 +53,25 @@
                 <include name="**/**"/>
             </fileset>
         </jar>
+        <zip destfile="build/sqljet.${build.number}.src.zip">
+            <zipfileset dir="sqljet/src" prefix="src">
+                <exclude name="**/.*"/>
+                <exclude name=".*"/>
+            </zipfileset>
+        </zip>
+
+        <zip destfile="build/sqljet.${build.number}.zip">
+            <zipfileset dir="build" prefix="sqljet.${build.number}">
+                <include name="sqljet.${build.number}.jar"/>
+                <include name="sqljet.${build.number}.src.zip"/>
+            </zipfileset>
+            <zipfileset dir="lib" prefix="sqljet.${build.number}">
+                <include name="**/**"/>
+            </zipfileset>
+        </zip>
+        
+        <delete file="build/sqljet.${build.number}.src.zip"></delete>
+        <delete file="build/sqljet.${build.number}.jar"></delete>
     </target>
 
 	<target name="test" depends="deploy">

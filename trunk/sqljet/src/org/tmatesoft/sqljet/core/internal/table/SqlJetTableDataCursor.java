@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import java.util.Map;
+
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
@@ -66,4 +68,33 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         table.delete();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getValueByFieldName(java.lang.String)
+     */
+    public Object getValueByFieldName(String fieldName) throws SqlJetException {
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
+        if (table.eof())
+            throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                    "Table is empty or current record doens't point to data row");
+        return table.getValueByFieldName(fieldName);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getValuesWithFieldNames()
+     */
+    public Map<String, Object> getValuesWithFieldNames() throws SqlJetException {
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
+        if (table.eof())
+            throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                    "Table is empty or current record doens't point to data row");
+        return table.getValuesWithFieldNames();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#update(java.util.Map)
+     */
+    public void update(Map<String, Object> values) throws SqlJetException {
+        final ISqlJetBtreeDataTable table = getBtreeDataTable();
+        table.update(values);
+    }
 }

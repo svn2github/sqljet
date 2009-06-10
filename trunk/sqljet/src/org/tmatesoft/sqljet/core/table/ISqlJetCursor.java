@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
@@ -186,6 +187,23 @@ public interface ISqlJetCursor {
      */
     InputStream getBlobAsStream(int field) throws SqlJetException;
 
+    /**
+     * Get value of field by name.
+     * 
+     * @param fieldName
+     * @return
+     * @throws SqlJetException
+     */
+    Object getValueByFieldName(String fieldName) throws SqlJetException;
+
+    /**
+     * Get values of records fields with their names.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    Map<String, Object> getValuesWithFieldNames() throws SqlJetException;
+    
     // Modification
 
     /**
@@ -197,6 +215,12 @@ public interface ISqlJetCursor {
      */
     void update(Object... values) throws SqlJetException;
 
+    /**
+     * @param values
+     * @throws SqlJetException
+     */
+    void update(Map<String, Object> values) throws SqlJetException;
+    
     /**
      * Delete the current record.
      * 

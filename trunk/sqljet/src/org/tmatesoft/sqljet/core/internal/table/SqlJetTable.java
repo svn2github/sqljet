@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import java.util.Map;
+
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
@@ -37,6 +39,18 @@ public class SqlJetTable implements ISqlJetTable {
         this.dataTable = new SqlJetBtreeDataTable(schema, tableName, write);
     }
 
+    public boolean isRowIdPrimaryKey() {
+        return dataTable.isRowIdPrimaryKey();
+    }
+
+    public boolean isAutoincrement() {
+        return dataTable.isAutoincrement();
+    }
+
+    public String getPrimaryKeyIndex() {
+        return dataTable.getPrimaryKeyIndex();
+    }
+    
     public ISqlJetTableDef getDefinition() {
         return dataTable.getDefinition();
     };
@@ -59,18 +73,20 @@ public class SqlJetTable implements ISqlJetTable {
         return dataTable.insertAutoId(values);
     }
 
-    public boolean isRowIdPrimaryKey() {
-        return dataTable.isRowIdPrimaryKey();
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(java.util.Map)
+     */
+    public long insert(Map<String, Object> values) throws SqlJetException {
+        return dataTable.insert(values);
     }
-
-    public boolean isAutoincrement() {
-        return dataTable.isAutoincrement();
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insertAutoId(java.util.Map)
+     */
+    public long insertAutoId(Map<String, Object> values) throws SqlJetException {
+        return dataTable.insertAutoId(values);
     }
-
-    public String getPrimaryKeyIndex() {
-        return dataTable.getPrimaryKeyIndex();
-    }
-
+        
     // Deprecated
 
     @Deprecated

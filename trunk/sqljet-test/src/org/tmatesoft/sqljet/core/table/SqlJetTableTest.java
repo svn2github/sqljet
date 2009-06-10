@@ -16,7 +16,9 @@ package org.tmatesoft.sqljet.core.table;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -278,7 +280,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final SqlJetTable table = dbCopy.getTable(TABLE2);
 
-                table.insert("test", "test");
+                table.insertAutoId("test", "test");
 
                 dbCopy.commit();
 
@@ -459,9 +461,9 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public void first() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
-                
+
                 final SqlJetTable table = dbCopy.getTable(TABLE);
-                
+
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
                 Assert.assertFalse(lookupFail.first());
@@ -477,9 +479,9 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookupFail.eof());
                 Assert.assertFalse(lookupFail.next());
                 Assert.assertTrue(lookupFail.eof());
-                
+
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-                
+
                 Assert.assertTrue(lookup.first());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertTrue(lookup.next());
@@ -497,7 +499,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.eof());
                 Assert.assertFalse(lookup.next());
                 Assert.assertTrue(lookup.eof());
-                
+
                 return null;
             }
         });
@@ -507,19 +509,19 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public void last() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
-                
+
                 final SqlJetTable table = dbCopy.getTable(TABLE);
-                
+
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
-                
+
                 Assert.assertFalse(lookupFail.last());
                 Assert.assertTrue(lookupFail.eof());
 
                 Assert.assertFalse(lookupFail.last());
                 Assert.assertTrue(lookupFail.eof());
-                
+
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-                
+
                 Assert.assertTrue(lookup.last());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertTrue(lookup.previous());
@@ -528,7 +530,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.eof());
                 Assert.assertFalse(lookup.previous());
                 Assert.assertTrue(lookup.eof());
-                
+
                 return null;
             }
         });
@@ -538,19 +540,19 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     public void prev() throws SqlJetException {
         dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock() throws SqlJetException {
-                
+
                 final SqlJetTable table = dbCopy.getTable(TABLE);
-                
+
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
-                
+
                 Assert.assertFalse(lookupFail.previous());
                 Assert.assertTrue(lookupFail.eof());
 
                 Assert.assertFalse(lookupFail.previous());
                 Assert.assertTrue(lookupFail.eof());
-                
+
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-                
+
                 Assert.assertTrue(lookup.next());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertTrue(lookup.previous());
@@ -581,10 +583,75 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.eof());
                 Assert.assertFalse(lookup.previous());
                 Assert.assertTrue(lookup.eof());
-                
+
                 return null;
             }
         });
+    }
+
+    @Test
+    public void insertByNames() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.getTable(TABLE);
+
+                final Map<String, Object> values = new HashMap<String, Object>();
+                values.put("name", "test1");
+                values.put("value", 1);
+
+                final long insertAutoId = table.insertAutoId(values);
+                dbCopy.commit();
+
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+
+                final Object nameField = lookup.getValueByFieldName("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                
+                return null;
+
+            }
+        });
+
+    }
+
+    @Test
+    public void updateByNames() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock() throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.getTable(TABLE);
+                final ISqlJetCursor open = table.open();
+
+                final Map<String, Object> values = new HashMap<String, Object>();
+                values.put("name", "test1");
+                values.put("value", 1);
+
+                open.update(values);
+                dbCopy.commit();
+
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+
+                final Object nameField = lookup.getValueByFieldName("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                
+                return null;
+
+            }
+        });
+
     }
     
 }

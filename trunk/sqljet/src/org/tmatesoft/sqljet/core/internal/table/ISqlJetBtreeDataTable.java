@@ -34,20 +34,19 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     ISqlJetTableDef getDefinition();
 
     /**
-     * Get definitions of table's indexes. 
+     * Get definitions of table's indexes.
      * 
      * @return
      */
     Map<String, ISqlJetIndexDef> getIndexDefinitions();
-    
+
     /**
      * Get indexes which are related with table.
      * 
      * @return
      */
     Map<String, ISqlJetBtreeIndexTable> getIndexesTables();
-    
-    
+
     /**
      * Go to record with given rowID. Return boolean to indicate success.
      * 
@@ -79,7 +78,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     long insertAutoId(Object... values) throws SqlJetException;
-    
+
     /**
      * Update an entry in the table by rowId.
      * 
@@ -96,7 +95,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     void update(Object... values) throws SqlJetException;
-    
+
     /**
      * Delete record by row's ID.
      * 
@@ -111,30 +110,98 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     void delete() throws SqlJetException;
-    
+
     /**
+     * Check the current record is equal to key using definition of index.
+     * 
      * @param indexName
      * @param key
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     boolean checkIndex(String indexName, Object[] key) throws SqlJetException;
 
     /**
+     * Has table primary key defined as INTEGER field ?
+     * 
      * @return the isRowIdPrimaryKey
      */
     boolean isRowIdPrimaryKey();
-    
+
     /**
+     * Is primary key defined as AUTOINCREMENT ?
+     * 
      * @return the isAutoincrement
      */
     boolean isAutoincrement();
-    
+
     /**
+     * Get name of index which has been auto-created for primary key.
+     * 
      * @return the primaryKeyIndex
      */
     String getPrimaryKeyIndex();
-    
-    public boolean locate(String indexName, boolean next, Object ... key) throws SqlJetException;
-    
+
+    /**
+     * Locate record which using index by key. Key is values for fields which
+     * are defined in index. If record is found then returns true. If next is
+     * true then locate record by next entry in index for key.
+     * 
+     * @param indexName
+     * @param next
+     * @param key
+     * @return
+     * @throws SqlJetException
+     */
+    public boolean locate(String indexName, boolean next, Object... key) throws SqlJetException;
+
+    /**
+     * Get value of field by name.
+     * 
+     * @param fieldName
+     * @return
+     * @throws SqlJetException
+     */
+    Object getValueByFieldName(String fieldName) throws SqlJetException;
+
+    /**
+     * Get values of records fields with their names.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    Map<String, Object> getValuesWithFieldNames() throws SqlJetException;
+
+    /**
+     * Insert record by values by names of fields.
+     * 
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    long insert(Map<String, Object> values) throws SqlJetException;
+
+    /**
+     * Insert record by values by names of fields and .
+     * 
+     * 
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    long insertAutoId(Map<String, Object> values) throws SqlJetException;
+
+    /**
+     * @param rowId
+     * @param values
+     * @throws SqlJetException
+     */
+    void update(long rowId, Map<String, Object> values) throws SqlJetException;
+
+    /**
+     * @param values
+     * @throws SqlJetException
+     */
+    void update(Map<String, Object> values) throws SqlJetException;
+
 }

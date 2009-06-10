@@ -14,8 +14,8 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +61,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private Map<String, List<String>> tableConstraintsIndexes;
 
     private String primaryKeyIndex;
+    private String rowIdPrimaryKeyColumn;
+    private List<String> primaryKeyColumns;
 
     private enum Action {
         INSERT, UPDATE, DELETE
@@ -93,10 +95,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         this.columnsConstraintsIndexes = dataTable.columnsConstraintsIndexes;
         this.tableConstraintsIndexes = dataTable.tableConstraintsIndexes;
         this.primaryKeyIndex = dataTable.primaryKeyIndex;
+        this.primaryKeyColumns = dataTable.primaryKeyColumns;
 
         indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
         for (Map.Entry<String, ISqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
-            indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable)entry.getValue()));
+            indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable) entry.getValue()));
         }
 
     }
@@ -109,6 +112,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         columnsConstraintsIndexes = new HashMap<String, String>();
         tableConstraintsIndexes = new HashMap<String, List<String>>();
+        primaryKeyColumns = new ArrayList<String>();
 
         if (null == tableDef)
             return;
@@ -123,7 +127,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                     continue;
                 for (final ISqlJetColumnConstraint constraint : constraints) {
                     if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                        primaryKeyColumns.add(column.getName());
                         if (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER) {
+                            rowIdPrimaryKeyColumn = column.getName();
                             isRowIdPrimaryKey = true;
                             isAutoincrement = ((ISqlJetColumnPrimaryKey) constraint).isAutoincremented();
                         } else {
@@ -142,8 +148,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (null != constraints) {
             for (final ISqlJetTableConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetTablePrimaryKey) {
+                    final ISqlJetTablePrimaryKey pk = (ISqlJetTablePrimaryKey) constraint;
+                    primaryKeyColumns.addAll(pk.getColumns());
                     String n = generateAutoIndexName(tableDef.getName(), ++i);
-                    tableConstraintsIndexes.put(n, ((ISqlJetTablePrimaryKey) constraint).getColumns());
+                    tableConstraintsIndexes.put(n, pk.getColumns());
                     primaryKeyIndex = n;
                 } else if (constraint instanceof ISqlJetTableUnique) {
                     tableConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i),
@@ -223,16 +231,53 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.lang.Object[])
      */
     public long insert(Object... values) throws SqlJetException {
+
+        if (null == values)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values isn't defined");
+
         lock();
         try {
-            long rowId = newRowId(lastNewRowId);
-            final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
+
+            long rowId;
+            Object[] row;
+            boolean setLastNewRowId = false;
+
+            if (isAutoincrement) {
+                final int primaryKeyColumnNumber = tableDef.getColumnNumber(rowIdPrimaryKeyColumn);
+                if (primaryKeyColumnNumber == -1)
+                    throw new SqlJetException(SqlJetErrorCode.ERROR);
+                rowId = newRowId(lastNewRowId);
+                row = SqlJetUtility.insertArray(values, new Object[] { rowId }, primaryKeyColumnNumber);
+                setLastNewRowId = true;
+            } else if (isRowIdPrimaryKey) {
+                final int primaryKeyColumnNumber = tableDef.getColumnNumber(rowIdPrimaryKeyColumn);
+                if (primaryKeyColumnNumber == -1)
+                    throw new SqlJetException(SqlJetErrorCode.ERROR);
+                if (primaryKeyColumnNumber > values.length)
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Primary key isn't defined for table with INTEGER PRIMARY KEY");
+                final Object object = values[primaryKeyColumnNumber];
+                if (!(object instanceof Number))
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Primary key isn't defined as number for table with INTEGER PRIMARY KEY");
+                rowId = ((Number) object).longValue();
+                row = values;
+            } else {
+                rowId = newRowId(lastNewRowId);
+                row = values;
+                setLastNewRowId = true;
+            }
+
             doActionWithIndexes(Action.INSERT, rowId, row);
-            lastNewRowId = rowId;
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
-            cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
+            cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
+            if (setLastNewRowId) {
+                lastNewRowId = rowId;
+            }
             clearCachedRecord();
-            return lastNewRowId;
+            goToRow(rowId);
+            return rowId;
+
         } finally {
             unlock();
         }
@@ -246,12 +291,17 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.lang.Object[])
      */
     public long insertAutoId(Object... values) throws SqlJetException {
+        if (null == values)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values isn't defined");
         if (!isRowIdPrimaryKey)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "This method only for tables with INTEGER PRIMARY KEY");
         lock();
         try {
+            final int primaryKeyColumnNumber = tableDef.getColumnNumber(rowIdPrimaryKeyColumn);
+            if (primaryKeyColumnNumber == -1)
+                throw new SqlJetException(SqlJetErrorCode.ERROR);
             long rowId = newRowId(lastNewRowId);
-            final Object[] row = SqlJetUtility.addArrays(new Object[] { rowId }, values);
+            final Object[] row = SqlJetUtility.insertArray(values, new Object[] { rowId }, primaryKeyColumnNumber);
             doActionWithIndexes(Action.INSERT, rowId, row);
             lastNewRowId = rowId;
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
@@ -516,12 +566,197 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         final long lookup = indexTable.lookup(next, key);
         return lookup != 0 && goToRow(lookup);
     }
-    
+
     /**
      * @return the indexesTables
      */
     public Map<String, ISqlJetBtreeIndexTable> getIndexesTables() {
         return Collections.unmodifiableMap(indexesTables);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
+     * getValueByFieldName(java.lang.String)
+     */
+    public Object getValueByFieldName(String fieldName) throws SqlJetException {
+        if (null == fieldName)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Field name isn't defined");
+        final int columnNumber = tableDef.getColumnNumber(fieldName);
+        if (-1 == columnNumber)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Field isn't found: " + fieldName);
+        return getValue(columnNumber);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
+     * getValuesWithFieldNames()
+     */
+    public Map<String, Object> getValuesWithFieldNames() throws SqlJetException {
+        int i = 0;
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        final Map<String, Object> map = new HashMap<String, Object>(columns.size());
+        for (ISqlJetColumnDef column : columns) {
+            map.put(column.getName(), getValue(i++));
+        }
+        return map;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
+     * (java.util.Map)
+     */
+    public long insert(Map<String, Object> values) throws SqlJetException {
+
+        if (null == values)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values isn't defined");
+
+        lock();
+        try {
+
+            long rowId;
+            Object[] row;
+            boolean setLastNewRowId = false;
+
+            if (isAutoincrement) {
+
+                rowId = newRowId(lastNewRowId);
+                row = unwrapValues(values, rowId);
+                setLastNewRowId = true;
+
+            } else if (isRowIdPrimaryKey) {
+
+                final Object value = values.get(rowIdPrimaryKeyColumn);
+                if (null == value)
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Primary key isn't defined for table with INTEGER PRIMARY KEY");
+                if (!(value instanceof Number))
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Primary key isn't defined as number for table with INTEGER PRIMARY KEY");
+                rowId = ((Number) value).longValue();
+                row = unwrapValues(values);
+
+            } else {
+
+                rowId = newRowId(lastNewRowId);
+                row = unwrapValues(values);
+                setLastNewRowId = true;
+
+            }
+
+            doActionWithIndexes(Action.INSERT, rowId, row);
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
+            if (setLastNewRowId) {
+                lastNewRowId = rowId;
+            }
+            clearCachedRecord();
+            goToRow(rowId);
+            return rowId;
+
+        } finally {
+            unlock();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertAutoId
+     * (java.util.Map)
+     */
+    public long insertAutoId(Map<String, Object> values) throws SqlJetException {
+        if (!isRowIdPrimaryKey)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        lock();
+        try {
+            long rowId = newRowId(lastNewRowId);
+            final Object[] row = unwrapValues(values, rowId);
+            doActionWithIndexes(Action.INSERT, rowId, row);
+            lastNewRowId = rowId;
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
+            clearCachedRecord();
+            return lastNewRowId;
+        } finally {
+            unlock();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
+     * (long, java.util.Map)
+     */
+    public void update(long rowId, Map<String, Object> values) throws SqlJetException {
+        lock();
+        try {
+            if (rowId <= 0 || !goToRow(rowId))
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
+            doUpdate(rowId, unwrapValues(values));
+        } finally {
+            unlock();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
+     * (java.util.Map)
+     */
+    public void update(Map<String, Object> values) throws SqlJetException {
+        lock();
+        try {
+            doUpdate(getRowId(), unwrapValues(values));
+        } finally {
+            unlock();
+        }
+    }
+
+    /**
+     * @param values
+     * @return
+     * 
+     * @throws SqlJetException
+     */
+    private Object[] unwrapValues(Map<String, Object> values) {
+        int i = 0;
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        final Object[] unwrapped = new Object[columns.size()];
+        for (ISqlJetColumnDef column : columns) {
+            final String columnName = column.getName();
+            final Object value = values.get(columnName);
+            unwrapped[i++] = value;
+        }
+        return unwrapped;
+    }
+
+    private Object[] unwrapValues(Map<String, Object> values, long rowId) throws SqlJetException {
+        if (!isRowIdPrimaryKey)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        int i = 0;
+        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        final Object[] unwrapped = new Object[columns.size()];
+        for (ISqlJetColumnDef column : columns) {
+            final String columnName = column.getName();
+            if (columnName.equalsIgnoreCase(rowIdPrimaryKeyColumn)) {
+                unwrapped[i++] = rowId;
+            } else {
+                unwrapped[i++] = values.get(columnName);
+            }
+        }
+        return unwrapped;
+    }
+
 }

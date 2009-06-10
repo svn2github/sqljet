@@ -82,7 +82,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                             .createTable("create table test( id integer primary key, name text )");
                     final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
-                    openTable.insert("test");
+                    openTable.insertAutoId("test");
                     db.commit();
                 } catch (SqlJetException e) {
                     db.rollback();
@@ -124,7 +124,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                             .createTable("create table test( id integer primary key, name text unique )");
                     final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
-                    openTable.insert("test");
+                    openTable.insertAutoId("test");
                     db.commit();
                 } catch (SqlJetException e) {
                     db.rollback();
@@ -170,7 +170,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                             .createTable("create table test( id integer primary key, name text )");
                     final SqlJetTable openTable = db.getTable(createTable.getName());
                     logger.info(createTable.toString());
-                    openTable.insert("test");
+                    openTable.insertAutoId("test");
                     schema.createIndex("CREATE INDEX test_name_index ON test(name);");
                     db.commit();
                 } catch (SqlJetException e) {
@@ -286,9 +286,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                             .createTable("create table test( id integer primary key, name text )");
                     final SqlJetTable openTable = repCache.getTable(createTable.getName());
                     logger.info(createTable.toString());
-                    openTable.insert("test");
+                    openTable.insertAutoId("test");
                     schema.createIndex("CREATE INDEX test_index ON test(name);");
-                    openTable.insert("test1");
+                    openTable.insertAutoId("test1");
                     repCache.commit();
                 } catch (SqlJetException e) {
                     repCache.rollback();
@@ -377,8 +377,8 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     logger.info(createTable.toString());
                     schema.createIndex("CREATE INDEX test_index ON test(name);");
                     final SqlJetTable openTable = createDb.getTable(createTable.getName());
-                    openTable.insert("test");
-                    openTable.insert("test1");
+                    openTable.insertAutoId("test");
+                    openTable.insertAutoId("test1");
                     createDb.commit();
                 } catch (SqlJetException e) {
                     createDb.rollback();

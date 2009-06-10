@@ -127,6 +127,17 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         return null;
     }
 
+    public int getColumnNumber(String name) {
+        int i = 0;
+        for (ISqlJetColumnDef column : getColumns()) {
+            if (column.getName().equalsIgnoreCase(name)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+    
     public List<ISqlJetTableConstraint> getConstraints() {
         return constraints;
     }

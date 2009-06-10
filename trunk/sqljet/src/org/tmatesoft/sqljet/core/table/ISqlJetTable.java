@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.util.Map;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
@@ -25,6 +27,21 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public interface ISqlJetTable {
 
+    /**
+     * @return the isRowIdPrimaryKey
+     */
+    boolean isRowIdPrimaryKey();
+
+    /**
+     * @return the isAutoincrement
+     */
+    boolean isAutoincrement();
+
+    /**
+     * @return the primaryKeyIndex
+     */
+    String getPrimaryKeyIndex();
+    
     /**
      * Get table's schema definition.
      */
@@ -69,20 +86,24 @@ public interface ISqlJetTable {
     long insertAutoId(Object... values) throws SqlJetException;
 
     /**
-     * @return the isRowIdPrimaryKey
+     * Insert record by values by names of fields.
+     * 
+     * @param values
+     * @return
+     * @throws SqlJetException
      */
-    boolean isRowIdPrimaryKey();
+    long insert(Map<String, Object> values) throws SqlJetException;
 
     /**
-     * @return the isAutoincrement
+     * Insert record by values by names of fields and .
+     * 
+     * 
+     * @param values
+     * @return
+     * @throws SqlJetException
      */
-    boolean isAutoincrement();
-
-    /**
-     * @return the primaryKeyIndex
-     */
-    String getPrimaryKeyIndex();
-
+    long insertAutoId(Map<String, Object> values) throws SqlJetException;
+    
     // The following methods are deprecated and should be removed.
 
     /**

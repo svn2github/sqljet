@@ -651,5 +651,40 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
 
     }
+
+    @Test
+    public void insertByNamesNull() throws SqlJetException {
+
+        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+
+                dbCopy.beginTransaction();
+
+                final SqlJetTable table = dbCopy.getTable(TABLE);
+
+                final Map<String, Object> values = new HashMap<String, Object>();
+                values.put("name", "test1");
+
+                table.insertAutoId(values);
+                dbCopy.commit();
+
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+
+                final Object nameField = lookup.getValueByFieldName("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+
+                final Object valueField = lookup.getValueByFieldName("value");
+                Assert.assertNull(valueField);
+                
+                return null;
+
+            }
+        });
+
+    }
+
     
 }

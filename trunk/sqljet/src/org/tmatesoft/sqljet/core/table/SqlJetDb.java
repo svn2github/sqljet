@@ -20,6 +20,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -148,14 +149,14 @@ public class SqlJetDb {
         return dbHandle.getEncoding();
     }
 
+    public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
+        dbHandle.setEncoding(encoding);
+    }
+    
     public ISqlJetSchema getSchema() {
         return schema;
     }
 
-    public ISqlJetSchemaMeta getMeta() {
-        return dbHandle.getMeta();
-    }
-    
     /**
      * Open table.
      * 
@@ -206,6 +207,33 @@ public class SqlJetDb {
             btree.rollback();
             transaction = false;
         }
+    }
+
+    public SqlJetAutoVacuumMode getAutoVacuum() {
+        return btree.getAutoVacuum();
+    }
+
+    public void setAutoVacuum(SqlJetAutoVacuumMode autoVacuumMode) throws SqlJetException {
+        btree.setAutoVacuum(autoVacuumMode);
+        dbHandle.getMeta().setAutovacuum(SqlJetAutoVacuumMode.NONE != autoVacuumMode);
+        dbHandle.getMeta().setIncrementalVacuum(SqlJetAutoVacuumMode.INCR == autoVacuumMode);
+    }
+
+    public int getPageCacheSize() {
+        return dbHandle.getMeta().getPageCacheSize();
+    }
+
+    public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
+        btree.setCacheSize(pageCacheSize);
+        dbHandle.getMeta().setPageCacheSize(pageCacheSize);
+    }
+
+    public int getUserCookie() {
+        return dbHandle.getMeta().getUserCookie();
+    }
+
+    public void setUserCookie(int userCookie) throws SqlJetException {
+        dbHandle.getMeta().setUserCookie(userCookie);
     }
 
 }

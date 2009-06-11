@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
+import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
@@ -388,4 +389,36 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         });
     }
 
+    @Test
+    public void changeEncoding() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                createDb.beginTransaction();
+                try {
+                    createDb.getMeta().setEncoding(SqlJetEncoding.UTF16LE);
+                    final ISqlJetSchema schema = createDb.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    logger.info(createTable.toString());
+                    schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                    openTable.insertAutoId("test");
+                    openTable.insertAutoId("test1");
+                    openTable.insertAutoId("Тест");
+                    createDb.commit();
+                } catch (SqlJetException e) {
+                    createDb.rollback();
+                    throw e;
+                }
+                return null;
+            }
+        });
+    }
+    
 }

@@ -87,4 +87,52 @@ public interface ISqlJetSchemaMeta {
      */
     boolean isIncrementalVacuum();
 
+    /**
+     * Set user's cookie.
+     * 
+     * @param userCookie
+     * @throws SqlJetException
+     */
+    void setUserCookie(int userCookie) throws SqlJetException;
+
+    /**
+     * Set file format. It's allowed only on new empty data base.
+     * 
+     * @param fileFormat
+     * @throws SqlJetException
+     */
+    void setFileFormat(int fileFormat) throws SqlJetException;
+
+    /**
+     * Set page cache's size. It's allowed only on new empty data base.
+     * 
+     * @param pageCacheSize
+     * @throws SqlJetException 
+     */
+    void setPageCacheSize(int pageCacheSize) throws SqlJetException;
+
+    /**
+     * Set autovacuum flag. It's allowed only on new empty data base.
+     * 
+     * @param autovacuum
+     * @throws SqlJetException 
+     */
+    void setAutovacuum(boolean autovacuum) throws SqlJetException;
+
+    /**
+     * Set encoding. It's allowed only on new empty data base.
+     * 
+     * @param encoding
+     * @throws SqlJetException 
+     */
+    void setEncoding(SqlJetEncoding encoding) throws SqlJetException;
+
+    /**
+     * Set incremental vacuum flag. It's allowed only on new empty data base.
+     * 
+     * @param incrementalVacuum
+     * @throws SqlJetException 
+     */
+    void setIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException;
+
 }

@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
@@ -108,14 +109,16 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
      */
     public SqlJetEncoding getEncoding() {
-        return enc;
+        return meta.getEncoding();
     }
     
     /**
      * @param enc the enc to set
+     * 
+     * @throws SqlJetException 
      */
-    public void setEncoding(SqlJetEncoding enc) {
-        this.enc = enc;
+    public void setEncoding(SqlJetEncoding enc) throws SqlJetException {
+        this.meta.setEncoding(enc);
     }
     
     /* (non-Javadoc)
@@ -130,7 +133,6 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
      */
     public void setMeta(ISqlJetSchemaMeta meta) {
         this.meta = meta;
-        setEncoding(meta.getEncoding());
     }
     
 }

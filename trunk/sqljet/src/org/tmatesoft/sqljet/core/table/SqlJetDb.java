@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
@@ -151,6 +152,10 @@ public class SqlJetDb {
         return schema;
     }
 
+    public ISqlJetSchemaMeta getMeta() {
+        return dbHandle.getMeta();
+    }
+    
     /**
      * Open table.
      * 

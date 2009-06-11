@@ -81,15 +81,18 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
     }
 
     public static ISqlJetBtreeRecord getRecord(Object... values) throws SqlJetException {
+        return getRecord(ISqlJetBtreeRecord.INTERNAL_ENCODING, values);
+    }
+
+    public static ISqlJetBtreeRecord getRecord(SqlJetEncoding encoding, Object... values) throws SqlJetException {
         List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
         for (int i = 0; i < values.length; i++) {
             Object value = values[i];
             ISqlJetVdbeMem mem = new SqlJetVdbeMem();
             if (value instanceof ByteBuffer) {
-                mem.setStr((ByteBuffer) value, ISqlJetBtreeRecord.INTERNAL_ENCODING);
+                mem.setStr((ByteBuffer) value, encoding);
             } else if (value instanceof String) {
-                mem.setStr(ByteBuffer.wrap(SqlJetUtility.getBytes((String) value)),
-                        ISqlJetBtreeRecord.INTERNAL_ENCODING);
+                mem.setStr(SqlJetUtility.fromString((String) value, encoding), encoding);
             } else if (value instanceof Byte) {
                 mem.setInt64((Byte) value);
             } else if (value instanceof Short) {
@@ -336,7 +339,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         final ByteBuffer v = f.valueText(enc);
         if (null == v)
             return null;
-        return SqlJetUtility.toString(v,enc);
+        return SqlJetUtility.toString(v, enc);
     }
 
     /*

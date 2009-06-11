@@ -88,7 +88,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        if(db.getMeta().getSchemaCookie()==0) return;
+        if (db.getMeta().getSchemaCookie() == 0)
+            return;
         final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             table.lock();
@@ -263,8 +264,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 db.getMeta().changeSchemaCookie();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
-                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(TABLE_TYPE, tableName, tableName, page,
-                        tableDef.toSQL());
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), TABLE_TYPE, tableName,
+                        tableName, page, tableDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
                 schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
 
@@ -398,7 +399,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 db.getMeta().changeSchemaCookie();
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
-                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, indexName, tableName, page,
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, indexName, tableName, page,
                         indexDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
                 schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
@@ -441,8 +442,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table not found: " + tableName);
         final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
 
-        dropTableIndexes(tableDef);        
-        
+        dropTableIndexes(tableDef);
+
         final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {

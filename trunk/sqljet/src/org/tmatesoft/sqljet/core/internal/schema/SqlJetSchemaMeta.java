@@ -30,6 +30,20 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPageCache;
  */
 public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
 
+    private static final int SCHEMA_COOKIE = 1;
+
+    private static final int FILE_FORMAT = 2;
+
+    private static final int PAGE_CACHE_SIZE = 3;
+
+    private static final int AUTOVACUUM = 4;
+
+    private static final int ENCODING = 5;
+
+    private static final int USER_COOKIE = 6;
+
+    private static final int INCREMENTAL_VACUUM = 7;
+
     private ISqlJetBtree btree;
 
     /**
@@ -74,9 +88,9 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      */
     public SqlJetSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
-        readMeta(btree);
+        readMeta();
         if (schemaCookie == 0)
-            initMeta(btree);
+            initMeta();
     }
 
     /**
@@ -118,34 +132,94 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @throws SqlJetException
      * 
      */
-    private void readMeta(ISqlJetBtree btree) throws SqlJetException {
-        schemaCookie = btree.getMeta(1);
+    private void readMeta() throws SqlJetException {
+        schemaCookie = readSchemaCookie();
         if (schemaCookie == 0)
             return;
-        fileFormat = btree.getMeta(2);
-        if (fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-        pageCacheSize = btree.getMeta(3);
-        autovacuum = btree.getMeta(4) != 0;
-        userCookie = btree.getMeta(6);
-        incrementalVacuum = btree.getMeta(7) != 0;
-        switch (btree.getMeta(5)) {
+        fileFormat = readFileFormat();
+        pageCacheSize = readPageCacheSize();
+        autovacuum = readAutoVacuum();
+        userCookie = readUserCookie();
+        incrementalVacuum = readIncrementalVacuum();
+        encoding = readEncoding();
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private SqlJetEncoding readEncoding() throws SqlJetException {
+        switch (btree.getMeta(ENCODING)) {
         case 0:
-            if (schemaCookie != 0)
+            if (readSchemaCookie() != 0)
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-            break;
         case 1:
-            encoding = SqlJetEncoding.UTF8;
-            break;
+            return SqlJetEncoding.UTF8;
         case 2:
-            encoding = SqlJetEncoding.UTF16LE;
-            break;
+            return SqlJetEncoding.UTF16LE;
         case 3:
-            encoding = SqlJetEncoding.UTF16BE;
-            break;
+            return SqlJetEncoding.UTF16BE;
         default:
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private boolean readIncrementalVacuum() throws SqlJetException {
+        return btree.getMeta(INCREMENTAL_VACUUM) != 0;
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private int readUserCookie() throws SqlJetException {
+        return btree.getMeta(USER_COOKIE);
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private boolean readAutoVacuum() throws SqlJetException {
+        return btree.getMeta(AUTOVACUUM) != 0;
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private int readPageCacheSize() throws SqlJetException {
+        return btree.getMeta(PAGE_CACHE_SIZE);
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private int readFileFormat() throws SqlJetException {
+        final int fileFormat = btree.getMeta(FILE_FORMAT);
+        checkFileFormat(fileFormat);
+        return fileFormat;
+    }
+
+    /**
+     * @param fileFormat
+     * @throws SqlJetException
+     */
+    private void checkFileFormat(final int fileFormat) throws SqlJetException {
+        if (fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private int readSchemaCookie() throws SqlJetException {
+        return btree.getMeta(SCHEMA_COOKIE);
     }
 
     /*
@@ -247,40 +321,178 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
     public void changeSchemaCookie() throws SqlJetException {
         verifySchemaCookie(true);
         schemaCookie++;
-        btree.updateMeta(1, schemaCookie);
+        writeSchemaCookie(schemaCookie);
     }
 
     /**
      * @param btree2
      * @throws SqlJetException
      */
-    private void initMeta(ISqlJetBtree btree2) throws SqlJetException {
+    private void initMeta() throws SqlJetException {
         btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
         try {
-            btree.updateMeta(2, fileFormat);
-            btree.updateMeta(3, pageCacheSize);
-            btree.updateMeta(4, autovacuum ? 1 : 0);
-            btree.updateMeta(7, incrementalVacuum ? 1 : 0);
-            switch (encoding) {
-            case UTF8:
-                btree.updateMeta(5, 1);
-                break;
-            case UTF16LE:
-                btree.updateMeta(5, 2);
-                break;
-            case UTF16BE:
-                btree.updateMeta(5, 3);
-                break;
-            default:
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-            }
             schemaCookie = 1;
-            btree.updateMeta(1, schemaCookie);
+            writeSchemaCookie(schemaCookie);
+            writeFileFormat(fileFormat);
+            writePageCacheSize(pageCacheSize);
+            writeAutoVacuum(autovacuum);
+            writeIncrementalVacuum(incrementalVacuum);
+            writeEncoding(encoding);
             btree.commit();
         } catch (SqlJetException e) {
             btree.rollback();
             throw e;
         }
+    }
+
+    /**
+     * @param schemaCookie 
+     * @throws SqlJetException
+     */
+    private void writeSchemaCookie(int schemaCookie) throws SqlJetException {
+        btree.updateMeta(SCHEMA_COOKIE, schemaCookie);
+    }
+
+    /**
+     * @param encoding 
+     * @throws SqlJetException
+     */
+    private void writeEncoding(SqlJetEncoding encoding) throws SqlJetException {
+        switch (encoding) {
+        case UTF8:
+            btree.updateMeta(ENCODING, 1);
+            break;
+        case UTF16LE:
+            btree.updateMeta(ENCODING, 2);
+            break;
+        case UTF16BE:
+            btree.updateMeta(ENCODING, 3);
+            break;
+        default:
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+        }
+    }
+
+    /**
+     * @param incrementalVacuum 
+     * @throws SqlJetException
+     */
+    private void writeIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException {
+        btree.updateMeta(INCREMENTAL_VACUUM, incrementalVacuum ? 1 : 0);
+    }
+
+    /**
+     * @param autovacuum 
+     * @throws SqlJetException
+     */
+    private void writeAutoVacuum(boolean autovacuum) throws SqlJetException {
+        btree.updateMeta(AUTOVACUUM, autovacuum ? 1 : 0);
+    }
+
+    /**
+     * @param pageCacheSize 
+     * @throws SqlJetException
+     */
+    private void writePageCacheSize(int pageCacheSize) throws SqlJetException {
+        checkPageCacheSize(pageCacheSize);
+        btree.updateMeta(PAGE_CACHE_SIZE, pageCacheSize);
+    }
+
+    /**
+     * @param pageCacheSize
+     * @throws SqlJetException 
+     */
+    private void checkPageCacheSize(int pageCacheSize) throws SqlJetException {
+        if(pageCacheSize<SqlJetPageCache.PAGE_CACHE_SIZE_MINIMUM)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+    }
+
+    /**
+     * @param fileFormat 
+     * @throws SqlJetException
+     */
+    private void writeFileFormat(int fileFormat) throws SqlJetException {
+        checkFileFormat(fileFormat);
+        btree.updateMeta(FILE_FORMAT, fileFormat);
+    }
+
+    /**
+     * @param userCookie the userCookie to set
+     * 
+     * @throws SqlJetException 
+     */
+    public void setUserCookie(int userCookie) throws SqlJetException {
+        this.userCookie = userCookie;
+        writeUserCookie(userCookie);
+    }
+
+    /**
+     * @param userCookie
+     * 
+     * @throws SqlJetException 
+     */
+    private void writeUserCookie(int userCookie) throws SqlJetException {
+        btree.updateMeta(USER_COOKIE, userCookie);
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void checkSchema() throws SqlJetException {
+        if(readSchemaCookie()!=1)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+    }
+    
+    /**
+     * @param fileFormat the fileFormat to set
+     * 
+     * @throws SqlJetException 
+     */
+    public void setFileFormat(int fileFormat) throws SqlJetException {
+        checkSchema();
+        writeFileFormat(fileFormat);
+        this.fileFormat = fileFormat;
+    }
+    
+    /**
+     * @param pageCacheSize the pageCacheSize to set
+     * 
+     * @throws SqlJetException 
+     */
+    public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
+        checkSchema();
+        writePageCacheSize(pageCacheSize);
+        this.pageCacheSize = pageCacheSize;
+    }
+    
+    /**
+     * @param autovacuum the autovacuum to set
+     * @throws SqlJetException 
+     */
+    public void setAutovacuum(boolean autovacuum) throws SqlJetException {
+        checkSchema();
+        writeAutoVacuum(autovacuum);
+        this.autovacuum = autovacuum;
+    }
+    
+    /**
+     * @param encoding the encoding to set
+     * @throws SqlJetException 
+     */
+    public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
+        checkSchema();
+        writeEncoding(encoding);
+        this.encoding = encoding;
+    }
+    
+    /**
+     * @param incrementalVacuum the incrementalVacuum to set
+     * @throws SqlJetException 
+     */
+    public void setIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException {
+        checkSchema();
+        writeIncrementalVacuum(incrementalVacuum);
+        this.incrementalVacuum = incrementalVacuum;
     }
 
 }

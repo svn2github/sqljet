@@ -304,7 +304,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] row = SqlJetUtility.insertArray(values, new Object[] { rowId }, primaryKeyColumnNumber);
             doActionWithIndexes(Action.INSERT, rowId, row);
             lastNewRowId = rowId;
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(row).getRawRecord();
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(),row).getRawRecord();
             cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
             clearCachedRecord();
             return lastNewRowId;

@@ -16,6 +16,7 @@ package org.tmatesoft.sqljet.core.schema;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -50,6 +51,10 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     public static final String REP_CACHE_TABLE = SqlJetUtility
             .getSysProp(SCHEMA_TEST + ".REP_CACHE_TABLE", "rep_cache");
 
+    private static final byte[] TEST_UTF8 = new byte[] { (byte) 0320, (byte) 0242, (byte) 0320, (byte) 0265,
+        (byte) 0321, (byte) 0201, (byte) 0321, (byte) 0202 };
+    
+    
     private File fileDb = new File(DB);
     private File fileDbCopy;
     private SqlJetDb db;
@@ -410,15 +415,88 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final SqlJetTable openTable = createDb.getTable(createTable.getName());
                     openTable.insertAutoId("test");
                     openTable.insertAutoId("test1");
-                    openTable.insertAutoId("\320\242\320\265\321\201\321\202");
+                    openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
                     createDb.commit();
                 } catch (SqlJetException e) {
                     createDb.rollback();
                     throw e;
+                } catch (UnsupportedEncodingException e) {
+                    createDb.rollback();
+                    throw new SqlJetException(e);
                 }
                 return null;
             }
         });
     }
-    
+
+    @Test(expected = SqlJetException.class)
+    public void changeEncodingFail() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                createDb.beginTransaction();
+                try {
+                    final ISqlJetSchema schema = createDb.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    logger.info(createTable.toString());
+                    schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                    openTable.insertAutoId("test");
+                    openTable.insertAutoId("test1");
+                    openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+                    createDb.getMeta().setEncoding(SqlJetEncoding.UTF16LE);
+                    createDb.commit();
+                } catch (SqlJetException e) {
+                    createDb.rollback();
+                    throw e;
+                } catch (UnsupportedEncodingException e) {
+                    createDb.rollback();
+                    throw new SqlJetException(e);
+                }
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void changePageCacheSize() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                createDb.beginTransaction();
+                try {
+                    createDb.getMeta().setPageCacheSize(1000);
+                    final ISqlJetSchema schema = createDb.getSchema();
+                    final ISqlJetTableDef createTable = schema
+                            .createTable("create table test( id integer primary key, name text )");
+                    logger.info(createTable.toString());
+                    schema.createIndex("CREATE INDEX test_index ON test(name);");
+                    final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                    openTable.insertAutoId("test");
+                    openTable.insertAutoId("test1");
+                    openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+                    createDb.commit();
+                } catch (SqlJetException e) {
+                    createDb.rollback();
+                    throw e;
+                } catch (UnsupportedEncodingException e) {
+                    createDb.rollback();
+                    throw new SqlJetException(e);
+                }
+                return null;
+            }
+        });
+    }
+
 }

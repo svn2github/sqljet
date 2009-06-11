@@ -51,15 +51,10 @@
     </target>
     
 	<target name="weave" depends="compile">
-		<mkdir dir="sqljet/bin/1.4-compatible" />
-		<retroweaver destdir="sqljet/bin/1.4-compatible" target="1.4">
-			<fileset dir="sqljet/bin">
-				<include name="**/*.class" />
-			</fileset>
-		</retroweaver>
+			<retroweaver srcdir="sqljet/bin"/>
 	</target>
 
-    <target name="deploy" depends="clean, compile">
+	<target name="deploy" depends="clean, compile">
         <mkdir dir="build" />
         <jar destfile="build/sqljet.${build.number}.jar">
             <fileset dir="sqljet/bin">
@@ -87,33 +82,7 @@
         <delete file="build/sqljet.${build.number}.jar"></delete>
     </target>
 
-    <target name="deploy-1.4-compatible" depends="clean, compile, weave">
-        <mkdir dir="build" />
-        <jar destfile="build/sqljet.${build.number}.jar">
-            <fileset dir="sqljet/bin">
-                <include name="**/**"/>
-            </fileset>
-        </jar>
-        <zip destfile="build/sqljet.${build.number}.src.zip">
-            <zipfileset dir="sqljet/src" prefix="src">
-                <exclude name="**/.*"/>
-                <exclude name=".*"/>
-            </zipfileset>
-        </zip>
-
-        <zip destfile="build/sqljet.${build.number}.zip">
-            <zipfileset dir="build" prefix="sqljet.${build.number}">
-                <include name="sqljet.${build.number}.jar"/>
-                <include name="sqljet.${build.number}.src.zip"/>
-            </zipfileset>
-            <zipfileset dir="lib" prefix="sqljet.${build.number}">
-                <include name="**/**"/>
-            </zipfileset>
-        </zip>
-        
-        <delete file="build/sqljet.${build.number}.src.zip"></delete>
-        <delete file="build/sqljet.${build.number}.jar"></delete>
-    </target>
+    <target name="deploy-1.4-compatible" depends="clean, compile, weave, deploy" />
 
 	<target name="test" depends="deploy">
 		<junit>

@@ -80,10 +80,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         fieldsCount = values.length;
     }
 
-    public static ISqlJetBtreeRecord getRecord(Object... values) throws SqlJetException {
-        return getRecord(ISqlJetBtreeRecord.INTERNAL_ENCODING, values);
-    }
-
     public static ISqlJetBtreeRecord getRecord(SqlJetEncoding encoding, Object... values) throws SqlJetException {
         List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
         for (int i = 0; i < values.length; i++) {

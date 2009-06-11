@@ -80,7 +80,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         lock();
         try {
             clearCachedRecord();
-            ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(values);
+            ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getEncoding(), values);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
@@ -110,12 +110,17 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         return unpacked.recordCompare(record.remaining(), record);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#checkKey(java.lang.Object[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#checkKey
+     * (java.lang.Object[])
      */
     public boolean checkKey(Object... key) throws SqlJetException {
-        if(eof()) return false;
-        final ByteBuffer keyRecord = SqlJetBtreeRecord.getRecord(key).getRawRecord();
+        if (eof())
+            return false;
+        final ByteBuffer keyRecord = SqlJetBtreeRecord.getRecord(db.getEncoding(), key).getRawRecord();
         return 0 == keyCompare(keyRecord, getRecord().getRawRecord());
     }
 
@@ -145,8 +150,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public void insert(long rowId, boolean append, Object... key) throws SqlJetException {
         lock();
         try {
-            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(SqlJetUtility.addArrays(key, new Object[] { rowId }))
-                    .getRawRecord();
+            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(db.getEncoding(),
+                    SqlJetUtility.addArrays(key, new Object[] { rowId })).getRawRecord();
             cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
             clearCachedRecord();
         } finally {
@@ -165,7 +170,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         lock();
         try {
             clearCachedRecord();
-            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(key);
+            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getEncoding(), key);
             final ByteBuffer k = rec.getRawRecord();
             if (cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
@@ -199,7 +204,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public long getKeyRowId() throws SqlJetException {
         return getKeyRowId(getRecord());
     }
-    
+
     /**
      * @throws SqlJetException
      * 

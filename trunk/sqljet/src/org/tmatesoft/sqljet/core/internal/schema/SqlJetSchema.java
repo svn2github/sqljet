@@ -333,7 +333,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private void createAutoIndex(SqlJetBtreeTable schemaTable, String tableName, String autoIndexName)
             throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
-        final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(INDEX_TYPE, autoIndexName, tableName, page, null);
+        final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, autoIndexName,
+                tableName, page, null);
         final ByteBuffer pData = record.getRawRecord();
         schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
         final SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(autoIndexName, tableName, page);
@@ -399,8 +400,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 db.getMeta().changeSchemaCookie();
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
-                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, indexName, tableName, page,
-                        indexDef.toSQL());
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, indexName,
+                        tableName, page, indexDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
                 schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
 

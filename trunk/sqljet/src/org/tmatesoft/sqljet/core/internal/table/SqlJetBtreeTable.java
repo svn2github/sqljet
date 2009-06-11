@@ -325,7 +325,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         if (isNull(field))
             return null;
         return SqlJetUtility
-                .toString(getValueMem(field).valueText(getEncoding()), ISqlJetBtreeRecord.INTERNAL_ENCODING);
+                .toString(getValueMem(field).valueText(getEncoding()), db.getEncoding());
     }
 
     /*

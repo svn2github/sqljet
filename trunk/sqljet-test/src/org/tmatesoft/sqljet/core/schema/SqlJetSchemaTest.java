@@ -410,7 +410,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     final SqlJetTable openTable = createDb.getTable(createTable.getName());
                     openTable.insertAutoId("test");
                     openTable.insertAutoId("test1");
-                    openTable.insertAutoId("Тест");
+                    openTable.insertAutoId("\320\242\320\265\321\201\321\202");
                     createDb.commit();
                 } catch (SqlJetException e) {
                     createDb.rollback();

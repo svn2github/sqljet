@@ -33,9 +33,6 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public interface ISqlJetBtreeRecord {
 
-    SqlJetEncoding INTERNAL_ENCODING = SqlJetUtility.getEnumSysProp("SQLJET_TABLE_INTERNAL_ENCODING",
-            SqlJetEncoding.UTF8);
-
     /**
      * @return the fieldsCount
      */

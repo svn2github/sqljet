@@ -66,7 +66,8 @@ public class SqlJetDb {
      *            if true then allow data modification
      * @throws SqlJetException
      */
-    protected SqlJetDb(File file, boolean write) throws SqlJetException {
+    protected SqlJetDb(final File file, final boolean write, final SqlJetAutoVacuumMode autoVacuumMode)
+            throws SqlJetException {
         this.write = write;
         dbHandle = new SqlJetDbHandle();
         btree = new SqlJetBtree();
@@ -76,6 +77,8 @@ public class SqlJetDb {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 btree.enter();
                 try {
+                    if (null != autoVacuumMode)
+                        btree.setAutoVacuum(autoVacuumMode);
                     dbHandle.setMeta(new SqlJetSchemaMeta(btree));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
@@ -96,7 +99,11 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
-        return new SqlJetDb(file, write);
+        return new SqlJetDb(file, write, null);
+    }
+
+    public static SqlJetDb open(File file, boolean write, SqlJetAutoVacuumMode autoVacuumMode) throws SqlJetException {
+        return new SqlJetDb(file, write, autoVacuumMode);
     }
 
     /**
@@ -152,7 +159,7 @@ public class SqlJetDb {
     public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
         dbHandle.setEncoding(encoding);
     }
-    
+
     public ISqlJetSchema getSchema() {
         return schema;
     }
@@ -207,16 +214,6 @@ public class SqlJetDb {
             btree.rollback();
             transaction = false;
         }
-    }
-
-    public SqlJetAutoVacuumMode getAutoVacuum() {
-        return btree.getAutoVacuum();
-    }
-
-    public void setAutoVacuum(SqlJetAutoVacuumMode autoVacuumMode) throws SqlJetException {
-        btree.setAutoVacuum(autoVacuumMode);
-        dbHandle.getMeta().setAutovacuum(SqlJetAutoVacuumMode.NONE != autoVacuumMode);
-        dbHandle.getMeta().setIncrementalVacuum(SqlJetAutoVacuumMode.INCR == autoVacuumMode);
     }
 
     public int getPageCacheSize() {

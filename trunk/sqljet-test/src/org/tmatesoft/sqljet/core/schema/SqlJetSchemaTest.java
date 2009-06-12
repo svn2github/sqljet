@@ -507,12 +507,11 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
-        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true, SqlJetAutoVacuumMode.INCR);
         createDb.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 createDb.beginTransaction();
                 try {
-                    createDb.setAutoVacuum(SqlJetAutoVacuumMode.INCR);
                     final ISqlJetSchema schema = createDb.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");

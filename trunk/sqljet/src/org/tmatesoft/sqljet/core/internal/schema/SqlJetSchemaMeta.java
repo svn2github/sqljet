@@ -134,13 +134,11 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      */
     private void readMeta() throws SqlJetException {
         schemaCookie = readSchemaCookie();
-        if (schemaCookie == 0)
-            return;
-        fileFormat = readFileFormat();
-        pageCacheSize = readPageCacheSize();
         autovacuum = readAutoVacuum();
-        userCookie = readUserCookie();
+        fileFormat = readFileFormat();
         incrementalVacuum = readIncrementalVacuum();
+        userCookie = readUserCookie();
+        pageCacheSize = readPageCacheSize();
         encoding = readEncoding();
     }
 
@@ -394,7 +392,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @throws SqlJetException
      */
     private void writePageCacheSize(int pageCacheSize) throws SqlJetException {
-        checkPageCacheSize(pageCacheSize);
+        checkPageCacheSize();
         btree.updateMeta(PAGE_CACHE_SIZE, pageCacheSize);
     }
 
@@ -402,9 +400,9 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @param pageCacheSize
      * @throws SqlJetException 
      */
-    private void checkPageCacheSize(int pageCacheSize) throws SqlJetException {
+    private void checkPageCacheSize() throws SqlJetException {
         if(pageCacheSize<SqlJetPageCache.PAGE_CACHE_SIZE_MINIMUM)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
+            pageCacheSize = SqlJetPageCache.PAGE_CACHE_SIZE_DEFAULT;
     }
 
     /**

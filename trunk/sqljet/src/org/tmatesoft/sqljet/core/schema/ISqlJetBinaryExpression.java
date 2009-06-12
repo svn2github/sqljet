@@ -108,7 +108,7 @@ public interface ISqlJetBinaryExpression extends ISqlJetExpression {
 
     public Operation getOperation();
 
-    public ISqlJetExpression getLeftSubexpression();
+    public ISqlJetExpression getLeftExpression();
 
-    public ISqlJetExpression getRightSubexpression();
+    public ISqlJetExpression getRightExpression();
 }

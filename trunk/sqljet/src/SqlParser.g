@@ -104,7 +104,7 @@ in_source
 
 and_subexpr
   : eq_subexpr ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)*
-  | NOT? op=(LIKE | GLOB | REGEXP | MATCH) eq_subexpr (ESCAPE escape_subexpr=eq_subexpr)? -> ^($op eq_subexpr NOT? ^(ESCAPE $escape_subexpr)?)
+  | NOT? op=(LIKE | GLOB | REGEXP | MATCH) match_expr=eq_subexpr (ESCAPE escape_expr=eq_subexpr)? -> ^($op $match_expr NOT? ^(ESCAPE $escape_expr)?)
   | NOT? IN^ in_source
   | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL /* {ambiguous, parsed as 'NOT literal'} | NOT NULL */| IS NOT NULL -> NOT_NULL)
   | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN $e1 $e2 NOT?)

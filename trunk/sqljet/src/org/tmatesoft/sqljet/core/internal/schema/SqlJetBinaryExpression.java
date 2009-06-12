@@ -25,35 +25,35 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetExpression;
 public class SqlJetBinaryExpression extends SqlJetExpression implements ISqlJetBinaryExpression {
 
     private final Operation operation;
-    private final ISqlJetExpression leftSubexpression, rightSubexpression;
+    private final ISqlJetExpression leftExpression, rightExpression;
 
     public SqlJetBinaryExpression(CommonTree ast) throws SqlJetException {
         operation = Operation.decode(ast.getText());
         assert operation != null;
-        leftSubexpression = create((CommonTree) ast.getChild(0));
-        rightSubexpression = create((CommonTree) ast.getChild(1));
+        leftExpression = create((CommonTree) ast.getChild(0));
+        rightExpression = create((CommonTree) ast.getChild(1));
     }
 
     public Operation getOperation() {
         return operation;
     }
 
-    public ISqlJetExpression getLeftSubexpression() {
-        return leftSubexpression;
+    public ISqlJetExpression getLeftExpression() {
+        return leftExpression;
     }
 
-    public ISqlJetExpression getRightSubexpression() {
-        return rightSubexpression;
+    public ISqlJetExpression getRightExpression() {
+        return rightExpression;
     }
 
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(leftSubexpression);
+        buffer.append(getLeftExpression());
         buffer.append(' ');
         buffer.append(operation);
         buffer.append(' ');
-        buffer.append(rightSubexpression);
+        buffer.append(getRightExpression());
         return buffer.toString();
     }
 }

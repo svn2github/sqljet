@@ -30,8 +30,13 @@ public class SqlJetBinaryExpression extends SqlJetExpression implements ISqlJetB
     public SqlJetBinaryExpression(CommonTree ast) throws SqlJetException {
         operation = Operation.decode(ast.getText());
         assert operation != null;
-        leftExpression = create((CommonTree) ast.getChild(0));
-        rightExpression = create((CommonTree) ast.getChild(1));
+        if (operation == Operation.EQUALS || operation == Operation.NOT_EQUALS) {
+            leftExpression = create((CommonTree) ast.getChild(1));
+            rightExpression = create((CommonTree) ast.getChild(0));
+        } else {
+            leftExpression = create((CommonTree) ast.getChild(0));
+            rightExpression = create((CommonTree) ast.getChild(1));
+        }
     }
 
     public Operation getOperation() {

@@ -49,11 +49,16 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("column_expression{romeo}", "romeo");
         assertParses("column_expression{ben{big}}", "big.ben");
         assertParses("column_expression{money{more{send}}}", "send.more.money");
-        assertParses("null", "(null)");
-        assertParses("is_null", "isnull");
-        assertParses("not_null", "notnull");
-        assertParses("is_null", "is null");
-        assertParses("not_null", "is not null");
+        assertParses("column_expression{romeo}", "(romeo)");
+        assertParses("is_null{column_expression{bug}}", "bug isnull");
+        assertParses("not_null{column_expression{bug}}", "bug notnull");
+        assertParses("is_null{column_expression{bug}}", "bug is null");
+        assertParses("not_null{column_expression{bug}}", "bug not null");
+        assertParses("not_null{column_expression{bug}}", "bug is not null");
+    }
+
+    public void testConditionalExpressions() throws Exception {
+        assertParses("like{column_expression{b}}{column_expression{a}}", "a like b");
     }
 
     public void testBinaryExpressions() throws Exception {
@@ -61,10 +66,13 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("or{or{integer_literal{2}}{integer_literal{3}}}{integer_literal{4}}", "2 or 3 or 4");
         assertParses("and{integer_literal{5}}{integer_literal{6}}", "5 and 6");
         assertParses("or{integer_literal{4}}{and{integer_literal{5}}{integer_literal{6}}}", "4 or 5 and 6");
-        assertParses("={float_literal{.2}}{float_literal{.3}}", ".2=.3");
-        assertParses("=={float_literal{.2}}{float_literal{.3}}", ".2==.3");
-        assertParses("!={float_literal{.2}}{float_literal{.3}}", ".2!=.3");
-        assertParses("<>{float_literal{.2}}{float_literal{.3}}", ".2<>.3");
+
+        // order of eq subexpressions is reversed in grammar
+        assertParses("={float_literal{.3}}{float_literal{.2}}", ".2=.3");
+        assertParses("=={float_literal{.3}}{float_literal{.2}}", ".2==.3");
+        assertParses("!={float_literal{.3}}{float_literal{.2}}", ".2!=.3");
+        assertParses("<>{float_literal{.3}}{float_literal{.2}}", ".2<>.3");
+
         assertParses("<{string_literal{'me'}}{string_literal{'you'}}", "'me'<'you'");
         assertParses("<={string_literal{'me'}}{string_literal{'you'}}", "'me'<='you'");
         assertParses(">{string_literal{'me'}}{string_literal{'you'}}", "'me'>'you'");

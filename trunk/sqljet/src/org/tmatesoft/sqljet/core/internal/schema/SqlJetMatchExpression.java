@@ -26,32 +26,32 @@ public class SqlJetMatchExpression extends SqlJetExpression implements ISqlJetMa
 
     private final Operation operation;
     private final boolean not;
-    private final ISqlJetExpression matchExpression, escapeExpression;
+    private final ISqlJetExpression expression, matchExpression, escapeExpression;
 
     public SqlJetMatchExpression(CommonTree ast) throws SqlJetException {
         operation = Operation.decode(ast.getText());
         assert operation != null;
         matchExpression = create((CommonTree) ast.getChild(0));
-        if (ast.getChildCount() > 1) {
+        boolean not = false;
+        ISqlJetExpression expression = null, escapeExpression = null;
+        for (int i = 1; i < ast.getChildCount(); i++) {
             CommonTree child = (CommonTree) ast.getChild(1);
             if ("not".equalsIgnoreCase(child.getText())) {
                 not = true;
-                if (ast.getChildCount() > 2) {
-                    child = (CommonTree) ast.getChild(2);
-                    assert "escape".equalsIgnoreCase(child.getText());
-                    escapeExpression = create((CommonTree) child.getChild(0));
-                } else {
-                    escapeExpression = null;
-                }
-            } else {
-                not = false;
-                assert "escape".equalsIgnoreCase(child.getText());
+            } else if ("escape".equalsIgnoreCase(child.getText())) {
                 escapeExpression = create((CommonTree) child.getChild(0));
+            } else {
+                escapeExpression = create(child);
             }
-        } else {
-            not = false;
-            escapeExpression = null;
         }
+        assert expression != null;
+        this.not = not;
+        this.expression = expression;
+        this.escapeExpression = escapeExpression;
+    }
+
+    public ISqlJetExpression getExpression() {
+        return expression;
     }
 
     public Operation getOperation() {
@@ -73,14 +73,16 @@ public class SqlJetMatchExpression extends SqlJetExpression implements ISqlJetMa
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
+        buffer.append(getExpression());
         if (isNot()) {
-            buffer.append("NOT ");
+            buffer.append(" NOT");
         }
+        buffer.append(' ');
         buffer.append(getOperation());
         buffer.append(' ');
         buffer.append(getMatchExpression());
         if (getEscapeExpression() != null) {
-            buffer.append(" ESCAPE");
+            buffer.append(" ESCAPE ");
             buffer.append(getEscapeExpression());
         }
         return buffer.toString();

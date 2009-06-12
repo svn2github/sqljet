@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetExpression;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIsNullExpression;
 
 /**
@@ -22,11 +24,17 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetIsNullExpression;
  */
 public class SqlJetIsNullExpression extends SqlJetExpression implements ISqlJetIsNullExpression {
 
+    private final ISqlJetExpression expression;
     private final boolean not;
 
-    public SqlJetIsNullExpression(CommonTree ast) {
+    public SqlJetIsNullExpression(CommonTree ast) throws SqlJetException {
         not = "notnull".equalsIgnoreCase(ast.getText());
         assert not || "isnull".equalsIgnoreCase(ast.getText());
+        expression = create((CommonTree) ast.getChild(0));
+    }
+
+    public ISqlJetExpression getExpression() {
+        return expression;
     }
 
     public boolean isNot() {
@@ -35,6 +43,6 @@ public class SqlJetIsNullExpression extends SqlJetExpression implements ISqlJetI
 
     @Override
     public String toString() {
-        return not ? "IS NOT NULL" : "IS NULL";
+        return getExpression().toString() + (not ? " IS NOT NULL" : " IS NULL");
     }
 }

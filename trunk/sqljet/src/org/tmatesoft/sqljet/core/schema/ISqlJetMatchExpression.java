@@ -50,6 +50,8 @@ public interface ISqlJetMatchExpression extends ISqlJetExpression {
         }
     }
 
+    public ISqlJetExpression getExpression();
+
     public Operation getOperation();
 
     public boolean isNot();

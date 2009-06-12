@@ -19,5 +19,7 @@ package org.tmatesoft.sqljet.core.schema;
  */
 public interface ISqlJetIsNullExpression extends ISqlJetExpression {
 
+    public ISqlJetExpression getExpression();
+
     public boolean isNot();
 }

@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * The flags parameter to sqlite3BtreeCreateTable can be the bitwise OR of the
@@ -43,7 +43,7 @@ public enum SqlJetBtreeTableCreateFlags {
         this.value = value;
     }
     
-    public static byte toByte(EnumSet<SqlJetBtreeTableCreateFlags> flags) {
+    public static byte toByte(Set<SqlJetBtreeTableCreateFlags> flags) {
         byte v = 0;
         for (SqlJetBtreeTableCreateFlags flag : flags) {
             v |= flag.value;

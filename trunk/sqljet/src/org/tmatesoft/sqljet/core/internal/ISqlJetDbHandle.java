@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
@@ -62,7 +62,7 @@ public interface ISqlJetDbHandle {
     /**
      * @return
      */
-    EnumSet<SqlJetDbFlags> getFlags();
+    Set<SqlJetDbFlags> getFlags();
     
     List<ISqlJetBackend> getBackends();
     

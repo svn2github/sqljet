@@ -18,7 +18,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -101,8 +101,8 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
     public void testRead() throws Exception {
         db.getMutex().enter();
         try {
-            btree.open(testDataBase, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
-                    .of(SqlJetFileOpenPermission.READONLY));
+            btree.open(testDataBase, db, SqlJetUtility.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, 
+                    SqlJetUtility.of(SqlJetFileOpenPermission.READONLY));
             try {
                 btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
                 final int pageCount = btree.getPager().getPageCount();
@@ -148,15 +148,14 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
             final byte[] bytes = SqlJetUtility.getBytes(data);
             ByteBuffer pData = ByteBuffer.wrap(bytes);
 
-            final EnumSet<SqlJetBtreeFlags> btreeFlags = EnumSet
-                    .of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
-            final EnumSet<SqlJetFileOpenPermission> fileFlags = EnumSet.of(SqlJetFileOpenPermission.CREATE,
+            final Set<SqlJetBtreeFlags> btreeFlags = SqlJetUtility.of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
+            final Set<SqlJetFileOpenPermission> fileFlags = SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                     SqlJetFileOpenPermission.READWRITE);
             btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
             try {
                 btree.beginTrans(SqlJetTransactionMode.WRITE);
                 for (int x = 1; x <= 3; x++) {
-                    final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
+                    final int table = btree.createTable(SqlJetUtility.of(SqlJetBtreeTableCreateFlags.INTKEY,
                             SqlJetBtreeTableCreateFlags.LEAFDATA));
                     final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
                     c.enterCursor();
@@ -251,16 +250,15 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
         db.getMutex().enter();
         try {
 
-            final EnumSet<SqlJetBtreeFlags> btreeFlags = EnumSet
-                    .of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
-            final EnumSet<SqlJetFileOpenPermission> fileFlags = EnumSet.of(SqlJetFileOpenPermission.CREATE,
+            final Set<SqlJetBtreeFlags> btreeFlags = SqlJetUtility.of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
+            final Set<SqlJetFileOpenPermission> fileFlags = SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                     SqlJetFileOpenPermission.READWRITE);
             btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
             try {
                 final ByteBuffer pData = ByteBuffer.wrap(SqlJetUtility.getBytes("Test data"));
                 btree.beginTrans(SqlJetTransactionMode.WRITE);
                 for (int x = 1; x <= 3; x++) {
-                    final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
+                    final int table = btree.createTable(SqlJetUtility.of(SqlJetBtreeTableCreateFlags.INTKEY,
                             SqlJetBtreeTableCreateFlags.LEAFDATA));
                     final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
                     c.enterCursor();
@@ -300,8 +298,8 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
                 btree.close();
             }
 
-            btree.open(testTempFile, db, EnumSet.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, EnumSet
-                    .of(SqlJetFileOpenPermission.READONLY));
+            btree.open(testTempFile, db, SqlJetUtility.of(SqlJetBtreeFlags.READONLY), SqlJetFileType.MAIN_DB, 
+                    SqlJetUtility.of(SqlJetFileOpenPermission.READONLY));
             try {
                 btree.beginTrans(SqlJetTransactionMode.READ_ONLY);
                 final int pageCount = btree.getPager().getPageCount();
@@ -353,15 +351,14 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
             byte[] bytes = SqlJetUtility.getBytes(data);
             ByteBuffer pData = ByteBuffer.wrap(bytes);
 
-            final EnumSet<SqlJetBtreeFlags> btreeFlags = EnumSet
-                    .of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
-            final EnumSet<SqlJetFileOpenPermission> fileFlags = EnumSet.of(SqlJetFileOpenPermission.CREATE,
+            final Set<SqlJetBtreeFlags> btreeFlags = SqlJetUtility.of(SqlJetBtreeFlags.CREATE, SqlJetBtreeFlags.READWRITE);
+            final Set<SqlJetFileOpenPermission> fileFlags = SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                     SqlJetFileOpenPermission.READWRITE);
             btree.open(testTempFile, db, btreeFlags, SqlJetFileType.MAIN_DB, fileFlags);
             try {
                 btree.beginTrans(SqlJetTransactionMode.WRITE);
                 for (int x = 1; x <= 3; x++) {
-                    final int table = btree.createTable(EnumSet.of(SqlJetBtreeTableCreateFlags.INTKEY,
+                    final int table = btree.createTable(SqlJetUtility.of(SqlJetBtreeTableCreateFlags.INTKEY,
                             SqlJetBtreeTableCreateFlags.LEAFDATA));
                     final ISqlJetBtreeCursor c = btree.getCursor(table, true, null);
                     c.enterCursor();

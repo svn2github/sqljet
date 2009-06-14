@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -25,6 +25,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
@@ -42,12 +43,11 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
  */
 public class SqlJetDb {
 
-    private static final EnumSet<SqlJetBtreeFlags> READ_FLAGS = EnumSet.of(SqlJetBtreeFlags.READONLY);
-    private static final EnumSet<SqlJetFileOpenPermission> READ_PERMISSIONS = EnumSet
-            .of(SqlJetFileOpenPermission.READONLY);
-    private static final EnumSet<SqlJetBtreeFlags> WRITE_FLAGS = EnumSet.of(SqlJetBtreeFlags.READWRITE,
+    private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
+    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility.of(SqlJetFileOpenPermission.READONLY);
+    private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READWRITE,
             SqlJetBtreeFlags.CREATE);
-    private static final EnumSet<SqlJetFileOpenPermission> WRITE_PREMISSIONS = EnumSet.of(
+    private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = SqlJetUtility.of(
             SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE);
 
     private final boolean write;

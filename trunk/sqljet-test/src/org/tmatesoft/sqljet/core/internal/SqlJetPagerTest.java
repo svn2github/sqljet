@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
 import java.util.logging.Level;
 
 import org.hamcrest.BaseMatcher;
@@ -76,46 +75,45 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testOpenTemp() throws Exception {
-        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.DELETEONCLOSE, SqlJetFileOpenPermission.READWRITE));
     }
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testOpenMain() throws Exception {
-        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.READWRITE));
     }
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testOpenMemory() throws Exception {
-        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, EnumSet.of(
+        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, SqlJetUtility.of(
                 SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE));
     }
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testReadDataBase() throws Exception {
-        pager.open(fileSystem, testDataBase, null, SqlJetFileType.MAIN_DB, EnumSet
-                .of(SqlJetFileOpenPermission.READONLY));
+        pager.open(fileSystem, testDataBase, null, SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READONLY));
         ByteBuffer zDbHeader =ByteBuffer.allocate(100);
         pager.readFileHeader(zDbHeader.remaining(), zDbHeader);
         final int pageCount = pager.getPageCount();
@@ -139,7 +137,7 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
     
     @Test
     public final void testWriteTemp() throws Exception {
-        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, EnumSet.of(SqlJetFileOpenPermission.CREATE,
+        pager.open(fileSystem, null, null, SqlJetFileType.TEMP_DB, SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                 SqlJetFileOpenPermission.DELETEONCLOSE, SqlJetFileOpenPermission.READWRITE));
         final ISqlJetPage page = pager.acquirePage(1, true);
         pager.begin(true);
@@ -152,14 +150,14 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testWriteMain() throws Exception {
         
         pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
-                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         int pageSize = pager.getPageSize();
         final int pageNumber = 2;
@@ -177,7 +175,7 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
         pager.close();
 
         pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
-                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         int pageCount = pager.getPageCount();
         long fileSize = pager.getFile().fileSize();
@@ -202,7 +200,7 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
         pager.close();
 
         pager.open(fileSystem, file, null, SqlJetFileType.MAIN_DB, 
-                EnumSet.of(SqlJetFileOpenPermission.CREATE,
+                SqlJetUtility.of(SqlJetFileOpenPermission.CREATE,
                         SqlJetFileOpenPermission.READWRITE));
         pageCount = pager.getPageCount();
         fileSize = pager.getFile().fileSize();
@@ -220,12 +218,12 @@ public class SqlJetPagerTest extends SqlJetAbstractLoggedTest {
 
     /**
      * Test method for
-     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.EnumSet, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.EnumSet)}
+     * {@link org.tmatesoft.sqljet.core.internal.pager.SqlJetPager#open(org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem, java.io.File, org.tmatesoft.sqljet.core.ISqlJetPageDestructor, int, java.util.Set, org.tmatesoft.sqljet.core.internal.SqlJetFileType, java.util.Set)}
      * .
      */
     @Test
     public final void testWriteMemory() throws Exception {
-        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, EnumSet.of(
+        pager.open(fileSystem, new File(ISqlJetPager.MEMORY_DB), null, SqlJetFileType.MAIN_DB, SqlJetUtility.of(
                 SqlJetFileOpenPermission.CREATE, SqlJetFileOpenPermission.READWRITE));
         final ISqlJetPage page = pager.acquirePage(1, true);
         pager.begin(true);

@@ -21,7 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,7 +140,7 @@ public class SqlJetFile implements ISqlJetFile {
     private static Map<String, OpenFile> openFiles = new ConcurrentHashMap<String, OpenFile>();
 
     private SqlJetFileType fileType;
-    private EnumSet<SqlJetFileOpenPermission> permissions;
+    private Set<SqlJetFileOpenPermission> permissions;
     private RandomAccessFile file;
     private File filePath;
     private String filePathResolved;
@@ -161,7 +162,7 @@ public class SqlJetFile implements ISqlJetFile {
      */
 
     SqlJetFile(final SqlJetFileSystem fileSystem, final RandomAccessFile file, final File filePath,
-            final SqlJetFileType fileType, final EnumSet<SqlJetFileOpenPermission> permissions, final boolean noLock) {
+            final SqlJetFileType fileType, final Set<SqlJetFileOpenPermission> permissions, final boolean noLock) {
         this.file = file;
         this.filePath = filePath;
         this.filePathResolved = filePath.getAbsolutePath();
@@ -188,9 +189,13 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#getPermissions()
      */
-    public synchronized EnumSet<SqlJetFileOpenPermission> getPermissions() {
+    public synchronized Set<SqlJetFileOpenPermission> getPermissions() {
         // return clone to avoid manipulations with file's permissions
-        return permissions.clone();
+        HashSet<SqlJetFileOpenPermission> permissionsCopy = new HashSet<SqlJetFileOpenPermission>();
+        for (SqlJetFileOpenPermission permission : permissions) {
+            permissionsCopy.add(permission);
+        }
+        return permissionsCopy;
     }
 
     /*
@@ -301,7 +306,7 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(boolean, boolean)
      */
-    public synchronized void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetIOException {
+    public synchronized void sync(Set<SqlJetSyncFlags> syncFlags) throws SqlJetIOException {
         assert (file != null);
         try {
             OSTRACE("SYNC    %s\n", this.filePath);
@@ -715,10 +720,9 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
-    final static EnumSet<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = EnumSet
-            .noneOf(SqlJetDeviceCharacteristics.class);
+    final static Set<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = SqlJetUtility.noneOf(SqlJetDeviceCharacteristics.class);
 
-    public EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics() {
+    public Set<SqlJetDeviceCharacteristics> deviceCharacteristics() {
         return noDeviceCharacteristircs;
     }
 

@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.db;
 
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
@@ -37,7 +38,7 @@ import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
  */
 public class SqlJetDbHandle implements ISqlJetDbHandle {
 
-    private EnumSet<SqlJetDbFlags> flags = EnumSet.noneOf(SqlJetDbFlags.class);
+    private Set<SqlJetDbFlags> flags = SqlJetUtility.noneOf(SqlJetDbFlags.class);
     private ISqlJetConfig config = new SqlJetConfig();
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
@@ -77,7 +78,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getFlags()
      */
-    public EnumSet<SqlJetDbFlags> getFlags() {
+    public Set<SqlJetDbFlags> getFlags() {
         // TODO Auto-generated method stub
         return flags;
     }

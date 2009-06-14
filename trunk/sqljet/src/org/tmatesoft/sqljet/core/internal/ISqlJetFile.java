@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
@@ -85,7 +85,7 @@ public interface ISqlJetFile {
      * 
      * @return {@link SqlJetFileOpenPermission}
      */
-    EnumSet<SqlJetFileOpenPermission> getPermissions();
+    Set<SqlJetFileOpenPermission> getPermissions();
 
     /**
      * Close a file.
@@ -143,7 +143,7 @@ public interface ISqlJetFile {
      * @param full
      * @throws SqlJetIOException 
      */
-    void sync(EnumSet<SqlJetSyncFlags> syncFlags) throws SqlJetIOException;
+    void sync(Set<SqlJetSyncFlags> syncFlags) throws SqlJetIOException;
 
     /**
      * Determine the current size of a file in bytes
@@ -231,7 +231,7 @@ public interface ISqlJetFile {
      * 
      * @return
      */
-    EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics();
+    Set<SqlJetDeviceCharacteristics> deviceCharacteristics();
 
     /**
     * Return true if the file-handle passed as an argument is 

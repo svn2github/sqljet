@@ -13,7 +13,7 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * The flags parameter to sqlite3BtreeOpen can be the bitwise or of the
@@ -67,14 +67,14 @@ public enum SqlJetBtreeFlags {
         return pagerFlag;
     }
     
-    public static EnumSet<SqlJetPagerFlags> toPagerFlags(final EnumSet<SqlJetBtreeFlags> btreeFlags){
+    public static Set<SqlJetPagerFlags> toPagerFlags(final Set<SqlJetBtreeFlags> btreeFlags){
         if(null==btreeFlags) return null;
-        final EnumSet<SqlJetPagerFlags> enumSet = EnumSet.noneOf(SqlJetPagerFlags.class);
+        final Set<SqlJetPagerFlags> Set = SqlJetUtility.noneOf(SqlJetPagerFlags.class);
         for(SqlJetBtreeFlags flag:btreeFlags) {
             final SqlJetPagerFlags f = flag.getPagerFlag();
-            if(null!=f) enumSet.add(f);
+            if(null!=f) Set.add(f);
         }
-        return enumSet;
+        return Set;
     }
     
 }

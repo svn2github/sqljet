@@ -18,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
 import java.util.Random;
 
 import org.junit.After;
@@ -82,10 +81,8 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         db.getMutex().enter();
 
         btreeCopy = new SqlJetBtree();
-        btreeCopy
-                .open(repCacheDbCopy, db, EnumSet.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
-                        SqlJetFileType.MAIN_DB, EnumSet.of(SqlJetFileOpenPermission.READWRITE,
-                                SqlJetFileOpenPermission.CREATE));
+        btreeCopy.open(repCacheDbCopy, db, SqlJetUtility.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
+                SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
 
         db.setMeta(new SqlJetSchemaMeta(btreeCopy));
 

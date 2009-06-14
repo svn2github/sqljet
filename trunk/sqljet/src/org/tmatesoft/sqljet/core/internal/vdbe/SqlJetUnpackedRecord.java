@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
@@ -35,7 +35,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
     int nField;
 
     /* Boolean settings. UNPACKED_... below */
-    EnumSet<SqlJetUnpackedRecordFlags> flags;
+    Set<SqlJetUnpackedRecordFlags> flags;
 
     /* Values */
     SqlJetVdbeMem[] aMem;
@@ -87,7 +87,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
         pKeyInfo = pPKey2.pKeyInfo;
         mem1.enc = pKeyInfo.enc;
         mem1.db = pKeyInfo.db;
-        mem1.flags = EnumSet.noneOf(SqlJetVdbeMemFlags.class);
+        mem1.flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
         mem1.zMalloc = null;
 
         idx1 = SqlJetUtility.getVarint32(pKey1, szHdr1);
@@ -148,14 +148,14 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
     /**
      * @return the flags
      */
-    public EnumSet<SqlJetUnpackedRecordFlags> getFlags() {
+    public Set<SqlJetUnpackedRecordFlags> getFlags() {
         return flags;
     }
 
     /**
      * @param flags the flags to set
      */
-    public void setFlags(EnumSet<SqlJetUnpackedRecordFlags> flags) {
+    public void setFlags(Set<SqlJetUnpackedRecordFlags> flags) {
         this.flags = flags;
     }
     

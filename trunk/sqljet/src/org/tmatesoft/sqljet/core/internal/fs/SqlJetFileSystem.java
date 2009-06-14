@@ -18,7 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.SecureRandom;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -87,10 +87,10 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#open(java.io.File,
-     * java.util.EnumSet)
+     * java.util.Set)
      */
     public ISqlJetFile open(final File path, final SqlJetFileType type,
-            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException {
+            final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
         if (null == type)
             throw new SqlJetException(SqlJetErrorCode.BAD_PARAMETER, "File type must not be null to open file");

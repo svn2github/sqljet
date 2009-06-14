@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 
@@ -29,9 +29,9 @@ public interface ISqlJetPage {
 
     void setPager(final ISqlJetPager pager);
 
-    EnumSet<SqlJetPageFlags> getFlags();
+    Set<SqlJetPageFlags> getFlags();
 
-    void setFlags(final EnumSet<SqlJetPageFlags> flags);
+    void setFlags(final Set<SqlJetPageFlags> flags);
 
     /**
      * Increment the reference count for a page.

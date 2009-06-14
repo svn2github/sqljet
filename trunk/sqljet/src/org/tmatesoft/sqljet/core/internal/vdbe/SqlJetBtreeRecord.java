@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
@@ -205,7 +205,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
 
             }
             sMem.release();
-            sMem.flags = EnumSet.of(SqlJetVdbeMemFlags.Null);
+            sMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
             /*
              * If we have read more header data than was contained in the
@@ -260,7 +260,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         /* For storing the record being decoded */
         SqlJetVdbeMem sMem = new SqlJetVdbeMem();
         SqlJetVdbeMem pDest = new SqlJetVdbeMem();
-        pDest.flags = EnumSet.of(SqlJetVdbeMemFlags.Null);
+        pDest.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
         cursor.enterCursor();
         try {

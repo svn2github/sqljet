@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -50,7 +50,7 @@ public class SqlJetPage implements ISqlJetPage {
     /** Hash of page content */
     long pageHash;
 
-    EnumSet<SqlJetPageFlags> flags = EnumSet.noneOf(SqlJetPageFlags.class);
+    Set<SqlJetPageFlags> flags = SqlJetUtility.noneOf(SqlJetPageFlags.class);
 
     /*
      * Elements above are public. All that follows is private to pcache.c and
@@ -595,7 +595,7 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getFlags()
      */
-    public EnumSet<SqlJetPageFlags> getFlags() {
+    public Set<SqlJetPageFlags> getFlags() {
         return flags;
     }
 
@@ -620,9 +620,9 @@ public class SqlJetPage implements ISqlJetPage {
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setFlags(java.util.EnumSet)
+     * @see org.tmatesoft.sqljet.core.ISqlJetPage#setFlags(java.util.Set)
      */
-    public void setFlags(EnumSet<SqlJetPageFlags> flags) {
+    public void setFlags(Set<SqlJetPageFlags> flags) {
         this.flags = flags;
     }
 

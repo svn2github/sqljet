@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.fs;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.SqlJetDeviceCharacteristics;
@@ -188,9 +188,9 @@ public class SqlJetMemJournal implements ISqlJetFile {
     }
     
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(java.util.EnumSet)
+     * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(java.util.Set)
      */
-    public void sync(EnumSet<SqlJetSyncFlags> syncFlags) {
+    public void sync(Set<SqlJetSyncFlags> syncFlags) {
     }
     
     /* (non-Javadoc)
@@ -212,11 +212,11 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
-    public EnumSet<SqlJetDeviceCharacteristics> deviceCharacteristics() {
+    public Set<SqlJetDeviceCharacteristics> deviceCharacteristics() {
         return empty;
     }
-    private final static EnumSet<SqlJetDeviceCharacteristics> empty = 
-        EnumSet.noneOf(SqlJetDeviceCharacteristics.class);
+    private final static Set<SqlJetDeviceCharacteristics> empty = 
+        SqlJetUtility.noneOf(SqlJetDeviceCharacteristics.class);
     
 
     /* (non-Javadoc)
@@ -236,7 +236,7 @@ public class SqlJetMemJournal implements ISqlJetFile {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#getPermissions()
      */
-    public EnumSet<SqlJetFileOpenPermission> getPermissions() {
+    public Set<SqlJetFileOpenPermission> getPermissions() {
         return null;
     }
 

@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
@@ -103,14 +103,14 @@ public interface ISqlJetPager {
      *            flags controlling this file
      * @param type
      *            file type passed through to
-     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
+     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, Set)}
      * @param permissions
      *            permissions passed through to
-     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, EnumSet)}
+     *            {@link ISqlJetFileSystem#open(java.io.File, SqlJetFileType, Set)}
      * @throws SqlJetException
      */
-    void open(final ISqlJetFileSystem fs, final File fileName, final EnumSet<SqlJetPagerFlags> flags,
-            final SqlJetFileType type, final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
+    void open(final ISqlJetFileSystem fs, final File fileName, final Set<SqlJetPagerFlags> flags,
+            final SqlJetFileType type, final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
     /**
      * Return the path of the database file.

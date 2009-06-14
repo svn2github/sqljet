@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -72,8 +72,8 @@ public interface ISqlJetBtree {
      *            Flags passed through to VFS open
      * @return
      */
-    void open(File filename, ISqlJetDbHandle db, EnumSet<SqlJetBtreeFlags> flags, final SqlJetFileType type,
-            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
+    void open(File filename, ISqlJetDbHandle db, Set<SqlJetBtreeFlags> flags, final SqlJetFileType type,
+            final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
     /**
      * Close an open database and invalidate all cursors.
@@ -333,7 +333,7 @@ public interface ISqlJetBtree {
      * @return the page number for the root page of the new table
      * @throws SqlJetException
      */
-    int createTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException;
+    int createTable(Set<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException;
 
     /**
      * Return true if a transaction is active.

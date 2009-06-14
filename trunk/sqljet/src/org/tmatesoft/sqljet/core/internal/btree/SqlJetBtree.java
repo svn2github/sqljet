@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal.btree;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -227,11 +227,11 @@ public class SqlJetBtree implements ISqlJetBtree {
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#open(java.io.File,
-     * org.tmatesoft.sqljet.core.ISqlJetDb, java.util.EnumSet,
-     * org.tmatesoft.sqljet.core.SqlJetFileType, java.util.EnumSet)
+     * org.tmatesoft.sqljet.core.ISqlJetDb, java.util.Set,
+     * org.tmatesoft.sqljet.core.SqlJetFileType, java.util.Set)
      */
-    public void open(File filename, ISqlJetDbHandle db, EnumSet<SqlJetBtreeFlags> flags, final SqlJetFileType type,
-            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException {
+    public void open(File filename, ISqlJetDbHandle db, Set<SqlJetBtreeFlags> flags, final SqlJetFileType type,
+            final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
         ISqlJetFileSystem pVfs; /* The VFS to use for this btree */
         SqlJetBtreeShared pBt = null; /* Shared part of btree structure */
@@ -1207,9 +1207,9 @@ public class SqlJetBtree implements ISqlJetBtree {
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#createTable(java.util.EnumSet)
+     * org.tmatesoft.sqljet.core.ISqlJetBtree#createTable(java.util.Set)
      */
-    public int createTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
+    public int createTable(Set<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
         enter();
         try {
             pBt.db = db;
@@ -1224,7 +1224,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * @return
      * @throws SqlJetException
      */
-    private int doCreateTable(EnumSet<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
+    private int doCreateTable(Set<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
         SqlJetMemPage pRoot;
         int pgnoRoot;
 

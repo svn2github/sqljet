@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -81,7 +81,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testPermissions() throws Exception {
         final String msg = "File must have permissions to which was opened";
-        final EnumSet<SqlJetFileOpenPermission> p = file.getPermissions();
+        final Set<SqlJetFileOpenPermission> p = file.getPermissions();
         Assert.assertNotNull(msg, p);
         Assert.assertTrue(msg, p.containsAll(PERM_CREATE));
 

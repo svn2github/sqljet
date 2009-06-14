@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,11 +60,10 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
-    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = EnumSet.of(
+    private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = SqlJetUtility.of(
             SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
 
-    private static final EnumSet<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = EnumSet
-            .of(SqlJetBtreeTableCreateFlags.ZERODATA);
+    private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = SqlJetUtility.of(SqlJetBtreeTableCreateFlags.ZERODATA);
 
     private static final int TYPE_FIELD = 0;
     private static final int NAME_FIELD = 1;

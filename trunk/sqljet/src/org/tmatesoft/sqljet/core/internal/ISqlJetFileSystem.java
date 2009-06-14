@@ -15,7 +15,7 @@ package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
@@ -116,7 +116,7 @@ public interface ISqlJetFileSystem {
      *          
      */
     ISqlJetFile open(final File path, final SqlJetFileType type,
-            final EnumSet<SqlJetFileOpenPermission> permissions) throws SqlJetException;
+            final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException;
 
     /** 
     ** Open a memory journal file.

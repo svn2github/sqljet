@@ -14,7 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
 import java.nio.ByteBuffer;
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -57,7 +57,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
 
         SqlJetUnpackedRecord p = new SqlJetUnpackedRecord();
 
-        p.flags = EnumSet.of(SqlJetUnpackedRecordFlags.NEED_DESTROY);
+        p.flags = SqlJetUtility.of(SqlJetUnpackedRecordFlags.NEED_DESTROY);
         p.pKeyInfo = pKeyInfo;
         p.nField = pKeyInfo.nField + 1;
         p.aMem = pMem = new SqlJetVdbeMem[p.nField];
@@ -74,7 +74,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
             pMem[u] = new SqlJetVdbeMem();
             pMem[u].enc = pKeyInfo.enc;
             pMem[u].db = pKeyInfo.db;
-            pMem[u].flags = EnumSet.noneOf(SqlJetVdbeMemFlags.class);
+            pMem[u].flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
             pMem[u].zMalloc = null;
             d += SqlJetVdbeSerialType.serialGet(SqlJetUtility.slice(pKey, d), serial_type[0], pMem[u]);
             u++;

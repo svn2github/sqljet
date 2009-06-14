@@ -25,8 +25,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
-    boolean hasData = false;
-
     private Object[] key;
     private String indexName;
 
@@ -57,9 +55,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean goTo(long rowId) throws SqlJetException {
-        if (!hasData)
-            return false;
-        return hasData = super.goTo(rowId) && check();
+        return super.goTo(rowId) && check();
     }
 
     /*
@@ -69,9 +65,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean eof() throws SqlJetException {
-        if (!hasData)
-            return true;
-        return !(hasData = check());
+        return !check();
     }
 
     /*
@@ -81,7 +75,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean first() throws SqlJetException {
-        return hasData = locate(false);
+        return locate(false);
     }
 
     /*
@@ -91,13 +85,18 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean last() throws SqlJetException {
-        if (!hasData)
-            return false;
         long last = 0;
         for (long row = index.lookup(false, key); row != 0; row = index.lookup(true, key)) {
             last = row;
         }
-        return hasData = last != 0 &&  goTo(last);
+        if (last != 0 && goTo(last)) {
+            if (index.eof()) {
+                for (long row = index.lookup(false, key); row != 0 && row != last; row = index.lookup(true, key))
+                    ;
+            }
+            return true;
+        } else
+            return false;
     }
 
     /*
@@ -107,9 +106,14 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean next() throws SqlJetException {
-        if (!hasData)
+        if (!locate(true)) {
+            if (!eof()) {
+                super.next();
+            }
             return false;
-        return hasData = locate(true);
+        } else {
+            return true;
+        }
     }
 
     /*
@@ -119,9 +123,7 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
      */
     @Override
     public boolean previous() throws SqlJetException {
-        if (!hasData)
-            return false;
-        return hasData = index.previous() && index.checkKey(key) && goTo(index.getKeyRowId());
+        return index.previous() && index.checkKey(key) && goTo(index.getKeyRowId());
     }
 
     /**

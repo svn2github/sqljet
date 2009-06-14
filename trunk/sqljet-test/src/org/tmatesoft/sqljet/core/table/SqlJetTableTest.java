@@ -525,9 +525,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.previous());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
-                Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
 
                 return null;
             }
@@ -556,9 +553,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.previous());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
-                Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
 
                 Assert.assertTrue(lookup.first());
                 Assert.assertTrue(lookup.next());
@@ -566,21 +560,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.previous());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
-                Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
-
-                Assert.assertTrue(lookup.first());
-                Assert.assertTrue(lookup.next());
-                Assert.assertFalse(lookup.eof());
-                Assert.assertFalse(lookup.next());
-                Assert.assertTrue(lookup.eof());
-                Assert.assertTrue(lookup.previous());
-                Assert.assertFalse(lookup.eof());
-                Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
-                Assert.assertFalse(lookup.previous());
-                Assert.assertTrue(lookup.eof());
 
                 return null;
             }

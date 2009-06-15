@@ -148,7 +148,12 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             assert(null != filePath);
         }
 
-        final String mode = isReadWrite ? "rws" : "r";
+        if(!isReadWrite && !filePath.exists()) {
+            throw new SqlJetException(SqlJetErrorCode.CANTOPEN);            
+        }
+        
+        //final String mode = isReadWrite ? "rws" : "r";
+        final String mode = "rws"; // because Java can't lock read-only files we open always for write
 
         final RandomAccessFile file;
         try {

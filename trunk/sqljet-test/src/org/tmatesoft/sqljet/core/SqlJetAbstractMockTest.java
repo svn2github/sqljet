@@ -85,7 +85,7 @@ public abstract class SqlJetAbstractMockTest {
     }
 
     protected <T> Future<T> execThread(final Callable<T> thread) {
-        return Executors.newSingleThreadExecutor().submit(thread);
+        return Executors.newCachedThreadPool().submit(thread);
     }
 
 }

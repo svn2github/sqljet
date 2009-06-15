@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -598,7 +599,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public Map<String, Object> getValuesWithFieldNames() throws SqlJetException {
         int i = 0;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final Map<String, Object> map = new HashMap<String, Object>(columns.size());
+        final Map<String, Object> map = new LinkedHashMap<String, Object>(columns.size());
         for (ISqlJetColumnDef column : columns) {
             map.put(column.getName(), getValue(i++));
         }

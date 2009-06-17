@@ -41,6 +41,7 @@ tokens {
 	INTEGER_LITERAL;
 	IS_NULL;
 	IN_VALUES;
+	IN_TABLE;
 	NOT_NULL;
 	OPTIONS;
 	ORDERING; // root for ordering_term
@@ -102,19 +103,16 @@ and_subexpr: eq_subexpr cond_expr^?;
 
 cond_expr
   : NOT? match_op match_expr=eq_subexpr (ESCAPE escape_expr=eq_subexpr)? -> ^(match_op $match_expr NOT? ^(ESCAPE $escape_expr)?)
-  | NOT? IN^ in_source
+  | NOT? IN LPAREN expr (COMMA expr)* RPAREN -> ^(IN_VALUES NOT? ^(IN expr+))
+  | NOT? IN (database_name=id DOT)? table_name=id -> ^(IN_TABLE NOT? ^(IN ^($table_name $database_name?)))
+// query is not supported for now
+//  | NOT? IN^ LPAREN! select_stmt? RPAREN!
   | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL | NOT NULL -> NOT_NULL | IS NOT NULL -> NOT_NULL)
   | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN $e1 $e2 NOT?)
   | ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)+ /* order of the eq subexpressions is reversed! */
   ;
 
 match_op: LIKE | GLOB | REGEXP | MATCH;
-
-in_source
-  : LPAREN! select_stmt? RPAREN!
-  | LPAREN expr (COMMA expr)* RPAREN -> ^(IN_VALUES expr+)
-  | (database_name=id DOT)? table_name=id -> ^($table_name $database_name?)
-  ;
 
 eq_subexpr: neq_subexpr ((LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ)^ neq_subexpr)*;
 

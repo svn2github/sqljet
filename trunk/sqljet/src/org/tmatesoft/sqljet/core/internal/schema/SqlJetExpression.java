@@ -18,6 +18,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetBinaryExpression;
 import org.tmatesoft.sqljet.core.schema.ISqlJetExpression;
+import org.tmatesoft.sqljet.core.schema.ISqlJetMatchExpression;
 
 /**
  * @author TMate Software Ltd.
@@ -43,6 +44,12 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetStringLiteral(ast);
         } else if ("isnull".equals(op) || "notnull".equals(op)) {
             return new SqlJetIsNullExpression(ast);
+        } else if (ISqlJetMatchExpression.Operation.decode(ast.getText()) != null) {
+            return new SqlJetMatchExpression(ast);
+        } else if ("in_values".equals(op)) {
+            return new SqlJetInValuesExpression(ast);
+        } else if ("in_table".equals(op)) {
+            return new SqlJetInTableExpression(ast);
         } else if (ISqlJetBinaryExpression.Operation.decode(ast.getText()) != null) {
             return new SqlJetBinaryExpression(ast);
         }

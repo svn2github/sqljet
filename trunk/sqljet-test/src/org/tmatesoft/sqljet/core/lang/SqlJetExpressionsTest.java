@@ -59,6 +59,18 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
 
     public void testConditionalExpressions() throws Exception {
         assertParses("like{column_expression{b}}{column_expression{a}}", "a like b");
+        assertParses("glob{column_expression{b}}{column_expression{a}}", "a glob b");
+        assertParses("regexp{column_expression{b}}{column_expression{a}}", "a regexp b");
+        assertParses("match{column_expression{b}}{escape{column_expression{c}}}{column_expression{a}}",
+                "a match b escape c");
+        assertParses("in_values{in{column_expression{b}}}{column_expression{a}}", "a in (b)");
+        assertParses(
+                "in_values{in{column_expression{b}}{column_expression{c}}{column_expression{d}}}{column_expression{a}}",
+                "a in (b,c , d)");
+        assertParses("in_values{not}{in{column_expression{b}}}{column_expression{a}}", "a not in( b )");
+        assertParses("in_table{in{t}}{column_expression{a}}", "a in t");
+        assertParses("in_table{not}{in{t}}{column_expression{a}}", "a not in t");
+        assertParses("in_table{in{t{d}}}{column_expression{a}}", "a in d.t");
     }
 
     public void testBinaryExpressions() throws Exception {

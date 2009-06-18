@@ -50,6 +50,8 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetInValuesExpression(ast);
         } else if ("in_table".equals(op)) {
             return new SqlJetInTableExpression(ast);
+        } else if ("between".equals(op)) {
+            return new SqlJetBetweenExpression(ast);
         } else if (ISqlJetBinaryExpression.Operation.decode(ast.getText()) != null) {
             return new SqlJetBinaryExpression(ast);
         }

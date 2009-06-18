@@ -108,7 +108,7 @@ cond_expr
 // query is not supported for now
 //  | NOT? IN^ LPAREN! select_stmt? RPAREN!
   | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL | NOT NULL -> NOT_NULL | IS NOT NULL -> NOT_NULL)
-  | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN $e1 $e2 NOT?)
+  | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN NOT? ^(AND $e1 $e2))
   | ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)+ /* order of the eq subexpressions is reversed! */
   ;
 

@@ -71,6 +71,8 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("in_table{in{t}}{column_expression{a}}", "a in t");
         assertParses("in_table{not}{in{t}}{column_expression{a}}", "a not in t");
         assertParses("in_table{in{t{d}}}{column_expression{a}}", "a in d.t");
+        assertParses("between{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}", "a between b and c");
+        assertParses("between{not}{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}", "a not between b and c");
     }
 
     public void testBinaryExpressions() throws Exception {

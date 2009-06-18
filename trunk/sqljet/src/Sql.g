@@ -60,6 +60,22 @@ tokens {
   package org.tmatesoft.sqljet.core.internal.lang;
 }
 
+@members {
+
+// Disable error recovery.
+protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet follow) throws RecognitionException {
+    throw new MismatchedTokenException(ttype, input);
+}
+
+// Delegate error reporting to caller.
+public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+    String hdr = getErrorHeader(e);
+    String msg = getErrorMessage(e, tokenNames);
+	throw new SqlJetParserException("[" + hdr + "] " + msg, e);
+}
+
+}
+
 // Input is a list of statements.
 sql_stmt_list: (sql_stmt)+;
 

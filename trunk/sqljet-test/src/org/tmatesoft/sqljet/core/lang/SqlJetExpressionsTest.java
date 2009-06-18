@@ -13,6 +13,8 @@
  */
 package org.tmatesoft.sqljet.core.lang;
 
+import org.tmatesoft.sqljet.core.internal.lang.SqlJetParserException;
+
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
@@ -21,6 +23,18 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
 
     public SqlJetExpressionsTest() {
         super("Expressions Test");
+    }
+
+    public void testErrors() {
+        SqlJetParserException error = null;
+        try {
+            assertParses("", ";");
+        } catch (SqlJetParserException e) {
+            error = e;
+        } catch (Exception e) {
+            fail(e.toString());
+        }
+        assertNotNull(error);
     }
 
     public void testLiterals() throws Exception {

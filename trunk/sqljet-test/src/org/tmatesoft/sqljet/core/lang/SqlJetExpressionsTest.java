@@ -115,11 +115,27 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("&{blob_literal{x'abc'}}{blob_literal{x'def'}}", "x'abc'&x'def'");
         assertParses("|{blob_literal{x'abc'}}{blob_literal{x'def'}}", "x'abc'|x'def'");
         assertParses("+{integer_literal{2}}{integer_literal{3}}", "2+3");
+        assertParses("+{integer_literal{2}}{integer_literal{3}}", "2 + 3");
         assertParses("-{integer_literal{2}}{integer_literal{3}}", "2-3");
+        assertParses("-{integer_literal{2}}{integer_literal{3}}", "2  -  3");
         assertParses("*{integer_literal{2}}{integer_literal{3}}", "2*3");
         assertParses("/{integer_literal{2}}{integer_literal{3}}", "2/3");
         assertParses("%{integer_literal{2}}{integer_literal{3}}", "2%3");
         assertParses("||{string_literal{'me'}}{string_literal{'you'}}", "'me'||'you'");
+    }
+
+    public void testUnaryExpressions() throws Exception {
+        assertParses("+{integer_literal{9}}", "+9");
+        assertParses("+{integer_literal{9}}", "+  9");
+        assertParses("-{integer_literal{9}}", "-9");
+        assertParses("-{integer_literal{9}}", "- 9");
+        assertParses("~{integer_literal{9}}", "~9");
+        assertParses("~{integer_literal{9}}", "~  9");
+        assertParses("not{integer_literal{9}}", "NOT 9");
+    }
+
+    public void testCollate() throws Exception {
+        assertParses("collate{column_expression{a}}{b}", "a collate b");
     }
 
     protected void assertParses(String curlyDump, String sql) throws Exception {

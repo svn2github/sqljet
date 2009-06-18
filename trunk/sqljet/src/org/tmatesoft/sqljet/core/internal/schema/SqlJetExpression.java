@@ -19,6 +19,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetBinaryExpression;
 import org.tmatesoft.sqljet.core.schema.ISqlJetExpression;
 import org.tmatesoft.sqljet.core.schema.ISqlJetMatchExpression;
+import org.tmatesoft.sqljet.core.schema.ISqlJetUnaryExpression;
 
 /**
  * @author TMate Software Ltd.
@@ -60,6 +61,10 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetBetweenExpression(ast);
         } else if (ISqlJetBinaryExpression.Operation.decode(ast.getText()) != null) {
             return new SqlJetBinaryExpression(ast);
+        } else if (ISqlJetUnaryExpression.Operation.decode(ast.getText()) != null) {
+            return new SqlJetUnaryExpression(ast);
+        } else if ("collate".equals(op)) {
+            return new SqlJetCollateExpression(ast);
         }
         throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid expression");
     }

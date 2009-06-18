@@ -19,7 +19,7 @@ parser grammar SqlParser;
 options {
 	language = Java;
 	output = AST;
-	//k = 4;
+	k = 4;
 	tokenVocab = SqlLexer;
 }
 
@@ -125,7 +125,9 @@ add_subexpr: mul_subexpr ((ASTERISK | SLASH | PERCENT)^ mul_subexpr)*;
 
 mul_subexpr: con_subexpr (DOUBLE_PIPE^ con_subexpr)*;
 
-con_subexpr: (PLUS | MINUS | TILDA | NOT)? unary_subexpr;
+con_subexpr: unary_subexpr | unary_op unary_subexpr -> ^(unary_op unary_subexpr);
+
+unary_op: PLUS | MINUS | TILDA | NOT;
 
 unary_subexpr: atom_expr (COLLATE^ collation_name=ID)?;
 

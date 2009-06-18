@@ -59,6 +59,11 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("raise{rollback}{'error error'}", "raise (rollback,'error error')");
         assertParses("raise{abort}{'error!'}", "raise ( abort , 'error!' )");
         assertParses("raise{fail}{'error!'}", "raise (fail, 'error!')");
+        assertParses("cast{column_expression{a}}{type{type_params}{b}}", "cast (a as b)");
+        assertParses("function_expression{fn}", "fn()");
+        assertParses("function_expression{fn}{*}", "fn (*)");
+        assertParses("function_expression{fn}{column_expression{a}}{column_expression{b}}", "fn(a,b)");
+        assertParses("function_expression{fn}{distinct}{column_expression{a}}", "fn(distinct a)");
     }
 
     public void testConditionalExpressions() throws Exception {

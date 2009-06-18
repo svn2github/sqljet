@@ -38,6 +38,7 @@ tokens {
 	DROP_TABLE;
 	FLOAT_LITERAL;
 	FUNCTION_LITERAL;
+	FUNCTION_EXPRESSION;
 	INTEGER_LITERAL;
 	IS_NULL;
 	IN_VALUES;
@@ -132,9 +133,9 @@ atom_expr
   : literal_value
   | bind_parameter
   | ((database_name=id DOT)? table_name=id DOT)? column_name=ID -> ^(COLUMN_EXPRESSION ^($column_name ^($table_name $database_name?)?))
-  | function_name=ID LPAREN ((DISTINCT)? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN
+  | name=ID LPAREN (DISTINCT? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN -> ^(FUNCTION_EXPRESSION $name DISTINCT? $args* ASTERISK?)
   | LPAREN! expr RPAREN!
-  | CAST LPAREN expr AS type_name RPAREN
+  | CAST^ LPAREN! expr AS! type_name RPAREN!
 // query is not supported for now
 //  | (/* {ambiguous; parsed as unary expr} (NOT)? */ EXISTS)? LPAREN select_stmt RPAREN
   | CASE (case_expr=expr)? when_expr+ (ELSE else_expr=expr)? END -> ^(CASE $case_expr? when_expr+ $else_expr?)

@@ -42,8 +42,12 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetIntegerLiteral(ast);
         } else if ("string_literal".equals(op)) {
             return new SqlJetStringLiteral(ast);
+        } else if ("function_expression".equals(op)) {
+            return new SqlJetFunctionExpression(ast);
         } else if ("isnull".equals(op) || "notnull".equals(op)) {
             return new SqlJetIsNullExpression(ast);
+        } else if ("case".equals(op)) {
+            return new SqlJetCaseExpression(ast);
         } else if ("raise".equals(op)) {
             return new SqlJetRaiseExpression(ast);
         } else if (ISqlJetMatchExpression.Operation.decode(ast.getText()) != null) {

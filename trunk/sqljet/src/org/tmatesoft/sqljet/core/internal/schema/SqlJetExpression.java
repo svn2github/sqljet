@@ -44,6 +44,8 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetStringLiteral(ast);
         } else if ("isnull".equals(op) || "notnull".equals(op)) {
             return new SqlJetIsNullExpression(ast);
+        } else if ("raise".equals(op)) {
+            return new SqlJetRaiseExpression(ast);
         } else if (ISqlJetMatchExpression.Operation.decode(ast.getText()) != null) {
             return new SqlJetMatchExpression(ast);
         } else if ("in_values".equals(op)) {

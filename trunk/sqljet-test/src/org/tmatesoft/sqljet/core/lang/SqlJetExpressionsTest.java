@@ -55,6 +55,10 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("is_null{column_expression{bug}}", "bug is null");
         assertParses("not_null{column_expression{bug}}", "bug not null");
         assertParses("not_null{column_expression{bug}}", "bug is not null");
+        assertParses("raise{ignore}", "raise (ignore)");
+        assertParses("raise{rollback}{'error error'}", "raise (rollback,'error error')");
+        assertParses("raise{abort}{'error!'}", "raise ( abort , 'error!' )");
+        assertParses("raise{fail}{'error!'}", "raise (fail, 'error!')");
     }
 
     public void testConditionalExpressions() throws Exception {
@@ -71,8 +75,18 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("in_table{in{t}}{column_expression{a}}", "a in t");
         assertParses("in_table{not}{in{t}}{column_expression{a}}", "a not in t");
         assertParses("in_table{in{t{d}}}{column_expression{a}}", "a in d.t");
-        assertParses("between{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}", "a between b and c");
-        assertParses("between{not}{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}", "a not between b and c");
+        assertParses("between{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}",
+                "a between b and c");
+        assertParses("between{not}{and{column_expression{b}}{column_expression{c}}}{column_expression{a}}",
+                "a not between b and c");
+        assertParses("case{column_expression{a}}{when{column_expression{b}}{column_expression{c}}}",
+                "case a when b then c end");
+        assertParses(
+                "case{column_expression{a}}{when{column_expression{b}}{column_expression{c}}}{column_expression{d}}",
+                "case a when b then c else d end");
+        assertParses(
+                "case{column_expression{a}}{when{column_expression{b}}{column_expression{c}}}{when{column_expression{d}}{column_expression{e}}}",
+                "case a when b then c when d then e end");
     }
 
     public void testBinaryExpressions() throws Exception {

@@ -135,10 +135,13 @@ atom_expr
   | function_name=ID LPAREN ((DISTINCT)? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN
   | LPAREN! expr RPAREN!
   | CAST LPAREN expr AS type_name RPAREN
-  | (/* {ambiguous; parsed as unary expr} (NOT)? */ EXISTS)? LPAREN select_stmt RPAREN
-  | CASE (expr)? (WHEN expr THEN expr)+ (ELSE expr)? END
+// query is not supported for now
+//  | (/* {ambiguous; parsed as unary expr} (NOT)? */ EXISTS)? LPAREN select_stmt RPAREN
+  | CASE (case_expr=expr)? when_expr+ (ELSE else_expr=expr)? END -> ^(CASE $case_expr? when_expr+ $else_expr?)
   | raise_function
   ;
+
+when_expr: WHEN e1=expr THEN e2=expr -> ^(WHEN $e1 $e2);
 
 literal_value
   : INTEGER -> ^(INTEGER_LITERAL INTEGER)
@@ -156,6 +159,7 @@ bind_parameter
   | QUESTION position=INTEGER -> ^(BIND $position)
   | COLON name=id -> ^(BIND_NAME $name)
   | AT name=id -> ^(BIND_NAME $name)
+// tcl bindings are not supported for now
 //  | DOLLAR name=TCL_ID
   ;
 

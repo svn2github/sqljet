@@ -1,200 +1,222 @@
-// $ANTLR 3.1.3 Mar 17, 2009 19:23:44 SqlLexer.g 2009-06-09 00:09:27
+// $ANTLR 3.1.3 Mar 17, 2009 19:23:44 Sql.g 2009-06-18 16:23:49
 
   package org.tmatesoft.sqljet.core.internal.lang;
 
 
-import org.antlr.runtime.BaseRecognizer;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.DFA;
-import org.antlr.runtime.EarlyExitException;
-import org.antlr.runtime.Lexer;
-import org.antlr.runtime.MismatchedSetException;
-import org.antlr.runtime.NoViableAltException;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.RecognizerSharedState;
+import org.antlr.runtime.*;
+import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 
 public class SqlLexer extends Lexer {
-    public static final int CAST=75;
-    public static final int ROW=154;
-    public static final int TRIGGER=163;
-    public static final int CURRENT_TIME=84;
-    public static final int CASE=74;
-    public static final int EQUALS=4;
-    public static final int NOT=132;
-    public static final int EXCEPT=100;
-    public static final int CASCADE=73;
-    public static final int FOREIGN=106;
+    public static final int ROW=178;
+    public static final int BLOB_LITERAL=7;
+    public static final int TYPE_PARAMS=30;
+    public static final int NOT=38;
+    public static final int EXCEPT=115;
+    public static final int FOREIGN=158;
     public static final int EOF=-1;
-    public static final int RELEASE=149;
-    public static final int EXPLAIN=103;
-    public static final int RPAREN=27;
-    public static final int CREATE=82;
-    public static final int GREATER=10;
-    public static final int INSERT=119;
-    public static final int ESCAPE=99;
-    public static final int USING=167;
-    public static final int BEGIN=70;
-    public static final int SAVEPOINT=155;
-    public static final int LESS=8;
-    public static final int REGEXP=147;
-    public static final int ANALYZE=63;
-    public static final int CONFLICT=80;
-    public static final int RAISE=145;
-    public static final int EACH=96;
-    public static final int COMMENT=181;
-    public static final int ABORT=58;
-    public static final int SELECT=156;
-    public static final int LESS_OR_EQ=9;
-    public static final int ATTACH=67;
-    public static final int VIRTUAL=171;
-    public static final int INTO=122;
-    public static final int D=35;
-    public static final int E=36;
-    public static final int UNIQUE=165;
-    public static final int F=37;
-    public static final int G=38;
-    public static final int BLOB=180;
-    public static final int GLOB=108;
-    public static final int A=32;
-    public static final int VIEW=170;
-    public static final int B=33;
-    public static final int C=34;
-    public static final int ASC=66;
-    public static final int LINE_COMMENT=182;
-    public static final int L=43;
-    public static final int M=44;
-    public static final int N=45;
-    public static final int TRANSACTION=162;
-    public static final int KEY=126;
-    public static final int O=46;
-    public static final int H=39;
-    public static final int NULL=134;
-    public static final int I=40;
-    public static final int ELSE=97;
-    public static final int J=41;
-    public static final int K=42;
-    public static final int U=52;
-    public static final int ON=137;
-    public static final int T=51;
-    public static final int W=54;
-    public static final int MATCH=130;
-    public static final int V=53;
-    public static final int PRIMARY=143;
-    public static final int Q=48;
-    public static final int P=47;
-    public static final int DELETE=91;
-    public static final int S=50;
-    public static final int R=49;
-    public static final int ROLLBACK=153;
-    public static final int OF=135;
-    public static final int FAIL=104;
-    public static final int RESTRICT=152;
-    public static final int Y=56;
-    public static final int X=55;
-    public static final int Z=57;
-    public static final int SHIFT_LEFT=12;
-    public static final int INTERSECT=121;
-    public static final int GROUP=109;
-    public static final int WS=183;
-    public static final int SHIFT_RIGHT=13;
-    public static final int PLAN=141;
-    public static final int OR=138;
-    public static final int QUERY=144;
-    public static final int CHECK=76;
-    public static final int FROM=107;
-    public static final int END=98;
-    public static final int TEMPORARY=159;
-    public static final int DISTINCT=94;
-    public static final int CONSTRAINT=81;
-    public static final int CURRENT_DATE=85;
-    public static final int RENAME=150;
-    public static final int DOLLAR=31;
-    public static final int WHERE=173;
-    public static final int ALTER=62;
-    public static final int INNER=118;
-    public static final int ORDER=139;
-    public static final int LIMIT=129;
-    public static final int PRAGMA=142;
-    public static final int ISNULL=124;
-    public static final int UPDATE=166;
-    public static final int TABLE=158;
-    public static final int FOR=105;
-    public static final int DEFERRED=90;
-    public static final int FLOAT=179;
-    public static final int EXCLUSIVE=101;
-    public static final int ID=175;
-    public static final int NOTNULL=133;
-    public static final int AND=64;
-    public static final int NOT_EQUALS=6;
-    public static final int CROSS=83;
-    public static final int LPAREN=26;
-    public static final int ASTERISK=20;
-    public static final int IF=111;
-    public static final int GREATER_OR_EQ=11;
-    public static final int AT=30;
-    public static final int DOUBLE_PIPE=16;
-    public static final int INDEX=115;
-    public static final int AS=65;
-    public static final int TILDA=19;
-    public static final int SLASH=21;
-    public static final int THEN=160;
-    public static final int IN=114;
-    public static final int REFERENCES=146;
-    public static final int COMMA=25;
-    public static final int OFFSET=136;
-    public static final int IS=123;
-    public static final int REPLACE=151;
-    public static final int LEFT=127;
-    public static final int ALL=61;
-    public static final int COLUMN=78;
-    public static final int PIPE=15;
-    public static final int PLUS=17;
-    public static final int EXISTS=102;
-    public static final int DOT=24;
-    public static final int CURRENT_TIMESTAMP=86;
-    public static final int LIKE=128;
-    public static final int INITIALLY=117;
-    public static final int ADD=59;
-    public static final int COLLATE=77;
-    public static final int INTEGER=177;
-    public static final int REINDEX=148;
-    public static final int OUTER=140;
-    public static final int BY=72;
-    public static final int DEFERRABLE=89;
-    public static final int EQUALS2=5;
-    public static final int PERCENT=22;
-    public static final int AUTOINCREMENT=68;
-    public static final int TO=161;
-    public static final int NOT_EQUALS2=7;
-    public static final int DEFAULT=88;
-    public static final int VALUES=169;
-    public static final int AMPERSAND=14;
-    public static final int SET=157;
-    public static final int BEFORE=69;
-    public static final int HAVING=110;
-    public static final int IGNORE=112;
-    public static final int MINUS=18;
-    public static final int AFTER=60;
-    public static final int INSTEAD=120;
-    public static final int SEMI=23;
-    public static final int JOIN=125;
-    public static final int UNION=164;
-    public static final int INDEXED=116;
-    public static final int COLON=29;
-    public static final int FLOAT_EXP=178;
-    public static final int COMMIT=79;
-    public static final int QUESTION=28;
-    public static final int DATABASE=87;
-    public static final int VACUUM=168;
-    public static final int DROP=95;
-    public static final int DETACH=93;
-    public static final int WHEN=172;
-    public static final int IMMEDIATE=113;
-    public static final int NATURAL=131;
-    public static final int DESC=92;
-    public static final int ID_START=174;
-    public static final int BETWEEN=71;
-    public static final int STRING=176;
+    public static final int TYPE=29;
+    public static final int RPAREN=49;
+    public static final int CREATE=146;
+    public static final int STRING_LITERAL=27;
+    public static final int IS_NULL=20;
+    public static final int USING=128;
+    public static final int BIND=5;
+    public static final int BEGIN=136;
+    public static final int REGEXP=61;
+    public static final int ANALYZE=103;
+    public static final int FUNCTION_LITERAL=17;
+    public static final int CONFLICT=145;
+    public static final int LESS_OR_EQ=64;
+    public static final int ATTACH=100;
+    public static final int VIRTUAL=147;
+    public static final int D=183;
+    public static final int E=184;
+    public static final int F=185;
+    public static final int G=186;
+    public static final int BLOB=87;
+    public static final int A=180;
+    public static final int B=181;
+    public static final int ASC=107;
+    public static final int C=182;
+    public static final int L=191;
+    public static final int M=192;
+    public static final int N=193;
+    public static final int O=194;
+    public static final int TRANSACTION=140;
+    public static final int KEY=154;
+    public static final int H=187;
+    public static final int I=188;
+    public static final int BIND_NAME=6;
+    public static final int ELSE=82;
+    public static final int J=189;
+    public static final int K=190;
+    public static final int U=200;
+    public static final int T=199;
+    public static final int IN_VALUES=21;
+    public static final int W=202;
+    public static final int V=201;
+    public static final int Q=196;
+    public static final int P=195;
+    public static final int S=198;
+    public static final int R=197;
+    public static final int ROLLBACK=96;
+    public static final int FAIL=98;
+    public static final int RESTRICT=161;
+    public static final int Y=204;
+    public static final int X=203;
+    public static final int Z=205;
+    public static final int GROUP=119;
+    public static final int INTERSECT=114;
+    public static final int DROP_INDEX=14;
+    public static final int WS=210;
+    public static final int PLAN=33;
+    public static final int ALIAS=4;
+    public static final int END=83;
+    public static final int CONSTRAINT=152;
+    public static final int RENAME=166;
+    public static final int ALTER=165;
+    public static final int ISNULL=50;
+    public static final int TABLE=148;
+    public static final int FLOAT=42;
+    public static final int NOTNULL=51;
+    public static final int NOT_EQUALS=57;
+    public static final int NOT_NULL=23;
+    public static final int LPAREN=47;
+    public static final int ASTERISK=71;
+    public static final int GREATER_OR_EQ=66;
+    public static final int AT=93;
+    public static final int DOUBLE_PIPE=74;
+    public static final int AS=80;
+    public static final int SLASH=72;
+    public static final int THEN=85;
+    public static final int OFFSET=111;
+    public static final int LEFT=122;
+    public static final int REPLACE=106;
+    public static final int COLUMN=168;
+    public static final int PLUS=39;
+    public static final int PIPE=70;
+    public static final int EXISTS=151;
+    public static final int LIKE=59;
+    public static final int COLLATE=76;
+    public static final int ADD=167;
+    public static final int INTEGER=41;
+    public static final int OUTER=123;
+    public static final int BY=37;
+    public static final int DEFERRABLE=162;
+    public static final int TO=142;
+    public static final int AMPERSAND=69;
+    public static final int SET=134;
+    public static final int HAVING=120;
+    public static final int MINUS=40;
+    public static final int IGNORE=95;
+    public static final int SEMI=34;
+    public static final int UNION=112;
+    public static final int COLUMN_CONSTRAINT=8;
+    public static final int COLON=92;
+    public static final int FLOAT_EXP=207;
+    public static final int COLUMNS=10;
+    public static final int COMMIT=141;
+    public static final int IN_TABLE=22;
+    public static final int DATABASE=101;
+    public static final int VACUUM=105;
+    public static final int DROP=164;
+    public static final int DETACH=102;
+    public static final int WHEN=84;
+    public static final int NATURAL=121;
+    public static final int BETWEEN=54;
+    public static final int OPTIONS=24;
+    public static final int STRING=86;
+    public static final int CAST=79;
+    public static final int TABLE_CONSTRAINT=28;
+    public static final int CURRENT_TIME=88;
+    public static final int TRIGGER=171;
+    public static final int CASE=81;
+    public static final int EQUALS=55;
+    public static final int CASCADE=160;
+    public static final int RELEASE=144;
+    public static final int EXPLAIN=31;
+    public static final int GREATER=65;
+    public static final int ESCAPE=45;
+    public static final int INSERT=129;
+    public static final int SAVEPOINT=143;
+    public static final int LESS=63;
+    public static final int RAISE=94;
+    public static final int EACH=177;
+    public static final int COMMENT=208;
+    public static final int ABORT=97;
+    public static final int SELECT=116;
+    public static final int INTO=130;
+    public static final int UNIQUE=156;
+    public static final int GLOB=60;
+    public static final int VIEW=169;
+    public static final int LINE_COMMENT=209;
+    public static final int NULL=53;
+    public static final int ON=127;
+    public static final int MATCH=62;
+    public static final int PRIMARY=153;
+    public static final int DELETE=135;
+    public static final int OF=175;
+    public static final int SHIFT_LEFT=67;
+    public static final int SHIFT_RIGHT=68;
+    public static final int INTEGER_LITERAL=19;
+    public static final int FUNCTION_EXPRESSION=18;
+    public static final int OR=43;
+    public static final int QUERY=32;
+    public static final int CHECK=157;
+    public static final int FROM=117;
+    public static final int DISTINCT=78;
+    public static final int TEMPORARY=149;
+    public static final int CURRENT_DATE=89;
+    public static final int DOLLAR=179;
+    public static final int CONSTRAINTS=11;
+    public static final int WHERE=118;
+    public static final int COLUMN_EXPRESSION=9;
+    public static final int INNER=124;
+    public static final int ORDER=109;
+    public static final int LIMIT=110;
+    public static final int PRAGMA=99;
+    public static final int UPDATE=133;
+    public static final int DEFERRED=137;
+    public static final int FOR=176;
+    public static final int SELECT_CORE=26;
+    public static final int EXCLUSIVE=139;
+    public static final int ID=77;
+    public static final int AND=44;
+    public static final int CROSS=125;
+    public static final int IF=150;
+    public static final int INDEX=170;
+    public static final int TILDA=75;
+    public static final int IN=46;
+    public static final int COMMA=48;
+    public static final int CREATE_TABLE=13;
+    public static final int REFERENCES=159;
+    public static final int IS=52;
+    public static final int ALL=113;
+    public static final int DOT=35;
+    public static final int CURRENT_TIMESTAMP=90;
+    public static final int INITIALLY=163;
+    public static final int REINDEX=104;
+    public static final int EQUALS2=56;
+    public static final int PERCENT=73;
+    public static final int AUTOINCREMENT=155;
+    public static final int NOT_EQUALS2=58;
+    public static final int DEFAULT=132;
+    public static final int VALUES=131;
+    public static final int BEFORE=172;
+    public static final int AFTER=173;
+    public static final int INSTEAD=174;
+    public static final int JOIN=126;
+    public static final int INDEXED=36;
+    public static final int FLOAT_LITERAL=16;
+    public static final int CREATE_INDEX=12;
+    public static final int QUESTION=91;
+    public static final int ORDERING=25;
+    public static final int IMMEDIATE=138;
+    public static final int DESC=108;
+    public static final int DROP_TABLE=15;
+    public static final int ID_START=206;
 
     // delegates
     // delegators
@@ -207,15 +229,15 @@ public class SqlLexer extends Lexer {
         super(input,state);
 
     }
-    public String getGrammarFileName() { return "SqlLexer.g"; }
+    public String getGrammarFileName() { return "Sql.g"; }
 
     // $ANTLR start "EQUALS"
     public final void mEQUALS() throws RecognitionException {
         try {
             int _type = EQUALS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:27:7: ( '=' )
-            // SqlLexer.g:27:16: '='
+            // Sql.g:654:7: ( '=' )
+            // Sql.g:654:16: '='
             {
             match('='); 
 
@@ -234,8 +256,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EQUALS2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:28:8: ( '==' )
-            // SqlLexer.g:28:16: '=='
+            // Sql.g:655:8: ( '==' )
+            // Sql.g:655:16: '=='
             {
             match("=="); 
 
@@ -255,8 +277,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NOT_EQUALS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:29:11: ( '!=' )
-            // SqlLexer.g:29:16: '!='
+            // Sql.g:656:11: ( '!=' )
+            // Sql.g:656:16: '!='
             {
             match("!="); 
 
@@ -276,8 +298,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NOT_EQUALS2;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:30:12: ( '<>' )
-            // SqlLexer.g:30:16: '<>'
+            // Sql.g:657:12: ( '<>' )
+            // Sql.g:657:16: '<>'
             {
             match("<>"); 
 
@@ -297,8 +319,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LESS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:31:5: ( '<' )
-            // SqlLexer.g:31:16: '<'
+            // Sql.g:658:5: ( '<' )
+            // Sql.g:658:16: '<'
             {
             match('<'); 
 
@@ -317,8 +339,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LESS_OR_EQ;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:32:11: ( '<=' )
-            // SqlLexer.g:32:16: '<='
+            // Sql.g:659:11: ( '<=' )
+            // Sql.g:659:16: '<='
             {
             match("<="); 
 
@@ -338,8 +360,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = GREATER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:33:8: ( '>' )
-            // SqlLexer.g:33:16: '>'
+            // Sql.g:660:8: ( '>' )
+            // Sql.g:660:16: '>'
             {
             match('>'); 
 
@@ -358,8 +380,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = GREATER_OR_EQ;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:34:14: ( '>=' )
-            // SqlLexer.g:34:16: '>='
+            // Sql.g:661:14: ( '>=' )
+            // Sql.g:661:16: '>='
             {
             match(">="); 
 
@@ -379,8 +401,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SHIFT_LEFT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:35:11: ( '<<' )
-            // SqlLexer.g:35:16: '<<'
+            // Sql.g:662:11: ( '<<' )
+            // Sql.g:662:16: '<<'
             {
             match("<<"); 
 
@@ -400,8 +422,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SHIFT_RIGHT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:36:12: ( '>>' )
-            // SqlLexer.g:36:16: '>>'
+            // Sql.g:663:12: ( '>>' )
+            // Sql.g:663:16: '>>'
             {
             match(">>"); 
 
@@ -421,8 +443,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AMPERSAND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:37:10: ( '&' )
-            // SqlLexer.g:37:16: '&'
+            // Sql.g:664:10: ( '&' )
+            // Sql.g:664:16: '&'
             {
             match('&'); 
 
@@ -441,8 +463,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PIPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:38:5: ( '|' )
-            // SqlLexer.g:38:16: '|'
+            // Sql.g:665:5: ( '|' )
+            // Sql.g:665:16: '|'
             {
             match('|'); 
 
@@ -461,8 +483,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DOUBLE_PIPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:39:12: ( '||' )
-            // SqlLexer.g:39:16: '||'
+            // Sql.g:666:12: ( '||' )
+            // Sql.g:666:16: '||'
             {
             match("||"); 
 
@@ -482,8 +504,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PLUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:40:5: ( '+' )
-            // SqlLexer.g:40:16: '+'
+            // Sql.g:667:5: ( '+' )
+            // Sql.g:667:16: '+'
             {
             match('+'); 
 
@@ -502,8 +524,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = MINUS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:41:6: ( '-' )
-            // SqlLexer.g:41:16: '-'
+            // Sql.g:668:6: ( '-' )
+            // Sql.g:668:16: '-'
             {
             match('-'); 
 
@@ -522,8 +544,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TILDA;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:42:6: ( '~' )
-            // SqlLexer.g:42:16: '~'
+            // Sql.g:669:6: ( '~' )
+            // Sql.g:669:16: '~'
             {
             match('~'); 
 
@@ -542,8 +564,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ASTERISK;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:43:9: ( '*' )
-            // SqlLexer.g:43:16: '*'
+            // Sql.g:670:9: ( '*' )
+            // Sql.g:670:16: '*'
             {
             match('*'); 
 
@@ -562,8 +584,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SLASH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:44:6: ( '/' )
-            // SqlLexer.g:44:16: '/'
+            // Sql.g:671:6: ( '/' )
+            // Sql.g:671:16: '/'
             {
             match('/'); 
 
@@ -582,8 +604,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PERCENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:45:8: ( '%' )
-            // SqlLexer.g:45:16: '%'
+            // Sql.g:672:8: ( '%' )
+            // Sql.g:672:16: '%'
             {
             match('%'); 
 
@@ -602,8 +624,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SEMI;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:46:5: ( ';' )
-            // SqlLexer.g:46:16: ';'
+            // Sql.g:673:5: ( ';' )
+            // Sql.g:673:16: ';'
             {
             match(';'); 
 
@@ -622,8 +644,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:47:4: ( '.' )
-            // SqlLexer.g:47:16: '.'
+            // Sql.g:674:4: ( '.' )
+            // Sql.g:674:16: '.'
             {
             match('.'); 
 
@@ -642,8 +664,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = COMMA;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:48:6: ( ',' )
-            // SqlLexer.g:48:16: ','
+            // Sql.g:675:6: ( ',' )
+            // Sql.g:675:16: ','
             {
             match(','); 
 
@@ -662,8 +684,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LPAREN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:49:7: ( '(' )
-            // SqlLexer.g:49:16: '('
+            // Sql.g:676:7: ( '(' )
+            // Sql.g:676:16: '('
             {
             match('('); 
 
@@ -682,8 +704,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = RPAREN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:50:7: ( ')' )
-            // SqlLexer.g:50:16: ')'
+            // Sql.g:677:7: ( ')' )
+            // Sql.g:677:16: ')'
             {
             match(')'); 
 
@@ -702,8 +724,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = QUESTION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:51:9: ( '?' )
-            // SqlLexer.g:51:16: '?'
+            // Sql.g:678:9: ( '?' )
+            // Sql.g:678:16: '?'
             {
             match('?'); 
 
@@ -722,8 +744,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = COLON;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:52:6: ( ':' )
-            // SqlLexer.g:52:16: ':'
+            // Sql.g:679:6: ( ':' )
+            // Sql.g:679:16: ':'
             {
             match(':'); 
 
@@ -742,8 +764,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:53:3: ( '@' )
-            // SqlLexer.g:53:16: '@'
+            // Sql.g:680:3: ( '@' )
+            // Sql.g:680:16: '@'
             {
             match('@'); 
 
@@ -762,8 +784,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DOLLAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:54:7: ( '$' )
-            // SqlLexer.g:54:16: '$'
+            // Sql.g:681:7: ( '$' )
+            // Sql.g:681:16: '$'
             {
             match('$'); 
 
@@ -780,8 +802,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "A"
     public final void mA() throws RecognitionException {
         try {
-            // SqlLexer.g:57:11: ( ( 'a' | 'A' ) )
-            // SqlLexer.g:57:12: ( 'a' | 'A' )
+            // Sql.g:684:11: ( ( 'a' | 'A' ) )
+            // Sql.g:684:12: ( 'a' | 'A' )
             {
             if ( input.LA(1)=='A'||input.LA(1)=='a' ) {
                 input.consume();
@@ -804,8 +826,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "B"
     public final void mB() throws RecognitionException {
         try {
-            // SqlLexer.g:58:11: ( ( 'b' | 'B' ) )
-            // SqlLexer.g:58:12: ( 'b' | 'B' )
+            // Sql.g:685:11: ( ( 'b' | 'B' ) )
+            // Sql.g:685:12: ( 'b' | 'B' )
             {
             if ( input.LA(1)=='B'||input.LA(1)=='b' ) {
                 input.consume();
@@ -828,8 +850,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "C"
     public final void mC() throws RecognitionException {
         try {
-            // SqlLexer.g:59:11: ( ( 'c' | 'C' ) )
-            // SqlLexer.g:59:12: ( 'c' | 'C' )
+            // Sql.g:686:11: ( ( 'c' | 'C' ) )
+            // Sql.g:686:12: ( 'c' | 'C' )
             {
             if ( input.LA(1)=='C'||input.LA(1)=='c' ) {
                 input.consume();
@@ -852,8 +874,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "D"
     public final void mD() throws RecognitionException {
         try {
-            // SqlLexer.g:60:11: ( ( 'd' | 'D' ) )
-            // SqlLexer.g:60:12: ( 'd' | 'D' )
+            // Sql.g:687:11: ( ( 'd' | 'D' ) )
+            // Sql.g:687:12: ( 'd' | 'D' )
             {
             if ( input.LA(1)=='D'||input.LA(1)=='d' ) {
                 input.consume();
@@ -876,8 +898,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "E"
     public final void mE() throws RecognitionException {
         try {
-            // SqlLexer.g:61:11: ( ( 'e' | 'E' ) )
-            // SqlLexer.g:61:12: ( 'e' | 'E' )
+            // Sql.g:688:11: ( ( 'e' | 'E' ) )
+            // Sql.g:688:12: ( 'e' | 'E' )
             {
             if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
                 input.consume();
@@ -900,8 +922,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "F"
     public final void mF() throws RecognitionException {
         try {
-            // SqlLexer.g:62:11: ( ( 'f' | 'F' ) )
-            // SqlLexer.g:62:12: ( 'f' | 'F' )
+            // Sql.g:689:11: ( ( 'f' | 'F' ) )
+            // Sql.g:689:12: ( 'f' | 'F' )
             {
             if ( input.LA(1)=='F'||input.LA(1)=='f' ) {
                 input.consume();
@@ -924,8 +946,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "G"
     public final void mG() throws RecognitionException {
         try {
-            // SqlLexer.g:63:11: ( ( 'g' | 'G' ) )
-            // SqlLexer.g:63:12: ( 'g' | 'G' )
+            // Sql.g:690:11: ( ( 'g' | 'G' ) )
+            // Sql.g:690:12: ( 'g' | 'G' )
             {
             if ( input.LA(1)=='G'||input.LA(1)=='g' ) {
                 input.consume();
@@ -948,8 +970,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "H"
     public final void mH() throws RecognitionException {
         try {
-            // SqlLexer.g:64:11: ( ( 'h' | 'H' ) )
-            // SqlLexer.g:64:12: ( 'h' | 'H' )
+            // Sql.g:691:11: ( ( 'h' | 'H' ) )
+            // Sql.g:691:12: ( 'h' | 'H' )
             {
             if ( input.LA(1)=='H'||input.LA(1)=='h' ) {
                 input.consume();
@@ -972,8 +994,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "I"
     public final void mI() throws RecognitionException {
         try {
-            // SqlLexer.g:65:11: ( ( 'i' | 'I' ) )
-            // SqlLexer.g:65:12: ( 'i' | 'I' )
+            // Sql.g:692:11: ( ( 'i' | 'I' ) )
+            // Sql.g:692:12: ( 'i' | 'I' )
             {
             if ( input.LA(1)=='I'||input.LA(1)=='i' ) {
                 input.consume();
@@ -996,8 +1018,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "J"
     public final void mJ() throws RecognitionException {
         try {
-            // SqlLexer.g:66:11: ( ( 'j' | 'J' ) )
-            // SqlLexer.g:66:12: ( 'j' | 'J' )
+            // Sql.g:693:11: ( ( 'j' | 'J' ) )
+            // Sql.g:693:12: ( 'j' | 'J' )
             {
             if ( input.LA(1)=='J'||input.LA(1)=='j' ) {
                 input.consume();
@@ -1020,8 +1042,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "K"
     public final void mK() throws RecognitionException {
         try {
-            // SqlLexer.g:67:11: ( ( 'k' | 'K' ) )
-            // SqlLexer.g:67:12: ( 'k' | 'K' )
+            // Sql.g:694:11: ( ( 'k' | 'K' ) )
+            // Sql.g:694:12: ( 'k' | 'K' )
             {
             if ( input.LA(1)=='K'||input.LA(1)=='k' ) {
                 input.consume();
@@ -1044,8 +1066,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "L"
     public final void mL() throws RecognitionException {
         try {
-            // SqlLexer.g:68:11: ( ( 'l' | 'L' ) )
-            // SqlLexer.g:68:12: ( 'l' | 'L' )
+            // Sql.g:695:11: ( ( 'l' | 'L' ) )
+            // Sql.g:695:12: ( 'l' | 'L' )
             {
             if ( input.LA(1)=='L'||input.LA(1)=='l' ) {
                 input.consume();
@@ -1068,8 +1090,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "M"
     public final void mM() throws RecognitionException {
         try {
-            // SqlLexer.g:69:11: ( ( 'm' | 'M' ) )
-            // SqlLexer.g:69:12: ( 'm' | 'M' )
+            // Sql.g:696:11: ( ( 'm' | 'M' ) )
+            // Sql.g:696:12: ( 'm' | 'M' )
             {
             if ( input.LA(1)=='M'||input.LA(1)=='m' ) {
                 input.consume();
@@ -1092,8 +1114,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "N"
     public final void mN() throws RecognitionException {
         try {
-            // SqlLexer.g:70:11: ( ( 'n' | 'N' ) )
-            // SqlLexer.g:70:12: ( 'n' | 'N' )
+            // Sql.g:697:11: ( ( 'n' | 'N' ) )
+            // Sql.g:697:12: ( 'n' | 'N' )
             {
             if ( input.LA(1)=='N'||input.LA(1)=='n' ) {
                 input.consume();
@@ -1116,8 +1138,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "O"
     public final void mO() throws RecognitionException {
         try {
-            // SqlLexer.g:71:11: ( ( 'o' | 'O' ) )
-            // SqlLexer.g:71:12: ( 'o' | 'O' )
+            // Sql.g:698:11: ( ( 'o' | 'O' ) )
+            // Sql.g:698:12: ( 'o' | 'O' )
             {
             if ( input.LA(1)=='O'||input.LA(1)=='o' ) {
                 input.consume();
@@ -1140,8 +1162,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "P"
     public final void mP() throws RecognitionException {
         try {
-            // SqlLexer.g:72:11: ( ( 'p' | 'P' ) )
-            // SqlLexer.g:72:12: ( 'p' | 'P' )
+            // Sql.g:699:11: ( ( 'p' | 'P' ) )
+            // Sql.g:699:12: ( 'p' | 'P' )
             {
             if ( input.LA(1)=='P'||input.LA(1)=='p' ) {
                 input.consume();
@@ -1164,8 +1186,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "Q"
     public final void mQ() throws RecognitionException {
         try {
-            // SqlLexer.g:73:11: ( ( 'q' | 'Q' ) )
-            // SqlLexer.g:73:12: ( 'q' | 'Q' )
+            // Sql.g:700:11: ( ( 'q' | 'Q' ) )
+            // Sql.g:700:12: ( 'q' | 'Q' )
             {
             if ( input.LA(1)=='Q'||input.LA(1)=='q' ) {
                 input.consume();
@@ -1188,8 +1210,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "R"
     public final void mR() throws RecognitionException {
         try {
-            // SqlLexer.g:74:11: ( ( 'r' | 'R' ) )
-            // SqlLexer.g:74:12: ( 'r' | 'R' )
+            // Sql.g:701:11: ( ( 'r' | 'R' ) )
+            // Sql.g:701:12: ( 'r' | 'R' )
             {
             if ( input.LA(1)=='R'||input.LA(1)=='r' ) {
                 input.consume();
@@ -1212,8 +1234,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "S"
     public final void mS() throws RecognitionException {
         try {
-            // SqlLexer.g:75:11: ( ( 's' | 'S' ) )
-            // SqlLexer.g:75:12: ( 's' | 'S' )
+            // Sql.g:702:11: ( ( 's' | 'S' ) )
+            // Sql.g:702:12: ( 's' | 'S' )
             {
             if ( input.LA(1)=='S'||input.LA(1)=='s' ) {
                 input.consume();
@@ -1236,8 +1258,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "T"
     public final void mT() throws RecognitionException {
         try {
-            // SqlLexer.g:76:11: ( ( 't' | 'T' ) )
-            // SqlLexer.g:76:12: ( 't' | 'T' )
+            // Sql.g:703:11: ( ( 't' | 'T' ) )
+            // Sql.g:703:12: ( 't' | 'T' )
             {
             if ( input.LA(1)=='T'||input.LA(1)=='t' ) {
                 input.consume();
@@ -1260,8 +1282,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "U"
     public final void mU() throws RecognitionException {
         try {
-            // SqlLexer.g:77:11: ( ( 'u' | 'U' ) )
-            // SqlLexer.g:77:12: ( 'u' | 'U' )
+            // Sql.g:704:11: ( ( 'u' | 'U' ) )
+            // Sql.g:704:12: ( 'u' | 'U' )
             {
             if ( input.LA(1)=='U'||input.LA(1)=='u' ) {
                 input.consume();
@@ -1284,8 +1306,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "V"
     public final void mV() throws RecognitionException {
         try {
-            // SqlLexer.g:78:11: ( ( 'v' | 'V' ) )
-            // SqlLexer.g:78:12: ( 'v' | 'V' )
+            // Sql.g:705:11: ( ( 'v' | 'V' ) )
+            // Sql.g:705:12: ( 'v' | 'V' )
             {
             if ( input.LA(1)=='V'||input.LA(1)=='v' ) {
                 input.consume();
@@ -1308,8 +1330,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "W"
     public final void mW() throws RecognitionException {
         try {
-            // SqlLexer.g:79:11: ( ( 'w' | 'W' ) )
-            // SqlLexer.g:79:12: ( 'w' | 'W' )
+            // Sql.g:706:11: ( ( 'w' | 'W' ) )
+            // Sql.g:706:12: ( 'w' | 'W' )
             {
             if ( input.LA(1)=='W'||input.LA(1)=='w' ) {
                 input.consume();
@@ -1332,8 +1354,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "X"
     public final void mX() throws RecognitionException {
         try {
-            // SqlLexer.g:80:11: ( ( 'x' | 'X' ) )
-            // SqlLexer.g:80:12: ( 'x' | 'X' )
+            // Sql.g:707:11: ( ( 'x' | 'X' ) )
+            // Sql.g:707:12: ( 'x' | 'X' )
             {
             if ( input.LA(1)=='X'||input.LA(1)=='x' ) {
                 input.consume();
@@ -1356,8 +1378,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "Y"
     public final void mY() throws RecognitionException {
         try {
-            // SqlLexer.g:81:11: ( ( 'y' | 'Y' ) )
-            // SqlLexer.g:81:12: ( 'y' | 'Y' )
+            // Sql.g:708:11: ( ( 'y' | 'Y' ) )
+            // Sql.g:708:12: ( 'y' | 'Y' )
             {
             if ( input.LA(1)=='Y'||input.LA(1)=='y' ) {
                 input.consume();
@@ -1380,8 +1402,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "Z"
     public final void mZ() throws RecognitionException {
         try {
-            // SqlLexer.g:82:11: ( ( 'z' | 'Z' ) )
-            // SqlLexer.g:82:12: ( 'z' | 'Z' )
+            // Sql.g:709:11: ( ( 'z' | 'Z' ) )
+            // Sql.g:709:12: ( 'z' | 'Z' )
             {
             if ( input.LA(1)=='Z'||input.LA(1)=='z' ) {
                 input.consume();
@@ -1406,8 +1428,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ABORT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:84:6: ( A B O R T )
-            // SqlLexer.g:84:8: A B O R T
+            // Sql.g:711:6: ( A B O R T )
+            // Sql.g:711:8: A B O R T
             {
             mA(); 
             mB(); 
@@ -1430,8 +1452,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ADD;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:85:4: ( A D D )
-            // SqlLexer.g:85:6: A D D
+            // Sql.g:712:4: ( A D D )
+            // Sql.g:712:6: A D D
             {
             mA(); 
             mD(); 
@@ -1452,8 +1474,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AFTER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:86:6: ( A F T E R )
-            // SqlLexer.g:86:8: A F T E R
+            // Sql.g:713:6: ( A F T E R )
+            // Sql.g:713:8: A F T E R
             {
             mA(); 
             mF(); 
@@ -1476,8 +1498,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ALL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:87:4: ( A L L )
-            // SqlLexer.g:87:6: A L L
+            // Sql.g:714:4: ( A L L )
+            // Sql.g:714:6: A L L
             {
             mA(); 
             mL(); 
@@ -1498,8 +1520,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ALTER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:88:6: ( A L T E R )
-            // SqlLexer.g:88:8: A L T E R
+            // Sql.g:715:6: ( A L T E R )
+            // Sql.g:715:8: A L T E R
             {
             mA(); 
             mL(); 
@@ -1522,8 +1544,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ANALYZE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:89:8: ( A N A L Y Z E )
-            // SqlLexer.g:89:10: A N A L Y Z E
+            // Sql.g:716:8: ( A N A L Y Z E )
+            // Sql.g:716:10: A N A L Y Z E
             {
             mA(); 
             mN(); 
@@ -1548,8 +1570,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:90:4: ( A N D )
-            // SqlLexer.g:90:6: A N D
+            // Sql.g:717:4: ( A N D )
+            // Sql.g:717:6: A N D
             {
             mA(); 
             mN(); 
@@ -1570,8 +1592,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:91:3: ( A S )
-            // SqlLexer.g:91:5: A S
+            // Sql.g:718:3: ( A S )
+            // Sql.g:718:5: A S
             {
             mA(); 
             mS(); 
@@ -1591,8 +1613,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ASC;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:92:4: ( A S C )
-            // SqlLexer.g:92:6: A S C
+            // Sql.g:719:4: ( A S C )
+            // Sql.g:719:6: A S C
             {
             mA(); 
             mS(); 
@@ -1613,8 +1635,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ATTACH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:93:7: ( A T T A C H )
-            // SqlLexer.g:93:9: A T T A C H
+            // Sql.g:720:7: ( A T T A C H )
+            // Sql.g:720:9: A T T A C H
             {
             mA(); 
             mT(); 
@@ -1638,8 +1660,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = AUTOINCREMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:94:14: ( A U T O I N C R E M E N T )
-            // SqlLexer.g:94:16: A U T O I N C R E M E N T
+            // Sql.g:721:14: ( A U T O I N C R E M E N T )
+            // Sql.g:721:16: A U T O I N C R E M E N T
             {
             mA(); 
             mU(); 
@@ -1670,8 +1692,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = BEFORE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:95:7: ( B E F O R E )
-            // SqlLexer.g:95:9: B E F O R E
+            // Sql.g:722:7: ( B E F O R E )
+            // Sql.g:722:9: B E F O R E
             {
             mB(); 
             mE(); 
@@ -1695,8 +1717,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = BEGIN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:96:6: ( B E G I N )
-            // SqlLexer.g:96:8: B E G I N
+            // Sql.g:723:6: ( B E G I N )
+            // Sql.g:723:8: B E G I N
             {
             mB(); 
             mE(); 
@@ -1719,8 +1741,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = BETWEEN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:97:8: ( B E T W E E N )
-            // SqlLexer.g:97:10: B E T W E E N
+            // Sql.g:724:8: ( B E T W E E N )
+            // Sql.g:724:10: B E T W E E N
             {
             mB(); 
             mE(); 
@@ -1745,8 +1767,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = BY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:98:3: ( B Y )
-            // SqlLexer.g:98:5: B Y
+            // Sql.g:725:3: ( B Y )
+            // Sql.g:725:5: B Y
             {
             mB(); 
             mY(); 
@@ -1766,8 +1788,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CASCADE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:99:8: ( C A S C A D E )
-            // SqlLexer.g:99:10: C A S C A D E
+            // Sql.g:726:8: ( C A S C A D E )
+            // Sql.g:726:10: C A S C A D E
             {
             mC(); 
             mA(); 
@@ -1792,8 +1814,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CASE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:100:5: ( C A S E )
-            // SqlLexer.g:100:7: C A S E
+            // Sql.g:727:5: ( C A S E )
+            // Sql.g:727:7: C A S E
             {
             mC(); 
             mA(); 
@@ -1815,8 +1837,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CAST;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:101:5: ( C A S T )
-            // SqlLexer.g:101:7: C A S T
+            // Sql.g:728:5: ( C A S T )
+            // Sql.g:728:7: C A S T
             {
             mC(); 
             mA(); 
@@ -1838,8 +1860,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CHECK;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:102:6: ( C H E C K )
-            // SqlLexer.g:102:8: C H E C K
+            // Sql.g:729:6: ( C H E C K )
+            // Sql.g:729:8: C H E C K
             {
             mC(); 
             mH(); 
@@ -1862,8 +1884,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = COLLATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:103:8: ( C O L L A T E )
-            // SqlLexer.g:103:10: C O L L A T E
+            // Sql.g:730:8: ( C O L L A T E )
+            // Sql.g:730:10: C O L L A T E
             {
             mC(); 
             mO(); 
@@ -1888,8 +1910,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = COLUMN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:104:7: ( C O L U M N )
-            // SqlLexer.g:104:9: C O L U M N
+            // Sql.g:731:7: ( C O L U M N )
+            // Sql.g:731:9: C O L U M N
             {
             mC(); 
             mO(); 
@@ -1913,8 +1935,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = COMMIT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:105:7: ( C O M M I T )
-            // SqlLexer.g:105:9: C O M M I T
+            // Sql.g:732:7: ( C O M M I T )
+            // Sql.g:732:9: C O M M I T
             {
             mC(); 
             mO(); 
@@ -1938,8 +1960,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CONFLICT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:106:9: ( C O N F L I C T )
-            // SqlLexer.g:106:11: C O N F L I C T
+            // Sql.g:733:9: ( C O N F L I C T )
+            // Sql.g:733:11: C O N F L I C T
             {
             mC(); 
             mO(); 
@@ -1965,8 +1987,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CONSTRAINT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:107:11: ( C O N S T R A I N T )
-            // SqlLexer.g:107:13: C O N S T R A I N T
+            // Sql.g:734:11: ( C O N S T R A I N T )
+            // Sql.g:734:13: C O N S T R A I N T
             {
             mC(); 
             mO(); 
@@ -1994,8 +2016,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CREATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:108:7: ( C R E A T E )
-            // SqlLexer.g:108:9: C R E A T E
+            // Sql.g:735:7: ( C R E A T E )
+            // Sql.g:735:9: C R E A T E
             {
             mC(); 
             mR(); 
@@ -2019,8 +2041,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CROSS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:109:6: ( C R O S S )
-            // SqlLexer.g:109:8: C R O S S
+            // Sql.g:736:6: ( C R O S S )
+            // Sql.g:736:8: C R O S S
             {
             mC(); 
             mR(); 
@@ -2043,8 +2065,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CURRENT_TIME;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:110:13: ( C U R R E N T '_' T I M E )
-            // SqlLexer.g:110:15: C U R R E N T '_' T I M E
+            // Sql.g:737:13: ( C U R R E N T '_' T I M E )
+            // Sql.g:737:15: C U R R E N T '_' T I M E
             {
             mC(); 
             mU(); 
@@ -2074,8 +2096,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CURRENT_DATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:111:13: ( C U R R E N T '_' D A T E )
-            // SqlLexer.g:111:15: C U R R E N T '_' D A T E
+            // Sql.g:738:13: ( C U R R E N T '_' D A T E )
+            // Sql.g:738:15: C U R R E N T '_' D A T E
             {
             mC(); 
             mU(); 
@@ -2105,8 +2127,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = CURRENT_TIMESTAMP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:112:18: ( C U R R E N T '_' T I M E S T A M P )
-            // SqlLexer.g:112:20: C U R R E N T '_' T I M E S T A M P
+            // Sql.g:739:18: ( C U R R E N T '_' T I M E S T A M P )
+            // Sql.g:739:20: C U R R E N T '_' T I M E S T A M P
             {
             mC(); 
             mU(); 
@@ -2141,8 +2163,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DATABASE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:113:9: ( D A T A B A S E )
-            // SqlLexer.g:113:11: D A T A B A S E
+            // Sql.g:740:9: ( D A T A B A S E )
+            // Sql.g:740:11: D A T A B A S E
             {
             mD(); 
             mA(); 
@@ -2168,8 +2190,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DEFAULT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:114:8: ( D E F A U L T )
-            // SqlLexer.g:114:10: D E F A U L T
+            // Sql.g:741:8: ( D E F A U L T )
+            // Sql.g:741:10: D E F A U L T
             {
             mD(); 
             mE(); 
@@ -2194,8 +2216,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DEFERRABLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:115:11: ( D E F E R R A B L E )
-            // SqlLexer.g:115:13: D E F E R R A B L E
+            // Sql.g:742:11: ( D E F E R R A B L E )
+            // Sql.g:742:13: D E F E R R A B L E
             {
             mD(); 
             mE(); 
@@ -2223,8 +2245,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DEFERRED;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:116:9: ( D E F E R R E D )
-            // SqlLexer.g:116:11: D E F E R R E D
+            // Sql.g:743:9: ( D E F E R R E D )
+            // Sql.g:743:11: D E F E R R E D
             {
             mD(); 
             mE(); 
@@ -2250,8 +2272,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DELETE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:117:7: ( D E L E T E )
-            // SqlLexer.g:117:9: D E L E T E
+            // Sql.g:744:7: ( D E L E T E )
+            // Sql.g:744:9: D E L E T E
             {
             mD(); 
             mE(); 
@@ -2275,8 +2297,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DESC;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:118:5: ( D E S C )
-            // SqlLexer.g:118:7: D E S C
+            // Sql.g:745:5: ( D E S C )
+            // Sql.g:745:7: D E S C
             {
             mD(); 
             mE(); 
@@ -2298,8 +2320,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DETACH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:119:7: ( D E T A C H )
-            // SqlLexer.g:119:9: D E T A C H
+            // Sql.g:746:7: ( D E T A C H )
+            // Sql.g:746:9: D E T A C H
             {
             mD(); 
             mE(); 
@@ -2323,8 +2345,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DISTINCT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:120:9: ( D I S T I N C T )
-            // SqlLexer.g:120:11: D I S T I N C T
+            // Sql.g:747:9: ( D I S T I N C T )
+            // Sql.g:747:11: D I S T I N C T
             {
             mD(); 
             mI(); 
@@ -2350,8 +2372,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = DROP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:121:5: ( D R O P )
-            // SqlLexer.g:121:7: D R O P
+            // Sql.g:748:5: ( D R O P )
+            // Sql.g:748:7: D R O P
             {
             mD(); 
             mR(); 
@@ -2373,8 +2395,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EACH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:122:5: ( E A C H )
-            // SqlLexer.g:122:7: E A C H
+            // Sql.g:749:5: ( E A C H )
+            // Sql.g:749:7: E A C H
             {
             mE(); 
             mA(); 
@@ -2396,8 +2418,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ELSE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:123:5: ( E L S E )
-            // SqlLexer.g:123:7: E L S E
+            // Sql.g:750:5: ( E L S E )
+            // Sql.g:750:7: E L S E
             {
             mE(); 
             mL(); 
@@ -2419,8 +2441,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = END;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:124:4: ( E N D )
-            // SqlLexer.g:124:6: E N D
+            // Sql.g:751:4: ( E N D )
+            // Sql.g:751:6: E N D
             {
             mE(); 
             mN(); 
@@ -2441,8 +2463,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ESCAPE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:125:7: ( E S C A P E )
-            // SqlLexer.g:125:9: E S C A P E
+            // Sql.g:752:7: ( E S C A P E )
+            // Sql.g:752:9: E S C A P E
             {
             mE(); 
             mS(); 
@@ -2466,8 +2488,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EXCEPT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:126:7: ( E X C E P T )
-            // SqlLexer.g:126:9: E X C E P T
+            // Sql.g:753:7: ( E X C E P T )
+            // Sql.g:753:9: E X C E P T
             {
             mE(); 
             mX(); 
@@ -2491,8 +2513,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EXCLUSIVE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:127:10: ( E X C L U S I V E )
-            // SqlLexer.g:127:12: E X C L U S I V E
+            // Sql.g:754:10: ( E X C L U S I V E )
+            // Sql.g:754:12: E X C L U S I V E
             {
             mE(); 
             mX(); 
@@ -2519,8 +2541,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EXISTS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:128:7: ( E X I S T S )
-            // SqlLexer.g:128:9: E X I S T S
+            // Sql.g:755:7: ( E X I S T S )
+            // Sql.g:755:9: E X I S T S
             {
             mE(); 
             mX(); 
@@ -2544,8 +2566,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = EXPLAIN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:129:8: ( E X P L A I N )
-            // SqlLexer.g:129:10: E X P L A I N
+            // Sql.g:756:8: ( E X P L A I N )
+            // Sql.g:756:10: E X P L A I N
             {
             mE(); 
             mX(); 
@@ -2570,8 +2592,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = FAIL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:130:5: ( F A I L )
-            // SqlLexer.g:130:7: F A I L
+            // Sql.g:757:5: ( F A I L )
+            // Sql.g:757:7: F A I L
             {
             mF(); 
             mA(); 
@@ -2593,8 +2615,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = FOR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:131:4: ( F O R )
-            // SqlLexer.g:131:6: F O R
+            // Sql.g:758:4: ( F O R )
+            // Sql.g:758:6: F O R
             {
             mF(); 
             mO(); 
@@ -2615,8 +2637,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = FOREIGN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:132:8: ( F O R E I G N )
-            // SqlLexer.g:132:10: F O R E I G N
+            // Sql.g:759:8: ( F O R E I G N )
+            // Sql.g:759:10: F O R E I G N
             {
             mF(); 
             mO(); 
@@ -2641,8 +2663,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = FROM;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:133:5: ( F R O M )
-            // SqlLexer.g:133:7: F R O M
+            // Sql.g:760:5: ( F R O M )
+            // Sql.g:760:7: F R O M
             {
             mF(); 
             mR(); 
@@ -2664,8 +2686,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = GLOB;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:134:5: ( G L O B )
-            // SqlLexer.g:134:7: G L O B
+            // Sql.g:761:5: ( G L O B )
+            // Sql.g:761:7: G L O B
             {
             mG(); 
             mL(); 
@@ -2687,8 +2709,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = GROUP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:135:6: ( G R O U P )
-            // SqlLexer.g:135:8: G R O U P
+            // Sql.g:762:6: ( G R O U P )
+            // Sql.g:762:8: G R O U P
             {
             mG(); 
             mR(); 
@@ -2711,8 +2733,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = HAVING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:136:7: ( H A V I N G )
-            // SqlLexer.g:136:9: H A V I N G
+            // Sql.g:763:7: ( H A V I N G )
+            // Sql.g:763:9: H A V I N G
             {
             mH(); 
             mA(); 
@@ -2736,8 +2758,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = IF;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:137:3: ( I F )
-            // SqlLexer.g:137:5: I F
+            // Sql.g:764:3: ( I F )
+            // Sql.g:764:5: I F
             {
             mI(); 
             mF(); 
@@ -2757,8 +2779,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = IGNORE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:138:7: ( I G N O R E )
-            // SqlLexer.g:138:9: I G N O R E
+            // Sql.g:765:7: ( I G N O R E )
+            // Sql.g:765:9: I G N O R E
             {
             mI(); 
             mG(); 
@@ -2782,8 +2804,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = IMMEDIATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:139:10: ( I M M E D I A T E )
-            // SqlLexer.g:139:12: I M M E D I A T E
+            // Sql.g:766:10: ( I M M E D I A T E )
+            // Sql.g:766:12: I M M E D I A T E
             {
             mI(); 
             mM(); 
@@ -2810,8 +2832,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = IN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:140:3: ( I N )
-            // SqlLexer.g:140:5: I N
+            // Sql.g:767:3: ( I N )
+            // Sql.g:767:5: I N
             {
             mI(); 
             mN(); 
@@ -2831,8 +2853,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INDEX;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:141:6: ( I N D E X )
-            // SqlLexer.g:141:8: I N D E X
+            // Sql.g:768:6: ( I N D E X )
+            // Sql.g:768:8: I N D E X
             {
             mI(); 
             mN(); 
@@ -2855,8 +2877,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INDEXED;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:142:8: ( I N D E X E D )
-            // SqlLexer.g:142:10: I N D E X E D
+            // Sql.g:769:8: ( I N D E X E D )
+            // Sql.g:769:10: I N D E X E D
             {
             mI(); 
             mN(); 
@@ -2881,8 +2903,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INITIALLY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:143:10: ( I N I T I A L L Y )
-            // SqlLexer.g:143:12: I N I T I A L L Y
+            // Sql.g:770:10: ( I N I T I A L L Y )
+            // Sql.g:770:12: I N I T I A L L Y
             {
             mI(); 
             mN(); 
@@ -2909,8 +2931,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INNER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:144:6: ( I N N E R )
-            // SqlLexer.g:144:8: I N N E R
+            // Sql.g:771:6: ( I N N E R )
+            // Sql.g:771:8: I N N E R
             {
             mI(); 
             mN(); 
@@ -2933,8 +2955,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INSERT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:145:7: ( I N S E R T )
-            // SqlLexer.g:145:9: I N S E R T
+            // Sql.g:772:7: ( I N S E R T )
+            // Sql.g:772:9: I N S E R T
             {
             mI(); 
             mN(); 
@@ -2958,8 +2980,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INSTEAD;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:146:8: ( I N S T E A D )
-            // SqlLexer.g:146:10: I N S T E A D
+            // Sql.g:773:8: ( I N S T E A D )
+            // Sql.g:773:10: I N S T E A D
             {
             mI(); 
             mN(); 
@@ -2984,8 +3006,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INTERSECT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:147:10: ( I N T E R S E C T )
-            // SqlLexer.g:147:12: I N T E R S E C T
+            // Sql.g:774:10: ( I N T E R S E C T )
+            // Sql.g:774:12: I N T E R S E C T
             {
             mI(); 
             mN(); 
@@ -3012,8 +3034,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INTO;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:148:5: ( I N T O )
-            // SqlLexer.g:148:7: I N T O
+            // Sql.g:775:5: ( I N T O )
+            // Sql.g:775:7: I N T O
             {
             mI(); 
             mN(); 
@@ -3035,8 +3057,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = IS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:149:3: ( I S )
-            // SqlLexer.g:149:5: I S
+            // Sql.g:776:3: ( I S )
+            // Sql.g:776:5: I S
             {
             mI(); 
             mS(); 
@@ -3056,8 +3078,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ISNULL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:150:7: ( I S N U L L )
-            // SqlLexer.g:150:9: I S N U L L
+            // Sql.g:777:7: ( I S N U L L )
+            // Sql.g:777:9: I S N U L L
             {
             mI(); 
             mS(); 
@@ -3081,8 +3103,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = JOIN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:151:5: ( J O I N )
-            // SqlLexer.g:151:7: J O I N
+            // Sql.g:778:5: ( J O I N )
+            // Sql.g:778:7: J O I N
             {
             mJ(); 
             mO(); 
@@ -3104,8 +3126,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = KEY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:152:4: ( K E Y )
-            // SqlLexer.g:152:6: K E Y
+            // Sql.g:779:4: ( K E Y )
+            // Sql.g:779:6: K E Y
             {
             mK(); 
             mE(); 
@@ -3126,8 +3148,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LEFT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:153:5: ( L E F T )
-            // SqlLexer.g:153:7: L E F T
+            // Sql.g:780:5: ( L E F T )
+            // Sql.g:780:7: L E F T
             {
             mL(); 
             mE(); 
@@ -3149,8 +3171,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LIKE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:154:5: ( L I K E )
-            // SqlLexer.g:154:7: L I K E
+            // Sql.g:781:5: ( L I K E )
+            // Sql.g:781:7: L I K E
             {
             mL(); 
             mI(); 
@@ -3172,8 +3194,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = LIMIT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:155:6: ( L I M I T )
-            // SqlLexer.g:155:8: L I M I T
+            // Sql.g:782:6: ( L I M I T )
+            // Sql.g:782:8: L I M I T
             {
             mL(); 
             mI(); 
@@ -3196,8 +3218,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = MATCH;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:156:6: ( M A T C H )
-            // SqlLexer.g:156:8: M A T C H
+            // Sql.g:783:6: ( M A T C H )
+            // Sql.g:783:8: M A T C H
             {
             mM(); 
             mA(); 
@@ -3220,8 +3242,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NATURAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:157:8: ( N A T U R A L )
-            // SqlLexer.g:157:10: N A T U R A L
+            // Sql.g:784:8: ( N A T U R A L )
+            // Sql.g:784:10: N A T U R A L
             {
             mN(); 
             mA(); 
@@ -3246,8 +3268,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:158:4: ( N O T )
-            // SqlLexer.g:158:6: N O T
+            // Sql.g:785:4: ( N O T )
+            // Sql.g:785:6: N O T
             {
             mN(); 
             mO(); 
@@ -3268,8 +3290,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NOTNULL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:159:8: ( N O T N U L L )
-            // SqlLexer.g:159:10: N O T N U L L
+            // Sql.g:786:8: ( N O T N U L L )
+            // Sql.g:786:10: N O T N U L L
             {
             mN(); 
             mO(); 
@@ -3294,8 +3316,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = NULL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:160:5: ( N U L L )
-            // SqlLexer.g:160:7: N U L L
+            // Sql.g:787:5: ( N U L L )
+            // Sql.g:787:7: N U L L
             {
             mN(); 
             mU(); 
@@ -3317,8 +3339,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = OF;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:161:3: ( O F )
-            // SqlLexer.g:161:5: O F
+            // Sql.g:788:3: ( O F )
+            // Sql.g:788:5: O F
             {
             mO(); 
             mF(); 
@@ -3338,8 +3360,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = OFFSET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:162:7: ( O F F S E T )
-            // SqlLexer.g:162:9: O F F S E T
+            // Sql.g:789:7: ( O F F S E T )
+            // Sql.g:789:9: O F F S E T
             {
             mO(); 
             mF(); 
@@ -3363,8 +3385,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ON;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:163:3: ( O N )
-            // SqlLexer.g:163:5: O N
+            // Sql.g:790:3: ( O N )
+            // Sql.g:790:5: O N
             {
             mO(); 
             mN(); 
@@ -3384,8 +3406,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = OR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:164:3: ( O R )
-            // SqlLexer.g:164:5: O R
+            // Sql.g:791:3: ( O R )
+            // Sql.g:791:5: O R
             {
             mO(); 
             mR(); 
@@ -3405,8 +3427,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ORDER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:165:6: ( O R D E R )
-            // SqlLexer.g:165:8: O R D E R
+            // Sql.g:792:6: ( O R D E R )
+            // Sql.g:792:8: O R D E R
             {
             mO(); 
             mR(); 
@@ -3429,8 +3451,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = OUTER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:166:6: ( O U T E R )
-            // SqlLexer.g:166:8: O U T E R
+            // Sql.g:793:6: ( O U T E R )
+            // Sql.g:793:8: O U T E R
             {
             mO(); 
             mU(); 
@@ -3453,8 +3475,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PLAN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:167:5: ( P L A N )
-            // SqlLexer.g:167:7: P L A N
+            // Sql.g:794:5: ( P L A N )
+            // Sql.g:794:7: P L A N
             {
             mP(); 
             mL(); 
@@ -3476,8 +3498,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PRAGMA;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:168:7: ( P R A G M A )
-            // SqlLexer.g:168:9: P R A G M A
+            // Sql.g:795:7: ( P R A G M A )
+            // Sql.g:795:9: P R A G M A
             {
             mP(); 
             mR(); 
@@ -3501,8 +3523,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = PRIMARY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:169:8: ( P R I M A R Y )
-            // SqlLexer.g:169:10: P R I M A R Y
+            // Sql.g:796:8: ( P R I M A R Y )
+            // Sql.g:796:10: P R I M A R Y
             {
             mP(); 
             mR(); 
@@ -3527,8 +3549,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = QUERY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:170:6: ( Q U E R Y )
-            // SqlLexer.g:170:8: Q U E R Y
+            // Sql.g:797:6: ( Q U E R Y )
+            // Sql.g:797:8: Q U E R Y
             {
             mQ(); 
             mU(); 
@@ -3551,8 +3573,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = RAISE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:171:6: ( R A I S E )
-            // SqlLexer.g:171:8: R A I S E
+            // Sql.g:798:6: ( R A I S E )
+            // Sql.g:798:8: R A I S E
             {
             mR(); 
             mA(); 
@@ -3575,8 +3597,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = REFERENCES;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:172:11: ( R E F E R E N C E S )
-            // SqlLexer.g:172:13: R E F E R E N C E S
+            // Sql.g:799:11: ( R E F E R E N C E S )
+            // Sql.g:799:13: R E F E R E N C E S
             {
             mR(); 
             mE(); 
@@ -3604,8 +3626,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = REGEXP;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:173:7: ( R E G E X P )
-            // SqlLexer.g:173:9: R E G E X P
+            // Sql.g:800:7: ( R E G E X P )
+            // Sql.g:800:9: R E G E X P
             {
             mR(); 
             mE(); 
@@ -3629,8 +3651,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = REINDEX;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:174:8: ( R E I N D E X )
-            // SqlLexer.g:174:10: R E I N D E X
+            // Sql.g:801:8: ( R E I N D E X )
+            // Sql.g:801:10: R E I N D E X
             {
             mR(); 
             mE(); 
@@ -3655,8 +3677,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = RELEASE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:175:8: ( R E L E A S E )
-            // SqlLexer.g:175:10: R E L E A S E
+            // Sql.g:802:8: ( R E L E A S E )
+            // Sql.g:802:10: R E L E A S E
             {
             mR(); 
             mE(); 
@@ -3681,8 +3703,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = RENAME;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:176:7: ( R E N A M E )
-            // SqlLexer.g:176:9: R E N A M E
+            // Sql.g:803:7: ( R E N A M E )
+            // Sql.g:803:9: R E N A M E
             {
             mR(); 
             mE(); 
@@ -3706,8 +3728,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = REPLACE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:177:8: ( R E P L A C E )
-            // SqlLexer.g:177:10: R E P L A C E
+            // Sql.g:804:8: ( R E P L A C E )
+            // Sql.g:804:10: R E P L A C E
             {
             mR(); 
             mE(); 
@@ -3732,8 +3754,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = RESTRICT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:178:9: ( R E S T R I C T )
-            // SqlLexer.g:178:11: R E S T R I C T
+            // Sql.g:805:9: ( R E S T R I C T )
+            // Sql.g:805:11: R E S T R I C T
             {
             mR(); 
             mE(); 
@@ -3759,8 +3781,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ROLLBACK;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:179:9: ( R O L L B A C K )
-            // SqlLexer.g:179:11: R O L L B A C K
+            // Sql.g:806:9: ( R O L L B A C K )
+            // Sql.g:806:11: R O L L B A C K
             {
             mR(); 
             mO(); 
@@ -3786,8 +3808,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ROW;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:180:4: ( R O W )
-            // SqlLexer.g:180:6: R O W
+            // Sql.g:807:4: ( R O W )
+            // Sql.g:807:6: R O W
             {
             mR(); 
             mO(); 
@@ -3808,8 +3830,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SAVEPOINT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:181:10: ( S A V E P O I N T )
-            // SqlLexer.g:181:12: S A V E P O I N T
+            // Sql.g:808:10: ( S A V E P O I N T )
+            // Sql.g:808:12: S A V E P O I N T
             {
             mS(); 
             mA(); 
@@ -3836,8 +3858,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SELECT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:182:7: ( S E L E C T )
-            // SqlLexer.g:182:9: S E L E C T
+            // Sql.g:809:7: ( S E L E C T )
+            // Sql.g:809:9: S E L E C T
             {
             mS(); 
             mE(); 
@@ -3861,8 +3883,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = SET;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:183:4: ( S E T )
-            // SqlLexer.g:183:6: S E T
+            // Sql.g:810:4: ( S E T )
+            // Sql.g:810:6: S E T
             {
             mS(); 
             mE(); 
@@ -3883,8 +3905,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TABLE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:184:6: ( T A B L E )
-            // SqlLexer.g:184:8: T A B L E
+            // Sql.g:811:6: ( T A B L E )
+            // Sql.g:811:8: T A B L E
             {
             mT(); 
             mA(); 
@@ -3907,14 +3929,14 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TEMPORARY;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:185:10: ( T E M P ( O R A R Y )? )
-            // SqlLexer.g:185:12: T E M P ( O R A R Y )?
+            // Sql.g:812:10: ( T E M P ( O R A R Y )? )
+            // Sql.g:812:12: T E M P ( O R A R Y )?
             {
             mT(); 
             mE(); 
             mM(); 
             mP(); 
-            // SqlLexer.g:185:20: ( O R A R Y )?
+            // Sql.g:812:20: ( O R A R Y )?
             int alt1=2;
             int LA1_0 = input.LA(1);
 
@@ -3923,7 +3945,7 @@ public class SqlLexer extends Lexer {
             }
             switch (alt1) {
                 case 1 :
-                    // SqlLexer.g:185:22: O R A R Y
+                    // Sql.g:812:22: O R A R Y
                     {
                     mO(); 
                     mR(); 
@@ -3952,8 +3974,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = THEN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:186:5: ( T H E N )
-            // SqlLexer.g:186:7: T H E N
+            // Sql.g:813:5: ( T H E N )
+            // Sql.g:813:7: T H E N
             {
             mT(); 
             mH(); 
@@ -3975,8 +3997,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TO;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:187:3: ( T O )
-            // SqlLexer.g:187:5: T O
+            // Sql.g:814:3: ( T O )
+            // Sql.g:814:5: T O
             {
             mT(); 
             mO(); 
@@ -3996,8 +4018,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TRANSACTION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:188:12: ( T R A N S A C T I O N )
-            // SqlLexer.g:188:14: T R A N S A C T I O N
+            // Sql.g:815:12: ( T R A N S A C T I O N )
+            // Sql.g:815:14: T R A N S A C T I O N
             {
             mT(); 
             mR(); 
@@ -4026,8 +4048,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = TRIGGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:189:8: ( T R I G G E R )
-            // SqlLexer.g:189:10: T R I G G E R
+            // Sql.g:816:8: ( T R I G G E R )
+            // Sql.g:816:10: T R I G G E R
             {
             mT(); 
             mR(); 
@@ -4052,8 +4074,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = UNION;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:190:6: ( U N I O N )
-            // SqlLexer.g:190:8: U N I O N
+            // Sql.g:817:6: ( U N I O N )
+            // Sql.g:817:8: U N I O N
             {
             mU(); 
             mN(); 
@@ -4076,8 +4098,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = UNIQUE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:191:7: ( U N I Q U E )
-            // SqlLexer.g:191:9: U N I Q U E
+            // Sql.g:818:7: ( U N I Q U E )
+            // Sql.g:818:9: U N I Q U E
             {
             mU(); 
             mN(); 
@@ -4101,8 +4123,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = UPDATE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:192:7: ( U P D A T E )
-            // SqlLexer.g:192:9: U P D A T E
+            // Sql.g:819:7: ( U P D A T E )
+            // Sql.g:819:9: U P D A T E
             {
             mU(); 
             mP(); 
@@ -4126,8 +4148,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = USING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:193:6: ( U S I N G )
-            // SqlLexer.g:193:8: U S I N G
+            // Sql.g:820:6: ( U S I N G )
+            // Sql.g:820:8: U S I N G
             {
             mU(); 
             mS(); 
@@ -4150,8 +4172,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = VACUUM;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:194:7: ( V A C U U M )
-            // SqlLexer.g:194:9: V A C U U M
+            // Sql.g:821:7: ( V A C U U M )
+            // Sql.g:821:9: V A C U U M
             {
             mV(); 
             mA(); 
@@ -4175,8 +4197,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = VALUES;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:195:7: ( V A L U E S )
-            // SqlLexer.g:195:9: V A L U E S
+            // Sql.g:822:7: ( V A L U E S )
+            // Sql.g:822:9: V A L U E S
             {
             mV(); 
             mA(); 
@@ -4200,8 +4222,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = VIEW;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:196:5: ( V I E W )
-            // SqlLexer.g:196:7: V I E W
+            // Sql.g:823:5: ( V I E W )
+            // Sql.g:823:7: V I E W
             {
             mV(); 
             mI(); 
@@ -4223,8 +4245,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = VIRTUAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:197:8: ( V I R T U A L )
-            // SqlLexer.g:197:10: V I R T U A L
+            // Sql.g:824:8: ( V I R T U A L )
+            // Sql.g:824:10: V I R T U A L
             {
             mV(); 
             mI(); 
@@ -4249,8 +4271,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = WHEN;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:198:5: ( W H E N )
-            // SqlLexer.g:198:7: W H E N
+            // Sql.g:825:5: ( W H E N )
+            // Sql.g:825:7: W H E N
             {
             mW(); 
             mH(); 
@@ -4272,8 +4294,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = WHERE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:199:6: ( W H E R E )
-            // SqlLexer.g:199:8: W H E R E
+            // Sql.g:826:6: ( W H E R E )
+            // Sql.g:826:8: W H E R E
             {
             mW(); 
             mH(); 
@@ -4294,8 +4316,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "ID_START"
     public final void mID_START() throws RecognitionException {
         try {
-            // SqlLexer.g:201:18: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) )
-            // SqlLexer.g:201:20: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )
+            // Sql.g:828:18: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) )
+            // Sql.g:828:20: ( 'a' .. 'z' | 'A' .. 'Z' | '_' )
             {
             if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
@@ -4320,11 +4342,11 @@ public class SqlLexer extends Lexer {
         try {
             int _type = ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:202:3: ( ID_START ( ID_START | '0' .. '9' )* )
-            // SqlLexer.g:202:5: ID_START ( ID_START | '0' .. '9' )*
+            // Sql.g:829:3: ( ID_START ( ID_START | '0' .. '9' )* )
+            // Sql.g:829:5: ID_START ( ID_START | '0' .. '9' )*
             {
             mID_START(); 
-            // SqlLexer.g:202:14: ( ID_START | '0' .. '9' )*
+            // Sql.g:829:14: ( ID_START | '0' .. '9' )*
             loop2:
             do {
                 int alt2=2;
@@ -4337,7 +4359,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // SqlLexer.g:
+            	    // Sql.g:
             	    {
             	    if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
             	        input.consume();
@@ -4373,11 +4395,11 @@ public class SqlLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:204:7: ( '\\'' (~ ( '\\'' ) )* '\\'' )
-            // SqlLexer.g:204:9: '\\'' (~ ( '\\'' ) )* '\\''
+            // Sql.g:831:7: ( '\\'' (~ ( '\\'' ) )* '\\'' )
+            // Sql.g:831:9: '\\'' (~ ( '\\'' ) )* '\\''
             {
             match('\''); 
-            // SqlLexer.g:204:14: (~ ( '\\'' ) )*
+            // Sql.g:831:14: (~ ( '\\'' ) )*
             loop3:
             do {
                 int alt3=2;
@@ -4390,7 +4412,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // SqlLexer.g:204:16: ~ ( '\\'' )
+            	    // Sql.g:831:16: ~ ( '\\'' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='\uFFFF') ) {
             	        input.consume();
@@ -4427,10 +4449,10 @@ public class SqlLexer extends Lexer {
         try {
             int _type = INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:205:8: ( ( '0' .. '9' )+ )
-            // SqlLexer.g:205:10: ( '0' .. '9' )+
+            // Sql.g:832:8: ( ( '0' .. '9' )+ )
+            // Sql.g:832:10: ( '0' .. '9' )+
             {
-            // SqlLexer.g:205:10: ( '0' .. '9' )+
+            // Sql.g:832:10: ( '0' .. '9' )+
             int cnt4=0;
             loop4:
             do {
@@ -4444,7 +4466,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt4) {
             	case 1 :
-            	    // SqlLexer.g:205:11: '0' .. '9'
+            	    // Sql.g:832:11: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -4474,8 +4496,8 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "FLOAT_EXP"
     public final void mFLOAT_EXP() throws RecognitionException {
         try {
-            // SqlLexer.g:206:20: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
-            // SqlLexer.g:206:22: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
+            // Sql.g:833:20: ( ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+ )
+            // Sql.g:833:22: ( 'e' | 'E' ) ( '+' | '-' )? ( '0' .. '9' )+
             {
             if ( input.LA(1)=='E'||input.LA(1)=='e' ) {
                 input.consume();
@@ -4486,7 +4508,7 @@ public class SqlLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // SqlLexer.g:206:32: ( '+' | '-' )?
+            // Sql.g:833:32: ( '+' | '-' )?
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -4495,7 +4517,7 @@ public class SqlLexer extends Lexer {
             }
             switch (alt5) {
                 case 1 :
-                    // SqlLexer.g:
+                    // Sql.g:
                     {
                     if ( input.LA(1)=='+'||input.LA(1)=='-' ) {
                         input.consume();
@@ -4512,7 +4534,7 @@ public class SqlLexer extends Lexer {
 
             }
 
-            // SqlLexer.g:206:43: ( '0' .. '9' )+
+            // Sql.g:833:43: ( '0' .. '9' )+
             int cnt6=0;
             loop6:
             do {
@@ -4526,7 +4548,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt6) {
             	case 1 :
-            	    // SqlLexer.g:206:44: '0' .. '9'
+            	    // Sql.g:833:44: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -4556,14 +4578,14 @@ public class SqlLexer extends Lexer {
         try {
             int _type = FLOAT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:208:5: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )? | '.' ( '0' .. '9' )+ ( FLOAT_EXP )? | ( '0' .. '9' )+ FLOAT_EXP )
+            // Sql.g:835:5: ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )? | '.' ( '0' .. '9' )+ ( FLOAT_EXP )? | ( '0' .. '9' )+ FLOAT_EXP )
             int alt13=3;
             alt13 = dfa13.predict(input);
             switch (alt13) {
                 case 1 :
-                    // SqlLexer.g:208:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )?
+                    // Sql.g:835:9: ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )?
                     {
-                    // SqlLexer.g:208:9: ( '0' .. '9' )+
+                    // Sql.g:835:9: ( '0' .. '9' )+
                     int cnt7=0;
                     loop7:
                     do {
@@ -4577,7 +4599,7 @@ public class SqlLexer extends Lexer {
 
                         switch (alt7) {
                     	case 1 :
-                    	    // SqlLexer.g:208:10: '0' .. '9'
+                    	    // Sql.g:835:10: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -4594,7 +4616,7 @@ public class SqlLexer extends Lexer {
                     } while (true);
 
                     match('.'); 
-                    // SqlLexer.g:208:25: ( '0' .. '9' )*
+                    // Sql.g:835:25: ( '0' .. '9' )*
                     loop8:
                     do {
                         int alt8=2;
@@ -4607,7 +4629,7 @@ public class SqlLexer extends Lexer {
 
                         switch (alt8) {
                     	case 1 :
-                    	    // SqlLexer.g:208:26: '0' .. '9'
+                    	    // Sql.g:835:26: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -4619,7 +4641,7 @@ public class SqlLexer extends Lexer {
                         }
                     } while (true);
 
-                    // SqlLexer.g:208:37: ( FLOAT_EXP )?
+                    // Sql.g:835:37: ( FLOAT_EXP )?
                     int alt9=2;
                     int LA9_0 = input.LA(1);
 
@@ -4628,7 +4650,7 @@ public class SqlLexer extends Lexer {
                     }
                     switch (alt9) {
                         case 1 :
-                            // SqlLexer.g:208:37: FLOAT_EXP
+                            // Sql.g:835:37: FLOAT_EXP
                             {
                             mFLOAT_EXP(); 
 
@@ -4641,10 +4663,10 @@ public class SqlLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // SqlLexer.g:209:9: '.' ( '0' .. '9' )+ ( FLOAT_EXP )?
+                    // Sql.g:836:9: '.' ( '0' .. '9' )+ ( FLOAT_EXP )?
                     {
                     match('.'); 
-                    // SqlLexer.g:209:13: ( '0' .. '9' )+
+                    // Sql.g:836:13: ( '0' .. '9' )+
                     int cnt10=0;
                     loop10:
                     do {
@@ -4658,7 +4680,7 @@ public class SqlLexer extends Lexer {
 
                         switch (alt10) {
                     	case 1 :
-                    	    // SqlLexer.g:209:14: '0' .. '9'
+                    	    // Sql.g:836:14: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -4674,7 +4696,7 @@ public class SqlLexer extends Lexer {
                         cnt10++;
                     } while (true);
 
-                    // SqlLexer.g:209:25: ( FLOAT_EXP )?
+                    // Sql.g:836:25: ( FLOAT_EXP )?
                     int alt11=2;
                     int LA11_0 = input.LA(1);
 
@@ -4683,7 +4705,7 @@ public class SqlLexer extends Lexer {
                     }
                     switch (alt11) {
                         case 1 :
-                            // SqlLexer.g:209:25: FLOAT_EXP
+                            // Sql.g:836:25: FLOAT_EXP
                             {
                             mFLOAT_EXP(); 
 
@@ -4696,9 +4718,9 @@ public class SqlLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // SqlLexer.g:210:9: ( '0' .. '9' )+ FLOAT_EXP
+                    // Sql.g:837:9: ( '0' .. '9' )+ FLOAT_EXP
                     {
-                    // SqlLexer.g:210:9: ( '0' .. '9' )+
+                    // Sql.g:837:9: ( '0' .. '9' )+
                     int cnt12=0;
                     loop12:
                     do {
@@ -4712,7 +4734,7 @@ public class SqlLexer extends Lexer {
 
                         switch (alt12) {
                     	case 1 :
-                    	    // SqlLexer.g:210:10: '0' .. '9'
+                    	    // Sql.g:837:10: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -4747,8 +4769,8 @@ public class SqlLexer extends Lexer {
         try {
             int _type = BLOB;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:212:5: ( ( 'x' | 'X' ) '\\'' ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+ '\\'' )
-            // SqlLexer.g:212:7: ( 'x' | 'X' ) '\\'' ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+ '\\''
+            // Sql.g:839:5: ( ( 'x' | 'X' ) '\\'' ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+ '\\'' )
+            // Sql.g:839:7: ( 'x' | 'X' ) '\\'' ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+ '\\''
             {
             if ( input.LA(1)=='X'||input.LA(1)=='x' ) {
                 input.consume();
@@ -4760,7 +4782,7 @@ public class SqlLexer extends Lexer {
                 throw mse;}
 
             match('\''); 
-            // SqlLexer.g:212:22: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+
+            // Sql.g:839:22: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )+
             int cnt14=0;
             loop14:
             do {
@@ -4774,7 +4796,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt14) {
             	case 1 :
-            	    // SqlLexer.g:
+            	    // Sql.g:
             	    {
             	    if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='F')||(input.LA(1)>='a' && input.LA(1)<='f') ) {
             	        input.consume();
@@ -4813,12 +4835,12 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "COMMENT"
     public final void mCOMMENT() throws RecognitionException {
         try {
-            // SqlLexer.g:214:17: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // SqlLexer.g:214:19: '/*' ( options {greedy=false; } : . )* '*/'
+            // Sql.g:841:17: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // Sql.g:841:19: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
-            // SqlLexer.g:214:24: ( options {greedy=false; } : . )*
+            // Sql.g:841:24: ( options {greedy=false; } : . )*
             loop15:
             do {
                 int alt15=2;
@@ -4843,7 +4865,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt15) {
             	case 1 :
-            	    // SqlLexer.g:214:52: .
+            	    // Sql.g:841:52: .
             	    {
             	    matchAny(); 
 
@@ -4869,12 +4891,12 @@ public class SqlLexer extends Lexer {
     // $ANTLR start "LINE_COMMENT"
     public final void mLINE_COMMENT() throws RecognitionException {
         try {
-            // SqlLexer.g:215:22: ( '--' (~ ( '\\n' | '\\r' ) )* ( ( '\\r' )? '\\n' | EOF ) )
-            // SqlLexer.g:215:24: '--' (~ ( '\\n' | '\\r' ) )* ( ( '\\r' )? '\\n' | EOF )
+            // Sql.g:842:22: ( '--' (~ ( '\\n' | '\\r' ) )* ( ( '\\r' )? '\\n' | EOF ) )
+            // Sql.g:842:24: '--' (~ ( '\\n' | '\\r' ) )* ( ( '\\r' )? '\\n' | EOF )
             {
             match("--"); 
 
-            // SqlLexer.g:215:29: (~ ( '\\n' | '\\r' ) )*
+            // Sql.g:842:29: (~ ( '\\n' | '\\r' ) )*
             loop16:
             do {
                 int alt16=2;
@@ -4887,7 +4909,7 @@ public class SqlLexer extends Lexer {
 
                 switch (alt16) {
             	case 1 :
-            	    // SqlLexer.g:215:29: ~ ( '\\n' | '\\r' )
+            	    // Sql.g:842:29: ~ ( '\\n' | '\\r' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFF') ) {
             	        input.consume();
@@ -4907,7 +4929,7 @@ public class SqlLexer extends Lexer {
                 }
             } while (true);
 
-            // SqlLexer.g:215:43: ( ( '\\r' )? '\\n' | EOF )
+            // Sql.g:842:43: ( ( '\\r' )? '\\n' | EOF )
             int alt18=2;
             int LA18_0 = input.LA(1);
 
@@ -4918,9 +4940,9 @@ public class SqlLexer extends Lexer {
                 alt18=2;}
             switch (alt18) {
                 case 1 :
-                    // SqlLexer.g:215:44: ( '\\r' )? '\\n'
+                    // Sql.g:842:44: ( '\\r' )? '\\n'
                     {
-                    // SqlLexer.g:215:44: ( '\\r' )?
+                    // Sql.g:842:44: ( '\\r' )?
                     int alt17=2;
                     int LA17_0 = input.LA(1);
 
@@ -4929,7 +4951,7 @@ public class SqlLexer extends Lexer {
                     }
                     switch (alt17) {
                         case 1 :
-                            // SqlLexer.g:215:44: '\\r'
+                            // Sql.g:842:44: '\\r'
                             {
                             match('\r'); 
 
@@ -4943,7 +4965,7 @@ public class SqlLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // SqlLexer.g:215:55: EOF
+                    // Sql.g:842:55: EOF
                     {
                     match(EOF); 
 
@@ -4966,10 +4988,10 @@ public class SqlLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // SqlLexer.g:216:3: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT ) )
-            // SqlLexer.g:216:5: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT )
+            // Sql.g:843:3: ( ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT ) )
+            // Sql.g:843:5: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT )
             {
-            // SqlLexer.g:216:5: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT )
+            // Sql.g:843:5: ( ' ' | '\\r' | '\\t' | '\\u000C' | '\\n' | COMMENT | LINE_COMMENT )
             int alt19=7;
             switch ( input.LA(1) ) {
             case ' ':
@@ -5016,49 +5038,49 @@ public class SqlLexer extends Lexer {
 
             switch (alt19) {
                 case 1 :
-                    // SqlLexer.g:216:6: ' '
+                    // Sql.g:843:6: ' '
                     {
                     match(' '); 
 
                     }
                     break;
                 case 2 :
-                    // SqlLexer.g:216:10: '\\r'
+                    // Sql.g:843:10: '\\r'
                     {
                     match('\r'); 
 
                     }
                     break;
                 case 3 :
-                    // SqlLexer.g:216:15: '\\t'
+                    // Sql.g:843:15: '\\t'
                     {
                     match('\t'); 
 
                     }
                     break;
                 case 4 :
-                    // SqlLexer.g:216:20: '\\u000C'
+                    // Sql.g:843:20: '\\u000C'
                     {
                     match('\f'); 
 
                     }
                     break;
                 case 5 :
-                    // SqlLexer.g:216:29: '\\n'
+                    // Sql.g:843:29: '\\n'
                     {
                     match('\n'); 
 
                     }
                     break;
                 case 6 :
-                    // SqlLexer.g:216:34: COMMENT
+                    // Sql.g:843:34: COMMENT
                     {
                     mCOMMENT(); 
 
                     }
                     break;
                 case 7 :
-                    // SqlLexer.g:216:42: LINE_COMMENT
+                    // Sql.g:843:42: LINE_COMMENT
                     {
                     mLINE_COMMENT(); 
 
@@ -5080,1055 +5102,1055 @@ public class SqlLexer extends Lexer {
     // $ANTLR end "WS"
 
     public void mTokens() throws RecognitionException {
-        // SqlLexer.g:1:8: ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 | LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ | SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE | DOUBLE_PIPE | PLUS | MINUS | TILDA | ASTERISK | SLASH | PERCENT | SEMI | DOT | COMMA | LPAREN | RPAREN | QUESTION | COLON | AT | DOLLAR | ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE | ID | STRING | INTEGER | FLOAT | BLOB | WS )
+        // Sql.g:1:8: ( EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2 | LESS | LESS_OR_EQ | GREATER | GREATER_OR_EQ | SHIFT_LEFT | SHIFT_RIGHT | AMPERSAND | PIPE | DOUBLE_PIPE | PLUS | MINUS | TILDA | ASTERISK | SLASH | PERCENT | SEMI | DOT | COMMA | LPAREN | RPAREN | QUESTION | COLON | AT | DOLLAR | ABORT | ADD | AFTER | ALL | ALTER | ANALYZE | AND | AS | ASC | ATTACH | AUTOINCREMENT | BEFORE | BEGIN | BETWEEN | BY | CASCADE | CASE | CAST | CHECK | COLLATE | COLUMN | COMMIT | CONFLICT | CONSTRAINT | CREATE | CROSS | CURRENT_TIME | CURRENT_DATE | CURRENT_TIMESTAMP | DATABASE | DEFAULT | DEFERRABLE | DEFERRED | DELETE | DESC | DETACH | DISTINCT | DROP | EACH | ELSE | END | ESCAPE | EXCEPT | EXCLUSIVE | EXISTS | EXPLAIN | FAIL | FOR | FOREIGN | FROM | GLOB | GROUP | HAVING | IF | IGNORE | IMMEDIATE | IN | INDEX | INDEXED | INITIALLY | INNER | INSERT | INSTEAD | INTERSECT | INTO | IS | ISNULL | JOIN | KEY | LEFT | LIKE | LIMIT | MATCH | NATURAL | NOT | NOTNULL | NULL | OF | OFFSET | ON | OR | ORDER | OUTER | PLAN | PRAGMA | PRIMARY | QUERY | RAISE | REFERENCES | REGEXP | REINDEX | RELEASE | RENAME | REPLACE | RESTRICT | ROLLBACK | ROW | SAVEPOINT | SELECT | SET | TABLE | TEMPORARY | THEN | TO | TRANSACTION | TRIGGER | UNION | UNIQUE | UPDATE | USING | VACUUM | VALUES | VIEW | VIRTUAL | WHEN | WHERE | ID | STRING | INTEGER | FLOAT | BLOB | WS )
         int alt20=150;
         alt20 = dfa20.predict(input);
         switch (alt20) {
             case 1 :
-                // SqlLexer.g:1:10: EQUALS
+                // Sql.g:1:10: EQUALS
                 {
                 mEQUALS(); 
 
                 }
                 break;
             case 2 :
-                // SqlLexer.g:1:17: EQUALS2
+                // Sql.g:1:17: EQUALS2
                 {
                 mEQUALS2(); 
 
                 }
                 break;
             case 3 :
-                // SqlLexer.g:1:25: NOT_EQUALS
+                // Sql.g:1:25: NOT_EQUALS
                 {
                 mNOT_EQUALS(); 
 
                 }
                 break;
             case 4 :
-                // SqlLexer.g:1:36: NOT_EQUALS2
+                // Sql.g:1:36: NOT_EQUALS2
                 {
                 mNOT_EQUALS2(); 
 
                 }
                 break;
             case 5 :
-                // SqlLexer.g:1:48: LESS
+                // Sql.g:1:48: LESS
                 {
                 mLESS(); 
 
                 }
                 break;
             case 6 :
-                // SqlLexer.g:1:53: LESS_OR_EQ
+                // Sql.g:1:53: LESS_OR_EQ
                 {
                 mLESS_OR_EQ(); 
 
                 }
                 break;
             case 7 :
-                // SqlLexer.g:1:64: GREATER
+                // Sql.g:1:64: GREATER
                 {
                 mGREATER(); 
 
                 }
                 break;
             case 8 :
-                // SqlLexer.g:1:72: GREATER_OR_EQ
+                // Sql.g:1:72: GREATER_OR_EQ
                 {
                 mGREATER_OR_EQ(); 
 
                 }
                 break;
             case 9 :
-                // SqlLexer.g:1:86: SHIFT_LEFT
+                // Sql.g:1:86: SHIFT_LEFT
                 {
                 mSHIFT_LEFT(); 
 
                 }
                 break;
             case 10 :
-                // SqlLexer.g:1:97: SHIFT_RIGHT
+                // Sql.g:1:97: SHIFT_RIGHT
                 {
                 mSHIFT_RIGHT(); 
 
                 }
                 break;
             case 11 :
-                // SqlLexer.g:1:109: AMPERSAND
+                // Sql.g:1:109: AMPERSAND
                 {
                 mAMPERSAND(); 
 
                 }
                 break;
             case 12 :
-                // SqlLexer.g:1:119: PIPE
+                // Sql.g:1:119: PIPE
                 {
                 mPIPE(); 
 
                 }
                 break;
             case 13 :
-                // SqlLexer.g:1:124: DOUBLE_PIPE
+                // Sql.g:1:124: DOUBLE_PIPE
                 {
                 mDOUBLE_PIPE(); 
 
                 }
                 break;
             case 14 :
-                // SqlLexer.g:1:136: PLUS
+                // Sql.g:1:136: PLUS
                 {
                 mPLUS(); 
 
                 }
                 break;
             case 15 :
-                // SqlLexer.g:1:141: MINUS
+                // Sql.g:1:141: MINUS
                 {
                 mMINUS(); 
 
                 }
                 break;
             case 16 :
-                // SqlLexer.g:1:147: TILDA
+                // Sql.g:1:147: TILDA
                 {
                 mTILDA(); 
 
                 }
                 break;
             case 17 :
-                // SqlLexer.g:1:153: ASTERISK
+                // Sql.g:1:153: ASTERISK
                 {
                 mASTERISK(); 
 
                 }
                 break;
             case 18 :
-                // SqlLexer.g:1:162: SLASH
+                // Sql.g:1:162: SLASH
                 {
                 mSLASH(); 
 
                 }
                 break;
             case 19 :
-                // SqlLexer.g:1:168: PERCENT
+                // Sql.g:1:168: PERCENT
                 {
                 mPERCENT(); 
 
                 }
                 break;
             case 20 :
-                // SqlLexer.g:1:176: SEMI
+                // Sql.g:1:176: SEMI
                 {
                 mSEMI(); 
 
                 }
                 break;
             case 21 :
-                // SqlLexer.g:1:181: DOT
+                // Sql.g:1:181: DOT
                 {
                 mDOT(); 
 
                 }
                 break;
             case 22 :
-                // SqlLexer.g:1:185: COMMA
+                // Sql.g:1:185: COMMA
                 {
                 mCOMMA(); 
 
                 }
                 break;
             case 23 :
-                // SqlLexer.g:1:191: LPAREN
+                // Sql.g:1:191: LPAREN
                 {
                 mLPAREN(); 
 
                 }
                 break;
             case 24 :
-                // SqlLexer.g:1:198: RPAREN
+                // Sql.g:1:198: RPAREN
                 {
                 mRPAREN(); 
 
                 }
                 break;
             case 25 :
-                // SqlLexer.g:1:205: QUESTION
+                // Sql.g:1:205: QUESTION
                 {
                 mQUESTION(); 
 
                 }
                 break;
             case 26 :
-                // SqlLexer.g:1:214: COLON
+                // Sql.g:1:214: COLON
                 {
                 mCOLON(); 
 
                 }
                 break;
             case 27 :
-                // SqlLexer.g:1:220: AT
+                // Sql.g:1:220: AT
                 {
                 mAT(); 
 
                 }
                 break;
             case 28 :
-                // SqlLexer.g:1:223: DOLLAR
+                // Sql.g:1:223: DOLLAR
                 {
                 mDOLLAR(); 
 
                 }
                 break;
             case 29 :
-                // SqlLexer.g:1:230: ABORT
+                // Sql.g:1:230: ABORT
                 {
                 mABORT(); 
 
                 }
                 break;
             case 30 :
-                // SqlLexer.g:1:236: ADD
+                // Sql.g:1:236: ADD
                 {
                 mADD(); 
 
                 }
                 break;
             case 31 :
-                // SqlLexer.g:1:240: AFTER
+                // Sql.g:1:240: AFTER
                 {
                 mAFTER(); 
 
                 }
                 break;
             case 32 :
-                // SqlLexer.g:1:246: ALL
+                // Sql.g:1:246: ALL
                 {
                 mALL(); 
 
                 }
                 break;
             case 33 :
-                // SqlLexer.g:1:250: ALTER
+                // Sql.g:1:250: ALTER
                 {
                 mALTER(); 
 
                 }
                 break;
             case 34 :
-                // SqlLexer.g:1:256: ANALYZE
+                // Sql.g:1:256: ANALYZE
                 {
                 mANALYZE(); 
 
                 }
                 break;
             case 35 :
-                // SqlLexer.g:1:264: AND
+                // Sql.g:1:264: AND
                 {
                 mAND(); 
 
                 }
                 break;
             case 36 :
-                // SqlLexer.g:1:268: AS
+                // Sql.g:1:268: AS
                 {
                 mAS(); 
 
                 }
                 break;
             case 37 :
-                // SqlLexer.g:1:271: ASC
+                // Sql.g:1:271: ASC
                 {
                 mASC(); 
 
                 }
                 break;
             case 38 :
-                // SqlLexer.g:1:275: ATTACH
+                // Sql.g:1:275: ATTACH
                 {
                 mATTACH(); 
 
                 }
                 break;
             case 39 :
-                // SqlLexer.g:1:282: AUTOINCREMENT
+                // Sql.g:1:282: AUTOINCREMENT
                 {
                 mAUTOINCREMENT(); 
 
                 }
                 break;
             case 40 :
-                // SqlLexer.g:1:296: BEFORE
+                // Sql.g:1:296: BEFORE
                 {
                 mBEFORE(); 
 
                 }
                 break;
             case 41 :
-                // SqlLexer.g:1:303: BEGIN
+                // Sql.g:1:303: BEGIN
                 {
                 mBEGIN(); 
 
                 }
                 break;
             case 42 :
-                // SqlLexer.g:1:309: BETWEEN
+                // Sql.g:1:309: BETWEEN
                 {
                 mBETWEEN(); 
 
                 }
                 break;
             case 43 :
-                // SqlLexer.g:1:317: BY
+                // Sql.g:1:317: BY
                 {
                 mBY(); 
 
                 }
                 break;
             case 44 :
-                // SqlLexer.g:1:320: CASCADE
+                // Sql.g:1:320: CASCADE
                 {
                 mCASCADE(); 
 
                 }
                 break;
             case 45 :
-                // SqlLexer.g:1:328: CASE
+                // Sql.g:1:328: CASE
                 {
                 mCASE(); 
 
                 }
                 break;
             case 46 :
-                // SqlLexer.g:1:333: CAST
+                // Sql.g:1:333: CAST
                 {
                 mCAST(); 
 
                 }
                 break;
             case 47 :
-                // SqlLexer.g:1:338: CHECK
+                // Sql.g:1:338: CHECK
                 {
                 mCHECK(); 
 
                 }
                 break;
             case 48 :
-                // SqlLexer.g:1:344: COLLATE
+                // Sql.g:1:344: COLLATE
                 {
                 mCOLLATE(); 
 
                 }
                 break;
             case 49 :
-                // SqlLexer.g:1:352: COLUMN
+                // Sql.g:1:352: COLUMN
                 {
                 mCOLUMN(); 
 
                 }
                 break;
             case 50 :
-                // SqlLexer.g:1:359: COMMIT
+                // Sql.g:1:359: COMMIT
                 {
                 mCOMMIT(); 
 
                 }
                 break;
             case 51 :
-                // SqlLexer.g:1:366: CONFLICT
+                // Sql.g:1:366: CONFLICT
                 {
                 mCONFLICT(); 
 
                 }
                 break;
             case 52 :
-                // SqlLexer.g:1:375: CONSTRAINT
+                // Sql.g:1:375: CONSTRAINT
                 {
                 mCONSTRAINT(); 
 
                 }
                 break;
             case 53 :
-                // SqlLexer.g:1:386: CREATE
+                // Sql.g:1:386: CREATE
                 {
                 mCREATE(); 
 
                 }
                 break;
             case 54 :
-                // SqlLexer.g:1:393: CROSS
+                // Sql.g:1:393: CROSS
                 {
                 mCROSS(); 
 
                 }
                 break;
             case 55 :
-                // SqlLexer.g:1:399: CURRENT_TIME
+                // Sql.g:1:399: CURRENT_TIME
                 {
                 mCURRENT_TIME(); 
 
                 }
                 break;
             case 56 :
-                // SqlLexer.g:1:412: CURRENT_DATE
+                // Sql.g:1:412: CURRENT_DATE
                 {
                 mCURRENT_DATE(); 
 
                 }
                 break;
             case 57 :
-                // SqlLexer.g:1:425: CURRENT_TIMESTAMP
+                // Sql.g:1:425: CURRENT_TIMESTAMP
                 {
                 mCURRENT_TIMESTAMP(); 
 
                 }
                 break;
             case 58 :
-                // SqlLexer.g:1:443: DATABASE
+                // Sql.g:1:443: DATABASE
                 {
                 mDATABASE(); 
 
                 }
                 break;
             case 59 :
-                // SqlLexer.g:1:452: DEFAULT
+                // Sql.g:1:452: DEFAULT
                 {
                 mDEFAULT(); 
 
                 }
                 break;
             case 60 :
-                // SqlLexer.g:1:460: DEFERRABLE
+                // Sql.g:1:460: DEFERRABLE
                 {
                 mDEFERRABLE(); 
 
                 }
                 break;
             case 61 :
-                // SqlLexer.g:1:471: DEFERRED
+                // Sql.g:1:471: DEFERRED
                 {
                 mDEFERRED(); 
 
                 }
                 break;
             case 62 :
-                // SqlLexer.g:1:480: DELETE
+                // Sql.g:1:480: DELETE
                 {
                 mDELETE(); 
 
                 }
                 break;
             case 63 :
-                // SqlLexer.g:1:487: DESC
+                // Sql.g:1:487: DESC
                 {
                 mDESC(); 
 
                 }
                 break;
             case 64 :
-                // SqlLexer.g:1:492: DETACH
+                // Sql.g:1:492: DETACH
                 {
                 mDETACH(); 
 
                 }
                 break;
             case 65 :
-                // SqlLexer.g:1:499: DISTINCT
+                // Sql.g:1:499: DISTINCT
                 {
                 mDISTINCT(); 
 
                 }
                 break;
             case 66 :
-                // SqlLexer.g:1:508: DROP
+                // Sql.g:1:508: DROP
                 {
                 mDROP(); 
 
                 }
                 break;
             case 67 :
-                // SqlLexer.g:1:513: EACH
+                // Sql.g:1:513: EACH
                 {
                 mEACH(); 
 
                 }
                 break;
             case 68 :
-                // SqlLexer.g:1:518: ELSE
+                // Sql.g:1:518: ELSE
                 {
                 mELSE(); 
 
                 }
                 break;
             case 69 :
-                // SqlLexer.g:1:523: END
+                // Sql.g:1:523: END
                 {
                 mEND(); 
 
                 }
                 break;
             case 70 :
-                // SqlLexer.g:1:527: ESCAPE
+                // Sql.g:1:527: ESCAPE
                 {
                 mESCAPE(); 
 
                 }
                 break;
             case 71 :
-                // SqlLexer.g:1:534: EXCEPT
+                // Sql.g:1:534: EXCEPT
                 {
                 mEXCEPT(); 
 
                 }
                 break;
             case 72 :
-                // SqlLexer.g:1:541: EXCLUSIVE
+                // Sql.g:1:541: EXCLUSIVE
                 {
                 mEXCLUSIVE(); 
 
                 }
                 break;
             case 73 :
-                // SqlLexer.g:1:551: EXISTS
+                // Sql.g:1:551: EXISTS
                 {
                 mEXISTS(); 
 
                 }
                 break;
             case 74 :
-                // SqlLexer.g:1:558: EXPLAIN
+                // Sql.g:1:558: EXPLAIN
                 {
                 mEXPLAIN(); 
 
                 }
                 break;
             case 75 :
-                // SqlLexer.g:1:566: FAIL
+                // Sql.g:1:566: FAIL
                 {
                 mFAIL(); 
 
                 }
                 break;
             case 76 :
-                // SqlLexer.g:1:571: FOR
+                // Sql.g:1:571: FOR
                 {
                 mFOR(); 
 
                 }
                 break;
             case 77 :
-                // SqlLexer.g:1:575: FOREIGN
+                // Sql.g:1:575: FOREIGN
                 {
                 mFOREIGN(); 
 
                 }
                 break;
             case 78 :
-                // SqlLexer.g:1:583: FROM
+                // Sql.g:1:583: FROM
                 {
                 mFROM(); 
 
                 }
                 break;
             case 79 :
-                // SqlLexer.g:1:588: GLOB
+                // Sql.g:1:588: GLOB
                 {
                 mGLOB(); 
 
                 }
                 break;
             case 80 :
-                // SqlLexer.g:1:593: GROUP
+                // Sql.g:1:593: GROUP
                 {
                 mGROUP(); 
 
                 }
                 break;
             case 81 :
-                // SqlLexer.g:1:599: HAVING
+                // Sql.g:1:599: HAVING
                 {
                 mHAVING(); 
 
                 }
                 break;
             case 82 :
-                // SqlLexer.g:1:606: IF
+                // Sql.g:1:606: IF
                 {
                 mIF(); 
 
                 }
                 break;
             case 83 :
-                // SqlLexer.g:1:609: IGNORE
+                // Sql.g:1:609: IGNORE
                 {
                 mIGNORE(); 
 
                 }
                 break;
             case 84 :
-                // SqlLexer.g:1:616: IMMEDIATE
+                // Sql.g:1:616: IMMEDIATE
                 {
                 mIMMEDIATE(); 
 
                 }
                 break;
             case 85 :
-                // SqlLexer.g:1:626: IN
+                // Sql.g:1:626: IN
                 {
                 mIN(); 
 
                 }
                 break;
             case 86 :
-                // SqlLexer.g:1:629: INDEX
+                // Sql.g:1:629: INDEX
                 {
                 mINDEX(); 
 
                 }
                 break;
             case 87 :
-                // SqlLexer.g:1:635: INDEXED
+                // Sql.g:1:635: INDEXED
                 {
                 mINDEXED(); 
 
                 }
                 break;
             case 88 :
-                // SqlLexer.g:1:643: INITIALLY
+                // Sql.g:1:643: INITIALLY
                 {
                 mINITIALLY(); 
 
                 }
                 break;
             case 89 :
-                // SqlLexer.g:1:653: INNER
+                // Sql.g:1:653: INNER
                 {
                 mINNER(); 
 
                 }
                 break;
             case 90 :
-                // SqlLexer.g:1:659: INSERT
+                // Sql.g:1:659: INSERT
                 {
                 mINSERT(); 
 
                 }
                 break;
             case 91 :
-                // SqlLexer.g:1:666: INSTEAD
+                // Sql.g:1:666: INSTEAD
                 {
                 mINSTEAD(); 
 
                 }
                 break;
             case 92 :
-                // SqlLexer.g:1:674: INTERSECT
+                // Sql.g:1:674: INTERSECT
                 {
                 mINTERSECT(); 
 
                 }
                 break;
             case 93 :
-                // SqlLexer.g:1:684: INTO
+                // Sql.g:1:684: INTO
                 {
                 mINTO(); 
 
                 }
                 break;
             case 94 :
-                // SqlLexer.g:1:689: IS
+                // Sql.g:1:689: IS
                 {
                 mIS(); 
 
                 }
                 break;
             case 95 :
-                // SqlLexer.g:1:692: ISNULL
+                // Sql.g:1:692: ISNULL
                 {
                 mISNULL(); 
 
                 }
                 break;
             case 96 :
-                // SqlLexer.g:1:699: JOIN
+                // Sql.g:1:699: JOIN
                 {
                 mJOIN(); 
 
                 }
                 break;
             case 97 :
-                // SqlLexer.g:1:704: KEY
+                // Sql.g:1:704: KEY
                 {
                 mKEY(); 
 
                 }
                 break;
             case 98 :
-                // SqlLexer.g:1:708: LEFT
+                // Sql.g:1:708: LEFT
                 {
                 mLEFT(); 
 
                 }
                 break;
             case 99 :
-                // SqlLexer.g:1:713: LIKE
+                // Sql.g:1:713: LIKE
                 {
                 mLIKE(); 
 
                 }
                 break;
             case 100 :
-                // SqlLexer.g:1:718: LIMIT
+                // Sql.g:1:718: LIMIT
                 {
                 mLIMIT(); 
 
                 }
                 break;
             case 101 :
-                // SqlLexer.g:1:724: MATCH
+                // Sql.g:1:724: MATCH
                 {
                 mMATCH(); 
 
                 }
                 break;
             case 102 :
-                // SqlLexer.g:1:730: NATURAL
+                // Sql.g:1:730: NATURAL
                 {
                 mNATURAL(); 
 
                 }
                 break;
             case 103 :
-                // SqlLexer.g:1:738: NOT
+                // Sql.g:1:738: NOT
                 {
                 mNOT(); 
 
                 }
                 break;
             case 104 :
-                // SqlLexer.g:1:742: NOTNULL
+                // Sql.g:1:742: NOTNULL
                 {
                 mNOTNULL(); 
 
                 }
                 break;
             case 105 :
-                // SqlLexer.g:1:750: NULL
+                // Sql.g:1:750: NULL
                 {
                 mNULL(); 
 
                 }
                 break;
             case 106 :
-                // SqlLexer.g:1:755: OF
+                // Sql.g:1:755: OF
                 {
                 mOF(); 
 
                 }
                 break;
             case 107 :
-                // SqlLexer.g:1:758: OFFSET
+                // Sql.g:1:758: OFFSET
                 {
                 mOFFSET(); 
 
                 }
                 break;
             case 108 :
-                // SqlLexer.g:1:765: ON
+                // Sql.g:1:765: ON
                 {
                 mON(); 
 
                 }
                 break;
             case 109 :
-                // SqlLexer.g:1:768: OR
+                // Sql.g:1:768: OR
                 {
                 mOR(); 
 
                 }
                 break;
             case 110 :
-                // SqlLexer.g:1:771: ORDER
+                // Sql.g:1:771: ORDER
                 {
                 mORDER(); 
 
                 }
                 break;
             case 111 :
-                // SqlLexer.g:1:777: OUTER
+                // Sql.g:1:777: OUTER
                 {
                 mOUTER(); 
 
                 }
                 break;
             case 112 :
-                // SqlLexer.g:1:783: PLAN
+                // Sql.g:1:783: PLAN
                 {
                 mPLAN(); 
 
                 }
                 break;
             case 113 :
-                // SqlLexer.g:1:788: PRAGMA
+                // Sql.g:1:788: PRAGMA
                 {
                 mPRAGMA(); 
 
                 }
                 break;
             case 114 :
-                // SqlLexer.g:1:795: PRIMARY
+                // Sql.g:1:795: PRIMARY
                 {
                 mPRIMARY(); 
 
                 }
                 break;
             case 115 :
-                // SqlLexer.g:1:803: QUERY
+                // Sql.g:1:803: QUERY
                 {
                 mQUERY(); 
 
                 }
                 break;
             case 116 :
-                // SqlLexer.g:1:809: RAISE
+                // Sql.g:1:809: RAISE
                 {
                 mRAISE(); 
 
                 }
                 break;
             case 117 :
-                // SqlLexer.g:1:815: REFERENCES
+                // Sql.g:1:815: REFERENCES
                 {
                 mREFERENCES(); 
 
                 }
                 break;
             case 118 :
-                // SqlLexer.g:1:826: REGEXP
+                // Sql.g:1:826: REGEXP
                 {
                 mREGEXP(); 
 
                 }
                 break;
             case 119 :
-                // SqlLexer.g:1:833: REINDEX
+                // Sql.g:1:833: REINDEX
                 {
                 mREINDEX(); 
 
                 }
                 break;
             case 120 :
-                // SqlLexer.g:1:841: RELEASE
+                // Sql.g:1:841: RELEASE
                 {
                 mRELEASE(); 
 
                 }
                 break;
             case 121 :
-                // SqlLexer.g:1:849: RENAME
+                // Sql.g:1:849: RENAME
                 {
                 mRENAME(); 
 
                 }
                 break;
             case 122 :
-                // SqlLexer.g:1:856: REPLACE
+                // Sql.g:1:856: REPLACE
                 {
                 mREPLACE(); 
 
                 }
                 break;
             case 123 :
-                // SqlLexer.g:1:864: RESTRICT
+                // Sql.g:1:864: RESTRICT
                 {
                 mRESTRICT(); 
 
                 }
                 break;
             case 124 :
-                // SqlLexer.g:1:873: ROLLBACK
+                // Sql.g:1:873: ROLLBACK
                 {
                 mROLLBACK(); 
 
                 }
                 break;
             case 125 :
-                // SqlLexer.g:1:882: ROW
+                // Sql.g:1:882: ROW
                 {
                 mROW(); 
 
                 }
                 break;
             case 126 :
-                // SqlLexer.g:1:886: SAVEPOINT
+                // Sql.g:1:886: SAVEPOINT
                 {
                 mSAVEPOINT(); 
 
                 }
                 break;
             case 127 :
-                // SqlLexer.g:1:896: SELECT
+                // Sql.g:1:896: SELECT
                 {
                 mSELECT(); 
 
                 }
                 break;
             case 128 :
-                // SqlLexer.g:1:903: SET
+                // Sql.g:1:903: SET
                 {
                 mSET(); 
 
                 }
                 break;
             case 129 :
-                // SqlLexer.g:1:907: TABLE
+                // Sql.g:1:907: TABLE
                 {
                 mTABLE(); 
 
                 }
                 break;
             case 130 :
-                // SqlLexer.g:1:913: TEMPORARY
+                // Sql.g:1:913: TEMPORARY
                 {
                 mTEMPORARY(); 
 
                 }
                 break;
             case 131 :
-                // SqlLexer.g:1:923: THEN
+                // Sql.g:1:923: THEN
                 {
                 mTHEN(); 
 
                 }
                 break;
             case 132 :
-                // SqlLexer.g:1:928: TO
+                // Sql.g:1:928: TO
                 {
                 mTO(); 
 
                 }
                 break;
             case 133 :
-                // SqlLexer.g:1:931: TRANSACTION
+                // Sql.g:1:931: TRANSACTION
                 {
                 mTRANSACTION(); 
 
                 }
                 break;
             case 134 :
-                // SqlLexer.g:1:943: TRIGGER
+                // Sql.g:1:943: TRIGGER
                 {
                 mTRIGGER(); 
 
                 }
                 break;
             case 135 :
-                // SqlLexer.g:1:951: UNION
+                // Sql.g:1:951: UNION
                 {
                 mUNION(); 
 
                 }
                 break;
             case 136 :
-                // SqlLexer.g:1:957: UNIQUE
+                // Sql.g:1:957: UNIQUE
                 {
                 mUNIQUE(); 
 
                 }
                 break;
             case 137 :
-                // SqlLexer.g:1:964: UPDATE
+                // Sql.g:1:964: UPDATE
                 {
                 mUPDATE(); 
 
                 }
                 break;
             case 138 :
-                // SqlLexer.g:1:971: USING
+                // Sql.g:1:971: USING
                 {
                 mUSING(); 
 
                 }
                 break;
             case 139 :
-                // SqlLexer.g:1:977: VACUUM
+                // Sql.g:1:977: VACUUM
                 {
                 mVACUUM(); 
 
                 }
                 break;
             case 140 :
-                // SqlLexer.g:1:984: VALUES
+                // Sql.g:1:984: VALUES
                 {
                 mVALUES(); 
 
                 }
                 break;
             case 141 :
-                // SqlLexer.g:1:991: VIEW
+                // Sql.g:1:991: VIEW
                 {
                 mVIEW(); 
 
                 }
                 break;
             case 142 :
-                // SqlLexer.g:1:996: VIRTUAL
+                // Sql.g:1:996: VIRTUAL
                 {
                 mVIRTUAL(); 
 
                 }
                 break;
             case 143 :
-                // SqlLexer.g:1:1004: WHEN
+                // Sql.g:1:1004: WHEN
                 {
                 mWHEN(); 
 
                 }
                 break;
             case 144 :
-                // SqlLexer.g:1:1009: WHERE
+                // Sql.g:1:1009: WHERE
                 {
                 mWHERE(); 
 
                 }
                 break;
             case 145 :
-                // SqlLexer.g:1:1015: ID
+                // Sql.g:1:1015: ID
                 {
                 mID(); 
 
                 }
                 break;
             case 146 :
-                // SqlLexer.g:1:1018: STRING
+                // Sql.g:1:1018: STRING
                 {
                 mSTRING(); 
 
                 }
                 break;
             case 147 :
-                // SqlLexer.g:1:1025: INTEGER
+                // Sql.g:1:1025: INTEGER
                 {
                 mINTEGER(); 
 
                 }
                 break;
             case 148 :
-                // SqlLexer.g:1:1033: FLOAT
+                // Sql.g:1:1033: FLOAT
                 {
                 mFLOAT(); 
 
                 }
                 break;
             case 149 :
-                // SqlLexer.g:1:1039: BLOB
+                // Sql.g:1:1039: BLOB
                 {
                 mBLOB(); 
 
                 }
                 break;
             case 150 :
-                // SqlLexer.g:1:1044: WS
+                // Sql.g:1:1044: WS
                 {
                 mWS(); 
 
@@ -6192,7 +6214,7 @@ public class SqlLexer extends Lexer {
             this.transition = DFA13_transition;
         }
         public String getDescription() {
-            return "207:1: FLOAT : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )? | '.' ( '0' .. '9' )+ ( FLOAT_EXP )? | ( '0' .. '9' )+ FLOAT_EXP );";
+            return "834:1: FLOAT : ( ( '0' .. '9' )+ '.' ( '0' .. '9' )* ( FLOAT_EXP )? | '.' ( '0' .. '9' )+ ( FLOAT_EXP )? | ( '0' .. '9' )+ FLOAT_EXP );";
         }
     }
     static final String DFA20_eotS =

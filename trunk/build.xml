@@ -2,12 +2,6 @@
 
     <property name="build.number" value="local" />
 
-	<taskdef name="retroweaver" classname="net.sourceforge.retroweaver.ant.RetroWeaverTask">
-		<classpath>
-			<pathelement location="tools/retroweaver-all-2.0.7.jar"/>
-		</classpath>
-	</taskdef>
-
 	<target name="clean">
 		<!-- First, create directories, which will be removed, 
 			otherwise the removal may not be able to 
@@ -60,10 +54,6 @@
         </javac>
     </target>
     
-	<target name="weave" depends="compile">
-		<retroweaver srcdir="sqljet/bin" target="1.4"/>
-	</target>
-
 	<target name="deploy" depends="clean, compile">
         <mkdir dir="build" />
         <jar destfile="build/sqljet.${build.number}.jar">
@@ -91,8 +81,6 @@
         <delete file="build/sqljet.${build.number}.src.zip"></delete>
         <delete file="build/sqljet.${build.number}.jar"></delete>
     </target>
-
-	<target name="deploy-weaved" depends="clean, compile, weave, deploy" />
 
 	<target name="test" depends="deploy">
 		<junit>

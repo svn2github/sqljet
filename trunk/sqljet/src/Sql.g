@@ -11,6 +11,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
+ * For information on how to redistribute this software under
+ * the terms of a license other than GNU General Public License
+ * contact TMate Software at support@svnkit.com
+ *
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

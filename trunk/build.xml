@@ -68,6 +68,7 @@
             </zipfileset>
             <zipfileset dir=""> 
                 <include name="COPYING"/>
+                <include name="README.txt"/>
             </zipfileset>
         </zip>
 
@@ -81,6 +82,7 @@
             </zipfileset>
             <zipfileset dir="" prefix="sqljet.${build.number}">
                 <include name="COPYING"/>
+                <include name="README.txt"/>
             </zipfileset>
         </zip>
         

@@ -15,10 +15,8 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -2890,10 +2888,11 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private void put32bitsUnsigned(ByteBuffer p, int pos, long v) {
         SqlJetUtility.put4byteUnsigned(p, pos, v);
     }
-
+    
+    /*
     private void put32bitsUnsigned(ByteBuffer p, long v) {
         put32bitsUnsigned(p, 0, v);
-    }
+    }*/
     
     /**
      * If the main journal file has already been opened, ensure that the

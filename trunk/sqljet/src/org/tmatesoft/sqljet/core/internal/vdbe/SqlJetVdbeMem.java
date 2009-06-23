@@ -13,13 +13,17 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
-import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.*;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.memcpy;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.memset;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.mutex_held;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.putUnsignedByte;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.slice;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.strlen30;
 
 import java.nio.ByteBuffer;
-import java.sql.Blob;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -474,9 +478,9 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         ByteBuffer zOut;           /* Output buffer */
         int zIn;                   /* Input iterator */
         int zTerm;                 /* End of input */
-        int z;                     /* Output iterator */
+        //int z;                     /* Output iterator */
         
-        long c;
+        //long c;
 
         assert( pMem.db==null || mutex_held(pMem.db.getMutex()) );
         assert( pMem.flags.contains(SqlJetVdbeMemFlags.Str) );

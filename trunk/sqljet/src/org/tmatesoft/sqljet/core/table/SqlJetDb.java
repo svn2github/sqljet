@@ -32,7 +32,6 @@ import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
 
 /**
  * Connection to database.

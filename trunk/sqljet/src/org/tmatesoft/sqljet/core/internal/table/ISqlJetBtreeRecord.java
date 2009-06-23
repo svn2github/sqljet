@@ -20,8 +20,6 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
-import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * Parses current record in {@link ISqlJetBtreeCursor} and allow acces to

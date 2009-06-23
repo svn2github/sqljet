@@ -43,7 +43,6 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
-    private SqlJetEncoding enc = SqlJetEncoding.UTF8;
     private ISqlJetSchemaMeta meta;
 
     /* (non-Javadoc)

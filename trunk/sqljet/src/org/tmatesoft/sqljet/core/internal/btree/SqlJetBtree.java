@@ -694,7 +694,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 pageSize = SqlJetUtility.get2byte(page1, 16);
                 if (((pageSize - 1) & pageSize) != 0
                         || pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
-                        || (ISqlJetLimits.SQLJET_MAX_PAGE_SIZE < 32768 && pageSize > ISqlJetLimits.SQLJET_MAX_PAGE_SIZE)) {
+                        || (ISqlJetLimits.SQLJET_MAX_PAGE_SIZE < 32768)) {
                     throw new SqlJetException(rc);
                 }
                 assert ((pageSize & 7) == 0);

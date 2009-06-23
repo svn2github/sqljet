@@ -914,7 +914,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int i, j, k; /* Loop counters */
         int idx; /* Index of pPage in pParent->aCell[] */
         int nxDiv; /* Next divider slot in pParent->aCell[] */
-        int rc; /* The return code */
+//        int rc; /* The return code */
         int leafCorrection; /* 4 if pPage is a leaf. 0 if not */
         boolean leafData; /* True if pPage is a leaf of a LEAFDATA tree */
         int usableSpace; /* Bytes in pPage beyond the header */
@@ -922,7 +922,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int subtotal; /* Subtotal of bytes in cells on one page */
         int iSpace1 = 0; /* First unused byte of aSpace1[] */
         int iSpace2 = 0; /* First unused byte of aSpace2[] */
-        int szScratch; /* Size of scratch memory requested */
+//        int szScratch; /* Size of scratch memory requested */
         /* pPage and up to two siblings */
         SqlJetMemPage[] apOld = new SqlJetMemPage[NB];
         int[] pgnoOld = new int[NB]; /* Page numbers for each page in apOld[] */

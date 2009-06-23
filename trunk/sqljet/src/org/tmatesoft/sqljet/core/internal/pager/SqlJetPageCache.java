@@ -538,6 +538,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
 
         /** Hash table for fast lookup by key */
         private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             protected boolean removeEldestEntry(Map.Entry<Integer, SqlJetPage> eldest) {
                 return bPurgeable && getPageCount() > nMax;

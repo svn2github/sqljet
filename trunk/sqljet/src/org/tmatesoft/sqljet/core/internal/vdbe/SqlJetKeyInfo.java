@@ -14,7 +14,6 @@
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
 import java.nio.ByteBuffer;
-import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;

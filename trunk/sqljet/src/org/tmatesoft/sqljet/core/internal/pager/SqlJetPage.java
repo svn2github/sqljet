@@ -130,7 +130,7 @@ public class SqlJetPage implements ISqlJetPage {
         pPager.pagesInJournal.set(pgno);
         pPager.addToSavepointBitSets(pgno);
 
-        pPager.PAGERTRACE("DONT_ROLLBACK page %d of %s\n", pgno, pPager.PAGERID());
+        SqlJetPager.PAGERTRACE("DONT_ROLLBACK page %d of %s\n", pgno, pPager.PAGERID());
         // IOTRACE(("GARBAGE %p %d\n", pPager, pPg->pgno))
 
     }
@@ -165,7 +165,7 @@ public class SqlJetPage implements ISqlJetPage {
                  * next transaction.
                  */
             } else {
-                pPager.PAGERTRACE("DONT_WRITE page %d of %s\n", pgno, pPager.PAGERID());
+                SqlJetPager.PAGERTRACE("DONT_WRITE page %d of %s\n", pgno, pPager.PAGERID());
                 // IOTRACE(("CLEAN %p %d\n", pPager, pPg->pgno))
                 flags.add(SqlJetPageFlags.DONT_WRITE);
                 pageHash = pPager.pageHash(this);
@@ -225,11 +225,11 @@ public class SqlJetPage implements ISqlJetPage {
          * possible to restore its contents when the "ROLLBACK TO one" statement
          * were processed.
          */
-        if (flags.contains(SqlJetPageFlags.DIRTY) && pPager.subjRequiresPage(this)) {
+        if (flags.contains(SqlJetPageFlags.DIRTY) && SqlJetPager.subjRequiresPage(this)) {
             pPager.subjournalPage(this);
         }
 
-        pPager.PAGERTRACE("MOVE %s page %d (needSync=%b) moves to %d\n", pPager.PAGERID(), this.pgno, flags
+        SqlJetPager.PAGERTRACE("MOVE %s page %d (needSync=%b) moves to %d\n", pPager.PAGERID(), this.pgno, flags
                 .contains(SqlJetPageFlags.NEED_SYNC), pageNumber);
         // IOTRACE(("MOVE %p %d %d\n", pPager, pPg->pgno, pgno))
 
@@ -245,7 +245,7 @@ public class SqlJetPage implements ISqlJetPage {
          */
         if (flags.contains(SqlJetPageFlags.NEED_SYNC) && !isCommit) {
             needSyncPgno = pgno;
-            assert (pPager.pageInJournal(this) || pgno > pPager.dbOrigSize);
+            assert (SqlJetPager.pageInJournal(this) || pgno > pPager.dbOrigSize);
             assert (flags.contains(SqlJetPageFlags.DIRTY));
             assert (pPager.needSync);
         }
@@ -476,7 +476,7 @@ public class SqlJetPage implements ISqlJetPage {
          * journal then we can return right away.
          */
         pCache.makeDirty(this);
-        if (pPager.pageInJournal(this) && !pPager.subjRequiresPage(this)) {
+        if (SqlJetPager.pageInJournal(this) && !SqlJetPager.subjRequiresPage(this)) {
             pPager.dirtyCache = true;
             pPager.dbModified = true;
         } else {
@@ -501,7 +501,7 @@ public class SqlJetPage implements ISqlJetPage {
              * EXCLUSIVE lock on the main database file. Write the current page
              * to the transaction journal if it is not there already.
              */
-            if (!pPager.pageInJournal(this) && pPager.journalOpen) {
+            if (!SqlJetPager.pageInJournal(this) && pPager.journalOpen) {
                 if (pgno <= pPager.dbOrigSize) {
                     /*
                      * We should never write to the journal file the page that
@@ -512,14 +512,14 @@ public class SqlJetPage implements ISqlJetPage {
 
                     try {
                         long cksum = pPager.cksum(pData);
-                        pPager.write32bits(pPager.jfd, pPager.journalOff, pgno);
+                        SqlJetPager.write32bits(pPager.jfd, pPager.journalOff, pgno);
                         try {
                             pPager.jfd.write(pData, pPager.pageSize, pPager.journalOff + 4);
                         } finally {
                             pPager.journalOff += pPager.pageSize + 4;
                         }
                         try {
-                            pPager.write32bitsUnsigned( pPager.jfd, pPager.journalOff, cksum );
+                            SqlJetPager.write32bitsUnsigned( pPager.jfd, pPager.journalOff, cksum );
                         } finally {
                             pPager.journalOff += 4;
                         }
@@ -528,7 +528,7 @@ public class SqlJetPage implements ISqlJetPage {
                         // IOTRACE(("JOUT %p %d %lld %d\n", pPager, pPg->pgno,
                         // pPager->journalOff, pPager->pageSize));
                         // PAGER_INCR(sqlite3_pager_writej_count);
-                        pPager.PAGERTRACE("JOURNAL %s page %d needSync=%b hash(%08x)\n", pPager.PAGERID(), pgno, flags
+                        SqlJetPager.PAGERTRACE("JOURNAL %s page %d needSync=%b hash(%08x)\n", pPager.PAGERID(), pgno, flags
                                 .contains(SqlJetPageFlags.NEED_SYNC), pPager.pageHash(this));
 
                         /*
@@ -561,7 +561,7 @@ public class SqlJetPage implements ISqlJetPage {
                         flags.add(SqlJetPageFlags.NEED_SYNC);
                         pPager.needSync = true;
                     }
-                    pPager.PAGERTRACE("APPEND %s page %d needSync=%b\n", pPager.PAGERID(), pgno, flags
+                    SqlJetPager.PAGERTRACE("APPEND %s page %d needSync=%b\n", pPager.PAGERID(), pgno, flags
                             .contains(SqlJetPageFlags.NEED_SYNC));
                 }
             }
@@ -572,7 +572,7 @@ public class SqlJetPage implements ISqlJetPage {
              * statement journal format differs from the standard journal format
              * in that it omits the checksums and the header.
              */
-            if (pPager.subjRequiresPage(this)) {
+            if (SqlJetPager.subjRequiresPage(this)) {
                 pPager.subjournalPage(this);
             }
         }

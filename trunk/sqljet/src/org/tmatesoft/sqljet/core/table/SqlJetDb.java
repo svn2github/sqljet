@@ -232,5 +232,9 @@ public class SqlJetDb {
     public void setUserCookie(int userCookie) throws SqlJetException {
         dbHandle.getMeta().setUserCookie(userCookie);
     }
+    
+    public ISqlJetSchemaMeta getMeta() {
+        return dbHandle.getMeta();
+    }
 
 }

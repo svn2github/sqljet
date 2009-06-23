@@ -221,7 +221,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected Object work() throws SqlJetException {
-            for (final ISqlJetCursor open = table.open(); !open.eof(); open.next()) {
+            for (final ISqlJetCursor open = table.open(); !open.eof(); /*open.next()*/) {
                 beforeSleep(open);
                 sleep();
                 afterSleep(open);

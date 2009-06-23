@@ -350,6 +350,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
         
         EasyMock.expect( fileSystem.sleep(EasyMock.anyInt()) ).andStubAnswer(
                 new IAnswer<Long>(){
+                    @SuppressWarnings("finally")
                     public Long answer() throws Throwable {
                         final Object[] args = EasyMock.getCurrentArguments();
                         if(null==args||0==args.length) throw misuse;

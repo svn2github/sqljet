@@ -22,6 +22,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPageCache;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
 
 /**
  * @author TMate Software Ltd.

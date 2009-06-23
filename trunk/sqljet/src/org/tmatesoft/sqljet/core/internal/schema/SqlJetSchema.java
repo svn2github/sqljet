@@ -46,6 +46,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
@@ -107,6 +108,10 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     public ISqlJetBtree getBtree() {
         return btree;
+    }
+
+    public ISqlJetSchemaMeta getMeta() {
+        return getDb().getMeta();
     }
 
     public Set<String> getTableNames() {

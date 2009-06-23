@@ -28,11 +28,11 @@ import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
-import org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
 
 /**
  * Connection to database.
@@ -231,10 +231,6 @@ public class SqlJetDb {
 
     public void setUserCookie(int userCookie) throws SqlJetException {
         dbHandle.getMeta().setUserCookie(userCookie);
-    }
-    
-    public ISqlJetSchemaMeta getMeta() {
-        return dbHandle.getMeta();
     }
 
 }

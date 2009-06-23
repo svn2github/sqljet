@@ -66,6 +66,9 @@
                 <exclude name="**/.*"/>
                 <exclude name=".*"/>
             </zipfileset>
+            <zipfileset dir=""> 
+                <include name="COPYING"/>
+            </zipfileset>
         </zip>
 
         <zip destfile="build/sqljet.${build.number}.zip">
@@ -75,6 +78,9 @@
             </zipfileset>
             <zipfileset dir="lib" prefix="sqljet.${build.number}">
                 <include name="**/**"/>
+            </zipfileset>
+            <zipfileset dir="" prefix="sqljet.${build.number}">
+                <include name="COPYING"/>
             </zipfileset>
         </zip>
         

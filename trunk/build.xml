@@ -25,21 +25,24 @@
             </fileset>
         </delete>
     </target>
+    
+    <target name="antlr">
+        <java classname="org.antlr.Tool" fork="true" failonerror="true">
+            <arg value="-report"/>
+            <arg value="-fo"/>
+            <arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang"/>
+            <arg value="sqljet/src/Sql.g"/>
+            <classpath>
+                <pathelement location="tools/antlr-3.1.3.jar"/>
+                <pathelement path="${java.class.path}"/>
+            </classpath>
+        </java>
+    </target>
 
-    <target name="compile">
+    <target name="compile" depends="antlr">
         <mkdir dir="sqljet/bin" />
         <mkdir dir="sqljet-test/bin" />
 
-    	<java classname="org.antlr.Tool" fork="true" failonerror="true">
-    	    <arg value="-report"/>
-    	    <arg value="-fo"/>
-    	    <arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang"/>
-        	<arg value="sqljet/src/Sql.g"/>
-    	    <classpath>
-    	        <pathelement location="tools/antlr-3.1.3.jar"/>
-    	        <pathelement path="${java.class.path}"/>
-    	    </classpath>
-    	</java>
     	<javac destdir="sqljet/bin" srcdir="sqljet/src" debug="true">
             <classpath>
             	<fileset dir="lib" includes="*.jar"/>

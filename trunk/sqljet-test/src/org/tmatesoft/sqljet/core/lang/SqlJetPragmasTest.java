@@ -156,7 +156,7 @@ public class SqlJetPragmasTest extends TestCase {
         handler.pragma("pragma schema_version = 3;");
         assertEquals(3, options.getSchemaVersion());
 
-        Object result = handler.pragma("pragma schema_verison;");
+        Object result = handler.pragma("pragma schema_version;");
         assertTrue(result instanceof Integer);
         assertEquals(3, ((Integer) result).intValue());
 
@@ -175,7 +175,7 @@ public class SqlJetPragmasTest extends TestCase {
         handler.pragma("pragma user_version = 3;");
         assertEquals(3, options.getUserVersion());
 
-        Object result = handler.pragma("pragma user_verison;");
+        Object result = handler.pragma("pragma user_version;");
         assertTrue(result instanceof Integer);
         assertEquals(3, ((Integer) result).intValue());
 

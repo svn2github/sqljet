@@ -96,6 +96,9 @@ public class SqlJetConsole implements SqlJetExecCallback {
             firstRow = false;
         }
         for (int i = 0; i < stmt.getColumnsCount(); i++) {
+            if (i > 0) {
+                buffer.append("|");
+            }
             switch (stmt.getColumnType(i)) {
             case INTEGER:
                 buffer.append(stmt.getInteger(i));
@@ -113,7 +116,6 @@ public class SqlJetConsole implements SqlJetExecCallback {
                 buffer.append("NULL");
                 break;
             }
-            buffer.append("|");
         }
         println(buffer.toString());
     }

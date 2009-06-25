@@ -391,7 +391,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
     
     protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
-        return db.getMeta().verifySchemaCookie(throwIfStale);
+        return db.getMeta().verifySchemaVersion(throwIfStale);
     }
 
     public long newRowId() throws SqlJetException {

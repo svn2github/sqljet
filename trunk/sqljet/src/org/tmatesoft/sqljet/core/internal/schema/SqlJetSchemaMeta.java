@@ -232,10 +232,17 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
      * #getSchemaCookie()
      */
-    public int getSchemaCookie() {
+    public int getSchemaVersion() {
         return schemaCookie;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta#setSchemaVersion(int)
+     */
+    public void setSchemaVersion(int version) {
+        // TODO Auto-generated method stub
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -254,7 +261,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
      * #getPageCacheSize()
      */
-    public int getPageCacheSize() {
+    public int getCacheSize() {
         return pageCacheSize;
     }
 
@@ -287,7 +294,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
      * #getUserCookie()
      */
-    public int getUserCookie() {
+    public int getUserVersion() {
         return userCookie;
     }
 
@@ -308,7 +315,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
      * verifySchemaCookie(boolean)
      */
-    public boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
+    public boolean verifySchemaVersion(boolean throwIfStale) throws SqlJetException {
         final boolean stale = (schemaCookie != btree.getMeta(1));
         if (stale && throwIfStale)
             throw new SqlJetException(SqlJetErrorCode.SCHEMA);
@@ -321,8 +328,8 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
      * changeSchemaCookie()
      */
-    public void changeSchemaCookie() throws SqlJetException {
-        verifySchemaCookie(true);
+    public void changeSchemaVersion() throws SqlJetException {
+        verifySchemaVersion(true);
         schemaCookie++;
         writeSchemaCookie(schemaCookie);
     }
@@ -424,7 +431,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * 
      * @throws SqlJetException 
      */
-    public void setUserCookie(int userCookie) throws SqlJetException {
+    public void setUserVersion(int userCookie) throws SqlJetException {
         this.userCookie = userCookie;
         writeUserCookie(userCookie);
     }
@@ -462,7 +469,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
      * 
      * @throws SqlJetException 
      */
-    public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
+    public void setCacheSize(int pageCacheSize) throws SqlJetException {
         checkSchema();
         writePageCacheSize(pageCacheSize);
         this.pageCacheSize = pageCacheSize;

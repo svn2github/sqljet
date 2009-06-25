@@ -27,6 +27,7 @@ import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -42,6 +43,7 @@ public class SqlJetPreparedStatement {
     private CommonTree ast;
     private ISqlJetTable table;
     private ISqlJetCursor cursor;
+    private Object result;
 
     public SqlJetPreparedStatement(SqlJetDb db, String sql) {
         this.db = db;
@@ -123,6 +125,9 @@ public class SqlJetPreparedStatement {
                     db.getSchema().createIndex(sql);
                 } else if ("drop_index".equals(stmtName)) {
                     handleDropIndex();
+                } else if ("pragma".equals(stmtName)) {
+                    result = new SqlJetPragmasHandler(db.getSchema().getMeta()).pragma(ast);
+                    return result != null;
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported statement.");
                 }
@@ -218,22 +223,43 @@ public class SqlJetPreparedStatement {
     }
 
     public int getColumnsCount() throws SqlJetException {
+        if (result != null) {
+            return 1;
+        }
         return cursor.getFieldsCount();
     }
 
     public SqlJetValueType getColumnType(int columnIndex) throws SqlJetException {
+        if (result instanceof String) {
+            return SqlJetValueType.TEXT;
+        }
+        if (result instanceof Integer) {
+            return SqlJetValueType.INTEGER;
+        }
+        if (result instanceof Double) {
+            return SqlJetValueType.FLOAT;
+        }
         return cursor.getFieldType(columnIndex);
     }
 
     public long getInteger(int columnIndex) throws SqlJetException {
+        if (result instanceof Integer && columnIndex == 0) {
+            return ((Integer) result).longValue();
+        }
         return cursor.getInteger(columnIndex);
     }
 
     public double getFloat(int columnIndex) throws SqlJetException {
+        if (result instanceof Double && columnIndex == 0) {
+            return ((Double) result).doubleValue();
+        }
         return cursor.getFloat(columnIndex);
     }
 
     public String getText(int columnIndex) throws SqlJetException {
+        if (result instanceof String && columnIndex == 0) {
+            return (String) result;
+        }
         return cursor.getString(columnIndex);
     }
 

@@ -91,7 +91,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        if (db.getMeta().getSchemaCookie() == 0)
+        if (db.getMeta().getSchemaVersion() == 0)
             return;
         final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
@@ -268,7 +268,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaCookie();
+                db.getMeta().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), TABLE_TYPE, tableName,
@@ -404,7 +404,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaCookie();
+                db.getMeta().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, indexName,
@@ -460,7 +460,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaCookie();
+                db.getMeta().changeSchemaVersion();
 
                 final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
                 if (cursor.moveTo(null, tableDef.getRowId(), false) == -1)
@@ -580,7 +580,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
 
         if (doDropIndex(indexName, false, true)) {
-            db.getMeta().changeSchemaCookie();
+            db.getMeta().changeSchemaVersion();
             indexDefs.remove(indexName);
         }
 

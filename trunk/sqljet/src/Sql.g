@@ -42,10 +42,11 @@ tokens {
 	FLOAT_LITERAL;
 	FUNCTION_LITERAL;
 	FUNCTION_EXPRESSION;
-	INTEGER_LITERAL;
-	IS_NULL;
+	ID_LITERAL;
 	IN_VALUES;
 	IN_TABLE;
+	INTEGER_LITERAL;
+	IS_NULL;
 	NOT_NULL;
 	OPTIONS;
 	ORDERING; // root for ordering_term
@@ -116,8 +117,6 @@ sql_stmt_core
   ;
 
 qualified_table_name: (database_name=id DOT)? table_name=id (INDEXED BY index_name=id | NOT INDEXED)?;
-
-signed_number: (PLUS | MINUS)? (INTEGER | FLOAT);
 
 expr: or_subexpr (OR^ or_subexpr)*;
 
@@ -194,10 +193,17 @@ raise_function: RAISE^ LPAREN! (IGNORE | (ROLLBACK | ABORT | FAIL) COMMA! error_
 type_name: names+=ID+ (LPAREN size1=signed_number (COMMA size2=signed_number)? RPAREN)?
 -> ^(TYPE ^(TYPE_PARAMS $size1? $size2?) $names+);
 
-// PRAGMA
-pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value | LPAREN pragma_value RPAREN)?;
+signed_number: (PLUS | MINUS)? (INTEGER | FLOAT);
 
-pragma_value: signed_number | name=id | STRING;
+// PRAGMA
+pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value | LPAREN pragma_value RPAREN)?
+-> ^(PRAGMA ^($pragma_name $database_name?) pragma_value?);
+
+pragma_value
+	: signed_number -> ^(FLOAT_LITERAL signed_number)
+	| id -> ^(ID_LITERAL id)
+	| STRING -> ^(STRING_LITERAL STRING)
+	;
 
 // ATTACH
 attach_stmt: ATTACH (DATABASE)? filename=(STRING | id) AS database_name=id;

@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
@@ -219,21 +220,28 @@ public class SqlJetDb {
         }
     }
 
+    /**
+     * Executes pragma statement. If statement queries pragma value then it will be returned.
+     */
+    public Object pragma(String sql) throws SqlJetException {
+        return new SqlJetPragmasHandler(getSchema().getMeta()).pragma(sql);
+    }
+
     public int getPageCacheSize() {
-        return dbHandle.getMeta().getPageCacheSize();
+        return dbHandle.getMeta().getCacheSize();
     }
 
     public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
         btree.setCacheSize(pageCacheSize);
-        dbHandle.getMeta().setPageCacheSize(pageCacheSize);
+        dbHandle.getMeta().setCacheSize(pageCacheSize);
     }
 
     public int getUserCookie() {
-        return dbHandle.getMeta().getUserCookie();
+        return dbHandle.getMeta().getUserVersion();
     }
 
     public void setUserCookie(int userCookie) throws SqlJetException {
-        dbHandle.getMeta().setUserCookie(userCookie);
+        dbHandle.getMeta().setUserVersion(userCookie);
     }
 
 }

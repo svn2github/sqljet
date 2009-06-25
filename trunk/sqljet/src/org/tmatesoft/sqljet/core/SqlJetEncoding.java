@@ -56,4 +56,17 @@ public enum SqlJetEncoding {
         return charsetName;
     }
 
+    public static SqlJetEncoding decode(String s) {
+        s = s.toUpperCase();
+        if ("UTF-8".equals(s)) {
+            return UTF8;
+        } else if ("UTF-16".equals(s)) {
+            return UTF16;
+        } else if ("UTF-16LE".equals(s)) {
+            return UTF16LE;
+        } else if ("UTF-16BE".equals(s)) {
+            return UTF16BE;
+        }
+        return null;
+    }
 }

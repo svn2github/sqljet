@@ -591,7 +591,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         data.first();
         final SqlJetSchemaMeta meta = new SqlJetSchemaMeta(btreeCopy);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
-        meta.changeSchemaCookie();
+        meta.changeSchemaVersion();
         btreeCopy.commit();
         data.first();
         Assert.assertTrue(false);

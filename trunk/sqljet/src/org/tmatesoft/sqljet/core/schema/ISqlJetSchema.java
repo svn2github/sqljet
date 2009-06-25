@@ -27,7 +27,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetSchema {
 
-    ISqlJetSchemaMeta getMeta();
+    ISqlJetOptions getMeta();
 
     Set<String> getTableNames();
 

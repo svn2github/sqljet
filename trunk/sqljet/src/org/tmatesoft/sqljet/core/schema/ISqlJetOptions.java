@@ -1,5 +1,5 @@
 /**
- * ISqlJetSchemaMeta.java
+ * ISqlJetOptions.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public interface ISqlJetSchemaMeta {
+public interface ISqlJetOptions {
 
     /**
      * File format of schema layer.

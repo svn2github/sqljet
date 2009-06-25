@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
@@ -86,8 +86,8 @@ public interface ISqlJetDbHandle {
 
     void setEncoding(SqlJetEncoding enc) throws SqlJetException;
     
-    ISqlJetSchemaMeta getMeta();
+    ISqlJetOptions getMeta();
     
-    void setMeta(ISqlJetSchemaMeta meta);
+    void setMeta(ISqlJetOptions meta);
     
 }

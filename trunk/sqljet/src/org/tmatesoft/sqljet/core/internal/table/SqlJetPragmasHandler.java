@@ -28,7 +28,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
@@ -36,13 +36,13 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
  */
 public class SqlJetPragmasHandler {
 
-    private final ISqlJetSchemaMeta options;
+    private final ISqlJetOptions options;
 
-    public SqlJetPragmasHandler(ISqlJetSchemaMeta options) {
+    public SqlJetPragmasHandler(ISqlJetOptions options) {
         this.options = options;
     }
 
-    private ISqlJetSchemaMeta getOptions() {
+    private ISqlJetOptions getOptions() {
         return options;
     }
 

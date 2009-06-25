@@ -26,14 +26,14 @@ import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPageCache;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
+public class SqlJetSchemaMeta implements ISqlJetOptions {
 
     private static final int SCHEMA_COOKIE = 1;
 
@@ -237,7 +237,7 @@ public class SqlJetSchemaMeta implements ISqlJetSchemaMeta {
     }
 
     /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta#setSchemaVersion(int)
+     * @see org.tmatesoft.sqljet.core.schema.ISqlJetOptions#setSchemaVersion(int)
      */
     public void setSchemaVersion(int version) {
         // TODO Auto-generated method stub

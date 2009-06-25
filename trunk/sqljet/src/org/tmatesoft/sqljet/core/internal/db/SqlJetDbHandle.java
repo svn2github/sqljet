@@ -33,7 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
@@ -47,7 +47,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
-    private ISqlJetSchemaMeta meta;
+    private ISqlJetOptions meta;
 
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()
@@ -128,14 +128,14 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#getMeta()
      */
-    public ISqlJetSchemaMeta getMeta() {
+    public ISqlJetOptions getMeta() {
         return meta;
     }
     
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#setMeta(org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta)
      */
-    public void setMeta(ISqlJetSchemaMeta meta) {
+    public void setMeta(ISqlJetOptions meta) {
         this.meta = meta;
     }
     

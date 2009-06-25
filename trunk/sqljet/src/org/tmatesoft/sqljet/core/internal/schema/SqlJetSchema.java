@@ -19,10 +19,10 @@ package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -55,7 +55,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
 import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
-import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
@@ -91,7 +90,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     private void init() throws SqlJetException {
-        if (db.getMeta().getSchemaVersion() == 0)
+        if (db.getOptions().getSchemaVersion() == 0)
             return;
         final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
@@ -112,10 +111,6 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     public ISqlJetBtree getBtree() {
         return btree;
-    }
-
-    public ISqlJetOptions getMeta() {
-        return getDb().getMeta();
     }
 
     public Set<String> getTableNames() {
@@ -268,7 +263,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaVersion();
+                db.getOptions().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), TABLE_TYPE, tableName,
@@ -404,7 +399,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaVersion();
+                db.getOptions().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getEncoding(), INDEX_TYPE, indexName,
@@ -460,7 +455,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
             try {
 
-                db.getMeta().changeSchemaVersion();
+                db.getOptions().changeSchemaVersion();
 
                 final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
                 if (cursor.moveTo(null, tableDef.getRowId(), false) == -1)
@@ -580,7 +575,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
 
         if (doDropIndex(indexName, false, true)) {
-            db.getMeta().changeSchemaVersion();
+            db.getOptions().changeSchemaVersion();
             indexDefs.remove(indexName);
         }
 

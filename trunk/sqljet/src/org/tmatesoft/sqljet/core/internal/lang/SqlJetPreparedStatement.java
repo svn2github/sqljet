@@ -126,7 +126,7 @@ public class SqlJetPreparedStatement {
                 } else if ("drop_index".equals(stmtName)) {
                     handleDropIndex();
                 } else if ("pragma".equals(stmtName)) {
-                    result = new SqlJetPragmasHandler(db.getSchema().getMeta()).pragma(ast);
+                    result = new SqlJetPragmasHandler(db.getOptions()).pragma(ast);
                     return result != null;
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.ERROR, "Unsupported statement.");

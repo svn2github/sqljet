@@ -20,15 +20,12 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  */
 public interface ISqlJetSchema {
-
-    ISqlJetOptions getMeta();
 
     Set<String> getTableNames();
 

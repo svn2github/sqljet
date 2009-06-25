@@ -48,7 +48,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 public class SqlJetDb {
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
-    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility.of(SqlJetFileOpenPermission.READONLY);
+    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
+            .of(SqlJetFileOpenPermission.READONLY);
     private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READWRITE,
             SqlJetBtreeFlags.CREATE);
     private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = SqlJetUtility.of(
@@ -83,7 +84,7 @@ public class SqlJetDb {
                 try {
                     if (null != autoVacuumMode)
                         btree.setAutoVacuum(autoVacuumMode);
-                    dbHandle.setMeta(new SqlJetOptions(btree));
+                    dbHandle.setOptions(new SqlJetOptions(btree));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
                     btree.leave();
@@ -220,28 +221,38 @@ public class SqlJetDb {
         }
     }
 
+    public ISqlJetOptions getOptions() {
+        return dbHandle.getOptions();
+    }
+
     /**
-     * Executes pragma statement. If statement queries pragma value then it will be returned.
+     * Executes pragma statement. If statement queries pragma value then pragma
+     * value will be returned.
      */
     public Object pragma(String sql) throws SqlJetException {
-        return new SqlJetPragmasHandler(getSchema().getMeta()).pragma(sql);
+        return new SqlJetPragmasHandler(getOptions()).pragma(sql);
     }
 
+    // Use options
+
+    @Deprecated
     public int getPageCacheSize() {
-        return dbHandle.getMeta().getCacheSize();
+        return dbHandle.getOptions().getCacheSize();
     }
 
+    @Deprecated
     public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
         btree.setCacheSize(pageCacheSize);
-        dbHandle.getMeta().setCacheSize(pageCacheSize);
+        dbHandle.getOptions().setCacheSize(pageCacheSize);
     }
 
+    @Deprecated
     public int getUserCookie() {
-        return dbHandle.getMeta().getUserVersion();
+        return dbHandle.getOptions().getUserVersion();
     }
 
+    @Deprecated
     public void setUserCookie(int userCookie) throws SqlJetException {
-        dbHandle.getMeta().setUserVersion(userCookie);
+        dbHandle.getOptions().setUserVersion(userCookie);
     }
-
 }

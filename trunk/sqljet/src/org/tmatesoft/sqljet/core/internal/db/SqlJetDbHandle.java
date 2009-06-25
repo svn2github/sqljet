@@ -17,9 +17,9 @@
  */
 package org.tmatesoft.sqljet.core.internal.db;
 
-import java.util.Set;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -38,7 +38,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetDbHandle implements ISqlJetDbHandle {
 
@@ -47,16 +47,20 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
-    private ISqlJetOptions meta;
+    private ISqlJetOptions options;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()
      */
     public List<ISqlJetBackend> getBackends() {
         return backends;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBusyHaldler()
      */
     public ISqlJetBusyHandler getBusyHandler() {
@@ -64,21 +68,27 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
         return null;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getConfig()
      */
     public ISqlJetConfig getConfig() {
         return config;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getFileSystem()
      */
     public ISqlJetFileSystem getFileSystem() {
         return fileSystem;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getFlags()
      */
     public Set<SqlJetDbFlags> getFlags() {
@@ -86,14 +96,18 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
         return flags;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getMutex()
      */
     public ISqlJetMutex getMutex() {
         return mutex;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getSavepointNum()
      */
     public int getSavepointNum() {
@@ -101,42 +115,42 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetDb#setConfig(org.tmatesoft.sqljet.core.ISqlJetConfig)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetDb#setConfig(org.tmatesoft.sqljet.core
+     * .ISqlJetConfig)
      */
     public void setConfig(ISqlJetConfig config) {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
      */
     public SqlJetEncoding getEncoding() {
-        return meta.getEncoding();
+        return options.getEncoding();
     }
-    
+
     /**
-     * @param enc the enc to set
+     * @param enc
+     *            the enc to set
      * 
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public void setEncoding(SqlJetEncoding enc) throws SqlJetException {
-        this.meta.setEncoding(enc);
+        this.options.setEncoding(enc);
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#getMeta()
-     */
-    public ISqlJetOptions getMeta() {
-        return meta;
+
+    public ISqlJetOptions getOptions() {
+        return options;
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle#setMeta(org.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta)
-     */
-    public void setMeta(ISqlJetOptions meta) {
-        this.meta = meta;
+
+    public void setOptions(ISqlJetOptions options) {
+        this.options = options;
     }
-    
 }

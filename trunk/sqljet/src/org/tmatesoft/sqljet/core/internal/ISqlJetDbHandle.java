@@ -17,8 +17,8 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -27,49 +27,48 @@ import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetDbHandle {
 
     /**
-    * Name of the master database table.  The master database table
-    * is a special table that holds the names and attributes of all
-    * user tables and indices.
-    */
+     * Name of the master database table. The master database table is a special
+     * table that holds the names and attributes of all user tables and indices.
+     */
     String MASTER_NAME = "sqlite_master";
     String TEMP_MASTER_NAME = "sqlite_temp_master";
 
     /**
-    * The root-page of the master database table.
-    */
+     * The root-page of the master database table.
+     */
     int MASTER_ROOT = 1;
-    
+
     /**
      * Get config
      * 
      * @return
      */
     ISqlJetConfig getConfig();
-    
+
     /**
      * Set config
      * 
      * @param config
      */
     void setConfig(ISqlJetConfig config);
-    
+
     /**
      * @return
      */
     ISqlJetFileSystem getFileSystem();
-    
+
     /**
      * @return
      */
     Set<SqlJetDbFlags> getFlags();
-    
+
     List<ISqlJetBackend> getBackends();
-    
+
     ISqlJetMutex getMutex();
 
     /**
@@ -81,13 +80,12 @@ public interface ISqlJetDbHandle {
      * @return
      */
     int getSavepointNum();
-    
+
     SqlJetEncoding getEncoding();
 
     void setEncoding(SqlJetEncoding enc) throws SqlJetException;
-    
-    ISqlJetOptions getMeta();
-    
-    void setMeta(ISqlJetOptions meta);
-    
+
+    ISqlJetOptions getOptions();
+
+    void setOptions(ISqlJetOptions options);
 }

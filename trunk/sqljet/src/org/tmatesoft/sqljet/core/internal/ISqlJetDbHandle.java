@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
+import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.

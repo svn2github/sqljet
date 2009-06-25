@@ -33,7 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
@@ -83,7 +83,7 @@ public class SqlJetDb {
                 try {
                     if (null != autoVacuumMode)
                         btree.setAutoVacuum(autoVacuumMode);
-                    dbHandle.setMeta(new SqlJetSchemaMeta(btree));
+                    dbHandle.setMeta(new SqlJetOptions(btree));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
                     btree.leave();

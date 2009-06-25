@@ -33,7 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
-import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
+import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.

@@ -34,7 +34,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchemaMeta;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
@@ -42,6 +41,7 @@ import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
@@ -88,7 +88,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         btreeCopy.open(repCacheDbCopy, db, SqlJetUtility.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
                 SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
 
-        db.setMeta(new SqlJetSchemaMeta(btreeCopy));
+        db.setMeta(new SqlJetOptions(btreeCopy));
 
     }
 
@@ -589,7 +589,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         data.first();
-        final SqlJetSchemaMeta meta = new SqlJetSchemaMeta(btreeCopy);
+        final SqlJetOptions meta = new SqlJetOptions(btreeCopy);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         meta.changeSchemaVersion();
         btreeCopy.commit();

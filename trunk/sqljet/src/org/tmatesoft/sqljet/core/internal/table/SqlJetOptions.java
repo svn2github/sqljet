@@ -1,5 +1,5 @@
 /**
- * SqlJetSchemaMeta.java
+ * SqlJetOptions.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@svnkit.com
  */
-package org.tmatesoft.sqljet.core.internal.schema;
+package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -26,14 +26,14 @@ import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPageCache;
-import org.tmatesoft.sqljet.core.schema.ISqlJetOptions;
+import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetSchemaMeta implements ISqlJetOptions {
+public class SqlJetOptions implements ISqlJetOptions {
 
     private static final int SCHEMA_COOKIE = 1;
 
@@ -91,7 +91,7 @@ public class SqlJetSchemaMeta implements ISqlJetOptions {
      * 
      * @throws SqlJetException
      */
-    public SqlJetSchemaMeta(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetOptions(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
         readMeta();
         if (schemaCookie == 0)

@@ -116,7 +116,7 @@ public class SqlJetPragmasHandler {
             } else if ("cache_size".equals(name)) {
                 return Integer.valueOf(getOptions().getCacheSize());
             } else if ("encoding".equals(name)) {
-                return getOptions().getEncoding().toString();
+                return getOptions().getEncoding();
             } else if ("schema_version".equals(name)) {
                 return Integer.valueOf(getOptions().getSchemaVersion());
             } else if ("user_version".equals(name)) {
@@ -169,7 +169,7 @@ public class SqlJetPragmasHandler {
         } else if ("id_literal".equals(type)) {
             return value;
         } else if ("string_literal".equals(type)) {
-            return value.substring(1, value.length() - 2);
+            return value.substring(1, value.length() - 1);
         }
         throw new IllegalStateException();
     }

@@ -233,26 +233,4 @@ public class SqlJetDb {
         return new SqlJetPragmasHandler(getOptions()).pragma(sql);
     }
 
-    // Use options
-
-    @Deprecated
-    public int getPageCacheSize() {
-        return dbHandle.getOptions().getCacheSize();
-    }
-
-    @Deprecated
-    public void setPageCacheSize(int pageCacheSize) throws SqlJetException {
-        btree.setCacheSize(pageCacheSize);
-        dbHandle.getOptions().setCacheSize(pageCacheSize);
-    }
-
-    @Deprecated
-    public int getUserCookie() {
-        return dbHandle.getOptions().getUserVersion();
-    }
-
-    @Deprecated
-    public void setUserCookie(int userCookie) throws SqlJetException {
-        dbHandle.getOptions().setUserVersion(userCookie);
-    }
 }

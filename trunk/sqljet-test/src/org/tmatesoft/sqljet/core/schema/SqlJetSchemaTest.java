@@ -481,7 +481,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 createDb.beginTransaction();
                 try {
-                    createDb.setPageCacheSize(1000);
+                    createDb.getOptions().setCacheSize(1000);
                     final ISqlJetSchema schema = createDb.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");

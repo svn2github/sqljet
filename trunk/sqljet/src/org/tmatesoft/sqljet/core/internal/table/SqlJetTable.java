@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -46,45 +47,97 @@ public class SqlJetTable implements ISqlJetTable {
         this.dataTable = new SqlJetBtreeDataTable(schema, tableName, write);
     }
 
-    public boolean isRowIdPrimaryKey() {
-        return dataTable.isRowIdPrimaryKey();
+    public boolean isRowIdPrimaryKey() throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.isRowIdPrimaryKey();
+            }
+        });
     }
 
-    public boolean isAutoincrement() {
-        return dataTable.isAutoincrement();
+    public boolean isAutoincrement() throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.isAutoincrement();
+            }
+        });
     }
 
-    public String getPrimaryKeyIndexName() {
-        return dataTable.getPrimaryKeyIndex();
+    public String getPrimaryKeyIndexName() throws SqlJetException {
+        return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.getPrimaryKeyIndex();
+            }
+        });
     }
-    
-    public ISqlJetTableDef getDefinition() {
-        return dataTable.getDefinition();
+
+    public ISqlJetTableDef getDefinition() throws SqlJetException {
+        return (ISqlJetTableDef) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.getDefinition();
+            }
+        });
     };
 
     public ISqlJetCursor open() throws SqlJetException {
-        return new SqlJetTableDataCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db);
+        return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return new SqlJetTableDataCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db);
+            }
+        });
     }
 
-    public ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException {
-        if (!dataTable.getIndexDefinitions().containsKey(indexName))
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db, indexName, key);
+    public ISqlJetCursor lookup(final String indexName, final Object... key) throws SqlJetException {
+        return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (!dataTable.getIndexDefinitions().containsKey(indexName)) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE);
+                }
+                return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db,
+                        indexName, key);
+            }
+        });
     }
 
-    public long insert(Object... values) throws SqlJetException {
-        return dataTable.insert(values);
+    public long insert(final Object... values) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.insert(values);
+            }
+        });
     }
 
-    public long insertAutoId(Object... values) throws SqlJetException {
-        return dataTable.insertAutoId(values);
+    public long insertAutoId(final Object... values) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.insertAutoId(values);
+            }
+        });
     }
 
-    public long insert(Map<String, Object> values) throws SqlJetException {
-        return dataTable.insert(values);
+    public long insert(final Map<String, Object> values) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.insert(values);
+            }
+        });
     }
-    
-    public long insertAutoId(Map<String, Object> values) throws SqlJetException {
-        return dataTable.insertAutoId(values);
+
+    public long insertAutoId(final Map<String, Object> values) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return dataTable.insertAutoId(values);
+            }
+        });
     }
 }

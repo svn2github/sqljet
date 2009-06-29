@@ -34,22 +34,22 @@ public interface ISqlJetTable {
     /**
      * @return the isRowIdPrimaryKey
      */
-    boolean isRowIdPrimaryKey();
+    boolean isRowIdPrimaryKey() throws SqlJetException;
 
     /**
      * @return the isAutoincrement
      */
-    boolean isAutoincrement();
+    boolean isAutoincrement() throws SqlJetException;
 
     /**
      * @return the primaryKeyIndex
      */
-    String getPrimaryKeyIndexName();
-    
+    String getPrimaryKeyIndexName() throws SqlJetException;
+
     /**
      * Get table's schema definition.
      */
-    ISqlJetTableDef getDefinition();
+    ISqlJetTableDef getDefinition() throws SqlJetException;
 
     /**
      * Open cursor for all table records. Client is responsible to close the

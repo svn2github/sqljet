@@ -139,7 +139,7 @@ public class SqlJetConsole implements SqlJetExecCallback {
         println(fileName);
     }
 
-    private void printSchema(SqlJetConnection conn) {
+    private void printSchema(SqlJetConnection conn) throws SqlJetException {
         println(conn.getSchema("main").toString());
     }
 

@@ -71,7 +71,7 @@ public class SqlJetConnection {
         db.close();
     }
 
-    public ISqlJetSchema getSchema(String databaseName) {
+    public ISqlJetSchema getSchema(String databaseName) throws SqlJetException {
         return db.getSchema();
     }
 }

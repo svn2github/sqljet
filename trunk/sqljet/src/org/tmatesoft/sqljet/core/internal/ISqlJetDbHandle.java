@@ -81,8 +81,10 @@ public interface ISqlJetDbHandle {
      */
     int getSavepointNum();
 
+    @Deprecated
     SqlJetEncoding getEncoding();
 
+    @Deprecated
     void setEncoding(SqlJetEncoding enc) throws SqlJetException;
 
     ISqlJetOptions getOptions();

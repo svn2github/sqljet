@@ -411,7 +411,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 createDb.beginTransaction();
                 try {
-                    createDb.setEncoding(SqlJetEncoding.UTF16LE);
+                    createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
                     final ISqlJetSchema schema = createDb.getSchema();
                     final ISqlJetTableDef createTable = schema
                             .createTable("create table test( id integer primary key, name text )");
@@ -455,7 +455,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                     openTable.insertAutoId("test");
                     openTable.insertAutoId("test1");
                     openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
-                    createDb.setEncoding(SqlJetEncoding.UTF16LE);
+                    createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
                     createDb.commit();
                 } catch (SqlJetException e) {
                     createDb.rollback();

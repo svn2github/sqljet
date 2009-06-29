@@ -20,7 +20,6 @@ package org.tmatesoft.sqljet.core.table;
 import java.io.File;
 import java.util.Set;
 
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
@@ -58,9 +57,9 @@ public class SqlJetDb {
     private final boolean write;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
-    private ISqlJetSchema schema;
+    private final ISqlJetSchema schema;
 
-    private boolean transaction = false;
+    private boolean transaction;
 
     /**
      * Create connection to data base.
@@ -78,18 +77,21 @@ public class SqlJetDb {
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
                 : READ_PERMISSIONS);
-        runWithLock(new ISqlJetRunnableWithLock() {
+        schema = (ISqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
+
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                ISqlJetSchema schema = null;
                 btree.enter();
                 try {
-                    if (null != autoVacuumMode)
+                    if (null != autoVacuumMode) {
                         btree.setAutoVacuum(autoVacuumMode);
+                    }
                     dbHandle.setOptions(new SqlJetOptions(btree));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
                     btree.leave();
                 }
-                return null;
+                return schema;
             }
         });
     }
@@ -118,6 +120,7 @@ public class SqlJetDb {
      */
     public void close() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
+
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 btree.close();
                 return null;
@@ -148,24 +151,11 @@ public class SqlJetDb {
      * 
      * @return true if modification is allowed
      */
-    public boolean isWrite() {
+    public boolean isWrite() throws SqlJetException {
         return write;
     }
 
-    /**
-     * Get data base's encoding.
-     * 
-     * @return data base's encoding
-     */
-    public SqlJetEncoding getEncoding() {
-        return dbHandle.getEncoding();
-    }
-
-    public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
-        dbHandle.setEncoding(encoding);
-    }
-
-    public ISqlJetSchema getSchema() {
+    public ISqlJetSchema getSchema() throws SqlJetException {
         return schema;
     }
 
@@ -179,6 +169,7 @@ public class SqlJetDb {
      */
     public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
+
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(db, schema, tableName, write);
             }
@@ -191,10 +182,19 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public void beginTransaction() throws SqlJetException {
-        if (write) {
-            btree.beginTrans(SqlJetTransactionMode.WRITE);
-            transaction = true;
-        }
+        runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (transaction) {
+                    throw new SqlJetException("Write transaction already in progress.");
+                }
+                if (write) {
+                    btree.beginTrans(SqlJetTransactionMode.WRITE);
+                    transaction = true;
+                }
+                return null;
+            }
+        });
     }
 
     /**
@@ -203,10 +203,16 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public void commit() throws SqlJetException {
-        if (write && transaction) {
-            btree.commit();
-            transaction = false;
-        }
+        runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (write && transaction) {
+                    btree.commit();
+                    transaction = false;
+                }
+                return null;
+            }
+        });
     }
 
     /**
@@ -215,13 +221,19 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public void rollback() throws SqlJetException {
-        if (write && transaction) {
-            btree.rollback();
-            transaction = false;
-        }
+        runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (write && transaction) {
+                    btree.rollback();
+                    transaction = false;
+                }
+                return null;
+            }
+        });
     }
 
-    public ISqlJetOptions getOptions() {
+    public ISqlJetOptions getOptions() throws SqlJetException {
         return dbHandle.getOptions();
     }
 
@@ -229,8 +241,12 @@ public class SqlJetDb {
      * Executes pragma statement. If statement queries pragma value then pragma
      * value will be returned.
      */
-    public Object pragma(String sql) throws SqlJetException {
-        return new SqlJetPragmasHandler(getOptions()).pragma(sql);
-    }
+    public Object pragma(final String sql) throws SqlJetException {
+        return runWithLock(new ISqlJetRunnableWithLock() {
 
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return new SqlJetPragmasHandler(getOptions()).pragma(sql);
+            }
+        });
+    }
 }

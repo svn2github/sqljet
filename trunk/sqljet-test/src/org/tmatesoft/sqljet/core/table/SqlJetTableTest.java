@@ -618,7 +618,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 values.put("name", "test1");
                 values.put("value", 1);
 
-                open.update(values);
+                open.updateByFieldNames(values);
                 dbCopy.commit();
 
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");

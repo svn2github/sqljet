@@ -97,7 +97,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#update(java.util.Map)
      */
-    public void update(Map<String, Object> values) throws SqlJetException {
+    public void updateByFieldNames(Map<String, Object> values) throws SqlJetException {
         final ISqlJetBtreeDataTable table = getBtreeDataTable();
         table.update(values);
     }

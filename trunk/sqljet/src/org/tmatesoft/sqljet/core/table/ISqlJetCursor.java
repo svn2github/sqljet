@@ -194,7 +194,7 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     Map<String, Object> getValuesWithFieldNames() throws SqlJetException;
-    
+
     // Modification
 
     /**
@@ -207,11 +207,14 @@ public interface ISqlJetCursor {
     void update(Object... values) throws SqlJetException;
 
     /**
+     * Update the current record.
+     * 
      * @param values
+     *            New record values mapped by field names.
      * @throws SqlJetException
      */
-    void update(Map<String, Object> values) throws SqlJetException;
-    
+    void updateByFieldNames(Map<String, Object> values) throws SqlJetException;
+
     /**
      * Delete the current record.
      * 

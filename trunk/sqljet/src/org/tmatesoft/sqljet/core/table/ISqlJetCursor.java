@@ -51,7 +51,7 @@ public interface ISqlJetCursor {
     /**
      * Go to the record with the specified rowid.
      * 
-     * @return True if cursor was moved successfully.
+     * @return true if cursor was moved successfully.
      * @throws SqlJetException
      */
     boolean goTo(long rowId) throws SqlJetException;
@@ -81,7 +81,7 @@ public interface ISqlJetCursor {
     boolean last() throws SqlJetException;
 
     /**
-     * Go to next record.
+     * Go to the next record.
      * 
      * @return true if there is at least one record and end of cursor is not
      *         reached yet
@@ -90,7 +90,7 @@ public interface ISqlJetCursor {
     boolean next() throws SqlJetException;
 
     /**
-     * Go to previous record.
+     * Go to the previous record.
      * 
      * @return true if there is at least one record and begin of cursor is not
      *         reached yet
@@ -101,15 +101,14 @@ public interface ISqlJetCursor {
     // Record Access
 
     /**
-     * Get count of fields in current record.
+     * Get number of fields in the current record.
      * 
-     * @return count of fields
      * @throws SqlJetException
      */
     int getFieldsCount() throws SqlJetException;
 
     /**
-     * Get type of field.
+     * Get field type.
      * 
      * @param field
      *            number of field begin from zero
@@ -119,7 +118,15 @@ public interface ISqlJetCursor {
     SqlJetValueType getFieldType(int field) throws SqlJetException;
 
     /**
-     * Check to field has null value.
+     * Get field type.
+     * 
+     * @return type of field
+     * @throws SqlJetException
+     */
+    SqlJetValueType getFieldType(String fieldName) throws SqlJetException;
+
+    /**
+     * Check if field value is null.
      * 
      * @param field
      *            number of field begin from zero
@@ -127,6 +134,14 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     boolean isNull(int field) throws SqlJetException;
+
+    /**
+     * Check if field value is null.
+     * 
+     * @return true if field value is null
+     * @throws SqlJetException
+     */
+    boolean isNull(String fieldName) throws SqlJetException;
 
     /**
      * Get field's value as string.
@@ -139,6 +154,14 @@ public interface ISqlJetCursor {
     String getString(int field) throws SqlJetException;
 
     /**
+     * Get field's value as string.
+     * 
+     * @return field's value as string
+     * @throws SqlJetException
+     */
+    String getString(String fieldName) throws SqlJetException;
+
+    /**
      * Get field's value as integer.
      * 
      * @param field
@@ -149,6 +172,14 @@ public interface ISqlJetCursor {
     long getInteger(int field) throws SqlJetException;
 
     /**
+     * Get field's value as integer.
+     * 
+     * @return field's value as integer
+     * @throws SqlJetException
+     */
+    long getInteger(String fieldName) throws SqlJetException;
+
+    /**
      * Get field's value as real (float).
      * 
      * @param field
@@ -157,6 +188,14 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     double getFloat(int field) throws SqlJetException;
+
+    /**
+     * Get field's value as real (float).
+     * 
+     * @return field's value as real
+     * @throws SqlJetException
+     */
+    double getFloat(String fieldName) throws SqlJetException;
 
     /**
      * Get field's value as BLOB.
@@ -171,6 +210,14 @@ public interface ISqlJetCursor {
     /**
      * Get field's value as BLOB.
      * 
+     * @return field's value as BLOB
+     * @throws SqlJetException
+     */
+    byte[] getBlobAsArray(String fieldName) throws SqlJetException;
+
+    /**
+     * Get field's value as BLOB.
+     * 
      * @param field
      *            number of field begin from zero
      * @return field's value as BLOB
@@ -179,21 +226,26 @@ public interface ISqlJetCursor {
     InputStream getBlobAsStream(int field) throws SqlJetException;
 
     /**
-     * Get value of field by name.
+     * Get field's value as BLOB.
      * 
-     * @param fieldName
-     * @return
+     * @return field's value as BLOB
      * @throws SqlJetException
      */
-    Object getValueByFieldName(String fieldName) throws SqlJetException;
+    InputStream getBlobAsStream(String fieldName) throws SqlJetException;
 
     /**
-     * Get values of records fields with their names.
+     * Get field's value.
      * 
-     * @return
      * @throws SqlJetException
      */
-    Map<String, Object> getValuesWithFieldNames() throws SqlJetException;
+    Object getValue(int field) throws SqlJetException;
+
+    /**
+     * Get field's value by name.
+     * 
+     * @throws SqlJetException
+     */
+    Object getValue(String fieldName) throws SqlJetException;
 
     // Modification
 

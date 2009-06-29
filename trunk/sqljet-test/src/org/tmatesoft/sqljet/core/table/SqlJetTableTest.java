@@ -591,7 +591,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
                 Assert.assertFalse(lookup.eof());
 
-                final Object nameField = lookup.getValueByFieldName("name");
+                final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
                 
@@ -624,7 +624,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
                 Assert.assertFalse(lookup.eof());
 
-                final Object nameField = lookup.getValueByFieldName("name");
+                final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
                 
@@ -655,11 +655,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
                 Assert.assertFalse(lookup.eof());
 
-                final Object nameField = lookup.getValueByFieldName("name");
+                final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
 
-                final Object valueField = lookup.getValueByFieldName("value");
+                final Object valueField = lookup.getValue("value");
                 Assert.assertNull(valueField);
                 
                 return null;

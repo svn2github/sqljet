@@ -88,10 +88,6 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return btreeTable.getFloat(field);
     }
 
-    public ByteBuffer getBlob(int field) throws SqlJetException {
-        return btreeTable.getBlob(field);
-    }
-
     public byte[] getBlobAsArray(int field) throws SqlJetException {
         ByteBuffer buffer = btreeTable.getBlob(field);
         return buffer != null ? buffer.array() : null;
@@ -100,5 +96,13 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     public InputStream getBlobAsStream(int field) throws SqlJetException {
         ByteBuffer buffer = btreeTable.getBlob(field);
         return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+    }
+
+    public Object getValue(int field) throws SqlJetException {
+        Object value = btreeTable.getValue(field);
+        if (value instanceof ByteBuffer) {
+            return new ByteArrayInputStream(((ByteBuffer) value).array());
+        }
+        return value;
     }
 }

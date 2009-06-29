@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -579,44 +578,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return Collections.unmodifiableMap(indexesTables);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
-     * getValueByFieldName(java.lang.String)
-     */
-    public Object getValueByFieldName(String fieldName) throws SqlJetException {
-        if (null == fieldName)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Field name isn't defined");
-        final int columnNumber = tableDef.getColumnNumber(fieldName);
-        if (-1 == columnNumber)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Field isn't found: " + fieldName);
-        return getValue(columnNumber);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
-     * getValuesWithFieldNames()
-     */
-    public Map<String, Object> getValuesWithFieldNames() throws SqlJetException {
-        int i = 0;
-        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final Map<String, Object> map = new LinkedHashMap<String, Object>(columns.size());
-        for (ISqlJetColumnDef column : columns) {
-            map.put(column.getName(), getValue(i++));
-        }
-        return map;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
-     * (java.util.Map)
-     */
     public long insert(Map<String, Object> values) throws SqlJetException {
 
         if (null == values)

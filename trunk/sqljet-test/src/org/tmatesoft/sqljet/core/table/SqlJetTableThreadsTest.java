@@ -18,6 +18,7 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -145,6 +146,16 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
     }
 
+
+    public static Map<String, Object> getValuesWithFieldNames(ISqlJetCursor cursor) throws SqlJetException {
+        final Map<String, Object> map = new LinkedHashMap<String, Object>();
+        for (int i = 0; i < cursor.getFieldsCount(); i++) {
+            Object value = cursor.getValue(i);
+            map.put(String.valueOf(i), value);
+        }
+        return map;
+    }
+
     private class Reader extends SleepWorker {
 
         public Reader(File dbFile, String readerName) {
@@ -153,7 +164,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected void beforeSleep(ISqlJetCursor cursor) throws SqlJetException {
-            final Map<String, Object> values = cursor.getValuesWithFieldNames();
+            final Map<String, Object> values = getValuesWithFieldNames(cursor);
             boolean first = true;
             final StringBuilder b = new StringBuilder();
             for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -183,7 +194,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected void beforeSleep(ISqlJetCursor cursor) throws SqlJetException {
-            final Map<String, Object> values = cursor.getValuesWithFieldNames();
+            final Map<String, Object> values = getValuesWithFieldNames(cursor);
             for (Map.Entry<String, Object> entry : values.entrySet()) {
                 if (!"hash".equals(entry.getKey())) {
                     if (null != entry.getValue() && entry.getValue() instanceof Long) {

@@ -160,23 +160,6 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     public boolean locate(String indexName, boolean next, Object... key) throws SqlJetException;
 
     /**
-     * Get value of field by name.
-     * 
-     * @param fieldName
-     * @return
-     * @throws SqlJetException
-     */
-    Object getValueByFieldName(String fieldName) throws SqlJetException;
-
-    /**
-     * Get values of records fields with their names.
-     * 
-     * @return
-     * @throws SqlJetException
-     */
-    Map<String, Object> getValuesWithFieldNames() throws SqlJetException;
-
-    /**
      * Insert record by values by names of fields.
      * 
      * @param values

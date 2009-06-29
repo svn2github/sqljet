@@ -37,8 +37,8 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
-    protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";    
-    
+    protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
+
     protected ISqlJetDbHandle db;
     protected ISqlJetBtree btree;
     protected int rootPage;
@@ -54,7 +54,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     private long priorNewRowid = 0;
     protected long lastNewRowId = 0;
-    
+
     /**
      * @param db
      * @param btree
@@ -91,7 +91,23 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             this.keyInfo.setEnc(db.getEncoding());
         }
 
-        this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+        try {
+            this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+        } catch (SqlJetException e) {
+            if (SqlJetErrorCode.LOCKED == e.getErrorCode()) {
+                try {
+                    btree.leave();
+                    Thread.sleep(1);
+                } catch (InterruptedException e1) {
+                    // TODO What we should to do at there? (sergey.scherbina)
+                } finally {
+                    btree.enter();
+                }
+                this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+            } else {
+                throw e;
+            }
+        }
 
         this.cachedRecord = null;
 
@@ -99,13 +115,13 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     /**
-     * @throws SqlJetException 
+     * @throws SqlJetException
      * 
      */
     public SqlJetBtreeTable(SqlJetBtreeTable btreeTable) throws SqlJetException {
         init(btreeTable.db, btreeTable.btree, btreeTable.rootPage, btreeTable.write, btreeTable.index);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -324,8 +340,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public String getString(int field) throws SqlJetException {
         if (isNull(field))
             return null;
-        return SqlJetUtility
-                .toString(getValueMem(field).valueText(getEncoding()), db.getEncoding());
+        return SqlJetUtility.toString(getValueMem(field).valueText(getEncoding()), db.getEncoding());
     }
 
     /*
@@ -378,18 +393,21 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return getValueMem(field).valueBlob();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getValues()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getValues()
      */
     public Object[] getValues() throws SqlJetException {
         final int fieldsCount = getFieldsCount();
-        final Object[] values = new Object[fieldsCount]; 
-        for(int i=0; i<fieldsCount; i++) {
+        final Object[] values = new Object[fieldsCount];
+        for (int i = 0; i < fieldsCount; i++) {
             values[i] = getValue(i);
         }
         return values;
     }
-    
+
     protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
         return db.getOptions().verifySchemaVersion(throwIfStale);
     }
@@ -398,8 +416,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         lastNewRowId = newRowId(lastNewRowId);
         return lastNewRowId;
     }
-    
-    
+
     /**
      * Get a new integer record number (a.k.a "rowid") used as the key to a
      * table. The record number is not previously used as a key in the database
@@ -520,5 +537,5 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public static String generateAutoIndexName(String tableName, int i) {
         return String.format(AUTOINDEX, tableName, i);
     }
-    
+
 }

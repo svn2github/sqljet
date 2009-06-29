@@ -87,16 +87,22 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
         }
 
         public Object call() throws Exception {
-            db = SqlJetDb.open(dbFile, write);
+            final String threadName = Thread.currentThread().getName();
             try {
-                return db.runWithLock(new ISqlJetRunnableWithLock() {
-                    public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                        table = db.getTable(REP_CACHE_TABLE);
-                        return work();
-                    }
-                });
+                Thread.currentThread().setName(workerName);
+                db = SqlJetDb.open(dbFile, write);
+                try {
+                    return db.runWithLock(new ISqlJetRunnableWithLock() {
+                        public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                            table = db.getTable(REP_CACHE_TABLE);
+                            return work();
+                        }
+                    });
+                } finally {
+                    db.close();
+                }
             } finally {
-                db.close();
+                Thread.currentThread().setName(threadName);
             }
         }
 
@@ -180,7 +186,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             final Map<String, Object> values = cursor.getValuesWithFieldNames();
             for (Map.Entry<String, Object> entry : values.entrySet()) {
                 if (!"hash".equals(entry.getKey())) {
-                    if (null != entry.getValue() && entry.getValue() instanceof Long ) {
+                    if (null != entry.getValue() && entry.getValue() instanceof Long) {
                         entry.setValue(((Long) entry.getValue()) + 1);
                     }
                 }
@@ -225,7 +231,10 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected Object work() throws SqlJetException {
-            for (final ISqlJetCursor open = table.open(); !open.eof(); /*open.next()*/) {
+            for (final ISqlJetCursor open = table.open(); !open.eof(); /*
+                                                                        * open.next
+                                                                        * ()
+                                                                        */) {
                 beforeSleep(open);
                 sleep();
                 afterSleep(open);

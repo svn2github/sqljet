@@ -49,7 +49,7 @@ public class SqlJetOptions implements ISqlJetOptions {
 
     private static final int INCREMENTAL_VACUUM = 7;
 
-    private ISqlJetBtree btree;
+    private final ISqlJetBtree btree;
 
     /**
      * Schema cookie. Changes with each schema change.
@@ -86,16 +86,12 @@ public class SqlJetOptions implements ISqlJetOptions {
      */
     private boolean incrementalVacuum = ISqlJetBtree.SQLJET_DEFAULT_AUTOVACUUM == SqlJetAutoVacuumMode.INCR;
 
-    /**
-     * @param btree
-     * 
-     * @throws SqlJetException
-     */
     public SqlJetOptions(ISqlJetBtree btree) throws SqlJetException {
         this.btree = btree;
         readMeta();
-        if (schemaCookie == 0)
+        if (schemaCookie == 0) {
             initMeta();
+        }
     }
 
     /**
@@ -147,9 +143,6 @@ public class SqlJetOptions implements ISqlJetOptions {
         encoding = readEncoding();
     }
 
-    /**
-     * @throws SqlJetException
-     */
     private SqlJetEncoding readEncoding() throws SqlJetException {
         switch (btree.getMeta(ENCODING)) {
         case 0:
@@ -166,155 +159,69 @@ public class SqlJetOptions implements ISqlJetOptions {
         }
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private boolean readIncrementalVacuum() throws SqlJetException {
         return btree.getMeta(INCREMENTAL_VACUUM) != 0;
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private int readUserCookie() throws SqlJetException {
         return btree.getMeta(USER_COOKIE);
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private boolean readAutoVacuum() throws SqlJetException {
         return btree.getMeta(AUTOVACUUM) != 0;
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private int readPageCacheSize() throws SqlJetException {
         return btree.getMeta(PAGE_CACHE_SIZE);
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private int readFileFormat() throws SqlJetException {
         final int fileFormat = btree.getMeta(FILE_FORMAT);
         checkFileFormat(fileFormat);
         return fileFormat;
     }
 
-    /**
-     * @param fileFormat
-     * @throws SqlJetException
-     */
     private void checkFileFormat(final int fileFormat) throws SqlJetException {
         if (fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
     }
 
-    /**
-     * @return
-     * @throws SqlJetException
-     */
     private int readSchemaCookie() throws SqlJetException {
         return btree.getMeta(SCHEMA_COOKIE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #getSchemaCookie()
-     */
-    public int getSchemaVersion() {
+    public int getSchemaVersion() throws SqlJetException {
         return schemaCookie;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.schema.ISqlJetOptions#setSchemaVersion(int)
-     */
-    public void setSchemaVersion(int version) {
+    public void setSchemaVersion(int version) throws SqlJetException {
         // TODO Auto-generated method stub
     }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #getFileFormat()
-     */
-    public int getFileFormat() {
+
+    public int getFileFormat() throws SqlJetException {
         return fileFormat;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #getPageCacheSize()
-     */
-    public int getCacheSize() {
+    public int getCacheSize() throws SqlJetException {
         return pageCacheSize;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #isAutovacuum()
-     */
-    public boolean isAutovacuum() {
+    public boolean isAutovacuum() throws SqlJetException {
         return autovacuum;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #getEncoding()
-     */
-    public SqlJetEncoding getEncoding() {
+    public SqlJetEncoding getEncoding() throws SqlJetException {
         return encoding;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #getUserCookie()
-     */
-    public int getUserVersion() {
+    public int getUserVersion() throws SqlJetException {
         return userCookie;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeSchemaMeta
-     * #isIncrementalVacuum()
-     */
-    public boolean isIncrementalVacuum() {
+    public boolean isIncrementalVacuum() throws SqlJetException {
         return incrementalVacuum;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
-     * verifySchemaCookie(boolean)
-     */
     public boolean verifySchemaVersion(boolean throwIfStale) throws SqlJetException {
         final boolean stale = (schemaCookie != btree.getMeta(1));
         if (stale && throwIfStale)
@@ -322,22 +229,12 @@ public class SqlJetOptions implements ISqlJetOptions {
         return !stale;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seeorg.tmatesoft.sqljet.core.internal.schema.ISqlJetSchemaMeta#
-     * changeSchemaCookie()
-     */
     public void changeSchemaVersion() throws SqlJetException {
         verifySchemaVersion(true);
         schemaCookie++;
         writeSchemaCookie(schemaCookie);
     }
 
-    /**
-     * @param btree2
-     * @throws SqlJetException
-     */
     private void initMeta() throws SqlJetException {
         btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
         try {
@@ -355,18 +252,10 @@ public class SqlJetOptions implements ISqlJetOptions {
         }
     }
 
-    /**
-     * @param schemaCookie 
-     * @throws SqlJetException
-     */
     private void writeSchemaCookie(int schemaCookie) throws SqlJetException {
         btree.updateMeta(SCHEMA_COOKIE, schemaCookie);
     }
 
-    /**
-     * @param encoding 
-     * @throws SqlJetException
-     */
     private void writeEncoding(SqlJetEncoding encoding) throws SqlJetException {
         switch (encoding) {
         case UTF8:
@@ -383,126 +272,70 @@ public class SqlJetOptions implements ISqlJetOptions {
         }
     }
 
-    /**
-     * @param incrementalVacuum 
-     * @throws SqlJetException
-     */
     private void writeIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException {
         btree.updateMeta(INCREMENTAL_VACUUM, incrementalVacuum ? 1 : 0);
     }
 
-    /**
-     * @param autovacuum 
-     * @throws SqlJetException
-     */
     private void writeAutoVacuum(boolean autovacuum) throws SqlJetException {
         btree.updateMeta(AUTOVACUUM, autovacuum ? 1 : 0);
     }
 
-    /**
-     * @param pageCacheSize 
-     * @throws SqlJetException
-     */
     private void writePageCacheSize(int pageCacheSize) throws SqlJetException {
         checkPageCacheSize();
         btree.updateMeta(PAGE_CACHE_SIZE, pageCacheSize);
     }
 
-    /**
-     * @param pageCacheSize
-     * @throws SqlJetException 
-     */
     private void checkPageCacheSize() throws SqlJetException {
-        if(pageCacheSize<SqlJetPageCache.PAGE_CACHE_SIZE_MINIMUM)
+        if (pageCacheSize < SqlJetPageCache.PAGE_CACHE_SIZE_MINIMUM)
             pageCacheSize = SqlJetPageCache.PAGE_CACHE_SIZE_DEFAULT;
     }
 
-    /**
-     * @param fileFormat 
-     * @throws SqlJetException
-     */
     private void writeFileFormat(int fileFormat) throws SqlJetException {
         checkFileFormat(fileFormat);
         btree.updateMeta(FILE_FORMAT, fileFormat);
     }
 
-    /**
-     * @param userCookie the userCookie to set
-     * 
-     * @throws SqlJetException 
-     */
     public void setUserVersion(int userCookie) throws SqlJetException {
         this.userCookie = userCookie;
         writeUserCookie(userCookie);
     }
 
-    /**
-     * @param userCookie
-     * 
-     * @throws SqlJetException 
-     */
     private void writeUserCookie(int userCookie) throws SqlJetException {
         btree.updateMeta(USER_COOKIE, userCookie);
     }
 
-    /**
-     * @throws SqlJetException
-     */
     private void checkSchema() throws SqlJetException {
-        if(readSchemaCookie()!=1)
+        if (readSchemaCookie() != 1)
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
     }
-    
-    /**
-     * @param fileFormat the fileFormat to set
-     * 
-     * @throws SqlJetException 
-     */
+
     public void setFileFormat(int fileFormat) throws SqlJetException {
         checkSchema();
         writeFileFormat(fileFormat);
         this.fileFormat = fileFormat;
     }
-    
-    /**
-     * @param pageCacheSize the pageCacheSize to set
-     * 
-     * @throws SqlJetException 
-     */
+
     public void setCacheSize(int pageCacheSize) throws SqlJetException {
         checkSchema();
         writePageCacheSize(pageCacheSize);
         this.pageCacheSize = pageCacheSize;
     }
-    
-    /**
-     * @param autovacuum the autovacuum to set
-     * @throws SqlJetException 
-     */
+
     public void setAutovacuum(boolean autovacuum) throws SqlJetException {
         checkSchema();
         writeAutoVacuum(autovacuum);
         this.autovacuum = autovacuum;
     }
-    
-    /**
-     * @param encoding the encoding to set
-     * @throws SqlJetException 
-     */
+
     public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
         checkSchema();
         writeEncoding(encoding);
         this.encoding = encoding;
     }
-    
-    /**
-     * @param incrementalVacuum the incrementalVacuum to set
-     * @throws SqlJetException 
-     */
+
     public void setIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException {
         checkSchema();
         writeIncrementalVacuum(incrementalVacuum);
         this.incrementalVacuum = incrementalVacuum;
     }
-
 }

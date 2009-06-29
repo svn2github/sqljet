@@ -32,7 +32,7 @@ public interface ISqlJetOptions {
      * 
      * @return the fileFormat
      */
-    int getFileFormat();
+    int getFileFormat() throws SqlJetException;
 
     /**
      * Set file format. It's allowed only on new empty data base.
@@ -49,7 +49,7 @@ public interface ISqlJetOptions {
      * 
      * @return the autovacuum
      */
-    boolean isAutovacuum();
+    boolean isAutovacuum() throws SqlJetException;
 
     /**
      * Set autovacuum flag. It's allowed only on new empty data base.
@@ -64,7 +64,7 @@ public interface ISqlJetOptions {
      * 
      * @return the incrementalVacuum
      */
-    boolean isIncrementalVacuum();
+    boolean isIncrementalVacuum() throws SqlJetException;
 
     /**
      * Set incremental vacuum flag. It's allowed only on new empty data base.
@@ -79,7 +79,7 @@ public interface ISqlJetOptions {
      * 
      * @return the pageCacheSize
      */
-    int getCacheSize();
+    int getCacheSize() throws SqlJetException;
 
     /**
      * Set page cache's size. It's allowed only on new empty data base.
@@ -98,7 +98,7 @@ public interface ISqlJetOptions {
      * 
      * @return the encoding
      */
-    SqlJetEncoding getEncoding();
+    SqlJetEncoding getEncoding() throws SqlJetException;
 
     /**
      * Set encoding. It's allowed only on new empty data base.
@@ -142,9 +142,9 @@ public interface ISqlJetOptions {
      * 
      * @return the schemaCookie
      */
-    int getSchemaVersion();
+    int getSchemaVersion() throws SqlJetException;
 
-    void setSchemaVersion(int version);
+    void setSchemaVersion(int version) throws SqlJetException;
 
     /**
      * Change SchemaCookie.
@@ -167,7 +167,7 @@ public interface ISqlJetOptions {
      * 
      * @return the userCookie
      */
-    int getUserVersion();
+    int getUserVersion() throws SqlJetException;
 
     /**
      * Set user's cookie.

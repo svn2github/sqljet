@@ -132,7 +132,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
      */
-    public SqlJetEncoding getEncoding() {
+    public SqlJetEncoding getEncoding() throws SqlJetException {
         return options.getEncoding();
     }
 

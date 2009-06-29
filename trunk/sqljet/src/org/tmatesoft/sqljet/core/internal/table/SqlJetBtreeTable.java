@@ -96,12 +96,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         } catch (SqlJetException e) {
             if (SqlJetErrorCode.LOCKED == e.getErrorCode()) {
                 try {
-                    btree.leave();
+                    db.getMutex().leave();
                     Thread.sleep(1);
                 } catch (InterruptedException e1) {
                     // TODO What we should to do at there? (sergey.scherbina)
                 } finally {
-                    btree.enter();
+                    db.getMutex().enter();
                 }
                 this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
             } else {

@@ -96,7 +96,7 @@ public interface ISqlJetTable {
      * @return
      * @throws SqlJetException
      */
-    long insert(Map<String, Object> values) throws SqlJetException;
+    long insertByFieldNames(Map<String, Object> values) throws SqlJetException;
 
     /**
      * Insert record by values by names of fields and .
@@ -106,5 +106,5 @@ public interface ISqlJetTable {
      * @return
      * @throws SqlJetException
      */
-    long insertAutoId(Map<String, Object> values) throws SqlJetException;
+    long insertByFieldNamesAutoId(Map<String, Object> values) throws SqlJetException;
 }

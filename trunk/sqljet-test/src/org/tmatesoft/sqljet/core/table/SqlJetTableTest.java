@@ -585,7 +585,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 values.put("name", "test1");
                 values.put("value", 1);
 
-                table.insertAutoId(values);
+                table.insertByFieldNamesAutoId(values);
                 dbCopy.commit();
 
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
@@ -649,7 +649,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final Map<String, Object> values = new HashMap<String, Object>();
                 values.put("name", "test1");
 
-                table.insertAutoId(values);
+                table.insertByFieldNamesAutoId(values);
                 dbCopy.commit();
 
                 final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");

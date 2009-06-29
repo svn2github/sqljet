@@ -198,7 +198,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
             final Object hash = values.get("hash");
             try {
-                table.lookup(table.getPrimaryKeyIndex(), hash).update(values);
+                table.lookup(table.getPrimaryKeyIndexName(), hash).update(values);
                 db.commit();
                 logger.info(String.format("[%s] commit: %s", workerName, hash));
             } catch (SqlJetException e) {

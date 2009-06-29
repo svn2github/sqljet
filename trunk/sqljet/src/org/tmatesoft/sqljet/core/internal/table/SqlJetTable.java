@@ -51,7 +51,7 @@ public class SqlJetTable implements ISqlJetTable {
         return dataTable.isAutoincrement();
     }
 
-    public String getPrimaryKeyIndex() {
+    public String getPrimaryKeyIndexName() {
         return dataTable.getPrimaryKeyIndex();
     }
     

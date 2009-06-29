@@ -138,7 +138,7 @@ public class RepCacheDao {
         return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndex(), hash);
+                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
                 if (!lookup.eof())
                     return new RepCache(lookup);
 
@@ -152,7 +152,7 @@ public class RepCacheDao {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndex(), hash);
+                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
                 if (!lookup.eof()) {
                     db.beginTransaction();
                     try {
@@ -172,7 +172,7 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndex(), repCache.getHash());
+                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
                 if (!lookup.eof())
                     return false;
                 db.beginTransaction();
@@ -192,7 +192,7 @@ public class RepCacheDao {
         return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndex(), repCache.getHash());
+                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
                 if (lookup.eof())
                     return false;
                 db.beginTransaction();

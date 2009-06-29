@@ -44,7 +44,7 @@ public interface ISqlJetTable {
     /**
      * @return the primaryKeyIndex
      */
-    String getPrimaryKeyIndex();
+    String getPrimaryKeyIndexName();
     
     /**
      * Get table's schema definition.

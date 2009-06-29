@@ -257,7 +257,7 @@ public class SqlJetFile implements ISqlJetFile {
             final ByteBuffer dst = SqlJetUtility.slice(buffer, 0, amount);
             dst.clear();
             TIMER_START();
-            final int read = file.getChannel().read(dst,offset);
+            final int read = file.getChannel().read(dst, offset);
             TIMER_END();
             OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
             dst.rewind();
@@ -455,6 +455,15 @@ public class SqlJetFile implements ISqlJetFile {
 
                 if (lockType == SqlJetLockType.SHARED
                         || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
+
+                    if (lockType != SqlJetLockType.SHARED) {
+                        final FileLock sharedLock = locks.get(SqlJetLockType.SHARED);
+                        if (null != sharedLock) {
+                            sharedLock.release();
+                            locks.remove(SqlJetLockType.SHARED);
+                        }
+                    }
+
                     final FileLock pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
                     if (null == pendingLock)
                         return false;
@@ -503,23 +512,18 @@ public class SqlJetFile implements ISqlJetFile {
                     switch (lockType) {
                     case RESERVED:
                         final FileLock reservedLock = channel.tryLock(RESERVED_BYTE, 1, false);
-                        locks.put(SqlJetLockType.RESERVED, reservedLock);
                         if (null == reservedLock)
                             return false;
+                        locks.put(SqlJetLockType.RESERVED, reservedLock);
                         break;
                     case EXCLUSIVE:
-                        final FileLock sharedLock = locks.get(SqlJetLockType.SHARED);
-                        if (null != sharedLock) {
-                            sharedLock.release();
-                            locks.remove(SqlJetLockType.SHARED);
-                        }
                         final FileLock exclusiveLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
-                        locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
                         if (null == exclusiveLock) {
                             this.lockType = SqlJetLockType.PENDING;
                             lockInfo.lockType = SqlJetLockType.PENDING;
                             return false;
                         }
+                        locks.put(SqlJetLockType.EXCLUSIVE, exclusiveLock);
                         break;
                     default:
                         assert (false);
@@ -724,7 +728,8 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
-    final static Set<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = SqlJetUtility.noneOf(SqlJetDeviceCharacteristics.class);
+    final static Set<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = SqlJetUtility
+            .noneOf(SqlJetDeviceCharacteristics.class);
 
     public Set<SqlJetDeviceCharacteristics> deviceCharacteristics() {
         return noDeviceCharacteristircs;

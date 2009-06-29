@@ -25,6 +25,8 @@ import java.util.Map;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * Implementation of cursor which allow access to all table's rows.
@@ -35,8 +37,8 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
  */
 public class SqlJetTableDataCursor extends SqlJetCursor {
 
-    public SqlJetTableDataCursor(ISqlJetBtreeDataTable table) throws SqlJetException {
-        super(table);
+    public SqlJetTableDataCursor(ISqlJetBtreeDataTable table, SqlJetDb db) throws SqlJetException {
+        super(table, db);
         super.first();
     }
 
@@ -45,24 +47,34 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public long getRowId() throws SqlJetException {
-        final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        if (table.eof()) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE,
-                    "Table is empty or the current record doesn't point to a data row");
-        }
-        return table.getRowId();
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                if (table.eof()) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Table is empty or the current record doesn't point to a data row");
+                }
+                return table.getRowId();
+            }
+        });
     }
 
-    public boolean goTo(long rowId) throws SqlJetException {
-        final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        return table.goToRow(rowId);
+    public boolean goTo(final long rowId) throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                return table.goToRow(rowId);
+            }
+        });
     }
 
     private int getFieldSafe(String fieldName) throws SqlJetException {
         final ISqlJetBtreeDataTable table = getBtreeDataTable();
         if (table.eof()) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
-                    "Table is empty or the current record doens't point to a data row");
+                    "Table is empty or the current record doesn't point to a data row");
         }
         if (fieldName == null) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Field name is null");
@@ -74,58 +86,122 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         return field;
     }
 
-    public SqlJetValueType getFieldType(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().getFieldType(getFieldSafe(fieldName));
+    public SqlJetValueType getFieldType(final String fieldName) throws SqlJetException {
+        return (SqlJetValueType) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().getFieldType(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public boolean isNull(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().isNull(getFieldSafe(fieldName));
+    public boolean isNull(final String fieldName) throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().isNull(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public String getString(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().getString(getFieldSafe(fieldName));
+    public String getString(final String fieldName) throws SqlJetException {
+        return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().getString(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public long getInteger(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().getInteger(getFieldSafe(fieldName));
+    public long getInteger(final String fieldName) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().getInteger(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public double getFloat(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().getFloat(getFieldSafe(fieldName));
+    public double getFloat(final String fieldName) throws SqlJetException {
+        return (Double) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().getFloat(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public byte[] getBlobAsArray(String fieldName) throws SqlJetException {
-        ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
-        return buffer != null ? buffer.array() : null;
+    public byte[] getBlobAsArray(final String fieldName) throws SqlJetException {
+        return (byte[]) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
+                return buffer != null ? buffer.array() : null;
+            }
+        });
     }
 
-    public InputStream getBlobAsStream(String fieldName) throws SqlJetException {
-        ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
-        return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+    public InputStream getBlobAsStream(final String fieldName) throws SqlJetException {
+        return (InputStream) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
+                return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+            }
+        });
     }
 
-    public Object getValue(String fieldName) throws SqlJetException {
-        return getBtreeDataTable().getValue(getFieldSafe(fieldName));
+    public Object getValue(final String fieldName) throws SqlJetException {
+        return db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return getBtreeDataTable().getValue(getFieldSafe(fieldName));
+            }
+        });
     }
 
-    public void update(Object... values) throws SqlJetException {
-        final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        if (table.eof())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE,
-                    "Table is empty or current record doens't point to data row");
-        table.update(values);
+    public void update(final Object... values) throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                if (table.eof()) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Table is empty or current record doesn't't point to data row");
+                }
+                table.update(values);
+                return null;
+            }
+        });
     }
 
-    public void updateByFieldNames(Map<String, Object> values) throws SqlJetException {
-        final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        table.update(values);
+    public void updateByFieldNames(final Map<String, Object> values) throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                if (table.eof()) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Table is empty or current record doesn't point to data row");
+                }
+                table.update(values);
+                return null;
+            }
+        });
     }
 
     public void delete() throws SqlJetException {
-        final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        if (table.eof())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE,
-                    "Table is empty or current record doens't point to data row");
-        table.delete();
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                if (table.eof()) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Table is empty or current record doesn't point to data row");
+                }
+                table.delete();
+                return null;
+            }
+        });
     }
 }

@@ -24,6 +24,8 @@ import java.nio.ByteBuffer;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * Base implementation of {@link ISqlJetCursor}.
@@ -34,75 +36,153 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
  */
 public abstract class SqlJetCursor implements ISqlJetCursor {
 
-    protected ISqlJetBtreeTable btreeTable;
+    protected final ISqlJetBtreeTable btreeTable;
+    protected final SqlJetDb db;
 
-    SqlJetCursor(ISqlJetBtreeTable table) {
+    SqlJetCursor(ISqlJetBtreeTable table, SqlJetDb db) {
         this.btreeTable = table;
+        this.db = db;
     }
 
     public void close() throws SqlJetException {
-        btreeTable.close();
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                btreeTable.close();
+                return null;
+            }
+        });
     }
 
     public boolean eof() throws SqlJetException {
-        return btreeTable.eof();
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.eof();
+            }
+        });
     }
 
     public boolean first() throws SqlJetException {
-        return btreeTable.first();
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.first();
+            }
+        });
     }
 
     public boolean last() throws SqlJetException {
-        return btreeTable.last();
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.last();
+            }
+        });
     }
 
     public boolean next() throws SqlJetException {
-        return btreeTable.next();
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.next();
+            }
+        });
     }
 
     public boolean previous() throws SqlJetException {
-        return btreeTable.previous();
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.previous();
+            }
+        });
     }
 
     public int getFieldsCount() throws SqlJetException {
-        return btreeTable.getFieldsCount();
+        return (Integer) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.getFieldsCount();
+            }
+        });
     }
 
-    public SqlJetValueType getFieldType(int field) throws SqlJetException {
-        return btreeTable.getFieldType(field);
+    public SqlJetValueType getFieldType(final int field) throws SqlJetException {
+        return (SqlJetValueType) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.getFieldType(field);
+            }
+        });
     }
 
-    public boolean isNull(int field) throws SqlJetException {
-        return btreeTable.isNull(field);
+    public boolean isNull(final int field) throws SqlJetException {
+        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.isNull(field);
+            }
+        });
     }
 
-    public String getString(int field) throws SqlJetException {
-        return btreeTable.getString(field);
+    public String getString(final int field) throws SqlJetException {
+        return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.getString(field);
+            }
+        });
     }
 
-    public long getInteger(int field) throws SqlJetException {
-        return btreeTable.getInteger(field);
+    public long getInteger(final int field) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.getInteger(field);
+            }
+        });
     }
 
-    public double getFloat(int field) throws SqlJetException {
-        return btreeTable.getFloat(field);
+    public double getFloat(final int field) throws SqlJetException {
+        return (Double) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btreeTable.getFloat(field);
+            }
+        });
     }
 
-    public byte[] getBlobAsArray(int field) throws SqlJetException {
-        ByteBuffer buffer = btreeTable.getBlob(field);
-        return buffer != null ? buffer.array() : null;
+    public byte[] getBlobAsArray(final int field) throws SqlJetException {
+        return (byte[]) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                ByteBuffer buffer = btreeTable.getBlob(field);
+                return buffer != null ? buffer.array() : null;
+            }
+        });
     }
 
-    public InputStream getBlobAsStream(int field) throws SqlJetException {
-        ByteBuffer buffer = btreeTable.getBlob(field);
-        return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+    public InputStream getBlobAsStream(final int field) throws SqlJetException {
+        return (InputStream) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                ByteBuffer buffer = btreeTable.getBlob(field);
+                return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+            }
+        });
     }
 
-    public Object getValue(int field) throws SqlJetException {
-        Object value = btreeTable.getValue(field);
-        if (value instanceof ByteBuffer) {
-            return new ByteArrayInputStream(((ByteBuffer) value).array());
-        }
-        return value;
+    public Object getValue(final int field) throws SqlJetException {
+        return db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                Object value = btreeTable.getValue(field);
+                if (value instanceof ByteBuffer) {
+                    return new ByteArrayInputStream(((ByteBuffer) value).array());
+                }
+                return value;
+            }
+        });
     }
 }

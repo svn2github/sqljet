@@ -25,6 +25,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * Implementation of {@link ISqlJetTable}.
@@ -35,11 +36,13 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
  */
 public class SqlJetTable implements ISqlJetTable {
 
+    private final SqlJetDb db;
     private ISqlJetBtreeDataTable dataTable;
 
-    public SqlJetTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
+    public SqlJetTable(SqlJetDb db, ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         if (!schema.getTableNames().contains(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
+        this.db = db;
         this.dataTable = new SqlJetBtreeDataTable(schema, tableName, write);
     }
 
@@ -60,13 +63,13 @@ public class SqlJetTable implements ISqlJetTable {
     };
 
     public ISqlJetCursor open() throws SqlJetException {
-        return new SqlJetTableDataCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable));
+        return new SqlJetTableDataCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db);
     }
 
     public ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException {
         if (!dataTable.getIndexDefinitions().containsKey(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), indexName, key);
+        return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db, indexName, key);
     }
 
     public long insert(Object... values) throws SqlJetException {
@@ -77,39 +80,11 @@ public class SqlJetTable implements ISqlJetTable {
         return dataTable.insertAutoId(values);
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insert(java.util.Map)
-     */
     public long insert(Map<String, Object> values) throws SqlJetException {
         return dataTable.insert(values);
     }
     
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#insertAutoId(java.util.Map)
-     */
     public long insertAutoId(Map<String, Object> values) throws SqlJetException {
         return dataTable.insertAutoId(values);
-    }
-        
-    // Deprecated
-
-    @Deprecated
-    public long getRowId() throws SqlJetException {
-        return dataTable.getRowId();
-    }
-
-    @Deprecated
-    public boolean goToRow(long rowId) throws SqlJetException {
-        return dataTable.goToRow(rowId);
-    }
-
-    @Deprecated
-    public void update(long rowId, Object... values) throws SqlJetException {
-        dataTable.update(rowId, values);
-    }
-
-    @Deprecated
-    public void delete(long rowId) throws SqlJetException {
-        dataTable.delete(rowId);
     }
 }

@@ -180,7 +180,7 @@ public class SqlJetDb {
     public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTable(schema, tableName, write);
+                return new SqlJetTable(db, schema, tableName, write);
             }
         });
     }

@@ -23,7 +23,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
-import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -42,169 +42,89 @@ public class RepCacheDao {
     private SqlJetTable table;
     private ISqlJetCursor cursor;
 
-    /**
-     * @throws SqlJetException
-     * 
-     */
     public RepCacheDao(File file, boolean write) throws SqlJetException {
         db = SqlJetDb.open(file, write);
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                table = db.getTable(REP_CACHE_TABLE);
-                cursor = table.open();
-                return null;
-            }
-        });
+        table = db.getTable(REP_CACHE_TABLE);
+        cursor = table.open();
     }
 
     public void close() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                cursor.close();
-                db.close();
-                return null;
-            }
-        });
-    }
-
-    public void beginTransaction() throws SqlJetException {
-        db.beginTransaction();
-    }
-
-    public void commit() throws SqlJetException {
-        db.commit();
-    }
-
-    public void rollback() throws SqlJetException {
-        db.rollback();
+        cursor.close();
+        db.close();
     }
 
     public boolean eof() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return cursor.eof();
-            }
-        });
+        return cursor.eof();
     }
 
     public boolean first() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return cursor.first();
-            }
-        });
+        return cursor.first();
     }
 
     public boolean last() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return cursor.last();
-            }
-        });
+        return cursor.last();
     }
 
     public boolean next() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return cursor.next();
-            }
-        });
+        return cursor.next();
     }
 
     public boolean previous() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return cursor.previous();
-            }
-        });
+        return cursor.previous();
     }
 
     public RepCache getRepCache() throws SqlJetException {
-        return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new RepCache(cursor);
-            }
-        });
+        return new RepCache(cursor);
     }
 
     public RepCache getByHash(final String hash) throws SqlJetException {
-        return (RepCache) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
-                if (!lookup.eof())
-                    return new RepCache(lookup);
-
-                return null;
-            }
-        });
+        final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+        return lookup.eof() ? null : new RepCache(lookup);
     }
 
     public boolean deleteByHash(final String hash) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+        final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+        if (!lookup.eof()) {
+            db.runWriteTransaction(new ISqlJetTransaction() {
 
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
-                if (!lookup.eof()) {
-                    db.beginTransaction();
-                    try {
-                        lookup.delete();
-                        db.commit();
-                    } catch (SqlJetException e) {
-                        db.rollback();
-                    }
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    lookup.delete();
+                    return null;
                 }
-
-                return true;
-            }
-        });
+            });
+        }
+        return true;
     }
 
     public boolean insert(final RepCache repCache) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+        final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
+        if (!lookup.eof()) {
+            return false;
+        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
 
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
-                if (!lookup.eof())
-                    return false;
-                db.beginTransaction();
-                try {
-                    table.insert(repCache.getHash(), repCache.getRevision(),
-                            repCache.getOffset(), repCache.getSize(), repCache.getExpandedSize());
-                    db.commit();
-                } catch (SqlJetException e) {
-                    db.rollback();
-                }
-                return true;
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(repCache.getHash(), repCache.getRevision(), repCache.getOffset(), repCache.getSize(),
+                        repCache.getExpandedSize());
+                return null;
             }
         });
+        return true;
     }
 
     public boolean update(final RepCache repCache) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
+        final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
+        if (lookup.eof()) {
+            return false;
+        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
 
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), repCache.getHash());
-                if (lookup.eof())
-                    return false;
-                db.beginTransaction();
-                try {
-                    lookup.update(repCache.getHash(), repCache.getRevision(), repCache.getOffset(), repCache.getSize(),
-                            repCache.getExpandedSize());
-                    db.commit();
-                } catch (SqlJetException e) {
-                    db.rollback();
-                }
-                return true;
+            public Object run(SqlJetDb db) throws SqlJetException {
+                lookup.update(repCache.getHash(), repCache.getRevision(), repCache.getOffset(), repCache.getSize(),
+                        repCache.getExpandedSize());
+                return null;
             }
         });
+        return true;
     }
 }

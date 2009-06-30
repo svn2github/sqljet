@@ -549,6 +549,31 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             repCacheDb.commit();
         } catch (SqlJetException e) {
             repCacheDb.rollback();
+            throw e;
+        }
+    }
+
+    @Test
+    public void repCacheInsertShort() throws SqlJetException {
+        final SqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
+        final Random random = new Random();
+        for (int i = 0; i < REPEATS_COUNT; i++) {
+            for (int y = 0; y < REPEATS_COUNT; y++) {
+                final String hash = String.valueOf(Math.abs(random.nextLong()));
+                ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+                if (!lookup.first()) {
+                    logger.info(i + " " + hash);
+                    repCacheDb.beginTransaction();
+                    try {
+                        table.insert(hash, i, i, i, i);
+                        repCacheDb.commit();
+                    } catch (SqlJetException e) {
+                        repCacheDb.rollback();
+                        throw e;
+                    }
+                    break;
+                }
+            }
         }
     }
 

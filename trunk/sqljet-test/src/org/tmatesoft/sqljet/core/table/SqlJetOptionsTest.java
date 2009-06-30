@@ -51,58 +51,28 @@ public class SqlJetOptionsTest extends TestCase {
     }
 
     public void testDefaultAutovacuum() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetOptions options = db.getOptions();
-                assertFalse(options.isAutovacuum());
-                assertFalse(options.isIncrementalVacuum());
-                return null;
-            }
-        });
+        ISqlJetOptions options = db.getOptions();
+        assertFalse(options.isAutovacuum());
+        assertFalse(options.isIncrementalVacuum());
     }
 
     public void testDefaultCacheSize() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetOptions options = db.getOptions();
-                assertEquals(2000, options.getCacheSize());
-                return null;
-            }
-        });
+        ISqlJetOptions options = db.getOptions();
+        assertEquals(2000, options.getCacheSize());
     }
 
     public void testDefaultEncoding() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetOptions options = db.getOptions();
-                assertEquals(SqlJetEncoding.UTF8, options.getEncoding());
-                return null;
-            }
-        });
+        ISqlJetOptions options = db.getOptions();
+        assertEquals(SqlJetEncoding.UTF8, options.getEncoding());
     }
 
     public void testDefaultSchemaVersion() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetOptions options = db.getOptions();
-                assertEquals(6, options.getSchemaVersion());
-                return null;
-            }
-        });
+        ISqlJetOptions options = db.getOptions();
+        assertEquals(6, options.getSchemaVersion());
     }
 
     public void testDefaultUserVersion() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetOptions options = db.getOptions();
-                assertEquals(0, options.getUserVersion());
-                return null;
-            }
-        });
+        ISqlJetOptions options = db.getOptions();
+        assertEquals(0, options.getUserVersion());
     }
 }

@@ -32,16 +32,9 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
-import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
@@ -135,11 +128,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexLookupNext() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
@@ -168,20 +156,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(eof);
 
                 lookup.close();
-
-                return null;
-
-            }
-        });
     }
 
     @Test
     public void indexDelete() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -195,20 +173,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 dbCopy.commit();
                 lookup.close();
-
-                return null;
-
-            }
-        });
     }
 
     @Test
     public void readBlob() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
                 final ISqlJetCursor cursor = table.open();
 
@@ -236,20 +204,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(cursor.eof());
 
                 cursor.close();
-
-                return null;
-
-            }
-        });
     }
 
     @Test
     public void tableDef() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetTableDef tableDef = table.getDefinition();
@@ -265,21 +223,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 Assert.assertNotNull(columns);
                 Assert.assertEquals(4, columns.size());
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test(expected = SqlJetException.class)
     public void insertNotNull() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE2);
@@ -289,21 +236,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 dbCopy.rollback();
 
                 Assert.assertTrue(false);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test
     public void insertFieldCountOK() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE2);
@@ -311,21 +247,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 table.insertAutoId("test", "test");
 
                 dbCopy.commit();
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test(expected = SqlJetException.class)
     public void insertFieldCountFail() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE2);
@@ -335,20 +260,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 dbCopy.rollback();
 
                 Assert.assertTrue(false);
-
-                return null;
-
-            }
-        });
-
     }
 
     private void testEncoding(final SqlJetDb db, final String tableName, final String testString)
             throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 db.beginTransaction();
 
                 final SqlJetTable table = db.getTable(tableName);
@@ -362,11 +277,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 cursor.goTo(newRowId);
                 final String stringField = cursor.getString(NAME_FIELD);
                 Assert.assertEquals(testString, stringField);
-
-                return null;
-
-            }
-        });
     }
 
     @Test
@@ -434,11 +344,6 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexAutoupdate1() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -452,21 +357,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final String nameField = lookup.getString(1);
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test(expected = SqlJetException.class)
     public void indexAutoupdate2() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE2);
@@ -477,19 +371,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 dbCopy.commit();
 
                 Assert.assertFalse(true);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test
     public void first() throws SqlJetException {
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
@@ -527,17 +412,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.eof());
                 Assert.assertFalse(lookup.next());
                 Assert.assertTrue(lookup.eof());
-
-                return null;
-            }
-        });
     }
 
     @Test
     public void last() throws SqlJetException {
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
@@ -555,17 +433,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.previous());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertFalse(lookup.previous());
-
-                return null;
-            }
-        });
     }
 
     @Test
     public void prev() throws SqlJetException {
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 final SqlJetTable table = dbCopy.getTable(TABLE);
 
                 final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
@@ -590,19 +461,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 Assert.assertTrue(lookup.previous());
                 Assert.assertFalse(lookup.eof());
                 Assert.assertFalse(lookup.previous());
-
-                return null;
-            }
-        });
     }
 
     @Test
     public void insertByNames() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -620,21 +482,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test
     public void updateByNames() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -653,21 +504,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test
     public void insertByNamesNull() throws SqlJetException {
-
-        dbCopy.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 dbCopy.beginTransaction();
 
                 final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -687,20 +527,12 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final Object valueField = lookup.getValue("value");
                 Assert.assertNull(valueField);
-
-                return null;
-
-            }
-        });
-
     }
 
     @Test
     public void repCacheInsertLong() throws SqlJetException {
-        repCacheDb.runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final SqlJetTable table = db.getTable(REP_CACHE_TABLE);
-                db.beginTransaction();
+                final SqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
+                repCacheDb.beginTransaction();
                 try {
                     final Random random = new Random();
                     for (int i = 0; i < REPEATS_COUNT; i++) {                        
@@ -714,13 +546,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                             }
                         }
                     }
-                    db.commit();
+                    repCacheDb.commit();
                 } catch (SqlJetException e) {
-                    db.rollback();
+                    repCacheDb.rollback();
                 }
-                return null;
-            }
-        });
     }
 
 }

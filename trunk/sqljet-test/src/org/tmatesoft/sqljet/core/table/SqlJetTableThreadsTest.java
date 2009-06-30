@@ -93,12 +93,8 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
                 Thread.currentThread().setName(workerName);
                 db = SqlJetDb.open(dbFile, write);
                 try {
-                    return db.runWithLock(new ISqlJetRunnableWithLock() {
-                        public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                            table = db.getTable(REP_CACHE_TABLE);
-                            return work();
-                        }
-                    });
+                    table = db.getTable(REP_CACHE_TABLE);
+                    return work();
                 } finally {
                     db.close();
                 }
@@ -145,7 +141,6 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
         abstract protected void afterSleep(ISqlJetCursor cursor) throws SqlJetException;
 
     }
-
 
     public static Map<String, Object> getValuesWithFieldNames(ISqlJetCursor cursor) throws SqlJetException {
         final Map<String, Object> map = new LinkedHashMap<String, Object>();
@@ -207,8 +202,8 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             final String hash = cursor.getString(0);
             try {
                 // Increment fifth field
-                table.lookup(table.getPrimaryKeyIndexName(), hash).update(
-                        hash, cursor.getValue(1), cursor.getValue(2), cursor.getValue(3), cursor.getInteger(4) + 1);
+                table.lookup(table.getPrimaryKeyIndexName(), hash).update(hash, cursor.getValue(1), cursor.getValue(2),
+                        cursor.getValue(3), cursor.getInteger(4) + 1);
                 db.commit();
                 logger.info(String.format("[%s] commit: %s", workerName, hash));
             } catch (SqlJetException e) {

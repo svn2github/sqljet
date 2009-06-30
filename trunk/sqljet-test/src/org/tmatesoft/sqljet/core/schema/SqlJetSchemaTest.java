@@ -32,6 +32,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -82,222 +83,211 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     @Test
     public void createTableTest() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insertAutoId("test");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insertAutoId("test");
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)
     public void createTableTest1() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            schema.createTable("create table test1( id integer primary key, name text )");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                schema.createTable("create table test1( id integer primary key, name text )");
+                return null;
+            }
+        });
         Assert.assertTrue(false);
     }
 
     @Test
     public void createTableTestUnique() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text unique )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insertAutoId("test");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text unique )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insertAutoId("test");
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)
     public void createTableTestUniqueFail() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text unique )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insert("test");
-            openTable.insert("test");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text unique )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insert("test");
+                openTable.insert("test");
+                return null;
+            }
+        });
         Assert.assertFalse(false);
     }
 
     @Test
     public void createIndexTest() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insertAutoId("test");
-            schema.createIndex("CREATE INDEX test_name_index ON test(name);");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insertAutoId("test");
+                schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)
     public void createIndexFailTable() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            schema.createIndex("CREATE INDEX test_name_index ON test(name);");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                return null;
+            }
+        });
         Assert.assertFalse(false);
     }
 
     @Test(expected = SqlJetException.class)
     public void createIndexFailColumn() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insert("test");
-            schema.createIndex("CREATE INDEX test_name_index ON test(test);");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insert("test");
+                schema.createIndex("CREATE INDEX test_name_index ON test(test);");
+                return null;
+            }
+        });
         Assert.assertFalse(false);
     }
 
     @Test(expected = SqlJetException.class)
     public void createIndexFailName() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            final SqlJetTable openTable = db.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insert("test");
-            schema.createIndex("CREATE INDEX test_name_index ON test(name);");
-            schema.createIndex("CREATE INDEX test_name_index ON test(name);");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                final SqlJetTable openTable = db.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insert("test");
+                schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                schema.createIndex("CREATE INDEX test_name_index ON test(name);");
+                return null;
+            }
+        });
         Assert.assertFalse(false);
     }
 
     @Test
     public void createIndexRepCache() throws SqlJetException, FileNotFoundException, IOException {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
-        repCache.beginTransaction();
-        try {
-            final ISqlJetSchema schema = repCache.getSchema();
-            schema.createIndex("CREATE INDEX rep_cache_test_index ON " + REP_CACHE_TABLE
-                    + "(hash, revision, offset, size, expanded_size);");
-            final SqlJetTable openTable = repCache.getTable(REP_CACHE_TABLE);
-            openTable.insert("test", 1, 2, 3, 4);
-            repCache.commit();
-        } catch (SqlJetException e) {
-            repCache.rollback();
-            throw e;
-        }
+        repCache.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = repCache.getSchema();
+                schema.createIndex("CREATE INDEX rep_cache_test_index ON " + REP_CACHE_TABLE
+                        + "(hash, revision, offset, size, expanded_size);");
+                final SqlJetTable openTable = repCache.getTable(REP_CACHE_TABLE);
+                openTable.insert("test", 1, 2, 3, 4);
+                return null;
+            }
+        });
     }
 
     @Test
     public void createTableRepCache() throws SqlJetException, FileNotFoundException, IOException {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
-        repCache.beginTransaction();
-        try {
-            final ISqlJetSchema schema = repCache.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            final SqlJetTable openTable = repCache.getTable(createTable.getName());
-            logger.info(createTable.toString());
-            openTable.insertAutoId("test");
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            openTable.insertAutoId("test1");
-            repCache.commit();
-        } catch (SqlJetException e) {
-            repCache.rollback();
-            throw e;
-        }
+        repCache.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = repCache.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                final SqlJetTable openTable = repCache.getTable(createTable.getName());
+                logger.info(createTable.toString());
+                openTable.insertAutoId("test");
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                openTable.insertAutoId("test1");
+                return null;
+            }
+        });
     }
 
     @Test
     public void dropTableRepCache() throws SqlJetException, FileNotFoundException, IOException {
         final SqlJetDb repCache = SqlJetDb.open(copyFile(new File(REP_CACHE_DB), DELETE_COPY), true);
-        repCache.beginTransaction();
-        try {
-            final ISqlJetSchema schema = repCache.getSchema();
-            schema.dropTable(REP_CACHE_TABLE);
-            repCache.commit();
-            final ISqlJetTableDef openTable = schema.getTable(REP_CACHE_TABLE);
-            Assert.assertNull(openTable);
-        } catch (SqlJetException e) {
-            repCache.rollback();
-            throw e;
-        }
+        repCache.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = repCache.getSchema();
+                schema.dropTable(REP_CACHE_TABLE);
+                return null;
+            }
+        });
+        final ISqlJetTableDef openTable = repCache.getSchema().getTable(REP_CACHE_TABLE);
+        Assert.assertNull(openTable);
     }
 
     @Test
     public void dropTableTest1() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            schema.dropTable("test1");
-            db.commit();
-            final ISqlJetTableDef openTable = schema.getTable("test1");
-            Assert.assertNull(openTable);
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                schema.dropTable("test1");
+                return null;
+            }
+        });
+        final ISqlJetTableDef openTable = db.getSchema().getTable("test1");
+        Assert.assertNull(openTable);
     }
 
     @Test
     public void dropIndex() throws SqlJetException {
-        db.beginTransaction();
-        try {
-            final ISqlJetSchema schema = db.getSchema();
-            schema.dropIndex("test1_name_index");
-            schema.dropIndex("test1_value_index");
-            db.commit();
-        } catch (SqlJetException e) {
-            db.rollback();
-            throw e;
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = db.getSchema();
+                schema.dropIndex("test1_name_index");
+                schema.dropIndex("test1_value_index");
+                return null;
+            }
+        });
+        Assert.assertNull(db.getSchema().getIndex("test1_name_index"));
+        Assert.assertNull(db.getSchema().getIndex("test1_value_index"));
     }
 
     @Test

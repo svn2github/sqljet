@@ -230,7 +230,7 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
             RandomAccessFile i2 = new RandomAccessFile(f2, "r");
             try {
                 final MappedByteBuffer m1 = i1.getChannel().map(MapMode.READ_ONLY, 0, i1.length());
-                final MappedByteBuffer m2 = i2.getChannel().map(MapMode.READ_ONLY, 0, i1.length());
+                final MappedByteBuffer m2 = i2.getChannel().map(MapMode.READ_ONLY, 0, i2.length());
                 while (m1.hasRemaining() && m2.hasRemaining()) {
                     final byte b1 = m1.get();
                     final byte b2 = m2.get();

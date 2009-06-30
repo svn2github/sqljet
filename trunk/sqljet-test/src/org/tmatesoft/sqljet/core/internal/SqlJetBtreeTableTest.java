@@ -88,7 +88,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         btreeCopy.open(repCacheDbCopy, db, SqlJetUtility.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
                 SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
 
-        db.setOptions(new SqlJetOptions(btreeCopy));
+        db.setOptions(new SqlJetOptions(btreeCopy, db));
 
     }
 
@@ -589,7 +589,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
         final ISqlJetBtreeDataTable data = new SqlJetBtreeDataTable(schema, REP_CACHE_TABLE, true);
         data.first();
-        final SqlJetOptions meta = new SqlJetOptions(btreeCopy);
+        final SqlJetOptions meta = new SqlJetOptions(btreeCopy, db);
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         meta.changeSchemaVersion();
         btreeCopy.commit();

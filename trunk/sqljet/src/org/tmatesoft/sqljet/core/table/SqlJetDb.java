@@ -86,7 +86,7 @@ public class SqlJetDb {
                     if (null != autoVacuumMode) {
                         btree.setAutoVacuum(autoVacuumMode);
                     }
-                    dbHandle.setOptions(new SqlJetOptions(btree));
+                    dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
                     btree.leave();

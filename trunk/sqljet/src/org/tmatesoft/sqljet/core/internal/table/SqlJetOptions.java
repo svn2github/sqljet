@@ -21,6 +21,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
@@ -50,6 +51,7 @@ public class SqlJetOptions implements ISqlJetOptions {
     private static final int INCREMENTAL_VACUUM = 7;
 
     private final ISqlJetBtree btree;
+    private final ISqlJetDbHandle dbHandle;
 
     /**
      * Schema cookie. Changes with each schema change.
@@ -86,8 +88,9 @@ public class SqlJetOptions implements ISqlJetOptions {
      */
     private boolean incrementalVacuum = ISqlJetBtree.SQLJET_DEFAULT_AUTOVACUUM == SqlJetAutoVacuumMode.INCR;
 
-    public SqlJetOptions(ISqlJetBtree btree) throws SqlJetException {
+    public SqlJetOptions(ISqlJetBtree btree, ISqlJetDbHandle dbHandle) throws SqlJetException {
         this.btree = btree;
+        this.dbHandle = dbHandle;
         readMeta();
         if (schemaCookie == 0) {
             initMeta();
@@ -194,10 +197,6 @@ public class SqlJetOptions implements ISqlJetOptions {
         return schemaCookie;
     }
 
-    public void setSchemaVersion(int version) throws SqlJetException {
-        // TODO Auto-generated method stub
-    }
-
     public int getFileFormat() throws SqlJetException {
         return fileFormat;
     }
@@ -222,17 +221,38 @@ public class SqlJetOptions implements ISqlJetOptions {
         return incrementalVacuum;
     }
 
+    public void setSchemaVersion(int version) throws SqlJetException {
+        dbHandle.getMutex().enter();
+        try {
+            verifySchemaVersion(true);
+            writeSchemaCookie(this.schemaCookie = version);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
+    }
+
     public boolean verifySchemaVersion(boolean throwIfStale) throws SqlJetException {
-        final boolean stale = (schemaCookie != btree.getMeta(1));
-        if (stale && throwIfStale)
-            throw new SqlJetException(SqlJetErrorCode.SCHEMA);
-        return !stale;
+        dbHandle.getMutex().enter();
+        try {
+            final boolean stale = (schemaCookie != btree.getMeta(1));
+            if (stale && throwIfStale) {
+                throw new SqlJetException(SqlJetErrorCode.SCHEMA);
+            }
+            return !stale;
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     public void changeSchemaVersion() throws SqlJetException {
-        verifySchemaVersion(true);
-        schemaCookie++;
-        writeSchemaCookie(schemaCookie);
+        dbHandle.getMutex().enter();
+        try {
+            verifySchemaVersion(true);
+            schemaCookie++;
+            writeSchemaCookie(schemaCookie);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     private void initMeta() throws SqlJetException {
@@ -296,8 +316,12 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     public void setUserVersion(int userCookie) throws SqlJetException {
-        this.userCookie = userCookie;
-        writeUserCookie(userCookie);
+        dbHandle.getMutex().enter();
+        try {
+            writeUserCookie(this.userCookie = userCookie);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     private void writeUserCookie(int userCookie) throws SqlJetException {
@@ -305,37 +329,58 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     private void checkSchema() throws SqlJetException {
-        if (readSchemaCookie() != 1)
+        if (readSchemaCookie() != 1) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        }
     }
 
     public void setFileFormat(int fileFormat) throws SqlJetException {
-        checkSchema();
-        writeFileFormat(fileFormat);
-        this.fileFormat = fileFormat;
+        dbHandle.getMutex().enter();
+        try {
+            checkSchema();
+            writeFileFormat(this.fileFormat = fileFormat);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     public void setCacheSize(int pageCacheSize) throws SqlJetException {
-        checkSchema();
-        writePageCacheSize(pageCacheSize);
-        this.pageCacheSize = pageCacheSize;
+        dbHandle.getMutex().enter();
+        try {
+            checkSchema();
+            writePageCacheSize(this.pageCacheSize = pageCacheSize);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     public void setAutovacuum(boolean autovacuum) throws SqlJetException {
-        checkSchema();
-        writeAutoVacuum(autovacuum);
-        this.autovacuum = autovacuum;
+        dbHandle.getMutex().enter();
+        try {
+            checkSchema();
+            writeAutoVacuum(this.autovacuum = autovacuum);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
-        checkSchema();
-        writeEncoding(encoding);
-        this.encoding = encoding;
+        dbHandle.getMutex().enter();
+        try {
+            checkSchema();
+            writeEncoding(this.encoding = encoding);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     public void setIncrementalVacuum(boolean incrementalVacuum) throws SqlJetException {
-        checkSchema();
-        writeIncrementalVacuum(incrementalVacuum);
-        this.incrementalVacuum = incrementalVacuum;
+        dbHandle.getMutex().enter();
+        try {
+            checkSchema();
+            writeIncrementalVacuum(this.incrementalVacuum = incrementalVacuum);
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 }

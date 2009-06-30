@@ -27,15 +27,15 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetSchema {
 
-    Set<String> getTableNames();
+    Set<String> getTableNames() throws SqlJetException;
 
-    ISqlJetTableDef getTable(String name);
+    ISqlJetTableDef getTable(String name) throws SqlJetException;
 
-    Set<String> getIndexNames();
+    Set<String> getIndexNames() throws SqlJetException;
 
-    ISqlJetIndexDef getIndex(String name);
+    ISqlJetIndexDef getIndex(String name) throws SqlJetException;
 
-    Set<ISqlJetIndexDef> getIndexes(String tableName);
+    Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
 
     ISqlJetTableDef createTable(String sql) throws SqlJetException;
 

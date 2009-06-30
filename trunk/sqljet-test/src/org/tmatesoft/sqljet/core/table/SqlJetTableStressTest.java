@@ -43,12 +43,10 @@ public class SqlJetTableStressTest extends TestCase {
             dbFile.delete();
         }
         db = SqlJetDb.open(dbFile, true);
-        db.runWithLock(new ISqlJetRunnableWithLock() {
+        db.runWriteTransaction(new ISqlJetTransaction() {
 
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                db.beginTransaction();
+            public Object run(SqlJetDb db) throws SqlJetException {
                 db.getSchema().createTable("create table t (c1 text, c2 int)");
-                db.commit();
                 return null;
             }
         });
@@ -61,12 +59,16 @@ public class SqlJetTableStressTest extends TestCase {
     }
 
     public void testInsert100000Records() throws Exception {
-        ISqlJetTable t = db.getTable("t");
-        db.beginTransaction();
-        for (int i = 0; i < 100000; i++) {
-            t.insert("Bolshie nogi shli po doroge!", i);
-        }
-        db.commit();
+        final ISqlJetTable t = db.getTable("t");
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                for (int i = 0; i < 100000; i++) {
+                    t.insert("Bolshie nogi shli po doroge!", i);
+                }
+                return null;
+            }
+        });
 
         ISqlJetCursor c = t.open();
         c.last();

@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.table;
 import java.io.File;
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
@@ -172,6 +173,35 @@ public class SqlJetDb {
                 return new SqlJetTable(db, schema, tableName, write);
             }
         });
+    }
+
+    public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
+        return runTransaction(op, SqlJetTransactionMode.WRITE);
+    }
+
+    public Object runTransaction(ISqlJetTransaction op, SqlJetTransactionMode mode) throws SqlJetException {
+        if (!write) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Database is not writable");
+        }
+        dbHandle.getMutex().enter();
+        try {
+
+            boolean success = false;
+            btree.beginTrans(mode);
+            try {
+                Object result = op.run(this);
+                success = true;
+                btree.commit();
+                return result;
+            } finally {
+                if (!success) {
+                    btree.rollback();
+                }
+            }
+
+        } finally {
+            dbHandle.getMutex().leave();
+        }
     }
 
     /**

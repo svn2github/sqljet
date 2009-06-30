@@ -92,12 +92,17 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             try {
                 Thread.currentThread().setName(workerName);
                 db = SqlJetDb.open(dbFile, write);
-                try {
-                    table = db.getTable(REP_CACHE_TABLE);
-                    return work();
-                } finally {
-                    db.close();
-                }
+                return db.runWithLock(new ISqlJetRunnableWithLock() {
+                    
+                    public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                        try {
+                            table = db.getTable(REP_CACHE_TABLE);
+                            return work();
+                        } finally {
+                            db.close();
+                        }
+                    }
+                });
             } finally {
                 Thread.currentThread().setName(threadName);
             }

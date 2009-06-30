@@ -194,15 +194,6 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected void beforeSleep(ISqlJetCursor cursor) throws SqlJetException {
-            final Map<String, Object> values = getValuesWithFieldNames(cursor);
-            for (Map.Entry<String, Object> entry : values.entrySet()) {
-                if (!"hash".equals(entry.getKey())) {
-                    if (null != entry.getValue() && entry.getValue() instanceof Long) {
-                        entry.setValue(((Long) entry.getValue()) + 1);
-                    }
-                }
-            }
-
             for (boolean exit = false; !exit;)
                 try {
                     db.beginTransaction();
@@ -213,14 +204,16 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
                     }
                 }
 
-            final Object hash = values.get("hash");
+            final String hash = cursor.getString(0);
             try {
-                table.lookup(table.getPrimaryKeyIndexName(), hash).updateByFieldNames(values);
+                // Increment fifth field
+                table.lookup(table.getPrimaryKeyIndexName(), hash).update(
+                        hash, cursor.getValue(1), cursor.getValue(2), cursor.getValue(3), cursor.getInteger(4) + 1);
                 db.commit();
                 logger.info(String.format("[%s] commit: %s", workerName, hash));
             } catch (SqlJetException e) {
                 db.rollback();
-                logger.info(String.format("[%s] roolback: %s", workerName, e.getMessage()));
+                logger.info(String.format("[%s] rollback: %s", workerName, e.getMessage()));
             }
         }
 

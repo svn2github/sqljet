@@ -136,14 +136,12 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public Object runWithLock(ISqlJetRunnableWithLock op) throws SqlJetException {
-        Object result = null;
         dbHandle.getMutex().enter();
         try {
-            result = op.runWithLock(this);
+            return op.runWithLock(this);
         } finally {
             dbHandle.getMutex().leave();
         }
-        return result;
     }
 
     /**

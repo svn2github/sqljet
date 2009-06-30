@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 
 /**
  * @author TMate Software Ltd.
@@ -33,7 +35,7 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    protected File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
+    public static File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
         File to = File.createTempFile("copy", null);
         if (deleteCopy)
             to.deleteOnExit();
@@ -47,4 +49,30 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
         return to;
     }
 
+    public static boolean compareFiles(File f1, File f2) throws Exception {
+        RandomAccessFile i1 = new RandomAccessFile(f1, "r");
+        try {
+            RandomAccessFile i2 = new RandomAccessFile(f2, "r");
+            try {
+                final MappedByteBuffer m1 = i1.getChannel().map(MapMode.READ_ONLY, 0, i1.length());
+                final MappedByteBuffer m2 = i2.getChannel().map(MapMode.READ_ONLY, 0, i2.length());
+                while (m1.hasRemaining() && m2.hasRemaining()) {
+                    final byte b1 = m1.get();
+                    final byte b2 = m2.get();
+                    if (b1 != b2)
+                        return false;
+
+                }
+                if (m1.hasRemaining() || m2.hasRemaining())
+                    return false;
+            } finally {
+                i2.close();
+            }
+        } finally {
+            i1.close();
+        }
+        return true;
+    }
+
+    
 }

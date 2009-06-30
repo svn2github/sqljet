@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -31,9 +32,16 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
@@ -55,6 +63,13 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     private static final boolean DELETE_COPY = SqlJetUtility.getBoolSysProp(TABLE_TEST + ".DELETE_COPY", true);
 
+    public static final String REP_CACHE_DB = SqlJetUtility.getSysProp(TABLE_TEST + ".REP_CACHE_DB",
+            "sqljet-test/db/rep-cache/rep-cache.db");
+
+    public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp(TABLE_TEST + ".REP_CACHE_TABLE", "rep_cache");
+
+    private static final int REPEATS_COUNT = SqlJetUtility.getIntSysProp(TABLE_TEST + ".REPEATS_COUNT", 1000);
+
     private static final String NAME_INDEX = "test1_name_index";
 
     private static final int DATA_FIELD = 3;
@@ -75,6 +90,10 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     private File file3DbCopy;
     private SqlJetDb db3Copy;
 
+    private File repCache = new File(REP_CACHE_DB);
+    private File repCacheCopy;
+    private SqlJetDb repCacheDb;
+
     /**
      * @throws java.lang.Exception
      */
@@ -83,9 +102,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         fileDbCopy = copyFile(fileDb, DELETE_COPY);
         file2DbCopy = copyFile(file2Db, DELETE_COPY);
         file3DbCopy = copyFile(file3Db, DELETE_COPY);
+        repCacheCopy = copyFile(repCache, DELETE_COPY);
         dbCopy = SqlJetDb.open(fileDbCopy, true);
         db2Copy = SqlJetDb.open(file2DbCopy, true);
         db3Copy = SqlJetDb.open(file3DbCopy, true);
+        repCacheDb = SqlJetDb.open(repCacheCopy, true);
     }
 
     /**
@@ -101,8 +122,13 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 if (null != db2Copy)
                     db2Copy.close();
             } finally {
-                if (null != db3Copy)
-                    db3Copy.close();
+                try {
+                    if (null != db3Copy)
+                        db3Copy.close();
+                } finally {
+                    if (null != repCacheDb)
+                        repCacheDb.close();
+                }
             }
         }
     }
@@ -594,7 +620,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
-                
+
                 return null;
 
             }
@@ -627,7 +653,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
                 final Object nameField = lookup.getValue("name");
                 Assert.assertNotNull(nameField);
                 Assert.assertEquals("test1", nameField);
-                
+
                 return null;
 
             }
@@ -661,7 +687,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
                 final Object valueField = lookup.getValue("value");
                 Assert.assertNull(valueField);
-                
+
                 return null;
 
             }
@@ -669,5 +695,32 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     }
 
-    
+    @Test
+    public void repCacheInsertLong() throws SqlJetException {
+        repCacheDb.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final SqlJetTable table = db.getTable(REP_CACHE_TABLE);
+                db.beginTransaction();
+                try {
+                    final Random random = new Random();
+                    for (int i = 0; i < REPEATS_COUNT; i++) {                        
+                        for (int y = 0; y < REPEATS_COUNT; y++) {
+                            final String hash = String.valueOf(Math.abs(random.nextLong()));
+                            ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+                            if(!lookup.first()) {
+                                logger.info(i+" "+hash);
+                                table.insert(hash, i, i, i, i);
+                                break;
+                            }
+                        }
+                    }
+                    db.commit();
+                } catch (SqlJetException e) {
+                    db.rollback();
+                }
+                return null;
+            }
+        });
+    }
+
 }

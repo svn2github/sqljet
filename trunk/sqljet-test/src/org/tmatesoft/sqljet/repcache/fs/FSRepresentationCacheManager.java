@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -62,7 +63,7 @@ public class FSRepresentationCacheManager {
     public static void createRepresentationCache(File path) throws SqlJetException {
         SqlJetDb db = null;
         try {
-            db = SqlJetDb.open(path, true);
+            db = SqlJetDb.open(path, true, SqlJetAutoVacuumMode.FULL);
             db.runWithLock(new ISqlJetRunnableWithLock() {
                 public Object runWithLock(SqlJetDb db) throws SqlJetException {
                     checkFormat(db);
@@ -83,7 +84,7 @@ public class FSRepresentationCacheManager {
             db.beginTransaction();
             try {
                 db.getOptions().setUserVersion(REP_CACHE_DB_FORMAT);
-                db.getOptions().setAutovacuum(true);
+                //db.getOptions().setAutovacuum(true);
                 schema.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
                 db.commit();
             } catch (SqlJetException e) {

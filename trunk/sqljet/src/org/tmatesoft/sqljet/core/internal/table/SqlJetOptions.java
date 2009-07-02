@@ -176,7 +176,8 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     private int readPageCacheSize() throws SqlJetException {
-        return btree.getMeta(PAGE_CACHE_SIZE);
+        int meta = btree.getMeta(PAGE_CACHE_SIZE);
+        return meta > 0 ? meta : ISqlJetLimits.SQLJET_DEFAULT_CACHE_SIZE;
     }
 
     private int readFileFormat() throws SqlJetException {
@@ -267,8 +268,8 @@ public class SqlJetOptions implements ISqlJetOptions {
             final SqlJetAutoVacuumMode btreeAutoVacuum = btree.getAutoVacuum();
             autovacuum = SqlJetAutoVacuumMode.NONE != btreeAutoVacuum;
             incrementalVacuum = SqlJetAutoVacuumMode.INCR == btreeAutoVacuum;
-            writeAutoVacuum( autovacuum );
-            writeIncrementalVacuum( incrementalVacuum );
+            writeAutoVacuum(autovacuum);
+            writeIncrementalVacuum(incrementalVacuum);
             btree.commit();
         } catch (SqlJetException e) {
             btree.rollback();

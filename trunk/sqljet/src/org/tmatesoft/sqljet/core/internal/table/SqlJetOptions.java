@@ -91,9 +91,10 @@ public class SqlJetOptions implements ISqlJetOptions {
     public SqlJetOptions(ISqlJetBtree btree, ISqlJetDbHandle dbHandle) throws SqlJetException {
         this.btree = btree;
         this.dbHandle = dbHandle;
-        readMeta();
-        if (schemaCookie == 0) {
+        if (readSchemaCookie() == 0) {
             initMeta();
+        } else {
+            readMeta();
         }
     }
 
@@ -262,9 +263,12 @@ public class SqlJetOptions implements ISqlJetOptions {
             writeSchemaCookie(schemaCookie);
             writeFileFormat(fileFormat);
             writePageCacheSize(pageCacheSize);
-            writeAutoVacuum(autovacuum);
-            writeIncrementalVacuum(incrementalVacuum);
             writeEncoding(encoding);
+            final SqlJetAutoVacuumMode btreeAutoVacuum = btree.getAutoVacuum();
+            autovacuum = SqlJetAutoVacuumMode.NONE != btreeAutoVacuum;
+            incrementalVacuum = SqlJetAutoVacuumMode.INCR == btreeAutoVacuum;
+            writeAutoVacuum( autovacuum );
+            writeIncrementalVacuum( incrementalVacuum );
             btree.commit();
         } catch (SqlJetException e) {
             btree.rollback();

@@ -107,6 +107,17 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
 
     }
+    
+    @Override
+    public void close() throws SqlJetException {
+        if (indexesTables != null) {
+            for (String key : indexesTables.keySet()) {
+                ISqlJetBtreeIndexTable table = indexesTables.get(key);
+                table.close();
+            }
+        }
+        super.close();
+    }
 
     /**
      * @param tableDef

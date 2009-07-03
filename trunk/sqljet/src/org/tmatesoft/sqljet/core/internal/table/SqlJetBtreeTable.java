@@ -37,6 +37,12 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
+    private static final int CURSOR_LOCK_RETRIES = SqlJetUtility.getIntSysProp("SqlJetBtreeTable.CURSOR_LOCK_RETRIES",
+            100);
+
+    private static final long CURSOR_LOCK_SLEEP_MS = SqlJetUtility.getIntSysProp(
+            "SqlJetBtreeTable.CURSOR_LOCK_SLEEP_MS", 1);
+
     protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     protected ISqlJetDbHandle db;
@@ -91,21 +97,23 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             this.keyInfo.setEnc(db.getEncoding());
         }
 
-        try {
-            this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
-        } catch (SqlJetException e) {
-            if (SqlJetErrorCode.LOCKED == e.getErrorCode()) {
-                try {
-                    db.getMutex().leave();
-                    Thread.sleep(1);
-                } catch (InterruptedException e1) {
-                    // TODO What we should to do at there? (sergey.scherbina)
-                } finally {
-                    db.getMutex().enter();
-                }
+        for (int i = 0; i < CURSOR_LOCK_RETRIES; i++) {
+            try {
                 this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
-            } else {
-                throw e;
+                break;
+            } catch (SqlJetException e) {
+                if (SqlJetErrorCode.LOCKED == e.getErrorCode()) {
+                    try {
+                        db.getMutex().leave();
+                        Thread.sleep(CURSOR_LOCK_SLEEP_MS);
+                    } catch (InterruptedException e1) {
+                        return;
+                    } finally {
+                        db.getMutex().enter();
+                    }
+                } else {
+                    throw e;
+                }
             }
         }
 

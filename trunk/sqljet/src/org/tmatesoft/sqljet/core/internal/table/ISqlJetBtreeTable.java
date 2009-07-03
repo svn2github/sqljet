@@ -41,7 +41,8 @@ public interface ISqlJetBtreeTable {
 
     /**
      * Lock B-Tree table cursor's mutex.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     void lock() throws SqlJetException;
 
@@ -54,8 +55,9 @@ public interface ISqlJetBtreeTable {
      * Check of end of B-Tree table cursor.
      * 
      * @return true if there is not more records.
+     * @throws SqlJetException
      */
-    boolean eof();
+    boolean eof() throws SqlJetException;
 
     /**
      * Go to first record.
@@ -76,7 +78,8 @@ public interface ISqlJetBtreeTable {
     /**
      * Go to next record.
      * 
-     * @return true if there is at least one record and end of cursor is not reached yet
+     * @return true if there is at least one record and end of cursor is not
+     *         reached yet
      * @throws SqlJetException
      */
     boolean next() throws SqlJetException;
@@ -84,7 +87,8 @@ public interface ISqlJetBtreeTable {
     /**
      * Go to previous record.
      * 
-     * @return true if there is at least one record and begin of cursor is not reached yet
+     * @return true if there is at least one record and begin of cursor is not
+     *         reached yet
      * @throws SqlJetException
      */
     boolean previous() throws SqlJetException;
@@ -105,7 +109,7 @@ public interface ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     SqlJetEncoding getEncoding() throws SqlJetException;
-    
+
     /**
      * Get count of fields in current record.
      * 
@@ -117,16 +121,18 @@ public interface ISqlJetBtreeTable {
     /**
      * Get type of field.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return type of field
      * @throws SqlJetException
      */
     SqlJetValueType getFieldType(int field) throws SqlJetException;
-    
+
     /**
      * Check to field has null value.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return true if field value is null
      * @throws SqlJetException
      */
@@ -135,7 +141,8 @@ public interface ISqlJetBtreeTable {
     /**
      * Get field's value as string.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as string
      * @throws SqlJetException
      */
@@ -144,7 +151,8 @@ public interface ISqlJetBtreeTable {
     /**
      * Get field's value as integer.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as integer
      * @throws SqlJetException
      */
@@ -153,7 +161,8 @@ public interface ISqlJetBtreeTable {
     /**
      * Get field's value as real (float).
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as real
      * @throws SqlJetException
      */
@@ -162,14 +171,43 @@ public interface ISqlJetBtreeTable {
     /**
      * Get field's value as BLOB.
      * 
-     * @param field number of field begin from zero
+     * @param field
+     *            number of field begin from zero
      * @return field's value as BLOB
      * @throws SqlJetException
      */
     ByteBuffer getBlob(int field) throws SqlJetException;
 
+    /**
+     * Get values as objects.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
     Object[] getValues() throws SqlJetException;
-    
+
+    /**
+     * Get value as object.
+     * 
+     * @param field
+     * @return
+     * @throws SqlJetException
+     */
     Object getValue(int field) throws SqlJetException;
-    
+
+    /**
+     * Returns true if cursor has been moved. Side effect of this is restore
+     * position of cursor.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    boolean hasMoved() throws SqlJetException;
+
+    /**
+     * Refresh current record. It reads last changes from data base for current
+     * record.
+     */
+    void refreshCurrentRecord();
+
 }

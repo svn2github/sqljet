@@ -577,4 +577,78 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         }
     }
 
+    @Test
+    public void refreshCurrentRecord() throws SqlJetException {
+        
+        dbCopy.beginTransaction();
+
+        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetCursor open = table.open();
+
+        final Map<String, Object> values = new HashMap<String, Object>();
+        values.put("name", "test1");
+        values.put("value", 1);
+
+        open.updateByFieldNames(values);
+        dbCopy.commit();
+
+        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+        Assert.assertFalse(lookup.eof());
+
+        final Object nameField = lookup.getValue("name");
+        Assert.assertNotNull(nameField);
+        Assert.assertEquals("test1", nameField);
+        
+        final Object valueField = lookup.getValue("value");
+        Assert.assertNotNull(valueField);
+        Assert.assertEquals(1L, valueField);
+        
+        final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
+        final SqlJetTable table2 = dbCopy2.getTable(TABLE);
+        final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
+        Assert.assertFalse(lookup2.eof());
+
+        final Object nameField2 = lookup2.getValue("name");
+        Assert.assertNotNull(nameField2);
+        Assert.assertEquals("test1", nameField2);
+
+        final Object valueField2 = lookup2.getValue("value");
+        Assert.assertNotNull(valueField2);
+        Assert.assertEquals(1L, valueField2);
+
+        values.put("value", 2);
+        dbCopy.beginTransaction();
+        lookup.updateByFieldNames(values);
+        dbCopy.commit();
+
+        final Object nameField1 = lookup.getValue("name");
+        Assert.assertNotNull(nameField1);
+        Assert.assertEquals("test1", nameField1);
+        
+        final Object valueField1 = lookup.getValue("value");
+        Assert.assertNotNull(valueField1);
+        Assert.assertEquals(2L, valueField1);
+        
+        final Object nameField2_1 = lookup2.getValue("name");
+        Assert.assertNotNull(nameField2_1);
+        Assert.assertEquals("test1", nameField2_1);
+
+        final Object valueField2_1 = lookup2.getValue("value");
+        Assert.assertNotNull(valueField2_1);
+        Assert.assertEquals(1L, valueField2_1);
+        
+        lookup2.refreshCurrentRecord();
+
+        final Object nameField2_2 = lookup2.getValue("name");
+        Assert.assertNotNull(nameField2_2);
+        Assert.assertEquals("test1", nameField2_2);
+
+        final Object valueField2_2 = lookup2.getValue("value");
+        Assert.assertNotNull(valueField2_2);
+        Assert.assertEquals(2L, valueField2_2);
+        
+        lookup2.close();        
+        dbCopy2.close();
+        
+    }
 }

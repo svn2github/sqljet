@@ -164,8 +164,21 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * 
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#eof()
      */
-    public boolean eof() {
+    public boolean eof() throws SqlJetException {
+        hasMoved();
         return cursor.eof();
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    public boolean hasMoved() throws SqlJetException {
+        cursor.enterCursor();
+        try{
+            return cursor.cursorHasMoved();
+        }finally{
+            cursor.leaveCursor();
+        }
     }
 
     /*
@@ -207,6 +220,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         lock();
         try {
             clearCachedRecord();
+            hasMoved();
             return !cursor.next();
         } finally {
             unlock();
@@ -222,6 +236,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         lock();
         try {
             clearCachedRecord();
+            hasMoved();
             return !cursor.previous();
         } finally {
             unlock();
@@ -546,4 +561,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return String.format(AUTOINDEX, tableName, i);
     }
 
+    public void refreshCurrentRecord() {
+        clearCachedRecord();
+    }
 }

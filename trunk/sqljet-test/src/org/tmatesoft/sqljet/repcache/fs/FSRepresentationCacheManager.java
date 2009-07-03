@@ -25,6 +25,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -63,7 +64,7 @@ public class FSRepresentationCacheManager {
     public static void createRepresentationCache(File path) throws SqlJetException {
         SqlJetDb db = null;
         try {
-            db = SqlJetDb.open(path, true, SqlJetAutoVacuumMode.FULL);
+            db = SqlJetDb.open(path, true);
             db.runWithLock(new ISqlJetRunnableWithLock() {
                 public Object runWithLock(SqlJetDb db) throws SqlJetException {
                     checkFormat(db);
@@ -79,12 +80,13 @@ public class FSRepresentationCacheManager {
 
     private static void checkFormat(SqlJetDb db) throws SqlJetException {
         ISqlJetSchema schema = db.getSchema();
-        int version = db.getOptions().getUserVersion();
+        final ISqlJetOptions options = db.getOptions();
+        int version = options.getUserVersion();
         if (version < REP_CACHE_DB_FORMAT) {
+            options.setAutovacuum(true);
             db.beginTransaction();
             try {
-                db.getOptions().setUserVersion(REP_CACHE_DB_FORMAT);
-                //db.getOptions().setAutovacuum(true);
+                options.setUserVersion(REP_CACHE_DB_FORMAT);                
                 schema.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
                 db.commit();
             } catch (SqlJetException e) {

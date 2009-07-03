@@ -323,9 +323,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);        
         createDb.beginTransaction();
         try {
-            createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
             final ISqlJetSchema schema = createDb.getSchema();
             final ISqlJetTableDef createTable = schema
                     .createTable("create table test( id integer primary key, name text )");

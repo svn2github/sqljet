@@ -36,6 +36,7 @@ public interface ISqlJetOptions {
 
     /**
      * Set file format. It's allowed only on new empty data base.
+     * It can't be performed in active transaction.
      * 
      * @param fileFormat
      * @throws SqlJetException
@@ -53,6 +54,7 @@ public interface ISqlJetOptions {
 
     /**
      * Set autovacuum flag. It's allowed only on new empty data base.
+     * It can't be performed in active transaction.
      * 
      * @param autovacuum
      * @throws SqlJetException
@@ -68,6 +70,7 @@ public interface ISqlJetOptions {
 
     /**
      * Set incremental vacuum flag. It's allowed only on new empty data base.
+     * It can't be performed in active transaction.
      * 
      * @param incrementalVacuum
      * @throws SqlJetException
@@ -82,7 +85,7 @@ public interface ISqlJetOptions {
     int getCacheSize() throws SqlJetException;
 
     /**
-     * Set page cache's size. It's allowed only on new empty data base.
+     * Set page cache's size. It can be performed only in active transaction.
      * 
      * @param pageCacheSize
      * @throws SqlJetException
@@ -102,6 +105,7 @@ public interface ISqlJetOptions {
 
     /**
      * Set encoding. It's allowed only on new empty data base.
+     * It can't be performed in active transaction.
      * 
      * @param encoding
      * @throws SqlJetException
@@ -144,10 +148,16 @@ public interface ISqlJetOptions {
      */
     int getSchemaVersion() throws SqlJetException;
 
+    /**
+     * Set schema version. It can be performed only in active transaction.
+     * 
+     * @param version
+     * @throws SqlJetException
+     */
     void setSchemaVersion(int version) throws SqlJetException;
 
     /**
-     * Change SchemaCookie.
+     * Change SchemaCookie. It can be performed only in active transaction
      */
     void changeSchemaVersion() throws SqlJetException;
 
@@ -170,7 +180,7 @@ public interface ISqlJetOptions {
     int getUserVersion() throws SqlJetException;
 
     /**
-     * Set user's cookie.
+     * Set user's cookie. It can be performed only in active transaction.
      * 
      * @param userCookie
      * @throws SqlJetException

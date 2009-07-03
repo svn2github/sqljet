@@ -226,6 +226,8 @@ public class SqlJetOptions implements ISqlJetOptions {
     public void setSchemaVersion(int version) throws SqlJetException {
         dbHandle.getMutex().enter();
         try {
+            if (!btree.isInTrans())
+                throw new SqlJetException("It can be performed only in active transaction");
             verifySchemaVersion(true);
             writeSchemaCookie(this.schemaCookie = version);
         } finally {
@@ -249,6 +251,8 @@ public class SqlJetOptions implements ISqlJetOptions {
     public void changeSchemaVersion() throws SqlJetException {
         dbHandle.getMutex().enter();
         try {
+            if (!btree.isInTrans())
+                throw new SqlJetException("It can be performed only in active transaction");
             verifySchemaVersion(true);
             schemaCookie++;
             writeSchemaCookie(schemaCookie);
@@ -323,6 +327,8 @@ public class SqlJetOptions implements ISqlJetOptions {
     public void setUserVersion(int userCookie) throws SqlJetException {
         dbHandle.getMutex().enter();
         try {
+            if (!btree.isInTrans())
+                throw new SqlJetException("It can be performed only in active transaction");
             writeUserCookie(this.userCookie = userCookie);
         } finally {
             dbHandle.getMutex().leave();
@@ -343,7 +349,16 @@ public class SqlJetOptions implements ISqlJetOptions {
         dbHandle.getMutex().enter();
         try {
             checkSchema();
-            writeFileFormat(this.fileFormat = fileFormat);
+            if (btree.isInTrans())
+                throw new SqlJetException("It can't be performed in active transaction");
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+            try {
+                writeFileFormat(this.fileFormat = fileFormat);
+                btree.commit();
+            } catch (SqlJetException e) {
+                btree.rollback();
+                throw e;
+            }
         } finally {
             dbHandle.getMutex().leave();
         }
@@ -352,7 +367,8 @@ public class SqlJetOptions implements ISqlJetOptions {
     public void setCacheSize(int pageCacheSize) throws SqlJetException {
         dbHandle.getMutex().enter();
         try {
-            checkSchema();
+            if (!btree.isInTrans())
+                throw new SqlJetException("It can be performed only in active transaction");
             writePageCacheSize(this.pageCacheSize = pageCacheSize);
         } finally {
             dbHandle.getMutex().leave();
@@ -363,7 +379,16 @@ public class SqlJetOptions implements ISqlJetOptions {
         dbHandle.getMutex().enter();
         try {
             checkSchema();
-            writeAutoVacuum(this.autovacuum = autovacuum);
+            if (btree.isInTrans())
+                throw new SqlJetException("It can't be performed in active transaction");
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+            try {
+                writeAutoVacuum(this.autovacuum = autovacuum);
+                btree.commit();
+            } catch (SqlJetException e) {
+                btree.rollback();
+                throw e;
+            }
         } finally {
             dbHandle.getMutex().leave();
         }
@@ -373,7 +398,16 @@ public class SqlJetOptions implements ISqlJetOptions {
         dbHandle.getMutex().enter();
         try {
             checkSchema();
-            writeEncoding(this.encoding = encoding);
+            if (btree.isInTrans())
+                throw new SqlJetException("It can't be performed in active transaction");
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+            try {
+                writeEncoding(this.encoding = encoding);
+                btree.commit();
+            } catch (SqlJetException e) {
+                btree.rollback();
+                throw e;
+            }
         } finally {
             dbHandle.getMutex().leave();
         }
@@ -383,7 +417,16 @@ public class SqlJetOptions implements ISqlJetOptions {
         dbHandle.getMutex().enter();
         try {
             checkSchema();
-            writeIncrementalVacuum(this.incrementalVacuum = incrementalVacuum);
+            if (btree.isInTrans())
+                throw new SqlJetException("It can't be performed in active transaction");
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+            try {
+                writeIncrementalVacuum(this.incrementalVacuum = incrementalVacuum);
+                btree.commit();
+            } catch (SqlJetException e) {
+                btree.rollback();
+                throw e;
+            }
         } finally {
             dbHandle.getMutex().leave();
         }

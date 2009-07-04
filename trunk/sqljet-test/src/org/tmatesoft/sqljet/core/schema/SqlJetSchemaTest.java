@@ -440,4 +440,31 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             throw new SqlJetException(e);
         }
     }
+
+    @Test
+    public void changeSchemaVersion() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.beginTransaction();
+        try {
+            createDb.getOptions().setSchemaVersion(123);
+            createDb.commit();
+        } catch (SqlJetException e) {
+            createDb.rollback();
+            throw e;
+        }
+        
+        createDb.close();
+        
+        final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+        final int schemaVersion = openDb.getOptions().getSchemaVersion();
+        Assert.assertEquals(123, schemaVersion);
+        
+    }
+
+
 }

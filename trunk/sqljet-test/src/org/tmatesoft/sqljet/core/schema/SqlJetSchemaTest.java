@@ -403,6 +403,13 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createDb.rollback();
             throw new SqlJetException(e);
         }
+        
+        createDb.close();
+        
+        final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+        final int cacheSize = openDb.getOptions().getCacheSize();
+        Assert.assertEquals(1000, cacheSize);
+        
     }
 
     @Test

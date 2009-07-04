@@ -28,8 +28,8 @@ package org.tmatesoft.sqljet.core;
 public enum SqlJetEncoding {
 
     UTF8("UTF-8"), // 1
-    UTF16LE("UTF-16LE"), // 2
-    UTF16BE("UTF-16BE"), // 3
+    UTF16LE("UTF-16le"), // 2
+    UTF16BE("UTF-16be"), // 3
 
     /** Use native byte order */
     UTF16("UTF-16"), // 4
@@ -57,14 +57,13 @@ public enum SqlJetEncoding {
     }
 
     public static SqlJetEncoding decode(String s) {
-        s = s.toUpperCase();
-        if ("UTF-8".equals(s)) {
+        if (UTF8.getCharsetName().equalsIgnoreCase(s)) {
             return UTF8;
-        } else if ("UTF-16".equals(s)) {
+        } else if (UTF16.getCharsetName().equalsIgnoreCase(s)) {
             return UTF16;
-        } else if ("UTF-16LE".equals(s)) {
+        } else if (UTF16LE.getCharsetName().equalsIgnoreCase(s)) {
             return UTF16LE;
-        } else if ("UTF-16BE".equals(s)) {
+        } else if (UTF16BE.getCharsetName().equalsIgnoreCase(s)) {
             return UTF16BE;
         }
         return null;

@@ -278,6 +278,6 @@ public interface ISqlJetCursor {
      * Refresh current record. It reads last changes from data base for current
      * record.
      */
-    void refreshCurrentRecord();
+    //void refreshCurrentRecord();
 
 }

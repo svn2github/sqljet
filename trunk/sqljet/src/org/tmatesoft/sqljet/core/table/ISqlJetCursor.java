@@ -273,11 +273,5 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     void delete() throws SqlJetException;
-    
-    /**
-     * Refresh current record. It reads last changes from data base for current
-     * record.
-     */
-    //void refreshCurrentRecord();
-
+ 
 }

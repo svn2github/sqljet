@@ -216,7 +216,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             return cursor.moveTo(null, rowId, false) == 0;
         } finally {
             unlock();
@@ -289,7 +288,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (setLastNewRowId) {
                 lastNewRowId = rowId;
             }
-            clearCachedRecord();
             goToRow(rowId);
             return rowId;
 
@@ -321,7 +319,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             lastNewRowId = rowId;
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
             cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
-            clearCachedRecord();
             return lastNewRowId;
         } finally {
             unlock();
@@ -371,7 +368,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         doActionWithIndexes(Action.UPDATE, rowId, row);
         final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
         cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
-        clearCachedRecord();
     }
 
     /*
@@ -415,7 +411,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private void doDelete(long rowId) throws SqlJetException {
         doActionWithIndexes(Action.DELETE, rowId);
         cursor.delete();
-        clearCachedRecord();
     }
 
     /**
@@ -633,7 +628,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (setLastNewRowId) {
                 lastNewRowId = rowId;
             }
-            clearCachedRecord();
             goToRow(rowId);
             return rowId;
 
@@ -660,7 +654,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             lastNewRowId = rowId;
             final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
             cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
-            clearCachedRecord();
             return lastNewRowId;
         } finally {
             unlock();

@@ -635,19 +635,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         final Object valueField2_1 = lookup2.getValue("value");
         Assert.assertNotNull(valueField2_1);
-        Assert.assertEquals(1L, valueField2_1);
-
-        /*
-        lookup2.refreshCurrentRecord();
-
-        final Object nameField2_2 = lookup2.getValue("name");
-        Assert.assertNotNull(nameField2_2);
-        Assert.assertEquals("test1", nameField2_2);
-
-        final Object valueField2_2 = lookup2.getValue("value");
-        Assert.assertNotNull(valueField2_2);
-        Assert.assertEquals(2L, valueField2_2);
-        */
+        Assert.assertEquals(2L, valueField2_1);
         
         lookup2.close();        
         dbCopy2.close();

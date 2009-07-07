@@ -186,11 +186,4 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         });
     }
     
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#refreshCurrentRecord()
-     */
-    public void refreshCurrentRecord() {
-        btreeTable.refreshCurrentRecord();
-        
-    }
 }

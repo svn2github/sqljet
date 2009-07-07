@@ -56,8 +56,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     protected SqlJetKeyInfo keyInfo;
 
-    protected ISqlJetBtreeRecord cachedRecord;
-
     private long priorNewRowid = 0;
     protected long lastNewRowId = 0;
 
@@ -117,8 +115,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             }
         }
 
-        this.cachedRecord = null;
-
         first();
     }
 
@@ -136,7 +132,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#close()
      */
     public void close() throws SqlJetException {
-        clearCachedRecord();
         cursor.closeCursor();
     }
 
@@ -189,7 +184,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean first() throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             return !cursor.first();
         } finally {
             unlock();
@@ -204,7 +198,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean last() throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             return !cursor.last();
         } finally {
             unlock();
@@ -219,7 +212,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean next() throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             hasMoved();
             return !cursor.next();
         } finally {
@@ -235,7 +227,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean previous() throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             hasMoved();
             return !cursor.previous();
         } finally {
@@ -280,17 +271,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return cursor.getCursorDb().getEncoding();
     }
 
-    protected void clearCachedRecord() {
-        cachedRecord = null;
-    }
-
-    protected ISqlJetBtreeRecord getCachedRecord() throws SqlJetException {
-        if (null == cachedRecord) {
-            cachedRecord = getRecord();
-        }
-        return cachedRecord;
-    }
-
     protected boolean checkField(int field) throws SqlJetException {
         return (field >= 0 && field < getFieldsCount());
     }
@@ -298,7 +278,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
         if (!checkField(field))
             return null;
-        final ISqlJetBtreeRecord r = getCachedRecord();
+        final ISqlJetBtreeRecord r = getRecord();
         if (null == r)
             return null;
         final List<ISqlJetVdbeMem> fields = r.getFields();
@@ -335,7 +315,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * ()
      */
     public int getFieldsCount() throws SqlJetException {
-        final ISqlJetBtreeRecord r = getCachedRecord();
+        final ISqlJetBtreeRecord r = getRecord();
         if (null == r)
             return 0;
         return r.getFieldsCount();
@@ -561,7 +541,4 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return String.format(AUTOINDEX, tableName, i);
     }
 
-    public void refreshCurrentRecord() {
-        clearCachedRecord();
-    }
 }

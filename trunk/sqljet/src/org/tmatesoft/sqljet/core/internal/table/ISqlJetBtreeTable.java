@@ -204,10 +204,4 @@ public interface ISqlJetBtreeTable {
      */
     boolean hasMoved() throws SqlJetException;
 
-    /**
-     * Refresh current record. It reads last changes from data base for current
-     * record.
-     */
-    void refreshCurrentRecord();
-
 }

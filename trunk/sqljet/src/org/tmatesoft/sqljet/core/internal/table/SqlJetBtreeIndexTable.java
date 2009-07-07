@@ -83,7 +83,6 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public long lookup(boolean next, Object... values) throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getEncoding(), values);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
@@ -157,7 +156,6 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(db.getEncoding(),
                     SqlJetUtility.addArrays(key, new Object[] { rowId })).getRawRecord();
             cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
-            clearCachedRecord();
         } finally {
             unlock();
         }
@@ -173,7 +171,6 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public boolean delete(long rowId, Object... key) throws SqlJetException {
         lock();
         try {
-            clearCachedRecord();
             final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getEncoding(), key);
             final ByteBuffer k = rec.getRawRecord();
             if (cursor.moveTo(k, k.remaining(), false) < 0) {

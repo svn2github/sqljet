@@ -71,7 +71,7 @@ public class SqlJetDb {
      *            if true then allow data modification
      * @throws SqlJetException
      */
-    protected SqlJetDb(final File file, final boolean write, final SqlJetAutoVacuumMode autoVacuumMode)
+    protected SqlJetDb(final File file, final boolean write)
             throws SqlJetException {
         this.write = write;
         dbHandle = new SqlJetDbHandle();
@@ -84,9 +84,6 @@ public class SqlJetDb {
                 ISqlJetSchema schema = null;
                 btree.enter();
                 try {
-                    if (null != autoVacuumMode) {
-                        btree.setAutoVacuum(autoVacuumMode);
-                    }
                     dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
                     schema = new SqlJetSchema(dbHandle, btree);
                 } finally {
@@ -107,11 +104,7 @@ public class SqlJetDb {
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
-        return new SqlJetDb(file, write, null);
-    }
-
-    public static SqlJetDb open(File file, boolean write, SqlJetAutoVacuumMode autoVacuumMode) throws SqlJetException {
-        return new SqlJetDb(file, write, autoVacuumMode);
+        return new SqlJetDb(file, write);
     }
 
     /**

@@ -323,7 +323,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
-        createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);        
+        createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
         createDb.beginTransaction();
         try {
             final ISqlJetSchema schema = createDb.getSchema();
@@ -403,13 +403,13 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createDb.rollback();
             throw new SqlJetException(e);
         }
-        
+
         createDb.close();
-        
+
         final SqlJetDb openDb = SqlJetDb.open(createFile, true);
         final int cacheSize = openDb.getOptions().getCacheSize();
         Assert.assertEquals(1000, cacheSize);
-        
+
     }
 
     @Test
@@ -419,7 +419,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
-        final SqlJetDb createDb = SqlJetDb.open(createFile, true, SqlJetAutoVacuumMode.INCR);
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.getOptions().setAutovacuum(true);
+        createDb.getOptions().setIncrementalVacuum(true);
         createDb.beginTransaction();
         try {
             final ISqlJetSchema schema = createDb.getSchema();
@@ -439,6 +441,16 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createDb.rollback();
             throw new SqlJetException(e);
         }
+
+        createDb.close();
+
+        final SqlJetDb checkDb = SqlJetDb.open(createFile, true);
+        Assert.assertTrue(checkDb.getOptions().isAutovacuum());
+        Assert.assertTrue(checkDb.getOptions().isIncrementalVacuum());
+        checkDb.close();
+
+        createFile.delete();
+
     }
 
     @Test
@@ -457,14 +469,13 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createDb.rollback();
             throw e;
         }
-        
+
         createDb.close();
-        
+
         final SqlJetDb openDb = SqlJetDb.open(createFile, true);
         final int schemaVersion = openDb.getOptions().getSchemaVersion();
         Assert.assertEquals(123, schemaVersion);
-        
-    }
 
+    }
 
 }

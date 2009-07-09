@@ -19,6 +19,8 @@ package org.tmatesoft.sqljet.core.table;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -26,6 +28,20 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * 
  */
 public interface ISqlJetOptions {
+
+    String SQLJET_DEFAULT_ENCODING_PROPERTY = "SQLJET_DEFAULT_ENCODING";
+
+    SqlJetEncoding SQLJET_DEFAULT_ENCODING = SqlJetUtility.getEnumSysProp(SQLJET_DEFAULT_ENCODING_PROPERTY,
+            SqlJetEncoding.UTF8);
+
+    String SQLJET_LEGACY_FILE_FORMAT_PROPERTY = "SQLJET_LEGACY_FILE_FORMAT";
+
+    boolean SQLJET_LEGACY_FILE_FORMAT = SqlJetUtility.getBoolSysProp(SQLJET_LEGACY_FILE_FORMAT_PROPERTY, true);
+
+    String SQLJET_DEFAULT_FILE_FORMAT_PROPERTY = "SQLJET_DEFAULT_FILE_FORMAT";
+
+    int SQLJET_DEFAULT_FILE_FORMAT = SqlJetUtility.getIntSysProp(SQLJET_DEFAULT_FILE_FORMAT_PROPERTY,
+            SQLJET_LEGACY_FILE_FORMAT ? ISqlJetLimits.SQLJET_MIN_FILE_FORMAT : ISqlJetLimits.SQLJET_MAX_FILE_FORMAT);
 
     /**
      * File format of schema layer.
@@ -35,8 +51,8 @@ public interface ISqlJetOptions {
     int getFileFormat() throws SqlJetException;
 
     /**
-     * Set file format. It's allowed only on new empty data base.
-     * It can't be performed in active transaction.
+     * Set file format. It's allowed only on new empty data base. It can't be
+     * performed in active transaction.
      * 
      * @param fileFormat
      * @throws SqlJetException
@@ -53,8 +69,8 @@ public interface ISqlJetOptions {
     boolean isAutovacuum() throws SqlJetException;
 
     /**
-     * Set autovacuum flag. It's allowed only on new empty data base.
-     * It can't be performed in active transaction.
+     * Set autovacuum flag. It's allowed only on new empty data base. It can't
+     * be performed in active transaction.
      * 
      * @param autovacuum
      * @throws SqlJetException
@@ -69,8 +85,8 @@ public interface ISqlJetOptions {
     boolean isIncrementalVacuum() throws SqlJetException;
 
     /**
-     * Set incremental vacuum flag. It's allowed only on new empty data base.
-     * It can't be performed in active transaction.
+     * Set incremental vacuum flag. It's allowed only on new empty data base. It
+     * can't be performed in active transaction.
      * 
      * @param incrementalVacuum
      * @throws SqlJetException
@@ -104,8 +120,8 @@ public interface ISqlJetOptions {
     SqlJetEncoding getEncoding() throws SqlJetException;
 
     /**
-     * Set encoding. It's allowed only on new empty data base.
-     * It can't be performed in active transaction.
+     * Set encoding. It's allowed only on new empty data base. It can't be
+     * performed in active transaction.
      * 
      * @param encoding
      * @throws SqlJetException

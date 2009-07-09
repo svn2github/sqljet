@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 
 /**
  * @author TMate Software Ltd.
@@ -75,4 +76,11 @@ public class SqlJetOptionsTest extends TestCase {
         ISqlJetOptions options = db.getOptions();
         assertEquals(0, options.getUserVersion());
     }
+    
+    public void testDefaultFileFormat() throws SqlJetException {
+        ISqlJetOptions options = db.getOptions();
+        assertEquals(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT, options.getFileFormat());
+    }
+
+    
 }

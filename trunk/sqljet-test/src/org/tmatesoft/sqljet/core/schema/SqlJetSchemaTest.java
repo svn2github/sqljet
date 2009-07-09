@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
@@ -478,4 +479,38 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     }
 
+    @Test
+    public void changeFileFormatMin() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.getOptions().setFileFormat(ISqlJetLimits.SQLJET_MIN_FILE_FORMAT);
+        createDb.close();
+
+        final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+        final int fileFormat = openDb.getOptions().getFileFormat();
+        Assert.assertEquals(ISqlJetLimits.SQLJET_MIN_FILE_FORMAT, fileFormat);
+
+    }
+
+    @Test
+    public void changeFileFormatMax() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        if (DELETE_COPY)
+            createFile.deleteOnExit();
+
+        final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+        createDb.getOptions().setFileFormat(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT);
+        createDb.close();
+
+        final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+        final int fileFormat = openDb.getOptions().getFileFormat();
+        Assert.assertEquals(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT, fileFormat);
+
+    }
+    
 }

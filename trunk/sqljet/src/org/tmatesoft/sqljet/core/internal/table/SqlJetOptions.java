@@ -61,7 +61,7 @@ public class SqlJetOptions implements ISqlJetOptions {
     /**
      * File format of schema layer.
      */
-    private int fileFormat = ISqlJetLimits.SQLJET_MAX_FILE_FORMAT;
+    private int fileFormat = SQLJET_DEFAULT_FILE_FORMAT;
 
     /**
      * Size of the page cache.
@@ -76,7 +76,7 @@ public class SqlJetOptions implements ISqlJetOptions {
     /**
      * Db text encoding.
      */
-    private SqlJetEncoding encoding = SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_ENCODING", SqlJetEncoding.UTF8);
+    private SqlJetEncoding encoding = SQLJET_DEFAULT_ENCODING;
 
     /**
      * The user cookie. Used by the application.
@@ -187,7 +187,7 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     private void checkFileFormat(final int fileFormat) throws SqlJetException {
-        if (fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
+        if (fileFormat < ISqlJetLimits.SQLJET_MIN_FILE_FORMAT || fileFormat > ISqlJetLimits.SQLJET_MAX_FILE_FORMAT)
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
     }
 

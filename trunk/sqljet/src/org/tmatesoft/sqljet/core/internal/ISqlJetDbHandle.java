@@ -20,8 +20,6 @@ package org.tmatesoft.sqljet.core.internal;
 import java.util.List;
 import java.util.Set;
 
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
-import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
@@ -80,12 +78,6 @@ public interface ISqlJetDbHandle {
      * @return
      */
     int getSavepointNum();
-
-    @Deprecated
-    SqlJetEncoding getEncoding() throws SqlJetException;
-
-    @Deprecated
-    void setEncoding(SqlJetEncoding enc) throws SqlJetException;
 
     ISqlJetOptions getOptions();
 

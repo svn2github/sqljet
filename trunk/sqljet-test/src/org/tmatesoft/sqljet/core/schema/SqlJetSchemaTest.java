@@ -30,7 +30,6 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.internal.SqlJetAutoVacuumMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;

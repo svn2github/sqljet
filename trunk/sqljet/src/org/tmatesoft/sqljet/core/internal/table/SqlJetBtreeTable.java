@@ -92,7 +92,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
         if (index) {
             this.keyInfo = new SqlJetKeyInfo();
-            this.keyInfo.setEnc(db.getEncoding());
+            this.keyInfo.setEnc(db.getOptions().getEncoding());
         }
 
         for (int i = 0; i < CURSOR_LOCK_RETRIES; i++) {
@@ -268,7 +268,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
      */
     public SqlJetEncoding getEncoding() throws SqlJetException {
-        return cursor.getCursorDb().getEncoding();
+        return cursor.getCursorDb().getOptions().getEncoding();
     }
 
     protected boolean checkField(int field) throws SqlJetException {
@@ -343,7 +343,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public String getString(int field) throws SqlJetException {
         if (isNull(field))
             return null;
-        return SqlJetUtility.toString(getValueMem(field).valueText(getEncoding()), db.getEncoding());
+        return SqlJetUtility.toString(getValueMem(field).valueText(getEncoding()), db.getOptions().getEncoding());
     }
 
     /*

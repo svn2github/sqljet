@@ -283,7 +283,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
 
             doActionWithIndexes(Action.INSERT, rowId, row);
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
             cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
             if (setLastNewRowId) {
                 lastNewRowId = rowId;
@@ -317,7 +317,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] row = SqlJetUtility.insertArray(values, new Object[] { rowId }, primaryKeyColumnNumber);
             doActionWithIndexes(Action.INSERT, rowId, row);
             lastNewRowId = rowId;
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
             cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
             return lastNewRowId;
         } finally {
@@ -366,7 +366,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private void doUpdate(long rowId, Object... values) throws SqlJetException {
         final Object[] row = isAutoincrement ? SqlJetUtility.addArrays(new Object[] { rowId }, values) : values;
         doActionWithIndexes(Action.UPDATE, rowId, row);
-        final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
+        final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
         cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
     }
 
@@ -623,7 +623,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
 
             doActionWithIndexes(Action.INSERT, rowId, row);
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
             cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
             if (setLastNewRowId) {
                 lastNewRowId = rowId;
@@ -652,7 +652,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] row = unwrapValues(values, rowId);
             doActionWithIndexes(Action.INSERT, rowId, row);
             lastNewRowId = rowId;
-            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getEncoding(), row).getRawRecord();
+            final ByteBuffer pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
             cursor.insert(null, lastNewRowId, pData, pData.remaining(), 0, true);
             return lastNewRowId;
         } finally {

@@ -21,8 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.tmatesoft.sqljet.core.SqlJetEncoding;
-import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
@@ -125,25 +123,6 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     public void setConfig(ISqlJetConfig config) {
         // TODO Auto-generated method stub
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetDb#getEnc()
-     */
-    public SqlJetEncoding getEncoding() throws SqlJetException {
-        return options.getEncoding();
-    }
-
-    /**
-     * @param enc
-     *            the enc to set
-     * 
-     * @throws SqlJetException
-     */
-    public void setEncoding(SqlJetEncoding enc) throws SqlJetException {
-        this.options.setEncoding(enc);
     }
 
     public ISqlJetOptions getOptions() {

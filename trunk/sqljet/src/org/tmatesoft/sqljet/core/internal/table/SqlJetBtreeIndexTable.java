@@ -83,7 +83,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public long lookup(boolean next, Object... values) throws SqlJetException {
         lock();
         try {
-            ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getEncoding(), values);
+            ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), values);
             final ByteBuffer k = key.getRawRecord();
             if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();
@@ -123,7 +123,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public boolean checkKey(Object... key) throws SqlJetException {
         if (eof())
             return false;
-        final ByteBuffer keyRecord = SqlJetBtreeRecord.getRecord(db.getEncoding(), key).getRawRecord();
+        final ByteBuffer keyRecord = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key).getRawRecord();
         return 0 == keyCompare(keyRecord, getRecord().getRawRecord());
     }
 
@@ -153,7 +153,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public void insert(long rowId, boolean append, Object... key) throws SqlJetException {
         lock();
         try {
-            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(db.getEncoding(),
+            final ByteBuffer zKey = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                     SqlJetUtility.addArrays(key, new Object[] { rowId })).getRawRecord();
             cursor.insert(zKey, zKey.remaining(), ByteBuffer.allocate(0), 0, 0, append);
         } finally {
@@ -171,7 +171,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public boolean delete(long rowId, Object... key) throws SqlJetException {
         lock();
         try {
-            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getEncoding(), key);
+            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key);
             final ByteBuffer k = rec.getRawRecord();
             if (cursor.moveTo(k, k.remaining(), false) < 0) {
                 next();

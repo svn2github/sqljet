@@ -296,7 +296,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 sMem.fromBtree(cursor, aOffset.get(column), len, isIndex);
                 zData = sMem.z;
                 SqlJetVdbeSerialType.serialGet(zData, aTypeColumn, pDest);
-                pDest.enc = cursor.getCursorDb().getEncoding();
+                pDest.enc = cursor.getCursorDb().getOptions().getEncoding();
             }
 
         } finally {

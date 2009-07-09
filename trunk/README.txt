@@ -20,7 +20,7 @@ contact TMate Software at support@sqljet.com
 3. FEATURES
 
 * Current version of SQLJet provides API to manipulate B-Tree data structures 
-  (tables and indicies) stored in the database and database schema. 
+  (tables and indices) stored in the database and database schema. 
 
 * SQLJet database format is compatible with SQLite 3.6, 
   i.e. databases created with SQLJet could be used by SQLite 3.6 (assuming schema is valid) 

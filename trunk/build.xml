@@ -37,6 +37,16 @@
                 <pathelement path="${java.class.path}"/>
             </classpath>
         </java>
+    	<!-- add @supressWarning to generated classes -->
+    	<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java" token="public class SqlLexer">
+    		<replacevalue>@SuppressWarnings({"unused"})
+public class SqlLexer</replacevalue>
+    	</replace>
+    	<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java" token="public class SqlParser">
+    		<replacevalue>@SuppressWarnings({"unused", "unchecked"})
+public class SqlParser</replacevalue>
+    	</replace>
+    		
     </target>
 
     <target name="compile" depends="antlr">

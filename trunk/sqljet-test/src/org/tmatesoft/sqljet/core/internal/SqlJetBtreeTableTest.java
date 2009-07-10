@@ -126,7 +126,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         try {
             if (!c.first())
                 do {
-                    ISqlJetBtreeRecord r = new SqlJetBtreeRecord(c, false);
+                    ISqlJetBtreeRecord r = new SqlJetBtreeRecord(c, false, ISqlJetLimits.SQLJET_MIN_FILE_FORMAT);
                     Assert.assertNotNull(r.getFields());
                     Assert.assertTrue(!r.getFields().isEmpty());
                     for (ISqlJetVdbeMem field : r.getFields()) {

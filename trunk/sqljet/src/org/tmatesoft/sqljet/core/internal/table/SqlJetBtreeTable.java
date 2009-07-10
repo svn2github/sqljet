@@ -244,7 +244,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             return null;
         lock();
         try {
-            return new SqlJetBtreeRecord(cursor, index);
+            return new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
         } finally {
             unlock();
         }

@@ -31,6 +31,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**
  * Implements {@link ISqlJetBtreeRecord}.
@@ -49,7 +50,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
     private List<Integer> aOffset = new ArrayList<Integer>();
     private List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>();
 
-    private int file_format = 4;
+    private int file_format = ISqlJetOptions.SQLJET_DEFAULT_FILE_FORMAT;
 
     /**
      * @return the fields
@@ -58,9 +59,10 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         return Collections.unmodifiableList(fields);
     }
 
-    public SqlJetBtreeRecord(ISqlJetBtreeCursor cursor, boolean isIndex) throws SqlJetException {
+    public SqlJetBtreeRecord(ISqlJetBtreeCursor cursor, boolean isIndex, int fileFormat) throws SqlJetException {
         this.cursor = cursor;
         this.isIndex = isIndex;
+        this.file_format = fileFormat;
         read();
     }
 

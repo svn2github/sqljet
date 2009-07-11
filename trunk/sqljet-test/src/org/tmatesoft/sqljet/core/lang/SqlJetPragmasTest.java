@@ -150,6 +150,25 @@ public class SqlJetPragmasTest extends TestCase {
         assertTrue(ex);
     }
 
+    public void testLegacyFileFormat() throws SqlJetException {
+        assertEquals(false, options.isLegacyFileFormat());
+
+        handler.pragma("pragma legacy_file_format = true;");
+        assertEquals(true, options.isLegacyFileFormat());
+
+        Object result = handler.pragma("pragma legacy_file_format;");
+        assertTrue(result instanceof Boolean);
+        assertEquals(true, ((Boolean) result).booleanValue());
+
+        boolean ex = false;
+        try {
+            handler.pragma("pragma legacy_file_format = new;");
+        } catch (SqlJetException e) {
+            ex = true;
+        }
+        assertTrue(ex);
+    }
+
     public void testSchemaVersion() throws SqlJetException {
         assertEquals(0, options.getSchemaVersion());
 
@@ -193,6 +212,7 @@ public class SqlJetPragmasTest extends TestCase {
         private int fileFormat;
         private boolean autovacuum, ivacuum;
         private SqlJetEncoding encoding;
+        private boolean legacy;
         private int cacheSize;
         private int schemaVersion, userVersion;
 
@@ -234,6 +254,14 @@ public class SqlJetPragmasTest extends TestCase {
 
         public void setEncoding(SqlJetEncoding encoding) throws SqlJetException {
             this.encoding = encoding;
+        }
+
+        public boolean isLegacyFileFormat() throws SqlJetException {
+            return legacy;
+        }
+
+        public void setLegacyFileFormat(boolean flag) throws SqlJetException {
+            this.legacy = flag;
         }
 
         public int getSchemaVersion() {

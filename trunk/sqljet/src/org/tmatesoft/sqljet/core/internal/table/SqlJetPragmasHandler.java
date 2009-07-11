@@ -86,6 +86,8 @@ public class SqlJetPragmasHandler {
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid encoding value: " + value);
                 }
+            } else if ("legacy_file_format".equals(name)) {
+                getOptions().setLegacyFileFormat(toBooleanValue(value));
             } else if ("schema_version".equals(name)) {
                 if (value instanceof Number) {
                     int version = ((Number) value).intValue();
@@ -117,6 +119,8 @@ public class SqlJetPragmasHandler {
                 return Integer.valueOf(getOptions().getCacheSize());
             } else if ("encoding".equals(name)) {
                 return getOptions().getEncoding();
+            } else if ("legacy_file_format".equals(name)) {
+                return getOptions().isLegacyFileFormat();
             } else if ("schema_version".equals(name)) {
                 return Integer.valueOf(getOptions().getSchemaVersion());
             } else if ("user_version".equals(name)) {

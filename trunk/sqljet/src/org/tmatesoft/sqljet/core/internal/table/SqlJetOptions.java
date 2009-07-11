@@ -214,6 +214,15 @@ public class SqlJetOptions implements ISqlJetOptions {
         return encoding;
     }
 
+    public boolean isLegacyFileFormat() throws SqlJetException {
+        // TODO: implement
+        return false;
+    }
+
+    public void setLegacyFileFormat(boolean flag) throws SqlJetException {
+        // TODO: implement
+    }
+
     public int getUserVersion() throws SqlJetException {
         return userCookie;
     }

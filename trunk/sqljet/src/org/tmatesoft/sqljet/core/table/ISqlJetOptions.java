@@ -133,7 +133,17 @@ public interface ISqlJetOptions {
     // incremental_vacuum
     // journal_mode
     // journal_size_limit
-    // legacy_file_format
+
+    /**
+     * Checks if legacy file format is used for the new databases.
+     */
+    boolean isLegacyFileFormat() throws SqlJetException;
+
+    /**
+     * Instructs SQLJet to use legacy file format for all new databases.
+     */
+    void setLegacyFileFormat(boolean flag) throws SqlJetException;
+
     // locking_mode
     // page_size
     // max_page_count

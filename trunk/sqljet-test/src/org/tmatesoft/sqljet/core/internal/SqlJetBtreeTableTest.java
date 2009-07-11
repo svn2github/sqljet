@@ -597,4 +597,20 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Assert.assertTrue(false);
     }
 
+    @Test
+    public void checkIndexSorted() throws SqlJetException {
+        final ISqlJetSchema schema = new SqlJetSchema(db, btreeCopy);
+        final String idx = schema.getIndexes(REP_CACHE_TABLE).iterator().next().getName();
+        Assert.assertNotNull(idx);
+        final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
+        String prev = null;
+        for(index.first();!index.eof();index.next()){
+            final String hash = index.getString(0);
+            logger.info(hash);
+            if(prev!=null&&hash!=null){
+                Assert.assertTrue(hash.compareTo(prev)>0);
+            }
+            prev = hash;
+        }      
+    }
 }

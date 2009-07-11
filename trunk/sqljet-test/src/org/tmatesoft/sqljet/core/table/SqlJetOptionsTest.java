@@ -18,9 +18,13 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
@@ -76,11 +80,58 @@ public class SqlJetOptionsTest extends TestCase {
         ISqlJetOptions options = db.getOptions();
         assertEquals(0, options.getUserVersion());
     }
-    
+
     public void testDefaultFileFormat() throws SqlJetException {
         ISqlJetOptions options = db.getOptions();
         assertEquals(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT, options.getFileFormat());
     }
 
+    @Test
+    public void legacyFileFormatTrue() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        createFile.deleteOnExit();
+
+        try {
+
+            final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+            createDb.getOptions().setLegacyFileFormat(true);
+            createDb.close();
+
+            final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+            final int fileFormat = openDb.getOptions().getFileFormat();
+            Assert.assertEquals(ISqlJetLimits.SQLJET_MIN_FILE_FORMAT, fileFormat);
+            
+        } finally {
+
+            createFile.delete();
+
+        }
+
+    }
+
+    @Test
+    public void legacyFileFormatFalse() throws SqlJetException, FileNotFoundException, IOException {
+
+        final File createFile = File.createTempFile("create", null);
+        createFile.deleteOnExit();
+
+        try {
+
+            final SqlJetDb createDb = SqlJetDb.open(createFile, true);
+            createDb.getOptions().setLegacyFileFormat(false);
+            createDb.close();
+
+            final SqlJetDb openDb = SqlJetDb.open(createFile, true);
+            final int fileFormat = openDb.getOptions().getFileFormat();
+            Assert.assertFalse(ISqlJetLimits.SQLJET_MIN_FILE_FORMAT == fileFormat);
+            
+        } finally {
+
+            createFile.delete();
+
+        }
+
+    }
     
 }

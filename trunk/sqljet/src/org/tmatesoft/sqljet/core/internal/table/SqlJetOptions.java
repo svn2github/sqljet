@@ -215,12 +215,11 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     public boolean isLegacyFileFormat() throws SqlJetException {
-        // TODO: implement
-        return false;
+        return fileFormat==ISqlJetLimits.SQLJET_MIN_FILE_FORMAT;
     }
 
     public void setLegacyFileFormat(boolean flag) throws SqlJetException {
-        // TODO: implement
+        fileFormat=flag?ISqlJetLimits.SQLJET_MIN_FILE_FORMAT:ISqlJetLimits.SQLJET_MAX_FILE_FORMAT;
     }
 
     public int getUserVersion() throws SqlJetException {

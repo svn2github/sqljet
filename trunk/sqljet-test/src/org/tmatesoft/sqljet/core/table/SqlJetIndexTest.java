@@ -104,7 +104,7 @@ public class SqlJetIndexTest extends TestCase {
         });
         ISqlJetTable t = db.getTable("t");
         assertNotNull(t);
-        ISqlJetCursor c = t.lookup("tbc", "y", 10);
+        ISqlJetCursor c = t.lookup("tbc", "y", (long)10);
         assertTrue(!c.eof());
         assertEquals("n", c.getString("a"));
         c.next();
@@ -112,7 +112,7 @@ public class SqlJetIndexTest extends TestCase {
         c.close();
 
         Set<String> values = new HashSet<String>();
-        c = t.lookup("tb", "b", 10);
+        c = t.lookup("tbc", "b", (long)10);
         while (!c.eof()) {
             values.add(c.getString("a"));
             c.next();

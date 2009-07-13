@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
-import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -45,7 +44,7 @@ public class InventoryDB {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
 					db.getSchema().createTable(
-							"create table items (article int primary key, "
+							"create table items (article integer primary key, "
 									+ "name text not null, description text, "
 									+ "image blob, room int, shelf int, "
 									+ "borrowed_from text, borrowed_to text)");
@@ -91,11 +90,9 @@ public class InventoryDB {
 	}
 
 	public static InventoryItem getItem(long article) throws SqlJetException {
-		ISqlJetTable items = db.getTable("items");
-		ISqlJetCursor cursor = items.lookup(items.getPrimaryKeyIndexName(),
-				article);
+		ISqlJetCursor cursor = db.getTable("items").open();
 		try {
-			if (!cursor.eof()) {
+			if (cursor.goTo(article)) {
 				InventoryItem item = new InventoryItem();
 				item.read(cursor);
 				return item;
@@ -123,11 +120,9 @@ public class InventoryDB {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
-				ISqlJetTable items = db.getTable("items");
-				ISqlJetCursor cursor = items.lookup(items
-						.getPrimaryKeyIndexName(), article);
+				ISqlJetCursor cursor = db.getTable("items").open();
 				try {
-					if (!cursor.eof()) {
+					if (cursor.goTo(article)) {
 						cursor.updateByFieldNames(values);
 					}
 				} finally {
@@ -142,11 +137,9 @@ public class InventoryDB {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
-				ISqlJetTable items = db.getTable("items");
-				ISqlJetCursor cursor = items.lookup(items
-						.getPrimaryKeyIndexName(), article);
+				ISqlJetCursor cursor = db.getTable("items").open();
 				try {
-					if (!cursor.eof()) {
+					if (cursor.goTo(article)) {
 						cursor.delete();
 					}
 				} finally {

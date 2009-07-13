@@ -102,6 +102,8 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setInt64((Integer) value);
             } else if (value instanceof Long) {
                 mem.setInt64((Long) value);
+            } else if (value instanceof Float) {
+                mem.setDouble((Float) value);
             } else if (value instanceof Double) {
                 mem.setDouble((Double) value);
             } else if (null == value) {

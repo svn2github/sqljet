@@ -30,7 +30,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class SqlJetTableStressTest extends TestCase {
 
-    private File dbFile = new File("sqljet-test/db/bigdb.sqlite");
     private SqlJetDb db;
 
     public SqlJetTableStressTest() {
@@ -39,10 +38,9 @@ public class SqlJetTableStressTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        if (dbFile.exists()) {
-            dbFile.delete();
-        }
-        db = SqlJetDb.open(dbFile, true);
+        File fileDb = File.createTempFile("stressTest", null);
+        fileDb.deleteOnExit();
+        db = SqlJetDb.open(fileDb, true);
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -55,7 +53,6 @@ public class SqlJetTableStressTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         db.close();
-        dbFile.delete();
     }
 
     public void testInsert100000Records() throws Exception {

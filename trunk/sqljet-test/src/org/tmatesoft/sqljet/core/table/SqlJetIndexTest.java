@@ -128,6 +128,48 @@ public class SqlJetIndexTest extends TestCase {
         assertTrue(values.contains("c"));
     }
 
+    public void testAutomaticIntConversion() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a int)");
+                db.getSchema().createIndex("create index ta on t (a)");
+                ISqlJetTable t = db.getTable("t");
+                t.insert(10L);
+                t.insert(20L);
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        ISqlJetCursor c = t.lookup("ta", 20); // 32bit integer, not long -> should be promoted to long
+        assertFalse(c.eof());
+        assertEquals(10L, c.getInteger(0));
+        c.next();
+        assertTrue(c.eof());
+        c.close();
+    }
+
+    public void testAutomaticFloatConversion() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a real)");
+                db.getSchema().createIndex("create index ta on t (a)");
+                ISqlJetTable t = db.getTable("t");
+                t.insert(0.1D);
+                t.insert(0.2D);
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        ISqlJetCursor c = t.lookup("ta", 0.2F); // float, not double -> should be promoted to double
+        assertFalse(c.eof());
+        assertEquals(0.2D, c.getFloat(0));
+        c.next();
+        assertTrue(c.eof());
+        c.close();
+    }
+    
     public void testReadUsingColumnPK() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
 

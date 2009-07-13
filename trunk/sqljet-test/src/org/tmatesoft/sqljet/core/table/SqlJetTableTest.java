@@ -641,4 +641,16 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy2.close();
         
     }
+    
+
+    @Test
+    public void testManyNamesOfRowid() throws SqlJetException {
+        ISqlJetCursor c = dbCopy.getTable("test1").open();
+        c.goTo(1L);
+        Assert.assertFalse(c.eof());
+        Assert.assertEquals(1L, c.getInteger("ROWID"));
+        Assert.assertEquals(1L, c.getInteger("_ROWID_"));
+        Assert.assertEquals(1L, c.getInteger("OID"));
+        c.close();
+    }
 }

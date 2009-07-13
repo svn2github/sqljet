@@ -52,6 +52,10 @@ public class SqlJetIndexTest extends TestCase {
                 t.insert("x", "z", 11, 12);
                 t.insert("a", "b", 10, 13);
                 t.insert("c", "b", 10, 23);
+                db.getSchema().createTable("create table tpk (a int primary key, b text)");
+                t = db.getTable("tpk");
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
                 return null;
             }
         });
@@ -104,7 +108,7 @@ public class SqlJetIndexTest extends TestCase {
         });
         ISqlJetTable t = db.getTable("t");
         assertNotNull(t);
-        ISqlJetCursor c = t.lookup("tbc", "y", (long)10);
+        ISqlJetCursor c = t.lookup("tbc", "y", 10L);
         assertTrue(!c.eof());
         assertEquals("n", c.getString("a"));
         c.next();
@@ -112,7 +116,7 @@ public class SqlJetIndexTest extends TestCase {
         c.close();
 
         Set<String> values = new HashSet<String>();
-        c = t.lookup("tbc", "b", (long)10);
+        c = t.lookup("tbc", "b", 10L);
         while (!c.eof()) {
             values.add(c.getString("a"));
             c.next();
@@ -121,5 +125,12 @@ public class SqlJetIndexTest extends TestCase {
         assertTrue(values.size() == 2);
         assertTrue(values.contains("a"));
         assertTrue(values.contains("c"));
+    }
+
+    public void testPK() throws Exception {
+        ISqlJetTable t = db.getTable("tpk");
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 0L);
+        assertFalse(c.eof());
+        assertEquals("zzz", c.getString(1));
     }
 }

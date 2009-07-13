@@ -54,6 +54,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTypeDef;
 import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
@@ -339,7 +340,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 continue;
             for (final ISqlJetColumnConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
-                    if (column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
+                    if (!isExactlyIntegerTypeColumn(column)) {
                         createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                     }
                 } else if (constraint instanceof ISqlJetColumnUnique) {
@@ -358,6 +359,18 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
+    }
+
+    /**
+     * @param column
+     * @return
+     */
+    public static boolean isExactlyIntegerTypeColumn(final ISqlJetColumnDef column) {
+        if( column.getTypeAffinity() != SqlJetTypeAffinity.INTEGER ) return false;
+        final ISqlJetTypeDef type = column.getType();
+        if(type==null||type.getNames()==null||type.getNames().size()==0) return false;
+        final String typeName = type.getNames().get(0);
+        return "INTEGER".equalsIgnoreCase(typeName);
     }
 
     /**

@@ -143,7 +143,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 for (final ISqlJetColumnConstraint constraint : constraints) {
                     if (constraint instanceof ISqlJetColumnPrimaryKey) {
                         primaryKeyColumns.add(column.getName());
-                        if (column.getTypeAffinity() == SqlJetTypeAffinity.INTEGER) {
+                        if (SqlJetSchema.isExactlyIntegerTypeColumn(column)) {
                             rowIdPrimaryKeyColumn = column.getName();
                             isRowIdPrimaryKey = true;
                             isAutoincrement = ((ISqlJetColumnPrimaryKey) constraint).isAutoincremented();

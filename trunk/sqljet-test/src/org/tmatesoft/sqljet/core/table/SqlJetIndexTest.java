@@ -56,6 +56,10 @@ public class SqlJetIndexTest extends TestCase {
                 t = db.getTable("tpk");
                 t.insertAutoId("zzz");
                 t.insertAutoId("www");
+                db.getSchema().createTable("create table tpkr (a integer primary key, b text)");
+                t = db.getTable("tpkr");
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
                 return null;
             }
         });
@@ -127,10 +131,16 @@ public class SqlJetIndexTest extends TestCase {
         assertTrue(values.contains("c"));
     }
 
-    public void testPK() throws Exception {
+    public void testPKRead() throws Exception {
         ISqlJetTable t = db.getTable("tpk");
-        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 0L);
+        assertNotNull(t.getPrimaryKeyIndexName());
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 1L);
         assertFalse(c.eof());
         assertEquals("zzz", c.getString(1));
+    }
+
+    public void testRowidPK() throws Exception {
+        ISqlJetTable t = db.getTable("tpkr");
+        assertNull(t.getPrimaryKeyIndexName());
     }
 }

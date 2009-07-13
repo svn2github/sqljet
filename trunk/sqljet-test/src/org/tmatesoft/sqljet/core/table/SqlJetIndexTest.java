@@ -43,26 +43,6 @@ public class SqlJetIndexTest extends TestCase {
         File fileDb = File.createTempFile("indexTest", null);
         fileDb.deleteOnExit();
         db = SqlJetDb.open(fileDb, true);
-        db.runWriteTransaction(new ISqlJetTransaction() {
-
-            public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a text, b text, c int, d int)");
-                ISqlJetTable t = db.getTable("t");
-                t.insert("n", "y", 10, 20);
-                t.insert("x", "z", 11, 12);
-                t.insert("a", "b", 10, 13);
-                t.insert("c", "b", 10, 23);
-                db.getSchema().createTable("create table tpk (a int primary key, b text)");
-                t = db.getTable("tpk");
-                t.insertAutoId("zzz");
-                t.insertAutoId("www");
-                db.getSchema().createTable("create table tpkr (a integer primary key, b text)");
-                t = db.getTable("tpkr");
-                t.insertAutoId("zzz");
-                t.insertAutoId("www");
-                return null;
-            }
-        });
     }
 
     @Override
@@ -72,7 +52,23 @@ public class SqlJetIndexTest extends TestCase {
         }
     }
 
+    private void createTableT() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a text, b text, c int, d int)");
+                ISqlJetTable t = db.getTable("t");
+                t.insert("n", "y", 10, 20);
+                t.insert("x", "z", 11, 12);
+                t.insert("a", "b", 10, 13);
+                t.insert("c", "b", 10, 23);
+                return null;
+            }
+        });
+    }
+
     public void testSingleColumnIndex() throws Exception {
+        createTableT();
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -103,6 +99,7 @@ public class SqlJetIndexTest extends TestCase {
     }
 
     public void testMultiColumnIndex() throws Exception {
+        createTableT();
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -131,16 +128,82 @@ public class SqlJetIndexTest extends TestCase {
         assertTrue(values.contains("c"));
     }
 
-    public void testPKRead() throws Exception {
-        ISqlJetTable t = db.getTable("tpk");
+    public void testReadUsingColumnPK() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a int primary key, b text)");
+                ISqlJetTable t = db.getTable("t");
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
         assertNotNull(t.getPrimaryKeyIndexName());
         ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 1L);
         assertFalse(c.eof());
         assertEquals("zzz", c.getString(1));
+        c.next();
+        assertTrue(c.eof());
+        c.close();
     }
 
-    public void testRowidPK() throws Exception {
-        ISqlJetTable t = db.getTable("tpkr");
+    public void testNoRowidPK() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a integer primary key, b text)");
+                ISqlJetTable t = db.getTable("t");
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
         assertNull(t.getPrimaryKeyIndexName());
+    }
+
+    public void testReadUsingSingleColumnTablePK() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a text, b text, primary key (a))");
+                ISqlJetTable t = db.getTable("t");
+                t.insert("set", "in");
+                t.insert("get", "out");
+                t.insert("bet", "down");
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        assertNotNull(t.getPrimaryKeyIndexName());
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), "get");
+        assertFalse(c.eof());
+        assertEquals("out", c.getString(1));
+        c.next();
+        assertTrue(c.eof());
+    }
+
+    public void testReadUsingMultiColumnTablePK() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a text, b text, primary key (a,b))");
+                ISqlJetTable t = db.getTable("t");
+                t.insert("get", "in");
+                t.insert("get", "out");
+                t.insert("get", "down");
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        assertNotNull(t.getPrimaryKeyIndexName());
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), "get", "out");
+        assertFalse(c.eof());
+        assertEquals("get", c.getString(0));
+        assertEquals("out", c.getString(1));
+        c.next();
+        assertTrue(c.eof());
     }
 }

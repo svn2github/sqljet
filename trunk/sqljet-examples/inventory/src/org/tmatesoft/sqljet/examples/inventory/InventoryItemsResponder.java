@@ -1,5 +1,6 @@
 package org.tmatesoft.sqljet.examples.inventory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,26 +21,29 @@ public class InventoryItemsResponder {
 	}
 
 	private void printItems(StringBuffer buffer, ISqlJetCursor cursor) throws SqlJetException {
-		buffer.append("<table border='1'><tr>" + "<th>Article</th>" + "<th>Name</th>" + "<th>Description</th>"
-				+ "<th>Image</th>" + "<th>Room</th>" + "<th>Shelf</th>" + "<th>Borrowed To</th>"
-				+ "<th>Borrowed From</th>" + "<th>Edit</th>" + "<th>Delete</th>" + "<tr>");
+		buffer.append("<table border='1'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
+		if (InventoryDB.getVersion() > 1) {
+			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
+		}
+		buffer.append("<th>Edit</th><th>Delete</th><tr>");
+		InventoryItem item = new InventoryItem();
 		while (!cursor.eof()) {
+			item.read(cursor);
 			buffer.append("<tr>");
-			for (int i = 0; i < cursor.getFieldsCount(); i++) {
-				buffer.append("<td>");
-				Object value = cursor.getValue(i);
-				if (value != null) {
-					buffer.append(value);
-				} else {
-					buffer.append("&nbsp;");
-				}
-				buffer.append("</td>");
+			printValue(buffer, item.article);
+			printValue(buffer, item.name);
+			printValue(buffer, item.description);
+			printValue(buffer, item.room);
+			printValue(buffer, item.shelf);
+			if (InventoryDB.getVersion() > 1) {
+				printValue(buffer, item.borrowedFrom);
+				printValue(buffer, item.borrowedTo);
 			}
 			buffer.append("<td><a href='/edit_item?article=");
-			buffer.append(cursor.getInteger("article"));
+			buffer.append(item.article);
 			buffer.append("'>Edit</a></td>");
 			buffer.append("<td><a href='/remove_item?article=");
-			buffer.append(cursor.getInteger("article"));
+			buffer.append(item.article);
 			buffer.append("'>Remove</a></td>");
 			buffer.append("</tr>");
 			cursor.next();
@@ -47,7 +51,17 @@ public class InventoryItemsResponder {
 		buffer.append("</table>");
 	}
 
-	private void addReturnToInventory(StringBuffer buffer) {
+	private void printValue(StringBuffer buffer, Object value) {
+		buffer.append("<td>");
+		if (value != null) {
+			buffer.append(value);
+		} else {
+			buffer.append("&nbsp;");
+		}
+		buffer.append("</td>");
+	}
+
+	private void printReturnToInventory(StringBuffer buffer) {
 		buffer.append("<hr><a href='/'>Return to inventory</a>");
 	}
 
@@ -56,11 +70,10 @@ public class InventoryItemsResponder {
 		buffer.append("<form><table>");
 		buffer.append("<tr><td>Name:</td><td><input type='text' name='name'/></td></tr>");
 		buffer.append("<tr><td>Description:</td><td><input type='text' name='description'/></td></tr>");
-		buffer.append("<tr><td>Image:</td><td></td></tr>");
 		buffer.append("<tr><td>Room:</td><td><input type='text' name='room'/></td></tr>");
 		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf'/></td></tr>");
 		buffer.append("</table><input type='submit' value='Submit'></form>");
-		addReturnToInventory(buffer);
+		printReturnToInventory(buffer);
 	}
 
 	public void processAddForm(StringBuffer buffer, Map<String, String> params) throws SqlJetException {
@@ -92,13 +105,13 @@ public class InventoryItemsResponder {
 		} catch (Exception e) {
 			buffer.append("Invalid input! " + e.getMessage());
 		}
-		addReturnToInventory(buffer);
+		printReturnToInventory(buffer);
 	}
 
 	private InventoryItem findItem(StringBuffer buffer, Map<String, String> params) throws SqlJetException {
 		if (!params.containsKey("article")) {
 			buffer.append("Article is not specified.");
-			addReturnToInventory(buffer);
+			printReturnToInventory(buffer);
 			return null;
 		}
 		long article;
@@ -108,7 +121,7 @@ public class InventoryItemsResponder {
 			buffer.append("Invalid article: '");
 			buffer.append(params.get("article"));
 			buffer.append("'");
-			addReturnToInventory(buffer);
+			printReturnToInventory(buffer);
 			return null;
 		}
 		InventoryItem item = InventoryDB.getItem(article);
@@ -116,7 +129,7 @@ public class InventoryItemsResponder {
 			buffer.append("Item with article '");
 			buffer.append(article);
 			buffer.append("' not found.");
-			addReturnToInventory(buffer);
+			printReturnToInventory(buffer);
 			return null;
 		}
 		return item;
@@ -130,7 +143,7 @@ public class InventoryItemsResponder {
 			} else {
 				processEditForm(buffer, item, params);
 			}
-			addReturnToInventory(buffer);
+			printReturnToInventory(buffer);
 		}
 	}
 
@@ -151,7 +164,6 @@ public class InventoryItemsResponder {
 			buffer.append("'");
 		}
 		buffer.append("/></td></tr>");
-		buffer.append("<tr><td>Image:</td><td></td></tr>");
 		buffer.append("<tr><td>Room:</td><td><input type='text' name='room' value='");
 		buffer.append(item.room);
 		buffer.append("'/></td></tr>");
@@ -174,8 +186,13 @@ public class InventoryItemsResponder {
 			} else {
 				values.put("name", name);
 			}
-			if (params.containsKey("description")) {
-				values.put("description", params.get("description"));
+			String description = params.get("description");
+			if (description != null) {
+				try {
+					values.put("description", description.getBytes("UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalArgumentException(e);
+				}
 			}
 			String room = params.get("room");
 			if (room != null) {
@@ -205,7 +222,7 @@ public class InventoryItemsResponder {
 		if (item != null) {
 			InventoryDB.removeItem(item.article);
 			buffer.append("Item was removed.");
-			addReturnToInventory(buffer);
+			printReturnToInventory(buffer);
 		}
 	}
 }

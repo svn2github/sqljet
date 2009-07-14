@@ -12,6 +12,8 @@
  */
 package org.tmatesoft.sqljet.examples.inventory;
 
+import java.io.UnsupportedEncodingException;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
@@ -23,7 +25,6 @@ public class InventoryItem {
 	public long article;
 	public String name;
 	public String description;
-	public byte[] image;
 	public long room;
 	public long shelf;
 	public String borrowedFrom;
@@ -32,12 +33,11 @@ public class InventoryItem {
 	public InventoryItem() {
 	}
 
-	public InventoryItem(long article, String name, String description, byte[] image, long room, long shelf,
-			String borrowedFrom, String borrowedTo) {
+	public InventoryItem(long article, String name, String description, long room, long shelf, String borrowedFrom,
+			String borrowedTo) {
 		this.article = article;
 		this.name = name;
 		this.description = description;
-		this.image = image;
 		this.room = room;
 		this.shelf = shelf;
 		this.borrowedFrom = borrowedFrom;
@@ -47,8 +47,16 @@ public class InventoryItem {
 	public void read(ISqlJetCursor cursor) throws SqlJetException {
 		article = cursor.getInteger("article");
 		name = cursor.getString("name");
-		description = cursor.getString("description");
-		image = cursor.getBlobAsArray("image");
+		byte[] blob = cursor.getBlobAsArray("description");
+		if (blob != null) {
+			try {
+				description = new String(blob, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalArgumentException(e);
+			}
+		} else {
+			description = null;
+		}
 		room = cursor.getInteger("room");
 		shelf = cursor.getInteger("shelf");
 		borrowedFrom = cursor.getString("borrowed_from");

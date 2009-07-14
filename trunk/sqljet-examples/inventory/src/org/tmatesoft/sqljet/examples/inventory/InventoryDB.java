@@ -13,6 +13,7 @@
 package org.tmatesoft.sqljet.examples.inventory;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -42,17 +43,21 @@ public class InventoryDB {
 		db = null;
 	}
 
-	private static void upgrade(int version) throws SqlJetException {
-		if (version < 1) {
+	public static int getVersion() throws SqlJetException {
+		return db.getOptions().getUserVersion();
+	}
+
+	private static void upgrade(int targetVersion) throws SqlJetException {
+		if (targetVersion < 1) {
 			return;
 		}
-		if (db.getOptions().getUserVersion() < 1) {
+		if (getVersion() < 1) {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
 					db.getSchema().createTable(
-							"create table items (article integer primary key, name text not null, description text, "
-									+ "image blob, room int, shelf int, borrowed_from text, borrowed_to text)");
+							"create table items (article integer primary key, name text not null, description blob, "
+									+ "room int, shelf int, borrowed_from text, borrowed_to text)");
 					db.getSchema().createIndex("create index items_name on items (name asc)");
 					db.getSchema().createIndex("create index items_location on items (room, shelf)");
 					db.getOptions().setUserVersion(1);
@@ -61,10 +66,10 @@ public class InventoryDB {
 				}
 			});
 		}
-		if (version < 2) {
+		if (targetVersion < 2) {
 			return;
 		}
-		if (db.getOptions().getUserVersion() < 2) {
+		if (getVersion() < 2) {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
@@ -75,15 +80,15 @@ public class InventoryDB {
 				}
 			});
 		}
-		if (version > 2) {
-			throw new IllegalArgumentException("Unsupported version: " + version);
+		if (targetVersion > 2) {
+			throw new IllegalArgumentException("Unsupported version: " + targetVersion);
 		}
 	}
 
 	private static void prefillItems() throws SqlJetException {
-		addItem(new InventoryItem(-1, "MacBook", "Unibody 2GHz", null, 7, 23, "Dmitry Stadnik", null));
-		addItem(new InventoryItem(-1, "iPhone 3G", "8Mb", null, 7, 24, "Dmitry Stadnik", null));
-		addItem(new InventoryItem(-1, "Cup", "Big & White", null, 3, 1, null, "MG"));
+		addItem(new InventoryItem(-1, "MacBook", "Unibody 2GHz", 7, 23, "Dmitry Stadnik", null));
+		addItem(new InventoryItem(-1, "iPhone 3G", "8Mb", 7, 24, "Dmitry Stadnik", null));
+		addItem(new InventoryItem(-1, "Cup", "Big & White", 3, 1, null, "MG"));
 	}
 
 	private static void prefillUsers() throws SqlJetException {
@@ -116,8 +121,16 @@ public class InventoryDB {
 		return item.article = (Long) db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
-				return db.getTable("items").insertAutoId(item.name, item.description, item.image, item.room,
-						item.shelf, item.borrowedTo, item.borrowedFrom);
+				byte[] blob = null;
+				if (item.description != null) {
+					try {
+						blob = item.description.getBytes("UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						throw new IllegalArgumentException(e);
+					}
+				}
+				return db.getTable("items").insertAutoId(item.name, blob, item.room, item.shelf, item.borrowedTo,
+						item.borrowedFrom);
 			}
 		});
 	}

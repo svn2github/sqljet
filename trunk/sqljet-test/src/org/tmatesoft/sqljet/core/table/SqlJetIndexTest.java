@@ -141,7 +141,8 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
         ISqlJetTable t = db.getTable("t");
-        ISqlJetCursor c = t.lookup("ta", 20); // 32bit integer, not long -> should be promoted to long
+        // 32bit integer, not long -> should be promoted to long
+        ISqlJetCursor c = t.lookup("ta", 20);
         assertFalse(c.eof());
         assertEquals(20L, c.getInteger(0));
         c.next();
@@ -162,22 +163,23 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
         ISqlJetTable t = db.getTable("t");
-        ISqlJetCursor c = t.lookup("ta", 0.2F); // float, not double -> should be promoted to double
+        // float, not double -> should be promoted to double
+        ISqlJetCursor c = t.lookup("ta", 0.2F);
         assertFalse(c.eof());
         assertEquals(0.2D, c.getFloat(0));
         c.next();
         assertTrue(c.eof());
         c.close();
     }
-    
+
     public void testReadUsingColumnPK() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.getSchema().createTable("create table t (a int primary key, b text)");
                 ISqlJetTable t = db.getTable("t");
-                t.insert(1,"zzz");
-                t.insert(2,"www");
+                t.insert(1, "zzz");
+                t.insert(2, "www");
                 return null;
             }
         });
@@ -186,6 +188,48 @@ public class SqlJetIndexTest extends TestCase {
         ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 1L);
         assertFalse(c.eof());
         assertEquals("zzz", c.getString(1));
+        c.next();
+        assertTrue(c.eof());
+        c.close();
+    }
+
+    public void testReadUsingColumnPKAutoinc() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a int primary key autoincrement, b text)");
+                ISqlJetTable t = db.getTable("t");
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        assertNotNull(t.getPrimaryKeyIndexName());
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 2L);
+        assertFalse(c.eof());
+        assertEquals("www", c.getString(1));
+        c.next();
+        assertTrue(c.eof());
+        c.close();
+    }
+
+    public void testReadUsingSecondColumnPK() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table t (a text, b int primary key)");
+                ISqlJetTable t = db.getTable("t");
+                t.insert("zzz", 1);
+                t.insert("www", 2);
+                return null;
+            }
+        });
+        ISqlJetTable t = db.getTable("t");
+        assertNotNull(t.getPrimaryKeyIndexName());
+        ISqlJetCursor c = t.lookup(t.getPrimaryKeyIndexName(), 2L);
+        assertFalse(c.eof());
+        assertEquals("www", c.getString(0));
         c.next();
         assertTrue(c.eof());
         c.close();

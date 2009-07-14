@@ -52,7 +52,7 @@ public class SqlJetUtility {
             throw new SqlJetError("Error while get int value for property " + propName, t);
         }
     }
-    
+
     public static int getIntSysProp(final String propName, final int defValue) throws SqlJetError {
         if (null == propName)
             throw new SqlJetError("Undefined property name");
@@ -163,7 +163,7 @@ public class SqlJetUtility {
         b.rewind();
         return b;
     }
-    
+
     /**
      * Write a four-byte big-endian integer value.
      */
@@ -334,11 +334,11 @@ public class SqlJetUtility {
     public static int strlen(ByteBuffer s, int from) {
         int p = from;
         /* Loop over the data in s. */
-        while (p < s.remaining() && getUnsignedByte(s, p)!= 0)
+        while (p < s.remaining() && getUnsignedByte(s, p) != 0)
             p++;
         return (p - from);
     }
-    
+
     /**
      * Check to see if the i-th bit is set. Return true or false. If p is NULL
      * (if the bitmap has not been created) or if i is out of range, then return
@@ -436,7 +436,7 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
-        return slice(b, pos, b.remaining()-pos);
+        return slice(b, pos, b.remaining() - pos);
     }
 
     /**
@@ -849,23 +849,25 @@ public class SqlJetUtility {
      * 
      * @param buf
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public static String toString(ByteBuffer buf, SqlJetEncoding enc) throws SqlJetException {
-        if(buf==null) return null;
-        if(enc==null) return null;
+        if (buf == null)
+            return null;
+        if (enc == null)
+            return null;
         synchronized (buf) {
             byte[] bytes = new byte[buf.remaining()];
             buf.get(bytes);
             buf.rewind();
             try {
-                return new String(bytes, enc.getCharsetName() );
+                return new String(bytes, enc.getCharsetName());
             } catch (UnsupportedEncodingException e) {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE,"Unknown charser " + enc.name());
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charser " + enc.name());
             }
         }
     }
-    
+
     /**
      * Get {@link ByteBuffer} from {@link String}.
      * 
@@ -878,10 +880,10 @@ public class SqlJetUtility {
         try {
             return ByteBuffer.wrap(s.getBytes(enc.getCharsetName()));
         } catch (UnsupportedEncodingException e) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE,"Unknown charser " + enc.name());
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charser " + enc.name());
         }
     }
-    
+
     /**
      * Translate {@link ByteBuffer} from one charset to other charset.
      * 
@@ -892,9 +894,9 @@ public class SqlJetUtility {
      * @throws SqlJetException
      */
     public static ByteBuffer translate(ByteBuffer buf, SqlJetEncoding from, SqlJetEncoding to) throws SqlJetException {
-        return fromString(toString(buf,from), to);
+        return fromString(toString(buf, from), to);
     }
-    
+
     /**
      * @param s
      * @return
@@ -1033,7 +1035,7 @@ public class SqlJetUtility {
     public static void memmove(ByteBuffer dst, ByteBuffer src, int n) {
         byte[] b = new byte[n];
         src.get(b, 0, n);
-        dst.put(b,0,n);
+        dst.put(b, 0, n);
     }
 
     /**
@@ -1046,7 +1048,7 @@ public class SqlJetUtility {
     }
 
     /**
-     * @param str 
+     * @param str
      * @return
      */
     public static Long atoi64(String str) {
@@ -1061,8 +1063,9 @@ public class SqlJetUtility {
      */
     public static long absolute(long i) {
         long u;
-        u = i<0 ? -i : i;
-        if(u==Integer.MIN_VALUE||u==Long.MIN_VALUE) u=u-1;
+        u = i < 0 ? -i : i;
+        if (u == Integer.MIN_VALUE || u == Long.MIN_VALUE)
+            u = u - 1;
         return u;
     }
 
@@ -1071,32 +1074,51 @@ public class SqlJetUtility {
      * @param dataRowId
      * @return
      */
-    public static Object[] addArrays( Object[] array1, Object[] array2 ) {
+    public static Object[] addArrays(Object[] array1, Object[] array2) {
         Object[] a = new Object[array1.length + array2.length];
         System.arraycopy(array1, 0, a, 0, array1.length);
         System.arraycopy(array2, 0, a, array1.length, array2.length);
         return a;
     }
 
-    public static Object[] insertArray( Object[] intoArray, Object[] insertArray, int pos ) {
+    public static Object[] insertArray(Object[] intoArray, Object[] insertArray, int pos) {
         Object[] a = new Object[intoArray.length + insertArray.length];
         System.arraycopy(intoArray, 0, a, 0, pos);
         System.arraycopy(insertArray, 0, a, pos, insertArray.length);
-        System.arraycopy(intoArray, pos, a, insertArray.length+pos, intoArray.length-pos);
+        System.arraycopy(intoArray, pos, a, insertArray.length + pos, intoArray.length - pos);
         return a;
     }
-    
-    public static <E> Set<E> of(E ... objects) {
+
+    public static <E> Set<E> of(E... objects) {
         HashSet<E> set = new HashSet<E>();
         for (E object : objects) {
             set.add(object);
         }
         return set;
     }
-    
-    public static <E extends Enum<E>> Set<E> noneOf(Class<E> elementType) {    
+
+    public static <E extends Enum<E>> Set<E> noneOf(Class<E> elementType) {
         HashSet<E> set = new HashSet<E>();
         return set;
     }
-    
+
+    /**
+     * @param key
+     * @return
+     */
+    public static Object[] adjustNumberTypes(Object[] key) {
+        for (int i = 0; i < key.length; i++) {
+            final Object obj = key[i];
+            if (obj instanceof Number) {
+                if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer) {
+                    key[i] = Long.valueOf(((Number)obj).longValue());
+                } else if (obj instanceof Float) {
+                    // TODO may be better solution exists?
+                    key[i] = Double.parseDouble(Float.toString((Float)obj));
+                }
+            }
+        }
+        return key;
+    }
+
 }

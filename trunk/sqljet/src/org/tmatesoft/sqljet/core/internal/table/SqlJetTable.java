@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -100,7 +101,7 @@ public class SqlJetTable implements ISqlJetTable {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE);
                 }
                 return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db,
-                        indexName, key);
+                        indexName, SqlJetUtility.adjustNumberTypes(key));
             }
         });
     }

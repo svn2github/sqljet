@@ -143,7 +143,7 @@ public class SqlJetIndexTest extends TestCase {
         ISqlJetTable t = db.getTable("t");
         ISqlJetCursor c = t.lookup("ta", 20); // 32bit integer, not long -> should be promoted to long
         assertFalse(c.eof());
-        assertEquals(10L, c.getInteger(0));
+        assertEquals(20L, c.getInteger(0));
         c.next();
         assertTrue(c.eof());
         c.close();

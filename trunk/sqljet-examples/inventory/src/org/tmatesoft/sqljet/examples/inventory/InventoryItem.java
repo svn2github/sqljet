@@ -32,9 +32,8 @@ public class InventoryItem {
 	public InventoryItem() {
 	}
 
-	public InventoryItem(long article, String name, String description,
-			byte[] image, long room, long shelf, String borrowedFrom,
-			String borrowedTo) {
+	public InventoryItem(long article, String name, String description, byte[] image, long room, long shelf,
+			String borrowedFrom, String borrowedTo) {
 		this.article = article;
 		this.name = name;
 		this.description = description;
@@ -46,13 +45,13 @@ public class InventoryItem {
 	}
 
 	public void read(ISqlJetCursor cursor) throws SqlJetException {
-		article = cursor.getInteger(0);
-		name = cursor.getString(1);
-		description = cursor.getString(2);
-		image = cursor.getBlobAsArray(3);
-		room = cursor.getInteger(4);
-		shelf = cursor.getInteger(5);
-		borrowedFrom = cursor.getString(6);
-		borrowedTo = cursor.getString(7);
+		article = cursor.getInteger("article");
+		name = cursor.getString("name");
+		description = cursor.getString("description");
+		image = cursor.getBlobAsArray("image");
+		room = cursor.getInteger("room");
+		shelf = cursor.getInteger("shelf");
+		borrowedFrom = cursor.getString("borrowed_from");
+		borrowedTo = cursor.getString("borrowed_to");
 	}
 }

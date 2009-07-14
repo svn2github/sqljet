@@ -199,8 +199,8 @@ public class SqlJetIndexTest extends TestCase {
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.getSchema().createTable("create table t (a int primary key autoincrement, b text)");
                 ISqlJetTable t = db.getTable("t");
-                t.insertAutoId("zzz");
-                t.insertAutoId("www");
+                t.insert(1,"zzz");
+                t.insert(2,"www");
                 return null;
             }
         });

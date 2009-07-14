@@ -17,6 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,12 +87,12 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
     }
 
     public static ISqlJetBtreeRecord getRecord(SqlJetEncoding encoding, Object... values) throws SqlJetException {
-        List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
+        final List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
         for (int i = 0; i < values.length; i++) {
-            Object value = values[i];
-            ISqlJetVdbeMem mem = new SqlJetVdbeMem();
-            if (value instanceof ByteBuffer) {
-                mem.setStr((ByteBuffer) value, encoding);
+            final Object value = values[i];
+            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
+            if (null == value) {
+                mem.setNull();
             } else if (value instanceof String) {
                 mem.setStr(SqlJetUtility.fromString((String) value, encoding), encoding);
             } else if (value instanceof Byte) {
@@ -106,8 +107,12 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setDouble((Float) value);
             } else if (value instanceof Double) {
                 mem.setDouble((Double) value);
-            } else if (null == value) {
-                mem.setNull();
+            } else if (value instanceof ByteBuffer) {
+                mem.setStr((ByteBuffer) value, encoding);
+            } else if( value instanceof InputStream) {
+                mem.setStr(SqlJetUtility.streamToBuffer((InputStream)value), encoding);
+            } else if ("byte[]".equalsIgnoreCase(value.getClass().getCanonicalName())) {
+                mem.setStr(ByteBuffer.wrap((byte[])value), encoding);
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value #" + i + " " + value.toString());
             }

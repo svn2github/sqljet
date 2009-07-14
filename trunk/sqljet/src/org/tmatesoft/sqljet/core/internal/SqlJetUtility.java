@@ -17,6 +17,8 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -1121,4 +1123,34 @@ public class SqlJetUtility {
         return key;
     }
 
+    /**
+     * @param value
+     * @return
+     * @throws SqlJetException 
+     */
+    public static ByteBuffer streamToBuffer(InputStream stream) throws SqlJetException {
+        if(stream==null) return null;
+        try {
+            byte[] b = new byte[stream.available()];
+            final int i = stream.read(b);
+            stream.reset();
+            return ByteBuffer.wrap(b, 0, i);
+        } catch (IOException e) {
+            throw new SqlJetException(SqlJetErrorCode.IOERR, e);
+        }
+        
+    }
+
+    /**
+     * @param buffer
+     * @return
+     */
+    public static byte[] readByteBuffer(ByteBuffer buffer) {
+        if(buffer == null) return null;
+        byte[] array = new byte[buffer.remaining()];
+        buffer.get(array).rewind();
+        return array;
+    }
+
+    
 }

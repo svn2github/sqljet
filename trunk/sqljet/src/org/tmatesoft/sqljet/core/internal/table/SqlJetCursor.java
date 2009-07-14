@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -158,7 +159,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = btreeTable.getBlob(field);
-                return buffer != null ? buffer.array() : null;
+                return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
         });
     }
@@ -168,7 +169,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = btreeTable.getBlob(field);
-                return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+                return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
         });
     }
@@ -179,7 +180,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 Object value = btreeTable.getValue(field);
                 if (value instanceof ByteBuffer) {
-                    return new ByteArrayInputStream(((ByteBuffer) value).array());
+                    return new ByteArrayInputStream(SqlJetUtility.readByteBuffer((ByteBuffer) value));
                 }
                 return value;
             }

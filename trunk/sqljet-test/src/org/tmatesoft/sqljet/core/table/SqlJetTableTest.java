@@ -17,7 +17,10 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
@@ -672,5 +675,79 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         Assert.assertEquals(1L, c.getInteger("id"));
         Assert.assertEquals("mess", c.getString("name"));
         c.close();
+    }
+
+    private void createTableWithBlob() throws SqlJetException {
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getSchema().createTable("create table blobt (a blob)");
+                return null;
+            }
+        });
+    }
+
+    private void checkBlobWasAdded() throws SqlJetException {
+        ISqlJetCursor c = dbCopy.getTable("blobt").open();
+        Assert.assertFalse(c.eof());
+        
+        byte[] bytes = c.getBlobAsArray(0);
+        Assert.assertNotNull(bytes);
+        try {
+            Assert.assertEquals("text", new String(bytes, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
+        
+        InputStream stream = c.getBlobAsStream(0);
+        Assert.assertNotNull(stream);
+        byte[] blob = null;
+        try {
+            blob = new byte[stream.available()];
+            stream.read(blob);
+            stream.close();
+        } catch (IOException e) {
+            Assert.fail();
+        }
+        try {
+            Assert.assertEquals("text", new String(blob, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+    
+    @Test
+    public void testWriteBlobAsBytes() throws SqlJetException {
+        createTableWithBlob();
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            
+            public Object run(SqlJetDb db) throws SqlJetException {
+                try {
+                    db.getTable("blobt").insert("text".getBytes("UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
+                return null;
+            }
+        });
+        checkBlobWasAdded();
+    }    
+    
+    @Test
+    public void testWriteBlobAsStream() throws SqlJetException {
+        createTableWithBlob();
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            
+            public Object run(SqlJetDb db) throws SqlJetException {
+                try {
+                    byte[] blob = "text".getBytes("UTF-8");
+                    db.getTable("blobt").insert(new ByteArrayInputStream(blob));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
+                return null;
+            }
+        });
+        checkBlobWasAdded();
     }
 }

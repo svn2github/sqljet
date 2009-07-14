@@ -863,7 +863,7 @@ public class SqlJetUtility {
             try {
                 return new String(bytes, enc.getCharsetName());
             } catch (UnsupportedEncodingException e) {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charser " + enc.name());
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charset " + enc.name());
             }
         }
     }
@@ -880,7 +880,7 @@ public class SqlJetUtility {
         try {
             return ByteBuffer.wrap(s.getBytes(enc.getCharsetName()));
         } catch (UnsupportedEncodingException e) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charser " + enc.name());
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charset " + enc.name());
         }
     }
 

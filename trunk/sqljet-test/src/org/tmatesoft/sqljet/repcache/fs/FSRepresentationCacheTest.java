@@ -32,6 +32,10 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class FSRepresentationCacheTest {
 
+    /**
+     * 
+     */
+    private static final int REPEATS = 10;
     private File dbFile;
 
     /**
@@ -79,7 +83,7 @@ public class FSRepresentationCacheTest {
         FSRepresentationCacheManager.createRepresentationCache(dbFile);
         FSRepresentationCacheManager cache = FSRepresentationCacheManager.openRepresentationCache(dbFile);
         Random rand = new Random();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < REPEATS; i++) {
             FSRepresentation rep = new FSRepresentation();
             rep.setSHA1HexDigest(String.valueOf(Math.abs(rand.nextLong())));
             rep.setMD5HexDigest(String.valueOf(Math.abs(rand.nextLong())));

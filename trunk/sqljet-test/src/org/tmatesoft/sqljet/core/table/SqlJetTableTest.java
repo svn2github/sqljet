@@ -64,7 +64,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     public static final String REP_CACHE_TABLE = SqlJetUtility.getSysProp(TABLE_TEST + ".REP_CACHE_TABLE", "rep_cache");
 
-    private static final int REPEATS_COUNT = SqlJetUtility.getIntSysProp(TABLE_TEST + ".REPEATS_COUNT", 1000);
+    private static final int REPEATS_COUNT = SqlJetUtility.getIntSysProp(TABLE_TEST + ".REPEATS_COUNT", 100);
 
     private static final String NAME_INDEX = "test1_name_index";
 

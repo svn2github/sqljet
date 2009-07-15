@@ -112,7 +112,7 @@ public class SqlJetVdbeSerialType {
                 // swapMixedEndianFloat(x);
                 // memcpy(&pMem->r, &x, sizeof(x));
                 //pMem.r = ByteBuffer.allocate(8).putLong(x).getDouble();
-                pMem.r = (double) x;
+                pMem.r = Double.longBitsToDouble(x);
                 pMem.flags = SqlJetUtility.of(pMem.r == Double.NaN ? SqlJetVdbeMemFlags.Null : SqlJetVdbeMemFlags.Real);
                 pMem.type = pMem.r == Double.NaN ? SqlJetValueType.NULL : SqlJetValueType.FLOAT;
             }
@@ -207,7 +207,7 @@ public class SqlJetVdbeSerialType {
         long v;
         int i;
         if( serial_type==7 ){
-          v = (long)pMem.r;
+          v = Double.doubleToLongBits(pMem.r) ;
         }else{
           v = pMem.i;
         }

@@ -163,6 +163,7 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
         ISqlJetTable t = db.getTable("t");
+        assertEquals(0.1D,t.open().getFloat(0));
         // float, not double -> should be promoted to double
         ISqlJetCursor c = t.lookup("ta", 0.2F);
         assertFalse(c.eof());

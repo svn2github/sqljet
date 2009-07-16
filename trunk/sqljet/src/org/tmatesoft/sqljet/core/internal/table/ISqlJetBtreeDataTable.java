@@ -191,4 +191,10 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      */
     void update(Map<String, Object> values) throws SqlJetException;
 
+    /**
+     * @param indexName
+     * @return
+     */
+    boolean isIndexExists(String indexName);
+
 }

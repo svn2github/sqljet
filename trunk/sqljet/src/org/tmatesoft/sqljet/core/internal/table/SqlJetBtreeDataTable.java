@@ -104,14 +104,14 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         this.rowIdPrimaryKeyColumn = dataTable.rowIdPrimaryKeyColumn;
         this.rowIdPrimaryKeyColumnIndex = dataTable.rowIdPrimaryKeyColumnIndex;
-        
+
         indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
         for (Map.Entry<String, ISqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
             indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable) entry.getValue()));
         }
 
     }
-    
+
     @Override
     public void close() throws SqlJetException {
         if (indexesTables != null) {
@@ -136,7 +136,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (null == tableDef)
             return;
 
-        int f=0,i = 0;
+        int f = 0, i = 0;
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null != columns) {
@@ -549,9 +549,25 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.lang.String, java.lang.Object[])
      */
     public boolean checkIndex(String indexName, Object[] key) throws SqlJetException {
-        if (!indexesDefs.containsKey(indexName))
+        if (!isIndexExists(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        return Arrays.equals(key, getKeyForIndex(getAsNamedFields(getValues()), indexesDefs.get(indexName)));
+        if (null != indexName) {
+            return Arrays.equals(key, getKeyForIndex(getAsNamedFields(getValues()), indexesDefs.get(indexName)));
+        } else {
+            return getRowId() == getKeyForRowId(key);
+        }
+    }
+
+    private Long getKeyForRowId(Object[] key) throws SqlJetException {
+        if (!isRowIdPrimaryKey)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not defined");
+        if (key.length == 1) {
+            final Object[] k = SqlJetUtility.adjustNumberTypes(key);
+            if (k[0] instanceof Long) {
+                return (Long) k[0];
+            }
+        }
+        throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad key");
     }
 
     /**
@@ -572,15 +588,21 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return the primaryKeyIndex
      */
     public String getPrimaryKeyIndex() {
-        return primaryKeyIndex;
+        return isRowIdPrimaryKey ? null : primaryKeyIndex;
     }
 
     public boolean locate(String indexName, boolean next, Object... key) throws SqlJetException {
-        if (!indexesDefs.containsKey(indexName))
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexName);
-        final long lookup = indexTable.lookup(next, key);
-        return lookup != 0 && goToRow(lookup);
+        if (null == key)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad key");
+        if (null != indexName) {
+            if (!indexesDefs.containsKey(indexName))
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
+            final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexName);
+            final long lookup = indexTable.lookup(next, key);
+            return lookup != 0 && goToRow(lookup);
+        } else {
+            return goToRow(getKeyForRowId(key));
+        }
     }
 
     /**
@@ -735,16 +757,29 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return unwrapped;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getInteger(int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getInteger(int)
      */
     @Override
     public long getInteger(int field) throws SqlJetException {
-        if(field==rowIdPrimaryKeyColumnIndex) {
+        if (field == rowIdPrimaryKeyColumnIndex) {
             return getRowId();
-        } else { 
+        } else {
             return super.getInteger(field);
         }
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#isIndexExists
+     * (java.lang.String)
+     */
+    public boolean isIndexExists(String indexName) {
+        return (null == indexName && isRowIdPrimaryKey) || getIndexDefinitions().containsKey(indexName);
+    }
 }

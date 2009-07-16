@@ -94,14 +94,19 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     public ISqlJetCursor lookup(final String indexName, final Object... key) throws SqlJetException {
+        
+        if(null==key)
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad key");
+        
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (!dataTable.getIndexDefinitions().containsKey(indexName)) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE);
+                if (dataTable.isIndexExists(indexName)) {
+                    return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db,
+                            indexName, SqlJetUtility.adjustNumberTypes(key));
+                } else {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE);                    
                 }
-                return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db,
-                        indexName, SqlJetUtility.adjustNumberTypes(key));
             }
         });
     }

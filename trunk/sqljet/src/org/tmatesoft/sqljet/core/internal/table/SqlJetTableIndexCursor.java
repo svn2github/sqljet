@@ -47,9 +47,13 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
         super(table, db);
         this.key = key;
         this.indexName = indexName;
-        this.index = table.getIndexesTables().get(indexName);
-        if (null == index)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
+        if (null != indexName) {
+            this.index = table.getIndexesTables().get(indexName);
+            if (null == index)
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not found: " + indexName);
+        } else if(!table.isRowIdPrimaryKey()) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not defined");            
+        }
         first();
     }
 

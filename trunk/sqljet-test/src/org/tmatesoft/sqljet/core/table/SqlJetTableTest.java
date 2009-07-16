@@ -582,7 +582,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void refreshCurrentRecord() throws SqlJetException {
-        
+
         dbCopy.beginTransaction();
 
         final SqlJetTable table = dbCopy.getTable(TABLE);
@@ -601,11 +601,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final Object nameField = lookup.getValue("name");
         Assert.assertNotNull(nameField);
         Assert.assertEquals("test1", nameField);
-        
+
         final Object valueField = lookup.getValue("value");
         Assert.assertNotNull(valueField);
         Assert.assertEquals(1L, valueField);
-        
+
         final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
         final SqlJetTable table2 = dbCopy2.getTable(TABLE);
         final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
@@ -627,11 +627,11 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final Object nameField1 = lookup.getValue("name");
         Assert.assertNotNull(nameField1);
         Assert.assertEquals("test1", nameField1);
-        
+
         final Object valueField1 = lookup.getValue("value");
         Assert.assertNotNull(valueField1);
         Assert.assertEquals(2L, valueField1);
-        
+
         final Object nameField2_1 = lookup2.getValue("name");
         Assert.assertNotNull(nameField2_1);
         Assert.assertEquals("test1", nameField2_1);
@@ -639,12 +639,12 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final Object valueField2_1 = lookup2.getValue("value");
         Assert.assertNotNull(valueField2_1);
         Assert.assertEquals(2L, valueField2_1);
-        
-        lookup2.close();        
+
+        lookup2.close();
         dbCopy2.close();
-        
+
     }
-    
+
     @Test
     public void testManyNamesOfRowid() throws SqlJetException {
         ISqlJetCursor c = dbCopy.getTable("test1").open();
@@ -655,7 +655,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         Assert.assertEquals(1L, c.getInteger("OID"));
         c.close();
     }
-    
+
     @Test
     public void testUpdateByNamesWithPK() throws SqlJetException {
         final ISqlJetCursor c = dbCopy.getTable("test1").open();
@@ -664,7 +664,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         Assert.assertEquals(1L, c.getInteger("id"));
         Assert.assertEquals("test", c.getString("name"));
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
-            
+
             public Object run(SqlJetDb db) throws SqlJetException {
                 Map<String, Object> values = new HashMap<String, Object>();
                 values.put("name", "mess");
@@ -690,7 +690,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     private void checkBlobWasAdded() throws SqlJetException {
         ISqlJetCursor c = dbCopy.getTable("blobt").open();
         Assert.assertFalse(c.eof());
-        
+
         byte[] bytes = c.getBlobAsArray(0);
         Assert.assertNotNull(bytes);
         try {
@@ -698,7 +698,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
-        
+
         InputStream stream = c.getBlobAsStream(0);
         Assert.assertNotNull(stream);
         byte[] blob = null;
@@ -715,12 +715,12 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             throw new IllegalArgumentException(e);
         }
     }
-    
+
     @Test
     public void testWriteBlobAsBytes() throws SqlJetException {
         createTableWithBlob();
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
-            
+
             public Object run(SqlJetDb db) throws SqlJetException {
                 try {
                     db.getTable("blobt").insert("text".getBytes("UTF-8"));
@@ -731,13 +731,13 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             }
         });
         checkBlobWasAdded();
-    }    
-    
+    }
+
     @Test
     public void testWriteBlobAsStream() throws SqlJetException {
         createTableWithBlob();
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
-            
+
             public Object run(SqlJetDb db) throws SqlJetException {
                 try {
                     byte[] blob = "text".getBytes("UTF-8");
@@ -750,4 +750,26 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
         checkBlobWasAdded();
     }
+
+    @Test
+    public void testLookupByRowIdPK() throws SqlJetException {
+        final SqlJetTable t = dbCopy.getTable("test1");
+        final ISqlJetCursor c1 = t.lookup(t.getPrimaryKeyIndexName(), 1);
+        try {
+            Assert.assertFalse(c1.eof());
+            Assert.assertEquals(1L, c1.getInteger("id"));
+            Assert.assertEquals("test", c1.getString("name"));
+        } finally {
+            c1.close();
+        }
+        final ISqlJetCursor c2 = t.lookup(t.getPrimaryKeyIndexName(), 2);
+        try {
+            Assert.assertFalse(c2.eof());
+            Assert.assertEquals(2L, c2.getInteger("id"));
+            Assert.assertEquals(777L, c2.getInteger("value"));
+        } finally {
+            c1.close();
+        }
+    }
+
 }

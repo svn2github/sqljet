@@ -66,6 +66,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private String primaryKeyIndex;
     private String rowIdPrimaryKeyColumn;
+    private int rowIdPrimaryKeyColumnIndex = -1;
     private List<String> primaryKeyColumns;
 
     private enum Action {
@@ -101,6 +102,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         this.primaryKeyIndex = dataTable.primaryKeyIndex;
         this.primaryKeyColumns = dataTable.primaryKeyColumns;
 
+        this.rowIdPrimaryKeyColumn = dataTable.rowIdPrimaryKeyColumn;
+        this.rowIdPrimaryKeyColumnIndex = dataTable.rowIdPrimaryKeyColumnIndex;
+        
         indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
         for (Map.Entry<String, ISqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
             indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable) entry.getValue()));
@@ -132,7 +136,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (null == tableDef)
             return;
 
-        int i = 0;
+        int f=0,i = 0;
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null != columns) {
@@ -145,6 +149,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                         primaryKeyColumns.add(column.getName());
                         if (SqlJetSchema.isExactlyIntegerTypeColumn(column)) {
                             rowIdPrimaryKeyColumn = column.getName();
+                            rowIdPrimaryKeyColumnIndex = f;
                             isRowIdPrimaryKey = true;
                             isAutoincrement = ((ISqlJetColumnPrimaryKey) constraint).isAutoincremented();
                         } else {
@@ -156,6 +161,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                         columnsConstraintsIndexes.put(generateAutoIndexName(tableDef.getName(), ++i), column.getName());
                     }
                 }
+                f++;
             }
         }
 
@@ -729,4 +735,16 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return unwrapped;
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getInteger(int)
+     */
+    @Override
+    public long getInteger(int field) throws SqlJetException {
+        if(field==rowIdPrimaryKeyColumnIndex) {
+            return getRowId();
+        } else { 
+            return super.getInteger(field);
+        }
+    }
+    
 }

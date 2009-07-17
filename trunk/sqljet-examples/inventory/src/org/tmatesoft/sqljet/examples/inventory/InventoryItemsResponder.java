@@ -11,18 +11,23 @@ public class InventoryItemsResponder {
 
 	public void showInventory(StringBuffer buffer) throws SqlJetException {
 		buffer.append("<h2>Inventory</h2>");
-		ISqlJetCursor cursor = InventoryDB.getAllItems();
+		InventoryDB db = new InventoryDB();
 		try {
-			printItems(buffer, cursor);
+			ISqlJetCursor cursor = db.getAllItems();
+			try {
+				printItems(db, buffer, cursor);
+			} finally {
+				cursor.close();
+			}
 		} finally {
-			cursor.close();
+			db.close();
 		}
 		buffer.append("<p><a href='/add_item'>Add Item</a>");
 	}
 
-	private void printItems(StringBuffer buffer, ISqlJetCursor cursor) throws SqlJetException {
+	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor) throws SqlJetException {
 		buffer.append("<table class='items'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
-		if (InventoryDB.getVersion() > 1) {
+		if (db.getVersion() > 1) {
 			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
 		}
 		buffer.append("<th></th><th></th><tr>");
@@ -35,7 +40,7 @@ public class InventoryItemsResponder {
 			printValue(buffer, item.description);
 			printValue(buffer, item.room);
 			printValue(buffer, item.shelf);
-			if (InventoryDB.getVersion() > 1) {
+			if (db.getVersion() > 1) {
 				printValue(buffer, item.borrowedFrom);
 				printValue(buffer, item.borrowedTo);
 			}
@@ -85,7 +90,7 @@ public class InventoryItemsResponder {
 			InventoryItem item = new InventoryItem();
 			item.name = params.get("name");
 			if (item.name == null) {
-				throw new NullPointerException("Name is not specified.");
+				throw new IllegalArgumentException("Name is not specified.");
 			}
 			item.description = params.get("description");
 			String room = params.get("room");
@@ -93,20 +98,25 @@ public class InventoryItemsResponder {
 				if (room != null) {
 					item.room = Long.parseLong(room);
 				}
-			} catch (NumberFormatException nfe) {
-				throw new Exception("Room number is invalid: " + room);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Room number is invalid: " + room);
 			}
 			String shelf = params.get("shelf");
 			try {
 				if (shelf != null) {
 					item.shelf = Long.parseLong(shelf);
 				}
-			} catch (NumberFormatException nfe) {
-				throw new Exception("Shelf number is invalid: " + shelf);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Shelf number is invalid: " + shelf);
 			}
-			InventoryDB.addItem(item);
+			InventoryDB db = new InventoryDB();
+			try {
+				db.addItem(item);
+			} finally {
+				db.close();
+			}
 			buffer.append("Item was added.");
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			buffer.append("Invalid input! " + e.getMessage());
 		}
 		printReturnToInventory(buffer);
@@ -128,11 +138,17 @@ public class InventoryItemsResponder {
 			printReturnToInventory(buffer);
 			return null;
 		}
-		InventoryItem item = InventoryDB.getItem(article);
+		InventoryItem item;
+		InventoryDB db = new InventoryDB();
+		try {
+			item = db.getItem(article);
+		} finally {
+			db.close();
+		}
 		if (item == null) {
 			buffer.append("Item with article '");
 			buffer.append(article);
-			buffer.append("' not found.");
+			buffer.append("' is not found.");
 			printReturnToInventory(buffer);
 			return null;
 		}
@@ -186,7 +202,7 @@ public class InventoryItemsResponder {
 			Map<String, Object> values = new HashMap<String, Object>();
 			String name = params.get("name");
 			if (name == null) {
-				throw new NullPointerException("Name is not specified.");
+				throw new IllegalArgumentException("Name is not specified.");
 			} else {
 				values.put("name", name);
 			}
@@ -203,7 +219,7 @@ public class InventoryItemsResponder {
 				try {
 					values.put("room", Long.parseLong(room));
 				} catch (Exception e) {
-					throw new Exception("Room number is invalid: " + room);
+					throw new IllegalArgumentException("Room number is invalid: " + room);
 				}
 			}
 			String shelf = params.get("shelf");
@@ -211,12 +227,17 @@ public class InventoryItemsResponder {
 				try {
 					values.put("shelf", Long.parseLong(shelf));
 				} catch (Exception e) {
-					throw new Exception("Shelf number is invalid: " + shelf);
+					throw new IllegalArgumentException("Shelf number is invalid: " + shelf);
 				}
 			}
-			InventoryDB.updateItem(item.article, values);
+			InventoryDB db = new InventoryDB();
+			try {
+				db.updateItem(item.article, values);
+			} finally {
+				db.close();
+			}
 			buffer.append("Item was updated.");
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
 			buffer.append("Invalid input! " + e.getMessage());
 		}
 	}
@@ -224,7 +245,12 @@ public class InventoryItemsResponder {
 	public void removeItem(StringBuffer buffer, Map<String, String> params) throws SqlJetException {
 		InventoryItem item = findItem(buffer, params);
 		if (item != null) {
-			InventoryDB.removeItem(item.article);
+			InventoryDB db = new InventoryDB();
+			try {
+				db.removeItem(item.article);
+			} finally {
+				db.close();
+			}
 			buffer.append("Item was removed.");
 			printReturnToInventory(buffer);
 		}

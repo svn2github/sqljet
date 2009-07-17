@@ -39,7 +39,6 @@ public class InventoryServer {
 	public static void main(String[] args) throws Exception {
 		ServerSocket socket = new ServerSocket(PORT);
 		socket.setSoTimeout(1000);
-		InventoryDB.open();
 		System.out.println("Inventory is listening at http://127.0.0.1:" + PORT);
 		System.out.println("Enter any text to shutdown.");
 		try {
@@ -54,7 +53,6 @@ public class InventoryServer {
 				}
 			}
 		} finally {
-			InventoryDB.close();
 			socket.close();
 		}
 	}

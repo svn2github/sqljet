@@ -31,23 +31,23 @@ public class InventoryDB {
 
 	private static final String FILE_NAME = "inventory.db";
 
-	private static SqlJetDb db;
+	private SqlJetDb db;
 
-	public static void open() throws SqlJetException {
+	public InventoryDB() throws SqlJetException {
 		db = SqlJetDb.open(new File(FILE_NAME), true);
 		upgrade(VERSION);
 	}
 
-	public static void close() throws SqlJetException {
+	public void close() throws SqlJetException {
 		db.close();
 		db = null;
 	}
 
-	public static int getVersion() throws SqlJetException {
+	public int getVersion() throws SqlJetException {
 		return db.getOptions().getUserVersion();
 	}
 
-	private static void upgrade(int targetVersion) throws SqlJetException {
+	private void upgrade(int targetVersion) throws SqlJetException {
 		if (targetVersion < 1) {
 			return;
 		}
@@ -85,13 +85,13 @@ public class InventoryDB {
 		}
 	}
 
-	private static void prefillItems() throws SqlJetException {
+	private void prefillItems() throws SqlJetException {
 		addItem(new InventoryItem(-1, "MacBook", "Unibody 2GHz", 7, 23, "Dmitry Stadnik", null));
 		addItem(new InventoryItem(-1, "iPhone 3G", "8Mb", 7, 24, "Dmitry Stadnik", null));
 		addItem(new InventoryItem(-1, "Cup", "Big & White", 3, 1, null, "MG"));
 	}
 
-	private static void prefillUsers() throws SqlJetException {
+	private void prefillUsers() throws SqlJetException {
 		addUser(new InventoryUser("Dmitry Stadnik", "Prague", 0.99));
 		addUser(new InventoryUser("James Bond", "Classified location", 0));
 		addUser(new InventoryUser("MG", null, 0.11));
@@ -99,11 +99,11 @@ public class InventoryDB {
 
 	// Items
 
-	public static ISqlJetCursor getAllItems() throws SqlJetException {
+	public ISqlJetCursor getAllItems() throws SqlJetException {
 		return db.getTable("items").open();
 	}
 
-	public static InventoryItem getItem(long article) throws SqlJetException {
+	public InventoryItem getItem(long article) throws SqlJetException {
 		ISqlJetCursor cursor = db.getTable("items").open();
 		try {
 			if (cursor.goTo(article)) {
@@ -117,7 +117,7 @@ public class InventoryDB {
 		return null;
 	}
 
-	public static long addItem(final InventoryItem item) throws SqlJetException {
+	public long addItem(final InventoryItem item) throws SqlJetException {
 		return item.article = (Long) db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
@@ -135,7 +135,7 @@ public class InventoryDB {
 		});
 	}
 
-	public static void updateItem(final long article, final Map<String, Object> values) throws SqlJetException {
+	public void updateItem(final long article, final Map<String, Object> values) throws SqlJetException {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
@@ -152,7 +152,7 @@ public class InventoryDB {
 		});
 	}
 
-	public static void removeItem(final long article) throws SqlJetException {
+	public void removeItem(final long article) throws SqlJetException {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
@@ -171,11 +171,11 @@ public class InventoryDB {
 
 	// Users
 
-	public static ISqlJetCursor getAllUsers() throws SqlJetException {
+	public ISqlJetCursor getAllUsers() throws SqlJetException {
 		return db.getTable("users").open();
 	}
 
-	public static InventoryUser getUser(String name) throws SqlJetException {
+	public InventoryUser getUser(String name) throws SqlJetException {
 		ISqlJetTable users = db.getTable("users");
 		ISqlJetCursor cursor = users.lookup(users.getPrimaryKeyIndexName(), name);
 		try {
@@ -190,7 +190,7 @@ public class InventoryDB {
 		return null;
 	}
 
-	public static void addUser(final InventoryUser user) throws SqlJetException {
+	public void addUser(final InventoryUser user) throws SqlJetException {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
@@ -199,7 +199,7 @@ public class InventoryDB {
 		});
 	}
 
-	public static void updateUser(final String name, final Map<String, Object> values) throws SqlJetException {
+	public void updateUser(final String name, final Map<String, Object> values) throws SqlJetException {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
@@ -217,7 +217,7 @@ public class InventoryDB {
 		});
 	}
 
-	public static void removeUser(final String name) throws SqlJetException {
+	public void removeUser(final String name) throws SqlJetException {
 		db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {

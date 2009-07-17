@@ -43,7 +43,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
-import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.
@@ -601,7 +600,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final long lookup = indexTable.lookup(next, key);
             return lookup != 0 && goToRow(lookup);
         } else {
-            return goToRow(getKeyForRowId(key));
+            if(next){
+                return next();
+            } else {
+                return goToRow(getKeyForRowId(key));
+            }
         }
     }
 

@@ -163,7 +163,7 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
         ISqlJetTable t = db.getTable("t");
-        assertEquals(0.1D,t.open().getFloat(0));
+        assertEquals(0.1D, t.open().getFloat(0));
         // float, not double -> should be promoted to double
         ISqlJetCursor c = t.lookup("ta", 0.2F);
         assertFalse(c.eof());
@@ -200,8 +200,10 @@ public class SqlJetIndexTest extends TestCase {
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.getSchema().createTable("create table t (a int primary key autoincrement, b text)");
                 ISqlJetTable t = db.getTable("t");
-                t.insert(1,"zzz");
-                t.insert(2,"www");
+                // primary key has 'autoincrement' constraint - you are not supposed
+                // to provide it's value: it should be generated automatically
+                t.insertAutoId("zzz");
+                t.insertAutoId("www");
                 return null;
             }
         });

@@ -106,6 +106,11 @@ public class InventoryServer {
 	private static String generateResponse(String reqType, URI reqURI) throws SqlJetException {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><head><title>Inventory</title></head><body>");
+		buffer.append("<style type='text/css'>");
+		buffer.append("table.items { border-width: 0px; border-spacing: 0px; border-collapse: collapse; }");
+		buffer.append("table.items th { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #DDD; }");
+		buffer.append("table.items td { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #FFF; }");
+		buffer.append("</style>");
 		String path = reqURI.getPath();
 		if ("GET".equals(reqType)) {
 			if ("/".equals(path)) {

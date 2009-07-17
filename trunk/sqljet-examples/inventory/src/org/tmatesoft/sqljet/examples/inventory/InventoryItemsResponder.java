@@ -21,11 +21,11 @@ public class InventoryItemsResponder {
 	}
 
 	private void printItems(StringBuffer buffer, ISqlJetCursor cursor) throws SqlJetException {
-		buffer.append("<table border='1'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
+		buffer.append("<table class='items'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
 		if (InventoryDB.getVersion() > 1) {
 			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
 		}
-		buffer.append("<th>Edit</th><th>Delete</th><tr>");
+		buffer.append("<th></th><th></th><tr>");
 		InventoryItem item = new InventoryItem();
 		while (!cursor.eof()) {
 			item.read(cursor);
@@ -52,7 +52,11 @@ public class InventoryItemsResponder {
 	}
 
 	private void printValue(StringBuffer buffer, Object value) {
-		buffer.append("<td>");
+		buffer.append("<td");
+		if (value instanceof Number) {
+			buffer.append(" style='text-align: right;'");
+		}
+		buffer.append(">");
 		if (value != null) {
 			buffer.append(value);
 		} else {
@@ -70,8 +74,8 @@ public class InventoryItemsResponder {
 		buffer.append("<form><table>");
 		buffer.append("<tr><td>Name:</td><td><input type='text' name='name'/></td></tr>");
 		buffer.append("<tr><td>Description:</td><td><input type='text' name='description'/></td></tr>");
-		buffer.append("<tr><td>Room:</td><td><input type='text' name='room'/></td></tr>");
-		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf'/></td></tr>");
+		buffer.append("<tr><td>Room:</td><td><input type='text' name='room' style='text-align: right;'/></td></tr>");
+		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf' style='text-align: right;'/></td></tr>");
 		buffer.append("</table><input type='submit' value='Submit'></form>");
 		printReturnToInventory(buffer);
 	}
@@ -166,10 +170,10 @@ public class InventoryItemsResponder {
 		buffer.append("/></td></tr>");
 		buffer.append("<tr><td>Room:</td><td><input type='text' name='room' value='");
 		buffer.append(item.room);
-		buffer.append("'/></td></tr>");
+		buffer.append("' style='text-align: right;'/></td></tr>");
 		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf' value='");
 		buffer.append(item.shelf);
-		buffer.append("'/></td></tr>");
+		buffer.append("' style='text-align: right;'/></td></tr>");
 		buffer.append("</table><input type='submit' value='Submit'/>");
 		buffer.append("<input type='hidden' name='article' value='");
 		buffer.append(item.article);

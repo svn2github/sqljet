@@ -302,8 +302,8 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
     public void closeFail() throws SqlJetException, InterruptedException, ExecutionException {
 
         class CloseWorker extends SleepWorker {
-            public CloseWorker(File dbFile, String workerName, boolean write) {
-                super(dbFile, workerName, write);
+            public CloseWorker(File dbFile, String workerName) {
+                super(dbFile, workerName, false);
             }
 
             @Override
@@ -317,7 +317,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             @Override
             protected Object work() throws SqlJetException {
                 sleep();
-                return null;
+                return true;
             }
 
             @Override
@@ -329,11 +329,13 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             }
         }
 
-        final Future<Object> close1 = execThread(new CloseWorker(dbFile, "close1", true));
-        final Future<Object> close2 = execThread(new CloseWorker(dbFile, "close1", true));
+        final Future<Object> close1 = execThread(new CloseWorker(dbFile, "close1"));
+        final Future<Object> close2 = execThread(new CloseWorker(dbFile, "close2"));
+        final Future<Object> close3 = execThread(new CloseWorker(dbFile, "close3"));
 
         Assert.assertTrue(close1.get() == Boolean.TRUE);
         Assert.assertTrue(close2.get() == Boolean.TRUE);
+        Assert.assertTrue(close3.get() == Boolean.TRUE);
 
     }
 

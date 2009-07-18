@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
@@ -32,6 +33,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -54,12 +56,15 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
     private File dbFile;
 
+    private ExecutorService threadPool;
+
     /**
      * @throws java.lang.Exception
      */
     @Before
     public void setUp() throws Exception {
         dbFile = copyFile(new File(REP_CACHE_DB), DELETE_COPY);
+        threadPool = Executors.newCachedThreadPool();
     }
 
     /**
@@ -70,7 +75,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
     }
 
     protected <T> Future<T> execThread(final Callable<T> thread) {
-        return Executors.newCachedThreadPool().submit(thread);
+        return threadPool.submit(thread);
     }
 
     private abstract class Worker implements Callable<Object> {
@@ -92,17 +97,12 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             try {
                 Thread.currentThread().setName(workerName);
                 db = SqlJetDb.open(dbFile, write);
-                return db.runWithLock(new ISqlJetRunnableWithLock() {
-                    
-                    public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                        try {
-                            table = db.getTable(REP_CACHE_TABLE);
-                            return work();
-                        } finally {
-                            db.close();
-                        }
-                    }
-                });
+                try {
+                    table = db.getTable(REP_CACHE_TABLE);
+                    return work();
+                } finally {
+                    db.close();
+                }
             } finally {
                 Thread.currentThread().setName(threadName);
             }
@@ -235,10 +235,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected Object work() throws SqlJetException {
-            for (final ISqlJetCursor open = table.open(); !open.eof(); /*
-                                                                        * open.next
-                                                                        * ()
-                                                                        */) {
+            for (final ISqlJetCursor open = table.open(); !open.eof();) {
                 beforeSleep(open);
                 sleep();
                 afterSleep(open);
@@ -298,6 +295,45 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         Assert.assertTrue(writer1.get() == Boolean.TRUE);
         Assert.assertTrue(writeCloser.get() == Boolean.TRUE);
+
+    }
+
+    @Test
+    public void closeFail() throws SqlJetException, InterruptedException, ExecutionException {
+
+        class CloseWorker extends SleepWorker {
+            public CloseWorker(File dbFile, String workerName, boolean write) {
+                super(dbFile, workerName, write);
+            }
+
+            @Override
+            public Object call() throws Exception {
+                for (int i = 0; i < PASS_COUNT; i++) {
+                    super.call();
+                }
+                return true;
+            }
+
+            @Override
+            protected Object work() throws SqlJetException {
+                sleep();
+                return null;
+            }
+
+            @Override
+            protected void afterSleep(ISqlJetCursor arg0) throws SqlJetException {
+            }
+
+            @Override
+            protected void beforeSleep(ISqlJetCursor arg0) throws SqlJetException {
+            }
+        }
+
+        final Future<Object> close1 = execThread(new CloseWorker(dbFile, "close1", true));
+        final Future<Object> close2 = execThread(new CloseWorker(dbFile, "close1", true));
+
+        Assert.assertTrue(close1.get() == Boolean.TRUE);
+        Assert.assertTrue(close2.get() == Boolean.TRUE);
 
     }
 

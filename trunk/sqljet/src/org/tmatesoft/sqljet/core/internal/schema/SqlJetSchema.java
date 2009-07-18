@@ -40,8 +40,10 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetTableSchema;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
@@ -84,6 +86,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private final Map<String, ISqlJetTableDef> tableDefs = new ConcurrentHashMap<String, ISqlJetTableDef>();
     private final Map<String, ISqlJetIndexDef> indexDefs = new ConcurrentHashMap<String, ISqlJetIndexDef>();
+    private final Map<String, ISqlJetTableSchema> tableSchemas = new ConcurrentHashMap<String, ISqlJetTableSchema>();
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -216,6 +219,25 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
+        analyseTableSchemas();
+    }
+
+    /**
+     * @throws SqlJetException 
+     * 
+     */
+    private void analyseTableSchemas() throws SqlJetException {
+        for (final ISqlJetTableDef tableDef : tableDefs.values()) {
+            addTableSchema(tableDef);            
+        }
+    }
+
+    /**
+     * @param tableDef
+     * @throws SqlJetException
+     */
+    private void addTableSchema(final ISqlJetTableDef tableDef) throws SqlJetException {
+        tableSchemas.put(tableDef.getName(), new SqlJetTableSchema(tableDef, getIndexes(tableDef.getName())));
     }
 
     private CommonTree parseTable(String sql) throws SqlJetException {
@@ -311,6 +333,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 tableDef.setPage(page);
                 tableDef.setRowId(schemaTable.getCursor().getKeySize());
                 tableDefs.put(tableName, tableDef);
+                addTableSchema(tableDef);
                 return tableDef;
 
             } finally {
@@ -467,6 +490,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                     indexTable.close();
                 }
 
+                addTableSchema(tableDefs.get(indexDef.getTableName()));
+                
                 return indexDef;
 
             } finally {
@@ -632,5 +657,12 @@ public class SqlJetSchema implements ISqlJetSchema {
             indexDefs.remove(indexName);
         }
 
+    }
+
+    /**
+     * @return the tableSchemas
+     */
+    public ISqlJetTableSchema getTableSchema(String tableName) {
+        return tableSchemas.get(tableName);
     }
 }

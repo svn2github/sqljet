@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetTableSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -44,4 +45,10 @@ public interface ISqlJetSchema {
     void dropTable(String tableName) throws SqlJetException;
 
     void dropIndex(String indexName) throws SqlJetException;
+
+    /**
+     * @param tableName
+     * @return
+     */
+    ISqlJetTableSchema getTableSchema(String tableName);
 }

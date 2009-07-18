@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
@@ -41,6 +42,7 @@ import org.tmatesoft.sqljet.core.schema.SqlJetSortingOrder;
 public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBtreeIndexTable {
 
     private ISqlJetIndexDef indexDef;
+    private List<String> columns;
 
     /**
      * Open index by name
@@ -55,6 +57,14 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         adjustKeyInfo();
     }
 
+    public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, List<String> columns, boolean write) throws SqlJetException {
+        super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetBaseIndexDef) schema
+                .getIndex(indexName)).getPage(), write, true);
+        indexDef = schema.getIndex(indexName);
+        this.columns = columns;
+        adjustKeyInfo();
+    }
+
     /**
      * @param indexTable
      * 
@@ -63,6 +73,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public SqlJetBtreeIndexTable(SqlJetBtreeIndexTable indexTable) throws SqlJetException {
         super((SqlJetBtreeTable) indexTable);
         this.indexDef = indexTable.indexDef;
+        this.columns = indexTable.columns;
         adjustKeyInfo();
     }
 
@@ -133,11 +144,14 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @throws SqlJetException
      */
     private void adjustKeyInfo() throws SqlJetException {
-        final List<ISqlJetIndexedColumn> columns = indexDef.getColumns();
-        if (null != keyInfo && null != columns) {
-            keyInfo.setNField(columns.size());
+        if(null==keyInfo)
+            throw new SqlJetException(SqlJetErrorCode.INTERNAL);
+        if(null!=columns){
+            keyInfo.setNField(columns.size());            
+        } else if (null != indexDef.getColumns()) {
+            keyInfo.setNField(indexDef.getColumns().size());
             int i = 0;
-            for (final ISqlJetIndexedColumn column : columns) {
+            for (final ISqlJetIndexedColumn column : indexDef.getColumns()) {
                 keyInfo.setSortOrder(i++, column.getSortingOrder() == SqlJetSortingOrder.DESC);
             }
         }

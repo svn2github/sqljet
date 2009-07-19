@@ -125,7 +125,8 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (db != null);
         assert (db.getMutex().held());
         final ISqlJetBusyHandler busyHandler = db.getBusyHandler();
-        if(busyHandler==null) return true;
+        if (busyHandler == null)
+            return true;
         return busyHandler.call(number);
     }
 
@@ -334,7 +335,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     }
                     nReserve = 0;
                 } else {
-                    nReserve = SqlJetUtility.getUnsignedByte(zDbHeader,20);
+                    nReserve = SqlJetUtility.getUnsignedByte(zDbHeader, 20);
                     pBt.pageSizeFixed = true;
                     pBt.autoVacuum = (SqlJetUtility.get4byte(zDbHeader, 36 + 4 * 4) != 0);
                     pBt.incrVacuum = (SqlJetUtility.get4byte(zDbHeader, 36 + 7 * 4) != 0);
@@ -477,9 +478,14 @@ public class SqlJetBtree implements ISqlJetBtree {
      */
     static private boolean removeFromSharingList(SqlJetBtreeShared pBt) {
         boolean removed = false;
-        assert (!pBt.mutex.held());
+        // assert (!pBt.mutex.held());
         synchronized (sharedCacheList) {
-            pBt.nRef--;
+            pBt.mutex.enter();
+            try {
+                pBt.nRef--;
+            } finally {
+                pBt.mutex.leave();
+            }
             if (pBt.nRef <= 0) {
                 sharedCacheList.remove(pBt);
                 removed = true;
@@ -676,10 +682,10 @@ public class SqlJetBtree implements ISqlJetBtree {
                 if (SqlJetUtility.memcmp(page1, zMagicHeader, 16) != 0) {
                     throw new SqlJetException(rc);
                 }
-                if (SqlJetUtility.getUnsignedByte(page1,18) > 1) {
+                if (SqlJetUtility.getUnsignedByte(page1, 18) > 1) {
                     pBt.readOnly = true;
                 }
-                if (SqlJetUtility.getUnsignedByte(page1,19) > 1) {
+                if (SqlJetUtility.getUnsignedByte(page1, 19) > 1) {
                     throw new SqlJetException(rc);
                 }
 
@@ -690,19 +696,18 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * to vary, but as of version 3.6.0, we require them to be
                  * fixed.
                  */
-                if (SqlJetUtility.memcmp( SqlJetUtility.slice(page1, 21), 
-                        ByteBuffer.wrap( new byte[] { (byte) 0100, (byte) 040, (byte) 040 }), 3) != 0) {
+                if (SqlJetUtility.memcmp(SqlJetUtility.slice(page1, 21), ByteBuffer.wrap(new byte[] { (byte) 0100,
+                        (byte) 040, (byte) 040 }), 3) != 0) {
                     throw new SqlJetException(rc);
                 }
 
                 pageSize = SqlJetUtility.get2byte(page1, 16);
-                if (((pageSize - 1) & pageSize) != 0
-                        || pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
+                if (((pageSize - 1) & pageSize) != 0 || pageSize < ISqlJetLimits.SQLJET_MIN_PAGE_SIZE
                         || (ISqlJetLimits.SQLJET_MAX_PAGE_SIZE < 32768)) {
                     throw new SqlJetException(rc);
                 }
                 assert ((pageSize & 7) == 0);
-                usableSize = pageSize - SqlJetUtility.getUnsignedByte(page1,20);
+                usableSize = pageSize - SqlJetUtility.getUnsignedByte(page1, 20);
                 if (pageSize != pBt.pageSize) {
                     /*
                      * After reading the first page of the database assuming a
@@ -1076,7 +1081,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                             pPage1 = pBt.getPage(1, false);
                             SqlJetMemPage.releasePage(pPage1);
                         } finally {
-                            //assert (pBt.countWriteCursors() == 0);
+                            // assert (pBt.countWriteCursors() == 0);
                             pBt.inTransaction = TransMode.READ;
                         }
                     }
@@ -1210,8 +1215,7 @@ public class SqlJetBtree implements ISqlJetBtree {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.tmatesoft.sqljet.core.ISqlJetBtree#createTable(java.util.Set)
+     * @see org.tmatesoft.sqljet.core.ISqlJetBtree#createTable(java.util.Set)
      */
     public int createTable(Set<SqlJetBtreeTableCreateFlags> flags) throws SqlJetException {
         enter();
@@ -1237,7 +1241,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (!pBt.readOnly);
 
         if (pBt.autoVacuum) {
-            /* Move a page here to make room for the root-page */            
+            /* Move a page here to make room for the root-page */
             int[] pgnoMove = new int[1];
             SqlJetMemPage pPageMove; /* The page to move to. */
 
@@ -1281,8 +1285,8 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * * by extending the file), the current page at position
                  * pgnoMove* is already journaled.
                  */
-                short[] eType = {0};
-                int[] iPtrPage = {0};
+                short[] eType = { 0 };
+                int[] iPtrPage = { 0 };
 
                 SqlJetMemPage.releasePage(pPageMove);
 
@@ -1907,7 +1911,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
         pPage = pBt.getPage(iTable, false);
         clearTable(iTable, null);
-        //SqlJetMemPage.releasePage(pPage);
+        // SqlJetMemPage.releasePage(pPage);
 
         piMoved = 0;
 
@@ -1915,7 +1919,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             if (pBt.autoVacuum) {
                 int maxRootPgno;
                 maxRootPgno = getMeta(4);
-                //SqlJetMemPage.releasePage(pPage);
+                // SqlJetMemPage.releasePage(pPage);
 
                 if (iTable == maxRootPgno) {
                     /*
@@ -2108,7 +2112,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * The b-tree does not have a reference to page 1 of the
                  * database file. Obtain one from the pager layer.
                  */
-                pDbPage = pBt.pPager.acquirePage(1,true);
+                pDbPage = pBt.pPager.acquirePage(1, true);
                 pP1 = pDbPage.getData();
             }
 

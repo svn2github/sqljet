@@ -162,7 +162,11 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         return db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return getBtreeDataTable().getValue(getFieldSafe(fieldName));
+                if (isFieldNameRowId(fieldName)) {
+                    return getBtreeDataTable().getRowId();
+                } else {
+                    return getBtreeDataTable().getValue(getFieldSafe(fieldName));
+                }
             }
         });
     }

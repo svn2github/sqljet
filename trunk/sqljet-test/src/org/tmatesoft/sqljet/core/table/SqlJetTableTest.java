@@ -687,6 +687,8 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         });
     }
 
+    private static final String BLOB_DATA = "8Mb";
+
     private void checkBlobWasAdded() throws SqlJetException {
         ISqlJetCursor c = dbCopy.getTable("blobt").open();
         Assert.assertFalse(c.eof());
@@ -694,7 +696,15 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         byte[] bytes = c.getBlobAsArray(0);
         Assert.assertNotNull(bytes);
         try {
-            Assert.assertEquals("text", new String(bytes, "UTF-8"));
+            Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        bytes = c.getBlobAsArray("a");
+        Assert.assertNotNull(bytes);
+        try {
+            Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
@@ -710,7 +720,23 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             Assert.fail();
         }
         try {
-            Assert.assertEquals("text", new String(blob, "UTF-8"));
+            Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
+
+        stream = c.getBlobAsStream("a");
+        Assert.assertNotNull(stream);
+        blob = null;
+        try {
+            blob = new byte[stream.available()];
+            stream.read(blob);
+            stream.close();
+        } catch (IOException e) {
+            Assert.fail();
+        }
+        try {
+            Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException(e);
         }
@@ -723,7 +749,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
             public Object run(SqlJetDb db) throws SqlJetException {
                 try {
-                    db.getTable("blobt").insert("text".getBytes("UTF-8"));
+                    db.getTable("blobt").insert(BLOB_DATA.getBytes("UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     throw new IllegalArgumentException(e);
                 }
@@ -740,7 +766,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
             public Object run(SqlJetDb db) throws SqlJetException {
                 try {
-                    byte[] blob = "text".getBytes("UTF-8");
+                    byte[] blob = BLOB_DATA.getBytes("UTF-8");
                     db.getTable("blobt").insert(new ByteArrayInputStream(blob));
                 } catch (UnsupportedEncodingException e) {
                     throw new IllegalArgumentException(e);

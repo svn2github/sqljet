@@ -23,15 +23,34 @@ import java.util.List;
  */
 public interface ISqlJetTableDef {
 
+    /**
+     * Returns table name.
+     */
     public String getName();
 
+    /**
+     * True if table was created temporarily.
+     */
     public boolean isTemporary();
 
+    /**
+     * Definitions of table columns.
+     */
     public List<ISqlJetColumnDef> getColumns();
 
+    /**
+     * Returns column definition with a given name or null if there is no such
+     * definition.
+     */
     public ISqlJetColumnDef getColumn(String name);
-    
-    public int getColumnNumber(String name);    
 
+    /**
+     * Returns position of the specified column within the table definition.
+     */
+    public int getColumnNumber(String name);
+
+    /**
+     * Returns all table constraints.
+     */
     public List<ISqlJetTableConstraint> getConstraints();
 }

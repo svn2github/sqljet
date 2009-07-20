@@ -24,8 +24,8 @@ public class SqlJetColumnCollate extends SqlJetColumnConstraint implements ISqlJ
 
     private String collation;
 
-    public SqlJetColumnCollate(String name, CommonTree ast) {
-        super(name);
+    public SqlJetColumnCollate(SqlJetColumnDef column, String name, CommonTree ast) {
+        super(column, name);
         assert "collate".equalsIgnoreCase(ast.getText());
         assert ast.getChildCount() == 1;
         CommonTree child = (CommonTree) ast.getChild(0);

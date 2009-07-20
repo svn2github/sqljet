@@ -15,13 +15,20 @@ package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
 
 /**
  * @author TMate Software Ltd.
@@ -29,14 +36,30 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetTableDef implements ISqlJetTableDef {
 
+    private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
+
     private final String name;
     private final String databaseName;
     private final boolean temporary;
     private final boolean ifNotExists;
     private final List<ISqlJetColumnDef> columns;
     private final List<ISqlJetTableConstraint> constraints;
+
     private int page;
     private long rowId;
+
+    private boolean rowIdPrimaryKey;
+    private boolean autoincremented;
+    private String primaryKeyIndexName;
+    private String rowIdPrimaryKeyColumnName;
+    private int rowIdPrimaryKeyColumnIndex = -1;
+    private final List<String> primaryKeyColumns = new ArrayList<String>();
+
+    // index name -> column index constraint
+    private final Map<String, SqlJetColumnIndexConstraint> columnConstraintsIndexCache = new HashMap<String, SqlJetColumnIndexConstraint>();
+
+    // index name -> table index constraint
+    private final Map<String, SqlJetTableIndexConstraint> tableConstrainsIndexCache = new HashMap<String, SqlJetTableIndexConstraint>();
 
     public SqlJetTableDef(CommonTree ast, int page) throws SqlJetException {
         CommonTree optionsNode = (CommonTree) ast.getChild(0);
@@ -86,6 +109,50 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         this.constraints = Collections.unmodifiableList(constraints);
 
         this.page = page;
+        resolveConstraints();
+    }
+
+    private void resolveConstraints() {
+        int columnIndex = 0, autoindexNumber = 0;
+        for (ISqlJetColumnDef column : columns) {
+            for (ISqlJetColumnConstraint constraint : column.getConstraints()) {
+                if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                    SqlJetColumnPrimaryKey pk = (SqlJetColumnPrimaryKey) constraint;
+                    primaryKeyColumns.add(column.getName());
+                    if (column.hasExactlyIntegerType()) {
+                        rowIdPrimaryKeyColumnName = column.getName();
+                        rowIdPrimaryKeyColumnIndex = columnIndex;
+                        rowIdPrimaryKey = true;
+                        autoincremented = pk.isAutoincremented();
+                    } else {
+                        pk.setIndexName(primaryKeyIndexName = generateAutoIndexName(getName(), ++autoindexNumber));
+                        columnConstraintsIndexCache.put(pk.getIndexName(), pk);
+                    }
+                } else if (constraint instanceof ISqlJetColumnUnique) {
+                    SqlJetColumnUnique uc = (SqlJetColumnUnique) constraint;
+                    uc.setIndexName(generateAutoIndexName(getName(), ++autoindexNumber));
+                    columnConstraintsIndexCache.put(uc.getIndexName(), uc);
+                }
+            }
+            columnIndex++;
+        }
+        for (ISqlJetTableConstraint constraint : constraints) {
+            if (constraint instanceof ISqlJetTablePrimaryKey) {
+                SqlJetTablePrimaryKey pk = (SqlJetTablePrimaryKey) constraint;
+                assert primaryKeyColumns.isEmpty();
+                primaryKeyColumns.addAll(pk.getColumns());
+                pk.setIndexName(primaryKeyIndexName = generateAutoIndexName(getName(), ++autoindexNumber));
+                tableConstrainsIndexCache.put(pk.getIndexName(), pk);
+            } else if (constraint instanceof ISqlJetTableUnique) {
+                SqlJetTableUnique uc = (SqlJetTableUnique) constraint;
+                uc.setIndexName(generateAutoIndexName(getName(), ++autoindexNumber));
+                tableConstrainsIndexCache.put(uc.getIndexName(), uc);
+            }
+        }
+    }
+
+    private static String generateAutoIndexName(String tableName, int i) {
+        return String.format(AUTOINDEX, tableName, i);
     }
 
     private boolean hasOption(CommonTree optionsNode, String name) {
@@ -137,10 +204,12 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         return -1;
     }
-    
+
     public List<ISqlJetTableConstraint> getConstraints() {
         return constraints;
     }
+
+    // Internal API
 
     public int getPage() {
         return page;
@@ -157,6 +226,51 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     public void setRowId(long rowId) {
         this.rowId = rowId;
     }
+
+    /**
+     * Returns true if primary key definition allows rowid to be used as primary
+     * key column. In practice this means that the table has primary key that is
+     * based in a single column of type 'integer'.
+     */
+    public boolean isRowIdPrimaryKey() {
+        return rowIdPrimaryKey;
+    }
+
+    /**
+     * Returns true if primary key has 'autoincrement' keyword.
+     */
+    public boolean isAutoincremented() {
+        return autoincremented;
+    }
+
+    /**
+     * Returns name of the primary key index.
+     */
+    public String getPrimaryKeyIndexName() {
+        return primaryKeyIndexName;
+    }
+
+    public String getRowIdPrimaryKeyColumnName() {
+        return rowIdPrimaryKeyColumnName;
+    }
+
+    public int getRowIdPrimaryKeyColumnIndex() {
+        return rowIdPrimaryKeyColumnIndex;
+    }
+
+    public List<String> getPrimaryKeyColumnNames() {
+        return primaryKeyColumns;
+    }
+
+    public SqlJetColumnIndexConstraint getColumnIndexConstraint(String indexName) {
+        return columnConstraintsIndexCache.get(indexName);
+    }
+
+    public SqlJetTableIndexConstraint getTableIndexConstraint(String indexName) {
+        return tableConstrainsIndexCache.get(indexName);
+    }
+
+    // Serialization
 
     @Override
     public String toString() {

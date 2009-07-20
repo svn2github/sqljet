@@ -21,14 +21,14 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetColumnPrimaryKey extends SqlJetColumnConstraint implements ISqlJetColumnPrimaryKey {
+public class SqlJetColumnPrimaryKey extends SqlJetColumnIndexConstraint implements ISqlJetColumnPrimaryKey {
 
     private Boolean ascending;
     private boolean autoincremented;
     private SqlJetConflictAction conflictAction;
 
-    public SqlJetColumnPrimaryKey(String name, CommonTree ast) {
-        super(name);
+    public SqlJetColumnPrimaryKey(SqlJetColumnDef column, String name, CommonTree ast) {
+        super(column, name);
         assert "primary".equalsIgnoreCase(ast.getText());
         for (int i = 0; i < ast.getChildCount(); i++) {
             CommonTree child = (CommonTree) ast.getChild(i);

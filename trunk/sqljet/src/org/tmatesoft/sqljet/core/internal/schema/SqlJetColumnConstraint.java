@@ -15,17 +15,22 @@ package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 
-
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public abstract class SqlJetColumnConstraint implements ISqlJetColumnConstraint {
 
+    private final SqlJetColumnDef column;
     private final String name;
 
-    public SqlJetColumnConstraint(String name) {
+    public SqlJetColumnConstraint(SqlJetColumnDef column, String name) {
+        this.column = column;
         this.name = name;
+    }
+
+    public SqlJetColumnDef getColumn() {
+        return column;
     }
 
     public String getName() {

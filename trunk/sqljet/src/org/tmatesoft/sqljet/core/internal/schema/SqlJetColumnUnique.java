@@ -21,12 +21,12 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetColumnUnique extends SqlJetColumnConstraint implements ISqlJetColumnUnique {
+public class SqlJetColumnUnique extends SqlJetColumnIndexConstraint implements ISqlJetColumnUnique {
 
     private SqlJetConflictAction conflictAction;
 
-    public SqlJetColumnUnique(String name, CommonTree ast) {
-        super(name);
+    public SqlJetColumnUnique(SqlJetColumnDef column, String name, CommonTree ast) {
+        super(column, name);
         assert "unique".equalsIgnoreCase(ast.getText());
         for (int i = 0; i < ast.getChildCount(); i++) {
             CommonTree child = (CommonTree) ast.getChild(i);

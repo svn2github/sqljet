@@ -25,8 +25,8 @@ public class SqlJetColumnNotNull extends SqlJetColumnConstraint implements ISqlJ
 
     private SqlJetConflictAction conflictAction;
 
-    public SqlJetColumnNotNull(String name, CommonTree ast) {
-        super(name);
+    public SqlJetColumnNotNull(SqlJetColumnDef column, String name, CommonTree ast) {
+        super(column, name);
         assert "not_null".equalsIgnoreCase(ast.getText());
         for (int i = 0; i < ast.getChildCount(); i++) {
             CommonTree child = (CommonTree) ast.getChild(i);

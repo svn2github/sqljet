@@ -47,17 +47,17 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
             String constraintName = constraintRootNode.getChildCount() > 1 ? constraintRootNode.getChild(1).getText()
                     : null;
             if ("primary".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnPrimaryKey(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnPrimaryKey(this, constraintName, constraintNode));
             } else if ("not_null".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnNotNull(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnNotNull(this, constraintName, constraintNode));
             } else if ("unique".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnUnique(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnUnique(this, constraintName, constraintNode));
             } else if ("check".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnCheck(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnCheck(this, constraintName, constraintNode));
             } else if ("default".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnDefault(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnDefault(this, constraintName, constraintNode));
             } else if ("collate".equalsIgnoreCase(constraintType)) {
-                constraints.add(new SqlJetColumnCollate(constraintName, constraintNode));
+                constraints.add(new SqlJetColumnCollate(this, constraintName, constraintNode));
             } else if ("references".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnForeignKey(constraintName, constraintNode));
             } else {
@@ -96,6 +96,17 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
             types += typeName + ' ';
         }
         return SqlJetTypeAffinity.decode(types);
+    }
+
+    public boolean hasExactlyIntegerType() {
+        if (getTypeAffinity() != SqlJetTypeAffinity.INTEGER) {
+            return false;
+        }
+        final ISqlJetTypeDef type = getType();
+        if (type == null || type.getNames() == null || type.getNames().size() == 0) {
+            return false;
+        }
+        return "INTEGER".equals(type.getNames().get(0).toUpperCase());
     }
 
     public List<ISqlJetColumnConstraint> getConstraints() {

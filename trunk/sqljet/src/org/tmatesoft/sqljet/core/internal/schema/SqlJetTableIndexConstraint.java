@@ -28,6 +28,7 @@ public abstract class SqlJetTableIndexConstraint extends SqlJetTableConstraint {
 
     private List<String> columns;
     private SqlJetConflictAction conflictAction;
+    private String indexName;
 
     public SqlJetTableIndexConstraint(String name, CommonTree ast) {
         super(name);
@@ -57,6 +58,14 @@ public abstract class SqlJetTableIndexConstraint extends SqlJetTableConstraint {
     }
 
     protected abstract String getConstraintName();
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
 
     @Override
     public String toString() {

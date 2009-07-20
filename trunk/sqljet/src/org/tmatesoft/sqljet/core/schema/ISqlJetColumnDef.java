@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.schema;
 
 import java.util.List;
 
-
 /**
  * Column Definition.
  * 
@@ -29,6 +28,8 @@ public interface ISqlJetColumnDef {
     public ISqlJetTypeDef getType();
 
     public SqlJetTypeAffinity getTypeAffinity();
+
+    public boolean hasExactlyIntegerType();
 
     public List<ISqlJetColumnConstraint> getConstraints();
 }

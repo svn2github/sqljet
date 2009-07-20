@@ -15,7 +15,6 @@ package org.tmatesoft.sqljet.core.schema;
 
 import java.util.List;
 
-
 /**
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
@@ -25,4 +24,6 @@ public interface ISqlJetTableUnique extends ISqlJetTableConstraint {
     public List<String> getColumns();
 
     public SqlJetConflictAction getConflictAction();
+
+    public String getIndexName();
 }

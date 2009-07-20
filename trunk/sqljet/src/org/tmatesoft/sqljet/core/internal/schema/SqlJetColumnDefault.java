@@ -27,8 +27,8 @@ public class SqlJetColumnDefault extends SqlJetColumnConstraint implements ISqlJ
 
     private final ISqlJetExpression expression;
 
-    public SqlJetColumnDefault(String name, CommonTree ast) throws SqlJetException {
-        super(name);
+    public SqlJetColumnDefault(SqlJetColumnDef column, String name, CommonTree ast) throws SqlJetException {
+        super(column, name);
         assert "default".equalsIgnoreCase(ast.getText());
         expression = SqlJetExpression.create((CommonTree) ast.getChild(0));
     }

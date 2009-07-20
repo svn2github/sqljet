@@ -26,8 +26,8 @@ public class SqlJetColumnCheck extends SqlJetColumnConstraint implements ISqlJet
 
     private final ISqlJetExpression expression;
 
-    public SqlJetColumnCheck(String name, CommonTree ast) throws SqlJetException {
-        super(name);
+    public SqlJetColumnCheck(SqlJetColumnDef column, String name, CommonTree ast) throws SqlJetException {
+        super(column, name);
         assert "check".equalsIgnoreCase(ast.getText());
         expression = SqlJetExpression.create((CommonTree) ast.getChild(0));
     }

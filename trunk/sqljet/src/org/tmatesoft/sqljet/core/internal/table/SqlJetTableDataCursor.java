@@ -25,6 +25,7 @@ import java.util.Map;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -142,7 +143,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
-                return buffer != null ? buffer.array() : null;
+                return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
         });
     }
@@ -152,7 +153,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
-                return buffer != null ? new ByteArrayInputStream(buffer.array()) : null;
+                return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
         });
     }

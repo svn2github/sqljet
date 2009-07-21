@@ -18,6 +18,8 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -38,6 +40,9 @@ public class IntegerPrimaryKeyTest {
     private File file;
     private SqlJetDb db;
     private ISqlJetTable table;
+    private Map<String, Object> values;
+    private boolean success;
+    private long rowId = 1L;
 
     /**
      * @throws java.lang.Exception
@@ -54,16 +59,260 @@ public class IntegerPrimaryKeyTest {
             }
         });
         table = db.getTable("t");
+        values = new HashMap<String, Object>();
     }
 
     @Test
-    public void integerPrimaryKey() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction(){
+    public void integerPrimaryKey1() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insertAutoId();
                 return null;
             }
         });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey2() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertAutoId(null);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey3() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey4() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(null);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey6() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey7() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertAutoId(1);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey8() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+    
+    @Test
+    public void integerPrimaryKey9() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertAutoId(rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey10() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey11() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNamesAutoId(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey12() throws SqlJetException {
+        values.put(ID, null);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey13() throws SqlJetException {
+        values.put(ID, null);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNamesAutoId(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey14() throws SqlJetException {
+        values.put(ROWID, null);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey15() throws SqlJetException {
+        values.put(ROWID, null);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNamesAutoId(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey16() throws SqlJetException {
+        rowId=2;
+        values.put(ID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey17() throws SqlJetException {
+        rowId=2;
+        values.put(ID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNamesAutoId(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey18() throws SqlJetException {
+        rowId=2;
+        values.put(ROWID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey19() throws SqlJetException {
+        rowId=2;
+        values.put(ROWID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNamesAutoId(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey20() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1);
+                table.open().update(2);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey21() throws SqlJetException {
+        rowId=2;
+        values.put(ID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1);
+                table.open().updateByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey22() throws SqlJetException {
+        rowId=2;
+        values.put(ROWID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1);
+                table.open().updateByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
     }
     
     /**
@@ -71,13 +320,22 @@ public class IntegerPrimaryKeyTest {
      */
     @After
     public void tearDown() throws Exception {
-        final ISqlJetCursor c = table.lookup(table.getPrimaryKeyIndexName(), 1L);
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(1L, c.getInteger(ID));
-        Assert.assertEquals(1L, c.getInteger(ROWID));
-        Assert.assertEquals(1L, c.getValue(ID));
-        Assert.assertEquals(1L, c.getValue(ROWID));
-        file.delete();
+        try {
+            if (success) {
+                final ISqlJetCursor c = table.lookup(table.getPrimaryKeyIndexName(), 1L);
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(rowId, c.getInteger(ID));
+                Assert.assertEquals(rowId, c.getInteger(ROWID));
+                Assert.assertEquals(rowId, c.getValue(ID));
+                Assert.assertEquals(rowId, c.getValue(ROWID));
+            }
+        } finally {
+            try {
+                db.close();
+            } finally {
+                file.delete();
+            }
+        }
     }
 
 }

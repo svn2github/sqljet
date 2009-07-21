@@ -87,12 +87,16 @@ public interface ISqlJetTable {
     long insertByFieldNames(Map<String, Object> values) throws SqlJetException;
 
     /**
-     * Inserts record at specified rowId.
+     * Inserts record at specified rowId. If rowId is 0 then it generates new
+     * rowId. If table has INTEGER PRIMARY KEY column and rowId isn't 0 then
+     * value for this field will be ignored and could be specified just as null.
+     * If table has INTEGER PRIMARY KEY column and rowId is 0 then value for
+     * this field used as rowId.
      * 
      * @param rowId
      * @param values
      * @throws SqlJetException
      */
-    long insertWithRowId(Long rowId, Object... values) throws SqlJetException;
-    
+    long insertWithRowId(long rowId, Object... values) throws SqlJetException;
+
 }

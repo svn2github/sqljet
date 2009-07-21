@@ -184,7 +184,8 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param rowId
      * @param values
      * @return
+     * @throws SqlJetException 
      */
-    long insertWithRowId(Long rowId, Object[] values);
+    long insertWithRowId(long rowId, Object[] values) throws SqlJetException;
 
 }

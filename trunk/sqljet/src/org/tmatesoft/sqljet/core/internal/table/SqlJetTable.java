@@ -129,7 +129,7 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
     
-    public long insertWithRowId(final Long rowId, final Object... values) throws SqlJetException {
+    public long insertWithRowId(final long rowId, final Object... values) throws SqlJetException {
         return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {

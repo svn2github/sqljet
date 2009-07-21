@@ -176,22 +176,45 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.lang.Object[])
      */
     public long insert(Object... values) throws SqlJetException {
+        return insertWithRowId(0, values);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
+     * insertWithRowId(java.lang.Long, java.lang.Object[])
+     */
+    public long insertWithRowId(long rowId, Object[] values) throws SqlJetException {
         lock();
         try {
-            final int columnsCount = tableDef.getColumns().size();
-            final Object[] row = new Object[columnsCount];
-            if (null != values && values.length != 0) {
-                if (values.length > columnsCount) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
-                }
-                final Object[] a = SqlJetUtility.adjustNumberTypes(values);
-                System.arraycopy(a, 0, row, 0, a.length);
+            final Object[] row = getValuesRow(values);
+            if(rowId<1){
+                rowId = getRowIdForRow(row);
             }
-            return doInsert(row);
+            doInsert(rowId, row);
+            return rowId;
         } finally {
             unlock();
         }
+    }
+    
+    /**
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    private Object[] getValuesRow(Object... values) throws SqlJetException {
+        final int columnsCount = tableDef.getColumns().size();
+        final Object[] row = new Object[columnsCount];
+        if (null != values && values.length != 0) {
+            if (values.length > columnsCount) {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
+            }
+            final Object[] a = SqlJetUtility.adjustNumberTypes(values);
+            System.arraycopy(a, 0, row, 0, a.length);
+        }
+        return row;
     }
 
     /**
@@ -199,22 +222,18 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return
      * @throws SqlJetException
      */
-    private long doInsert(final Object[] row) throws SqlJetException {
-        long rowId = 0;
-        final ByteBuffer pData;
-
-        if (!tableDef.isRowIdPrimaryKey()) {
-            rowId = newRowId();
-            pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
-        } else {
+    private long getRowIdForRow(final Object[] row) throws SqlJetException {
+        if (tableDef.isRowIdPrimaryKey()) {
             final int primaryKeyColumnNumber = tableDef.getColumnNumber(tableDef.getRowIdPrimaryKeyColumnName());
             if (primaryKeyColumnNumber == -1 || primaryKeyColumnNumber >= row.length)
                 throw new SqlJetException(SqlJetErrorCode.ERROR);
             final Object rowIdParam = row[primaryKeyColumnNumber];
             if (null != rowIdParam) {
                 if (rowIdParam instanceof Long) {
-                    rowId = (Long) rowIdParam;
-                    if (rowId < 0) {
+                    long rowId = (Long) rowIdParam;
+                    if (rowId > 0) {
+                        return rowId;
+                    } else {
                         throw new SqlJetException(SqlJetErrorCode.MISUSE,
                                 "INTEGER PRIMARY KEY column must be more than zero");
                     }
@@ -223,18 +242,30 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                             "INTEGER PRIMARY KEY column must have only integer value");
                 }
             }
-            if (0 == rowId) {
-                rowId = newRowId();
-            }
+        }
+        return newRowId();
+    }
+
+    /**
+     * @param row
+     * @return
+     * @throws SqlJetException
+     */
+    private void doInsert(final long rowId, final Object[] row) throws SqlJetException {
+        final ByteBuffer pData;
+        if (!tableDef.isRowIdPrimaryKey()) {
+            pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
+        } else {
+            final int primaryKeyColumnNumber = tableDef.getColumnNumber(tableDef.getRowIdPrimaryKeyColumnName());
+            if (primaryKeyColumnNumber == -1 || primaryKeyColumnNumber >= row.length)
+                throw new SqlJetException(SqlJetErrorCode.ERROR);
             row[primaryKeyColumnNumber] = null;
             pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
             row[primaryKeyColumnNumber] = rowId;
         }
-
         doActionWithIndexes(Action.INSERT, rowId, row);
         cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
         goToRow(rowId);
-        return rowId;
     }
 
     /*
@@ -600,13 +631,5 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean isIndexExists(String indexName) {
         return (null == indexName && tableDef.isRowIdPrimaryKey()) || getIndexDefinitions().containsKey(indexName);
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertWithRowId(java.lang.Long, java.lang.Object[])
-     */
-    public long insertWithRowId(Long rowId, Object[] values) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-    
+
 }

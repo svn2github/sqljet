@@ -79,6 +79,7 @@ public class IntegerPrimaryKeyTest {
                 Assert.assertEquals(rowId, c.getInteger(ROWID));
                 Assert.assertEquals(rowId, c.getValue(ID));
                 Assert.assertEquals(rowId, c.getValue(ROWID));
+                Assert.assertEquals(rowId, c.getRowId());
             }
         } finally {
             try {
@@ -248,11 +249,45 @@ public class IntegerPrimaryKeyTest {
     }
 
     @Test
-    public void insertWithRowId() throws SqlJetException {
+    public void insertWithRowId1() throws SqlJetException {
         rowId = 2; t2=true;
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertWithRowId(rowId);
+                table2.insertWithRowId(rowId,rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void insertWithRowId2() throws SqlJetException {
+        rowId = 2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(0,rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void insertWithRowId3() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(0);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void insertWithRowId4() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(0,new Object[]{null});
                 return null;
             }
         });

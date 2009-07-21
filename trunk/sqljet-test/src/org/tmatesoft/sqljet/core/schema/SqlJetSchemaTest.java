@@ -91,7 +91,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                         .createTable("create table test( id integer primary key, name text )");
                 final SqlJetTable openTable = db.getTable(createTable.getName());
                 logger.info(createTable.toString());
-                openTable.insertAutoId("test");
+                openTable.insert(null, "test");
                 return null;
             }
         });
@@ -120,7 +120,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                         .createTable("create table test( id integer primary key, name text unique )");
                 final SqlJetTable openTable = db.getTable(createTable.getName());
                 logger.info(createTable.toString());
-                openTable.insertAutoId("test");
+                openTable.insert(null, "test");
                 return null;
             }
         });
@@ -154,7 +154,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                         .createTable("create table test( id integer primary key, name text )");
                 final SqlJetTable openTable = db.getTable(createTable.getName());
                 logger.info(createTable.toString());
-                openTable.insertAutoId("test");
+                openTable.insert(null, "test");
                 schema.createIndex("CREATE INDEX test_name_index ON test(name);");
                 return null;
             }
@@ -238,9 +238,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
                         .createTable("create table test( id integer primary key, name text )");
                 final SqlJetTable openTable = repCache.getTable(createTable.getName());
                 logger.info(createTable.toString());
-                openTable.insertAutoId("test");
+                openTable.insert(null, "test");
                 schema.createIndex("CREATE INDEX test_index ON test(name);");
-                openTable.insertAutoId("test1");
+                openTable.insert(null, "test1");
                 return null;
             }
         });
@@ -306,8 +306,8 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             logger.info(createTable.toString());
             schema.createIndex("CREATE INDEX test_index ON test(name);");
             final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insertAutoId("test");
-            openTable.insertAutoId("test1");
+            openTable.insert(null, "test");
+            openTable.insert(null, "test1");
             createDb.commit();
         } catch (SqlJetException e) {
             createDb.rollback();
@@ -332,9 +332,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             logger.info(createTable.toString());
             schema.createIndex("CREATE INDEX test_index ON test(name);");
             final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insertAutoId("test");
-            openTable.insertAutoId("test1");
-            openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+            openTable.insert(null, "test");
+            openTable.insert(null, "test1");
+            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
             createDb.commit();
         } catch (SqlJetException e) {
             createDb.rollback();
@@ -361,9 +361,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             logger.info(createTable.toString());
             schema.createIndex("CREATE INDEX test_index ON test(name);");
             final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insertAutoId("test");
-            openTable.insertAutoId("test1");
-            openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+            openTable.insert(null, "test");
+            openTable.insert(null, "test1");
+            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
             createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
             createDb.commit();
         } catch (SqlJetException e) {
@@ -392,9 +392,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             logger.info(createTable.toString());
             schema.createIndex("CREATE INDEX test_index ON test(name);");
             final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insertAutoId("test");
-            openTable.insertAutoId("test1");
-            openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+            openTable.insert(null, "test");
+            openTable.insert(null, "test1");
+            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
             createDb.commit();
         } catch (SqlJetException e) {
             createDb.rollback();
@@ -430,9 +430,9 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             logger.info(createTable.toString());
             schema.createIndex("CREATE INDEX test_index ON test(name);");
             final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insertAutoId("test");
-            openTable.insertAutoId("test1");
-            openTable.insertAutoId(new String(TEST_UTF8, "UTF8"));
+            openTable.insert(null, "test");
+            openTable.insert(null, "test1");
+            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
             createDb.commit();
         } catch (SqlJetException e) {
             createDb.rollback();

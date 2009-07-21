@@ -77,13 +77,6 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     long insert(Object... values) throws SqlJetException;
 
     /**
-     * @param values
-     * @return
-     * @throws SqlJetException
-     */
-    long insertAutoId(Object... values) throws SqlJetException;
-
-    /**
      * Update an entry in the table by rowId.
      * 
      * @param rowId
@@ -167,16 +160,6 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     long insert(Map<String, Object> values) throws SqlJetException;
-
-    /**
-     * Insert record by values by names of fields and .
-     * 
-     * 
-     * @param values
-     * @return
-     * @throws SqlJetException
-     */
-    long insertAutoId(Map<String, Object> values) throws SqlJetException;
 
     /**
      * @param rowId

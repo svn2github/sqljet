@@ -86,39 +86,6 @@ public class IntegerPrimaryKeyTest {
     }
 
     @Test
-    public void integerPrimaryKey1() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId();
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
-    public void integerPrimaryKey2() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId((Object[]) null);
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test(expected = SqlJetException.class)
-    public void integerPrimaryKey2_1() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId(new Object[] { null });
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
     public void integerPrimaryKey3() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -162,17 +129,6 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
-    @Test(expected = SqlJetException.class)
-    public void integerPrimaryKey7() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId(1);
-                return null;
-            }
-        });
-        success = true;
-    }
-
     @Test
     public void integerPrimaryKey8() throws SqlJetException {
         rowId = 2;
@@ -185,34 +141,11 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
-    @Test(expected = SqlJetException.class)
-    public void integerPrimaryKey9() throws SqlJetException {
-        rowId = 2;
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId(rowId);
-                return null;
-            }
-        });
-        success = true;
-    }
-
     @Test
     public void integerPrimaryKey10() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insertByFieldNames(values);
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
-    public void integerPrimaryKey11() throws SqlJetException {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertByFieldNamesAutoId(values);
                 return null;
             }
         });
@@ -232,35 +165,11 @@ public class IntegerPrimaryKeyTest {
     }
 
     @Test
-    public void integerPrimaryKey13() throws SqlJetException {
-        values.put(ID, null);
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertByFieldNamesAutoId(values);
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
     public void integerPrimaryKey14() throws SqlJetException {
         values.put(ROWID, null);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insertByFieldNames(values);
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
-    public void integerPrimaryKey15() throws SqlJetException {
-        values.put(ROWID, null);
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertByFieldNamesAutoId(values);
                 return null;
             }
         });
@@ -280,19 +189,6 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
-    @Test(expected = SqlJetException.class)
-    public void integerPrimaryKey17() throws SqlJetException {
-        rowId = 2;
-        values.put(ID, rowId);
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertByFieldNamesAutoId(values);
-                return null;
-            }
-        });
-        success = true;
-    }
-
     @Test
     public void integerPrimaryKey18() throws SqlJetException {
         rowId = 2;
@@ -300,19 +196,6 @@ public class IntegerPrimaryKeyTest {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insertByFieldNames(values);
-                return null;
-            }
-        });
-        success = true;
-    }
-
-    @Test
-    public void integerPrimaryKey19() throws SqlJetException {
-        rowId = 2;
-        values.put(ROWID, rowId);
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertByFieldNamesAutoId(values);
                 return null;
             }
         });

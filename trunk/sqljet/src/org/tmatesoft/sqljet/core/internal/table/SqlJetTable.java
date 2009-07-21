@@ -120,15 +120,6 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
-    public long insertAutoId(final Object... values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return dataTable.insertAutoId(values);
-            }
-        });
-    }
-
     public long insertByFieldNames(final Map<String, Object> values) throws SqlJetException {
         return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -138,12 +129,4 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
-    public long insertByFieldNamesAutoId(final Map<String, Object> values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return dataTable.insertAutoId(values);
-            }
-        });
-    }
 }

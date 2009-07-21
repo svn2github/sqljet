@@ -247,7 +247,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         final SqlJetTable table = dbCopy.getTable(TABLE2);
 
-        table.insertAutoId("test", "test");
+        table.insert(null, "test", "test");
 
         dbCopy.commit();
     }
@@ -258,7 +258,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         final SqlJetTable table = dbCopy.getTable(TABLE2);
 
-        table.insertAutoId("test", "test", "test");
+        table.insert(null, "test", "test", "test");
 
         dbCopy.rollback();
 
@@ -272,7 +272,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final SqlJetTable table = db.getTable(tableName);
         Assert.assertNotNull(table);
 
-        final long newRowId = table.insertAutoId(testString);
+        final long newRowId = table.insert(null, testString);
 
         db.commit();
 
@@ -351,7 +351,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         final SqlJetTable table = dbCopy.getTable(TABLE);
 
-        table.insertAutoId("test1", 1);
+        table.insert(null,"test1", 1);
         dbCopy.commit();
 
         final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
@@ -476,7 +476,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         values.put("name", "test1");
         values.put("value", 1);
 
-        table.insertByFieldNamesAutoId(values);
+        table.insertByFieldNames(values);
         dbCopy.commit();
 
         final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
@@ -518,7 +518,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
 
-        table.insertByFieldNamesAutoId(values);
+        table.insertByFieldNames(values);
         dbCopy.commit();
 
         final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");

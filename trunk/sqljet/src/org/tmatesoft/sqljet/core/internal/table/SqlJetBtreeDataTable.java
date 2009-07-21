@@ -241,33 +241,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertAutoId
-     * (java.lang.Object[])
-     */
-    public long insertAutoId(Object... values) throws SqlJetException {
-        if (!tableDef.isRowIdPrimaryKey())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "This method only for tables with INTEGER PRIMARY KEY");
-        lock();
-        try {
-            final int columnsCount = tableDef.getColumns().size();
-            final Object[] row = new Object[columnsCount];
-            if (null != values && values.length != 0) {
-                if (values.length >= columnsCount) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
-                }
-                final Object[] a = SqlJetUtility.adjustNumberTypes(values);
-                System.arraycopy(a, 0, row, 1, a.length);
-            }
-            return doInsert(row);
-        } finally {
-            unlock();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (long, java.lang.Object[])
      */
@@ -539,24 +512,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (non-Javadoc)
      * 
      * @see
-     * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertAutoId
-     * (java.util.Map)
-     */
-    public long insertAutoId(Map<String, Object> values) throws SqlJetException {
-        if (!tableDef.isRowIdPrimaryKey())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        lock();
-        try {
-            return insert(null != values ? unwrapValues(values, newRowId()) : null );
-        } finally {
-            unlock();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (long, java.util.Map)
      */
@@ -605,27 +560,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return unwrapped;
     }
 
-    private Object[] unwrapValues(Map<String, Object> values, long rowId) throws SqlJetException {
-        if (!tableDef.isRowIdPrimaryKey())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE);
-        int i = 0;
-        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final Object[] unwrapped = new Object[columns.size()];
-        for (ISqlJetColumnDef column : columns) {
-            final String columnName = column.getName();
-            if (columnName.equalsIgnoreCase(tableDef.getRowIdPrimaryKeyColumnName())) {
-                if(null==values.get(columnName)){
-                    unwrapped[i++] = rowId;                    
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE);
-                }
-            } else {
-                unwrapped[i++] = values.get(columnName);
-            }
-        }
-        return unwrapped;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -666,4 +600,5 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean isIndexExists(String indexName) {
         return (null == indexName && tableDef.isRowIdPrimaryKey()) || getIndexDefinitions().containsKey(indexName);
     }
+    
 }

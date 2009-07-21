@@ -79,17 +79,6 @@ public interface ISqlJetTable {
     long insert(Object... values) throws SqlJetException;
 
     /**
-     * Version of insert() for tables with INTEGER PRIMARY KEY field. Method
-     * implements AUTOINCREMENT even if it doesn't have AUTOINCREMENT in
-     * definition.
-     * 
-     * @param values
-     * @return
-     * @throws SqlJetException
-     */
-    long insertAutoId(Object... values) throws SqlJetException;
-
-    /**
      * Insert record by values by names of fields.
      * 
      * @param values
@@ -98,13 +87,4 @@ public interface ISqlJetTable {
      */
     long insertByFieldNames(Map<String, Object> values) throws SqlJetException;
 
-    /**
-     * Insert record by values by names of fields and .
-     * 
-     * 
-     * @param values
-     * @return
-     * @throws SqlJetException
-     */
-    long insertByFieldNamesAutoId(Map<String, Object> values) throws SqlJetException;
 }

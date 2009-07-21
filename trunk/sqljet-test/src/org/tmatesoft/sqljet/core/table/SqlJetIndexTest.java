@@ -202,8 +202,8 @@ public class SqlJetIndexTest extends TestCase {
                 ISqlJetTable t = db.getTable("t");
                 // primary key has 'autoincrement' constraint - you are not supposed
                 // to provide it's value: it should be generated automatically
-                t.insertAutoId("zzz");
-                t.insertAutoId("www");
+                t.insert(null, "zzz");
+                t.insert(null, "www");
                 return null;
             }
         });
@@ -244,8 +244,8 @@ public class SqlJetIndexTest extends TestCase {
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.getSchema().createTable("create table t (a integer primary key, b text)");
                 ISqlJetTable t = db.getTable("t");
-                t.insertAutoId("zzz");
-                t.insertAutoId("www");
+                t.insert(null, "zzz");
+                t.insert(null, "www");
                 return null;
             }
         });

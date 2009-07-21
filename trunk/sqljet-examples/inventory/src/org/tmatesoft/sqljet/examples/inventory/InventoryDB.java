@@ -129,7 +129,7 @@ public class InventoryDB {
 						throw new IllegalArgumentException(e);
 					}
 				}
-				return db.getTable("items").insertAutoId(item.name, blob, item.room, item.shelf, item.borrowedTo,
+				return db.getTable("items").insert(null, item.name, blob, item.room, item.shelf, item.borrowedTo,
 						item.borrowedFrom);
 			}
 		});

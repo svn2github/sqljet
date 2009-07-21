@@ -26,6 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -39,9 +40,9 @@ public class IntegerPrimaryKeyTest {
 
     private File file;
     private SqlJetDb db;
-    private ISqlJetTable table;
+    private ISqlJetTable table, table2;
     private Map<String, Object> values;
-    private boolean success;
+    private boolean success, t2;
     private long rowId = 1L;
 
     /**
@@ -54,11 +55,14 @@ public class IntegerPrimaryKeyTest {
         db = SqlJetDb.open(file, true);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t(id integer primary key);");
+                final ISqlJetSchema schema = db.getSchema();
+                schema.createTable("create table t(id integer primary key);");
+                schema.createTable("create table t2(id integer);");
                 return null;
             }
         });
         table = db.getTable("t");
+        table2 = db.getTable("t2");
         values = new HashMap<String, Object>();
     }
 
@@ -69,7 +73,7 @@ public class IntegerPrimaryKeyTest {
     public void tearDown() throws Exception {
         try {
             if (success) {
-                final ISqlJetCursor c = table.lookup(table.getPrimaryKeyIndexName(), rowId);
+                final ISqlJetCursor c = t2 ? table2.open() : table.lookup(table.getPrimaryKeyIndexName(), rowId);
                 Assert.assertTrue(!c.eof());
                 Assert.assertEquals(rowId, c.getInteger(ID));
                 Assert.assertEquals(rowId, c.getInteger(ROWID));
@@ -243,4 +247,16 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
+    @Test
+    public void insertWithRowId() throws SqlJetException {
+        rowId = 2; t2=true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+    
 }

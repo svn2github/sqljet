@@ -180,4 +180,11 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      */
     boolean isIndexExists(String indexName);
 
+    /**
+     * @param rowId
+     * @param values
+     * @return
+     */
+    long insertWithRowId(Long rowId, Object[] values);
+
 }

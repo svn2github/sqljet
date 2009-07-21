@@ -70,8 +70,7 @@ public interface ISqlJetTable {
 
     /**
      * Add new record to the table with specified values. All relevant indexes
-     * are updated automatically. If table have INTEGER PRIMARY KEY
-     * AUTOINCREMENT field then 'values' should not have value for this field.
+     * are updated automatically.
      * 
      * @param values
      *            Values for the new record.
@@ -87,4 +86,13 @@ public interface ISqlJetTable {
      */
     long insertByFieldNames(Map<String, Object> values) throws SqlJetException;
 
+    /**
+     * Inserts record at specified rowId.
+     * 
+     * @param rowId
+     * @param values
+     * @throws SqlJetException
+     */
+    long insertWithRowId(Long rowId, Object... values) throws SqlJetException;
+    
 }

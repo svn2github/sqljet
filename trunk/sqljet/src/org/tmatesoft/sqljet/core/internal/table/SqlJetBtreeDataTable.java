@@ -601,4 +601,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return (null == indexName && tableDef.isRowIdPrimaryKey()) || getIndexDefinitions().containsKey(indexName);
     }
     
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insertWithRowId(java.lang.Long, java.lang.Object[])
+     */
+    public long insertWithRowId(Long rowId, Object[] values) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
 }

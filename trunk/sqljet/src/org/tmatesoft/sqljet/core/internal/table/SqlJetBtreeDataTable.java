@@ -189,7 +189,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             final Object[] row = getValuesRow(values);
-            if(rowId<1){
+            if (rowId < 1) {
                 rowId = getRowIdForRow(row);
             }
             doInsert(rowId, row);
@@ -198,7 +198,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             unlock();
         }
     }
-    
+
     /**
      * @param values
      * @return
@@ -363,6 +363,19 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     private void doActionWithIndexes(Action action, long rowId, Object... row) throws SqlJetException {
+
+        if (Action.INSERT == action) {
+            final long current = getRowId();
+            final boolean exists = goToRow(rowId);
+            if (current > 0) {
+                goToRow(current);
+            } else {
+                first();
+            }
+            if (exists) {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Record with given ROWID already exists");
+            }
+        }
 
         final Map<String, Object[]> indexKeys = new HashMap<String, Object[]>();
 

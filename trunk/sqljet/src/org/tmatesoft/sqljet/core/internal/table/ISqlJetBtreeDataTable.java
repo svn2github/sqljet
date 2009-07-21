@@ -61,7 +61,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     boolean goToRow(long rowId) throws SqlJetException;
 
     /**
-     * Generate new rowID.
+     * Get current rowID.
      * 
      * @return
      * @throws SqlJetException

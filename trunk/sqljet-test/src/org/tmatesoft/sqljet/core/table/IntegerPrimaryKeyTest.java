@@ -293,5 +293,17 @@ public class IntegerPrimaryKeyTest {
         });
         success = true;
     }
+
+    @Test(expected=SqlJetException.class)
+    public void insertWithRowId5() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(1);
+                table.insertWithRowId(1);
+                return null;
+            }
+        });
+        success = true;
+    }
     
 }

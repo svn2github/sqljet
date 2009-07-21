@@ -62,6 +62,29 @@ public class IntegerPrimaryKeyTest {
         values = new HashMap<String, Object>();
     }
 
+    /**
+     * @throws java.lang.Exception
+     */
+    @After
+    public void tearDown() throws Exception {
+        try {
+            if (success) {
+                final ISqlJetCursor c = table.lookup(table.getPrimaryKeyIndexName(), rowId);
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(rowId, c.getInteger(ID));
+                Assert.assertEquals(rowId, c.getInteger(ROWID));
+                Assert.assertEquals(rowId, c.getValue(ID));
+                Assert.assertEquals(rowId, c.getValue(ROWID));
+            }
+        } finally {
+            try {
+                db.close();
+            } finally {
+                file.delete();
+            }
+        }
+    }
+
     @Test
     public void integerPrimaryKey1() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
@@ -77,7 +100,18 @@ public class IntegerPrimaryKeyTest {
     public void integerPrimaryKey2() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insertAutoId(null);
+                table.insertAutoId((Object[]) null);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void integerPrimaryKey2_1() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertAutoId(new Object[] { null });
                 return null;
             }
         });
@@ -99,7 +133,18 @@ public class IntegerPrimaryKeyTest {
     public void integerPrimaryKey4() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insert(null);
+                table.insert((Object[]) null);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void integerPrimaryKey4_1() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(new Object[] { null });
                 return null;
             }
         });
@@ -117,7 +162,7 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
-    @Test
+    @Test(expected = SqlJetException.class)
     public void integerPrimaryKey7() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -130,7 +175,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey8() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insert(rowId);
@@ -139,10 +184,10 @@ public class IntegerPrimaryKeyTest {
         });
         success = true;
     }
-    
-    @Test
+
+    @Test(expected = SqlJetException.class)
     public void integerPrimaryKey9() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insertAutoId(rowId);
@@ -224,7 +269,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey16() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -235,9 +280,9 @@ public class IntegerPrimaryKeyTest {
         success = true;
     }
 
-    @Test
+    @Test(expected = SqlJetException.class)
     public void integerPrimaryKey17() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -250,7 +295,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey18() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ROWID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -263,7 +308,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey19() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ROWID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -276,7 +321,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey20() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table.insert(1);
@@ -289,7 +334,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey21() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -303,7 +348,7 @@ public class IntegerPrimaryKeyTest {
 
     @Test
     public void integerPrimaryKey22() throws SqlJetException {
-        rowId=2;
+        rowId = 2;
         values.put(ROWID, rowId);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -313,29 +358,6 @@ public class IntegerPrimaryKeyTest {
             }
         });
         success = true;
-    }
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        try {
-            if (success) {
-                final ISqlJetCursor c = table.lookup(table.getPrimaryKeyIndexName(), 1L);
-                Assert.assertTrue(!c.eof());
-                Assert.assertEquals(rowId, c.getInteger(ID));
-                Assert.assertEquals(rowId, c.getInteger(ROWID));
-                Assert.assertEquals(rowId, c.getValue(ID));
-                Assert.assertEquals(rowId, c.getValue(ROWID));
-            }
-        } finally {
-            try {
-                db.close();
-            } finally {
-                file.delete();
-            }
-        }
     }
 
 }

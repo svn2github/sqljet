@@ -38,7 +38,6 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class SqlJetTableDataCursor extends SqlJetCursor {
 
-    final static private String[] rowIdNames = { "ROWID", "_ROWID_", "OID" };
 
     public SqlJetTableDataCursor(ISqlJetBtreeDataTable table, SqlJetDb db) throws SqlJetException {
         super(table, db);
@@ -120,7 +119,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (isFieldNameRowId(fieldName)) {
+                if (SqlJetBtreeDataTable.isFieldNameRowId(fieldName)) {
                     return getBtreeDataTable().getRowId();
                 } else {
                     return getBtreeDataTable().getInteger(getFieldSafe(fieldName));
@@ -162,7 +161,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         return db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (isFieldNameRowId(fieldName)) {
+                if (SqlJetBtreeDataTable.isFieldNameRowId(fieldName)) {
                     return getBtreeDataTable().getRowId();
                 } else {
                     return getBtreeDataTable().getValue(getFieldSafe(fieldName));
@@ -228,16 +227,6 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
                 return null;
             }
         });
-    }
-
-    private boolean isFieldNameRowId(String fieldName) {
-        if (null == fieldName)
-            return false;
-        for (int i = 0; i < rowIdNames.length; i++) {
-            if (rowIdNames[i].equalsIgnoreCase(fieldName))
-                return true;
-        }
-        return false;
     }
 
 }

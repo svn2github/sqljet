@@ -46,6 +46,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
+    final static private String[] rowIdNames = { "ROWID", "_ROWID_", "OID" };
+
     private SqlJetTableDef tableDef;
     private Map<String, ISqlJetIndexDef> indexesDefs;
 
@@ -147,6 +149,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
+            if (getRowId() == rowId)
+                return true;
             return cursor.moveTo(null, rowId, false) == 0;
         } finally {
             unlock();
@@ -190,7 +194,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             final Object[] row = getValuesRow(values);
             if (rowId < 1) {
-                rowId = getRowIdForRow(row);
+                rowId = getRowIdForRow(row, true);
             }
             doInsert(rowId, row);
             return rowId;
@@ -222,7 +226,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return
      * @throws SqlJetException
      */
-    private long getRowIdForRow(final Object[] row) throws SqlJetException {
+    private long getRowIdForRow(final Object[] row, boolean required) throws SqlJetException {
         if (tableDef.isRowIdPrimaryKey()) {
             final int primaryKeyColumnNumber = tableDef.getColumnNumber(tableDef.getRowIdPrimaryKeyColumnName());
             if (primaryKeyColumnNumber == -1 || primaryKeyColumnNumber >= row.length)
@@ -243,7 +247,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 }
             }
         }
-        return newRowId();
+        if (!required) {
+            return 0;
+        } else {
+            return newRowId();
+        }
     }
 
     /**
@@ -317,9 +325,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
             final Object[] row = getValuesRow(values);
             if (newRowId < 1) {
-                newRowId = getRowIdForRow(row);
-            }            
-            doUpdate(newRowId, getValuesRow(values));
+                newRowId = getRowIdForRow(row, false);
+            }
+            doUpdate(newRowId > 0 ? newRowId : rowId, row);
             return newRowId;
         } finally {
             unlock();
@@ -339,8 +347,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "No current record");
             final Object[] row = getValuesRow(values);
             if (newRowId < 1) {
-                newRowId = getRowIdForRow(row);
-            }            
+                newRowId = getRowIdForRow(row, false);
+            }
             doUpdate(newRowId, getValuesRow(values));
             return newRowId;
         } finally {
@@ -356,9 +364,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         final long currentRowId = getRowId();
         final Object[] currentRow = getValues();
+        long newRowId = 0 < rowId ? rowId : currentRowId;
 
-        if (rowId == currentRowId && Arrays.equals(row, currentRow))
+        if (newRowId == currentRowId && Arrays.equals(row, currentRow))
             return;
+        
 
         final ByteBuffer pData;
         if (!tableDef.isRowIdPrimaryKey()) {
@@ -369,12 +379,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 throw new SqlJetException(SqlJetErrorCode.ERROR);
             row[primaryKeyColumnNumber] = null;
             pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
-            row[primaryKeyColumnNumber] = rowId;
+            row[primaryKeyColumnNumber] = newRowId;
         }
-        doActionWithIndexes(Action.UPDATE, rowId, row);
+        doActionWithIndexes(Action.UPDATE, newRowId, row);
         cursor.delete();
-        cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
-        goToRow(rowId);
+        cursor.insert(null, newRowId, pData, pData.remaining(), 0, true);
+        goToRow(newRowId);
 
     }
 
@@ -645,14 +655,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (long, java.util.Map)
      */
     public void update(long rowId, Map<String, Object> values) throws SqlJetException {
-        lock();
-        try {
-            if (rowId <= 0 || !goToRow(rowId))
-                throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            doUpdate(rowId, unwrapValues(values));
-        } finally {
-            unlock();
-        }
+        updateWithRowId(rowId, getRowIdFromValues(values), unwrapValues(values));
     }
 
     /*
@@ -663,12 +666,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.util.Map)
      */
     public void update(Map<String, Object> values) throws SqlJetException {
-        lock();
-        try {
-            doUpdate(getRowId(), unwrapValues(values));
-        } finally {
-            unlock();
-        }
+        updateWithRowId(getRowId(), getRowIdFromValues(values), unwrapValues(values));
     }
 
     /**
@@ -728,6 +726,37 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     public boolean isIndexExists(String indexName) {
         return (null == indexName && tableDef.isRowIdPrimaryKey()) || getIndexDefinitions().containsKey(indexName);
+    }
+
+    public static boolean isFieldNameRowId(String fieldName) {
+        if (null == fieldName)
+            return false;
+        for (int i = 0; i < rowIdNames.length; i++) {
+            if (rowIdNames[i].equalsIgnoreCase(fieldName))
+                return true;
+        }
+        return false;
+    }
+
+    public static long getRowIdFromValues(final Map<String, Object> values) throws SqlJetException {
+        if (null == values)
+            return 0;
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+            final String name = entry.getKey();
+            final Object value = entry.getValue();
+            for (int i = 0; i < rowIdNames.length; i++) {
+                if (rowIdNames[i].equalsIgnoreCase(name)) {
+                    if (null != value) {
+                        if (value instanceof Long) {
+                            return (Long) value;
+                        } else {
+                            throw new SqlJetException(SqlJetErrorCode.MISUSE, "ROWID must be integer value");
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
     }
 
 }

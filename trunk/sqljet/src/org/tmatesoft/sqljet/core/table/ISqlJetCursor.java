@@ -259,6 +259,15 @@ public interface ISqlJetCursor {
     void update(Object... values) throws SqlJetException;
 
     /**
+     * Update rowId and values in the current record.
+     * 
+     * @param values
+     *            New record values.
+     * @throws SqlJetException
+     */
+    long updateWithRowId(long rowId, Object... values) throws SqlJetException;
+    
+    /**
      * Update the current record.
      * 
      * @param values

@@ -180,8 +180,22 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
                             "Table is empty or current record doesn't't point to data row");
                 }
-                table.update(values);
+                table.updateCurrent(values);
                 return null;
+            }
+        });
+    }
+
+    public long updateWithRowId(final long rowId, final Object... values) throws SqlJetException {
+        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
+
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                final ISqlJetBtreeDataTable table = getBtreeDataTable();
+                if (table.eof()) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                            "Table is empty or current record doesn't't point to data row");
+                }
+                return table.updateCurrentWithRowId(rowId, values);
             }
         });
     }

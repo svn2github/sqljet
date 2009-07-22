@@ -91,8 +91,25 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    void update(Object... values) throws SqlJetException;
+    void updateCurrent(Object... values) throws SqlJetException;
 
+    /**
+     * Update the rowId and values an entry in the table by rowId.
+     * 
+     * @param rowId
+     * @param values
+     * @throws SqlJetException
+     */
+    long updateWithRowId(long rowId, long newRowId, Object... values) throws SqlJetException;
+
+    /**
+     * Update the rowId and values in current entry in the table.
+     * 
+     * @param values
+     * @throws SqlJetException
+     */
+    long updateCurrentWithRowId(long newRowId, Object... values) throws SqlJetException;
+    
     /**
      * Delete record by row's ID.
      * 

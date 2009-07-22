@@ -32,16 +32,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 public interface ISqlJetTable {
 
     /**
-     * @return the isRowIdPrimaryKey
-     */
-    boolean isRowIdPrimaryKey() throws SqlJetException;
-
-    /**
-     * @return the isAutoincrement
-     */
-    boolean isAutoincrement() throws SqlJetException;
-
-    /**
      * @return the primaryKeyIndex
      */
     String getPrimaryKeyIndexName() throws SqlJetException;

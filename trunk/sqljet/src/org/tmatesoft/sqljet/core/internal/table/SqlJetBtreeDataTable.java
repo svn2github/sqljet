@@ -603,20 +603,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     /**
-     * @return the isRowIdPrimaryKey
-     */
-    public boolean isRowIdPrimaryKey() {
-        return tableDef.isRowIdPrimaryKey();
-    }
-
-    /**
-     * @return the isAutoincrement
-     */
-    public boolean isAutoincrement() {
-        return tableDef.isAutoincremented();
-    }
-
-    /**
      * @return the primaryKeyIndex
      */
     public String getPrimaryKeyIndex() {

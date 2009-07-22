@@ -48,24 +48,6 @@ public class SqlJetTable implements ISqlJetTable {
         this.dataTable = new SqlJetBtreeDataTable(schema, tableName, write);
     }
 
-    public boolean isRowIdPrimaryKey() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return dataTable.isRowIdPrimaryKey();
-            }
-        });
-    }
-
-    public boolean isAutoincrement() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return dataTable.isAutoincrement();
-            }
-        });
-    }
-
     public String getPrimaryKeyIndexName() throws SqlJetException {
         return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
 

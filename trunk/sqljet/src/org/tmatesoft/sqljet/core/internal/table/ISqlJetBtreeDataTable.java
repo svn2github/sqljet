@@ -136,20 +136,6 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
     boolean checkIndex(String indexName, Object[] key) throws SqlJetException;
 
     /**
-     * Has table primary key defined as INTEGER field ?
-     * 
-     * @return the isRowIdPrimaryKey
-     */
-    boolean isRowIdPrimaryKey();
-
-    /**
-     * Is primary key defined as AUTOINCREMENT ?
-     * 
-     * @return the isAutoincrement
-     */
-    boolean isAutoincrement();
-
-    /**
      * Get name of index which has been auto-created for primary key.
      * 
      * @return the primaryKeyIndex

@@ -53,4 +53,16 @@ public interface ISqlJetTableDef {
      * Returns all table constraints.
      */
     public List<ISqlJetTableConstraint> getConstraints();
+
+    /**
+     * Returns true if primary key definition allows rowid to be used as primary
+     * key column. In practice this means that the table has primary key that is
+     * based in a single column of type 'integer'.
+     */
+    public boolean isRowIdPrimaryKey();
+
+    /**
+     * Returns true if primary key has 'autoincrement' keyword.
+     */
+    public boolean isAutoincremented();
 }

@@ -209,6 +209,14 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         return constraints;
     }
 
+    public boolean isRowIdPrimaryKey() {
+        return rowIdPrimaryKey;
+    }
+
+    public boolean isAutoincremented() {
+        return autoincremented;
+    }
+
     // Internal API
 
     public int getPage() {
@@ -225,22 +233,6 @@ public class SqlJetTableDef implements ISqlJetTableDef {
 
     public void setRowId(long rowId) {
         this.rowId = rowId;
-    }
-
-    /**
-     * Returns true if primary key definition allows rowid to be used as primary
-     * key column. In practice this means that the table has primary key that is
-     * based in a single column of type 'integer'.
-     */
-    public boolean isRowIdPrimaryKey() {
-        return rowIdPrimaryKey;
-    }
-
-    /**
-     * Returns true if primary key has 'autoincrement' keyword.
-     */
-    public boolean isAutoincremented() {
-        return autoincremented;
     }
 
     /**

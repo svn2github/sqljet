@@ -496,7 +496,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
-        values.put("value", 1);
+        values.put("value", 111);
 
         open.updateByFieldNames(values);
         dbCopy.commit();
@@ -507,6 +507,28 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final Object nameField = lookup.getValue("name");
         Assert.assertNotNull(nameField);
         Assert.assertEquals("test1", nameField);
+        
+        Assert.assertEquals(111L, lookup.getValue("value"));
+    }
+
+    @Test
+    public void updateByNamesSetNull() throws SqlJetException {
+        dbCopy.beginTransaction();
+
+        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetCursor open = table.open();
+
+        final Map<String, Object> values = new HashMap<String, Object>();
+        values.put("name", "zzz");
+        values.put("value", null);
+
+        open.updateByFieldNames(values);
+        dbCopy.commit();
+
+        final ISqlJetCursor lookup = table.lookup("test1_name_index", "zzz");
+        Assert.assertFalse(lookup.eof());
+
+        Assert.assertNull(lookup.getValue("value"));
     }
 
     @Test

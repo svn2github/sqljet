@@ -368,7 +368,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         if (newRowId == currentRowId && Arrays.equals(row, currentRow))
             return;
-        
 
         final ByteBuffer pData;
         if (!tableDef.isRowIdPrimaryKey()) {
@@ -644,7 +643,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     public long insert(Map<String, Object> values) throws SqlJetException {
-        return insert(null != values ? unwrapValues(values) : null);
+        return insertWithRowId(getRowIdFromValues(values), unwrapValues(values));
     }
 
     /*
@@ -679,11 +678,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         int i = 0;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         final Object[] unwrapped = new Object[columns.size()];
-        for (ISqlJetColumnDef column : columns) {
-            final String columnName = column.getName();
-            final Object value = values.get(columnName);
-            unwrapped[i++] = value;
-        }
+        if (null != values)
+            for (ISqlJetColumnDef column : columns) {
+                final String columnName = column.getName();
+                final Object value = values.get(columnName);
+                unwrapped[i++] = value;
+            }
         return unwrapped;
     }
 

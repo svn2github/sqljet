@@ -288,7 +288,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             if (rowId <= 0 || !goToRow(rowId))
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Incorrect rowId value: " + rowId);
-            doUpdate(rowId, getValuesRow(values));
+            final Object[] row = getValuesRow(values);
+            if (rowId < 1) {
+                rowId = getRowIdForRow(row, false);
+            }
+            doUpdate(rowId, row);
         } finally {
             unlock();
         }
@@ -306,7 +310,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             if (eof())
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "No current record");
-            doUpdate(getRowId(), getValuesRow(values));
+            final Object[] row = getValuesRow(values);
+            final long rowId = getRowIdForRow(row, false);
+            doUpdate(rowId, row);
         } finally {
             unlock();
         }

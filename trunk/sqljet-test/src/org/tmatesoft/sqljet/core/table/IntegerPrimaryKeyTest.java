@@ -305,5 +305,177 @@ public class IntegerPrimaryKeyTest {
         });
         success = true;
     }
+
+    @Test
+    public void insertWithRowId6() throws SqlJetException {
+        t2=true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insertWithRowId(0,rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void insertWithRowId7() throws SqlJetException {
+        t2=true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insertWithRowId(rowId,rowId);
+                table2.insertWithRowId(rowId,rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId1() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId2() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(rowId, 1);
+                return null;
+            }
+        });
+        success = true;
+    }
+    
+    @Test
+    public void updateWithRowId3() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(rowId, rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId4() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(rowId, (Object[]) null );
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId5() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(rowId, new Object[] { null } );
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId6() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(0, rowId );
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId7() throws SqlJetException {
+        rowId=2;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert();
+                table.open().updateWithRowId(0, new Object[] { rowId } );
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId8() throws SqlJetException {
+        rowId=2; t2 = true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insert();
+                table2.open().updateWithRowId(rowId, rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId9() throws SqlJetException {
+        rowId=2; t2 = true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insert(1);
+                table2.open().updateWithRowId(rowId, rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateWithRowId10() throws SqlJetException {
+        t2 = true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insertWithRowId(rowId,rowId);
+                rowId=2;
+                table2.open().updateWithRowId(rowId, rowId);
+                return null;
+            }
+        });
+        success = true;
+    }
+
+    @Test
+    public void updateByFieldNames1() throws SqlJetException {
+        t2 = true;
+        rowId=2;
+        values.put(ROWID, rowId);
+        values.put(ID, rowId);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table2.insert();
+                table2.open().updateByFieldNames(values);
+                return null;
+            }
+        });
+        success = true;
+    }
     
 }

@@ -92,7 +92,7 @@ public class MultiColumnPrimaryKeyTest {
     public void insertFail() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insert(1, 2, 2);
+                table.insert(2, 2, 1);
                 return null;
             }
         });

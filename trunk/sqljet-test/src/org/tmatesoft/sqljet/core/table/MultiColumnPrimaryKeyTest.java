@@ -68,6 +68,7 @@ public class MultiColumnPrimaryKeyTest {
      */
     @After
     public void tearDown() throws Exception {
+        file.delete();
     }
 
     @Test

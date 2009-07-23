@@ -36,7 +36,6 @@ public class MultiColumnPrimaryKeyTest {
     private File file;
     private SqlJetDb db;
     private ISqlJetTable table;
-    private boolean success;
 
     /**
      * @throws java.lang.Exception
@@ -79,6 +78,16 @@ public class MultiColumnPrimaryKeyTest {
         Assert.assertTrue(table.lookup(null, 2, 2).eof());
     }
 
+    @Test(expected=SqlJetException.class)
+    public void insert() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1, 1);
+                return null;
+            }
+        });
+    }
+    
     @Test
     public void update() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
@@ -93,6 +102,16 @@ public class MultiColumnPrimaryKeyTest {
         Assert.assertTrue(!table.lookup(null, 2, 2).eof());
     }
 
+    @Test(expected=SqlJetException.class)
+    public void updateFail() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.lookup(null, 1, 1).update(1, 2);
+                return null;
+            }
+        });
+    }
+    
     @Test
     public void delete() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {

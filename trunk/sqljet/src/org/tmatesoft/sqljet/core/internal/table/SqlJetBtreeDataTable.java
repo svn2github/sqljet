@@ -717,7 +717,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * (java.lang.String)
      */
     public boolean isIndexExists(String indexName) {
-        return (null == indexName && tableDef.isRowIdPrimaryKey()) || getIndexDefinitions().containsKey(indexName);
+        return null == indexName || getIndexDefinitions().containsKey(indexName);
     }
 
     public static boolean isFieldNameRowId(String fieldName) {

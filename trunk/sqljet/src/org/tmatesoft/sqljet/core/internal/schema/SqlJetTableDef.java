@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
@@ -112,7 +113,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         resolveConstraints();
     }
 
-    private void resolveConstraints() {
+    private void resolveConstraints() throws SqlJetException {
         int columnIndex = 0, autoindexNumber = 0;
         for (ISqlJetColumnDef column : columns) {
             for (ISqlJetColumnConstraint constraint : column.getConstraints()) {
@@ -138,11 +139,26 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         for (ISqlJetTableConstraint constraint : constraints) {
             if (constraint instanceof ISqlJetTablePrimaryKey) {
+                boolean b = false;
                 SqlJetTablePrimaryKey pk = (SqlJetTablePrimaryKey) constraint;
                 assert primaryKeyColumns.isEmpty();
                 primaryKeyColumns.addAll(pk.getColumns());
-                pk.setIndexName(primaryKeyIndexName = generateAutoIndexName(getName(), ++autoindexNumber));
-                tableConstrainsIndexCache.put(pk.getIndexName(), pk);
+                if (pk.getColumns().size() == 1) {
+                    final String n = pk.getColumns().get(0);
+                    final ISqlJetColumnDef c = getColumn(n);
+                    if (null == c) {
+                        throw new SqlJetException(SqlJetErrorCode.ERROR, "Wrong column '" + n + "' in PRIMARY KEY");
+                    } else if (c.hasExactlyIntegerType()) {
+                        rowIdPrimaryKeyColumnName = n;
+                        rowIdPrimaryKeyColumnIndex = getColumnNumber(n);
+                        rowIdPrimaryKey = true;
+                        b = true;
+                    }
+                }
+                if (!b) {
+                    pk.setIndexName(primaryKeyIndexName = generateAutoIndexName(getName(), ++autoindexNumber));
+                    tableConstrainsIndexCache.put(pk.getIndexName(), pk);
+                }
             } else if (constraint instanceof ISqlJetTableUnique) {
                 SqlJetTableUnique uc = (SqlJetTableUnique) constraint;
                 uc.setIndexName(generateAutoIndexName(getName(), ++autoindexNumber));

@@ -351,7 +351,16 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (null != constraints) {
             for (final ISqlJetTableConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetTablePrimaryKey) {
-                    createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
+                    boolean b = false;
+                    final ISqlJetTablePrimaryKey pk = (ISqlJetTablePrimaryKey) constraint;
+                    if (pk.getColumns().size() == 1) {
+                        final String n = pk.getColumns().get(0);
+                        final ISqlJetColumnDef c = tableDef.getColumn(n);
+                        b = c != null && c.hasExactlyIntegerType();
+                    }
+                    if (!b) {
+                        createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
+                    }
                 } else if (constraint instanceof ISqlJetTableUnique) {
                     createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                 }

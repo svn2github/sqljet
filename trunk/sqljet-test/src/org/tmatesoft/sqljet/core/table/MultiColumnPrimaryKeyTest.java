@@ -48,16 +48,16 @@ public class MultiColumnPrimaryKeyTest {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetSchema schema = db.getSchema();
-                schema.createTable("create table t(a integer, b integer, primary key(a,b));");
+                schema.createTable("create table t(a integer, b integer, c integer, primary key(a,b), unique(b,c));");
                 return null;
             }
         });
         table = db.getTable("t");
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insert(1, 1);
-                table.insert(1, 2);
-                table.insert(2, 1);
+                table.insert(1, 1, 1);
+                table.insert(1, 2, 1);
+                table.insert(2, 1, 2);
                 return null;
             }
         });
@@ -82,7 +82,17 @@ public class MultiColumnPrimaryKeyTest {
     public void insert() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.insert(1, 1);
+                table.insert(1, 1, 2);
+                return null;
+            }
+        });
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void insertFail() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1, 2, 2);
                 return null;
             }
         });
@@ -92,7 +102,7 @@ public class MultiColumnPrimaryKeyTest {
     public void update() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.lookup(null, 1, 1).update(2, 2);
+                table.lookup(null, 1, 1).update(2, 2,2);
                 return null;
             }
         });
@@ -106,7 +116,7 @@ public class MultiColumnPrimaryKeyTest {
     public void updateFail() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.lookup(null, 1, 1).update(1, 2);
+                table.lookup(null, 1, 1).update(1, 2, 2);
                 return null;
             }
         });

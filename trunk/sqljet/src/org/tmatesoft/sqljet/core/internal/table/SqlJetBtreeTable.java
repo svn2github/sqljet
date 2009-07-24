@@ -57,7 +57,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected SqlJetKeyInfo keyInfo;
 
     private long priorNewRowid = 0;
-    protected long lastNewRowId = 0;
 
     /**
      * @param db
@@ -416,8 +415,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public long newRowId() throws SqlJetException {
-        lastNewRowId = newRowId(lastNewRowId);
-        return lastNewRowId;
+        return newRowId(0);
     }
 
     /**

@@ -48,6 +48,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     final static private String[] rowIdNames = { "ROWID", "_ROWID_", "OID" };
 
+    private SqlJetSchema schema;
     private SqlJetTableDef tableDef;
     private Map<String, ISqlJetIndexDef> indexesDefs;
 
@@ -65,6 +66,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public SqlJetBtreeDataTable(ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetTableDef) schema
                 .getTable(tableName)).getPage(), write, false);
+        this.schema = (SqlJetSchema) schema;
         this.tableDef = (SqlJetTableDef) schema.getTable(tableName);
         openIndexes(schema);
     }
@@ -247,11 +249,39 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 }
             }
         }
-        if (!required) {
-            return 0;
-        } else {
+        if (required) {
             return newRowId();
+        } else {
+            return 0;
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#newRowId()
+     */
+    @Override
+    public long newRowId() throws SqlJetException {
+        if (!tableDef.isAutoincremented()) {
+            return super.newRowId();
+        }
+        final ISqlJetBtreeDataTable sequenceTable = schema.getSequenceTable();
+        if (null == sequenceTable) {
+            return super.newRowId();
+        }
+        for (sequenceTable.first(); !sequenceTable.eof(); sequenceTable.next()) {
+            final String s = sequenceTable.getString(0);
+            if (null != s && tableDef.getName().equalsIgnoreCase(s)) {
+                final long lastRowId = sequenceTable.getInteger(1);
+                final long newRowId = newRowId(lastRowId);
+                sequenceTable.updateCurrent(tableDef.getName(), newRowId);
+                return newRowId;
+            }
+        }
+        final long newRowId = super.newRowId();
+        sequenceTable.insert(tableDef.getName(), newRowId);
+        return newRowId;
     }
 
     /**

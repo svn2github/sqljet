@@ -40,7 +40,7 @@ public class AutoincrementTest extends AbstractNewDbTest {
         super.setUp();
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("CREATE TABLE t (i integer primary key autoincrement)");
+                db.getSchema().createTable("CREATE TABLE t (i integer primary key autoincrement,a text)");
                 return null;
             }
         });
@@ -55,7 +55,22 @@ public class AutoincrementTest extends AbstractNewDbTest {
     }
 
     @Test
-    public void checkSequence() throws SqlJetException {
+    public void checkSequenceTable() throws SqlJetException {
         Assert.assertNotNull(db.getTable("SQLITE_SEQUENCE"));
     }
+
+    @Test
+    public void checkInsertAutoinc() throws SqlJetException {
+        final SqlJetTable table = db.getTable("t");
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                for (int i = 0; i < 100; i++) {
+                    table.insert(null, "aaa");
+                }
+                return null;
+            }
+        });
+        Assert.assertTrue(!table.lookup(null, 100).eof());
+    }
+
 }

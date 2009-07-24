@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -41,7 +40,9 @@ import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
 import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
+import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeDataTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeIndexTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
@@ -64,14 +65,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
-    /**
-     * 
-     */
     private static final String CREATE_TABLE_SQLITE_SEQUENCE = "CREATE TABLE sqlite_sequence(name,seq)";
 
-    /**
-     * 
-     */
     private static final String SQLITE_SEQUENCE = "SQLITE_SEQUENCE";
 
     private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = SqlJetUtility.of(
@@ -97,6 +92,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final Map<String, ISqlJetIndexDef> indexDefs = new TreeMap<String, ISqlJetIndexDef>(
             String.CASE_INSENSITIVE_ORDER);
 
+    private ISqlJetBtreeDataTable sequenceTable;
+
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
         this.btree = btree;
@@ -111,6 +108,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             table.lock();
             try {
                 readShema(table);
+                openSequenceTable();
             } finally {
                 table.unlock();
             }
@@ -360,7 +358,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                         }
                         createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
                     } else if (pk.isAutoincremented()) {
-                        checkSequenceTable(schemaTable);
+                        checkSequenceTable();
                     }
                 } else if (constraint instanceof ISqlJetColumnUnique) {
                     createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
@@ -393,11 +391,22 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @param schemaTable
      * @throws SqlJetException
      */
-    private void checkSequenceTable(SqlJetBtreeTable schemaTable) throws SqlJetException {
-        if (getTableNames().contains(SQLITE_SEQUENCE)) {
+    private void checkSequenceTable() throws SqlJetException {
+        if (null != sequenceTable || getTableNames().contains(SQLITE_SEQUENCE)) {
             return;
         }
         createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
+        openSequenceTable();
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void openSequenceTable() throws SqlJetException {
+        if (null != sequenceTable || !getTableNames().contains(SQLITE_SEQUENCE)) {
+            return;
+        }
+        sequenceTable = new SqlJetBtreeDataTable(this, SQLITE_SEQUENCE, true);
     }
 
     /**
@@ -571,7 +580,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             final String indexName = indexDefEntry.getKey();
             final ISqlJetIndexDef indexDef = indexDefEntry.getValue();
             if (indexDef.getTableName().trim().equals(tableName)) {
-                if(doDropIndex(indexName, true, false)){
+                if (doDropIndex(indexName, true, false)) {
                     iterator.remove();
                 }
             }
@@ -660,5 +669,12 @@ public class SqlJetSchema implements ISqlJetSchema {
             indexDefs.remove(indexName);
         }
 
+    }
+
+    /**
+     * @return the sequenceTable
+     */
+    public ISqlJetBtreeDataTable getSequenceTable() {
+        return sequenceTable;
     }
 }

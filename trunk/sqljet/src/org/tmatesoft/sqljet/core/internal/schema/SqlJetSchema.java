@@ -92,8 +92,6 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final Map<String, ISqlJetIndexDef> indexDefs = new TreeMap<String, ISqlJetIndexDef>(
             String.CASE_INSENSITIVE_ORDER);
 
-    private ISqlJetBtreeDataTable sequenceTable;
-
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
         this.btree = btree;
@@ -392,21 +390,20 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     private void checkSequenceTable() throws SqlJetException {
-        if (null != sequenceTable || getTableNames().contains(SQLITE_SEQUENCE)) {
-            return;
+        if (!getTableNames().contains(SQLITE_SEQUENCE)) {
+            createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
         }
-        createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
-        openSequenceTable();
     }
 
     /**
      * @throws SqlJetException
      */
-    private void openSequenceTable() throws SqlJetException {
-        if (null != sequenceTable || !getTableNames().contains(SQLITE_SEQUENCE)) {
-            return;
+    public ISqlJetBtreeDataTable openSequenceTable() throws SqlJetException {
+        if (getTableNames().contains(SQLITE_SEQUENCE)) {
+            return new SqlJetBtreeDataTable(this, SQLITE_SEQUENCE, true);
+        } else {
+            return null;
         }
-        sequenceTable = new SqlJetBtreeDataTable(this, SQLITE_SEQUENCE, true);
     }
 
     /**
@@ -671,10 +668,4 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
-    /**
-     * @return the sequenceTable
-     */
-    public ISqlJetBtreeDataTable getSequenceTable() {
-        return sequenceTable;
-    }
 }

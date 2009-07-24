@@ -54,6 +54,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private Map<String, ISqlJetBtreeIndexTable> indexesTables;
 
+    private ISqlJetBtreeDataTable sequenceTable;
+
     private enum Action {
         INSERT, UPDATE, DELETE
     };
@@ -266,21 +268,46 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (!tableDef.isAutoincremented()) {
             return super.newRowId();
         }
-        final ISqlJetBtreeDataTable sequenceTable = schema.getSequenceTable();
         if (null == sequenceTable) {
-            return super.newRowId();
+            sequenceTable = schema.openSequenceTable();
+            if (null == sequenceTable) {
+                return super.newRowId();
+            }
+            return locateSequence();
+        } else {
+            final String s = sequenceTable.getString(0);
+            if (null == s || !tableDef.getName().equalsIgnoreCase(s)) {
+                return locateSequence();
+            } else {
+                return updateSequence();
+            }
         }
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private long locateSequence() throws SqlJetException {
         for (sequenceTable.first(); !sequenceTable.eof(); sequenceTable.next()) {
             final String s = sequenceTable.getString(0);
             if (null != s && tableDef.getName().equalsIgnoreCase(s)) {
-                final long lastRowId = sequenceTable.getInteger(1);
-                final long newRowId = newRowId(lastRowId);
-                sequenceTable.updateCurrent(tableDef.getName(), newRowId);
-                return newRowId;
+                return updateSequence();
             }
         }
         final long newRowId = super.newRowId();
         sequenceTable.insert(tableDef.getName(), newRowId);
+        return newRowId;
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private long updateSequence() throws SqlJetException {
+        final long lastRowId = sequenceTable.getInteger(1);
+        final long newRowId = newRowId(lastRowId);
+        sequenceTable.updateCurrent(tableDef.getName(), newRowId);
         return newRowId;
     }
 

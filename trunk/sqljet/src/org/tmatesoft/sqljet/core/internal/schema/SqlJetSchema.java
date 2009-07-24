@@ -20,9 +20,11 @@ package org.tmatesoft.sqljet.core.internal.schema;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.antlr.runtime.ANTLRStringStream;
@@ -62,6 +64,16 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
+    /**
+     * 
+     */
+    private static final String CREATE_TABLE_SQLITE_SEQUENCE = "CREATE TABLE sqlite_sequence(name,seq)";
+
+    /**
+     * 
+     */
+    private static final String SQLITE_SEQUENCE = "SQLITE_SEQUENCE";
+
     private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = SqlJetUtility.of(
             SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
 
@@ -80,8 +92,10 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final ISqlJetDbHandle db;
     private final ISqlJetBtree btree;
 
-    private final Map<String, ISqlJetTableDef> tableDefs = new ConcurrentHashMap<String, ISqlJetTableDef>();
-    private final Map<String, ISqlJetIndexDef> indexDefs = new ConcurrentHashMap<String, ISqlJetIndexDef>();
+    private final Map<String, ISqlJetTableDef> tableDefs = new TreeMap<String, ISqlJetTableDef>(
+            String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, ISqlJetIndexDef> indexDefs = new TreeMap<String, ISqlJetIndexDef>(
+            String.CASE_INSENSITIVE_ORDER);
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -338,8 +352,15 @@ public class SqlJetSchema implements ISqlJetSchema {
                 continue;
             for (final ISqlJetColumnConstraint constraint : constraints) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
+                    final ISqlJetColumnPrimaryKey pk = (ISqlJetColumnPrimaryKey) constraint;
                     if (!column.hasExactlyIntegerType()) {
+                        if (pk.isAutoincremented()) {
+                            throw new SqlJetException(SqlJetErrorCode.ERROR,
+                                    "AUTOINCREMENT is allowed only for INTEGER PRIMARY KEY fields");
+                        }
                         createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
+                    } else if (pk.isAutoincremented()) {
+                        checkSequenceTable(schemaTable);
                     }
                 } else if (constraint instanceof ISqlJetColumnUnique) {
                     createAutoIndex(schemaTable, tableName, SqlJetBtreeTable.generateAutoIndexName(tableName, ++i));
@@ -366,6 +387,17 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
+    }
+
+    /**
+     * @param schemaTable
+     * @throws SqlJetException
+     */
+    private void checkSequenceTable(SqlJetBtreeTable schemaTable) throws SqlJetException {
+        if (getTableNames().contains(SQLITE_SEQUENCE)) {
+            return;
+        }
+        createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
     }
 
     /**
@@ -533,11 +565,15 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     private void dropTableIndexes(SqlJetTableDef tableDef) throws SqlJetException {
         final String tableName = tableDef.getName().trim();
-        for (Map.Entry<String, ISqlJetIndexDef> indexDefEntry : indexDefs.entrySet()) {
+        final Iterator<Map.Entry<String, ISqlJetIndexDef>> iterator = indexDefs.entrySet().iterator();
+        while (iterator.hasNext()) {
+            final Map.Entry<String, ISqlJetIndexDef> indexDefEntry = iterator.next();
             final String indexName = indexDefEntry.getKey();
             final ISqlJetIndexDef indexDef = indexDefEntry.getValue();
             if (indexDef.getTableName().trim().equals(tableName)) {
-                doDropIndex(indexName, true, false);
+                if(doDropIndex(indexName, true, false)){
+                    iterator.remove();
+                }
             }
         }
     }
@@ -597,8 +633,6 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         btree.dropTable(indexDef.getPage());
-
-        indexDefs.remove(indexName);
 
         return true;
 

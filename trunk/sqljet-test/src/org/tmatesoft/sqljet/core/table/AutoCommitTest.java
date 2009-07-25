@@ -376,4 +376,64 @@ public class AutoCommitTest extends AbstractNewDbTest {
         Assert.assertTrue(!db.getTable("t").lookup("idx", 1, 1).eof());
     }
 
+    @Test
+    public void dropTableAutocommit() throws SqlJetException {
+        db.createTable("create table t1(a,b)");
+        Assert.assertNotNull(db.getSchema().getTable("t1"));
+        db.close();
+        db = SqlJetDb.open(file, true);
+        db.dropTable("t1");
+        Assert.assertNull(db.getSchema().getTable("t1"));
+    }
+
+    @Test
+    public void dropIndexAutocommit() throws SqlJetException {
+        db.createIndex("create index idx on t(a,b)");
+        Assert.assertNotNull(db.getSchema().getIndex("idx"));
+        db.close();
+        db = SqlJetDb.open(file, true);
+        db.dropIndex("idx");
+        Assert.assertNull(db.getSchema().getIndex("idx"));
+    }
+
+    @Test
+    public void dropTableTransaction() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.createTable("create table t1(a,b)");
+                Assert.assertNotNull(db.getSchema().getTable("t1"));
+                return null;
+            }
+        });
+        db.close();
+        db = SqlJetDb.open(file, true);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.dropTable("t1");
+                Assert.assertNull(db.getSchema().getTable("t1"));
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void dropIndexTransaction() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.createIndex("create index idx on t(a,b)");
+                Assert.assertNotNull(db.getSchema().getIndex("idx"));
+                return null;
+            }
+        });
+        db.close();
+        db = SqlJetDb.open(file, true);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.dropIndex("idx");
+                Assert.assertNull(db.getSchema().getIndex("idx"));
+                return null;
+            }
+        });
+    }
+
 }

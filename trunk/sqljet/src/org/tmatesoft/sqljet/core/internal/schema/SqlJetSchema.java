@@ -312,12 +312,13 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                         TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
-                schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
+                final long rowId = schemaTable.newRowId();
+                schemaTable.getCursor().insert(null, rowId, pData, pData.remaining(), 0, false);
 
                 addConstraints(schemaTable, tableDef);
 
                 tableDef.setPage(page);
-                tableDef.setRowId(schemaTable.getCursor().getKeySize());
+                tableDef.setRowId(rowId);
                 tableDefs.put(tableName, tableDef);
                 return tableDef;
 
@@ -487,10 +488,11 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                         INDEX_TYPE, indexName, tableName, page, indexDef.toSQL());
                 final ByteBuffer pData = record.getRawRecord();
-                schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
+                final long rowId = schemaTable.newRowId();
+                schemaTable.getCursor().insert(null, rowId, pData, pData.remaining(), 0, false);
 
                 indexDef.setPage(page);
-                indexDef.setRowId(schemaTable.getCursor().getKeySize());
+                indexDef.setRowId(rowId);
                 indexDefs.put(indexName, indexDef);
 
                 final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);

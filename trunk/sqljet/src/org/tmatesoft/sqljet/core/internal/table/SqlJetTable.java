@@ -118,4 +118,12 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
+    public void close() throws SqlJetException {
+        db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                dataTable.close();
+                return null;
+            }
+        });        
+    }
 }

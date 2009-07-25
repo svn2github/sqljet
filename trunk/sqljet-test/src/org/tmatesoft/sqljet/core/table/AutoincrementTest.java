@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 
 /**
  * @author TMate Software Ltd.
@@ -40,7 +39,7 @@ public class AutoincrementTest extends AbstractNewDbTest {
         super.setUp();
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("CREATE TABLE t (i integer primary key autoincrement,a text)");
+                db.createTable("CREATE TABLE t (i integer primary key autoincrement,a text)");
                 return null;
             }
         });
@@ -61,7 +60,7 @@ public class AutoincrementTest extends AbstractNewDbTest {
 
     @Test
     public void checkInsertAutoinc() throws SqlJetException {
-        final SqlJetTable table = db.getTable("t");
+        final ISqlJetTable table = db.getTable("t");
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 for (int i = 0; i < 100; i++) {
@@ -72,5 +71,4 @@ public class AutoincrementTest extends AbstractNewDbTest {
         });
         Assert.assertTrue(!table.lookup(null, 100).eof());
     }
-
 }

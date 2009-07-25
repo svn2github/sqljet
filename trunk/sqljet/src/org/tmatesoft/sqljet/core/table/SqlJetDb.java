@@ -172,7 +172,7 @@ public class SqlJetDb {
      * @return opened table
      * @throws SqlJetException
      */
-    public SqlJetTable getTable(final String tableName) throws SqlJetException {
+    public ISqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(db, schema, tableName, writable);
@@ -334,5 +334,4 @@ public class SqlJetDb {
             }
         });
     }
-
 }

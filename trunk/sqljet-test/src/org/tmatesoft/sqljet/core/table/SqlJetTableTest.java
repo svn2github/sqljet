@@ -36,7 +36,6 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
@@ -131,7 +130,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexLookupNext() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
 
         final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
         Assert.assertTrue(!lookup.eof());
@@ -163,7 +162,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexDelete() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
         Assert.assertTrue(!lookup.eof());
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
@@ -180,7 +179,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void readBlob() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final ISqlJetCursor cursor = table.open();
 
         Assert.assertTrue(cursor.first());
@@ -211,7 +210,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void tableDef() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
 
         final ISqlJetTableDef tableDef = table.getDefinition();
 
@@ -230,27 +229,27 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test(expected = SqlJetException.class)
     public void insertNotNull() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE2);
+        final ISqlJetTable table = dbCopy.getTable(TABLE2);
         table.insert(null, null);
         Assert.assertTrue(false);
     }
 
     @Test
     public void insertFieldCountOK() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE2);
+        final ISqlJetTable table = dbCopy.getTable(TABLE2);
         table.insert(null, "test", "test");
     }
 
     @Test(expected = SqlJetException.class)
     public void insertFieldCountFail() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE2);
+        final ISqlJetTable table = dbCopy.getTable(TABLE2);
         table.insert(null, "test", "test", "test");
         Assert.assertTrue(false);
     }
 
     private void testEncoding(final SqlJetDb db, final String tableName, final String testString)
             throws SqlJetException {
-        final SqlJetTable table = db.getTable(tableName);
+        final ISqlJetTable table = db.getTable(tableName);
         Assert.assertNotNull(table);
         final long newRowId = table.insert(null, testString);
         final ISqlJetCursor cursor = table.open();
@@ -324,7 +323,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexAutoupdate1() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         table.insert(null, "test1", 1);
         final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
         Assert.assertFalse(lookup.eof());
@@ -335,7 +334,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test(expected = SqlJetException.class)
     public void indexAutoupdate2() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE2);
+        final ISqlJetTable table = dbCopy.getTable(TABLE2);
         table.insert("test", "test");
         table.insert("test", "test");
         Assert.assertFalse(true);
@@ -343,7 +342,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void first() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
 
         final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
@@ -384,7 +383,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void last() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
 
         final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
@@ -405,7 +404,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void prev() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
 
         final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
@@ -433,7 +432,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void insertByNames() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         values.put("value", 1);
@@ -447,7 +446,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void updateByNames() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final ISqlJetCursor open = table.open();
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
@@ -463,7 +462,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void updateByNamesSetNull() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final ISqlJetCursor open = table.open();
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "zzz");
@@ -476,7 +475,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void insertByNamesNull() throws SqlJetException {
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         table.insertByFieldNames(values);
@@ -491,7 +490,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void repCacheInsertLong() throws SqlJetException {
-        final SqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
+        final ISqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
         repCacheDb.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final Random random = new Random();
@@ -513,7 +512,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void repCacheInsertShort() throws SqlJetException {
-        final SqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
+        final ISqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
         final Random random = new Random();
         for (int i = 0; i < REPEATS_COUNT; i++) {
             for (int y = 0; y < REPEATS_COUNT; y++) {
@@ -531,7 +530,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     @Test
     public void refreshCurrentRecord() throws SqlJetException {
 
-        final SqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final ISqlJetCursor open = table.open();
 
         final Map<String, Object> values = new HashMap<String, Object>();
@@ -552,7 +551,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         Assert.assertEquals(1L, valueField);
 
         final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
-        final SqlJetTable table2 = dbCopy2.getTable(TABLE);
+        final ISqlJetTable table2 = dbCopy2.getTable(TABLE);
         final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
         Assert.assertFalse(lookup2.eof());
 
@@ -624,7 +623,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table blobt (a blob)");
+                db.createTable("create table blobt (a blob)");
                 return null;
             }
         });
@@ -722,7 +721,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void testLookupByRowIdPK() throws SqlJetException {
-        final SqlJetTable t = dbCopy.getTable("test1");
+        final ISqlJetTable t = dbCopy.getTable("test1");
         final ISqlJetCursor c1 = t.lookup(t.getPrimaryKeyIndexName(), 1);
         try {
             Assert.assertFalse(c1.eof());

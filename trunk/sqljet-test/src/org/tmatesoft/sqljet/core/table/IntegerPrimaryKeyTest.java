@@ -26,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -56,10 +54,9 @@ public class IntegerPrimaryKeyTest {
         db = SqlJetDb.open(file, true);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetSchema schema = db.getSchema();
-                schema.createTable("create table t(id integer primary key);");
-                schema.createTable("create table t2(id integer);");
-                schema.createTable("create table t3(id integer, a integer, primary key(id));");
+                db.createTable("create table t(id integer primary key);");
+                db.createTable("create table t2(id integer);");
+                db.createTable("create table t3(id integer, a integer, primary key(id));");
                 return null;
             }
         });
@@ -486,7 +483,7 @@ public class IntegerPrimaryKeyTest {
     @Test
     public void otherWay() throws SqlJetException {
         success = false;
-        final SqlJetTable table3 = db.getTable("t3");
+        final ISqlJetTable table3 = db.getTable("t3");
         Assert.assertNotNull(table3);
         Assert.assertNull(table3.getPrimaryKeyIndexName());
         db.runWriteTransaction(new ISqlJetTransaction() {

@@ -21,8 +21,8 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -39,7 +39,7 @@ public class RepCacheDao {
             "rep_cache");
 
     private SqlJetDb db;
-    private SqlJetTable table;
+    private ISqlJetTable table;
     private ISqlJetCursor cursor;
 
     public RepCacheDao(File file, boolean write) throws SqlJetException {

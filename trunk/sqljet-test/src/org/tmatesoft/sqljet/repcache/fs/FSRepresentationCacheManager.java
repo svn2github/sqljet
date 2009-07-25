@@ -21,11 +21,10 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -44,7 +43,7 @@ public class FSRepresentationCacheManager {
             + "                        expanded_size integer not null); ";
 
     private SqlJetDb myRepCacheDB;
-    private SqlJetTable myTable;
+    private ISqlJetTable myTable;
     private Object repositoryRoot;
 
     public static FSRepresentationCacheManager openRepresentationCache(File path) throws SqlJetException {
@@ -79,7 +78,6 @@ public class FSRepresentationCacheManager {
     }
 
     private static void checkFormat(SqlJetDb db) throws SqlJetException {
-        final ISqlJetSchema schema = db.getSchema();
         final ISqlJetOptions options = db.getOptions();
         int version = options.getUserVersion();
         if (version < REP_CACHE_DB_FORMAT) {
@@ -87,7 +85,7 @@ public class FSRepresentationCacheManager {
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
                     options.setUserVersion(REP_CACHE_DB_FORMAT);
-                    schema.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
+                    db.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
                     return null;
                 }
             });

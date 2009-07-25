@@ -70,8 +70,7 @@ public class SqlJetDb {
      *            if true then allow data modification
      * @throws SqlJetException
      */
-    protected SqlJetDb(final File file, final boolean write)
-            throws SqlJetException {
+    protected SqlJetDb(final File file, final boolean write) throws SqlJetException {
         this.write = write;
         dbHandle = new SqlJetDbHandle();
         btree = new SqlJetBtree();
@@ -168,32 +167,38 @@ public class SqlJetDb {
     }
 
     public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
-        return runTransaction(op, SqlJetTransactionMode.WRITE);
+        if (write) {
+            return runTransaction(op, SqlJetTransactionMode.WRITE);
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Can't start write transaction on read-only database");
+        }
     }
 
-    public Object runTransaction(ISqlJetTransaction op, SqlJetTransactionMode mode) throws SqlJetException {
-        if (!write) {
-            throw new SqlJetException(SqlJetErrorCode.ERROR, "Database is not writable");
-        }
-        dbHandle.getMutex().enter();
-        try {
+    public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {
+        return runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
 
-            boolean success = false;
-            btree.beginTrans(mode);
-            try {
-                Object result = op.run(this);
-                success = true;
-                btree.commit();
-                return result;
-            } finally {
-                if (!success) {
-                    btree.rollback();
+                if (transaction) {
+                    return op.run(SqlJetDb.this);
+                } else {
+                    boolean success = false;
+                    btree.beginTrans(mode);
+                    transaction = true;
+                    try {
+                        final Object result = op.run(SqlJetDb.this);
+                        btree.commit();
+                        success = true;
+                        return result;
+                    } finally {
+                        transaction = false;
+                        if (!success) {
+                            btree.rollback();
+                        }
+                    }
                 }
-            }
 
-        } finally {
-            dbHandle.getMutex().leave();
-        }
+            }
+        });
     }
 
     /**

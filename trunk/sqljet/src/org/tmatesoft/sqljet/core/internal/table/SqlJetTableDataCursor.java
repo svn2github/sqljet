@@ -27,6 +27,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -37,7 +38,6 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * 
  */
 public class SqlJetTableDataCursor extends SqlJetCursor {
-
 
     public SqlJetTableDataCursor(ISqlJetBtreeDataTable table, SqlJetDb db) throws SqlJetException {
         super(table, db);
@@ -171,9 +171,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public void update(final Object... values) throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 if (table.eof()) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
@@ -186,9 +185,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public long updateWithRowId(final long rowId, final Object... values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 if (table.eof()) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
@@ -200,9 +198,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public void updateByFieldNames(final Map<String, Object> values) throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 if (table.eof()) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
@@ -215,9 +212,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public void delete() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 if (table.eof()) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,

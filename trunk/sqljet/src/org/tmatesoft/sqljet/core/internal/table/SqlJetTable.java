@@ -27,6 +27,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -76,10 +77,10 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     public ISqlJetCursor lookup(final String indexName, final Object... key) throws SqlJetException {
-        
-        if(null==key)
+
+        if (null == key)
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad key");
-        
+
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
@@ -87,34 +88,31 @@ public class SqlJetTable implements ISqlJetTable {
                     return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable((SqlJetBtreeDataTable) dataTable), db,
                             indexName, SqlJetUtility.adjustNumberTypes(key));
                 } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE);                    
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE);
                 }
             }
         });
     }
 
     public long insert(final Object... values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return dataTable.insert(values);
             }
         });
     }
 
     public long insertByFieldNames(final Map<String, Object> values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return dataTable.insert(values);
             }
         });
     }
-    
-    public long insertWithRowId(final long rowId, final Object... values) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
 
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+    public long insertWithRowId(final long rowId, final Object... values) throws SqlJetException {
+        return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return dataTable.insertWithRowId(rowId, values);
             }
         });

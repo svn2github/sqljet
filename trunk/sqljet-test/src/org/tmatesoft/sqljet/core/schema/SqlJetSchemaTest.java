@@ -298,21 +298,19 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
-        createDb.beginTransaction();
-        try {
-            final ISqlJetSchema schema = createDb.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            logger.info(createTable.toString());
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insert(null, "test");
-            openTable.insert(null, "test1");
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        }
+        createDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = createDb.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                openTable.insert(null, "test");
+                openTable.insert(null, "test1");
+                return null;
+            }
+        });
     }
 
     @Test
@@ -324,25 +322,24 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
         createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
-        createDb.beginTransaction();
-        try {
-            final ISqlJetSchema schema = createDb.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            logger.info(createTable.toString());
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insert(null, "test");
-            openTable.insert(null, "test1");
-            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        } catch (UnsupportedEncodingException e) {
-            createDb.rollback();
-            throw new SqlJetException(e);
-        }
+        createDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = createDb.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                openTable.insert(null, "test");
+                openTable.insert(null, "test1");
+                try {
+                    openTable.insert(null, new String(TEST_UTF8, "UTF8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new SqlJetException(e);
+                }
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)
@@ -353,26 +350,25 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
-        createDb.beginTransaction();
-        try {
-            final ISqlJetSchema schema = createDb.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            logger.info(createTable.toString());
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insert(null, "test");
-            openTable.insert(null, "test1");
-            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
-            createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        } catch (UnsupportedEncodingException e) {
-            createDb.rollback();
-            throw new SqlJetException(e);
-        }
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetSchema schema = createDb.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                openTable.insert(null, "test");
+                openTable.insert(null, "test1");
+                try {
+                    openTable.insert(null, new String(TEST_UTF8, "UTF8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new SqlJetException(e);
+                }
+                createDb.getOptions().setEncoding(SqlJetEncoding.UTF16LE);
+                return null;
+            }
+        });
     }
 
     @Test
@@ -383,26 +379,25 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
-        createDb.beginTransaction();
-        try {
-            createDb.getOptions().setCacheSize(1000);
-            final ISqlJetSchema schema = createDb.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            logger.info(createTable.toString());
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insert(null, "test");
-            openTable.insert(null, "test1");
-            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        } catch (UnsupportedEncodingException e) {
-            createDb.rollback();
-            throw new SqlJetException(e);
-        }
+        createDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                createDb.getOptions().setCacheSize(1000);
+                final ISqlJetSchema schema = createDb.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                openTable.insert(null, "test");
+                openTable.insert(null, "test1");
+                try {
+                    openTable.insert(null, new String(TEST_UTF8, "UTF8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new SqlJetException(e);
+                }
+                return null;
+            }
+        });
 
         createDb.close();
 
@@ -422,25 +417,25 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
         createDb.getOptions().setAutovacuum(true);
         createDb.getOptions().setIncrementalVacuum(true);
-        createDb.beginTransaction();
-        try {
-            final ISqlJetSchema schema = createDb.getSchema();
-            final ISqlJetTableDef createTable = schema
-                    .createTable("create table test( id integer primary key, name text )");
-            logger.info(createTable.toString());
-            schema.createIndex("CREATE INDEX test_index ON test(name);");
-            final SqlJetTable openTable = createDb.getTable(createTable.getName());
-            openTable.insert(null, "test");
-            openTable.insert(null, "test1");
-            openTable.insert(null, new String(TEST_UTF8, "UTF8"));
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        } catch (UnsupportedEncodingException e) {
-            createDb.rollback();
-            throw new SqlJetException(e);
-        }
+        createDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+
+                final ISqlJetSchema schema = createDb.getSchema();
+                final ISqlJetTableDef createTable = schema
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                schema.createIndex("CREATE INDEX test_index ON test(name);");
+                final SqlJetTable openTable = createDb.getTable(createTable.getName());
+                openTable.insert(null, "test");
+                openTable.insert(null, "test1");
+                try {
+                    openTable.insert(null, new String(TEST_UTF8, "UTF8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new SqlJetException(e);
+                }
+                return null;
+            }
+        });
 
         createDb.close();
 
@@ -461,15 +456,12 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
             createFile.deleteOnExit();
 
         final SqlJetDb createDb = SqlJetDb.open(createFile, true);
-        createDb.beginTransaction();
-        try {
-            createDb.getOptions().setSchemaVersion(123);
-            createDb.commit();
-        } catch (SqlJetException e) {
-            createDb.rollback();
-            throw e;
-        }
-
+        createDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                createDb.getOptions().setSchemaVersion(123);
+                return null;
+            }
+        });
         createDb.close();
 
         final SqlJetDb openDb = SqlJetDb.open(createFile, true);
@@ -511,5 +503,5 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         Assert.assertEquals(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT, fileFormat);
 
     }
-    
+
 }

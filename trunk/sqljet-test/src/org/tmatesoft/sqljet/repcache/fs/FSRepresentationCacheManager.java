@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -78,20 +79,18 @@ public class FSRepresentationCacheManager {
     }
 
     private static void checkFormat(SqlJetDb db) throws SqlJetException {
-        ISqlJetSchema schema = db.getSchema();
+        final ISqlJetSchema schema = db.getSchema();
         final ISqlJetOptions options = db.getOptions();
         int version = options.getUserVersion();
         if (version < REP_CACHE_DB_FORMAT) {
             options.setAutovacuum(true);
-            db.beginTransaction();
-            try {
-                options.setUserVersion(REP_CACHE_DB_FORMAT);                
-                schema.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
-                db.commit();
-            } catch (SqlJetException e) {
-                db.rollback();
-                throw e;
-            }
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    options.setUserVersion(REP_CACHE_DB_FORMAT);
+                    schema.createTable(FSRepresentationCacheManager.REP_CACHE_DB_SQL);
+                    return null;
+                }
+            });
         } else if (version > REP_CACHE_DB_FORMAT) {
             throw new SqlJetException("Schema format " + version + " not recognized");
         }
@@ -111,16 +110,20 @@ public class FSRepresentationCacheManager {
                             || oldRep.getOffset() != representation.getOffset()
                             || oldRep.getSize() != representation.getSize() || oldRep.getExpandedSize() != representation
                             .getExpandedSize())) {
-                throw new SqlJetException(SqlJetErrorCode.MISUSE,String.format(
-                                "Representation key for checksum ''{0}'' exists in "
-                                        + "filesystem ''{1}'' with a different value ({2},{3},{4},{5}) than what we were about to store ({6},{7},{8},{9})",
-                                new Object[] { representation.getSHA1HexDigest(), getRepositoryRoot(),
-                                        String.valueOf(oldRep.getRevision()), String.valueOf(oldRep.getOffset()),
-                                        String.valueOf(oldRep.getSize()), String.valueOf(oldRep.getExpandedSize()),
-                                        String.valueOf(representation.getRevision()),
-                                        String.valueOf(representation.getOffset()),
-                                        String.valueOf(representation.getSize()),
-                                        String.valueOf(representation.getExpandedSize()) }));
+                throw new SqlJetException(
+                        SqlJetErrorCode.MISUSE,
+                        String
+                                .format(
+                                        "Representation key for checksum ''{0}'' exists in "
+                                                + "filesystem ''{1}'' with a different value ({2},{3},{4},{5}) than what we were about to store ({6},{7},{8},{9})",
+                                        new Object[] { representation.getSHA1HexDigest(), getRepositoryRoot(),
+                                                String.valueOf(oldRep.getRevision()),
+                                                String.valueOf(oldRep.getOffset()), String.valueOf(oldRep.getSize()),
+                                                String.valueOf(oldRep.getExpandedSize()),
+                                                String.valueOf(representation.getRevision()),
+                                                String.valueOf(representation.getOffset()),
+                                                String.valueOf(representation.getSize()),
+                                                String.valueOf(representation.getExpandedSize()) }));
             }
 
             return;
@@ -141,16 +144,14 @@ public class FSRepresentationCacheManager {
                         lookup.close();
                     }
                 }
-                db.beginTransaction();
-                try {
-                    myTable.insert(new Object[] { representation.getSHA1HexDigest(),
-                            new Long(representation.getRevision()), new Long(representation.getOffset()),
-                            new Long(representation.getSize()), new Long(representation.getExpandedSize()) });
-                    db.commit();
-                } catch (SqlJetException e) {
-                    db.rollback();
-                    throw e;
-                }
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        myTable.insert(new Object[] { representation.getSHA1HexDigest(),
+                                new Long(representation.getRevision()), new Long(representation.getOffset()),
+                                new Long(representation.getSize()), new Long(representation.getExpandedSize()) });
+                        return null;
+                    }
+                });
                 return null;
             }
         });

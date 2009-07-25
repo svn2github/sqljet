@@ -35,7 +35,9 @@ import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * Connection to database.
@@ -45,6 +47,13 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public class SqlJetDb {
+
+    /**
+     * Count of retries to begin transaction if it failed with
+     * {@link SqlJetErrorCode#BUSY}
+     */
+    private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_RETRIES",
+            100);
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
@@ -57,7 +66,7 @@ public class SqlJetDb {
     private final boolean write;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
-    private final ISqlJetSchema schema;
+    private final SqlJetSchema schema;
 
     private boolean transaction;
 
@@ -76,10 +85,10 @@ public class SqlJetDb {
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
                 : READ_PERMISSIONS);
-        schema = (ISqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
+        schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                ISqlJetSchema schema = null;
+                SqlJetSchema schema = null;
                 btree.enter();
                 try {
                     dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
@@ -159,7 +168,6 @@ public class SqlJetDb {
      */
     public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(db, schema, tableName, write);
             }
@@ -177,12 +185,20 @@ public class SqlJetDb {
     public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-
                 if (transaction) {
                     return op.run(SqlJetDb.this);
                 } else {
                     boolean success = false;
-                    btree.beginTrans(mode);
+                    for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
+                        try {
+                            btree.beginTrans(mode);
+                            break;
+                        } catch (SqlJetException e) {
+                            if (e.getErrorCode() != SqlJetErrorCode.BUSY || i == TRANSACTION_BUSY_RETRIES) {
+                                throw e;
+                            }
+                        }
+                    }
                     transaction = true;
                     try {
                         final Object result = op.run(SqlJetDb.this);
@@ -196,7 +212,6 @@ public class SqlJetDb {
                         }
                     }
                 }
-
             }
         });
     }
@@ -206,9 +221,9 @@ public class SqlJetDb {
      * 
      * @throws SqlJetException
      */
+    @Deprecated
     public void beginTransaction() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
                     throw new SqlJetException("Write transaction already in progress.");
@@ -227,9 +242,9 @@ public class SqlJetDb {
      * 
      * @throws SqlJetException
      */
+    @Deprecated
     public void commit() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (write && transaction) {
                     btree.commit();
@@ -245,9 +260,9 @@ public class SqlJetDb {
      * 
      * @throws SqlJetException
      */
+    @Deprecated
     public void rollback() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (write && transaction) {
                     btree.rollback();
@@ -257,7 +272,7 @@ public class SqlJetDb {
             }
         });
     }
-
+    
     public ISqlJetOptions getOptions() throws SqlJetException {
         return dbHandle.getOptions();
     }
@@ -268,10 +283,44 @@ public class SqlJetDb {
      */
     public Object pragma(final String sql) throws SqlJetException {
         return runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetPragmasHandler(getOptions()).pragma(sql);
             }
         });
     }
+
+    public ISqlJetTableDef createTable(final String sql) throws SqlJetException {
+        return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return schema.createTable(sql);
+            }
+        });
+    }
+
+    public ISqlJetIndexDef createIndex(final String sql) throws SqlJetException {
+        return (ISqlJetIndexDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return schema.createIndex(sql);
+            }
+        });
+    }
+
+    public void dropTable(final String tableName) throws SqlJetException {
+        runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                schema.dropTable(tableName);
+                return null;
+            }
+        });
+    }
+
+    public void dropIndex(final String indexName) throws SqlJetException {
+        runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                schema.dropIndex(indexName);
+                return null;
+            }
+        });
+    }
+
 }

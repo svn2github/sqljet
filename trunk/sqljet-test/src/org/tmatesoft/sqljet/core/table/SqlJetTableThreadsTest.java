@@ -193,26 +193,15 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
         @Override
         protected void beforeSleep(ISqlJetCursor cursor) throws SqlJetException {
-            for (boolean exit = false; !exit;)
-                try {
-                    db.beginTransaction();
-                    exit = true;
-                } catch (SqlJetException e) {
-                    if (e.getErrorCode() != SqlJetErrorCode.BUSY) {
-                        throw e;
-                    }
-                }
-
             final String hash = cursor.getString(0);
+            // Increment fifth field
             try {
-                // Increment fifth field
                 table.lookup(table.getPrimaryKeyIndexName(), hash).update(hash, cursor.getValue(1), cursor.getValue(2),
                         cursor.getValue(3), cursor.getInteger(4) + 1);
-                db.commit();
                 logger.info(String.format("[%s] commit: %s", workerName, hash));
             } catch (SqlJetException e) {
-                db.rollback();
-                logger.info(String.format("[%s] rollback: %s", workerName, e.getMessage()));
+                logger.info(String.format("[%s] rollback: %s", workerName, hash));
+                throw e;
             }
         }
 

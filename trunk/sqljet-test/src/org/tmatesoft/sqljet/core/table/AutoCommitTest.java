@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 
 /**
  * @author TMate Software Ltd.
@@ -49,7 +50,7 @@ public class AutoCommitTest extends AbstractNewDbTest {
         super.setUp();
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t(a integer primary key, b integer);");
+                db.createTable("create table t(a integer primary key, b integer);");
                 return null;
             }
         });
@@ -361,5 +362,18 @@ public class AutoCommitTest extends AbstractNewDbTest {
         table.insert(3, 4);
         success = true;
     }
-    
+
+    @Test
+    public void createTableAutocommit() throws SqlJetException {
+        db.createTable("create table t1(a,b)");
+        Assert.assertNotNull(db.getTable("t1"));
+    }
+
+    @Test
+    public void createIndexAutocommit() throws SqlJetException {
+        table.insert(1, 1);
+        db.createIndex("create index idx on t(a,b)");
+        Assert.assertTrue(!db.getTable("t").lookup("idx", 1, 1).eof());
+    }
+
 }

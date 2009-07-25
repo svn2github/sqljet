@@ -69,7 +69,7 @@ public class SqlJetDb {
     private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = SqlJetUtility.of(
             SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE);
 
-    private final boolean write;
+    private final boolean writable;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
     private final SqlJetSchema schema;
@@ -81,15 +81,15 @@ public class SqlJetDb {
      * 
      * @param file
      *            path to data base
-     * @param write
+     * @param writable
      *            if true then allow data modification
      * @throws SqlJetException
      */
-    protected SqlJetDb(final File file, final boolean write) throws SqlJetException {
-        this.write = write;
+    protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
+        this.writable = writable;
         dbHandle = new SqlJetDbHandle();
         btree = new SqlJetBtree();
-        btree.open(file, dbHandle, write ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, write ? WRITE_PREMISSIONS
+        btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, writable ? WRITE_PREMISSIONS
                 : READ_PERMISSIONS);
         schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
 
@@ -156,8 +156,8 @@ public class SqlJetDb {
      * 
      * @return true if modification is allowed
      */
-    public boolean isWrite() throws SqlJetException {
-        return write;
+    public boolean isWritable() throws SqlJetException {
+        return writable;
     }
 
     public ISqlJetSchema getSchema() throws SqlJetException {
@@ -175,13 +175,13 @@ public class SqlJetDb {
     public SqlJetTable getTable(final String tableName) throws SqlJetException {
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTable(db, schema, tableName, write);
+                return new SqlJetTable(db, schema, tableName, writable);
             }
         });
     }
 
     public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
-        if (write) {
+        if (writable) {
             return runTransaction(op, SqlJetTransactionMode.WRITE);
         } else {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Can't start write transaction on read-only database");
@@ -240,7 +240,7 @@ public class SqlJetDb {
                 if (transaction) {
                     throw new SqlJetException("Write transaction already in progress.");
                 }
-                if (write) {
+                if (writable) {
                     btree.beginTrans(SqlJetTransactionMode.WRITE);
                     transaction = true;
                 }
@@ -258,7 +258,7 @@ public class SqlJetDb {
     public void commit() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (write && transaction) {
+                if (writable && transaction) {
                     btree.commit();
                     transaction = false;
                 }
@@ -276,7 +276,7 @@ public class SqlJetDb {
     public void rollback() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (write && transaction) {
+                if (writable && transaction) {
                     btree.rollback();
                     transaction = false;
                 }

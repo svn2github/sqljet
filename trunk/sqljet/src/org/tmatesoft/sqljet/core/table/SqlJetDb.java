@@ -53,7 +53,13 @@ public class SqlJetDb {
      * {@link SqlJetErrorCode#BUSY}
      */
     private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_RETRIES",
-            100);
+            1000);
+
+    /**
+     * Time of sleeps between retries of begining transaction if it failed with
+     * {@link SqlJetErrorCode#BUSY}
+     */
+    private static final int TRANSACTION_BUSY_SLEEP = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_SLEEP", 1);
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
@@ -196,6 +202,12 @@ public class SqlJetDb {
                         } catch (SqlJetException e) {
                             if (e.getErrorCode() != SqlJetErrorCode.BUSY || i == TRANSACTION_BUSY_RETRIES) {
                                 throw e;
+                            } else {
+                                try {
+                                    Thread.sleep(TRANSACTION_BUSY_SLEEP);
+                                } catch (InterruptedException e1) {
+                                    throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
+                                }
                             }
                         }
                     }
@@ -272,7 +284,7 @@ public class SqlJetDb {
             }
         });
     }
-    
+
     public ISqlJetOptions getOptions() throws SqlJetException {
         return dbHandle.getOptions();
     }

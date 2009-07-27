@@ -736,7 +736,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             Assert.assertEquals(2L, c2.getInteger("id"));
             Assert.assertEquals(777L, c2.getInteger("value"));
         } finally {
-            c1.close();
+            c2.close();
         }
     }
 

@@ -65,4 +65,9 @@ public interface ISqlJetTableDef {
      * Returns true if primary key has 'autoincrement' keyword.
      */
     public boolean isAutoincremented();
+
+    /**
+     * @return
+     */
+    String getPrimaryKeyIndexName();
 }

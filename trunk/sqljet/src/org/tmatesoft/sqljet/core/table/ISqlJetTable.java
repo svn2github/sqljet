@@ -89,9 +89,4 @@ public interface ISqlJetTable {
      */
     long insertWithRowId(long rowId, Object... values) throws SqlJetException;
 
-    /**
-     * @throws SqlJetException
-     */
-    void close() throws SqlJetException;
-
 }

@@ -73,23 +73,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         openIndexes(schema);
     }
 
-    /**
-     * @param dataTable
-     * @throws SqlJetException
-     */
-    public SqlJetBtreeDataTable(SqlJetBtreeDataTable dataTable) throws SqlJetException {
-        super((SqlJetBtreeTable) dataTable);
-
-        this.tableDef = dataTable.tableDef;
-        this.indexesDefs = dataTable.indexesDefs;
-
-        indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
-        for (Map.Entry<String, ISqlJetBtreeIndexTable> entry : dataTable.indexesTables.entrySet()) {
-            indexesTables.put(entry.getKey(), new SqlJetBtreeIndexTable((SqlJetBtreeIndexTable) entry.getValue()));
-        }
-
-    }
-
     @Override
     public void close() throws SqlJetException {
         if (indexesTables != null) {

@@ -198,9 +198,10 @@ public class SqlJetDb {
                     for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
                         try {
                             btree.beginTrans(mode);
+                            transaction = true;
                             break;
                         } catch (SqlJetException e) {
-                            if (e.getErrorCode() != SqlJetErrorCode.BUSY || i == TRANSACTION_BUSY_RETRIES) {
+                            if (e.getErrorCode() != SqlJetErrorCode.BUSY || i >= TRANSACTION_BUSY_RETRIES) {
                                 throw e;
                             } else {
                                 try {
@@ -211,17 +212,16 @@ public class SqlJetDb {
                             }
                         }
                     }
-                    transaction = true;
                     try {
                         final Object result = op.run(SqlJetDb.this);
                         btree.commit();
                         success = true;
                         return result;
                     } finally {
-                        transaction = false;
                         if (!success) {
                             btree.rollback();
                         }
+                        transaction = false;
                     }
                 }
             }

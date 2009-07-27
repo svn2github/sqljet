@@ -24,7 +24,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 
 /**
  * @author TMate Software Ltd.
@@ -47,8 +46,7 @@ public class MultiColumnPrimaryKeyTest {
         db = SqlJetDb.open(file, true);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetSchema schema = db.getSchema();
-                schema.createTable("create table t(a integer, b integer, c integer, primary key(a,b), unique(b,c));");
+                db.createTable("create table t(a integer, b integer, c integer, primary key(a,b), unique(b,c));");
                 return null;
             }
         });

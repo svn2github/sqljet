@@ -55,11 +55,11 @@ public class InventoryDB {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
-					db.getSchema().createTable(
+					db.createTable(
 							"create table items (article integer primary key, name text not null, description blob, "
 									+ "room int, shelf int, borrowed_from text, borrowed_to text)");
-					db.getSchema().createIndex("create index items_name on items (name asc)");
-					db.getSchema().createIndex("create index items_location on items (room, shelf)");
+					db.createIndex("create index items_name on items (name asc)");
+					db.createIndex("create index items_location on items (room, shelf)");
 					db.getOptions().setUserVersion(1);
 					prefillItems();
 					return null;
@@ -73,7 +73,7 @@ public class InventoryDB {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
-					db.getSchema().createTable("create table users (name text primary key, info text, rating real)");
+					db.createTable("create table users (name text primary key, info text, rating real)");
 					db.getOptions().setUserVersion(2);
 					prefillUsers();
 					return null;

@@ -44,7 +44,7 @@ public class SqlJetTableStressTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (c1 text, c2 int)");
+                db.createTable("create table t (c1 text, c2 int)");
                 return null;
             }
         });

@@ -56,7 +56,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a text, b text, c int, d int)");
+                db.createTable("create table t (a text, b text, c int, d int)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert("n", "y", 10, 20);
                 t.insert("x", "z", 11, 12);
@@ -72,7 +72,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createIndex("create index tb on t (b)");
+                db.createIndex("create index tb on t (b)");
                 return null;
             }
         });
@@ -103,7 +103,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createIndex("create index tbc on t (b,c)");
+                db.createIndex("create index tbc on t (b,c)");
                 return null;
             }
         });
@@ -132,8 +132,8 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a int)");
-                db.getSchema().createIndex("create index ta on t (a)");
+                db.createTable("create table t (a int)");
+                db.createIndex("create index ta on t (a)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert(10L);
                 t.insert(20L);
@@ -154,8 +154,8 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a real)");
-                db.getSchema().createIndex("create index ta on t (a)");
+                db.createTable("create table t (a real)");
+                db.createIndex("create index ta on t (a)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert(0.1D);
                 t.insert(0.2D);
@@ -177,7 +177,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a int primary key, b text)");
+                db.createTable("create table t (a int primary key, b text)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert(1, "zzz");
                 t.insert(2, "www");
@@ -198,7 +198,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a integer primary key autoincrement, b text)");
+                db.createTable("create table t (a integer primary key autoincrement, b text)");
                 ISqlJetTable t = db.getTable("t");
                 // primary key has 'autoincrement' constraint - you are not supposed
                 // to provide it's value: it should be generated automatically
@@ -221,7 +221,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a text, b int primary key)");
+                db.createTable("create table t (a text, b int primary key)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert("zzz", 1);
                 t.insert("www", 2);
@@ -242,7 +242,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a integer primary key, b text)");
+                db.createTable("create table t (a integer primary key, b text)");
                 ISqlJetTable t = db.getTable("t");
                 t.insert(null, "zzz");
                 t.insert(null, "www");
@@ -257,7 +257,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a text, b text, primary key (a))");
+                db.createTable("create table t (a text, b text, primary key (a))");
                 ISqlJetTable t = db.getTable("t");
                 t.insert("set", "in");
                 t.insert("get", "out");
@@ -278,7 +278,7 @@ public class SqlJetIndexTest extends TestCase {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.getSchema().createTable("create table t (a text, b text, primary key (a,b))");
+                db.createTable("create table t (a text, b text, primary key (a,b))");
                 ISqlJetTable t = db.getTable("t");
                 t.insert("get", "in");
                 t.insert("get", "out");

@@ -44,9 +44,9 @@ public class SpendingDB {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb arg0) throws SqlJetException {
-					db.getSchema().createTable(
+					db.createTable(
 									"create table payments (date text not null, amount int not null, currency text, info text)");
-					db.getSchema().createIndex(
+					db.createIndex(
 							"create index payments_date on payments (date)");
 					prefillDB();
 					return null;

@@ -118,11 +118,11 @@ public class SqlJetPreparedStatement {
                 if ("select".equals(stmtName)) {
                     handleSelect();
                 } else if ("create_table".equals(stmtName)) {
-                    db.getSchema().createTable(sql);
+                    db.createTable(sql);
                 } else if ("drop_table".equals(stmtName)) {
                     handleDropTable();
                 } else if ("create_index".equals(stmtName)) {
-                    db.getSchema().createIndex(sql);
+                    db.createIndex(sql);
                 } else if ("drop_index".equals(stmtName)) {
                     handleDropIndex();
                 } else if ("pragma".equals(stmtName)) {
@@ -205,7 +205,7 @@ public class SqlJetPreparedStatement {
         boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
         String tableName = ast.getChild(1).getText();
         if (db.getSchema().getTable(tableName) != null) {
-            db.getSchema().dropTable(tableName);
+            db.dropTable(tableName);
         } else if (!ifExists) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Table does not exists.");
         }
@@ -216,7 +216,7 @@ public class SqlJetPreparedStatement {
         boolean ifExists = options.getChildCount() > 0 && "exists".equalsIgnoreCase(options.getChild(0).getText());
         String indexName = ast.getChild(1).getText();
         if (db.getSchema().getIndex(indexName) != null) {
-            db.getSchema().dropIndex(indexName);
+            db.dropIndex(indexName);
         } else if (!ifExists) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Index does not exists.");
         }

@@ -36,16 +36,4 @@ public interface ISqlJetSchema {
     ISqlJetIndexDef getIndex(String name) throws SqlJetException;
 
     Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
-
-    @Deprecated
-    ISqlJetTableDef createTable(String sql) throws SqlJetException;
-
-    @Deprecated
-    ISqlJetIndexDef createIndex(String sql) throws SqlJetException;
-
-    @Deprecated
-    void dropTable(String tableName) throws SqlJetException;
-
-    @Deprecated
-    void dropIndex(String indexName) throws SqlJetException;
 }

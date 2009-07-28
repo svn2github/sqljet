@@ -25,7 +25,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
-import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -46,9 +46,8 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     }
 
     public void close() throws SqlJetException {
-        db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 btreeTable.close();
                 return null;
             }
@@ -56,108 +55,96 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     }
 
     public boolean eof() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.eof();
             }
         });
     }
 
     public boolean first() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.first();
             }
         });
     }
 
     public boolean last() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.last();
             }
         });
     }
 
     public boolean next() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.next();
             }
         });
     }
 
     public boolean previous() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.previous();
             }
         });
     }
 
     public int getFieldsCount() throws SqlJetException {
-        return (Integer) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Integer) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.getFieldsCount();
             }
         });
     }
 
     public SqlJetValueType getFieldType(final int field) throws SqlJetException {
-        return (SqlJetValueType) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (SqlJetValueType) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.getFieldType(field);
             }
         });
     }
 
     public boolean isNull(final int field) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.isNull(field);
             }
         });
     }
 
     public String getString(final int field) throws SqlJetException {
-        return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (String) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.getString(field);
             }
         });
     }
 
     public long getInteger(final int field) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.getInteger(field);
             }
         });
     }
 
     public double getFloat(final int field) throws SqlJetException {
-        return (Double) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Double) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return btreeTable.getFloat(field);
             }
         });
     }
 
     public byte[] getBlobAsArray(final int field) throws SqlJetException {
-        return (byte[]) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (byte[]) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = btreeTable.getBlob(field);
                 return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
@@ -165,9 +152,8 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     }
 
     public InputStream getBlobAsStream(final int field) throws SqlJetException {
-        return (InputStream) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (InputStream) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = btreeTable.getBlob(field);
                 return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
@@ -175,9 +161,8 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     }
 
     public Object getValue(final int field) throws SqlJetException {
-        return db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 Object value = btreeTable.getValue(field);
                 if (value instanceof ByteBuffer) {
                     return new ByteArrayInputStream(SqlJetUtility.readByteBuffer((ByteBuffer) value));
@@ -186,5 +171,5 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
             }
         });
     }
-    
+
 }

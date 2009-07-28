@@ -26,7 +26,6 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
-import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -49,9 +48,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public long getRowId() throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 if (table.eof()) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
@@ -63,9 +61,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public boolean goTo(final long rowId) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
                 return table.goToRow(rowId);
             }
@@ -89,36 +86,32 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public SqlJetValueType getFieldType(final String fieldName) throws SqlJetException {
-        return (SqlJetValueType) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (SqlJetValueType) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return getBtreeDataTable().getFieldType(getFieldSafe(fieldName));
             }
         });
     }
 
     public boolean isNull(final String fieldName) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return getBtreeDataTable().isNull(getFieldSafe(fieldName));
             }
         });
     }
 
     public String getString(final String fieldName) throws SqlJetException {
-        return (String) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (String) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return getBtreeDataTable().getString(getFieldSafe(fieldName));
             }
         });
     }
 
     public long getInteger(final String fieldName) throws SqlJetException {
-        return (Long) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 if (SqlJetBtreeDataTable.isFieldNameRowId(fieldName)) {
                     return getBtreeDataTable().getRowId();
                 } else {
@@ -129,18 +122,16 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public double getFloat(final String fieldName) throws SqlJetException {
-        return (Double) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Double) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return getBtreeDataTable().getFloat(getFieldSafe(fieldName));
             }
         });
     }
 
     public byte[] getBlobAsArray(final String fieldName) throws SqlJetException {
-        return (byte[]) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (byte[]) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
                 return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
@@ -148,9 +139,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public InputStream getBlobAsStream(final String fieldName) throws SqlJetException {
-        return (InputStream) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (InputStream) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
                 return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
@@ -158,9 +148,8 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
     }
 
     public Object getValue(final String fieldName) throws SqlJetException {
-        return db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 if (SqlJetBtreeDataTable.isFieldNameRowId(fieldName)) {
                     return getBtreeDataTable().getRowId();
                 } else {

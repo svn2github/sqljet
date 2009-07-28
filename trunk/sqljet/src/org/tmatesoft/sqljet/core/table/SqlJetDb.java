@@ -89,8 +89,8 @@ public class SqlJetDb {
         this.writable = writable;
         dbHandle = new SqlJetDbHandle();
         btree = new SqlJetBtree();
-        btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB, writable ? WRITE_PREMISSIONS
-                : READ_PERMISSIONS);
+        btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
+                writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
         schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
 
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
@@ -186,6 +186,10 @@ public class SqlJetDb {
         } else {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Can't start write transaction on read-only database");
         }
+    }
+
+    public Object runReadTransaction(ISqlJetTransaction op) throws SqlJetException {
+        return runTransaction(op, SqlJetTransactionMode.READ_ONLY);
     }
 
     public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {

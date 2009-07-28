@@ -19,7 +19,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -60,9 +60,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean goTo(final long rowId) throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return SqlJetTableIndexCursor.super.goTo(rowId) && check();
             }
         });
@@ -70,9 +69,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean eof() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return !check();
             }
         });
@@ -80,9 +78,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean first() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return locate(false);
             }
         });
@@ -90,9 +87,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean last() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 long last = 0;
                 for (long row = index.lookup(false, key); row != 0; row = index.lookup(true, key)) {
                     last = row;
@@ -113,9 +109,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean next() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 if (!locate(true)) {
                     if (!eof()) {
                         SqlJetTableIndexCursor.super.next();
@@ -130,9 +125,8 @@ public class SqlJetTableIndexCursor extends SqlJetTableDataCursor {
 
     @Override
     public boolean previous() throws SqlJetException {
-        return (Boolean) db.runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
                 return index.previous() && index.checkKey(key) && goTo(index.getKeyRowId());
             }
         });

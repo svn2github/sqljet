@@ -20,6 +20,7 @@ package spending.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +29,7 @@ import java.awt.event.ItemListener;
 import java.sql.Date;
 
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -67,8 +69,9 @@ public class ExpensesPanel extends JPanel {
         myInfoText = new JTextArea();
         myTable.setModel(myTableModel);
         myTable.setCellEditor(null);
-        myInfoText.setRows(7);
+        myInfoText.setRows(3);
         myInfoText.setEditable(false);
+        myTable.setPreferredScrollableViewportSize(new Dimension(0, 5*myTable.getRowHeight()));
         
         myTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -103,7 +106,8 @@ public class ExpensesPanel extends JPanel {
                     comp.setForeground(Color.GREEN.darker());
                 } else if (v != null && v.longValue() < 0) {
                     comp.setForeground(Color.RED.darker());
-                }
+                }                
+                setHorizontalAlignment(JLabel.RIGHT);
                 return comp;
             }
         });
@@ -116,6 +120,8 @@ public class ExpensesPanel extends JPanel {
 
         splitter.add(left, JSplitPane.LEFT);
         splitter.add(right, JSplitPane.RIGHT);
+        splitter.setOneTouchExpandable(true);
+        splitter.setResizeWeight(1);
         add(splitter, BorderLayout.CENTER);
         
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));

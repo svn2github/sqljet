@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package spending.ui;
+package expenses.ui;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -26,8 +26,9 @@ import javax.swing.table.AbstractTableModel;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
-import spending.core.Payment;
-import spending.core.SpendingDB;
+import expenses.core.Payment;
+import expenses.core.ExpensesDB;
+
 
 /**
  * @author TMate Software Ltd.
@@ -48,12 +49,12 @@ public class ExpsensesTableModel extends AbstractTableModel {
             myPayments.clear();
         }
         try {
-            SpendingDB.open();
+            ExpensesDB.open();
             ISqlJetCursor cursor = null;
             if (from >= 0 && to >= 0) {
-                cursor = SpendingDB.getAllPayments(from, to);
+                cursor = ExpensesDB.getAllPayments(from, to);
             } else {
-                cursor = SpendingDB.getAllPayments();
+                cursor = ExpensesDB.getAllPayments();
             }
             while(!cursor.eof()) {
                 Payment p = Payment.read(cursor);
@@ -67,7 +68,7 @@ public class ExpsensesTableModel extends AbstractTableModel {
             return;
         } finally {
             try {
-                SpendingDB.close();
+                ExpensesDB.close();
             } catch (SqlJetException e) {
                 e.printStackTrace();
             }

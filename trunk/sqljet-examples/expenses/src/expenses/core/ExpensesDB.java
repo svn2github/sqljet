@@ -10,7 +10,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-package spending.core;
+package expenses.core;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -26,9 +26,9 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 /**
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SpendingDB {
+public class ExpensesDB {
 
-	private static final String FILE_NAME = "spending.db";
+	private static final String FILE_NAME = "expenses.db";
 	private static final String DF_PATTERN = "yyyy-MM-dd";
 
 	private static SqlJetDb db;

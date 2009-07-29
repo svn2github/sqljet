@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package spending.ui;
+package expenses.ui;
 
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;

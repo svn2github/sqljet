@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package spending.ui;
+package expenses.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -40,8 +40,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import spending.core.Payment;
-import spending.core.SpendingDB;
+import expenses.core.Payment;
+import expenses.core.ExpensesDB;
+
 
 /**
  * @author TMate Software Ltd.
@@ -90,7 +91,7 @@ public class ExpensesPanel extends JPanel {
 
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                     int row, int column) {
-                String strValue = SpendingDB.getDateFormat().format(value);
+                String strValue = ExpensesDB.getDateFormat().format(value);
                 return super.getTableCellRendererComponent(table, strValue, isSelected, hasFocus, row, column);
             }
         });

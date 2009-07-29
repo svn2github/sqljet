@@ -16,7 +16,6 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -65,10 +64,9 @@ public class SpendingDB {
 		return db.getTable("payments").order("payments_date");
 	}
 
-	public static ISqlJetCursor getPayments(Date date) throws SqlJetException {
-		String dateString = getDateFormat().format(date);
-		return db.getTable("payments").lookup("payments_date", dateString);
-	}
+	public static ISqlJetCursor getAllPayments(long from, long to) throws SqlJetException {
+        return db.getTable("payments").scope("payments_date", new Object[] {Math.min(from, to)}, new Object[] {Math.max(from, to)});
+    }
 
 	public static Payment getPayment(long rowid) throws SqlJetException {
 		ISqlJetCursor cursor = db.getTable("payments").open();
@@ -131,6 +129,7 @@ public class SpendingDB {
 
 	private static void prefillDB() throws SqlJetException {
 		Calendar cal = Calendar.getInstance();
+		cal.clear();
 		cal.set(2009, 6, 28);
 		addPayment(new Payment(cal.getTime().getTime(), -999, "USD", "New MacBook"));
 		cal.set(2009, 6, 29);

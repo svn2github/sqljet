@@ -42,14 +42,19 @@ public class ExpsensesTableModel extends AbstractTableModel {
     
     private List<Payment> myPayments = new LinkedList<Payment>();
     
-    public void load() {
+    public void load(long from, long to) {
         if (getRowCount() > 0) {
-            myPayments.clear();
             fireTableRowsDeleted(0, getRowCount() - 1);
+            myPayments.clear();
         }
         try {
             SpendingDB.open();
-            ISqlJetCursor cursor = SpendingDB.getAllPayments();
+            ISqlJetCursor cursor = null;
+            if (from >= 0 && to >= 0) {
+                cursor = SpendingDB.getAllPayments(from, to);
+            } else {
+                cursor = SpendingDB.getAllPayments();
+            }
             while(!cursor.eof()) {
                 Payment p = Payment.read(cursor);
                 if (p != null) {

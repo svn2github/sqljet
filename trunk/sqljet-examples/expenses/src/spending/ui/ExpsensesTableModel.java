@@ -82,6 +82,16 @@ public class ExpsensesTableModel extends AbstractTableModel {
     }
 
     @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        if (columnIndex == 0) {
+            return Date.class;
+        } else if (columnIndex == 1) {
+            return Long.TYPE;
+        }
+        return super.getColumnClass(columnIndex);
+    }
+
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
@@ -102,9 +112,7 @@ public class ExpsensesTableModel extends AbstractTableModel {
         Payment payment = getPayment(rowIndex);
         if (payment != null) {
             if (columnIndex == 0) {
-                Date d = payment.date;
-                String date = SpendingDB.getDateFormat().format(d);
-                return date;
+                return new Date(payment.date);
             } else if (columnIndex == 1) {
                 return payment.amount;
             } else if (columnIndex == 2) {

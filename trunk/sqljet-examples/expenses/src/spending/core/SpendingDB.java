@@ -45,7 +45,7 @@ public class SpendingDB {
 
 				public Object run(SqlJetDb arg0) throws SqlJetException {
 					db.createTable(
-									"create table payments (date text not null, amount int not null, currency text, info text)");
+									"create table payments (date int not null, amount int not null, currency text, info text)");
 					db.createIndex(
 							"create index payments_date on payments (date)");
 					prefillDB();
@@ -62,7 +62,7 @@ public class SpendingDB {
 	}
 
 	public static ISqlJetCursor getAllPayments() throws SqlJetException {
-		return db.getTable("payments").open();
+		return db.getTable("payments").order("payments_date");
 	}
 
 	public static ISqlJetCursor getPayments(Date date) throws SqlJetException {
@@ -87,8 +87,7 @@ public class SpendingDB {
 		return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
 
 			public Object run(SqlJetDb db) throws SqlJetException {
-				String dateString = getDateFormat().format(p.date);
-				return db.getTable("payments").insert(dateString, p.amount,
+				return db.getTable("payments").insert(p.date, p.amount,
 						p.currency, p.info);
 			}
 		});
@@ -133,10 +132,10 @@ public class SpendingDB {
 	private static void prefillDB() throws SqlJetException {
 		Calendar cal = Calendar.getInstance();
 		cal.set(2009, 6, 28);
-		addPayment(new Payment(cal.getTime(), -999, "USD", "New MacBook"));
+		addPayment(new Payment(cal.getTime().getTime(), -999, "USD", "New MacBook"));
 		cal.set(2009, 6, 29);
-		addPayment(new Payment(cal.getTime(), 2000, "EUR", "Salary"));
+		addPayment(new Payment(cal.getTime().getTime(), 2000, "EUR", "Salary"));
         cal.set(2009, 6, 27);
-        addPayment(new Payment(cal.getTime(), -199, "USD", "New iPhone"));
+        addPayment(new Payment(cal.getTime().getTime(), -199, "USD", "New iPhone"));
 	}
 }

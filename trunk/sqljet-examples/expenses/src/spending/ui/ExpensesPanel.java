@@ -18,6 +18,9 @@
 package spending.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.sql.Date;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,8 +30,10 @@ import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import spending.core.Payment;
+import spending.core.SpendingDB;
 
 /**
  * @author TMate Software Ltd.
@@ -53,7 +58,6 @@ public class ExpensesPanel extends JPanel {
         myInfoText = new JTextArea();
         myTable.setModel(myTableModel);
         myTable.setCellEditor(null);
-        
         myInfoText.setRows(7);
         myInfoText.setEditable(false);
         
@@ -66,6 +70,32 @@ public class ExpensesPanel extends JPanel {
                 }
                 Payment p =  myTableModel.getPayment(index);
                 myInfoText.setText(p != null ? p.info : "");
+            }
+        });
+
+        myTable.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                String strValue = SpendingDB.getDateFormat().format(value);
+                return super.getTableCellRendererComponent(table, strValue, isSelected, hasFocus, row, column);
+            }
+        });
+
+        myTable.setDefaultRenderer(Long.TYPE, new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                Long v = (Long) value;
+                if (v != null && v.longValue() > 0) {
+                    comp.setForeground(Color.GREEN.darker());
+                } else if (v != null && v.longValue() < 0) {
+                    comp.setForeground(Color.RED.darker());
+                }
+                return comp;
             }
         });
 

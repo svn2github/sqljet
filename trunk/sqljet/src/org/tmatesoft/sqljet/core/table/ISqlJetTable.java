@@ -89,4 +89,11 @@ public interface ISqlJetTable {
      */
     long insertWithRowId(long rowId, Object... values) throws SqlJetException;
 
+    /**
+     * @param string
+     * @return
+     * @throws SqlJetException 
+     */
+    ISqlJetCursor order(String indexName) throws SqlJetException;
+
 }

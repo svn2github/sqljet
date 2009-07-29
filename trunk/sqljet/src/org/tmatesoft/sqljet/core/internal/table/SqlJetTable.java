@@ -121,4 +121,17 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#order(java.lang.String)
+     */
+    public ISqlJetCursor order(final String indexName) throws SqlJetException {
+        return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return new SqlJetIndexOrderCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName);
+            }
+        });
+    }
+
 }

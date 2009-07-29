@@ -217,16 +217,32 @@ public class SqlJetDb {
                         }
                     }
                     try {
-                        final Object result = op.run(SqlJetDb.this);
-                        btree.commit();
-                        success = true;
-                        return result;
-                    } finally {
-                        if (!success) {
-                            btree.rollback();
+                        for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
+                            try {
+                                final Object result = op.run(SqlJetDb.this);
+                                btree.commit();
+                                success = true;
+                                return result;
+                            } catch (SqlJetException e) {
+                                if (e.getErrorCode() != SqlJetErrorCode.LOCKED || i >= TRANSACTION_BUSY_RETRIES) {
+                                    throw e;
+                                } else {
+                                    try {
+                                        Thread.sleep(TRANSACTION_BUSY_SLEEP);
+                                    } catch (InterruptedException e1) {
+                                        throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
+                                    }
+                                }
+                            } finally {
+                                if (!success) {
+                                    btree.rollback();
+                                }
+                            }
                         }
+                    } finally {
                         transaction = false;
                     }
+                    return null;
                 }
             }
         });

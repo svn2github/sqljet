@@ -92,8 +92,17 @@ public interface ISqlJetTable {
     /**
      * @param string
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     ISqlJetCursor order(String indexName) throws SqlJetException;
+
+    /**
+     * @param indexName
+     * @param firstKey
+     * @param lastKey
+     * @return
+     * @throws SqlJetException 
+     */
+    ISqlJetCursor scope(String indexName, Object[] firstKey, Object[] lastKey) throws SqlJetException;
 
 }

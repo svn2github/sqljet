@@ -30,8 +30,8 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISqlJetCursor {
 
-    private String indexName;
-    private ISqlJetBtreeIndexTable indexTable;
+    protected String indexName;
+    protected ISqlJetBtreeIndexTable indexTable;
 
     /**
      * @param table

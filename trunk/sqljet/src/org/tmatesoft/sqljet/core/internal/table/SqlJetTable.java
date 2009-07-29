@@ -134,4 +134,18 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#scope(java.lang.String,
+     * java.lang.Object[], java.lang.Object[])
+     */
+    public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey) throws SqlJetException {
+        return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return new SqlJetIndexScopeCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,
+                        firstKey, lastKey);
+            }
+        });
+    }
 }

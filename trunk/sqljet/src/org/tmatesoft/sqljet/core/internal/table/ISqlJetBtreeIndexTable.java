@@ -74,5 +74,20 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
     boolean checkKey(Object... key) throws SqlJetException;
     
     long getKeyRowId() throws SqlJetException;
+
+    /**
+     * @param key
+     * @return
+     * @throws SqlJetException 
+     */
+    int compareKey(Object[] key) throws SqlJetException;
+
+    /**
+     * @param b
+     * @param key
+     * @return
+     * @throws SqlJetException 
+     */
+    long lookupNear(boolean next, Object[] key) throws SqlJetException;
     
 }

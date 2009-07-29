@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
-
 import java.util.Random;
 
 import org.junit.Assert;
@@ -29,7 +28,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class IndexOrderTest extends AbstractNewDbTest {
 
@@ -41,71 +40,88 @@ public class IndexOrderTest extends AbstractNewDbTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        
-        db.createTable("create table t(a integer primary key, b integer, c integer)");
-        db.createIndex("create index b on t(b)");
-        db.createIndex("create index cb on t(c,b)");
-        db.createIndex("create index cd on t(c desc)");
-        table = db.getTable("t");
-        
-        Random r = new Random();
-        for(int i=10; i>0; i--){
-            table.insert(null,i, r.nextLong());
-        }
-        
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+
+                db.createTable("create table t(a integer primary key, b integer, c integer)");
+                db.createIndex("create index b on t(b)");
+                db.createIndex("create index cb on t(c,b)");
+                db.createIndex("create index cd on t(c desc)");
+                table = db.getTable("t");
+
+                Random r = new Random();
+                for (int i = 10; i > 0; i--) {
+                    table.insert(null, i, r.nextLong());
+                }
+
+                return null;
+            }
+        });
+
     }
 
-    
     @Test
-    public void defaultOrder() throws SqlJetException{
+    public void defaultOrder() throws SqlJetException {
         long l = Long.MAX_VALUE;
         final ISqlJetCursor c = table.open();
-        for(c.first();!c.eof();c.next()){
-            final long b = c.getInteger("b");
-            Assert.assertNotNull(b);
-            Assert.assertTrue(l>b);
-            l=b;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long b = c.getInteger("b");
+                Assert.assertNotNull(b);
+                Assert.assertTrue(l > b);
+                l = b;
+            }
+        } finally {
+            c.close();
         }
-        c.close();
     }
-    
+
     @Test
-    public void order() throws SqlJetException{
+    public void order() throws SqlJetException {
         long l = Long.MIN_VALUE;
         final ISqlJetCursor c = table.order("b");
-        for(c.first();!c.eof();c.next()){
-            final long b = c.getInteger("b");
-            Assert.assertNotNull(b);
-            Assert.assertTrue(l<b);
-            l=b;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long b = c.getInteger("b");
+                Assert.assertNotNull(b);
+                Assert.assertTrue(l < b);
+                l = b;
+            }
+        } finally {
+            c.close();
         }
-        c.close();
     }
 
     @Test
-    public void orderMulti() throws SqlJetException{
+    public void orderMulti() throws SqlJetException {
         long l = Long.MIN_VALUE;
         final ISqlJetCursor c = table.order("cb");
-        for(c.first();!c.eof();c.next()){
-            final long f = c.getInteger("c");
-            Assert.assertNotNull(f);
-            Assert.assertTrue(l<f);
-            l=f;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long f = c.getInteger("c");
+                Assert.assertNotNull(f);
+                Assert.assertTrue(l < f);
+                l = f;
+            }
+        } finally {
+            c.close();
         }
-        c.close();
     }
 
     @Test
-    public void orderDesc() throws SqlJetException{
+    public void orderDesc() throws SqlJetException {
         long l = Long.MAX_VALUE;
         final ISqlJetCursor c = table.order("cd");
-        for(c.first();!c.eof();c.next()){
-            final long f = c.getInteger("c");
-            Assert.assertNotNull(f);
-            Assert.assertTrue(l>f);
-            l=f;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long f = c.getInteger("c");
+                Assert.assertNotNull(f);
+                Assert.assertTrue(l > f);
+                l = f;
+            }
+        } finally {
+            c.close();
         }
-        c.close();
     }
-    
+
 }

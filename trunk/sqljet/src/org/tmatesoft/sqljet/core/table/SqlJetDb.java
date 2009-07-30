@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -46,7 +47,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetDb {
+public class SqlJetDb implements ISqlJetLimits {
 
     /**
      * Count of retries to begin transaction if it failed with

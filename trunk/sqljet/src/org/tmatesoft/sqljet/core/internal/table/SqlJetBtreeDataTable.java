@@ -33,6 +33,7 @@ import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDefault;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
@@ -199,14 +200,33 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     private Object[] getValuesRow(Object... values) throws SqlJetException {
-        final int columnsCount = tableDef.getColumns().size();
-        final Object[] row = new Object[columnsCount];
+        final Object[] row = getDefaults();
         if (null != values && values.length != 0) {
-            if (values.length > columnsCount) {
+            if (values.length > row.length) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
             }
             final Object[] a = SqlJetUtility.adjustNumberTypes(values);
             System.arraycopy(a, 0, row, 0, a.length);
+        }
+        return row;
+    }
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    private Object[] getDefaults() throws SqlJetException {
+        final Object[] row = new Object[tableDef.getColumns().size()];
+        if (db.getOptions().getFileFormat() > 2) {
+            for (int i = 0; i < tableDef.getColumns().size(); i++) {
+                final ISqlJetColumnDef column = tableDef.getColumns().get(i);
+                for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
+                    if (constraint instanceof ISqlJetColumnDefault) {
+                        final ISqlJetColumnDefault d = (ISqlJetColumnDefault) constraint;
+                        row[i] = d.getExpression().toString();
+                    }
+                }
+            }
         }
         return row;
     }
@@ -706,18 +726,20 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /**
      * @param values
      * @return
+     * @throws SqlJetException 
      * 
      * @throws SqlJetException
      */
-    private Object[] unwrapValues(Map<String, Object> values) {
+    private Object[] unwrapValues(Map<String, Object> values) throws SqlJetException {
         int i = 0;
-        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final Object[] unwrapped = new Object[columns.size()];
+        final Object[] unwrapped = getDefaults();
         if (null != values)
-            for (ISqlJetColumnDef column : columns) {
+            for (ISqlJetColumnDef column : tableDef.getColumns()) {
                 final String columnName = column.getName();
-                final Object value = values.get(columnName);
-                unwrapped[i++] = value;
+                if (values.containsKey(columnName)) {
+                    unwrapped[i] = values.get(columnName);
+                }
+                i++;
             }
         return unwrapped;
     }

@@ -19,6 +19,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -95,7 +96,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public long lookup(boolean next, Object... values) throws SqlJetException {
         lock();
         try {
-            return lookupSafe(next, false, values);
+            return lookupSafe(next, false, false, values);
         } finally {
             unlock();
         }
@@ -107,11 +108,28 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @return
      * @throws SqlJetException
      */
-    private long lookupSafe(boolean next, boolean near, Object... values) throws SqlJetException {
+    private long lookupSafe(boolean next, boolean near, boolean last, Object... values) throws SqlJetException {
         ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), values);
         final ByteBuffer k = key.getRawRecord();
-        if (next || cursor.moveTo(k, k.remaining(), false) < 0) {
-            next();
+        if (next) {
+            if (!last) {
+                next();
+            } else {
+                previous();
+            }
+        } else {
+            final int moved = cursorMoveTo(k, last);
+            if (moved != 0) {
+                if (!last) {
+                    if (moved < 0) {
+                        next();
+                    }
+                } else {
+                    if (moved > 0) {
+                        previous();
+                    }
+                }
+            }
         }
         final ISqlJetBtreeRecord record = getRecord();
         if (null == record)
@@ -119,6 +137,37 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         if (!near && keyCompare(k, record.getRawRecord()) != 0)
             return 0;
         return getKeyRowId(record);
+    }
+
+    /**
+     * @param k
+     * @param last
+     * @return
+     * @throws SqlJetException
+     */
+    private int cursorMoveTo(final ByteBuffer pKey, boolean last) throws SqlJetException {
+        final int nKey = pKey.remaining();
+        if (!last) {
+            return cursor.moveTo(pKey, nKey, false);
+        } else {
+            SqlJetUnpackedRecord pIdxKey;
+            if (pKey != null) {
+                assert (nKey == (long) (int) nKey);
+                pIdxKey = keyInfo.recordUnpack((int) nKey, pKey);
+                pIdxKey.getFlags().add(SqlJetUnpackedRecordFlags.INCRKEY);
+                if (pIdxKey == null)
+                    throw new SqlJetException(SqlJetErrorCode.NOMEM);
+            } else {
+                pIdxKey = null;
+            }
+            try {
+                return cursor.moveToUnpacked(pIdxKey, nKey, false);
+            } finally {
+                if (pKey != null) {
+                    SqlJetUnpackedRecord.delete(pIdxKey);
+                }
+            }
+        }
     }
 
     /**
@@ -131,7 +180,9 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      */
     private int keyCompare(ByteBuffer key, ByteBuffer record) throws SqlJetException {
         final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(key.remaining(), key);
-        unpacked.getFlags().add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
+        final Set<SqlJetUnpackedRecordFlags> flags = unpacked.getFlags();
+        flags.add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
+        flags.add(SqlJetUnpackedRecordFlags.PREFIX_MATCH);
         return unpacked.recordCompare(record.remaining(), record);
     }
 
@@ -198,7 +249,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         try {
             final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key);
             final ByteBuffer k = rec.getRawRecord();
-            if (cursor.moveTo(k, k.remaining(), false) < 0) {
+            if (cursorMoveTo(k, false) < 0) {
                 next();
             }
             do {
@@ -279,7 +330,22 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public long lookupNear(boolean next, Object[] key) throws SqlJetException {
         lock();
         try {
-            return lookupSafe(next, true, key);
+            return lookupSafe(next, true, false, key);
+        } finally {
+            unlock();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeIndexTable#
+     * lookupLastNear(java.lang.Object[])
+     */
+    public long lookupLastNear(Object[] key) throws SqlJetException {
+        lock();
+        try {
+            return lookupSafe(false, true, true, key);
         } finally {
             unlock();
         }

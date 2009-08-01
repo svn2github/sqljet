@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
-import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
@@ -112,7 +111,18 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
      */
     @Override
     public boolean last() throws SqlJetException {
-        throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (indexTable == null) {
+                    return SqlJetIndexOrderCursor.super.last();
+                } else {
+                    if (indexTable.last()) {
+                        return goTo(indexTable.getKeyRowId());
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     /* (non-Javadoc)
@@ -120,7 +130,18 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
      */
     @Override
     public boolean previous() throws SqlJetException {
-        throw new SqlJetException(SqlJetErrorCode.MISUSE);
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (indexTable == null) {
+                    return SqlJetIndexOrderCursor.super.previous();
+                } else {
+                    if (indexTable.previous()) {
+                        return goTo(indexTable.getKeyRowId());
+                    }
+                }
+                return false;
+            }
+        });
     }
     
 }

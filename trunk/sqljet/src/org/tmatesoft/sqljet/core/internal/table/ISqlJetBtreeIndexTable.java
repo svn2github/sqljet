@@ -89,5 +89,12 @@ public interface ISqlJetBtreeIndexTable extends ISqlJetBtreeTable {
      * @throws SqlJetException 
      */
     long lookupNear(boolean next, Object[] key) throws SqlJetException;
+
+    /**
+     * @param key
+     * @return
+     * @throws SqlJetException 
+     */
+    long lookupLastNear(Object[] key) throws SqlJetException;
     
 }

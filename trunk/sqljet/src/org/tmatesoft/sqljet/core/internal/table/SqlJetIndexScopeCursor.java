@@ -151,4 +151,26 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
         }
         return true;
     }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#last()
+     */
+    @Override
+    public boolean last() throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (indexTable == null || lastKey == null) {
+                    return SqlJetIndexScopeCursor.super.last();
+                } else {
+                    indexTable.last();
+                    final long lookup = indexTable.lookupLastNear(lastKey);
+                    if (lookup != 0) {
+                        return goTo(lookup);
+                    }
+                }
+                return false;
+            }
+        });
+    }
+    
 }

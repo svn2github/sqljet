@@ -30,7 +30,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class IndexScopeTest extends AbstractNewDbTest {
 
-    private ISqlJetTable table, table1;
+    private ISqlJetTable table, table1, table2, table3;
 
     /**
      * @throws java.lang.Exception
@@ -48,6 +48,9 @@ public class IndexScopeTest extends AbstractNewDbTest {
 
                 db.createTable("create table t1(a integer primary key, b integer)");
                 db.createIndex("create index b1 on t1(b)");
+
+                db.createTable("create table t2(a integer, b integer, primary key(a,b))");
+                db.createTable("create table t3(a integer primary key)");
                 
                 table = db.getTable("t");
 
@@ -60,6 +63,18 @@ public class IndexScopeTest extends AbstractNewDbTest {
                 table1.insert(null, 5);
                 table1.insert(null, 7);
                 table1.insert(null, 9);
+
+                table2 = db.getTable("t2");
+
+                for (int i = 10; i > 0; i--) {
+                    table2.insert(i, i);
+                }
+
+                table3 = db.getTable("t3");
+                table3.insert(3);
+                table3.insert(5);
+                table3.insert(7);
+                table3.insert(9);
                 
                 return null;
 
@@ -172,5 +187,44 @@ public class IndexScopeTest extends AbstractNewDbTest {
         c.close();
     }
     
+    @Test
+    public void scopePrimary() throws SqlJetException {
+        final ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(2L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(3L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(4L, c.getInteger("a"));
+        Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
+
+    @Test
+    public void scopeRowId() throws SqlJetException {
+        final ISqlJetCursor c = table.scope(null, new Object[] { 2 }, new Object[] { 4 });
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(2L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(3L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(4L, c.getInteger("a"));
+        Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
+
+    @Test
+    public void scopeRowIdNear() throws SqlJetException {
+        final ISqlJetCursor c = table3.scope(null, new Object[] { 4 }, new Object[] { 8 });
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(5L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(7L, c.getInteger("a"));
+        Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
     
 }

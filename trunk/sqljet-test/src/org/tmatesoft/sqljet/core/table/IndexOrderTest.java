@@ -32,7 +32,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class IndexOrderTest extends AbstractNewDbTest {
 
-    private ISqlJetTable table;
+    private ISqlJetTable table, table1;
 
     /**
      * @throws java.lang.Exception
@@ -54,6 +54,12 @@ public class IndexOrderTest extends AbstractNewDbTest {
                     table.insert(null, i, r.nextLong());
                 }
 
+                db.createTable("create table t1(a integer, b integer, primary key (a,b))");
+                table1 = db.getTable("t1");
+                for (int i = 10; i > 0; i--) {
+                    table1.insert(i, r.nextLong());
+                }
+                
                 return null;
             }
         });
@@ -67,7 +73,6 @@ public class IndexOrderTest extends AbstractNewDbTest {
         try {
             for (c.first(); !c.eof(); c.next()) {
                 final long b = c.getInteger("b");
-                Assert.assertNotNull(b);
                 Assert.assertTrue(l > b);
                 l = b;
             }
@@ -83,7 +88,6 @@ public class IndexOrderTest extends AbstractNewDbTest {
         try {
             for (c.first(); !c.eof(); c.next()) {
                 final long b = c.getInteger("b");
-                Assert.assertNotNull(b);
                 Assert.assertTrue(l < b);
                 l = b;
             }
@@ -99,7 +103,6 @@ public class IndexOrderTest extends AbstractNewDbTest {
         try {
             for (c.first(); !c.eof(); c.next()) {
                 final long f = c.getInteger("c");
-                Assert.assertNotNull(f);
                 Assert.assertTrue(l < f);
                 l = f;
             }
@@ -115,7 +118,6 @@ public class IndexOrderTest extends AbstractNewDbTest {
         try {
             for (c.first(); !c.eof(); c.next()) {
                 final long f = c.getInteger("c");
-                Assert.assertNotNull(f);
                 Assert.assertTrue(l > f);
                 l = f;
             }
@@ -124,4 +126,34 @@ public class IndexOrderTest extends AbstractNewDbTest {
         }
     }
 
+    @Test
+    public void orderRowId() throws SqlJetException {
+        long l = Long.MIN_VALUE;
+        final ISqlJetCursor c = table.order(null);
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long a = c.getInteger("a");
+                Assert.assertTrue(l < a);
+                l = a;
+            }
+        } finally {
+            c.close();
+        }
+    }
+    
+    @Test
+    public void orderPrimary() throws SqlJetException {
+        long l = Long.MIN_VALUE;
+        final ISqlJetCursor c = table1.order(null);
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long a = c.getInteger("a");
+                Assert.assertTrue(l < a);
+                l = a;
+            }
+        } finally {
+            c.close();
+        }
+    }
+    
 }

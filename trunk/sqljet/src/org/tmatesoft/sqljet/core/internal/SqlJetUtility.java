@@ -1109,6 +1109,7 @@ public class SqlJetUtility {
      * @return
      */
     public static Object[] adjustNumberTypes(Object[] key) {
+        if(null==key) return null;
         for (int i = 0; i < key.length; i++) {
             final Object obj = key[i];
             if (obj instanceof Number) {
@@ -1150,6 +1151,17 @@ public class SqlJetUtility {
         byte[] array = new byte[buffer.remaining()];
         buffer.get(array).rewind();
         return array;
+    }
+
+    /**
+     * @param firstKey
+     * @return
+     */
+    public static Object[] copyArray(Object[] array) {
+        if(null==array) return null;
+        final Object[] copy = new Object[array.length];
+        System.arraycopy(array, 0, copy, 0, array.length);
+        return copy;
     }
 
     

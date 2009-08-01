@@ -18,6 +18,7 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -42,8 +43,8 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
     public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, Object[] firstKey,
             Object[] lastKey) throws SqlJetException {
         super(table, db, indexName);
-        this.firstKey = firstKey;
-        this.lastKey = lastKey;
+        this.firstKey = SqlJetUtility.adjustNumberTypes( SqlJetUtility.copyArray( firstKey ) );
+        this.lastKey = SqlJetUtility.adjustNumberTypes( SqlJetUtility.copyArray( lastKey ) );
         first();
     }
 

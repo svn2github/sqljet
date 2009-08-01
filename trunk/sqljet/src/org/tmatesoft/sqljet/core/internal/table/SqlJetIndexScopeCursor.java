@@ -163,7 +163,6 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 if (indexTable == null || lastKey == null) {
                     return SqlJetIndexScopeCursor.super.last();
                 } else {
-                    indexTable.last();
                     final long lookup = indexTable.lookupLastNear(lastKey);
                     if (lookup != 0) {
                         return goTo(lookup);

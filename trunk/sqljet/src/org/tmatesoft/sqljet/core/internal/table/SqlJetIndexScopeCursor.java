@@ -109,12 +109,9 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
     public boolean next() throws SqlJetException {
         return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                if (eof()) {
-                    return false;
-                }
-                if ( lastKey == null ) {
+                if (lastKey == null) {
                     return SqlJetIndexScopeCursor.super.next();
-                } else if(indexTable == null) {
+                } else if (indexTable == null) {
                     SqlJetIndexScopeCursor.super.next();
                     return !eof();
                 } else {
@@ -148,6 +145,9 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      */
     private boolean checkScope() throws SqlJetException {
         if (indexTable == null) {
+            if (getBtreeDataTable().eof()) {
+                return false;
+            }
             final long rowId = getRowId();
             if (firstRowId != 0) {
                 if (firstRowId > rowId)
@@ -204,4 +204,23 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
             return (Long) key[0];
         return 0;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#delete()
+     */
+    @Override
+    public void delete() throws SqlJetException {
+        super.delete();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (!checkScope())
+                    next();
+                return false;
+            }
+        });
+    }
+
 }

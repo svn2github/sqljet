@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -78,8 +77,8 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetCursor lookup(final String indexName, final Object... key) throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTableIndexCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,
-                        SqlJetUtility.adjustNumberTypes(key));
+                return new SqlJetIndexScopeCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,
+                        key, key);
             }
         });
     }
@@ -140,7 +139,8 @@ public class SqlJetTable implements ISqlJetTable {
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#scope(java.lang.String,
      * java.lang.Object[], java.lang.Object[])
      */
-    public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey) throws SqlJetException {
+    public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey)
+            throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetIndexScopeCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,

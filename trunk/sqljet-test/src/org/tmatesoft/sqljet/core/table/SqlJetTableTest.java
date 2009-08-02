@@ -168,7 +168,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 lookup.delete();
-                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
                 lookup.delete();
                 Assert.assertTrue(lookup.eof());
                 return null;

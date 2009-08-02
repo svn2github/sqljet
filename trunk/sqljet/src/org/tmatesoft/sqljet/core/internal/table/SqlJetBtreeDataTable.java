@@ -142,7 +142,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             if (getRowId() == rowId)
                 return true;
-            return cursor.moveTo(null, rowId, false) == 0;
+            final int moveTo = cursor.moveTo(null, rowId, false);
+            if (moveTo < 0) {
+                next();
+            }
+            return getRowId() == rowId;
         } finally {
             unlock();
         }
@@ -726,7 +730,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     /**
      * @param values
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      * 
      * @throws SqlJetException
      */

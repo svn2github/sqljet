@@ -282,5 +282,12 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     void delete() throws SqlJetException;
+
+    /**
+     * @param field
+     * @return
+     * @throws SqlJetException
+     */
+    boolean getBoolean(int field) throws SqlJetException;
  
 }

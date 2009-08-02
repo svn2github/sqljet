@@ -95,6 +95,8 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setNull();
             } else if (value instanceof String) {
                 mem.setStr(SqlJetUtility.fromString((String) value, encoding), encoding);
+            } else if (value instanceof Boolean) {
+                mem.setInt64(((Boolean) value) ? 1 : 0);
             } else if (value instanceof Byte) {
                 mem.setInt64((Byte) value);
             } else if (value instanceof Short) {
@@ -109,10 +111,10 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setDouble((Double) value);
             } else if (value instanceof ByteBuffer) {
                 mem.setStr((ByteBuffer) value, encoding);
-            } else if( value instanceof InputStream) {
-                mem.setStr(SqlJetUtility.streamToBuffer((InputStream)value), encoding);
+            } else if (value instanceof InputStream) {
+                mem.setStr(SqlJetUtility.streamToBuffer((InputStream) value), encoding);
             } else if ("byte[]".equalsIgnoreCase(value.getClass().getCanonicalName())) {
-                mem.setStr(ByteBuffer.wrap((byte[])value), encoding);
+                mem.setStr(ByteBuffer.wrap((byte[]) value), encoding);
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value #" + i + " " + value.toString());
             }

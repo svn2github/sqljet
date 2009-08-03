@@ -41,6 +41,7 @@ public class LocateLastTest extends AbstractNewDbTest {
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.createTable("create table t(a integer primary key, b integer)");
                 db.createIndex("create index b on t(b,a)");
+                db.createIndex("create index d on t(b desc, a desc)");
                 final ISqlJetTable t = db.getTable("t");
                 t.insert(1,1);
                 t.insert(2,2);
@@ -78,5 +79,41 @@ public class LocateLastTest extends AbstractNewDbTest {
         Assert.assertEquals(2L, b.getValue("a"));
         Assert.assertFalse(b.previous());
     }
+
+    @Test
+    public void orderDesc() throws SqlJetException {
+        final ISqlJetTable t = db.getTable("t");
+        final ISqlJetCursor b = t.order("d");
+        Assert.assertTrue(b.last());
+        Assert.assertEquals(1L, b.getValue("b"));
+        Assert.assertEquals(1L, b.getValue("a"));
+        Assert.assertTrue(b.previous());
+        Assert.assertEquals(2L, b.getValue("b"));
+        Assert.assertEquals(2L, b.getValue("a"));
+        Assert.assertTrue(b.previous());
+        Assert.assertEquals(2L, b.getValue("b"));
+        Assert.assertEquals(4L, b.getValue("a"));
+        Assert.assertTrue(b.previous());
+        Assert.assertEquals(3L, b.getValue("b"));
+        Assert.assertEquals(3L, b.getValue("a"));
+        Assert.assertFalse(b.previous());
+    }
+    
+    @Test
+    public void scopeDesc() throws SqlJetException {
+        final ISqlJetTable t = db.getTable("t");
+        final ISqlJetCursor b = t.scope("d", new Object[] {2}, new Object[] {1});
+        Assert.assertTrue(b.last());
+        Assert.assertEquals(1L, b.getValue("b"));
+        Assert.assertEquals(1L, b.getValue("a"));
+        Assert.assertTrue(b.previous());
+        Assert.assertEquals(2L, b.getValue("b"));
+        Assert.assertEquals(2L, b.getValue("a"));
+        Assert.assertTrue(b.previous());
+        Assert.assertEquals(2L, b.getValue("b"));
+        Assert.assertEquals(4L, b.getValue("a"));
+        Assert.assertFalse(b.previous());
+    }
+    
     
 }

@@ -9,13 +9,27 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
 public class InventoryItemsResponder {
 
-	public void showInventory(StringBuffer buffer) throws SqlJetException {
+	public void showInventory(StringBuffer buffer, Map<String, String> params) throws SqlJetException {
+		long room = -1, shelf = -1;
+		String roomStr = params.get("room");
+		if (roomStr != null) {
+			room = Long.parseLong(roomStr);
+		}
+		String shelfStr = params.get("shelf");
+		if (shelfStr != null) {
+			shelf = Long.parseLong(shelfStr);
+		}
 		buffer.append("<h2>Inventory</h2>");
 		InventoryDB db = new InventoryDB();
 		try {
-			ISqlJetCursor cursor = db.getAllItems();
+			ISqlJetCursor cursor;
+			if (room >= 0 && shelf >= 0) {
+				cursor = db.getAllItemsInRoomOnShelf(room, shelf);
+			} else {
+				cursor = db.getAllItems();
+			}
 			try {
-				printItems(db, buffer, cursor);
+				printItems(db, buffer, cursor, room, shelf);
 			} finally {
 				cursor.close();
 			}
@@ -25,7 +39,7 @@ public class InventoryItemsResponder {
 		buffer.append("<p><a href='/add_item'>Add Item</a>");
 	}
 
-	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor) throws SqlJetException {
+	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor, long room, long shelf) throws SqlJetException {
 		buffer.append("<table class='items'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
 		if (db.getVersion() > 1) {
 			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
@@ -53,6 +67,19 @@ public class InventoryItemsResponder {
 			buffer.append("</tr>");
 			cursor.next();
 		}
+		buffer.append("<tr><form><td colspan='3'>Find in the room on the shelf:</td><td><input type='text' name='room'");
+		if (room >= 0) {
+			buffer.append(" value='");
+			buffer.append(room);
+			buffer.append("'");
+		}
+		buffer.append("/></td><td><input type='text' name='shelf'");
+		if (shelf >= 0) {
+			buffer.append(" value='");
+			buffer.append(shelf);
+			buffer.append("'");
+		}
+		buffer.append("/></td><td colspan='2'><input type='submit' value='Find'/>&nbsp;<a href='/'>Reset</a></td></form></tr>");
 		buffer.append("</table>");
 	}
 

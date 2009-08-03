@@ -55,9 +55,8 @@ public class InventoryDB {
 			db.runWriteTransaction(new ISqlJetTransaction() {
 
 				public Object run(SqlJetDb db) throws SqlJetException {
-					db.createTable(
-							"create table items (article integer primary key, name text not null, description blob, "
-									+ "room int, shelf int, borrowed_from text, borrowed_to text)");
+					db.createTable("create table items (article integer primary key, name text not null, description blob, "
+							+ "room int, shelf int, borrowed_from text, borrowed_to text)");
 					db.createIndex("create index items_name on items (name asc)");
 					db.createIndex("create index items_location on items (room, shelf)");
 					db.getOptions().setUserVersion(1);
@@ -101,6 +100,10 @@ public class InventoryDB {
 
 	public ISqlJetCursor getAllItems() throws SqlJetException {
 		return db.getTable("items").open();
+	}
+
+	public ISqlJetCursor getAllItemsInRoomOnShelf(long room, long shelf) throws SqlJetException {
+		return db.getTable("items").lookup("items_location", room, shelf);
 	}
 
 	public InventoryItem getItem(long article) throws SqlJetException {

@@ -112,7 +112,7 @@ public class InventoryServer {
 		String path = reqURI.getPath();
 		if ("GET".equals(reqType)) {
 			if ("/".equals(path)) {
-				itemsResponder.showInventory(buffer);
+				itemsResponder.showInventory(buffer, parseQuery(reqURI));
 			} else if ("/add_item".equals(path)) {
 				if (reqURI.getQuery() == null) {
 					itemsResponder.showAddForm(buffer);

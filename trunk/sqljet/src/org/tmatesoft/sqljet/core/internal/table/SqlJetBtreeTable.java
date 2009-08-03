@@ -117,14 +117,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         first();
     }
 
-    /**
-     * @throws SqlJetException
-     * 
-     */
-    public SqlJetBtreeTable(SqlJetBtreeTable btreeTable) throws SqlJetException {
-        init(btreeTable.db, btreeTable.btree, btreeTable.rootPage, btreeTable.write, btreeTable.index);
-    }
-
     /*
      * (non-Javadoc)
      * 

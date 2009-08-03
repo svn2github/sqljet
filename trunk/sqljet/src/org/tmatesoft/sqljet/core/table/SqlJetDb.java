@@ -125,7 +125,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @param file
      *            path to data base
      * @param write
-     *            if true then allow data modification
+     *            if true then allows data modification
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
@@ -172,6 +172,12 @@ public class SqlJetDb implements ISqlJetLimits {
         return writable;
     }
 
+    /**
+     * Get database schema.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
     public ISqlJetSchema getSchema() throws SqlJetException {
         return schema;
     }
@@ -192,6 +198,13 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Run modifications in write transaction.
+     * 
+     * @param op
+     * @return
+     * @throws SqlJetException
+     */
     public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
         if (writable) {
             return runTransaction(op, SqlJetTransactionMode.WRITE);
@@ -200,10 +213,25 @@ public class SqlJetDb implements ISqlJetLimits {
         }
     }
 
+    /**
+     * Run read-only transaction.
+     * 
+     * @param op
+     * @return
+     * @throws SqlJetException
+     */
     public Object runReadTransaction(ISqlJetTransaction op) throws SqlJetException {
         return runTransaction(op, SqlJetTransactionMode.READ_ONLY);
     }
 
+    /**
+     * Run transaction.
+     * 
+     * @param op
+     * @param mode
+     * @return
+     * @throws SqlJetException
+     */
     public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
@@ -238,6 +266,8 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
+     * Begin transaction.
+     * 
      * @param mode
      * @throws SqlJetException
      */
@@ -245,7 +275,7 @@ public class SqlJetDb implements ISqlJetLimits {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already runned");
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
                 } else {
                     busyHandler(new BusyHandlerAction() {
                         public Object doAction() throws SqlJetException {
@@ -319,7 +349,7 @@ public class SqlJetDb implements ISqlJetLimits {
                     btree.commit();
                     transaction = false;
                 } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't runned");
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
                 }
                 return null;
             }
@@ -341,13 +371,19 @@ public class SqlJetDb implements ISqlJetLimits {
                         transaction = false;
                     }
                 } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't runned");
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
                 }
                 return null;
             }
         });
     }
 
+    /**
+     * Get database options.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
     public ISqlJetOptions getOptions() throws SqlJetException {
         return dbHandle.getOptions();
     }
@@ -364,6 +400,13 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Create table from SQL clause.
+     * 
+     * @param sql
+     * @return
+     * @throws SqlJetException
+     */
     public ISqlJetTableDef createTable(final String sql) throws SqlJetException {
         return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -372,6 +415,13 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Create index from SQL clause.
+     * 
+     * @param sql
+     * @return
+     * @throws SqlJetException
+     */
     public ISqlJetIndexDef createIndex(final String sql) throws SqlJetException {
         return (ISqlJetIndexDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -380,6 +430,12 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Drop table.
+     * 
+     * @param tableName
+     * @throws SqlJetException
+     */
     public void dropTable(final String tableName) throws SqlJetException {
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -389,6 +445,12 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Drop index.
+     * 
+     * @param indexName
+     * @throws SqlJetException
+     */
     public void dropIndex(final String indexName) throws SqlJetException {
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {

@@ -57,6 +57,20 @@ public class BooleanTest extends AbstractNewDbTest {
             c.close();
         }
     }
+
+    @Test
+    public void openFieldName() throws SqlJetException {
+        final ISqlJetTable t = db.getTable("t");
+        final ISqlJetCursor c = t.open();
+        try {
+            Assert.assertTrue(c.getBoolean("b"));
+            Assert.assertTrue(c.next());
+            Assert.assertFalse(c.getBoolean("b"));
+            Assert.assertFalse(c.next());
+        } finally {
+            c.close();
+        }
+    }
     
     @Test
     public void locateTrue() throws SqlJetException {

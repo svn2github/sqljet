@@ -159,6 +159,15 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
         });
     }
 
+    public boolean getBoolean(final String fieldName) throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return getBoolean(getFieldSafe(fieldName));
+            }
+        });
+    }
+
+    
     public void update(final Object... values) throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {

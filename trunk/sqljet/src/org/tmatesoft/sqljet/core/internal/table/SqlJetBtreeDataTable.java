@@ -546,17 +546,14 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
 
         final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFields(row) : null;
-        final Map<String, Object[]> indexKeys = new HashMap<String, Object[]>();
 
         // check unique indexes
-        if (Action.DELETE != action) {
+        if (!hasNull(row) && Action.DELETE != action) {
             for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
                 if (indexDef.isUnique() || tableDef.getColumnIndexConstraint(indexDef.getName()) != null
                         || tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
-                    final Object[] indexKey = getKeyForIndex(fields, indexDef);
-                    indexKeys.put(indexDef.getName(), indexKey);
                     final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
-                    final long lookup = indexTable.lookup(false, indexKey);
+                    final long lookup = indexTable.lookup(false, getKeyForIndex(fields, indexDef));
                     if (lookup != 0) {
                         if (Action.INSERT == action) {
                             throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Insert fails: unique index "
@@ -577,12 +574,25 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 indexTable.delete(currentRowId, getKeyForIndex(getAsNamedFields(currentRow), indexDef));
             }
             if (Action.DELETE != action) {
-                final Object[] indexKey = indexDef.isUnique() ? indexKeys.get(indexDef.getName()) : getKeyForIndex(
-                        fields, indexDef);
-                indexTable.insert(rowId, true, indexKey);
+                indexTable.insert(rowId, true, getKeyForIndex(fields, indexDef));
             }
         }
 
+    }
+
+    /**
+     * @param row
+     * @return
+     */
+    private boolean hasNull(Object[] row) {
+        if (row != null && row.length > 0) {
+            for (Object value : row) {
+                if (null == value) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

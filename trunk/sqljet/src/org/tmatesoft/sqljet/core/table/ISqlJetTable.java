@@ -59,6 +59,31 @@ public interface ISqlJetTable {
     ISqlJetCursor lookup(String indexName, Object... key) throws SqlJetException;
 
     /**
+     * Open cursors which sorts table by index. If indexName is NULL then
+     * primary key will be used.
+     * 
+     * @param string
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetCursor order(String indexName) throws SqlJetException;
+
+    /**
+     * Open cursor which restricts table to some scope of index values. Scope is
+     * specified as pair of index keys. First key means start of scope and last
+     * key means end of scope. One of these keys (or even both) could be NULL.
+     * In this case scope is open from one side (or both sides). If indexName is
+     * NULL then primary key will be used.
+     * 
+     * @param indexName
+     * @param firstKey
+     * @param lastKey
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetCursor scope(String indexName, Object[] firstKey, Object[] lastKey) throws SqlJetException;
+
+    /**
      * Add new record to the table with specified values. All relevant indexes
      * are updated automatically.
      * 
@@ -88,30 +113,4 @@ public interface ISqlJetTable {
      * @throws SqlJetException
      */
     long insertWithRowId(long rowId, Object... values) throws SqlJetException;
-
-    /**
-     * Open cursors which sorts table by index. If indexName is NULL then
-     * primary key will be used.
-     * 
-     * @param string
-     * @return
-     * @throws SqlJetException
-     */
-    ISqlJetCursor order(String indexName) throws SqlJetException;
-
-    /**
-     * Open cursor which restricts table to some scope of index values. Scope is
-     * specified as pair of index keys. First key means start of scope and last
-     * key means end of scope. One of these keys (or even both) could be NULL.
-     * In this case scope is open from one side (or both sides). If indexName is
-     * NULL then primary key will be used.
-     * 
-     * @param indexName
-     * @param firstKey
-     * @param lastKey
-     * @return
-     * @throws SqlJetException
-     */
-    ISqlJetCursor scope(String indexName, Object[] firstKey, Object[] lastKey) throws SqlJetException;
-
 }

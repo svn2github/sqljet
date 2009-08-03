@@ -198,6 +198,24 @@ public interface ISqlJetCursor {
     double getFloat(String fieldName) throws SqlJetException;
 
     /**
+     * Get field as boolean.
+     * 
+     * @param field
+     * @return
+     * @throws SqlJetException
+     */
+    boolean getBoolean(int field) throws SqlJetException;
+
+    /**
+     * Get field as boolean.
+     * 
+     * @param fieldName
+     * @return
+     * @throws SqlJetException
+     */
+    boolean getBoolean(String fieldName) throws SqlJetException;
+
+    /**
      * Get field's value as BLOB.
      * 
      * @param field
@@ -266,7 +284,7 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     long updateWithRowId(long rowId, Object... values) throws SqlJetException;
-    
+
     /**
      * Update the current record.
      * 
@@ -282,23 +300,4 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     void delete() throws SqlJetException;
-
-    /**
-     * Get field as boolean.
-     * 
-     * @param field
-     * @return
-     * @throws SqlJetException
-     */
-    boolean getBoolean(int field) throws SqlJetException;
-
-    /**
-     * Get field as boolean.
-     * 
-     * @param fieldName
-     * @return
-     * @throws SqlJetException
-     */
-    boolean getBoolean(String fieldName) throws SqlJetException;
-    
 }

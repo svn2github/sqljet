@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 
 /**
  * @author TMate Software Ltd.
@@ -433,6 +434,38 @@ public class AutoCommitTest extends AbstractNewDbTest {
                 return null;
             }
         });
+    }
+
+    @Test
+    public void createTableManaged() throws SqlJetException {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        boolean commited = false;
+        try {
+            db.createTable("create table t1(a,b)");
+            db.commit();
+            commited = true;
+        } finally {
+            if (!commited) {
+                db.rollback();
+            }
+        }
+        Assert.assertNotNull(db.getTable("t1"));
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void beginTransactionFail() throws SqlJetException {
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void commitFail() throws SqlJetException {
+        db.commit();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void rollbackFail() throws SqlJetException {
+        db.rollback();
     }
 
 }

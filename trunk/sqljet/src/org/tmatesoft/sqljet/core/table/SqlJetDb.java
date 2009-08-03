@@ -49,6 +49,17 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
+    protected interface IBusyHandlerAction {
+        Object doAction() throws SqlJetException;
+
+        void doFinally() throws SqlJetException;
+    }
+
+    protected abstract class BusyHandlerAction implements IBusyHandlerAction {
+        public void doFinally() throws SqlJetException {
+        }
+    }
+
     /**
      * Count of retries to begin transaction if it failed with
      * {@link SqlJetErrorCode#BUSY}
@@ -199,54 +210,80 @@ public class SqlJetDb implements ISqlJetLimits {
                 if (transaction) {
                     return op.run(SqlJetDb.this);
                 } else {
-                    boolean success = false;
-                    for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
-                        try {
-                            btree.beginTrans(mode);
-                            transaction = true;
-                            break;
-                        } catch (SqlJetException e) {
-                            if (e.getErrorCode() != SqlJetErrorCode.BUSY || i >= TRANSACTION_BUSY_RETRIES) {
-                                throw e;
-                            } else {
-                                try {
-                                    Thread.sleep(TRANSACTION_BUSY_SLEEP);
-                                } catch (InterruptedException e1) {
-                                    throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
-                                }
-                            }
-                        }
-                    }
+                    beginTransaction(mode);
                     try {
-                        for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
-                            try {
+                        return busyHandler(new BusyHandlerAction() {
+                            private boolean success = false;
+
+                            public Object doAction() throws SqlJetException {
                                 final Object result = op.run(SqlJetDb.this);
                                 btree.commit();
                                 success = true;
                                 return result;
-                            } catch (SqlJetException e) {
-                                if (e.getErrorCode() != SqlJetErrorCode.LOCKED || i >= TRANSACTION_BUSY_RETRIES) {
-                                    throw e;
-                                } else {
-                                    try {
-                                        Thread.sleep(TRANSACTION_BUSY_SLEEP);
-                                    } catch (InterruptedException e1) {
-                                        throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
-                                    }
-                                }
-                            } finally {
+                            }
+
+                            public void doFinally() throws SqlJetException {
                                 if (!success) {
                                     btree.rollback();
                                 }
                             }
-                        }
+                        });
                     } finally {
                         transaction = false;
                     }
-                    return null;
                 }
             }
+
         });
+    }
+
+    /**
+     * @param mode
+     * @throws SqlJetException
+     */
+    public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
+        runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (transaction) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already runned");
+                } else {
+                    busyHandler(new BusyHandlerAction() {
+                        public Object doAction() throws SqlJetException {
+                            btree.beginTrans(mode);
+                            transaction = true;
+                            return null;
+                        }
+                    });
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * @param mode
+     * @throws SqlJetException
+     */
+    private Object busyHandler(final IBusyHandlerAction action) throws SqlJetException {
+        for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
+            try {
+                return action.doAction();
+            } catch (SqlJetException e) {
+                final SqlJetErrorCode errorCode = e.getErrorCode();
+                if (errorCode == SqlJetErrorCode.BUSY || errorCode == SqlJetErrorCode.LOCKED) {
+                    try {
+                        Thread.sleep(TRANSACTION_BUSY_SLEEP);
+                    } catch (InterruptedException e1) {
+                        throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
+                    }
+                } else {
+                    throw e;
+                }
+            } finally {
+                action.doFinally();
+            }
+        }
+        throw new SqlJetException(SqlJetErrorCode.BUSY);
     }
 
     /**
@@ -275,13 +312,14 @@ public class SqlJetDb implements ISqlJetLimits {
      * 
      * @throws SqlJetException
      */
-    @Deprecated
     public void commit() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (writable && transaction) {
+                if (transaction) {
                     btree.commit();
                     transaction = false;
+                } else {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't runned");
                 }
                 return null;
             }
@@ -293,13 +331,17 @@ public class SqlJetDb implements ISqlJetLimits {
      * 
      * @throws SqlJetException
      */
-    @Deprecated
     public void rollback() throws SqlJetException {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (writable && transaction) {
-                    btree.rollback();
-                    transaction = false;
+                if (transaction) {
+                    try {
+                        btree.rollback();
+                    } finally {
+                        transaction = false;
+                    }
+                } else {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't runned");
                 }
                 return null;
             }

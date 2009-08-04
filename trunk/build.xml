@@ -105,6 +105,7 @@ public class SqlParser</replacevalue>
 
 	<target name="test" depends="deploy">
 		<echoproperties prefix="os."/>		
+		<echoproperties prefix="java.vm."/>		
 		<junit>
 			<jvmarg value="-ea"/>			
 			<jvmarg value="-Xmx128m"/>			

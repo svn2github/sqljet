@@ -108,6 +108,7 @@ public class InventoryServer {
 		buffer.append("table.items { border-width: 0px; border-spacing: 0px; border-collapse: collapse; }");
 		buffer.append("table.items th { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #DDD; }");
 		buffer.append("table.items td { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #FFF; }");
+		buffer.append("table.items td.filter { background-color: #EEE; }");
 		buffer.append("</style>");
 		String path = reqURI.getPath();
 		if ("GET".equals(reqType)) {

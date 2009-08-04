@@ -19,17 +19,26 @@ public class InventoryItemsResponder {
 		if (shelfStr != null) {
 			shelf = Long.parseLong(shelfStr);
 		}
+		Boolean namesAsc = null;
+		String namesStr = params.get("names");
+		if ("asc".equalsIgnoreCase(namesStr)) {
+			namesAsc = true;
+		} else if ("desc".equalsIgnoreCase(namesStr)) {
+			namesAsc = false;
+		}
 		buffer.append("<h2>Inventory</h2>");
 		InventoryDB db = new InventoryDB();
 		try {
 			ISqlJetCursor cursor;
 			if (room >= 0 && shelf >= 0) {
 				cursor = db.getAllItemsInRoomOnShelf(room, shelf);
+			} else if (namesAsc != null) {
+				cursor = db.getAllItemsSortedByName(namesAsc);
 			} else {
 				cursor = db.getAllItems();
 			}
 			try {
-				printItems(db, buffer, cursor, room, shelf);
+				printItems(db, buffer, cursor, namesAsc, room, shelf);
 			} finally {
 				cursor.close();
 			}
@@ -39,12 +48,12 @@ public class InventoryItemsResponder {
 		buffer.append("<p><a href='/add_item'>Add Item</a>");
 	}
 
-	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor, long room, long shelf) throws SqlJetException {
+	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor, Boolean namesAsc, long room, long shelf) throws SqlJetException {
 		buffer.append("<table class='items'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
 		if (db.getVersion() > 1) {
 			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
 		}
-		buffer.append("<th></th><th></th><tr>");
+		buffer.append("<th colspan='2'>Action</th><tr>");
 		InventoryItem item = new InventoryItem();
 		while (!cursor.eof()) {
 			item.read(cursor);
@@ -67,19 +76,37 @@ public class InventoryItemsResponder {
 			buffer.append("</tr>");
 			cursor.next();
 		}
-		buffer.append("<tr><form><td colspan='3'>Find in the room on the shelf:</td><td><input type='text' name='room'");
+		buffer.append("<tr><form><td colspan='5' class='filter'>Order by names:&nbsp;<select name='names'>");
+		buffer.append("<option value=''");
+		if (namesAsc == null) {
+			buffer.append(" selected");
+		}
+		buffer.append(">Unordered</option>");
+		buffer.append("<option value='asc'");
+		if (namesAsc == Boolean.TRUE) {
+			buffer.append(" selected");
+		}
+		buffer.append(">Ascending</option>");
+		buffer.append("<option value='desc'");
+		if (namesAsc == Boolean.FALSE) {
+			buffer.append(" selected");
+		}
+		buffer.append(">Descending</option>");
+		buffer.append("</select></td><td colspan='2' class='filter'><input type='submit' value='Apply'/></td></form></tr>");
+		buffer.append("<tr><form><td colspan='3' class='filter'>Find in the room on the shelf:</td><td class='filter'><input type='text' name='room' size='3'");
 		if (room >= 0) {
 			buffer.append(" value='");
 			buffer.append(room);
 			buffer.append("'");
 		}
-		buffer.append("/></td><td><input type='text' name='shelf'");
+		buffer.append("/></td><td class='filter'><input type='text' name='shelf' size='3'");
 		if (shelf >= 0) {
 			buffer.append(" value='");
 			buffer.append(shelf);
 			buffer.append("'");
 		}
-		buffer.append("/></td><td colspan='2'><input type='submit' value='Find'/>&nbsp;<a href='/'>Reset</a></td></form></tr>");
+		buffer.append("/></td><td colspan='2' class='filter'><input type='submit' value='Apply'/></td></form></tr>");
+		buffer.append("<tr><td colspan='5' class='filter'></td><td colspan='2' class='filter'><a href='/'>Reset</a></td></tr>");
 		buffer.append("</table>");
 	}
 

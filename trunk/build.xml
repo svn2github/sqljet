@@ -10,13 +10,13 @@
 		<mkdir dir="sqljet/bin"/>
 		<mkdir dir="sqljet-test/bin"/>
 		
-        <delete verbose="true" includeemptydirs="true" failonerror="true">
+        <delete verbose="false" includeemptydirs="true" failonerror="true">
             <fileset dir="build">
                 <include name="**/**" />
             </fileset>
         </delete>
 
-        <delete verbose="true" includeemptydirs="true" failonerror="false">
+        <delete verbose="false" includeemptydirs="true" failonerror="false">
             <fileset dir="sqljet/bin">
                 <include name="**/**" />
             </fileset>

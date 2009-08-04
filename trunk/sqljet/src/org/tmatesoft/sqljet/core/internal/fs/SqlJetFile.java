@@ -464,7 +464,8 @@ public class SqlJetFile implements ISqlJetFile {
                         }
                     }
 
-                    final FileLock pendingLock = channel.tryLock(PENDING_BYTE, 1, lockType == SqlJetLockType.SHARED);
+                    final FileLock pendingLock = SqlJetFileLockManager.tryLock(filePathResolved, channel, PENDING_BYTE,
+                            1, lockType == SqlJetLockType.SHARED);
                     if (null == pendingLock)
                         return false;
                     locks.put(SqlJetLockType.PENDING, pendingLock);
@@ -477,7 +478,8 @@ public class SqlJetFile implements ISqlJetFile {
                 if (lockType == SqlJetLockType.SHARED) {
 
                     /* Now get the read-lock */
-                    final FileLock sharedLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, true);
+                    final FileLock sharedLock = SqlJetFileLockManager.tryLock(filePathResolved, channel, SHARED_FIRST,
+                            SHARED_SIZE, true);
                     locks.put(SqlJetLockType.SHARED, sharedLock);
 
                     /* Drop the temporary PENDING lock */
@@ -511,13 +513,15 @@ public class SqlJetFile implements ISqlJetFile {
 
                     switch (lockType) {
                     case RESERVED:
-                        final FileLock reservedLock = channel.tryLock(RESERVED_BYTE, 1, false);
+                        final FileLock reservedLock = SqlJetFileLockManager.tryLock(filePathResolved, channel,
+                                RESERVED_BYTE, 1, false);
                         if (null == reservedLock)
                             return false;
                         locks.put(SqlJetLockType.RESERVED, reservedLock);
                         break;
                     case EXCLUSIVE:
-                        final FileLock exclusiveLock = channel.tryLock(SHARED_FIRST, SHARED_SIZE, false);
+                        final FileLock exclusiveLock = SqlJetFileLockManager.tryLock(filePathResolved, channel,
+                                SHARED_FIRST, SHARED_SIZE, false);
                         if (null == exclusiveLock) {
                             this.lockType = SqlJetLockType.PENDING;
                             lockInfo.lockType = SqlJetLockType.PENDING;
@@ -597,7 +601,8 @@ public class SqlJetFile implements ISqlJetFile {
                         }
 
                         if (null == locks.get(SqlJetLockType.SHARED)) {
-                            final FileLock sharedLock = channel.lock(SHARED_FIRST, SHARED_SIZE, true);
+                            final FileLock sharedLock = SqlJetFileLockManager.lock(filePathResolved, channel,
+                                    SHARED_FIRST, SHARED_SIZE, true);
                             if (null == sharedLock)
                                 return false;
                             locks.put(SqlJetLockType.SHARED, sharedLock);
@@ -692,7 +697,8 @@ public class SqlJetFile implements ISqlJetFile {
                 /* Otherwise see if some other process holds it. */
                 try {
 
-                    final FileLock reservedLock = file.getChannel().tryLock(RESERVED_BYTE, 1, false);
+                    final FileLock reservedLock = SqlJetFileLockManager.tryLock(filePathResolved, file.getChannel(),
+                            RESERVED_BYTE, 1, false);
 
                     if (null == reservedLock) {
                         reserved = true;

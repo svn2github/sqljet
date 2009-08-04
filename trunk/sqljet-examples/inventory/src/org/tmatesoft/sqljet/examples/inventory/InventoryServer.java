@@ -127,6 +127,16 @@ public class InventoryServer {
 				itemsResponder.removeItem(buffer, parseQuery(reqURI));
 			} else if ("/users".equals(path)) {
 				usersResponder.showUsers(buffer, parseQuery(reqURI));
+			} else if ("/add_user".equals(path)) {
+				if (reqURI.getQuery() == null) {
+					usersResponder.showAddForm(buffer);
+				} else {
+					usersResponder.processAddForm(buffer, parseQuery(reqURI));
+				}
+			} else if ("/edit_user".equals(path)) {
+				usersResponder.editUser(buffer, parseQuery(reqURI));
+			} else if ("/remove_user".equals(path)) {
+				usersResponder.removeUser(buffer, parseQuery(reqURI));
 			}
 		}
 		buffer.append("</body></html>");

@@ -13,6 +13,7 @@
 package org.tmatesoft.sqljet.examples.inventory;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,8 +89,23 @@ public class InventoryItemsResponder {
 			printValue(buffer, item.room);
 			printValue(buffer, item.shelf);
 			if (db.getVersion() > 1) {
-				printValue(buffer, item.borrowedFrom);
-				printValue(buffer, item.borrowedTo);
+				try {
+					if (item.borrowedFrom != null) {
+						String eborrowedFrom = URLEncoder.encode(item.borrowedFrom, "UTF-8");
+						printValue(buffer, "<a href='/edit_user?name=" + eborrowedFrom + "'>" + item.borrowedFrom
+								+ "</a>");
+					} else {
+						printValue(buffer, null);
+					}
+					if (item.borrowedTo != null) {
+						String eborrowedTo = URLEncoder.encode(item.borrowedTo, "UTF-8");
+						printValue(buffer, "<a href='/edit_user?name=" + eborrowedTo + "'>" + item.borrowedTo + "</a>");
+					} else {
+						printValue(buffer, null);
+					}
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalStateException(e);
+				}
 			}
 			buffer.append("<td><a href='/edit_item?article=");
 			buffer.append(item.article);
@@ -172,7 +188,7 @@ public class InventoryItemsResponder {
 		buffer.append("<tr><td>Description:</td><td><input type='text' name='description'/></td></tr>");
 		buffer.append("<tr><td>Room:</td><td><input type='text' name='room' style='text-align: right;'/></td></tr>");
 		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf' style='text-align: right;'/></td></tr>");
-		buffer.append("</table><input type='submit' value='Submit'></form>");
+		buffer.append("</table><input type='submit' value='Add'></form>");
 		printReturnToInventory(buffer);
 	}
 
@@ -281,7 +297,7 @@ public class InventoryItemsResponder {
 		buffer.append("<tr><td>Shelf:</td><td><input type='text' name='shelf' value='");
 		buffer.append(item.shelf);
 		buffer.append("' style='text-align: right;'/></td></tr>");
-		buffer.append("</table><input type='submit' value='Submit'/>");
+		buffer.append("</table><input type='submit' value='Update'/>");
 		buffer.append("<input type='hidden' name='article' value='");
 		buffer.append(item.article);
 		buffer.append("'/></form>");

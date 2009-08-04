@@ -27,7 +27,7 @@ import java.nio.channels.FileLock;
  */
 public class SqlJetFileLock extends FileLock {
 
-    final private String filePath;
+    final private SqlJetFileLockManager manager;
     final private FileLock fileLock;
 
     private long locksCount;
@@ -38,9 +38,9 @@ public class SqlJetFileLock extends FileLock {
      * @param size
      * @param shared
      */
-    public SqlJetFileLock(String filePath, FileLock fileLock) {
+    public SqlJetFileLock(SqlJetFileLockManager manager, FileLock fileLock) {
         super(fileLock.channel(), fileLock.position(), fileLock.size(), fileLock.isShared());
-        this.filePath = filePath;
+        this.manager = manager;
         this.fileLock = fileLock;
         this.locksCount = 1;
     }
@@ -65,7 +65,7 @@ public class SqlJetFileLock extends FileLock {
         locksCount--;
         if (locksCount == 0) {
             fileLock.release();
-            SqlJetFileLockManager.deleteLock(filePath, this);
+            manager.deleteLock(this);
         }
     }
 

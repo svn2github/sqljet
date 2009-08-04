@@ -32,10 +32,15 @@ import java.util.Map;
  */
 public class SqlJetFileLockManager {
 
-    private SqlJetFileLockManager() {
+    private String filePath;
+    private FileChannel fileChannel;
+
+    public SqlJetFileLockManager(String filePath, FileChannel fileChannel) {
+        this.filePath = filePath;
+        this.fileChannel = fileChannel;
     }
 
-    private static Map<String, List<SqlJetFileLock>> locks = new HashMap<String, List<SqlJetFileLock>>();
+    private static final Map<String, List<SqlJetFileLock>> locks = new HashMap<String, List<SqlJetFileLock>>();
 
     /**
      * @param fileChannel
@@ -45,29 +50,27 @@ public class SqlJetFileLockManager {
      * @return
      * @throws IOException
      */
-    public static synchronized FileLock tryLock(String filePath, FileChannel fileChannel, long position, long size,
-            boolean shared) throws IOException {
-        final SqlJetFileLock lock = getLock(filePath, position, size);
+    public synchronized FileLock tryLock(long position, long size, boolean shared) throws IOException {
+        final SqlJetFileLock lock = getLock(position, size);
         if (lock != null) {
             lock.addLock();
             return lock;
         } else {
-            return addLock(filePath, fileChannel.tryLock(position, size, shared));
+            return addLock(fileChannel.tryLock(position, size, shared));
         }
     }
 
-    public static synchronized FileLock lock(String filePath, FileChannel fileChannel, long position, long size,
-            boolean shared) throws IOException {
-        final SqlJetFileLock lock = getLock(filePath, position, size);
+    public synchronized FileLock lock(long position, long size, boolean shared) throws IOException {
+        final SqlJetFileLock lock = getLock(position, size);
         if (lock != null) {
             lock.addLock();
             return lock;
         } else {
-            return addLock(filePath, fileChannel.lock(position, size, shared));
+            return addLock(fileChannel.lock(position, size, shared));
         }
     }
 
-    private static SqlJetFileLock getLock(String filePath, long position, long size) {
+    private SqlJetFileLock getLock(long position, long size) {
         if (locks.containsKey(filePath)) {
             for (SqlJetFileLock fl : locks.get(filePath)) {
                 if (fl.overlaps(position, size)) {
@@ -82,9 +85,9 @@ public class SqlJetFileLockManager {
      * @param lock
      * @return
      */
-    private static SqlJetFileLock addLock(String filePath, FileLock lock) {
+    private SqlJetFileLock addLock(FileLock lock) {
         if (lock != null) {
-            final SqlJetFileLock l = new SqlJetFileLock(filePath, lock);
+            final SqlJetFileLock l = new SqlJetFileLock(this, lock);
             if (!locks.containsKey(filePath)) {
                 locks.put(filePath, new ArrayList<SqlJetFileLock>());
             }
@@ -95,7 +98,7 @@ public class SqlJetFileLockManager {
         }
     }
 
-    public static synchronized void deleteLock(String filePath, SqlJetFileLock lock) {
+    public synchronized void deleteLock(SqlJetFileLock lock) {
         if (locks.containsKey(filePath)) {
             final List<SqlJetFileLock> list = locks.get(filePath);
             list.remove(lock);

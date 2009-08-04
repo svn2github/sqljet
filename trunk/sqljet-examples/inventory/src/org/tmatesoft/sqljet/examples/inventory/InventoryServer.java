@@ -35,6 +35,7 @@ public class InventoryServer {
 	private static final int PORT = 8333;
 	private static final byte[] EOL = { (byte) '\r', (byte) '\n' };
 	private static final InventoryItemsResponder itemsResponder = new InventoryItemsResponder();
+	private static final InventoryUsersResponder usersResponder = new InventoryUsersResponder();
 
 	public static void main(String[] args) throws Exception {
 		ServerSocket socket = new ServerSocket(PORT);
@@ -105,10 +106,10 @@ public class InventoryServer {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><head><title>Inventory</title></head><body>");
 		buffer.append("<style type='text/css'>");
-		buffer.append("table.items { border-width: 0px; border-spacing: 0px; border-collapse: collapse; }");
-		buffer.append("table.items th { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #DDD; }");
-		buffer.append("table.items td { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #FFF; }");
-		buffer.append("table.items td.filter { background-color: #EEE; }");
+		buffer.append("table.items, table.users { border-width: 0px; border-spacing: 0px; border-collapse: collapse; }");
+		buffer.append("table.items th, table.users th { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #DDD; }");
+		buffer.append("table.items td, table.users td { border-style: solid; border-width: 1px; padding: 4px; border-color: gray; background-color: #FFF; }");
+		buffer.append("table.items td.filter, table.users td.filter { background-color: #EEE; }");
 		buffer.append("</style>");
 		String path = reqURI.getPath();
 		if ("GET".equals(reqType)) {
@@ -124,6 +125,8 @@ public class InventoryServer {
 				itemsResponder.editItem(buffer, parseQuery(reqURI));
 			} else if ("/remove_item".equals(path)) {
 				itemsResponder.removeItem(buffer, parseQuery(reqURI));
+			} else if ("/users".equals(path)) {
+				usersResponder.showUsers(buffer, parseQuery(reqURI));
 			}
 		}
 		buffer.append("</body></html>");

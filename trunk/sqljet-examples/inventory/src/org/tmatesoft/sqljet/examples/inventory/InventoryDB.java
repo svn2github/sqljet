@@ -27,7 +27,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class InventoryDB {
 
-	public static final int VERSION = 1;
+	private static final int VERSION = 2;
 
 	private static final String FILE_NAME = "inventory.db";
 
@@ -93,7 +93,7 @@ public class InventoryDB {
 
 	private void prefillUsers() throws SqlJetException {
 		addUser(new InventoryUser("Dmitry Stadnik", "Prague", 0.99));
-		addUser(new InventoryUser("James Bond", "Classified location", 0));
+		addUser(new InventoryUser("James Bond", "Classified", 0));
 		addUser(new InventoryUser("MG", null, 0.11));
 	}
 

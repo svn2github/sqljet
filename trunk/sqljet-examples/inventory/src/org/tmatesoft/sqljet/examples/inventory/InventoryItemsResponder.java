@@ -1,3 +1,15 @@
+/**
+ * Copyright (C) 2009 TMate Software Ltd
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
 package org.tmatesoft.sqljet.examples.inventory;
 
 import java.io.UnsupportedEncodingException;
@@ -7,7 +19,16 @@ import java.util.Map;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
+/**
+ * @author Dmitry Stadnik (dtrace@seznam.cz)
+ */
 public class InventoryItemsResponder {
+
+	private void printShowUsers(InventoryDB db, StringBuffer buffer) throws SqlJetException {
+		if (db.getVersion() > 1) {
+			buffer.append("<p><a href='/users'>Show users</a></p>");
+		}
+	}
 
 	public void showInventory(StringBuffer buffer, Map<String, String> params) throws SqlJetException {
 		long room = -1, shelf = -1;
@@ -42,16 +63,19 @@ public class InventoryItemsResponder {
 			} finally {
 				cursor.close();
 			}
+			printShowUsers(db, buffer);
 		} finally {
 			db.close();
 		}
-		buffer.append("<p><a href='/add_item'>Add Item</a>");
 	}
 
-	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor, Boolean namesAsc, long room, long shelf) throws SqlJetException {
+	private void printItems(InventoryDB db, StringBuffer buffer, ISqlJetCursor cursor, Boolean namesAsc, long room,
+			long shelf) throws SqlJetException {
 		buffer.append("<table class='items'><tr><th>Article</th><th>Name</th><th>Description</th><th>Room</th><th>Shelf</th>");
+		int extraColumns = 0;
 		if (db.getVersion() > 1) {
 			buffer.append("<th>Borrowed To</th><th>Borrowed From</th>");
+			extraColumns = 2;
 		}
 		buffer.append("<th colspan='2'>Action</th><tr>");
 		InventoryItem item = new InventoryItem();
@@ -76,7 +100,12 @@ public class InventoryItemsResponder {
 			buffer.append("</tr>");
 			cursor.next();
 		}
-		buffer.append("<tr><form><td colspan='5' class='filter'>Order by names:&nbsp;<select name='names'>");
+		buffer.append("<tr><td colspan='");
+		buffer.append(5 + extraColumns);
+		buffer.append("'></td><td colspan='2'><a href='/add_item'>Add Item</a></td></tr>");
+		buffer.append("<tr><form><td colspan='");
+		buffer.append(5 + extraColumns);
+		buffer.append("' class='filter'>Order by name:&nbsp;<select name='names'>");
 		buffer.append("<option value=''");
 		if (namesAsc == null) {
 			buffer.append(" selected");
@@ -105,8 +134,16 @@ public class InventoryItemsResponder {
 			buffer.append(shelf);
 			buffer.append("'");
 		}
-		buffer.append("/></td><td colspan='2' class='filter'><input type='submit' value='Apply'/></td></form></tr>");
-		buffer.append("<tr><td colspan='5' class='filter'></td><td colspan='2' class='filter'><a href='/'>Reset</a></td></tr>");
+		buffer.append("/></td>");
+		if (extraColumns > 0) {
+			buffer.append("<td colspan='");
+			buffer.append(extraColumns);
+			buffer.append("' class='filter'></td>");
+		}
+		buffer.append("<td colspan='2' class='filter'><input type='submit' value='Apply'/></td></form></tr>");
+		buffer.append("<tr><td colspan='");
+		buffer.append(5 + extraColumns);
+		buffer.append("' class='filter'></td><td colspan='2' class='filter'><a href='/'>Reset</a></td></tr>");
 		buffer.append("</table>");
 	}
 

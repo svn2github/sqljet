@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -116,7 +116,7 @@ public class SqlJetFile implements ISqlJetFile {
      * to an instance of this object and this object keeps a count of the number
      * of unixFile pointing to it.
      */
-    private class LockInfo {
+    private static class LockInfo {
         private SqlJetLockType lockType = SqlJetLockType.NONE;
         /** Number of SHARED locks held */
         private int sharedLockCount = 0;
@@ -131,7 +131,7 @@ public class SqlJetFile implements ISqlJetFile {
      * deferred until all locks clear by adding the file descriptor to be closed
      * to the pending list.
      */
-    private class OpenFile {
+    private static class OpenFile {
         /** Number of pointers to this structure */
         private int numRef = 1;
         /** Number of outstanding locks */
@@ -141,7 +141,7 @@ public class SqlJetFile implements ISqlJetFile {
         private List<RandomAccessFile> pending = new ArrayList<RandomAccessFile>();
     };
 
-    private static Map<String, OpenFile> openFiles = new ConcurrentHashMap<String, OpenFile>();
+    private final static Map<String, OpenFile> openFiles = new HashMap<String, OpenFile>();
 
     private SqlJetFileType fileType;
     private Set<SqlJetFileOpenPermission> permissions;
@@ -225,10 +225,19 @@ public class SqlJetFile implements ISqlJetFile {
              * file descriptor to pOpen->aPending. It will be automatically
              * closed when the last lock is cleared.
              */
-            if (null != openCount && null != lockInfo && lockInfo.sharedLockCount > 0) {
-                openCount.pending.add(file);
-                return;
+            if (!noLock && null != openCount && null != openCount.lockInfoMap && openCount.lockInfoMap.size() > 0) {
+                for (LockInfo l : openCount.lockInfoMap.values()) {
+                    if (l.sharedLockCount > 0) {
+                        openCount.pending.add(file);
+                        return;
+                    }
+                }
             }
+            /*
+             * if (!noLock && null != openCount && null != lockInfo &&
+             * lockInfo.sharedLockCount > 0) { openCount.pending.add(file);
+             * return; }
+             */
 
             releaseLockInfo();
 
@@ -737,23 +746,25 @@ public class SqlJetFile implements ISqlJetFile {
     }
 
     private synchronized void findLockInfo() {
-        if (null == openCount) {
-            final OpenFile fileOpenCount = openFiles.get(filePathResolved);
-            if (null != fileOpenCount) {
-                openCount = fileOpenCount;
-                openCount.numRef++;
-            } else {
-                openCount = new OpenFile();
-                openFiles.put(filePathResolved, openCount);
+        synchronized (openFiles) {
+            if (null == openCount) {
+                final OpenFile fileOpenCount = openFiles.get(filePathResolved);
+                if (null != fileOpenCount) {
+                    openCount = fileOpenCount;
+                    openCount.numRef++;
+                } else {
+                    openCount = new OpenFile();
+                    openFiles.put(filePathResolved, openCount);
+                }
             }
-        }
-        final LockInfo fileLockInfo = openCount.lockInfoMap.get(Thread.currentThread());
-        if (null != fileLockInfo) {
-            lockInfo = fileLockInfo;
-            lockInfo.numRef++;
-        } else {
-            lockInfo = new LockInfo();
-            openCount.lockInfoMap.put(Thread.currentThread(), lockInfo);
+            final LockInfo fileLockInfo = openCount.lockInfoMap.get(Thread.currentThread());
+            if (null != fileLockInfo) {
+                lockInfo = fileLockInfo;
+                lockInfo.numRef++;
+            } else {
+                lockInfo = new LockInfo();
+                openCount.lockInfoMap.put(Thread.currentThread(), lockInfo);
+            }
         }
     }
 
@@ -761,20 +772,22 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      */
     private void releaseLockInfo() {
-        if (null != lockInfo) {
-            lockInfo.numRef--;
-            if (0 == lockInfo.numRef) {
-                if (null != openCount) {
-                    openCount.lockInfoMap.remove(Thread.currentThread());
+        synchronized (openFiles) {
+            if (null != lockInfo) {
+                lockInfo.numRef--;
+                if (0 == lockInfo.numRef) {
+                    if (null != openCount) {
+                        openCount.lockInfoMap.remove(Thread.currentThread());
+                    }
+                    this.lockInfo = null;
                 }
-                this.lockInfo = null;
             }
-        }
-        if (null != openCount) {
-            openCount.numRef--;
-            if (0 == openCount.numRef) {
-                openFiles.remove(filePathResolved);
-                this.openCount = null;
+            if (null != openCount) {
+                openCount.numRef--;
+                if (0 == openCount.numRef) {
+                    openFiles.remove(filePathResolved);
+                    this.openCount = null;
+                }
             }
         }
     }

@@ -71,6 +71,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
      */
     @After
     public void tearDown() throws Exception {
+        threadPool.shutdown();
     }
 
     protected <T> Future<T> execThread(final Callable<T> thread) {
@@ -119,14 +120,19 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
         @Override
         protected Object work() throws SqlJetException {
             int pass = 0;
-            for (final ISqlJetCursor open = table.open(); !open.eof(); open.next()) {
-                pass++;
-                beforeSleep(open);
-                sleep();
-                afterSleep(open);
-                if (PASS_COUNT != 0 && pass == PASS_COUNT) {
-                    break;
+            final ISqlJetCursor open = table.open();
+            try {
+                for (open.first(); !open.eof(); open.next()) {
+                    pass++;
+                    beforeSleep(open);
+                    sleep();
+                    afterSleep(open);
+                    if (PASS_COUNT != 0 && pass == PASS_COUNT) {
+                        break;
+                    }
                 }
+            } finally {
+                open.close();
             }
             return Boolean.TRUE;
 
@@ -196,8 +202,13 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
             final String hash = cursor.getString(0);
             // Increment fifth field
             try {
-                table.lookup(table.getPrimaryKeyIndexName(), hash).update(hash, cursor.getValue(1), cursor.getValue(2),
-                        cursor.getValue(3), cursor.getInteger(4) + 1);
+                final ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+                try {
+                    lookup.update(hash, cursor.getValue(1), cursor.getValue(2), cursor.getValue(3), cursor
+                            .getInteger(4) + 1);
+                } finally {
+                    lookup.close();
+                }
                 logger.info(String.format("[%s] commit: %s", workerName, hash));
             } catch (SqlJetException e) {
                 logger.info(String.format("[%s] rollback: %s", workerName, hash));

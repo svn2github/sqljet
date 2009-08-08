@@ -1,6 +1,14 @@
 <project name="sqljet" default="deploy">
 
-    <property name="build.number" value="local" />
+	<property file="sqljet.build.properties"></property>
+    <property name="build.vcs.number.1" value="local" />
+	<property name="build.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}.b${build.vcs.number.1}"/>
+
+	<target name="init-build.number" if="build.vcs.number.1">
+		<copy file="sqljet.build.properties" tofile="build/sqljet.build.properties" />
+    	<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
+	</target>
+	
 
 	<target name="clean">
 		<!-- First, create directories, which will be removed, 
@@ -69,9 +77,15 @@ public class SqlParser</replacevalue>
     
 	<target name="deploy" depends="clean, compile">
         <mkdir dir="build" />
-        <jar destfile="build/sqljet.${build.number}.jar">
+    	<!-- update svnkit.build.properties here -->
+    	<antcall target="init-build.number"/>
+
+		<jar destfile="build/sqljet.${build.number}.jar">
             <fileset dir="sqljet/bin">
                 <include name="**/**"/>
+            </fileset>
+            <fileset dir="build">
+                <include name="sqljet.build.properties"/>
             </fileset>
         </jar>
         <zip destfile="build/sqljet.${build.number}.src.zip">

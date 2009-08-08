@@ -70,4 +70,6 @@ public interface ISqlJetTableDef {
      * @return
      */
     String getPrimaryKeyIndexName();
+    
+    String toSQL();
 }

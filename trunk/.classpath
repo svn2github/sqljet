@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="sqljet/bin" path="sqljet/src"/>
-	<classpathentry kind="src" path="sqljet-examples/inventory/src"/>
-	<classpathentry kind="src" path="sqljet-examples/expenses/src"/>
+	<classpathentry kind="src" output="sqljet-examples/browser/bin" path="sqljet-examples/browser/src"/>
+	<classpathentry kind="src" output="sqljet-examples/inventory/bin" path="sqljet-examples/inventory/src"/>
+	<classpathentry kind="src" output="sqljet-examples/expenses/bin" path="sqljet-examples/expenses/src"/>
 	<classpathentry kind="src" output="sqljet-test/bin" path="sqljet-test/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
 	<classpathentry kind="lib" path="sqljet-test/lib/junit-4.5.jar">
@@ -16,5 +17,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/antlr-runtime-3.1.3.jar"/>
+	<classpathentry kind="lib" path="sqljet-examples/browser/lib/org-netbeans-swing-outline.jar"/>
 	<classpathentry kind="output" path="sqljet/bin"/>
 </classpath>

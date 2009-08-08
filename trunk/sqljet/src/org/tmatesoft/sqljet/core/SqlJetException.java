@@ -84,4 +84,15 @@ public class SqlJetException extends Exception {
         super(message, cause);
     }
 
+    @Override
+    public String getMessage() {
+        String message = super.getMessage();
+        if (message == null) {
+            if (this.errorCode != null) {
+                message = this.errorCode.name();
+            }
+        }        
+        return message;
+    }
+
 }

@@ -106,7 +106,6 @@ public class SqlJetSchema implements ISqlJetSchema {
             table.lock();
             try {
                 readShema(table);
-                openSequenceTable();
             } finally {
                 table.unlock();
             }

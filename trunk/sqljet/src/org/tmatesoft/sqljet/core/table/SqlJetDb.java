@@ -80,9 +80,11 @@ public class SqlJetDb implements ISqlJetLimits {
     private final boolean writable;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
-    private final SqlJetSchema schema;
+    private SqlJetSchema schema;
 
     private boolean transaction;
+
+    private boolean open = false;
 
     /**
      * Create connection to data base.
@@ -114,6 +116,8 @@ public class SqlJetDb implements ISqlJetLimits {
                 return schema;
             }
         });
+
+        open = true;
     }
 
     /**
@@ -130,18 +134,34 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
+     * Is data base open.
+     * 
+     * @return the open
+     */
+    public boolean isOpen() {
+        return open;
+    }
+
+    /**
      * Close connection to data base.
      * 
      * @throws SqlJetException
      */
     public void close() throws SqlJetException {
-        runWithLock(new ISqlJetRunnableWithLock() {
-
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                btree.close();
-                return null;
+        if (open) {
+            if (btree != null) {
+                runWithLock(new ISqlJetRunnableWithLock() {
+                    public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                        btree.close();
+                        return null;
+                    }
+                });
+                btree = null;
             }
-        });
+            schema = null;
+            dbHandle = null;
+            open = false;
+        }
     }
 
     /**

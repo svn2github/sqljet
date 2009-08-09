@@ -717,7 +717,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private void reset() {
         if (null != errCode)
             return;
-        pageCache.clear();
+        if (pageCache != null) {
+            pageCache.clear();
+        }
     }
 
     /*
@@ -980,7 +982,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          */
 
         tmpSpace = null;
-        pageCache.close();
+        if (pageCache != null) {
+            pageCache.close();
+        }
     }
 
     /*

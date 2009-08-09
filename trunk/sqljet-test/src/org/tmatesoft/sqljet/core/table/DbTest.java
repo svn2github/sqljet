@@ -17,6 +17,8 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
@@ -37,11 +39,19 @@ public class DbTest extends AbstractNewDbTest {
         db.close();
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void testClose() throws SqlJetException {
         Assert.assertTrue(db.isOpen());
         db.close();
         Assert.assertFalse(db.isOpen());
         db.createTable("create table t(a integer primary key, b integer)");
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void testCantOpen() throws SqlJetException {
+        final SqlJetDb db1 = SqlJetDb.open(new File("x:/cantopen"), false);
+        if (db1 != null) {
+            db1.close();
+        }
     }
 }

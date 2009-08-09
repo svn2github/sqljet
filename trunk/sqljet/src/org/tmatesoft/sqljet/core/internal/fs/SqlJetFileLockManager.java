@@ -42,6 +42,25 @@ public class SqlJetFileLockManager {
 
     private static final Map<String, List<SqlJetFileLock>> locks = new HashMap<String, List<SqlJetFileLock>>();
 
+    private interface ILockCreator {
+        FileLock createLock(long position, long size, boolean shared) throws IOException;
+    }
+
+    private synchronized FileLock createLock(long position, long size, boolean shared, ILockCreator lockCreator)
+            throws IOException {
+        final SqlJetFileLock lock = getLock(position, size);
+        if (lock != null) {
+            if (shared) {
+                lock.addLock();
+                return lock;
+            } else {
+                return null;
+            }
+        } else {
+            return addLock(lockCreator.createLock(position, size, shared));
+        }
+    }
+
     /**
      * @param fileChannel
      * @param position
@@ -51,23 +70,19 @@ public class SqlJetFileLockManager {
      * @throws IOException
      */
     public synchronized FileLock tryLock(long position, long size, boolean shared) throws IOException {
-        final SqlJetFileLock lock = getLock(position, size);
-        if (lock != null) {
-            lock.addLock();
-            return lock;
-        } else {
-            return addLock(fileChannel.tryLock(position, size, shared));
-        }
+        return createLock(position, size, shared, new ILockCreator() {
+            public FileLock createLock(long position, long size, boolean shared) throws IOException {
+                return fileChannel.tryLock(position, size, shared);
+            }
+        });
     }
 
     public synchronized FileLock lock(long position, long size, boolean shared) throws IOException {
-        final SqlJetFileLock lock = getLock(position, size);
-        if (lock != null) {
-            lock.addLock();
-            return lock;
-        } else {
-            return addLock(fileChannel.lock(position, size, shared));
-        }
+        return createLock(position, size, shared, new ILockCreator() {
+            public FileLock createLock(long position, long size, boolean shared) throws IOException {
+                return fileChannel.lock(position, size, shared);
+            }
+        });
     }
 
     private SqlJetFileLock getLock(long position, long size) {

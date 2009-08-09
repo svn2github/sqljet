@@ -1102,7 +1102,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         long hash = 0;
         int i;
         for (i = 0; i < numByte; i++) {
-            hash = (hash * 1039) + SqlJetUtility.getUnsignedByte(data,i);
+            hash = (hash * 1039) + SqlJetUtility.getUnsignedByte(data, i);
         }
         return hash;
     }
@@ -1271,13 +1271,14 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
                             assert (!tempFile);
 
-                            jfd = fileSystem.open(journal, SqlJetFileType.MAIN_JOURNAL, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE));
+                            jfd = fileSystem.open(journal, SqlJetFileType.MAIN_JOURNAL, SqlJetUtility
+                                    .of(SqlJetFileOpenPermission.READWRITE));
                             if (null != jfd) {
                                 try {
                                     final Set<SqlJetFileOpenPermission> p = jfd.getPermissions();
                                     if (p.contains(SqlJetFileOpenPermission.READONLY))
                                         throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
-                                } catch(SqlJetException e) {
+                                } catch (SqlJetException e) {
                                     jfd.close();
                                     throw e;
                                 }
@@ -1745,7 +1746,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * process is running this routine also. Not that it makes too much
              * difference.
              */
-            pMaster = fileSystem.open(new File(master), SqlJetFileType.MASTER_JOURNAL, SqlJetUtility.of(SqlJetFileOpenPermission.READONLY));
+            pMaster = fileSystem.open(new File(master), SqlJetFileType.MASTER_JOURNAL, SqlJetUtility
+                    .of(SqlJetFileOpenPermission.READONLY));
             master_open = true;
 
             nMasterJournal = Long.valueOf(pMaster.fileSize()).intValue();
@@ -1774,7 +1776,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                          * journal. If so, return without deleting the master
                          * journal file.
                          */
-                        final ISqlJetFile pJournal = fileSystem.open(journalPath, SqlJetFileType.MAIN_JOURNAL, 
+                        final ISqlJetFile pJournal = fileSystem.open(journalPath, SqlJetFileType.MAIN_JOURNAL,
                                 SqlJetUtility.of(SqlJetFileOpenPermission.READONLY));
                         try {
                             final String readJournal = readMasterJournal(pJournal);
@@ -2221,7 +2223,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         long cksum = cksumInit;
         int i = pageSize - 200;
         while (i > 0) {
-            cksum += SqlJetUtility.getUnsignedByte(data,i);
+            cksum += SqlJetUtility.getUnsignedByte(data, i);
             i -= 200;
         }
         return cksum;
@@ -2250,7 +2252,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         long szJ;
         long cksum;
         int u; /* Unsigned loop counter */
-        ByteBuffer aMagic = ByteBuffer.allocate(8); /* A buffer to hold the magic header */
+        ByteBuffer aMagic = ByteBuffer.allocate(8); /*
+                                                     * A buffer to hold the
+                                                     * magic header
+                                                     */
 
         szJ = journal.fileSize();
         if (szJ < 16)
@@ -2260,7 +2265,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         cksum = read32bitsUnsigned(journal, szJ - 12);
 
         journal.read(aMagic, aMagic.remaining(), szJ - 8);
-        if (0!=SqlJetUtility.memcmp(aMagic, aJournalMagic, aMagic.remaining()))
+        if (0 != SqlJetUtility.memcmp(aMagic, aJournalMagic, aMagic.remaining()))
             return null;
 
         ByteBuffer zMaster = ByteBuffer.allocate(len);
@@ -2268,7 +2273,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         /* See if the checksum matches the master journal name */
         for (u = 0; u < len; u++) {
-            cksum -= SqlJetUtility.getUnsignedByte(zMaster,u);
+            cksum -= SqlJetUtility.getUnsignedByte(zMaster, u);
         }
         if (cksum > 0) {
             /*
@@ -2306,7 +2311,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         fd.read(ac, ac.remaining(), offset);
         return SqlJetUtility.get4byteUnsigned(ac);
     }
-    
+
     /**
      * The journal file must be open when this is called. A journal header file
      * (JOURNAL_HDR_SZ bytes) is read from the current location in the journal
@@ -2328,7 +2333,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         int[] result = new int[2];
 
-        ByteBuffer aMagic=ByteBuffer.allocate(8); /* A buffer to hold the magic header */
+        ByteBuffer aMagic = ByteBuffer.allocate(8); /*
+                                                     * A buffer to hold the
+                                                     * magic header
+                                                     */
         long jrnlOff;
         int iPageSize;
         int iSectorSize;
@@ -2342,7 +2350,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         jfd.read(aMagic, aMagic.remaining(), jrnlOff);
         jrnlOff += aMagic.remaining();
 
-        if (0!=SqlJetUtility.memcmp(aMagic, aJournalMagic, aMagic.remaining())) {
+        if (0 != SqlJetUtility.memcmp(aMagic, aJournalMagic, aMagic.remaining())) {
             throw new SqlJetException(SqlJetErrorCode.DONE);
         }
 
@@ -2471,11 +2479,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param lockType
      * @throws SqlJetIOException
      */
-    private void waitOnLock(final SqlJetLockType lockType) throws SqlJetIOException {
+    private void waitOnLock(final SqlJetLockType lockType) throws SqlJetException {
 
         /* If the file is currently unlocked then the size must be unknown */
-        // assertion(SqlJetPagerState.SHARED.compareTo(state) <= 0 ||
-        // !dbSizeValid);
+        assert (SqlJetPagerState.SHARED.compareTo(state) <= 0 || !dbSizeValid);
         if (state.getLockType().compareTo(lockType) < 0) {
             boolean lock = false;
             int n = 0;
@@ -2488,6 +2495,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             } while (lock != true);
             if (lock) {
                 state = SqlJetPagerState.getPagerState(lockType);
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.BUSY);
             }
         }
     }
@@ -2717,7 +2726,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         final ByteBuffer b = SqlJetUtility.put4byteUnsigned(val);
         fd.write(b, b.remaining(), offset);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -2847,7 +2856,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * memory prevents valgrind from complaining, so we are willing to take
          * the performance hit.
          */
-        SqlJetUtility.memset(zHeader, aJournalMagic.remaining() + 16, (byte) 0, nHeader - (aJournalMagic.remaining() + 16));
+        SqlJetUtility.memset(zHeader, aJournalMagic.remaining() + 16, (byte) 0, nHeader
+                - (aJournalMagic.remaining() + 16));
 
         if (journalHdr == 0) {
             /* The page size */
@@ -2892,12 +2902,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private void put32bitsUnsigned(ByteBuffer p, int pos, long v) {
         SqlJetUtility.put4byteUnsigned(p, pos, v);
     }
-    
+
     /*
-    private void put32bitsUnsigned(ByteBuffer p, long v) {
-        put32bitsUnsigned(p, 0, v);
-    }*/
-    
+     * private void put32bitsUnsigned(ByteBuffer p, long v) {
+     * put32bitsUnsigned(p, 0, v); }
+     */
+
     /**
      * If the main journal file has already been opened, ensure that the
      * sub-journal file is open too. If the main journal is not open, this
@@ -3206,8 +3216,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param permissions2
      * @throws SqlJetException
      */
-    private ISqlJetFile openTemp(SqlJetFileType type, Set<SqlJetFileOpenPermission> permissions)
-            throws SqlJetException {
+    private ISqlJetFile openTemp(SqlJetFileType type, Set<SqlJetFileOpenPermission> permissions) throws SqlJetException {
 
         Set<SqlJetFileOpenPermission> flags = null;
         if (permissions != null) {
@@ -3266,7 +3275,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         len = zMaster.remaining();
         for (i = 0; i < len; i++) {
-            cksum += SqlJetUtility.getUnsignedByte(zMaster,i);
+            cksum += SqlJetUtility.getUnsignedByte(zMaster, i);
         }
 
         /*

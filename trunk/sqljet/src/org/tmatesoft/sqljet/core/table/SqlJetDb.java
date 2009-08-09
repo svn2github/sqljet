@@ -102,8 +102,8 @@ public class SqlJetDb implements ISqlJetLimits {
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+        open = true;
         schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
-
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 SqlJetSchema schema = null;
                 btree.enter();
@@ -116,8 +116,6 @@ public class SqlJetDb implements ISqlJetLimits {
                 return schema;
             }
         });
-
-        open = true;
     }
 
     /**
@@ -140,6 +138,11 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public boolean isOpen() {
         return open;
+    }
+
+    private void checkOpen() throws SqlJetException {
+        if (!isOpen())
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database closed");
     }
 
     /**
@@ -172,6 +175,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public Object runWithLock(ISqlJetRunnableWithLock op) throws SqlJetException {
+        checkOpen();
         dbHandle.getMutex().enter();
         try {
             return op.runWithLock(this);
@@ -186,6 +190,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @return true if modification is allowed
      */
     public boolean isWritable() throws SqlJetException {
+        checkOpen();
         return writable;
     }
 
@@ -196,6 +201,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetSchema getSchema() throws SqlJetException {
+        checkOpen();
         return schema;
     }
 
@@ -208,6 +214,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetTable getTable(final String tableName) throws SqlJetException {
+        checkOpen();
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(db, schema, tableName, writable);
@@ -223,6 +230,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
+        checkOpen();
         if (writable) {
             return runTransaction(op, SqlJetTransactionMode.WRITE);
         } else {
@@ -238,6 +246,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public Object runReadTransaction(ISqlJetTransaction op) throws SqlJetException {
+        checkOpen();
         return runTransaction(op, SqlJetTransactionMode.READ_ONLY);
     }
 
@@ -250,6 +259,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {
+        checkOpen();
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
@@ -281,6 +291,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
+        checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
@@ -301,6 +312,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     @Deprecated
     public void beginTransaction() throws SqlJetException {
+        checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
@@ -321,6 +333,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void commit() throws SqlJetException {
+        checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
@@ -340,6 +353,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void rollback() throws SqlJetException {
+        checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
@@ -363,6 +377,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetOptions getOptions() throws SqlJetException {
+        checkOpen();
         return dbHandle.getOptions();
     }
 
@@ -371,6 +386,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * value will be returned.
      */
     public Object pragma(final String sql) throws SqlJetException {
+        checkOpen();
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetPragmasHandler(getOptions()).pragma(sql);
@@ -386,6 +402,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetTableDef createTable(final String sql) throws SqlJetException {
+        checkOpen();
         return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 return schema.createTable(sql);
@@ -401,6 +418,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetIndexDef createIndex(final String sql) throws SqlJetException {
+        checkOpen();
         return (ISqlJetIndexDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 return schema.createIndex(sql);
@@ -415,6 +433,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void dropTable(final String tableName) throws SqlJetException {
+        checkOpen();
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 schema.dropTable(tableName);
@@ -430,6 +449,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void dropIndex(final String indexName) throws SqlJetException {
+        checkOpen();
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 schema.dropIndex(indexName);
@@ -437,4 +457,5 @@ public class SqlJetDb implements ISqlJetLimits {
             }
         });
     }
+
 }

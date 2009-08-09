@@ -31,15 +31,17 @@ public class DbTest extends AbstractNewDbTest {
 
     @Test
     public void testCloseTwice() throws SqlJetException {
-        try {
-            Assert.assertTrue(db.isOpen());
-            db.close();
-            Assert.assertFalse(db.isOpen());
-            db.close();
-        } finally {
-            db = SqlJetDb.open(file, true);
-        }
-
+        Assert.assertTrue(db.isOpen());
+        db.close();
+        Assert.assertFalse(db.isOpen());
+        db.close();
     }
 
+    @Test(expected=SqlJetException.class)
+    public void testClose() throws SqlJetException {
+        Assert.assertTrue(db.isOpen());
+        db.close();
+        Assert.assertFalse(db.isOpen());
+        db.createTable("create table t(a integer primary key, b integer)");
+    }
 }

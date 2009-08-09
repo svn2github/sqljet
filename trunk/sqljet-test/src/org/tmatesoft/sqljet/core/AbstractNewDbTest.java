@@ -49,9 +49,13 @@ abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
     @After
     public void tearDown() throws Exception {
         try {
-            db.close();
+            if (db != null) {
+                db.close();
+            }
         } finally {
-            file.delete();
+            if (file != null) {
+                file.delete();
+            }
         }
     }
 

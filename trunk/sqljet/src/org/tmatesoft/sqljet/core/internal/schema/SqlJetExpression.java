@@ -61,9 +61,9 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetInTableExpression(ast);
         } else if ("between".equals(op)) {
             return new SqlJetBetweenExpression(ast);
-        } else if (ISqlJetBinaryExpression.Operation.decode(ast.getText()) != null) {
+        } else if (ISqlJetBinaryExpression.Operation.decode(ast.getText()) != null && ast.getChildCount() == 2) {
             return new SqlJetBinaryExpression(ast);
-        } else if (ISqlJetUnaryExpression.Operation.decode(ast.getText()) != null) {
+        } else if (ISqlJetUnaryExpression.Operation.decode(ast.getText()) != null && ast.getChildCount() == 1) {
             return new SqlJetUnaryExpression(ast);
         } else if ("collate".equals(op)) {
             return new SqlJetCollateExpression(ast);

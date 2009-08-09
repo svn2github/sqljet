@@ -354,8 +354,15 @@ column_constraint_unique: UNIQUE^ table_conflict_clause?;
 
 column_constraint_check: CHECK^ LPAREN! expr RPAREN!;
 
+numeric_literal_value
+  : INTEGER -> ^(INTEGER_LITERAL INTEGER)
+  | FLOAT -> ^(FLOAT_LITERAL FLOAT)
+  ;
+
+signed_default_number: (PLUS | MINUS)^ numeric_literal_value;
+
 // Expand signed_number to avoid collisions with literal_value
-column_constraint_default: DEFAULT^ ((PLUS | MINUS) (INTEGER | FLOAT) | literal_value | LPAREN! expr RPAREN!);
+column_constraint_default: DEFAULT^ (signed_default_number | literal_value | LPAREN! expr RPAREN!);
 
 column_constraint_collate: COLLATE^ collation_name=id; // collation_name: (BINARY|NOCASE|RTRIM)
 

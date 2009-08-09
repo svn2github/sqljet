@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import org.tmatesoft.sqljet.browser.core.IProgress;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
@@ -36,7 +38,10 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
  */
 public class DataTableModel implements TableModel {
     
-    public static DataTableModel createInstance(ISqlJetTable table, long fromID) throws SqlJetException {
+    public static TableModel createInstance(ISqlJetTable table, long fromID, IProgress progress) throws SqlJetException {
+        if (table == null) {
+            return new DefaultTableModel();
+        }
         ArrayList<DataRow> data = new ArrayList<DataRow>(1000);
         ISqlJetTableDef tableDef = table.getDefinition();
         List<String> names = new ArrayList<String>();
@@ -47,25 +52,30 @@ public class DataTableModel implements TableModel {
 
         ISqlJetCursor cursor = table.open();
         try {
-            cursor.goTo(fromID);
+            for(long i = 0; i < fromID && !cursor.eof(); i++) {
+                cursor.next();                
+            }
             int count = 0;
             while(!cursor.eof() && count < 1000) {
-                data.add(DataRow.read(cursor, namesArray));
+                data.add(DataRow.read(cursor, fromID + count, namesArray));
+                progress.current(count);
                 cursor.next();
                 count++;
             }
         } finally {
             cursor.close();
         }
-        return new DataTableModel(data, namesArray);
+        return new DataTableModel(data, namesArray, fromID);
     }
     
     private List<DataRow> myData;
     private String[] myNames;
+    private long myIndex;
     
-    private DataTableModel(List<DataRow> data, String[] names) {
+    private DataTableModel(List<DataRow> data, String[] names, long fromIndex) {
         myData = data;
         myNames = names;
+        myIndex = fromIndex;
     }
     public Class<?> getColumnClass(int columnIndex) {
         return Object.class;
@@ -79,13 +89,16 @@ public class DataTableModel implements TableModel {
         }
         return myNames[columnIndex - 1];
     }
+    public long getFirstIndex() {
+        return myIndex;
+    }
     public int getRowCount() {
         return myData.size();
     }
     public Object getValueAt(int rowIndex, int columnIndex) {
         columnIndex -= 1;
         if (columnIndex < 0) {
-            return myData.get(rowIndex).getID();
+            return myData.get(rowIndex).getID() + 1;
         }
         return myData.get(rowIndex).getValueAt(columnIndex);
     }

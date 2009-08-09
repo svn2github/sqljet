@@ -29,12 +29,12 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
  */
 class DataRow {
     
-    public static DataRow read(ISqlJetCursor cursor, String[] names) throws SqlJetException {
+    public static DataRow read(ISqlJetCursor cursor, long index, String[] names) throws SqlJetException {
         Object[] data = new Object[names.length];
         for(int i = 0; i < names.length; i++) {
             data[i] = cursor.getValue(names[i]);
         }
-        return new DataRow(data, cursor.getRowId());
+        return new DataRow(data, index);
     }
 
     private Object[] myData;

@@ -43,8 +43,11 @@ public class SchemaTreeModel implements TreeModel {
     private Collection<TreeModelListener> myListeners = new HashSet<TreeModelListener>();
     
 
-    public static SchemaTreeModel createInstance(ISqlJetSchema schema) throws SqlJetException {
+    public static SchemaTreeModel createInstance(ISqlJetSchema schema) {
         SchemaTreeNode root = new SchemaTreeNode();
+        if (schema == null) {
+            return new SchemaTreeModel(root);
+        }
         try {
             Set<String> tableNames = schema.getTableNames();
             for (String tableName : tableNames) {

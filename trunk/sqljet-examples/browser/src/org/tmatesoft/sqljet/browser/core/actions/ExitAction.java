@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import org.tmatesoft.sqljet.browser.DBBrowserConfig;
 import org.tmatesoft.sqljet.browser.core.BrowserComponentManager;
 
 /**
@@ -40,6 +41,9 @@ public class ExitAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
+        DBBrowserConfig.saveWindowSize("main", myManager.getOwner());
+        
         myManager.getOwner().setVisible(false);
+        myManager.getOwner().dispose();
     }
 }

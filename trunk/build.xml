@@ -17,6 +17,10 @@
 		<mkdir dir="build"/>
 		<mkdir dir="sqljet/bin"/>
 		<mkdir dir="sqljet-test/bin"/>
+
+		<mkdir dir="sqljet-examples/browser/bin"/>
+		<mkdir dir="sqljet-examples/expenses/bin"/>
+		<mkdir dir="sqljet-examples/inventory/bin"/>
 		
         <delete verbose="false" includeemptydirs="true" failonerror="true">
             <fileset dir="build">
@@ -29,6 +33,15 @@
                 <include name="**/**" />
             </fileset>
             <fileset dir="sqljet-test/bin">
+                <include name="**/**" />
+            </fileset>
+            <fileset dir="sqljet-examples/browser/bin">
+                <include name="**/**" />
+            </fileset>
+            <fileset dir="sqljet-examples/expenses/bin">
+                <include name="**/**" />
+            </fileset>
+            <fileset dir="sqljet-examples/inventory/bin">
                 <include name="**/**" />
             </fileset>
         </delete>
@@ -74,8 +87,34 @@ public class SqlParser</replacevalue>
             </classpath>
         </javac>
     </target>
+
+	<target name="compile-examples" depends="compile">
+		<mkdir dir="sqljet-examples/browser/bin" />
+        <mkdir dir="sqljet-examples/expenses/bin" />
+        <mkdir dir="sqljet-examples/inventory/bin" />
+
+    	<javac destdir="sqljet-examples/browser/bin" srcdir="sqljet-examples/browser/src" debug="true">
+            <classpath>
+            	<fileset dir="lib" includes="*.jar"/>
+            	<fileset dir="sqljet-examples/browser/lib" includes="*.jar"/>
+            </classpath>
+    		<classpath path="sqljet/bin" />
+    	</javac>
+    	<javac destdir="sqljet-examples/expenses/bin" srcdir="sqljet-examples/expenses/src" debug="true">
+    		<classpath path="sqljet/bin" />
+            <classpath>
+            	<fileset dir="lib" includes="*.jar"/>
+            </classpath>
+    	</javac>
+    	<javac destdir="sqljet-examples/inventory/bin" srcdir="sqljet-examples/inventory/src" debug="true">
+    		<classpath path="sqljet/bin" />
+            <classpath>
+            	<fileset dir="lib" includes="*.jar"/>
+            </classpath>
+       	</javac>
+    </target>
     
-	<target name="deploy" depends="clean, compile">
+	<target name="deploy" depends="clean, compile, compile-examples">
         <mkdir dir="build" />
     	<!-- update svnkit.build.properties here -->
     	<antcall target="init-build.number"/>
@@ -88,6 +127,7 @@ public class SqlParser</replacevalue>
                 <include name="sqljet.build.properties"/>
             </fileset>
         </jar>
+
         <zip destfile="build/sqljet.${build.number}.src.zip">
             <zipfileset dir="sqljet/src" prefix="src">
                 <exclude name="**/.*"/>
@@ -99,10 +139,41 @@ public class SqlParser</replacevalue>
             </zipfileset>
         </zip>
 
+		<!-- examples (browser) -->
+		<manifest file="build/MANIFEST.MF">
+		    <attribute name="Built-By" value="TMate Software"/>
+	      <attribute name="Main-Class" value="org.tmatesoft.sqljet.browser.DBBrowser"/>
+	      <attribute name="Class-Path" value="sqljet.${build.number}.jar"/>
+	      <attribute name="Implementation-Title" value="SQLJet Database Browser"/>
+	      <attribute name="Implementation-Version" value="${build.number}"/>
+	      <attribute name="Implementation-Vendor" value="TMate Software"/>
+		</manifest>
+		<jar destfile="build/sqljet-browser.${build.number}.jar" manifest="build/MANIFEST.MF">
+            <fileset dir="sqljet-examples/browser/bin">
+                <include name="**/**"/>
+            </fileset>
+			<zipfileset src="sqljet-examples/browser/lib/org-netbeans-swing-outline.jar">
+                <include name="**/**"/>
+			</zipfileset>
+        </jar>
+		<delete file="build/MANIFEST.MF"/>
+		<zip destfile="build/sqljet-browser.${build.number}.src.zip">
+            <zipfileset dir="sqljet-examples/browser/src" prefix="src">
+                <exclude name="**/.*"/>
+                <exclude name=".*"/>
+            </zipfileset>
+            <zipfileset dir=""> 
+                <include name="COPYING"/>
+            </zipfileset>
+        </zip>
+		
+
         <zip destfile="build/sqljet.${build.number}.zip">
             <zipfileset dir="build" prefix="sqljet.${build.number}">
                 <include name="sqljet.${build.number}.jar"/>
                 <include name="sqljet.${build.number}.src.zip"/>
+                <include name="sqljet-browser.${build.number}.jar"/>
+                <include name="sqljet-browser.${build.number}.src.zip"/>
             </zipfileset>
             <zipfileset dir="lib" prefix="sqljet.${build.number}">
                 <include name="**/**"/>
@@ -115,6 +186,9 @@ public class SqlParser</replacevalue>
         
         <delete file="build/sqljet.${build.number}.src.zip"></delete>
         <delete file="build/sqljet.${build.number}.jar"></delete>
+        <delete file="build/sqljet-browser.${build.number}.src.zip"></delete>
+        <delete file="build/sqljet-browser.${build.number}.jar"></delete>
+        <delete file="build/sqljet.build.properties"></delete>
     </target>
 
 	<target name="test" depends="deploy">

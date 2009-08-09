@@ -50,29 +50,12 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
-    protected interface IBusyHandlerAction {
-        Object doAction() throws SqlJetException;
-
-        void doFinally() throws SqlJetException;
-    }
-
-    protected abstract class BusyHandlerAction implements IBusyHandlerAction {
-        public void doFinally() throws SqlJetException {
-        }
-    }
-
     /**
      * Count of retries to begin transaction if it failed with
      * {@link SqlJetErrorCode#BUSY}
      */
     private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_RETRIES",
             10);
-
-    /**
-     * Time of sleeps between retries of begining transaction if it failed with
-     * {@link SqlJetErrorCode#BUSY}
-     */
-    private static final int TRANSACTION_BUSY_SLEEP = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_SLEEP", 1);
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
@@ -245,24 +228,16 @@ public class SqlJetDb implements ISqlJetLimits {
                     return op.run(SqlJetDb.this);
                 } else {
                     beginTransaction(mode);
+                    boolean success = false;
                     try {
-                        return busyHandler(new BusyHandlerAction() {
-                            private boolean success = false;
-
-                            public Object doAction() throws SqlJetException {
-                                final Object result = op.run(SqlJetDb.this);
-                                btree.commit();
-                                success = true;
-                                return result;
-                            }
-
-                            public void doFinally() throws SqlJetException {
-                                if (!success) {
-                                    btree.rollback();
-                                }
-                            }
-                        });
+                        final Object result = op.run(SqlJetDb.this);
+                        btree.commit();
+                        success = true;
+                        return result;
                     } finally {
+                        if (!success) {
+                            btree.rollback();
+                        }
                         transaction = false;
                     }
                 }
@@ -283,43 +258,12 @@ public class SqlJetDb implements ISqlJetLimits {
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
                 } else {
-                    busyHandler(new BusyHandlerAction() {
-                        public Object doAction() throws SqlJetException {
-                            btree.beginTrans(mode);
-                            transaction = true;
-                            return null;
-                        }
-                    });
+                    btree.beginTrans(mode);
+                    transaction = true;
+                    return null;
                 }
-                return null;
             }
         });
-    }
-
-    /**
-     * @param mode
-     * @throws SqlJetException
-     */
-    private Object busyHandler(final IBusyHandlerAction action) throws SqlJetException {
-        for (int i = 0; i < TRANSACTION_BUSY_RETRIES; i++) {
-            try {
-                return action.doAction();
-            } catch (SqlJetException e) {
-                final SqlJetErrorCode errorCode = e.getErrorCode();
-                if (errorCode == SqlJetErrorCode.BUSY || errorCode == SqlJetErrorCode.LOCKED) {
-                    try {
-                        Thread.sleep(TRANSACTION_BUSY_SLEEP);
-                    } catch (InterruptedException e1) {
-                        throw new SqlJetException(SqlJetErrorCode.INTERRUPT);
-                    }
-                } else {
-                    throw e;
-                }
-            } finally {
-                action.doFinally();
-            }
-        }
-        throw new SqlJetException(SqlJetErrorCode.BUSY);
     }
 
     /**

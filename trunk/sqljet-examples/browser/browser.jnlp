@@ -12,9 +12,9 @@
 <offline-allowed />
 <resources>
   <j2se version="1.5+"/>
-  <jar href="antlr-runtime-3.1.3.jar"/>
-  <jar href="sqljet.jar"/>
-  <jar href="sqljet-browser.jar"/>
+  <jar href="antlr-runtime-3.1.3-%version%.jar"/>
+  <jar href="sqljet.%version%.jar"/>
+  <jar href="sqljet-browser.%version%.jar"/>
 </resources>
 <application-desc main-class="org.tmatesoft.sqljet.browser.DBBrowser" />
 </jnlp>

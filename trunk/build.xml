@@ -113,8 +113,18 @@ public class SqlParser</replacevalue>
             </classpath>
        	</javac>
     </target>
+	
+	<target name="generate-key">
+        <mkdir dir="build" />
+		<genkey alias="tmate" storepass="secret" keystore="build/keystore">
+		  <dname>
+		    <param name="CN" value="TMate Software"/>
+		    <param name="C"  value="CZ"/>
+		  </dname>
+		</genkey>
+	</target>
     
-	<target name="deploy" depends="clean, compile, compile-examples">
+	<target name="deploy" depends="clean, compile, compile-examples, generate-key">
         <mkdir dir="build" />
     	<!-- update svnkit.build.properties here -->
     	<antcall target="init-build.number"/>
@@ -157,6 +167,26 @@ public class SqlParser</replacevalue>
 			</zipfileset>
         </jar>
 		<delete file="build/MANIFEST.MF"/>
+		
+		<mkdir dir="build/lib"/>
+		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar"></copy>
+		<copy todir="build">
+            <fileset dir="sqljet-examples/browser">
+                <include name="browser.jnlp"/>
+            </fileset>
+		</copy>
+		<replace token="%version%" file="build/browser.jnlp" value="${build.number}"></replace>
+		
+		<signjar
+		    alias="tmate" keystore="build/keystore"
+		    storepass="secret"
+		    lazy="true"			
+		    >
+		  <path>
+		    <fileset dir="build" includes="**/*.jar" />
+		  </path>
+		</signjar>
+		
 		<zip destfile="build/sqljet-browser.${build.number}.src.zip">
             <zipfileset dir="sqljet-examples/browser/src" prefix="src">
                 <exclude name="**/.*"/>
@@ -164,6 +194,19 @@ public class SqlParser</replacevalue>
             </zipfileset>
             <zipfileset dir=""> 
                 <include name="COPYING"/>
+            </zipfileset>
+        </zip>
+
+		<zip destfile="build/sqljet-browser.${build.number}.jnlp.zip">
+            <zipfileset dir="build" prefix="browser">
+                <include name="sqljet.${build.number}.jar"/>
+                <include name="sqljet-browser.${build.number}.jar"/>
+            </zipfileset>
+            <zipfileset dir="build/lib" prefix="browser">
+                <include name="**/**"/>
+            </zipfileset>
+            <zipfileset dir="build" prefix="">
+                <include name="browser.jnlp"/>
             </zipfileset>
         </zip>
 		
@@ -189,6 +232,11 @@ public class SqlParser</replacevalue>
         <delete file="build/sqljet-browser.${build.number}.src.zip"></delete>
         <delete file="build/sqljet-browser.${build.number}.jar"></delete>
         <delete file="build/sqljet.build.properties"></delete>
+        <delete file="build/keystore"></delete>
+        <delete file="build/browser.jnlp"></delete>
+        <delete dir="build/lib" includeemptydirs="true">
+			<include name="**/**"/>
+		</delete>
     </target>
 
 	<target name="test" depends="deploy">

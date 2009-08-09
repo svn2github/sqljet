@@ -32,7 +32,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
-import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.mutex.SqlJetEmptyMutex;
 
 /**
  * An instance of this object represents a single database file.
@@ -116,7 +116,7 @@ public class SqlJetBtreeShared {
     Object pSchema;
 
     /** Non-recursive mutex required to access this struct */
-    ISqlJetMutex mutex = new SqlJetMutex();
+    ISqlJetMutex mutex = new SqlJetEmptyMutex();
 
     /** Number of references to this structure */
     int nRef;

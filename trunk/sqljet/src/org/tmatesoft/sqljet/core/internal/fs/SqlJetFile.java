@@ -475,11 +475,13 @@ public class SqlJetFile implements ISqlJetFile {
                         }
                     }
 
-                    final FileLock pendingLock = fileLockManager.tryLock(PENDING_BYTE, 1,
-                            lockType == SqlJetLockType.SHARED);
-                    if (null == pendingLock)
-                        return false;
-                    locks.put(SqlJetLockType.PENDING, pendingLock);
+                    if (!locks.containsKey(SqlJetLockType.PENDING)) {
+                        final FileLock pendingLock = fileLockManager.tryLock(PENDING_BYTE, 1,
+                                lockType == SqlJetLockType.SHARED);
+                        if (null == pendingLock)
+                            return false;
+                        locks.put(SqlJetLockType.PENDING, pendingLock);
+                    }
                 }
 
                 /*

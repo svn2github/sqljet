@@ -50,6 +50,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
+import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
 
 /**
@@ -352,6 +353,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * BtShareds.
                  */
                 if (this.sharable) {
+                    pBt.mutex = new SqlJetMutex();
                     pBt.nRef = 1;
                     synchronized (sharedCacheList) {
                         sharedCacheList.add(pBt);

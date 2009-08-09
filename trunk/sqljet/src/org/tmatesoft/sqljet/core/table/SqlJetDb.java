@@ -23,6 +23,7 @@ import java.util.Set;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
@@ -65,7 +66,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * {@link SqlJetErrorCode#BUSY}
      */
     private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_RETRIES",
-            1000);
+            10);
 
     /**
      * Time of sleeps between retries of begining transaction if it failed with
@@ -100,6 +101,11 @@ public class SqlJetDb implements ISqlJetLimits {
     protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
         this.writable = writable;
         dbHandle = new SqlJetDbHandle();
+        dbHandle.setBusyHandler(new ISqlJetBusyHandler() {
+            public boolean call(int number) {
+                return number <= TRANSACTION_BUSY_RETRIES;
+            }
+        });
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);

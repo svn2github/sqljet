@@ -529,61 +529,82 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void refreshCurrentRecord() throws SqlJetException {
-
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor open = table.open();
-
+        
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         values.put("value", 1);
 
-        open.updateByFieldNames(values);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        final ISqlJetCursor open = table.open();
+
+        try {
+            open.updateByFieldNames(values);
+        } finally {
+            open.close();
+        }
 
         final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup.eof());
+        try {
+            Assert.assertFalse(lookup.eof());
 
-        final Object nameField = lookup.getValue("name");
-        Assert.assertNotNull(nameField);
-        Assert.assertEquals("test1", nameField);
+            final Object nameField = lookup.getValue("name");
+            Assert.assertNotNull(nameField);
+            Assert.assertEquals("test1", nameField);
 
-        final Object valueField = lookup.getValue("value");
-        Assert.assertNotNull(valueField);
-        Assert.assertEquals(1L, valueField);
+            final Object valueField = lookup.getValue("value");
+            Assert.assertNotNull(valueField);
+            Assert.assertEquals(1L, valueField);
 
-        final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
-        final ISqlJetTable table2 = dbCopy2.getTable(TABLE);
-        final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup2.eof());
+            final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
 
-        final Object nameField2 = lookup2.getValue("name");
-        Assert.assertNotNull(nameField2);
-        Assert.assertEquals("test1", nameField2);
+            try {
+                final ISqlJetTable table2 = dbCopy2.getTable(TABLE);
+                final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
+                try {
+                    Assert.assertFalse(lookup2.eof());
 
-        final Object valueField2 = lookup2.getValue("value");
-        Assert.assertNotNull(valueField2);
-        Assert.assertEquals(1L, valueField2);
+                    final Object nameField2 = lookup2.getValue("name");
+                    Assert.assertNotNull(nameField2);
+                    Assert.assertEquals("test1", nameField2);
 
-        values.put("value", 2);
-        lookup.updateByFieldNames(values);
+                    final Object valueField2 = lookup2.getValue("value");
+                    Assert.assertNotNull(valueField2);
+                    Assert.assertEquals(1L, valueField2);
+                } finally {
+                    lookup2.close();
+                }
 
-        final Object nameField1 = lookup.getValue("name");
-        Assert.assertNotNull(nameField1);
-        Assert.assertEquals("test1", nameField1);
+                values.put("value", 2);
+                lookup.updateByFieldNames(values);
 
-        final Object valueField1 = lookup.getValue("value");
-        Assert.assertNotNull(valueField1);
-        Assert.assertEquals(2L, valueField1);
+                final Object nameField1 = lookup.getValue("name");
+                Assert.assertNotNull(nameField1);
+                Assert.assertEquals("test1", nameField1);
 
-        final Object nameField2_1 = lookup2.getValue("name");
-        Assert.assertNotNull(nameField2_1);
-        Assert.assertEquals("test1", nameField2_1);
+                final Object valueField1 = lookup.getValue("value");
+                Assert.assertNotNull(valueField1);
+                Assert.assertEquals(2L, valueField1);
 
-        final Object valueField2_1 = lookup2.getValue("value");
-        Assert.assertNotNull(valueField2_1);
-        Assert.assertEquals(2L, valueField2_1);
+                final ISqlJetCursor lookup2_1 = table2.lookup("test1_name_index", "test1");
+                try {
+                    Assert.assertFalse(lookup2_1.eof());
 
-        lookup2.close();
-        dbCopy2.close();
+                    final Object nameField2_1 = lookup2_1.getValue("name");
+                    Assert.assertNotNull(nameField2_1);
+                    Assert.assertEquals("test1", nameField2_1);
+
+                    final Object valueField2_1 = lookup2_1.getValue("value");
+                    Assert.assertNotNull(valueField2_1);
+                    Assert.assertEquals(2L, valueField2_1);
+                } finally {
+                    lookup2_1.close();
+                }
+            } finally {
+                dbCopy2.close();
+            }
+        } finally {
+            lookup.close();
+        }
 
     }
 

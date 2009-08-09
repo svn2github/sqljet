@@ -1,5 +1,5 @@
 /**
- * SqlJetConfig.java
+ * SqlJetEmptyMutex.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,28 +15,49 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.internal.db;
+package org.tmatesoft.sqljet.core.internal.mutex;
 
-import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
-import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetConfig implements ISqlJetConfig {
-
-    private static final String SQLJET_SHARED_CACHE = "SQLJET_SHARED_CACHE";
-    private boolean sharedCacheEnabled = SqlJetUtility.getBoolSysProp(SQLJET_SHARED_CACHE, false);
+public class SqlJetEmptyMutex implements ISqlJetMutex {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.tmatesoft.sqljet.core.ISqlJetConfig#isSharedCacheEnabled()
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMutex#attempt()
      */
-    public boolean isSharedCacheEnabled() {
-        return sharedCacheEnabled;
+    public boolean attempt() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMutex#enter()
+     */
+    public void enter() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMutex#held()
+     */
+    public boolean held() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMutex#leave()
+     */
+    public void leave() {
     }
 
 }

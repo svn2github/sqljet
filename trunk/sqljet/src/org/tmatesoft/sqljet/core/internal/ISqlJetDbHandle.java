@@ -82,4 +82,9 @@ public interface ISqlJetDbHandle {
     ISqlJetOptions getOptions();
 
     void setOptions(ISqlJetOptions options);
+
+    /**
+     * @param busyHandler
+     */
+    void setBusyHandler(ISqlJetBusyHandler busyHandler);
 }

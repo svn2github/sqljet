@@ -46,6 +46,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetMutex mutex = new SqlJetMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
     private ISqlJetOptions options;
+    private ISqlJetBusyHandler busyHandler;
 
     /*
      * (non-Javadoc)
@@ -62,8 +63,15 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBusyHaldler()
      */
     public ISqlJetBusyHandler getBusyHandler() {
-        // TODO Auto-generated method stub
-        return null;
+        return busyHandler;
+    }
+
+    /**
+     * @param busyHandler
+     *            the busyHandler to set
+     */
+    public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
+        this.busyHandler = busyHandler;
     }
 
     /*

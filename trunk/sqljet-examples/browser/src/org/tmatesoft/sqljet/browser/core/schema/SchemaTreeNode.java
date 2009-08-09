@@ -57,13 +57,13 @@ class SchemaTreeNode {
         myName = index.getName();
         myObjectType = "index";
         myType = "";
-        mySchema = "";
+        mySchema = index.toSQL();
     }
 
     SchemaTreeNode(ISqlJetTableDef table, ISqlJetColumnDef column) {
         myName = column.getName();
         myObjectType = "field";
-        List<String> names = column.getType().getNames();
+        List<String> names = column.getType() == null ? new ArrayList<String>() : column.getType().getNames();
         List<ISqlJetColumnConstraint> constraints = column.getConstraints();
         StringBuffer type = new StringBuffer();
         for (String name : names) {

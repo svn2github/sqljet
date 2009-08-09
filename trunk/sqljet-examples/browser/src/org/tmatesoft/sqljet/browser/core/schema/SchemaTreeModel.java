@@ -58,9 +58,11 @@ public class SchemaTreeModel implements TreeModel {
                     node.addChild(new SchemaTreeNode(table, column));
                 }
                 root.addChild(node);
-                for(ISqlJetIndexDef index : schema.getIndexes(table.getName())) {
-                    root.addChild(new SchemaTreeNode(index));
-                }
+            }
+            Set<String> indexNames = schema.getIndexNames();
+            for (String indexName : indexNames) {
+                ISqlJetIndexDef index = schema.getIndex(indexName);
+                root.addChild(new SchemaTreeNode(index));
             }
         } catch (SqlJetException e) {
             root = new SchemaTreeNode();

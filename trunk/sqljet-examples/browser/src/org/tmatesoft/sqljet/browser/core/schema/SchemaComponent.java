@@ -47,7 +47,7 @@ public class SchemaComponent implements IBrowserComponent {
             // open db and read schema.
             SqlJetDb db = null;
             try {
-                db = SqlJetDb.open(dbFile, false);
+                db = SqlJetDb.open(dbFile, true);
                 model = SchemaTreeModel.createInstance(db.getSchema());
             } finally {
                 if (db != null) {

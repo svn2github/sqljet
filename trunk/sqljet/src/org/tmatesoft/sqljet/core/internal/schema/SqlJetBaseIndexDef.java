@@ -92,4 +92,8 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
         buffer.append(getTableName());
         return buffer.toString();
     }
+
+    public String toSQL() {
+        return "";
+    }
 }

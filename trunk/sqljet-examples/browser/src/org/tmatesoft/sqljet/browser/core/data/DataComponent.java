@@ -79,7 +79,7 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
         } else {
             SqlJetDb db = null;
             try {
-                db = SqlJetDb.open(dbFile, false);
+                db = SqlJetDb.open(dbFile, true);
                 myTableNamesCombo.setModel(new DefaultComboBoxModel(db.getSchema().getTableNames().toArray()));
                 myTableNamesCombo.setEnabled(true);
             } finally {
@@ -178,7 +178,7 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                     progress.start("Loading Data...", 1000);
                     SqlJetDb db = null;
                     try {
-                        db = SqlJetDb.open(dbFile, false);
+                        db = SqlJetDb.open(dbFile, true);
                         ISqlJetTable table = db.getTable(tableName);
                         model = DataTableModel.createInstance(table, row, progress);
                     } catch (SqlJetException e) {                        

@@ -392,8 +392,8 @@ table_constraint_fk: FOREIGN KEY LPAREN column_names+=id (COMMA column_names+=id
 -> ^(FOREIGN ^(COLUMNS $column_names+) fk_clause);
 
 fk_clause: REFERENCES foreign_table=id (LPAREN column_names+=id (COMMA column_names+=id)* RPAREN)?
-  fk_clause_action+ fk_clause_deferrable?
--> ^(REFERENCES $foreign_table ^(COLUMNS $column_names+) fk_clause_action+ fk_clause_deferrable?);
+  fk_clause_action* fk_clause_deferrable?
+-> ^(REFERENCES $foreign_table ^(COLUMNS $column_names+) fk_clause_action* fk_clause_deferrable?);
 
 fk_clause_action
   : ON^ (DELETE | UPDATE | INSERT) (SET! NULL | SET! DEFAULT | CASCADE | RESTRICT)

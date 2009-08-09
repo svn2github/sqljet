@@ -34,6 +34,11 @@ public class SqlJetDDLTest extends SqlJetAbstractParserTest {
                 "create table emps( name int);");
     }
 
+    public void testColumnFK() throws Exception {
+        assertParses("create_table{options}{t}{columns{c{constraints{column_constraint{references{f}{columns{z}}}}}{type{type_params}{integer}}}}",
+                "create table t (c integer references f(z));");
+    }
+    
     public void testDropTable() throws Exception {
         assertParses("drop_table{options}{tbl{db}}", "drop table db.tbl;");
         assertParses("drop_table{options{exists}}{tbl}", "drop table if exists tbl;");

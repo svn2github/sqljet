@@ -17,7 +17,10 @@
  */
 package org.tmatesoft.sqljet.browser;
 
+import java.awt.Window;
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -54,4 +57,72 @@ public class DBBrowserConfig {
         }
     }
 
+    public static void saveWindowSize(String windowName, Window w) {
+        Preferences preferences = Preferences.userNodeForPackage(DBBrowserConfig.class);
+        if (preferences != null && w != null) {
+            preferences.put("window." + windowName + ".x", w.getLocation().x + "");
+            preferences.put("window." + windowName + ".y", w.getLocation().y + "");
+            preferences.put("window." + windowName + ".width", w.getSize().width + "");
+            preferences.put("window." + windowName + ".height", w.getSize().height + "");
+            try {
+                preferences.flush();
+            } catch (BackingStoreException e) {
+            }
+        }
+    }
+
+    public static void loadWindowSize(String windowName, Window window) {
+        Preferences preferences = Preferences.userNodeForPackage(DBBrowserConfig.class);
+        if (preferences != null && window != null) {
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+            }
+            int x = preferences.getInt("window." + windowName + ".x", -1);
+            int y = preferences.getInt("window." + windowName + ".y", -1);
+            int w = preferences.getInt("window." + windowName + ".width", -1);
+            int h = preferences.getInt("window." + windowName + ".height", -1);
+            if (x >= 0 && w > 0) {
+                window.setSize(w, h);
+                window.setLocation(x, y);
+            } else {
+                window.pack();
+            }
+        }
+        
+    }
+
+    public static void setRecentDBs(List<File> paths) {
+        Preferences preferences = Preferences.userNodeForPackage(DBBrowserConfig.class);
+        if (preferences != null && paths != null) {
+            int i = 0;
+            for (File path : paths) {
+                preferences.put("recent." + i, path.getAbsolutePath());
+                i++;
+            }
+            try {
+                preferences.flush();
+            } catch (BackingStoreException e) {
+            }
+        }
+    }
+
+    public static List<File> getRecentDBs() {
+        LinkedList<File> list = new LinkedList<File>();
+        Preferences preferences = Preferences.userNodeForPackage(DBBrowserConfig.class);
+        if (preferences != null) {
+            try {
+                preferences.sync();
+            } catch (BackingStoreException e) {
+            }
+            for (int i = 0; i < 5; i++) {
+                String path = preferences.get("recent." + i, null);
+                if (path == null) {
+                    break;
+                }
+                list.add(new File(path));
+            }
+        }
+        return list;
+    }
 }

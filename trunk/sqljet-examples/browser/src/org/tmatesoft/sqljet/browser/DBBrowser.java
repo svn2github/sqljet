@@ -24,12 +24,16 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
 
 import org.tmatesoft.sqljet.browser.core.BrowserComponentManager;
 import org.tmatesoft.sqljet.browser.core.actions.AboutAction;
+import org.tmatesoft.sqljet.browser.core.actions.CloseAction;
 import org.tmatesoft.sqljet.browser.core.actions.ExitAction;
 import org.tmatesoft.sqljet.browser.core.actions.OpenAction;
+import org.tmatesoft.sqljet.browser.core.actions.RecentMenu;
 
 /**
  * @author TMate Software Ltd.
@@ -43,6 +47,8 @@ public class DBBrowser {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                DBBrowserConfig.saveWindowSize("main", e.getWindow());
+                
                 e.getWindow().setVisible(false);
                 e.getWindow().dispose();
                 System.exit(0);
@@ -53,22 +59,43 @@ public class DBBrowser {
 
         frame.setContentPane(manager.getComponent());
         
-        JMenuBar mainMenu = new JMenuBar();
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new OpenAction(manager));
-        fileMenu.add(new JSeparator());
-        fileMenu.add(new ExitAction(manager));
-        JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(new AboutAction(manager));
-        
-        mainMenu.add(fileMenu);
-        mainMenu.add(helpMenu);
+        JMenuBar mainMenu = createMainMenu(manager);
         frame.setJMenuBar(mainMenu);
 
         manager.open(null);
 
-        frame.pack();
+        DBBrowserConfig.loadWindowSize("main", frame);
         frame.setVisible(true);
+    }
+
+    private static JMenuBar createMainMenu(BrowserComponentManager manager) {
+        JMenuBar mainMenu = new JMenuBar();
+        
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic('F');
+        JMenuItem openItem = fileMenu.add(new OpenAction(manager));
+        openItem.setAccelerator(KeyStroke.getKeyStroke("control O"));
+        openItem.setMnemonic('O');
+        JMenu recentMenu = new JMenu("Open Recent");
+        recentMenu.addMenuListener(new RecentMenu(manager, recentMenu));
+        JMenuItem recentItem = fileMenu.add(recentMenu);        
+        recentItem.setMnemonic('R');
+        
+        JMenuItem closeItem = fileMenu.add(new CloseAction(manager));
+        closeItem.setMnemonic('C');
+        fileMenu.add(new JSeparator());
+        JMenuItem exitItem = fileMenu.add(new ExitAction(manager));
+        exitItem.setAccelerator(KeyStroke.getKeyStroke("alt X"));
+        exitItem.setMnemonic('x');
+        
+        JMenu helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic('H');
+        JMenuItem aboutItem = helpMenu.add(new AboutAction(manager));
+        aboutItem.setMnemonic('A');
+        
+        mainMenu.add(fileMenu);
+        mainMenu.add(helpMenu);
+        return mainMenu;
     }
 
 }

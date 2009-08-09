@@ -206,8 +206,13 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                 long start = 0;
                 if (model instanceof DataTableModel) {
                     start = ((DataTableModel) model).getFirstIndex();
-                    myRangeLabel.setText((start + 1) + " - " + (start + model.getRowCount()));
-                    myRangeLabel.setEnabled(true);
+                    if (start == 0 && model.getRowCount() == 0) {
+                        myRangeLabel.setText("empty");
+                        myRangeLabel.setEnabled(false);
+                    } else {
+                        myRangeLabel.setText((start + 1) + " - " + (start + model.getRowCount()));
+                        myRangeLabel.setEnabled(true);
+                    }
                 } else {
                     myRangeLabel.setText("empty");
                     myRangeLabel.setEnabled(false);

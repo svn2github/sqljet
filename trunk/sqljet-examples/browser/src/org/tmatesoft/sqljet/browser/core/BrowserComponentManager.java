@@ -73,8 +73,37 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
     private Collection<Future<?>> myScheduledTasks = new LinkedList<Future<?>>();
     private JProgressBar myProgress;
     
+    private Set<ChangeListener> myListeners = new HashSet<ChangeListener>();
+    
     private BrowserComponentManager(JFrame owner) {
         myOwner = owner;
+    }
+    
+    public void addChangeListener(ChangeListener listener) {
+        synchronized (myListeners) {
+            myListeners.add(listener);
+        }
+    }
+
+    public void removeChangeListener(ChangeListener listener) {
+        synchronized (myListeners) {
+            myListeners.remove(listener);
+        }
+    }
+    
+    protected void fireStateChanged() {
+        ChangeListener[] listeners = null;
+        synchronized (myListeners) {
+            listeners = (ChangeListener[]) myListeners.toArray(new ChangeListener[myListeners.size()]);
+        }
+        ChangeEvent event = new ChangeEvent(this);
+        for (ChangeListener l : listeners) {
+            l.stateChanged(event);
+        }
+    }
+    
+    public File getDBFile() {
+        return myDBFile;
     }
     
     public JComponent getComponent() {
@@ -104,7 +133,7 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
         final JLabel status = new JLabel(
                 "<html><body><p>Powered by SQLJet v"
                         + SqlJetVersion.getVersionString()
-                        + "<br/>(c) 2009, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>");
+                        + "<br>&copy; 2009, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>");
         status.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         status.addMouseListener(new MouseAdapter() {
 
@@ -148,6 +177,7 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
         
         myInactivatedPages.add(mySchemaPage);
         myInactivatedPages.add(myDataPage);
+        fireStateChanged();
         // open only one that is active.
         stateChanged(null);
     }

@@ -1,5 +1,5 @@
 /**
- * OpenAction.java
+ * ExitAction.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -41,8 +41,5 @@ public class ExitAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
         myManager.getOwner().setVisible(false);
-        myManager.getOwner().dispose();
-
-        System.exit(0);
     }
 }

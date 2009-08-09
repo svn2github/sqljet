@@ -1,5 +1,5 @@
 /**
- * AboutAction.java
+ * CloseAction.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,8 @@ package org.tmatesoft.sqljet.browser.core.actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.tmatesoft.sqljet.browser.core.BrowserComponentManager;
 
@@ -29,20 +30,24 @@ import org.tmatesoft.sqljet.browser.core.BrowserComponentManager;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class AboutAction extends AbstractAction {
+public class CloseAction extends AbstractAction implements ChangeListener {
     
     private static final long serialVersionUID = 1L;
-    private BrowserComponentManager myManager;
     
-    public AboutAction(BrowserComponentManager manager) {
-        super("About SQLJet");
+    private BrowserComponentManager myManager;
+
+    public CloseAction(BrowserComponentManager manager) {
+        super("Close Database");
         myManager = manager;
+        myManager.addChangeListener(this);
     }
 
     public void actionPerformed(ActionEvent e) {
-        String message = "<html><body><p>SQLJet is a pure Java implementation of SQLite DBMS."
-            + "<br>&copy; 2009, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>";
-        
-        JOptionPane.showMessageDialog(myManager.getOwner(), message, "About SQLJet", JOptionPane.PLAIN_MESSAGE, null);
+        myManager.open(null);
     }
+
+    public void stateChanged(ChangeEvent e) {
+        setEnabled(myManager.getDBFile() != null);
+    }
+
 }

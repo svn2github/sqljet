@@ -36,32 +36,34 @@ public class OpenAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     
     private BrowserComponentManager myManager;
+    private JFileChooser myChooser;
 
     public OpenAction(BrowserComponentManager manager) {
-        super("Open...");
+        super("Open Database");
         myManager = manager;
     }
 
     public void actionPerformed(ActionEvent e) {
         
-        JFileChooser chooser = new JFileChooser();
-        File directory = DBBrowserConfig.getLastDirectory();
-        if (directory != null) {
-            chooser.setCurrentDirectory(directory);            
+        if (myChooser == null) {
+            myChooser = new JFileChooser();
+            File directory = DBBrowserConfig.getLastDirectory();
+            if (directory != null) {
+                myChooser.setCurrentDirectory(directory);            
+            }
+            myChooser.setFileHidingEnabled(false);
+            myChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            myChooser.setMultiSelectionEnabled(false);
         }
-        chooser.setFileHidingEnabled(false);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        chooser.setMultiSelectionEnabled(false);
         
-        int result = chooser.showOpenDialog(myManager.getOwner());
-        if (chooser.getCurrentDirectory() != null) {
-            DBBrowserConfig.setLastDirectory(chooser.getCurrentDirectory());
+        int result = myChooser.showOpenDialog(myManager.getOwner());
+        if (myChooser.getCurrentDirectory() != null) {
+            DBBrowserConfig.setLastDirectory(myChooser.getCurrentDirectory());
         }
-        if (result != JFileChooser.APPROVE_OPTION || chooser.getSelectedFile() == null) {
+        if (result != JFileChooser.APPROVE_OPTION || myChooser.getSelectedFile() == null) {
             return;
         }
-
-        File dbFile = chooser.getSelectedFile();
+        File dbFile = myChooser.getSelectedFile();
         myManager.open(null);
         myManager.open(dbFile);
     }

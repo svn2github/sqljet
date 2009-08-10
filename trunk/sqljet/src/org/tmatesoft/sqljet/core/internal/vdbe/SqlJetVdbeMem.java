@@ -617,8 +617,6 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
                     pCur.data(offset, amt, pMem.z);
                 }
             } catch (SqlJetException e) {
-                SqlJetUtility.putUnsignedByte(pMem.z, amt, (byte) 0);
-                SqlJetUtility.putUnsignedByte(pMem.z, amt + 1, (byte) 0);
                 pMem.release();
                 throw e;
             } finally {

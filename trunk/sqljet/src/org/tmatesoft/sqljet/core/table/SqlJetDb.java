@@ -306,28 +306,6 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Begin transaction if write access is allowed.
-     * 
-     * @throws SqlJetException
-     */
-    @Deprecated
-    public void beginTransaction() throws SqlJetException {
-        checkOpen();
-        runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (transaction) {
-                    throw new SqlJetException("Write transaction already in progress.");
-                }
-                if (writable) {
-                    btree.beginTrans(SqlJetTransactionMode.WRITE);
-                    transaction = true;
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
      * Commit transaction.
      * 
      * @throws SqlJetException

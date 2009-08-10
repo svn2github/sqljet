@@ -1297,7 +1297,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 try {
                     pBt.ptrmapGet(pgnoRoot, eType, iPtrPage);
                     if (eType[0] == SqlJetBtreeShared.PTRMAP_ROOTPAGE || eType[0] == SqlJetBtreeShared.PTRMAP_FREEPAGE) {
-                        throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                     }
                 } catch (SqlJetException e) {
                     SqlJetMemPage.releasePage(pRoot);

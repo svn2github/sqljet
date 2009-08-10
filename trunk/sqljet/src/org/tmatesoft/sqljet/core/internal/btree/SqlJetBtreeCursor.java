@@ -411,7 +411,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (this.eState == CursorState.VALID);
         assert (this.iPage < BTCURSOR_MAX_DEPTH);
         if (this.iPage >= (BTCURSOR_MAX_DEPTH - 1)) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         pNewPage = pBt.getAndInitPage(newPgno);
         this.apPage[i + 1] = pNewPage;
@@ -421,7 +421,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         this.info.nSize = 0;
         this.validNKey = false;
         if (pNewPage.nCell < 1) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
     }
 
@@ -538,7 +538,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             lwr = 0;
             upr = pPage.nCell - 1;
             if ((!pPage.intKey && pIdxKey == null) || upr < 0) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             if (biasRight) {
                 this.aiIdx[this.iPage] = upr;
@@ -2179,7 +2179,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (pCur.eState == CursorState.VALID);
         assert (pCur.iPage >= 0 && pCur.apPage[pCur.iPage] != null);
         if (pCur.apPage[0].intKey) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         assert (pCur.aiIdx[pCur.iPage] < pCur.apPage[pCur.iPage].nCell);
         pCur.accessPayload(offset, amt, buf, 0, false);
@@ -2256,7 +2256,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         if (offset + amt > nKey + pCur.info.nData
                 || (aPayload.arrayOffset() + pCur.info.nLocal) > (pPage.aData.arrayOffset() + pBt.usableSize)) {
             /* Trying to read or write past the end of the data is an error */
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
 
         /* Check if data must be read/written to/from the btree page itself. */
@@ -2351,7 +2351,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         }
 
         if (amt > 0) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
 
     }

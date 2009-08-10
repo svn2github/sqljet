@@ -206,7 +206,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             nCell = get2byte(aData, hdr + 3);
             if (nCell > pBt.MX_CELL()) {
                 /* To many cells for a single page. The page must be corrupt */
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 
             /* Compute the total free space on the page */
@@ -216,13 +216,13 @@ public class SqlJetMemPage extends SqlJetCloneable {
                 int next, size;
                 if (pc > usableSize - 4) {
                     /* Free block is off the page */
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 next = get2byte(aData, pc);
                 size = get2byte(aData, pc + 2);
                 if (next > 0 && next <= pc + size + 3) {
                     /* Free blocks must be in accending order */
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 nFree += size;
                 pc = next;
@@ -230,7 +230,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             this.nFree = nFree;
             if (nFree >= usableSize) {
                 /* Free space cannot exceed total page size */
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 
             isInit = true;
@@ -317,7 +317,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         if (s == SqlJetBtreeShared.PTRMAP_OVERFLOW2) {
             /* The pointer is always the first 4 bytes of the page in this case. */
             if (get4byte(aData) != iFrom) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             put4byte(aData, iTo);
         } else {
@@ -349,7 +349,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
             if (i == nCell) {
                 if (s != SqlJetBtreeShared.PTRMAP_BTREE || get4byte(aData, hdrOffset + 8) != iFrom) {
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 put4byte(aData, hdrOffset + 8, iTo);
             }
@@ -617,7 +617,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         while (nOvfl-- != 0) {
             SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
             if (ovflPgno[0] == 0 || ovflPgno[0] > pBt.pPager.getPageCount()) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 
             pBt.getOverflowPage(ovflPgno[0], pOvfl, (nOvfl == 0) ? null : ovflPgno);
@@ -670,7 +670,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         ptr = slice(data, pPage.cellOffset + 2 * idx);
         pc = get2byte(ptr);
         if ((pc < pPage.hdrOffset + 6 + (pPage.leaf ? 0 : 4)) || (pc + sz > pPage.pBt.usableSize)) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         pPage.freeSpace(pc, sz);
         for (i = idx + 1; i < pPage.nCell; i++, ptr = slice(ptr, 2)) {
@@ -715,12 +715,12 @@ public class SqlJetMemPage extends SqlJetCloneable {
         while ((pbegin = get2byte(data, addr)) < start && pbegin > 0) {
             assert (pbegin <= pPage.pBt.usableSize - 4);
             if (pbegin <= addr) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             addr = pbegin;
         }
         if (pbegin > pPage.pBt.usableSize - 4) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         assert (pbegin > addr || pbegin == 0);
         put2byte(data, addr, start);
@@ -739,7 +739,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             if (pbegin + psize + 3 >= pnext && pnext > 0) {
                 int frag = pnext - (pbegin + psize);
                 if ((frag < 0) || (frag > (int) SqlJetUtility.getUnsignedByte(data, pPage.hdrOffset + 7))) {
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
                 SqlJetUtility.putUnsignedByte(data, pPage.hdrOffset + 7, (byte) (SqlJetUtility.getUnsignedByte(data,
                         pPage.hdrOffset + 7) - (byte) frag));
@@ -840,7 +840,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             assert (idx > 0);
             assert (end <= get2byte(data, hdr + 5));
             if (idx + sz > pPage.pBt.usableSize) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             pPage.nCell++;
             pPage.nFree -= 2;
@@ -990,12 +990,12 @@ public class SqlJetMemPage extends SqlJetCloneable {
             pAddr = slice(data, cellOffset + i * 2);
             pc = get2byte(pAddr);
             if (pc >= usableSize) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             size = pPage.cellSizePtr(slice(temp, pc));
             cbrk -= size;
             if (cbrk < cellOffset + 2 * nCell || pc + size > usableSize) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             assert (cbrk + size <= usableSize && cbrk >= 0);
             memcpy(data, cbrk, temp, pc, size);
@@ -1010,7 +1010,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         memset(data, addr, (byte) 0, cbrk - addr);
         assert (pPage.pDbPage.isWriteable());
         if (cbrk - addr != pPage.nFree) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
     }
 

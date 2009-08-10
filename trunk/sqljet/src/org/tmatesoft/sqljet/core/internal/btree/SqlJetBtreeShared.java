@@ -252,7 +252,7 @@ public class SqlJetBtreeShared {
 
         assert (autoVacuum);
         if (key == 0) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         iPtrmap = PTRMAP_PAGENO(key);
         pDbPage = pPager.getPage(iPtrmap);
@@ -297,7 +297,7 @@ public class SqlJetBtreeShared {
         pDbPage.unref();
 
         if (pEType[0] < 1 || pEType[0] > 5)
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
     }
 
     /**
@@ -441,7 +441,7 @@ public class SqlJetBtreeShared {
                         TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno, n - 1);
                     } else if (k > usableSize / 4 - 2) {
                         /* Value of k is out of range. Database corruption */
-                        throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                     } else if (searchList && nearby == iTrunk) {
                         /*
                          * The list is being searched and this trunk page is the
@@ -518,7 +518,7 @@ public class SqlJetBtreeShared {
                             nPage = getPageCount();
                             if (pPgno[0] > nPage) {
                                 /* Free page off the end of the file */
-                                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                             }
                             TRACE("ALLOCATE: %d was leaf %d of %d on trunk %d" + ": %d more free pages\n", pPgno,
                                     closest + 1, k, pTrunk.pgno, n - 1);
@@ -585,7 +585,7 @@ public class SqlJetBtreeShared {
 
         if (ppPage.pDbPage.getRefCount() > 1) {
             SqlJetMemPage.releasePage(ppPage);
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
         ppPage.isInit = false;
         return ppPage;
@@ -694,7 +694,7 @@ public class SqlJetBtreeShared {
 
             ptrmapGet(iLastPg, eType, iPtrPage);
             if (eType[0] == PTRMAP_ROOTPAGE) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 
             if (eType[0] == PTRMAP_FREEPAGE) {
@@ -783,7 +783,7 @@ public class SqlJetBtreeShared {
             int nOrig = getPageCount();
 
             if (PTRMAP_ISPAGE(nOrig)) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
             if (nOrig == PENDING_BYTE_PAGE()) {
                 nOrig--;
@@ -912,7 +912,7 @@ public class SqlJetBtreeShared {
 
         assert (mutex.held());
         if (pgno > pPager.getPageCount()) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
 
         try {
@@ -963,7 +963,7 @@ public class SqlJetBtreeShared {
 
         assert (mutex.held());
         if (pgno == 0) {
-            throw new SqlJetException(SqlJetErrorCode.CORRUPT_BKPT);
+            throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
 
         /*

@@ -125,7 +125,7 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
         }
         myPanel = new JPanel(new BorderLayout());
         mySchemaPage = new SchemaComponent();
-        myDataPage = new DataComponent(this);
+        myDataPage = new DataComponent(this, 1000);
 
         myComponent = new JTabbedPane();
 

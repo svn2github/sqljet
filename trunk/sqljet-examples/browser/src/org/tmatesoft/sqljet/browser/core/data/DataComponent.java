@@ -69,9 +69,11 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
     private Object myLastSelectedItem;
     
     private BrowserComponentManager myManager;
+    private int myPageSize;
     
-    public DataComponent(BrowserComponentManager manager) {
+    public DataComponent(BrowserComponentManager manager, int pageSize) {
         myManager = manager;
+        myPageSize = pageSize;
     }
 
     public void open(File dbFile) throws SqlJetException {
@@ -144,6 +146,9 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                         strValue += "... [" + (buffer.limit() - toGet) + " bytes more]";
                     }
                     value = strValue;
+                } else if (value instanceof Long && column == 1) {
+                    long v = (Long) value;
+                    value = "0x" + Long.toHexString(v);
                 }
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
@@ -178,9 +183,9 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
         if (model instanceof DataTableModel) {
             long start = ((DataTableModel) model).getFirstIndex();
             if (e.getSource() == myPreviousButton) {
-                start -= 1000;
+                start -= myPageSize;
             } else {
-                start += 1000;
+                start += myPageSize;
             }
             loadData(myDBFile, (String) myTableNamesCombo.getSelectedItem(), start);
         }
@@ -201,12 +206,12 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                     model = new DefaultTableModel();
                 } else {
                     // open db and read schema.
-                    progress.start("Loading Data...", 1000);
+                    progress.start("Loading Data...", myPageSize);
                     SqlJetDb db = null;
                     try {
                         db = SqlJetDb.open(dbFile, true);
                         ISqlJetTable table = db.getTable(tableName);
-                        model = DataTableModel.createInstance(table, row, progress);
+                        model = DataTableModel.createInstance(table, row, myPageSize, progress);
                     } catch (final Throwable th) {
                         model = new DefaultTableModel();
                         SwingUtilities.invokeLater(new Runnable() {
@@ -233,7 +238,7 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 myDataTable.setModel(model);
-                myNextButton.setEnabled(model.getRowCount() == 1000);
+                myNextButton.setEnabled(model.getRowCount() == myPageSize);
                 long start = 0;
                 if (model instanceof DataTableModel) {
                     start = ((DataTableModel) model).getFirstIndex();

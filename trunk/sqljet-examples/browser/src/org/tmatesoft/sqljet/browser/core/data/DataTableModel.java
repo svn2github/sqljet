@@ -38,11 +38,11 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
  */
 public class DataTableModel implements TableModel {
     
-    public static TableModel createInstance(ISqlJetTable table, long fromID, IProgress progress) throws SqlJetException {
+    public static TableModel createInstance(ISqlJetTable table, long fromID, int pageSize, IProgress progress) throws SqlJetException {
         if (table == null) {
             return new DefaultTableModel();
         }
-        ArrayList<DataRow> data = new ArrayList<DataRow>(1000);
+        ArrayList<DataRow> data = new ArrayList<DataRow>(pageSize);
         ISqlJetTableDef tableDef = table.getDefinition();
         List<String> names = new ArrayList<String>();
         for(ISqlJetColumnDef column : tableDef.getColumns()) {
@@ -50,13 +50,13 @@ public class DataTableModel implements TableModel {
         }
         String[] namesArray = (String[]) names.toArray(new String[names.size()]);
 
-        ISqlJetCursor cursor = table.open();
+        ISqlJetCursor cursor = table.open();//order(table.getPrimaryKeyIndexName());
         try {
             for(long i = 0; i < fromID && !cursor.eof(); i++) {
                 cursor.next();                
             }
             int count = 0;
-            while(!cursor.eof() && count < 1000) {
+            while(!cursor.eof() && count < pageSize) {
                 data.add(DataRow.read(cursor, fromID + count, namesArray));
                 progress.current(count);
                 cursor.next();

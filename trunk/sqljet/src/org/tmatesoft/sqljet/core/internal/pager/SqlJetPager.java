@@ -2511,7 +2511,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#get(int)
      */
     public ISqlJetPage getPage(int pageNumber) throws SqlJetException {
-        return acquirePage(pageNumber, false);
+        return acquirePage(pageNumber, true);
     }
 
     /*

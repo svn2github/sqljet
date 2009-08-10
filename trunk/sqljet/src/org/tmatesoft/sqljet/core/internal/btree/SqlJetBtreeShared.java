@@ -1027,14 +1027,14 @@ public class SqlJetBtreeShared {
 
         assert (mutex.held());
         /* One of these must not be NULL. Otherwise, why call this function? */
-        assert ((ppPage != null && ppPage.length != 0 && ppPage[1] != null) || (pPgnoNext != null
-                && pPgnoNext.length != 0 && pPgnoNext[1] != 0));
+        assert ((ppPage != null && ppPage.length != 0 && ppPage[0] != null) || (pPgnoNext != null
+                && pPgnoNext.length != 0 && pPgnoNext[0] != 0));
 
         /*
          * If pPgnoNext is NULL, then this function is being called to obtain* a
          * MemPage* reference only. No page-data is required in this case.
          */
-        if (pPgnoNext == null || pPgnoNext.length == 0 || pPgnoNext[1] == 0) {
+        if (pPgnoNext == null || pPgnoNext.length == 0 || pPgnoNext[0] == 0) {
             ppPage[0] = getPage(ovfl, true);
             return;
         }
@@ -1064,7 +1064,7 @@ public class SqlJetBtreeShared {
             }
         }
 
-        if (next == 0 || (ppPage != null && ppPage.length != 0 && ppPage[1] != null)) {
+        if (next == 0 || (ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
             SqlJetMemPage pPage = null;
 
             try {
@@ -1074,7 +1074,7 @@ public class SqlJetBtreeShared {
                     next = SqlJetUtility.get4byte(pPage.aData, 0);
                 }
 
-                if ((ppPage != null && ppPage.length != 0 && ppPage[1] != null)) {
+                if ((ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
                     ppPage[0] = pPage;
                 } else {
                     SqlJetMemPage.releasePage(pPage);

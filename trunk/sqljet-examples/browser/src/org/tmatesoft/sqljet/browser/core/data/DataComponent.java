@@ -207,8 +207,13 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                         db = SqlJetDb.open(dbFile, true);
                         ISqlJetTable table = db.getTable(tableName);
                         model = DataTableModel.createInstance(table, row, progress);
-                    } catch (SqlJetException e) {                        
+                    } catch (final Throwable th) {
                         model = new DefaultTableModel();
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                myManager.showErrorDialog(th);
+                            }
+                        });
                     } finally {
                         if (db != null) {
                             try {

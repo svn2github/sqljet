@@ -19,9 +19,17 @@ package org.tmatesoft.sqljet.browser.core;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,21 +40,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.tmatesoft.sqljet.browser.DBBrowserUtil;
 import org.tmatesoft.sqljet.browser.core.data.DataComponent;
 import org.tmatesoft.sqljet.browser.core.schema.SchemaComponent;
-import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetVersion;
 
 /**
@@ -205,11 +218,58 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
         if (component != null && myInactivatedPages.remove(component)) {
             try {
                 component.open(myDBFile);
-            } catch (SqlJetException e1) {
+            } catch (Throwable th) {
                 open(null);
-                JOptionPane.showMessageDialog(getOwner(), e1.getMessage(), "Error Opening DB", JOptionPane.ERROR_MESSAGE);
+                showErrorDialog(th);
             }
         }
+    }
+    
+    public void showErrorDialog(Throwable th) {
+        th.printStackTrace();
+        
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        th.printStackTrace(new PrintStream(bos));
+        
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Unexpected error occurred: '" + th.getMessage() + "' with stack trace:", UIManager.getIcon("OptionPane.errorIcon"), SwingConstants.LEFT);
+        label.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        panel.add(label, BorderLayout.NORTH);
+        final JTextArea text = new JTextArea(new String(bos.toByteArray()));
+        text.setEditable(false);
+        text.setRows(10);
+        text.setColumns(50);
+        panel.add(new JScrollPane(text), BorderLayout.CENTER);
+        
+        final JDialog dialog = new JDialog(getOwner(), "SQLJet Error", true);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton button = new JButton("Close");
+        button.setMnemonic('C');
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+                dialog.dispose();
+            }
+        });
+        JButton copyButton = new JButton("Copy");
+        copyButton.setMnemonic('o');
+        copyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                StringSelection trace = new StringSelection(text.getText());
+                Clipboard cp = Toolkit.getDefaultToolkit().getSystemClipboard();
+                cp.setContents(trace, trace);
+            }
+        });
+        buttonPanel.add(copyButton);
+        buttonPanel.add(button);
+        dialog.getRootPane().setDefaultButton(button);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+        dialog.setContentPane(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(getOwner());
+        dialog.setVisible(true);
     }
     
     private IBrowserComponent getActivePage() {

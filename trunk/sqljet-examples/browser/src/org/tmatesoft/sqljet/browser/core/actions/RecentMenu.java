@@ -63,8 +63,12 @@ public class RecentMenu implements MenuListener, ChangeListener {
             JMenuItem item = myMenu.add("<empty>");
             item.setEnabled(false);
         } else {
+            int index = 1;
             for (final File file : recent) {
-                JMenuItem item = myMenu.add(file.getPath());
+                JMenuItem item = myMenu.add(index + " " + file.getPath());
+                char indexChar = (index + "").charAt(0);
+                item.setMnemonic(indexChar);
+                index++;
                 item.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                        myManager.open(file);

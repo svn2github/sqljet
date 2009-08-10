@@ -45,5 +45,6 @@ public class ExitAction extends AbstractAction {
         
         myManager.getOwner().setVisible(false);
         myManager.getOwner().dispose();
+        System.exit(0);
     }
 }

@@ -67,7 +67,12 @@ public class SchemaComponent implements IBrowserComponent {
             return myComponent;
         }
 
-        SchemaTreeModel model = SchemaTreeModel.createInstance(null);
+        SchemaTreeModel model = null;
+        try {
+            model = SchemaTreeModel.createInstance(null);
+        } catch (SqlJetException e) {
+            // will not happen.
+        }
         SchemaRowModel rowModel = new SchemaRowModel();
         OutlineModel outlineModel = DefaultOutlineModel.createOutlineModel(model, rowModel, false, "Name");
         

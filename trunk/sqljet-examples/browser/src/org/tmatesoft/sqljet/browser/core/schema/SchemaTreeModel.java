@@ -42,8 +42,7 @@ public class SchemaTreeModel implements TreeModel {
     private Object myRoot;
     private Collection<TreeModelListener> myListeners = new HashSet<TreeModelListener>();
     
-
-    public static SchemaTreeModel createInstance(ISqlJetSchema schema) {
+    public static SchemaTreeModel createInstance(ISqlJetSchema schema) throws SqlJetException {
         SchemaTreeNode root = new SchemaTreeNode();
         if (schema == null) {
             return new SchemaTreeModel(root);
@@ -66,6 +65,7 @@ public class SchemaTreeModel implements TreeModel {
             }
         } catch (SqlJetException e) {
             root = new SchemaTreeNode();
+            throw e;
         }
         return new SchemaTreeModel(root);
     }

@@ -767,9 +767,15 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetTable t = db.getTable(REP_CACHE_TABLE);
                 final ISqlJetCursor c = t.open();
-                while (!c.eof()) {
-                    logger.info(String.format("%d", c.getRowId()) );
-                    c.delete();
+                try {
+                    while (!c.eof()) {
+                        logger.info(String.format("%d", c.getRowId()));
+                        c.delete();
+                    }
+                    Assert.assertFalse(c.first());
+                    Assert.assertTrue(c.eof());
+                } finally {
+                    c.close();
                 }
                 return null;
             }

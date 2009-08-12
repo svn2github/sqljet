@@ -500,7 +500,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private void doDelete() throws SqlJetException {
         doActionWithIndexes(Action.DELETE, 0);
+        final long rowId = getRowId();
         cursor.delete();
+        goToRow(rowId);
     }
 
     private boolean isRowIdExists(final long rowId) throws SqlJetException {

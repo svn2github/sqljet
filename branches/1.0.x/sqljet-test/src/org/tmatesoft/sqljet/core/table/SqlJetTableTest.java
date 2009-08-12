@@ -529,7 +529,7 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void refreshCurrentRecord() throws SqlJetException {
-        
+
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         values.put("value", 1);
@@ -761,4 +761,24 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         }
     }
 
+    @Test
+    public void testDeleteRepcache() throws SqlJetException {
+        repCacheDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable t = db.getTable(REP_CACHE_TABLE);
+                final ISqlJetCursor c = t.open();
+                try {
+                    while (!c.eof()) {
+                        logger.info(String.format("%d", c.getRowId()));
+                        c.delete();
+                    }
+                    Assert.assertFalse(c.first());
+                    Assert.assertTrue(c.eof());
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
+    }
 }

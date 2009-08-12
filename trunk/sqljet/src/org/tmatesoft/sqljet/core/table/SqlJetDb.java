@@ -55,7 +55,7 @@ public class SqlJetDb implements ISqlJetLimits {
         private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp(
                 "SQLJET.TRANSACTION_BUSY_RETRIES", 1000);
         private static final int TRANSACTION_BUSY_SLEEP = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_SLEEP",
-                1);
+                10);
 
         public boolean call(int number) {
             try {

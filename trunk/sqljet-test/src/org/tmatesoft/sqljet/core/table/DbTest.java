@@ -54,4 +54,18 @@ public class DbTest extends AbstractNewDbTest {
             db1.close();
         }
     }
+    
+    @Test
+    public void testBigInteger() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b integer)");
+        final ISqlJetTable t = db.getTable("t");
+        final long v = Long.MAX_VALUE;
+        t.insert(v,v);
+        final ISqlJetCursor c = t.open();
+        final long i = c.getInteger(0);
+        final long f = c.getInteger(1);
+        Assert.assertEquals(v, i);
+        Assert.assertEquals(v, f);
+    }
+    
 }

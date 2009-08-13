@@ -476,7 +476,6 @@ public class SqlJetUtility {
      */
     public static int putVarint(ByteBuffer p, long v) {
         int i, j, n;
-        byte[] buf = new byte[10];
         if ((v & (((long) 0xff000000) << 32)) != 0) {
             SqlJetUtility.putUnsignedByte(p, 8, (byte) v);
             v >>= 8;
@@ -487,6 +486,7 @@ public class SqlJetUtility {
             return 9;
         }
         n = 0;
+        byte[] buf = new byte[10];
         do {
             buf[n++] = (byte) ((v & 0x7f) | 0x80);
             v >>= 7;
@@ -529,6 +529,22 @@ public class SqlJetUtility {
      * Return the number of bytes read. The value is stored in *v.
      */
     public static byte getVarint(ByteBuffer p, long[] v) {
+        long l = 0;
+        for (byte i = 0; i < 8; i++) {
+            short b = SqlJetUtility.getUnsignedByte(p, i);
+            l = (l << 7) | (b & 0x7f);
+            if ((b & 0x80) == 0) {
+                v[0] = l;
+                return ++i;
+            }
+        }
+        short b = SqlJetUtility.getUnsignedByte(p, 8);
+        l = (l << 8) | b;
+        v[0] = l;
+        return 9;
+    }
+
+    public static byte getVarint_Old(ByteBuffer p, long[] v) {
         int a, b, s;
         int i = 0;
 
@@ -1109,15 +1125,16 @@ public class SqlJetUtility {
      * @return
      */
     public static Object[] adjustNumberTypes(Object[] key) {
-        if(null==key) return null;
+        if (null == key)
+            return null;
         for (int i = 0; i < key.length; i++) {
             final Object obj = key[i];
             if (obj instanceof Number) {
                 if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer) {
-                    key[i] = Long.valueOf(((Number)obj).longValue());
+                    key[i] = Long.valueOf(((Number) obj).longValue());
                 } else if (obj instanceof Float) {
                     // TODO may be better solution exists?
-                    key[i] = Double.parseDouble(Float.toString((Float)obj));
+                    key[i] = Double.parseDouble(Float.toString((Float) obj));
                 }
             }
         }
@@ -1127,10 +1144,11 @@ public class SqlJetUtility {
     /**
      * @param value
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public static ByteBuffer streamToBuffer(InputStream stream) throws SqlJetException {
-        if(stream==null) return null;
+        if (stream == null)
+            return null;
         try {
             byte[] b = new byte[stream.available()];
             final int i = stream.read(b);
@@ -1139,7 +1157,7 @@ public class SqlJetUtility {
         } catch (IOException e) {
             throw new SqlJetException(SqlJetErrorCode.IOERR, e);
         }
-        
+
     }
 
     /**
@@ -1147,7 +1165,8 @@ public class SqlJetUtility {
      * @return
      */
     public static byte[] readByteBuffer(ByteBuffer buffer) {
-        if(buffer == null) return null;
+        if (buffer == null)
+            return null;
         byte[] array = new byte[buffer.remaining()];
         buffer.get(array).rewind();
         return array;
@@ -1158,11 +1177,11 @@ public class SqlJetUtility {
      * @return
      */
     public static Object[] copyArray(Object[] array) {
-        if(null==array) return null;
+        if (null == array)
+            return null;
         final Object[] copy = new Object[array.length];
         System.arraycopy(array, 0, copy, 0, array.length);
         return copy;
     }
 
-    
 }

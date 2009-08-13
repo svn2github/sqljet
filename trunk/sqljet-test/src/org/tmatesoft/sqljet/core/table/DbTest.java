@@ -18,11 +18,13 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -68,4 +70,14 @@ public class DbTest extends AbstractNewDbTest {
         Assert.assertEquals(v, f);
     }
     
+    @Test
+    public void testVarint() throws SqlJetException {
+        final byte[] b = new byte[9];
+        final long l = Long.MAX_VALUE;
+        final ByteBuffer p = ByteBuffer.wrap(b);
+        SqlJetUtility.putVarint(p, l);
+        final long[] v = new long[] {0};
+        SqlJetUtility.getVarint(p, v);
+        Assert.assertEquals(l, v[0]);
+    }
 }

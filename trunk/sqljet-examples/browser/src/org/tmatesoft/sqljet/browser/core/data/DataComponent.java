@@ -146,10 +146,7 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
                         strValue += "... [" + (buffer.limit() - toGet) + " bytes more]";
                     }
                     value = strValue;
-                } else if (value instanceof Long && column == 1) {
-                    long v = (Long) value;
-                    value = "0x" + Long.toHexString(v);
-                }
+                } 
                 return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
             

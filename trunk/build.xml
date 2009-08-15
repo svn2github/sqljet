@@ -9,6 +9,8 @@
     	<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
 	</target>
 	
+	<property name="benchmarks" value="sqljet-test/bin/benchmarks"/>
+	<property name="benchmarks.report" value="${benchmarks}/html"/>
 
 	<target name="clean">
 		<!-- First, create directories, which will be removed, 
@@ -45,6 +47,10 @@
                 <include name="**/**" />
             </fileset>
         </delete>
+		
+		<mkdir dir="${benchmarks}"/>
+		<mkdir dir="${benchmarks.report}"/>
+		
     </target>
     
     <target name="antlr">
@@ -267,5 +273,32 @@ public class SqlParser</replacevalue>
 			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100"/>
 		</junit>
 	</target>
+
+	<target name="benchmarks" depends="deploy">
+		<junit>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
+			<jvmarg value="-Xmx128m"/>			
+			<classpath path="sqljet/bin" />
+            <classpath path="sqljet-test/bin" />
+            <classpath>
+            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
+            	<fileset dir="lib" includes="*.jar"/>
+            </classpath>
+			<formatter type="plain" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
+			    <fileset dir="sqljet-test/src">
+			      <include name="**/*Benchmark*.java"/>
+			      <exclude name="**/*Abstract*.java"/>
+			    </fileset>
+			 </batchtest>
+		</junit>
+		<junitreport todir="${benchmarks}">
+		  <fileset dir="${benchmarks}">
+		    <include name="TEST-*.xml"/>
+		  </fileset>
+		  <report format="noframes" todir="${benchmarks.report}"/>
+		</junitreport>		
+	</target>	
 	
 </project>

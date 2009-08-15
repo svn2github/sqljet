@@ -58,6 +58,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     private long priorNewRowid = 0;
 
+    private SqlJetBtreeRecord recordCache;
+
     /**
      * @param db
      * @param btree
@@ -123,6 +125,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#close()
      */
     public void close() throws SqlJetException {
+        clearRecordCache();        
         cursor.closeCursor();
     }
 
@@ -160,9 +163,9 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public boolean hasMoved() throws SqlJetException {
         cursor.enterCursor();
-        try{
+        try {
             return cursor.cursorHasMoved();
-        }finally{
+        } finally {
             cursor.leaveCursor();
         }
     }
@@ -175,6 +178,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean first() throws SqlJetException {
         lock();
         try {
+            clearRecordCache();            
             return !cursor.first();
         } finally {
             unlock();
@@ -189,6 +193,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean last() throws SqlJetException {
         lock();
         try {
+            clearRecordCache();            
             return !cursor.last();
         } finally {
             unlock();
@@ -203,6 +208,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean next() throws SqlJetException {
         lock();
         try {
+            clearRecordCache();            
             hasMoved();
             return !cursor.next();
         } finally {
@@ -218,6 +224,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean previous() throws SqlJetException {
         lock();
         try {
+            clearRecordCache();
             hasMoved();
             return !cursor.previous();
         } finally {
@@ -235,7 +242,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             return null;
         lock();
         try {
-            return new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
+            if (null == recordCache) {
+                recordCache = new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
+            }
+            return recordCache;
         } finally {
             unlock();
         }
@@ -531,4 +541,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return String.format(AUTOINDEX, tableName, i);
     }
 
+    protected void clearRecordCache(){
+        recordCache = null;
+    }
+    
 }

@@ -140,6 +140,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
+            clearRecordCache();            
             if (getRowId() == rowId)
                 return true;
             final int moveTo = cursor.moveTo(null, rowId, false);

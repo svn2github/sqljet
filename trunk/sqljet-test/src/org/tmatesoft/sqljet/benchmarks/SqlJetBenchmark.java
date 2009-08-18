@@ -30,10 +30,29 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class SqlJetBenchmark extends AbstractBenchmark {
 
+    private SqlJetDb db;
+    private ISqlJetTable table;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        db = SqlJetDb.open(dbFile, true);
+        table = db.getTable(TABLE_NAME);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#tearDown()
+     */
+    @Override
+    public void tearDown() throws Exception {
+        db.close();
+        super.tearDown();
+    }
+
     @Override
     public void selectAll() throws Exception {
-        final SqlJetDb db = SqlJetDb.open(dbFile, true);
-        final ISqlJetTable table = db.getTable(TABLE_NAME);
         db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetCursor c = table.open();
@@ -50,6 +69,37 @@ public class SqlJetBenchmark extends AbstractBenchmark {
                         rows++;
                     } while (c.next());
                     logger.info(String.format("rows %d", rows));
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#updateAll()
+     */
+    @Override
+    public void updateAll() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.open();
+                try {
+                    final int fieldsCount = c.getFieldsCount();
+                    final Object[] values = new Object[fieldsCount];
+                    do {
+                        for (int field = 0; field < fieldsCount; field++) {
+                            values[field] = c.getValue(field);
+                        }
+                        final Object revision = values[1];
+                        if (revision instanceof Long) {
+                            values[1] = (Long) revision + 1;
+                        }
+                        //c.update(values);
+                    } while (c.next());
                 } finally {
                     c.close();
                 }

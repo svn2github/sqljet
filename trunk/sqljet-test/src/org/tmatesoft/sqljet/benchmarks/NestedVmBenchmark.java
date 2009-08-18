@@ -29,13 +29,26 @@ import java.sql.Statement;
  * 
  */
 public class NestedVmBenchmark extends AbstractBenchmark {
+    
+    private Connection conn;
+    private Statement stat;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        Class.forName("org.sqlite.JDBC");
+        conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+        stat = conn.createStatement();        
+    }
+    
+    @Override
+    public void tearDown() throws Exception {
+        conn.close();        
+        super.tearDown();
+    }
 
     @Override
     public void selectAll() throws Exception {
-        Class.forName("org.sqlite.JDBC");
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-        Statement stat = conn.createStatement();
-
         ResultSet rs = stat.executeQuery(String.format("select * from %s;", TABLE_NAME));
         final ResultSetMetaData metaData = rs.getMetaData();
         final int columnCount = metaData.getColumnCount();
@@ -51,7 +64,14 @@ public class NestedVmBenchmark extends AbstractBenchmark {
         }
         logger.info(String.format("rows %d", rows));
         rs.close();
-        conn.close();
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#updateAll()
+     */
+    @Override
+    public void updateAll() throws Exception {
+        stat.execute(String.format("update %s set revision=revision+1;", TABLE_NAME));
+    }
+    
 }

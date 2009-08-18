@@ -51,5 +51,9 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     @Test
     public abstract void selectAll() throws Exception;
+    
+    @Test
+    public abstract void updateAll() throws Exception;
+    
 
 }

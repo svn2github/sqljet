@@ -17,6 +17,8 @@
  */
 package org.tmatesoft.sqljet.benchmarks;
 
+import java.util.Random;
+
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
@@ -114,4 +116,29 @@ public class SqlJetBenchmark extends AbstractBenchmark {
             }
         });
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#insertRandoms()
+     */
+    @Override
+    public void insertRandoms() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final Random rand = new Random();
+                final Object[] values = new Object[5];
+                for (int i = 0; i < COUNT; i++) {
+                    values[0] = Long.toString(Math.abs(rand.nextLong()));
+                    values[1] = Math.abs(rand.nextLong());
+                    values[2] = Math.abs(rand.nextLong());
+                    values[3] = Math.abs(rand.nextLong());
+                    values[4] = Math.abs(rand.nextLong());
+                    table.insert(values);
+                }
+                return null;
+            }
+        });
+    }
+
 }

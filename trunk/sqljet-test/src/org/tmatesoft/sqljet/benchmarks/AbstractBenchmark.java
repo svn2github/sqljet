@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
-import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
@@ -34,6 +33,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     public static final String DB_FILE = "sqljet-test/db/rep-cache/rep-cache.db";
     public static final String TABLE_NAME = "rep_cache";
+    protected static final int COUNT = 1000;
 
     protected File dbFile;
 
@@ -51,11 +51,14 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     @Test
     public abstract void selectAll() throws Exception;
-    
+
     @Test
     public abstract void updateAll() throws Exception;
-    
+
     @Test
     public abstract void deleteAll() throws Exception;
+
+    @Test
+    public abstract void insertRandoms() throws Exception;
 
 }

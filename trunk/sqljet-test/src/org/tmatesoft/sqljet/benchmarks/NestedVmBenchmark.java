@@ -19,9 +19,11 @@ package org.tmatesoft.sqljet.benchmarks;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.util.Random;
 
 /**
  * @author TMate Software Ltd.
@@ -29,7 +31,7 @@ import java.sql.Statement;
  * 
  */
 public class NestedVmBenchmark extends AbstractBenchmark {
-    
+
     private Connection conn;
     private Statement stat;
 
@@ -38,12 +40,12 @@ public class NestedVmBenchmark extends AbstractBenchmark {
         super.setUp();
         Class.forName("org.sqlite.JDBC");
         conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-        stat = conn.createStatement();        
+        stat = conn.createStatement();
     }
-    
+
     @Override
     public void tearDown() throws Exception {
-        conn.close();        
+        conn.close();
         super.tearDown();
     }
 
@@ -70,10 +72,43 @@ public class NestedVmBenchmark extends AbstractBenchmark {
     public void updateAll() throws Exception {
         stat.execute(String.format("update %s set revision=revision+1;", TABLE_NAME));
     }
-    
+
     @Override
     public void deleteAll() throws Exception {
         stat.execute(String.format("delete from %s;", TABLE_NAME));
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#insertRandoms()
+     */
+    @Override
+    public void insertRandoms() throws Exception {
+        conn.setAutoCommit(false);
+        final PreparedStatement prep = conn.prepareStatement(String.format(
+                "insert into %s(hash,revision,offset,size,expanded_size) " + "values(?,?,?,?,?);", TABLE_NAME));
+        boolean success = false;
+        try {
+            final Random rand = new Random();
+            for (int i = 0; i < COUNT; i++) {
+                prep.setString(1, Long.toString(Math.abs(rand.nextLong())));
+                prep.setLong(2, Math.abs(rand.nextLong()));
+                prep.setLong(3, Math.abs(rand.nextLong()));
+                prep.setLong(4, Math.abs(rand.nextLong()));
+                prep.setLong(5, Math.abs(rand.nextLong()));
+                prep.execute();
+            }
+            conn.commit();
+            success = true;
+        } finally {
+            try {
+                if (success) {
+                    conn.rollback();
+                }
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
 }

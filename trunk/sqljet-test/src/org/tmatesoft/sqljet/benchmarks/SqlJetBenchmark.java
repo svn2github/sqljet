@@ -40,11 +40,6 @@ public class SqlJetBenchmark extends AbstractBenchmark {
         table = db.getTable(TABLE_NAME);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#tearDown()
-     */
     @Override
     public void tearDown() throws Exception {
         db.close();
@@ -77,11 +72,6 @@ public class SqlJetBenchmark extends AbstractBenchmark {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#updateAll()
-     */
     @Override
     public void updateAll() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
@@ -98,8 +88,25 @@ public class SqlJetBenchmark extends AbstractBenchmark {
                         if (revision instanceof Long) {
                             values[1] = (Long) revision + 1;
                         }
-                        //c.update(values);
+                        c.update(values);
                     } while (c.next());
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public void deleteAll() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.open();
+                try {
+                    do {
+                        c.delete();
+                    } while (!c.eof());
                 } finally {
                     c.close();
                 }

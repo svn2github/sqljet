@@ -66,12 +66,14 @@ public class NestedVmBenchmark extends AbstractBenchmark {
         rs.close();
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#updateAll()
-     */
     @Override
     public void updateAll() throws Exception {
         stat.execute(String.format("update %s set revision=revision+1;", TABLE_NAME));
+    }
+    
+    @Override
+    public void deleteAll() throws Exception {
+        stat.execute(String.format("delete from %s;", TABLE_NAME));
     }
     
 }

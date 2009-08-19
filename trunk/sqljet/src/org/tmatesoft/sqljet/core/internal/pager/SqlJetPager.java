@@ -1104,10 +1104,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     private long dataHash(int numByte, ByteBuffer data) {
         long hash = 0;
-        int i;
-        for (i = 0; i < numByte; i++) {
-            hash = (hash * 1039) + SqlJetUtility.getUnsignedByte(data, i);
-        }
+        /*
+         * int i; for (i = 0; i < numByte; i++) { hash = (hash * 1039) +
+         * SqlJetUtility.getUnsignedByte(data, i); }
+         */
         return hash;
     }
 

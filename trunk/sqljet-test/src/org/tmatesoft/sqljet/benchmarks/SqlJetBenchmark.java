@@ -145,4 +145,18 @@ public class SqlJetBenchmark extends AbstractBenchmark {
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#clear()
+     */
+    @Override
+    public void clear() throws Exception {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.clear();
+                return null;
+            }
+        });
+    }
 }

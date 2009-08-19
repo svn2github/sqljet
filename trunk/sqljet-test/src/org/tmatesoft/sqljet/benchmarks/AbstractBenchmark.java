@@ -61,4 +61,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @Test
     public abstract void insertRandoms() throws Exception;
 
+    @Test
+    public abstract void clear() throws Exception;
+    
 }

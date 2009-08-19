@@ -111,4 +111,15 @@ public class NestedVmBenchmark extends AbstractBenchmark {
             }
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#clear()
+     */
+    @Override
+    public void clear() throws Exception {
+        stat.execute(String.format("delete from %s;", TABLE_NAME));
+    }
+
 }

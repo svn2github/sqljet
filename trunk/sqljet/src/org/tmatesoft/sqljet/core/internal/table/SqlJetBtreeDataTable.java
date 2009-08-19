@@ -140,7 +140,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
-            clearRecordCache();            
+            clearRecordCache();
             if (getRowId() == rowId)
                 return true;
             final int moveTo = cursor.moveTo(null, rowId, false);
@@ -831,6 +831,19 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
         }
         return 0;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#clear()
+     */
+    @Override
+    public void clear() throws SqlJetException {
+        for (ISqlJetBtreeIndexTable index : indexesTables.values()) {
+            index.clear();
+        }
+        super.clear();
     }
 
 }

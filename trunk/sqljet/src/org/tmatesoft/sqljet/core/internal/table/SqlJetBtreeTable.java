@@ -125,7 +125,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#close()
      */
     public void close() throws SqlJetException {
-        clearRecordCache();        
+        clearRecordCache();
         cursor.closeCursor();
     }
 
@@ -178,7 +178,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean first() throws SqlJetException {
         lock();
         try {
-            clearRecordCache();            
+            clearRecordCache();
             return !cursor.first();
         } finally {
             unlock();
@@ -193,7 +193,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean last() throws SqlJetException {
         lock();
         try {
-            clearRecordCache();            
+            clearRecordCache();
             return !cursor.last();
         } finally {
             unlock();
@@ -208,7 +208,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public boolean next() throws SqlJetException {
         lock();
         try {
-            clearRecordCache();            
+            clearRecordCache();
             hasMoved();
             return !cursor.next();
         } finally {
@@ -541,8 +541,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return String.format(AUTOINDEX, tableName, i);
     }
 
-    protected void clearRecordCache(){
+    protected void clearRecordCache() {
         recordCache = null;
     }
-    
+
+    public void clear() throws SqlJetException {
+        btree.clearTable(rootPage, null);
+    }
+
 }

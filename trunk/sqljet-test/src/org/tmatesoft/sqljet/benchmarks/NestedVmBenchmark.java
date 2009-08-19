@@ -75,7 +75,7 @@ public class NestedVmBenchmark extends AbstractBenchmark {
 
     @Override
     public void deleteAll() throws Exception {
-        stat.execute(String.format("delete from %s;", TABLE_NAME));
+        stat.execute(String.format("delete from %s where hash is not null;", TABLE_NAME));
     }
 
     /*

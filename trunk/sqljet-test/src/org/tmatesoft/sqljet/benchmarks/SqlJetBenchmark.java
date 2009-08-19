@@ -107,7 +107,11 @@ public class SqlJetBenchmark extends AbstractBenchmark {
                 final ISqlJetCursor c = table.open();
                 try {
                     do {
-                        c.delete();
+                        if (!c.isNull(0)) {
+                            c.delete();
+                        } else {
+                            c.next();
+                        }
                     } while (!c.eof());
                 } finally {
                     c.close();

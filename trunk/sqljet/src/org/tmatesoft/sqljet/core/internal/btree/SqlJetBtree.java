@@ -1912,16 +1912,24 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
 
         pPage = pBt.getPage(iTable, false);
-        clearTable(iTable, null);
-        // SqlJetMemPage.releasePage(pPage);
+        try {
+            clearTable(iTable, null);
+        } catch (SqlJetException e) {
+            SqlJetMemPage.releasePage(pPage);
+            throw e;
+        }
 
         piMoved = 0;
 
         if (iTable > 1) {
             if (pBt.autoVacuum) {
                 int maxRootPgno;
-                maxRootPgno = getMeta(4);
-                // SqlJetMemPage.releasePage(pPage);
+                try {
+                    maxRootPgno = getMeta(4);
+                } catch (SqlJetException e) {
+                    SqlJetMemPage.releasePage(pPage);
+                    throw e;
+                }
 
                 if (iTable == maxRootPgno) {
                     /*
@@ -2003,7 +2011,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         try {
             pBt.db = db;
             assert (inTrans == TransMode.WRITE);
-            if (!checkReadLocks(table, null, 1)) {
+            if (checkReadLocks(table, null, 1)) {
                 /* nothing to do */
             } else if (!pBt.saveAllCursors(table, null)) {
                 /* nothing to do */

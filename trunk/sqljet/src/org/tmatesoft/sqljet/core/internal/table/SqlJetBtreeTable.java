@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -59,6 +61,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     private long priorNewRowid = 0;
 
     private SqlJetBtreeRecord recordCache;
+    private Object[] valueCache;
+    private Object[] valuesCache;
 
     /**
      * @param db
@@ -244,6 +248,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         try {
             if (null == recordCache) {
                 recordCache = new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
+                valueCache = new Object[recordCache.getFieldsCount()];
             }
             return recordCache;
         } finally {
@@ -289,6 +294,19 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public Object getValue(int field) throws SqlJetException {
+        if (valueCache != null && field < valueCache.length) {
+            final Object valueCached = valueCache[field];
+            if (valueCached != null)
+                return valueCached;
+        }
+        final Object valueUncached = getValueUncached(field);
+        if (valueUncached != null) {
+            valueCache[field] = valueUncached;
+        }
+        return valueUncached;
+    }
+
+    public Object getValueUncached(int field) throws SqlJetException {
         if (isNull(field))
             return null;
         switch (getFieldType(field)) {
@@ -404,12 +422,17 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getValues()
      */
     public Object[] getValues() throws SqlJetException {
-        final int fieldsCount = getFieldsCount();
-        final Object[] values = new Object[fieldsCount];
-        for (int i = 0; i < fieldsCount; i++) {
-            values[i] = getValue(i);
+        if (valuesCache != null) {
+            return valuesCache;
+        } else {
+            final ISqlJetBtreeRecord record = getRecord();
+            final int fieldsCount = record.getFieldsCount();
+            for (int i = 0; i < fieldsCount; i++) {
+                valueCache[i] = getValue(i);
+            }
+            valuesCache = valueCache;
+            return valueCache;
         }
-        return values;
     }
 
     protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
@@ -543,6 +566,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     protected void clearRecordCache() {
         recordCache = null;
+        valuesCache = null;
+        valueCache = null;
     }
 
     public void clear() throws SqlJetException {

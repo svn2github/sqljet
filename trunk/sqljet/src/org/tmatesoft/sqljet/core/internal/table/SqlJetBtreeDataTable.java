@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
@@ -61,6 +62,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         INSERT, UPDATE, DELETE
     };
 
+    private ISqlJetBtreeRecord defaults;
+
     /**
      * Open data table by name.
      * 
@@ -71,6 +74,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 .getTable(tableName)).getPage(), write, false);
         this.schema = (SqlJetSchema) schema;
         this.tableDef = (SqlJetTableDef) schema.getTable(tableName);
+        defaults = SqlJetBtreeRecord.getRecord(getEncoding(), getDefaults());
         openIndexes(schema);
     }
 
@@ -205,7 +209,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     private Object[] getValuesRow(Object... values) throws SqlJetException {
-        final Object[] row = getDefaults();
+        final Object[] row = new Object[tableDef.getColumns().size()];
         if (null != values && values.length != 0) {
             if (values.length > row.length) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
@@ -759,7 +763,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private Object[] unwrapValues(Map<String, Object> values) throws SqlJetException {
         int i = 0;
-        final Object[] unwrapped = getDefaults();
+        final Object[] unwrapped = new Object[tableDef.getColumns().size()];
         if (null != values)
             for (ISqlJetColumnDef column : tableDef.getColumns()) {
                 final String columnName = column.getName();
@@ -854,6 +858,23 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             index.clear();
         }
         super.clear();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getValueMem
+     * (int)
+     */
+    @Override
+    protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
+        final ISqlJetVdbeMem valueMem = super.getValueMem(field);
+        if (field < defaults.getFieldsCount() && (valueMem == null || valueMem.isNull())) {
+            return defaults.getFields().get(field);
+        } else {
+            return valueMem;
+        }
     }
 
 }

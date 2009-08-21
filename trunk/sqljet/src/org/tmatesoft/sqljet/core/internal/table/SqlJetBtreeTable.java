@@ -38,10 +38,10 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     private static final int CURSOR_LOCK_RETRIES = SqlJetUtility.getIntSysProp("SqlJetBtreeTable.CURSOR_LOCK_RETRIES",
-            100);
+            1000);
 
     private static final long CURSOR_LOCK_SLEEP_MS = SqlJetUtility.getIntSysProp(
-            "SqlJetBtreeTable.CURSOR_LOCK_SLEEP_MS", 1);
+            "SqlJetBtreeTable.CURSOR_LOCK_SLEEP_MS", 10);
 
     protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 

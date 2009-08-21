@@ -23,8 +23,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1107,17 +1109,12 @@ public class SqlJetUtility {
         return a;
     }
 
-    public static <E> Set<E> of(E... objects) {
-        HashSet<E> set = new HashSet<E>();
-        for (E object : objects) {
-            set.add(object);
-        }
-        return set;
+    public static <E extends Enum<E>> EnumSet<E> of(E e1, E... e) {
+        return EnumSet.of(e1, e);
     }
 
-    public static <E extends Enum<E>> Set<E> noneOf(Class<E> elementType) {
-        HashSet<E> set = new HashSet<E>();
-        return set;
+    public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
+        return EnumSet.noneOf(elementType);
     }
 
     /**

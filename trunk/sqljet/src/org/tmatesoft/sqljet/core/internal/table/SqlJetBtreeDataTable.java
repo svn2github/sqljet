@@ -573,11 +573,18 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         // modify indexes
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
             final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+            final Object[] currentKey = getKeyForIndex(getAsNamedFields(currentRow), indexDef);
+            final Object[] key = getKeyForIndex(fields, indexDef);
+            if (Action.UPDATE == action) {
+                if (Arrays.deepEquals(currentKey, key)) {
+                    continue;
+                }
+            }
             if (Action.INSERT != action) {
-                indexTable.delete(currentRowId, getKeyForIndex(getAsNamedFields(currentRow), indexDef));
+                indexTable.delete(currentRowId, currentKey);
             }
             if (Action.DELETE != action) {
-                indexTable.insert(rowId, true, getKeyForIndex(fields, indexDef));
+                indexTable.insert(rowId, true, key);
             }
         }
 
@@ -604,8 +611,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     public Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
 
-        if (values == null)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
+        if (values == null) {
+            return null;
+        }
 
         final int fieldsSize = values.length;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
@@ -636,7 +644,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     public Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
-        if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
+        if (null == fields) {
+            return null;
+        } else if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
             final String column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn().getName();
             return new Object[] { fields.get(column) };
         } else if (tableDef.getTableIndexConstraint(indexDef.getName()) != null) {

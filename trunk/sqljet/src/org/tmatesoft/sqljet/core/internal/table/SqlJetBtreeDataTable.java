@@ -581,7 +581,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                     indexDef);
             final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
             if (Action.UPDATE == action) {
-                if (Arrays.deepEquals(currentKey, key)) {
+                if ( currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
                     continue;
                 }
             }

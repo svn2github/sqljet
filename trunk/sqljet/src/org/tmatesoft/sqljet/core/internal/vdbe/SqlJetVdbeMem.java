@@ -25,6 +25,7 @@ import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.slice;
 import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.strlen30;
 
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -90,10 +91,10 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     int n;
 
     /** Some combination of MEM_Null, MEM_Str, MEM_Dyn, etc. */
-    Set<SqlJetVdbeMemFlags> flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
+    Set<SqlJetVdbeMemFlags> flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
     /** One of SQLITE_NULL, SQLITE_TEXT, SQLITE_INTEGER, etc */
-    SqlJetValueType type;
+    SqlJetValueType type = SqlJetValueType.NULL;
 
     /** SQLITE_UTF8, SQLITE_UTF16BE, SQLITE_UTF16LE */
     SqlJetEncoding enc;
@@ -105,14 +106,10 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     ByteBuffer zMalloc;
 
     public SqlJetVdbeMem() {
-        this.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
-        this.type = SqlJetValueType.NULL;
         this.db = null;
     }
 
     public SqlJetVdbeMem(ISqlJetDbHandle db) {
-        this.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
-        this.type = SqlJetValueType.NULL;
         this.db = db;
     }
 
@@ -147,8 +144,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
          */
         Set<SqlJetVdbeMemFlags> f1 = pMem1.flags;
         Set<SqlJetVdbeMemFlags> f2 = pMem2.flags;
-        Set<SqlJetVdbeMemFlags> combined_flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
-        combined_flags.addAll(f1);
+        Set<SqlJetVdbeMemFlags> combined_flags = EnumSet.copyOf(f1);
         combined_flags.addAll(f2);
         assert (!combined_flags.contains(SqlJetVdbeMemFlags.RowSet));
 
@@ -399,7 +395,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         }
         pMem.n = strlen30(pMem.z);
         pMem.enc = SqlJetEncoding.UTF8;
-        pMem.flags.addAll(SqlJetUtility.of(SqlJetVdbeMemFlags.Str, SqlJetVdbeMemFlags.Term));
+        pMem.flags.add(SqlJetVdbeMemFlags.Str);
+        pMem.flags.add(SqlJetVdbeMemFlags.Term);
         pMem.changeEncoding(enc);
     }
 
@@ -441,7 +438,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         if (pMem.z == null) { // WTF? /sergey/
             pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
         } else {
-            pMem.flags.removeAll(SqlJetUtility.of(SqlJetVdbeMemFlags.Ephem, SqlJetVdbeMemFlags.Static));
+            pMem.flags.remove(SqlJetVdbeMemFlags.Ephem);
+            pMem.flags.remove(SqlJetVdbeMemFlags.Static);
         }
         pMem.xDel = null;
     }

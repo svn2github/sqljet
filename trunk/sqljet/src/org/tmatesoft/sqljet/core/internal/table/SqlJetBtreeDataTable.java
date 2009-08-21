@@ -577,8 +577,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         // modify indexes
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
             final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
-            final Object[] currentKey = getKeyForIndex(getAsNamedFields(currentRow), indexDef);
-            final Object[] key = getKeyForIndex(fields, indexDef);
+            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
+                    indexDef);
+            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
             if (Action.UPDATE == action) {
                 if (Arrays.deepEquals(currentKey, key)) {
                     continue;

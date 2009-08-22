@@ -86,7 +86,8 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
 
         btreeCopy = new SqlJetBtree();
         btreeCopy.open(repCacheDbCopy, db, SqlJetUtility.of(SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE),
-                SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
+                SqlJetFileType.MAIN_DB, SqlJetUtility.of(SqlJetFileOpenPermission.READWRITE,
+                        SqlJetFileOpenPermission.CREATE));
 
         db.setOptions(new SqlJetOptions(btreeCopy, db));
 
@@ -593,6 +594,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         btreeCopy.beginTrans(SqlJetTransactionMode.WRITE);
         meta.changeSchemaVersion();
         btreeCopy.commit();
+        db.getOptions().verifySchemaVersion(true);
         data.first();
         Assert.assertTrue(false);
     }
@@ -604,13 +606,13 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         Assert.assertNotNull(idx);
         final ISqlJetBtreeIndexTable index = new SqlJetBtreeIndexTable(schema, idx, true);
         String prev = null;
-        for(index.first();!index.eof();index.next()){
+        for (index.first(); !index.eof(); index.next()) {
             final String hash = index.getString(0);
             logger.info(hash);
-            if(prev!=null&&hash!=null){
-                Assert.assertTrue(hash.compareTo(prev)>0);
+            if (prev != null && hash != null) {
+                Assert.assertTrue(hash.compareTo(prev) > 0);
             }
             prev = hash;
-        }      
+        }
     }
 }

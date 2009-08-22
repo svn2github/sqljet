@@ -292,6 +292,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
         checkOpen();
+        getOptions().verifySchemaVersion(true);        
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {

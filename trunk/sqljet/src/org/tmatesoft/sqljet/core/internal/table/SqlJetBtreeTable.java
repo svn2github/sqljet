@@ -14,8 +14,6 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -148,7 +146,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#lock()
      */
     public void lock() throws SqlJetException {
-        verifySchemaCookie(true);
         cursor.enterCursor();
     }
 
@@ -433,10 +430,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             valuesCache = valueCache;
             return valueCache;
         }
-    }
-
-    protected boolean verifySchemaCookie(boolean throwIfStale) throws SqlJetException {
-        return db.getOptions().verifySchemaVersion(throwIfStale);
     }
 
     public long newRowId() throws SqlJetException {

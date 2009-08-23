@@ -25,6 +25,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.Random;
 
+import junit.framework.Assert;
+
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -47,6 +49,14 @@ public class NestedVmBenchmark extends AbstractBenchmark {
     public void tearDown() throws Exception {
         conn.close();
         super.tearDown();
+    }
+
+    @Override
+    public void nothing() throws Exception {
+    }
+
+    @Override
+    public void nothing2() throws Exception {
     }
 
     @Override
@@ -109,6 +119,7 @@ public class NestedVmBenchmark extends AbstractBenchmark {
             } finally {
                 conn.setAutoCommit(true);
             }
+            prep.close();
         }
     }
 
@@ -120,6 +131,30 @@ public class NestedVmBenchmark extends AbstractBenchmark {
     @Override
     public void clear() throws Exception {
         stat.execute(String.format("delete from %s;", TABLE_NAME));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#locate()
+     */
+    @Override
+    public void locate() throws Exception {
+        final PreparedStatement prep = conn.prepareStatement(String
+                .format("select * from %s where hash=?;", TABLE_NAME));
+        for (int i = 0; i < COUNT; i++) {
+            for (String hashe : LOCATE_HASHES) {
+                prep.setString(1, hashe);
+                final ResultSet rs = prep.executeQuery();
+                try {
+                    Assert.assertFalse(rs.isAfterLast());
+                    logger.info(rs.getString(1));
+                } finally {
+                    rs.close();
+                }
+            }
+        }
+        prep.close();
     }
 
 }

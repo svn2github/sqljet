@@ -17,7 +17,10 @@
  */
 package org.tmatesoft.sqljet.benchmarks;
 
+import java.sql.ResultSet;
 import java.util.Random;
+
+import junit.framework.Assert;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -46,6 +49,14 @@ public class SqlJetBenchmark extends AbstractBenchmark {
     public void tearDown() throws Exception {
         db.close();
         super.tearDown();
+    }
+
+    @Override
+    public void nothing() throws Exception {
+    }
+
+    @Override
+    public void nothing2() throws Exception {
     }
 
     @Override
@@ -159,4 +170,30 @@ public class SqlJetBenchmark extends AbstractBenchmark {
             }
         });
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.benchmarks.AbstractBenchmark#locate()
+     */
+    @Override
+    public void locate() throws Exception {
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                for (int i = 0; i < COUNT; i++) {
+                    for (String hashe : LOCATE_HASHES) {
+                        final ISqlJetCursor c = table.lookup(null, hashe);
+                        try {
+                            Assert.assertFalse(c.eof());
+                            logger.info(c.getString(0));
+                        } finally {
+                            c.close();
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
 }

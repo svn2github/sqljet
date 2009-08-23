@@ -35,6 +35,9 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     public static final String TABLE_NAME = "rep_cache";
     protected static final int COUNT = 1000;
 
+    protected static final String[] LOCATE_HASHES = { "b1e2b2360e6c54142cd77e96297b665740c28705",
+            "3bc460e40d0355624872d8efa2cc5940f98bd02d", "4ef3399d8342c53901f7b621be17241bed68f4a8" };
+
     protected File dbFile;
 
     @Before
@@ -50,6 +53,12 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     }
 
     @Test
+    public abstract void nothing() throws Exception;
+
+    @Test
+    public abstract void nothing2() throws Exception;
+
+    @Test
     public abstract void selectAll() throws Exception;
 
     @Test
@@ -63,5 +72,8 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     @Test
     public abstract void clear() throws Exception;
-    
+
+    @Test
+    public abstract void locate() throws Exception;
+
 }

@@ -27,7 +27,7 @@ import java.nio.channels.FileChannel.MapMode;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
 
@@ -36,9 +36,21 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
      * @throws FileNotFoundException
      */
     public static File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
-        File to = File.createTempFile("copy", null);
-        if (deleteCopy)
+        return copyFile(from, File.createTempFile("copy", null), deleteCopy);
+    }
+
+    public static File copyFile(File from, File to, boolean deleteCopy) throws IOException, FileNotFoundException {
+        if (deleteCopy) {
             to.deleteOnExit();
+        }
+        return copyFile(from, to);
+    }
+
+    /**
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    public static File copyFile(File from, File to) throws IOException, FileNotFoundException {
         RandomAccessFile in = new RandomAccessFile(from, "r");
         RandomAccessFile out = new RandomAccessFile(to, "rw");
         byte[] b = new byte[4096];
@@ -74,5 +86,4 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
         return true;
     }
 
-    
 }

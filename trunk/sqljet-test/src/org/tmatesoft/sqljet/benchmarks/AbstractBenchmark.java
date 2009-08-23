@@ -18,6 +18,7 @@
 package org.tmatesoft.sqljet.benchmarks;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +32,11 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
  */
 public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
+    private static final String TIME_LOGGER = "org.tmatesoft.sqljet.benchmarks.timeLogger";
     public static final String DB_FILE = "sqljet-test/db/rep-cache/rep-cache.db";
+    public static final String WORK_PATH = null;
+    //public static final String WORK_PATH = "F://";
+    public static final String COPY_PREFIX = "copy";
     public static final String TABLE_NAME = "rep_cache";
     protected static final int COUNT = 1000;
 
@@ -40,9 +45,17 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     protected File dbFile;
 
+    protected interface Measure {
+        void measure() throws Exception;
+    }
+
+    private static final Logger timeLogger = Logger.getLogger(TIME_LOGGER);
+
     @Before
     public void setUp() throws Exception {
-        dbFile = copyFile(new File(DB_FILE), true);
+        final File workPath = WORK_PATH != null ? new File(WORK_PATH) : null;
+        dbFile = File.createTempFile("copy", null, workPath);
+        copyFile(new File(DB_FILE), dbFile, true);
     }
 
     @After
@@ -52,11 +65,19 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
         }
     }
 
-    @Test
-    public abstract void nothing() throws Exception;
+    private long getTime(Measure m) throws Exception {
+        final long t = System.currentTimeMillis();
+        m.measure();
+        return System.currentTimeMillis() - t;
+    }
 
-    @Test
-    public abstract void nothing2() throws Exception;
+    private void logTime(String name, long time) {
+        timeLogger.info(String.format("%s %d", name, time));
+    }
+
+    protected void measure(String name, Measure m) throws Exception {
+        logTime(name, getTime(m));
+    }
 
     @Test
     public abstract void selectAll() throws Exception;

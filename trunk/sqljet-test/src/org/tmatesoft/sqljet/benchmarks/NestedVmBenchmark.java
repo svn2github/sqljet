@@ -47,45 +47,51 @@ public class NestedVmBenchmark extends AbstractBenchmark {
 
     @Override
     public void tearDown() throws Exception {
-        conn.close();
+        if (conn != null) {
+            conn.close();
+        }
         super.tearDown();
     }
 
     @Override
-    public void nothing() throws Exception {
-    }
-
-    @Override
-    public void nothing2() throws Exception {
-    }
-
-    @Override
     public void selectAll() throws Exception {
-        ResultSet rs = stat.executeQuery(String.format("select * from %s;", TABLE_NAME));
-        final ResultSetMetaData metaData = rs.getMetaData();
-        final int columnCount = metaData.getColumnCount();
-        int rows = 0;
-        while (rs.next()) {
-            final StringBuilder s = new StringBuilder();
-            for (int column = 1; column <= columnCount; column++) {
-                final Object value = rs.getObject(column);
-                s.append(value).append(" ");
+        measure("NestedVmBenchmark.selectAll", new Measure() {
+            public void measure() throws Exception {
+                ResultSet rs = stat.executeQuery(String.format("select * from %s;", TABLE_NAME));
+                final ResultSetMetaData metaData = rs.getMetaData();
+                final int columnCount = metaData.getColumnCount();
+                int rows = 0;
+                while (rs.next()) {
+                    final StringBuilder s = new StringBuilder();
+                    for (int column = 1; column <= columnCount; column++) {
+                        final Object value = rs.getObject(column);
+                        s.append(value).append(" ");
+                    }
+                    logger.info(s.toString());
+                    rows++;
+                }
+                logger.info(String.format("rows %d", rows));
+                rs.close();
             }
-            logger.info(s.toString());
-            rows++;
-        }
-        logger.info(String.format("rows %d", rows));
-        rs.close();
+        });
     }
 
     @Override
     public void updateAll() throws Exception {
-        stat.execute(String.format("update %s set revision=revision+1;", TABLE_NAME));
+        measure("NestedVmBenchmark.updateAll", new Measure() {
+            public void measure() throws Exception {
+                stat.execute(String.format("update %s set revision=revision+1;", TABLE_NAME));
+            }
+        });
     }
 
     @Override
     public void deleteAll() throws Exception {
-        stat.execute(String.format("delete from %s where hash is not null;", TABLE_NAME));
+        measure("NestedVmBenchmark.deleteAll", new Measure() {
+            public void measure() throws Exception {
+                stat.execute(String.format("delete from %s where hash is not null;", TABLE_NAME));
+            }
+        });
     }
 
     /*
@@ -95,32 +101,36 @@ public class NestedVmBenchmark extends AbstractBenchmark {
      */
     @Override
     public void insertRandoms() throws Exception {
-        conn.setAutoCommit(false);
-        final PreparedStatement prep = conn.prepareStatement(String.format(
-                "insert into %s(hash,revision,offset,size,expanded_size) " + "values(?,?,?,?,?);", TABLE_NAME));
-        boolean success = false;
-        try {
-            final Random rand = new Random();
-            for (int i = 0; i < COUNT; i++) {
-                prep.setString(1, Long.toString(Math.abs(rand.nextLong())));
-                prep.setLong(2, Math.abs(rand.nextLong()));
-                prep.setLong(3, Math.abs(rand.nextLong()));
-                prep.setLong(4, Math.abs(rand.nextLong()));
-                prep.setLong(5, Math.abs(rand.nextLong()));
-                prep.execute();
-            }
-            conn.commit();
-            success = true;
-        } finally {
-            try {
-                if (success) {
-                    conn.rollback();
+        measure("NestedVmBenchmark.insertRandoms", new Measure() {
+            public void measure() throws Exception {
+                conn.setAutoCommit(false);
+                final PreparedStatement prep = conn.prepareStatement(String.format(
+                        "insert into %s(hash,revision,offset,size,expanded_size) " + "values(?,?,?,?,?);", TABLE_NAME));
+                boolean success = false;
+                try {
+                    final Random rand = new Random();
+                    for (int i = 0; i < COUNT; i++) {
+                        prep.setString(1, Long.toString(Math.abs(rand.nextLong())));
+                        prep.setLong(2, Math.abs(rand.nextLong()));
+                        prep.setLong(3, Math.abs(rand.nextLong()));
+                        prep.setLong(4, Math.abs(rand.nextLong()));
+                        prep.setLong(5, Math.abs(rand.nextLong()));
+                        prep.execute();
+                    }
+                    conn.commit();
+                    success = true;
+                } finally {
+                    try {
+                        if (success) {
+                            conn.rollback();
+                        }
+                    } finally {
+                        conn.setAutoCommit(true);
+                    }
+                    prep.close();
                 }
-            } finally {
-                conn.setAutoCommit(true);
             }
-            prep.close();
-        }
+        });
     }
 
     /*
@@ -130,7 +140,11 @@ public class NestedVmBenchmark extends AbstractBenchmark {
      */
     @Override
     public void clear() throws Exception {
-        stat.execute(String.format("delete from %s;", TABLE_NAME));
+        measure("NestedVmBenchmark.clear", new Measure() {
+            public void measure() throws Exception {
+                stat.execute(String.format("delete from %s;", TABLE_NAME));
+            }
+        });
     }
 
     /*
@@ -140,21 +154,25 @@ public class NestedVmBenchmark extends AbstractBenchmark {
      */
     @Override
     public void locate() throws Exception {
-        final PreparedStatement prep = conn.prepareStatement(String
-                .format("select * from %s where hash=?;", TABLE_NAME));
-        for (int i = 0; i < COUNT; i++) {
-            for (String hashe : LOCATE_HASHES) {
-                prep.setString(1, hashe);
-                final ResultSet rs = prep.executeQuery();
-                try {
-                    Assert.assertFalse(rs.isAfterLast());
-                    logger.info(rs.getString(1));
-                } finally {
-                    rs.close();
+        measure("NestedVmBenchmark.locate", new Measure() {
+            public void measure() throws Exception {
+                final PreparedStatement prep = conn.prepareStatement(String.format("select * from %s where hash=?;",
+                        TABLE_NAME));
+                for (int i = 0; i < COUNT; i++) {
+                    for (String hashe : LOCATE_HASHES) {
+                        prep.setString(1, hashe);
+                        final ResultSet rs = prep.executeQuery();
+                        try {
+                            Assert.assertFalse(rs.isAfterLast());
+                            logger.info(rs.getString(1));
+                        } finally {
+                            rs.close();
+                        }
+                    }
                 }
+                prep.close();
             }
-        }
-        prep.close();
+        });
     }
 
 }

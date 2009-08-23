@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.benchmarks;
 
-import java.sql.ResultSet;
 import java.util.Random;
 
 import junit.framework.Assert;
@@ -47,87 +46,93 @@ public class SqlJetBenchmark extends AbstractBenchmark {
 
     @Override
     public void tearDown() throws Exception {
-        db.close();
+        if (null != db) {
+            db.close();
+        }
         super.tearDown();
     }
 
     @Override
-    public void nothing() throws Exception {
-    }
-
-    @Override
-    public void nothing2() throws Exception {
-    }
-
-    @Override
     public void selectAll() throws Exception {
-        db.runReadTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor c = table.open();
-                try {
-                    final int fieldsCount = c.getFieldsCount();
-                    int rows = 0;
-                    do {
-                        final StringBuilder s = new StringBuilder();
-                        for (int field = 0; field < fieldsCount; field++) {
-                            final Object value = c.getValue(field);
-                            s.append(value).append(" ");
+        measure("SqlJetBenchmark.selectAll", new Measure() {
+            public void measure() throws Exception {
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor c = table.open();
+                        try {
+                            final int fieldsCount = c.getFieldsCount();
+                            int rows = 0;
+                            do {
+                                final StringBuilder s = new StringBuilder();
+                                for (int field = 0; field < fieldsCount; field++) {
+                                    final Object value = c.getValue(field);
+                                    s.append(value).append(" ");
+                                }
+                                logger.info(s.toString());
+                                rows++;
+                            } while (c.next());
+                            logger.info(String.format("rows %d", rows));
+                        } finally {
+                            c.close();
                         }
-                        logger.info(s.toString());
-                        rows++;
-                    } while (c.next());
-                    logger.info(String.format("rows %d", rows));
-                } finally {
-                    c.close();
-                }
-                return null;
+                        return null;
+                    }
+                });
             }
         });
     }
 
     @Override
     public void updateAll() throws Exception {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor c = table.open();
-                try {
-                    final int fieldsCount = c.getFieldsCount();
-                    final Object[] values = new Object[fieldsCount];
-                    do {
-                        for (int field = 0; field < fieldsCount; field++) {
-                            values[field] = c.getValue(field);
+        measure("SqlJetBenchmark.updateAll", new Measure() {
+            public void measure() throws Exception {
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor c = table.open();
+                        try {
+                            final int fieldsCount = c.getFieldsCount();
+                            final Object[] values = new Object[fieldsCount];
+                            do {
+                                for (int field = 0; field < fieldsCount; field++) {
+                                    values[field] = c.getValue(field);
+                                }
+                                final Object revision = values[1];
+                                if (revision instanceof Long) {
+                                    values[1] = (Long) revision + 1;
+                                }
+                                c.update(values);
+                            } while (c.next());
+                        } finally {
+                            c.close();
                         }
-                        final Object revision = values[1];
-                        if (revision instanceof Long) {
-                            values[1] = (Long) revision + 1;
-                        }
-                        c.update(values);
-                    } while (c.next());
-                } finally {
-                    c.close();
-                }
-                return null;
+                        return null;
+                    }
+                });
             }
         });
     }
 
     @Override
     public void deleteAll() throws Exception {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetCursor c = table.open();
-                try {
-                    do {
-                        if (!c.isNull(0)) {
-                            c.delete();
-                        } else {
-                            c.next();
+        measure("SqlJetBenchmark.deleteAll", new Measure() {
+            public void measure() throws Exception {
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor c = table.open();
+                        try {
+                            do {
+                                if (!c.isNull(0)) {
+                                    c.delete();
+                                } else {
+                                    c.next();
+                                }
+                            } while (!c.eof());
+                        } finally {
+                            c.close();
                         }
-                    } while (!c.eof());
-                } finally {
-                    c.close();
-                }
-                return null;
+                        return null;
+                    }
+                });
             }
         });
     }
@@ -139,19 +144,23 @@ public class SqlJetBenchmark extends AbstractBenchmark {
      */
     @Override
     public void insertRandoms() throws Exception {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                final Random rand = new Random();
-                final Object[] values = new Object[5];
-                for (int i = 0; i < COUNT; i++) {
-                    values[0] = Long.toString(Math.abs(rand.nextLong()));
-                    values[1] = Math.abs(rand.nextLong());
-                    values[2] = Math.abs(rand.nextLong());
-                    values[3] = Math.abs(rand.nextLong());
-                    values[4] = Math.abs(rand.nextLong());
-                    table.insert(values);
-                }
-                return null;
+        measure("SqlJetBenchmark.insertRandoms", new Measure() {
+            public void measure() throws Exception {
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final Random rand = new Random();
+                        final Object[] values = new Object[5];
+                        for (int i = 0; i < COUNT; i++) {
+                            values[0] = Long.toString(Math.abs(rand.nextLong()));
+                            values[1] = Math.abs(rand.nextLong());
+                            values[2] = Math.abs(rand.nextLong());
+                            values[3] = Math.abs(rand.nextLong());
+                            values[4] = Math.abs(rand.nextLong());
+                            table.insert(values);
+                        }
+                        return null;
+                    }
+                });
             }
         });
     }
@@ -163,10 +172,14 @@ public class SqlJetBenchmark extends AbstractBenchmark {
      */
     @Override
     public void clear() throws Exception {
-        db.runWriteTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                table.clear();
-                return null;
+        measure("SqlJetBenchmark.clear", new Measure() {
+            public void measure() throws Exception {
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        table.clear();
+                        return null;
+                    }
+                });
             }
         });
     }
@@ -178,20 +191,24 @@ public class SqlJetBenchmark extends AbstractBenchmark {
      */
     @Override
     public void locate() throws Exception {
-        db.runReadTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                for (int i = 0; i < COUNT; i++) {
-                    for (String hashe : LOCATE_HASHES) {
-                        final ISqlJetCursor c = table.lookup(null, hashe);
-                        try {
-                            Assert.assertFalse(c.eof());
-                            logger.info(c.getString(0));
-                        } finally {
-                            c.close();
+        measure("SqlJetBenchmark.locate", new Measure() {
+            public void measure() throws Exception {
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        for (int i = 0; i < COUNT; i++) {
+                            for (String hashe : LOCATE_HASHES) {
+                                final ISqlJetCursor c = table.lookup(null, hashe);
+                                try {
+                                    Assert.assertFalse(c.eof());
+                                    logger.info(c.getString(0));
+                                } finally {
+                                    c.close();
+                                }
+                            }
                         }
+                        return null;
                     }
-                }
-                return null;
+                });
             }
         });
     }

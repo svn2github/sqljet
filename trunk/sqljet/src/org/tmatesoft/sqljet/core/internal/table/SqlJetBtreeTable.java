@@ -274,15 +274,15 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         return cursor.getCursorDb().getOptions().getEncoding();
     }
 
-    protected boolean checkField(int field) throws SqlJetException {
-        return (field >= 0 && field < getFieldsCount());
+    protected static boolean checkField(ISqlJetBtreeRecord record, int field) throws SqlJetException {
+        return (field >= 0 && record!=null && field < record.getFieldsCount());
     }
 
     protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
-        if (!checkField(field))
-            return null;
         final ISqlJetBtreeRecord r = getRecord();
         if (null == r)
+            return null;
+        if (!checkField(r,field))
             return null;
         final List<ISqlJetVdbeMem> fields = r.getFields();
         if (null == fields)
@@ -304,17 +304,18 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public Object getValueUncached(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null || value.isNull())
             return null;
-        switch (getFieldType(field)) {
+        switch (value.getType()) {
         case INTEGER:
-            return getInteger(field);
+            return value.intValue();
         case FLOAT:
-            return getFloat(field);
+            return value.realValue();
         case TEXT:
-            return getString(field);
+            return SqlJetUtility.toString(value.valueText(getEncoding()), getEncoding());
         case BLOB:
-            return getBlob(field);
+            return value.valueBlob();
         case NULL:
             break;
         default:
@@ -357,9 +358,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getString(int)
      */
     public String getString(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null || value.isNull())
             return null;
-        return SqlJetUtility.toString(getValueMem(field).valueText(getEncoding()), db.getOptions().getEncoding());
+        return SqlJetUtility.toString(value.valueText(getEncoding()), getEncoding());
     }
 
     /*
@@ -370,9 +372,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * (int)
      */
     public long getInteger(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null || value.isNull())
             return 0;
-        return getValueMem(field).intValue();
+        return value.intValue();
     }
 
     /*
@@ -382,9 +385,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getReal(int)
      */
     public double getFloat(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null || value.isNull())
             return 0;
-        return getValueMem(field).realValue();
+        return value.realValue();
     }
 
     /*
@@ -395,9 +399,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * (int)
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null)
             return SqlJetValueType.NULL;
-        return getValueMem(field).getType();
+        return value.getType();
     }
 
     /*
@@ -407,9 +412,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getBlob(int)
      */
     public ByteBuffer getBlob(int field) throws SqlJetException {
-        if (isNull(field))
+        final ISqlJetVdbeMem value = getValueMem(field);
+        if (value==null || value.isNull())
             return null;
-        return getValueMem(field).valueBlob();
+        return value.valueBlob();
     }
 
     /*

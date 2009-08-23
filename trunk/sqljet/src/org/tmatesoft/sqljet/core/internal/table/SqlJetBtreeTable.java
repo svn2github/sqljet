@@ -241,16 +241,16 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public ISqlJetBtreeRecord getRecord() throws SqlJetException {
         if (eof())
             return null;
-        lock();
-        try {
-            if (null == recordCache) {
+        if (null == recordCache) {
+            lock();
+            try {
                 recordCache = new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
-                valueCache = new Object[recordCache.getFieldsCount()];
+            } finally {
+                unlock();
             }
-            return recordCache;
-        } finally {
-            unlock();
+            valueCache = new Object[recordCache.getFieldsCount()];
         }
+        return recordCache;
     }
 
     /*

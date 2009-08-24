@@ -17,13 +17,24 @@
  */
 package org.tmatesoft.sqljet.benchmarks;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -32,10 +43,9 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
  */
 public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
-    private static final String TIME_LOGGER = "org.tmatesoft.sqljet.benchmarks.timeLogger";
     public static final String DB_FILE = "sqljet-test/db/rep-cache/rep-cache.db";
     public static final String WORK_PATH = null;
-    //public static final String WORK_PATH = "F://";
+    // public static final String WORK_PATH = "F://";
     public static final String COPY_PREFIX = "copy";
     public static final String TABLE_NAME = "rep_cache";
     protected static final int COUNT = 1000;
@@ -49,7 +59,15 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
         void measure() throws Exception;
     }
 
-    private static final Logger timeLogger = Logger.getLogger(TIME_LOGGER);
+    static private Logger timeLogger;
+
+    @BeforeClass
+    static public void setUpClass() throws Exception {
+        timeLogger = Logger.getAnonymousLogger();
+        if (!SqlJetUtility.getBoolSysProp("SqlJetBenchmark.TimeLog", false)) {
+            timeLogger.setLevel(Level.OFF);
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -78,6 +96,9 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     protected void measure(String name, Measure m) throws Exception {
         logTime(name, getTime(m));
     }
+
+    @Test
+    public abstract void nothing() throws Exception;
 
     @Test
     public abstract void selectAll() throws Exception;

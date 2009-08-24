@@ -53,6 +53,10 @@ public class SqlJetBenchmark extends AbstractBenchmark {
     }
 
     @Override
+    public void nothing() throws Exception {
+    }
+    
+    @Override
     public void selectAll() throws Exception {
         measure("SqlJetBenchmark.selectAll", new Measure() {
             public void measure() throws Exception {

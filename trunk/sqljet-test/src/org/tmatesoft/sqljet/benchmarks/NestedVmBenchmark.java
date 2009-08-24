@@ -54,6 +54,10 @@ public class NestedVmBenchmark extends AbstractBenchmark {
     }
 
     @Override
+    public void nothing() throws Exception {
+    }
+
+    @Override
     public void selectAll() throws Exception {
         measure("NestedVmBenchmark.selectAll", new Measure() {
             public void measure() throws Exception {

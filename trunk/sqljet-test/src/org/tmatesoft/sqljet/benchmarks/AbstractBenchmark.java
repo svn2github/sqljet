@@ -17,19 +17,11 @@
  */
 package org.tmatesoft.sqljet.benchmarks;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,9 +35,10 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
+    private static final String SQL_JET_BENCHMARK_TIME_LOG = "SqlJetBenchmark.TimeLog";
     public static final String DB_FILE = "sqljet-test/db/rep-cache/rep-cache.db";
-    public static final String WORK_PATH = null;
     // public static final String WORK_PATH = "F://";
+    public static final String WORK_PATH = null;
     public static final String COPY_PREFIX = "copy";
     public static final String TABLE_NAME = "rep_cache";
     protected static final int COUNT = 1000;
@@ -64,7 +57,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @BeforeClass
     static public void setUpClass() throws Exception {
         timeLogger = Logger.getAnonymousLogger();
-        if (!SqlJetUtility.getBoolSysProp("SqlJetBenchmark.TimeLog", false)) {
+        if (!SqlJetUtility.getBoolSysProp(SQL_JET_BENCHMARK_TIME_LOG, false)) {
             timeLogger.setLevel(Level.OFF);
         }
     }

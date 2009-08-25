@@ -30,6 +30,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
+import org.tmatesoft.sqljet.core.internal.mutex.SqlJetEmptyMutex;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
@@ -43,10 +44,16 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private Set<SqlJetDbFlags> flags = SqlJetUtility.noneOf(SqlJetDbFlags.class);
     private ISqlJetConfig config = new SqlJetConfig();
     private ISqlJetFileSystem fileSystem = SqlJetFileSystemsManager.getManager().find(null);
-    private ISqlJetMutex mutex = new SqlJetMutex();
+    private ISqlJetMutex mutex = new SqlJetEmptyMutex();
     private List<ISqlJetBackend> backends = new LinkedList<ISqlJetBackend>();
     private ISqlJetOptions options;
     private ISqlJetBusyHandler busyHandler;
+
+    public SqlJetDbHandle() {
+        if (config.isSharedCacheEnabled()) {
+            mutex = new SqlJetMutex();
+        }
+    }
 
     /*
      * (non-Javadoc)

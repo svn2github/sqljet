@@ -168,6 +168,37 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
+     * Set cache size.
+     * 
+     * @param cacheSize
+     * @throws SqlJetException
+     */
+    public void setCacheSize(final int cacheSize) throws SqlJetException {
+        checkOpen();
+        runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                btree.setCacheSize(cacheSize);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Get cache size.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    public int getCacheSize() throws SqlJetException {
+        checkOpen();
+        return (Integer) runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                return btree.getCacheSize();
+            }
+        });
+    }
+
+    /**
      * Do some actions with locking data base.
      * 
      * @param op
@@ -292,7 +323,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
         checkOpen();
-        getOptions().verifySchemaVersion(true);        
+        getOptions().verifySchemaVersion(true);
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {

@@ -56,28 +56,45 @@ public class DbTest extends AbstractNewDbTest {
             db1.close();
         }
     }
-    
+
     @Test
     public void testBigInteger() throws SqlJetException {
         db.createTable("create table t(a integer primary key, b integer)");
         final ISqlJetTable t = db.getTable("t");
         final long v = Long.MAX_VALUE;
-        t.insert(v,v);
+        t.insert(v, v);
         final ISqlJetCursor c = t.open();
         final long i = c.getInteger(0);
         final long f = c.getInteger(1);
         Assert.assertEquals(v, i);
         Assert.assertEquals(v, f);
     }
-    
+
     @Test
     public void testVarint() throws SqlJetException {
         final byte[] b = new byte[9];
         final long l = Long.MAX_VALUE;
         final ByteBuffer p = ByteBuffer.wrap(b);
         SqlJetUtility.putVarint(p, l);
-        final long[] v = new long[] {0};
+        final long[] v = new long[] { 0 };
         SqlJetUtility.getVarint(p, v);
         Assert.assertEquals(l, v[0]);
     }
+
+    @Test
+    public void testCacheSize() throws SqlJetException {
+        db.setCacheSize(1000);
+        Assert.assertEquals(1000, db.getCacheSize());
+        db.createTable("create table t(a integer primary key, b integer)");
+        final ISqlJetTable t = db.getTable("t");
+        t.insert(1, 1);
+        final ISqlJetCursor c = t.open();
+        try {
+            Assert.assertEquals(1, c.getInteger(0));
+            Assert.assertEquals(1, c.getInteger(1));
+        } finally {
+            c.close();
+        }
+    }
+
 }

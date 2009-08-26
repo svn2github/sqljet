@@ -553,4 +553,9 @@ public interface ISqlJetPager {
      */
     int imageSize();
 
+    /**
+     * @return
+     */
+    int getCacheSize();
+
 }

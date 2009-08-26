@@ -511,6 +511,16 @@ public class SqlJetBtree implements ISqlJetBtree {
         }
     }
 
+    public int getCacheSize() {
+        assert (db.getMutex().held());
+        enter();
+        try {
+            return pBt.pPager.getCacheSize();
+        } finally {
+            leave();
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 

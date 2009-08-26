@@ -752,6 +752,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         pageCache.setCacheSize(cacheSize);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetPager#getCacheSize()
+     */
+    public int getCacheSize() {
+        return pageCache.getCachesize();
+    }
+    
     /*
      * (non-Javadoc)
      * 

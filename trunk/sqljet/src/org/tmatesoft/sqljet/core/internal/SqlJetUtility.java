@@ -100,20 +100,6 @@ public class SqlJetUtility {
     /**
      * Read a two-byte big-endian integer values.
      */
-    public static int get2byte(byte[] x, int off) {
-        return get2byte(ByteBuffer.wrap(x), off);
-    }
-
-    /**
-     * Write a two-byte big-endian integer values.
-     */
-    public static void put2byte(byte[] p, int off, int v) {
-        put2byte(ByteBuffer.wrap(p), off, v);
-    }
-
-    /**
-     * Read a two-byte big-endian integer values.
-     */
     public static int get2byte(ByteBuffer x) {
         return get2byte(x, 0);
     }
@@ -140,20 +126,6 @@ public class SqlJetUtility {
     }
 
     /**
-     * Read a four-byte big-endian integer value.
-     */
-    public static int get4byte(byte[] p) {
-        return get4byte(ByteBuffer.wrap(p));
-    }
-
-    /**
-     * Read a four-byte big-endian integer value.
-     */
-    public static int get4byte(byte[] p, int pos) {
-        return get4byte(ByteBuffer.wrap(p), pos);
-    }
-
-    /**
      * Write a four-byte big-endian integer value.
      */
     public static ByteBuffer put4byte(int v) {
@@ -163,13 +135,6 @@ public class SqlJetUtility {
         b.putInt(0, v);
         b.rewind();
         return b;
-    }
-
-    /**
-     * Write a four-byte big-endian integer value.
-     */
-    public static void put4byte(byte[] p, int pos, int v) {
-        put4byte(ByteBuffer.wrap(p), pos, v);
     }
 
     /**
@@ -543,160 +508,6 @@ public class SqlJetUtility {
         return 9;
     }
 
-    public static byte getVarint_Old(ByteBuffer p, long[] v) {
-        int a, b, s;
-        int i = 0;
-
-        a = SqlJetUtility.getUnsignedByte(p, i);
-        /* a: p0 (unmasked) */
-        if ((a & 0x80) == 0) {
-            v[0] = a;
-            return 1;
-        }
-
-        i++;
-        b = SqlJetUtility.getUnsignedByte(p, i);
-        /* b: p1 (unmasked) */
-        if ((b & 0x80) == 0) {
-            a &= 0x7f;
-            a = a << 7;
-            a |= b;
-            v[0] = a;
-            return 2;
-        }
-
-        i++;
-        a = a << 14;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
-        /* a: p0<<14 | p2 (unmasked) */
-        if ((a & 0x80) == 0) {
-            a &= (0x7f << 14) | (0x7f);
-            b &= 0x7f;
-            b = b << 7;
-            a |= b;
-            v[0] = a;
-            return 3;
-        }
-
-        /* CSE1 from below */
-        a &= (0x7f << 14) | (0x7f);
-        i++;
-        b = b << 14;
-        b |= SqlJetUtility.getUnsignedByte(p, i);
-        /* b: p1<<14 | p3 (unmasked) */
-        if ((b & 0x80) == 0) {
-            b &= (0x7f << 14) | (0x7f);
-            /* moved CSE1 up */
-            /* a &= (0x7f<<14)|(0x7f); */
-            a = a << 7;
-            a |= b;
-            v[0] = a;
-            return 4;
-        }
-
-        /* a: p0<<14 | p2 (masked) */
-        /* b: p1<<14 | p3 (unmasked) */
-        /* 1:save off p0<<21 | p1<<14 | p2<<7 | p3 (masked) */
-        /* moved CSE1 up */
-        /* a &= (0x7f<<14)|(0x7f); */
-        b &= (0x7f << 14) | (0x7f);
-        s = a;
-        /* s: p0<<14 | p2 (masked) */
-
-        i++;
-        a = a << 14;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
-        /* a: p0<<28 | p2<<14 | p4 (unmasked) */
-        if ((a & 0x80) == 0) {
-            /*
-             * we can skip these cause they were (effectively) done above in
-             * calc'ing s
-             */
-            /* a &= (0x7f<<28)|(0x7f<<14)|(0x7f); */
-            /* b &= (0x7f<<14)|(0x7f); */
-            b = b << 7;
-            a |= b;
-            s = s >> 18;
-            v[0] = ((long) s) << 32 | a;
-            return 5;
-        }
-
-        /* 2:save off p0<<21 | p1<<14 | p2<<7 | p3 (masked) */
-        s = s << 7;
-        s |= b;
-        /* s: p0<<21 | p1<<14 | p2<<7 | p3 (masked) */
-
-        i++;
-        b = b << 14;
-        b |= SqlJetUtility.getUnsignedByte(p, i);
-        /* b: p1<<28 | p3<<14 | p5 (unmasked) */
-        if ((b & 0x80) == 0) {
-            /*
-             * we can skip this cause it was (effectively) done above in
-             * calc'ing s
-             */
-            /* b &= (0x7f<<28)|(0x7f<<14)|(0x7f); */
-            a &= (0x7f << 14) | (0x7f);
-            a = a << 7;
-            a |= b;
-            s = s >> 18;
-            v[0] = ((long) s) << 32 | a;
-            return 6;
-        }
-
-        i++;
-        a = a << 14;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
-        /* a: p2<<28 | p4<<14 | p6 (unmasked) */
-        if ((a & 0x80) == 0) {
-            a &= (0x7f << 28) | (0x7f << 14) | (0x7f);
-            b &= (0x7f << 14) | (0x7f);
-            b = b << 7;
-            a |= b;
-            s = s >> 11;
-            v[0] = ((long) s) << 32 | a;
-            return 7;
-        }
-
-        /* CSE2 from below */
-        a &= (0x7f << 14) | (0x7f);
-        i++;
-        b = b << 14;
-        b |= SqlJetUtility.getUnsignedByte(p, i);
-        /* b: p3<<28 | p5<<14 | p7 (unmasked) */
-        if ((b & 0x80) == 0) {
-            b &= (0x7f << 28) | (0x7f << 14) | (0x7f);
-            /* moved CSE2 up */
-            /* a &= (0x7f<<14)|(0x7f); */
-            a = a << 7;
-            a |= b;
-            s = s >> 4;
-            v[0] = ((long) s) << 32 | a;
-            return 8;
-        }
-
-        i++;
-        a = a << 15;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
-        /* a: p4<<29 | p6<<15 | p8 (unmasked) */
-
-        /* moved CSE2 up */
-        /* a &= (0x7f<<29)|(0x7f<<15)|(0xff); */
-        b &= (0x7f << 14) | (0x7f);
-        b = b << 8;
-        a |= b;
-
-        s = s << 4;
-        b = SqlJetUtility.getUnsignedByte(p, i - 4);
-        b &= 0x7f;
-        b = b >> 3;
-        s |= b;
-
-        v[0] = ((long) s) << 32 | a;
-
-        return 9;
-    }
-
     /**
      * Read a 32-bit variable-length integer from memory starting at p[0].
      * Return the number of bytes read. The value is stored in *v. A MACRO
@@ -805,7 +616,7 @@ public class SqlJetUtility {
      * @return
      */
     public static boolean mutex_held(ISqlJetMutex mutex) {
-        return mutex.held();
+        return mutex == null || mutex.held();
     }
 
     /**
@@ -1121,7 +932,7 @@ public class SqlJetUtility {
     public static <E extends Enum<E>> EnumSet<E> of(E e1, E e2, E e3) {
         return EnumSet.of(e1, e2, e3);
     }
-    
+
     public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
         return EnumSet.noneOf(elementType);
     }

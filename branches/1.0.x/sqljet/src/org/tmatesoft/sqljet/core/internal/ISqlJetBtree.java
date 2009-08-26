@@ -641,5 +641,10 @@ public interface ISqlJetBtree {
      * Exit the recursive mutex on a Btree.
      */
     void leave();
+
+    /**
+     * @return
+     */
+    int getCacheSize();
     
 }

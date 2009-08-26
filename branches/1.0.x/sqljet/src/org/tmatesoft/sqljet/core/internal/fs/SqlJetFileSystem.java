@@ -157,7 +157,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         }
         
         //final String mode = isReadWrite ? "rws" : "r";
-        final String mode = "rws"; // because Java can't lock read-only files we open always for write
+        final String mode = "rw"; // because Java can't lock read-only files we open always for write
 
         final RandomAccessFile file;
         try {

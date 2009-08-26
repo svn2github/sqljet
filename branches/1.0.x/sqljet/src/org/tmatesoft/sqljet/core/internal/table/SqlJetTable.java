@@ -148,4 +148,14 @@ public class SqlJetTable implements ISqlJetTable {
             }
         });
     }
+    
+    public void clear() throws SqlJetException {
+        runWriteTransaction(new ISqlJetTableRun() {
+            public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
+                table.clear();                
+                return null;
+            }
+        });        
+    }
+    
 }

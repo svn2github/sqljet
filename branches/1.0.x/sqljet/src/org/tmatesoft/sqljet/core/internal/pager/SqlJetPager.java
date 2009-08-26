@@ -752,6 +752,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         pageCache.setCacheSize(cacheSize);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetPager#getCacheSize()
+     */
+    public int getCacheSize() {
+        return pageCache.getCachesize();
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -1104,10 +1111,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     private long dataHash(int numByte, ByteBuffer data) {
         long hash = 0;
-        int i;
-        for (i = 0; i < numByte; i++) {
-            hash = (hash * 1039) + SqlJetUtility.getUnsignedByte(data, i);
-        }
+        /*
+         * int i; for (i = 0; i < numByte; i++) { hash = (hash * 1039) +
+         * SqlJetUtility.getUnsignedByte(data, i); }
+         */
         return hash;
     }
 

@@ -113,4 +113,9 @@ public interface ISqlJetTable {
      * @throws SqlJetException
      */
     long insertWithRowId(long rowId, Object... values) throws SqlJetException;
+
+    /**
+     * @throws SqlJetException
+     */
+    void clear() throws SqlJetException;
 }

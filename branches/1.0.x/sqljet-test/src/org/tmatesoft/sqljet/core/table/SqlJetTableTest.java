@@ -781,4 +781,30 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
             }
         });
     }
+
+    @Test
+    public void clear() throws Exception {
+        repCacheDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable t = db.getTable(REP_CACHE_TABLE);
+                final ISqlJetCursor c = t.open();
+                try {
+                    Assert.assertTrue(c.first());
+                    Assert.assertFalse(c.eof());
+                } finally {
+                    c.close();
+                }
+                t.clear();
+                final ISqlJetCursor c1 = t.open();
+                try {
+                    Assert.assertFalse(c1.first());
+                    Assert.assertTrue(c1.eof());
+                } finally {
+                    c1.close();
+                }
+                return null;
+            }
+        });
+    }
+
 }

@@ -285,7 +285,7 @@ public class SqlJetBtreeShared {
         assert (mutex.held());
 
         iPtrmap = PTRMAP_PAGENO(key);
-        pDbPage = pPager.acquirePage(iPtrmap,true);
+        pDbPage = pPager.acquirePage(iPtrmap, true);
         pPtrmap = pDbPage.getData();
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
@@ -575,12 +575,10 @@ public class SqlJetBtreeShared {
 
             assert (pPgno[0] != PENDING_BYTE_PAGE());
 
-        } catch (SqlJetException e) {
+        } finally {
             // end_allocate_page:
-
             SqlJetMemPage.releasePage(pTrunk);
             SqlJetMemPage.releasePage(pPrevTrunk);
-            throw e;
         }
 
         if (ppPage.pDbPage.getRefCount() > 1) {
@@ -938,10 +936,9 @@ public class SqlJetBtreeShared {
                 pPage.zeroPage(SqlJetUtility.getUnsignedByte(pPage.aData, 0) | SqlJetMemPage.PTF_LEAF);
             }
 
+        } finally {
             // cleardatabasepage_out:
-        } catch (SqlJetException e) {
             SqlJetMemPage.releasePage(pPage);
-            throw e;
         }
 
     }

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetTableDef;
@@ -61,6 +62,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         INSERT, UPDATE, DELETE
     };
 
+    private ISqlJetBtreeRecord defaults;
+
     /**
      * Open data table by name.
      * 
@@ -71,6 +74,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 .getTable(tableName)).getPage(), write, false);
         this.schema = (SqlJetSchema) schema;
         this.tableDef = (SqlJetTableDef) schema.getTable(tableName);
+        defaults = SqlJetBtreeRecord.getRecord(getEncoding(), getDefaults());
         openIndexes(schema);
     }
 
@@ -140,6 +144,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public boolean goToRow(long rowId) throws SqlJetException {
         lock();
         try {
+            clearRecordCache();
             if (getRowId() == rowId)
                 return true;
             final int moveTo = cursor.moveTo(null, rowId, false);
@@ -204,7 +209,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     private Object[] getValuesRow(Object... values) throws SqlJetException {
-        final Object[] row = getDefaults();
+        final Object[] row = new Object[tableDef.getColumns().size()];
         if (null != values && values.length != 0) {
             if (values.length > row.length) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
@@ -454,8 +459,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             row[primaryKeyColumnNumber] = newRowId;
         }
         doActionWithIndexes(Action.UPDATE, newRowId, row);
-        cursor.delete();
-        cursor.insert(null, newRowId, pData, pData.remaining(), 0, true);
+        final boolean changeRowId = newRowId != currentRowId;
+        if (changeRowId) {
+            cursor.delete();
+        }
+        cursor.insert(null, newRowId, pData, pData.remaining(), 0, changeRowId);
         goToRow(newRowId);
 
     }
@@ -572,11 +580,19 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         // modify indexes
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
             final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
+                    indexDef);
+            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
+            if (Action.UPDATE == action) {
+                if (currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
+                    continue;
+                }
+            }
             if (Action.INSERT != action) {
-                indexTable.delete(currentRowId, getKeyForIndex(getAsNamedFields(currentRow), indexDef));
+                indexTable.delete(currentRowId, currentKey);
             }
             if (Action.DELETE != action) {
-                indexTable.insert(rowId, true, getKeyForIndex(fields, indexDef));
+                indexTable.insert(rowId, true, key);
             }
         }
 
@@ -603,8 +619,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     public Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
 
-        if (values == null)
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values are missing");
+        if (values == null) {
+            return null;
+        }
 
         final int fieldsSize = values.length;
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
@@ -635,7 +652,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     public Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
-        if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
+        if (null == fields) {
+            return null;
+        } else if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
             final String column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn().getName();
             return new Object[] { fields.get(column) };
         } else if (tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
@@ -748,7 +767,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private Object[] unwrapValues(Map<String, Object> values) throws SqlJetException {
         int i = 0;
-        final Object[] unwrapped = getDefaults();
+        final Object[] unwrapped = new Object[tableDef.getColumns().size()];
         if (null != values)
             for (ISqlJetColumnDef column : tableDef.getColumns()) {
                 final String columnName = column.getName();
@@ -830,6 +849,36 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
         }
         return 0;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#clear()
+     */
+    @Override
+    public void clear() throws SqlJetException {
+        for (ISqlJetBtreeIndexTable index : indexesTables.values()) {
+            index.clear();
+        }
+        super.clear();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getValueMem
+     * (int)
+     */
+    @Override
+    protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
+        final ISqlJetVdbeMem valueMem = super.getValueMem(field);
+        if (field < defaults.getFieldsCount() && (valueMem == null || valueMem.isNull())) {
+            return defaults.getFields().get(field);
+        } else {
+            return valueMem;
+        }
     }
 
 }

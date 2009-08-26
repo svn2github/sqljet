@@ -69,7 +69,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
 
     SqlJetPageCache() {
         final int cacheSize = SqlJetUtility.getIntSysProp(SQLJET_PAGE_CACHE_SIZE, nMax);
-        if(cacheSize>=nMin) nMax = cacheSize;
+        if (cacheSize >= nMin)
+            nMax = cacheSize;
     }
 
     /*
@@ -159,8 +160,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         this.szPage = szPage;
         this.bPurgeable = purgeable;
         this.xStress = stress;
-        //this.nMax = 100;
-        //this.nMin = 10;
+        // this.nMax = 100;
+        // this.nMin = 10;
     }
 
     /*
@@ -227,7 +228,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 nRef++;
             }
             pPage.nRef++;
-            if(null==pPage.pData) pPage.pData = ByteBuffer.allocate(szPage);
+            if (null == pPage.pData)
+                pPage.pData = ByteBuffer.allocate(szPage);
             pPage.pCache = this;
             pPage.pgno = pgno;
             if (pgno == 1) {
@@ -541,22 +543,15 @@ public class SqlJetPageCache implements ISqlJetPageCache {
     class PCache {
 
         /** Hash table for fast lookup by key */
-        private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>() {
-            private static final long serialVersionUID = 1L;
+        private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>();
 
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<Integer, SqlJetPage> eldest) {
-                return bPurgeable && getPageCount() > nMax;
-            }
-        };
-        
         /** Largest key seen since xTruncate() */
         private int iMaxKey;
 
         public synchronized int getPageCount() {
             return apHash.size();
         }
-                
+
         /**
          * Fetch a page by key value.
          * 
@@ -622,10 +617,10 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
 
             /* Step 3 of header comment. */
-            if(bPurgeable && getPageCount() == nMax) {
+            if (bPurgeable && getPageCount() == nMax) {
                 return null;
             }
-            
+
             /*
              * If a usable page buffer has still not been found, attempt to
              * allocate a new one.
@@ -663,7 +658,9 @@ public class SqlJetPageCache implements ISqlJetPageCache {
          * 
          */
         public synchronized void unpin(ISqlJetPage page, boolean discard) {
-            apHash.remove(page.getPageNumber());
+            if (discard || (bPurgeable && getPageCount() == nMax)) {
+                apHash.remove(page.getPageNumber());
+            }
         }
 
         /**

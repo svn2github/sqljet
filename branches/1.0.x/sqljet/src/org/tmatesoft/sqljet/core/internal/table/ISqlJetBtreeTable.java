@@ -204,4 +204,9 @@ public interface ISqlJetBtreeTable {
      */
     boolean hasMoved() throws SqlJetException;
 
+    /**
+     * @throws SqlJetException
+     */
+    void clear() throws SqlJetException;
+
 }

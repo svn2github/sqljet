@@ -24,9 +24,6 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1113,6 +1110,18 @@ public class SqlJetUtility {
         return EnumSet.of(e1, e);
     }
 
+    public static <E extends Enum<E>> EnumSet<E> of(E e) {
+        return EnumSet.of(e);
+    }
+
+    public static <E extends Enum<E>> EnumSet<E> of(E e1, E e2) {
+        return EnumSet.of(e1, e2);
+    }
+
+    public static <E extends Enum<E>> EnumSet<E> of(E e1, E e2, E e3) {
+        return EnumSet.of(e1, e2, e3);
+    }
+    
     public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
         return EnumSet.noneOf(elementType);
     }

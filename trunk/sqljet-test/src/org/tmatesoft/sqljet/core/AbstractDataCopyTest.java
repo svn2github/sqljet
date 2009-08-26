@@ -53,11 +53,12 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
     public static File copyFile(File from, File to) throws IOException, FileNotFoundException {
         RandomAccessFile in = new RandomAccessFile(from, "r");
         RandomAccessFile out = new RandomAccessFile(to, "rw");
-        byte[] b = new byte[4096];
-        for (int i = in.read(b); i > 0; i = in.read(b))
-            out.write(b, 0, i);
-        in.close();
-        out.close();
+        try {
+            out.getChannel().transferFrom(in.getChannel(), 0, in.length());
+        } finally {
+            in.close();
+            out.close();
+        }
         return to;
     }
 

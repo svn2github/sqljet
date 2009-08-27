@@ -277,7 +277,7 @@ public class SqlParser</replacevalue>
 	<target name="benchmarks" depends="deploy">
 		<junit>
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
-			<sysproperty key="SqlJetBenchmark.TimeLog" value="false"/>
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="true"/>
 			<jvmarg value="-Xmx128m"/>			
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />
@@ -289,8 +289,10 @@ public class SqlParser</replacevalue>
 			<batchtest fork="yes" todir="${benchmarks}">
 				<formatter type="xml" />
 			    <fileset dir="sqljet-test/src">
-			      <include name="**/*Benchmark*.java"/>
-			      <exclude name="**/*Abstract*.java"/>
+			      <include name="**/SqlJetBenchmark.java"/>
+			    </fileset>
+			    <fileset dir="sqljet-test/src">
+				  <include name="**/NestedVmBenchmark.java"/>
 			    </fileset>
 			 </batchtest>
 		</junit>

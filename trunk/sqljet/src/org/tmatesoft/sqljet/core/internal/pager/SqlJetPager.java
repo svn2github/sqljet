@@ -752,13 +752,15 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         pageCache.setCacheSize(cacheSize);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetPager#getCacheSize()
      */
     public int getCacheSize() {
         return pageCache.getCachesize();
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -1017,6 +1019,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         assert (state != SqlJetPagerState.UNLOCK);
 
         final ISqlJetPage page = pageCache.fetch(pageNumber, true);
+
+        if (null == page) {
+            throw new SqlJetException(SqlJetErrorCode.INTERNAL, "Page cache is overflow");
+        }
 
         if (null == page.getPager()) {
             /*

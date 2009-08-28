@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
@@ -218,6 +219,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
             if (pPg != null) {
                 xStress.pageCallback(pPg);
+            } else {
+                pCache.cleanUnpinned();
             }
 
             pPage = pCache.fetch(pgno, true);
@@ -545,6 +548,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         /** Hash table for fast lookup by key */
         private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>();
 
+        private Queue<Integer> unpinned = new LinkedList<Integer>();
+
         /** Largest key seen since xTruncate() */
         private int iMaxKey;
 
@@ -660,6 +665,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         public synchronized void unpin(ISqlJetPage page, boolean discard) {
             if (discard || (bPurgeable && getPageCount() == nMax)) {
                 apHash.remove(page.getPageNumber());
+            } else {
+                unpinned.add(page.getPageNumber());
             }
         }
 
@@ -718,6 +725,28 @@ public class SqlJetPageCache implements ISqlJetPageCache {
          */
         public synchronized void destroy() {
             apHash.clear();
+            unpinned.clear();
+        }
+
+        /**
+         * 
+         */
+        public void cleanUnpinned() {
+            while (!unpinned.isEmpty()) {
+                final Integer poll = unpinned.poll();
+                if (poll == null) {
+                    continue;
+                }
+                final SqlJetPage p = apHash.get(poll);
+                if (p == null) {
+                    continue;
+                }
+                if (!p.getFlags().isEmpty()) {
+                    continue;
+                }
+                apHash.remove(poll);
+                return;
+            }
         }
 
     }

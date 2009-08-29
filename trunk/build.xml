@@ -277,7 +277,7 @@ public class SqlParser</replacevalue>
 	<target name="benchmarks" depends="deploy">
 		<junit>
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
-			<sysproperty key="SqlJetBenchmark.TimeLog" value="true"/>
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false"/>
 			<jvmarg value="-Xmx128m"/>			
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />

@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
@@ -219,9 +220,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
             if (pPg != null) {
                 xStress.pageCallback(pPg);
-            } else {
-                pCache.cleanUnpinned();
             }
+            pCache.cleanUnpinned();
 
             pPage = pCache.fetch(pgno, true);
         }
@@ -663,7 +663,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
          * 
          */
         public synchronized void unpin(ISqlJetPage page, boolean discard) {
-            if (discard || (bPurgeable && getPageCount() == nMax)) {
+            if (discard) {
                 apHash.remove(page.getPageNumber());
             } else {
                 unpinned.add(page.getPageNumber());
@@ -741,7 +741,8 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                 if (p == null) {
                     continue;
                 }
-                if (!p.getFlags().isEmpty()) {
+                final Set<SqlJetPageFlags> flags = p.getFlags();
+                if (flags.contains(SqlJetPageFlags.DIRTY) || flags.contains(SqlJetPageFlags.NEED_SYNC)) {
                     continue;
                 }
                 apHash.remove(poll);

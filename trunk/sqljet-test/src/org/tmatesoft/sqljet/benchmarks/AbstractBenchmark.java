@@ -41,7 +41,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     public static final String WORK_PATH = null;
     public static final String COPY_PREFIX = "copy";
     public static final String TABLE_NAME = "rep_cache";
-    protected static final int SCALE_FACTOR = SqlJetUtility.getIntSysProp("SqlJetBenchmarks.SCALE_FACTOR", 10);
+    protected static final int SCALE_FACTOR = SqlJetUtility.getIntSysProp("SqlJetBenchmark.ScaleFactor", 1);
     protected static final int COUNT = 1000;
 
     protected static final String[] LOCATE_HASHES = { "b1e2b2360e6c54142cd77e96297b665740c28705",

@@ -278,6 +278,7 @@ public class SqlParser</replacevalue>
 		<junit>
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
 			<sysproperty key="SqlJetBenchmark.TimeLog" value="false"/>
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10"/>
 			<jvmarg value="-Xmx128m"/>			
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />

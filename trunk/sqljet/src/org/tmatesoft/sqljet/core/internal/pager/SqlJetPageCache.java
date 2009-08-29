@@ -18,7 +18,9 @@
 package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -548,7 +550,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
         /** Hash table for fast lookup by key */
         private Map<Integer, SqlJetPage> apHash = new LinkedHashMap<Integer, SqlJetPage>();
 
-        private Queue<Integer> unpinned = new LinkedList<Integer>();
+        private Set<Integer> unpinned = new LinkedHashSet<Integer>();
 
         /** Largest key seen since xTruncate() */
         private int iMaxKey;
@@ -663,10 +665,11 @@ public class SqlJetPageCache implements ISqlJetPageCache {
          * 
          */
         public synchronized void unpin(ISqlJetPage page, boolean discard) {
-            if (discard) {
-                apHash.remove(page.getPageNumber());
-            } else {
-                unpinned.add(page.getPageNumber());
+            final int pageNumber = page.getPageNumber();
+            if (discard || (bPurgeable && getPageCount() == nMax)) {
+                apHash.remove(pageNumber);
+            } else if (!unpinned.contains(pageNumber)) {
+                unpinned.add(pageNumber);
             }
         }
 
@@ -732,20 +735,24 @@ public class SqlJetPageCache implements ISqlJetPageCache {
          * 
          */
         public void cleanUnpinned() {
-            while (!unpinned.isEmpty()) {
-                final Integer poll = unpinned.poll();
-                if (poll == null) {
+            final Iterator<Integer> i = unpinned.iterator();
+            while (i.hasNext()) {
+                final Integer next = i.next();
+                if (next == null) {
+                    i.remove();
                     continue;
                 }
-                final SqlJetPage p = apHash.get(poll);
+                final SqlJetPage p = apHash.get(next);
                 if (p == null) {
+                    i.remove();
                     continue;
                 }
                 final Set<SqlJetPageFlags> flags = p.getFlags();
                 if (flags.contains(SqlJetPageFlags.DIRTY) || flags.contains(SqlJetPageFlags.NEED_SYNC)) {
                     continue;
                 }
-                apHash.remove(poll);
+                apHash.remove(next);
+                i.remove();
                 return;
             }
         }

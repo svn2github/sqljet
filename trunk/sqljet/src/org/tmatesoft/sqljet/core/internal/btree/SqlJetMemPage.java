@@ -408,17 +408,17 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (n == 4 - 4 * (leaf ? 1 : 0));
         if (intKey) {
             if (hasData) {
-                n += getVarint32(slice(pCell, n), nPayload);
+                n += getVarint32(pCell, n, nPayload);
             } else {
                 nPayload[0] = 0;
             }
             long[] pInfo_nKey = new long[1];
-            n += getVarint(slice(pCell, n), pInfo_nKey);
+            n += getVarint(pCell, n, pInfo_nKey);
             pInfo.nKey = pInfo_nKey[0];
             pInfo.nData = nPayload[0];
         } else {
             pInfo.nData = 0;
-            n += getVarint32(slice(pCell, n), nPayload);
+            n += getVarint32(pCell, n, nPayload);
             pInfo.nKey = nPayload[0];
         }
         pInfo.nPayload = nPayload[0];

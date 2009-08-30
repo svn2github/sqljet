@@ -493,16 +493,20 @@ public class SqlJetUtility {
      * Return the number of bytes read. The value is stored in *v.
      */
     public static byte getVarint(ByteBuffer p, long[] v) {
+        return getVarint(p, 0, v);
+    }
+
+    public static byte getVarint(ByteBuffer p, int offset, long[] v) {
         long l = 0;
         for (byte i = 0; i < 8; i++) {
-            short b = SqlJetUtility.getUnsignedByte(p, i);
+            short b = SqlJetUtility.getUnsignedByte(p, i + offset);
             l = (l << 7) | (b & 0x7f);
             if ((b & 0x80) == 0) {
                 v[0] = l;
                 return ++i;
             }
         }
-        short b = SqlJetUtility.getUnsignedByte(p, 8);
+        short b = SqlJetUtility.getUnsignedByte(p, 8 + offset);
         l = (l << 8) | b;
         v[0] = l;
         return 9;
@@ -518,8 +522,12 @@ public class SqlJetUtility {
      * @throws SqlJetExceptionRemove
      */
     public static byte getVarint32(ByteBuffer p, int[] v) {
+        return getVarint32(p, 0, v);
+    }
 
-        short x = SqlJetUtility.getUnsignedByte(p, 0);
+    public static byte getVarint32(ByteBuffer p, int offset, int[] v) {
+
+        short x = SqlJetUtility.getUnsignedByte(p, 0 + offset);
         if (x < 0x80) {
             v[0] = x;
             return 1;
@@ -528,7 +536,7 @@ public class SqlJetUtility {
         int a, b;
         int i = 0;
 
-        a = SqlJetUtility.getUnsignedByte(p, i);
+        a = SqlJetUtility.getUnsignedByte(p, i + offset);
         /* a: p0 (unmasked) */
         if ((a & 0x80) == 0) {
             v[0] = a;
@@ -536,7 +544,7 @@ public class SqlJetUtility {
         }
 
         i++;
-        b = SqlJetUtility.getUnsignedByte(p, i);
+        b = SqlJetUtility.getUnsignedByte(p, i + offset);
         /* b: p1 (unmasked) */
         if ((b & 0x80) == 0) {
             a &= 0x7f;
@@ -547,7 +555,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
+        a |= SqlJetUtility.getUnsignedByte(p, i + offset);
         /* a: p0<<14 | p2 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 14) | (0x7f);
@@ -559,7 +567,7 @@ public class SqlJetUtility {
 
         i++;
         b = b << 14;
-        b |= SqlJetUtility.getUnsignedByte(p, i);
+        b |= SqlJetUtility.getUnsignedByte(p, i + offset);
         /* b: p1<<14 | p3 (unmasked) */
         if ((b & 0x80) == 0) {
             b &= (0x7f << 14) | (0x7f);
@@ -571,7 +579,7 @@ public class SqlJetUtility {
 
         i++;
         a = a << 14;
-        a |= SqlJetUtility.getUnsignedByte(p, i);
+        a |= SqlJetUtility.getUnsignedByte(p, i + offset);
         /* a: p0<<28 | p2<<14 | p4 (unmasked) */
         if ((a & 0x80) == 0) {
             a &= (0x7f << 28) | (0x7f << 14) | (0x7f);
@@ -591,7 +599,7 @@ public class SqlJetUtility {
             byte n;
 
             i -= 4;
-            n = getVarint(p, v64);
+            n = getVarint(p, offset, v64);
             assert (n > 5 && n <= 9);
             v[0] = (int) v64[0];
             return n;

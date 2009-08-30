@@ -767,12 +767,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#readFileHeader(int, byte[])
      */
     public void readFileHeader(final int count, final ByteBuffer buffer) throws SqlJetIOException {
-        ByteBuffer b = SqlJetUtility.slice(buffer, 0, count);
-        b.clear();
         assert (null != fd || tempFile);
         if (null != fd) {
             try {
-                fd.read(b, count, 0);
+                fd.read(buffer, count, 0);
             } catch (final SqlJetIOException e) {
                 if (SqlJetIOErrorCode.IOERR_SHORT_READ != e.getIoErrorCode())
                     throw e;

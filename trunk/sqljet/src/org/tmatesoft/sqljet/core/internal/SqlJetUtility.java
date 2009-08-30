@@ -402,7 +402,17 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
-        return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, b.remaining() - pos).slice();
+        if (pos < 0) {
+            return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, b.remaining() - pos).slice();
+        } else {
+            b.mark();
+            try {
+                b.position(pos);
+                return b.slice();
+            } finally {
+                b.reset();
+            }
+        }
     }
 
     /**

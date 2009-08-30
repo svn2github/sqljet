@@ -763,21 +763,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                  * verify that the "if" statement is well tested.
                  */
 
-                // testcase( pPage->nOverflow==0 &&
-                // pPage->nFree<pBt->usableSize*2/3
-                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
-                // testcase( pPage->nOverflow==0 &&
-                // pPage->nFree==pBt->usableSize*2/3
-                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
-                // testcase( pPage->nOverflow==0 &&
-                // pPage->nFree==pBt->usableSize*2/3+1
-                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
-                // testcase( pPage->nOverflow>0 &&
-                // pPage->nFree<=pBt->usableSize*2/3
-                // && pLeafPage->nFree+2+szNext > pBt->usableSize*2/3 );
-                // testcase( (pPage->nOverflow>0 || (pPage->nFree >
-                // pBt->usableSize*2/3))
-                // && pLeafPage->nFree+2+szNext == pBt->usableSize*2/3 );
                 if ((pPage.nOverflow > 0 || (pPage.nFree > pBt.usableSize * 2 / 3))
                         && (pLeafPage.nFree + 2 + szNext > pBt.usableSize * 2 / 3)) {
                     /*
@@ -793,9 +778,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                      * above are based on facets of the SQLite file-format that
                      * do not change over time.
                      */
-                    // testcase( pPage->nFree==pBt->usableSize*2/3+1 );
-                    // testcase(
-                    // pLeafPage->nFree+2+szNext==pBt->usableSize*2/3+1 );
                     leafCursorInvalid = true;
                 }
 

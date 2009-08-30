@@ -805,7 +805,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
         int hdr; /* Offset into data[] of the page header */
         int cellOffset; /* Address of first cell pointer in data[] */
         ByteBuffer data; /* The content of the whole page */
-        ByteBuffer ptr; /* Used for moving information around in data[] */
 
         assert (i >= 0 && i <= pPage.nCell + pPage.nOverflow);
         assert (pPage.nCell <= pPage.pBt.MX_CELL() && pPage.pBt.MX_CELL() <= 5460);
@@ -845,9 +844,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
             pPage.nCell++;
             pPage.nFree -= 2;
             memcpy(data, idx + nSkip, pCell, nSkip, sz - nSkip);
-            for (j = end - 2, ptr = slice(data, j); j > ins; j -= 2, ptr = slice(ptr, -2)) {
-                SqlJetUtility.putUnsignedByte(ptr, 0, SqlJetUtility.getUnsignedByte(slice(ptr, -2), 0));
-                SqlJetUtility.putUnsignedByte(ptr, 1, SqlJetUtility.getUnsignedByte(slice(ptr, -1), 0));
+            for (j = end - 2; j > ins; j -= 2) {
+                SqlJetUtility.putUnsignedByte(data, j, SqlJetUtility.getUnsignedByte(data, j-2));
+                SqlJetUtility.putUnsignedByte(data, j + 1, SqlJetUtility.getUnsignedByte(data, j-1));
             }
             put2byte(data, ins, idx);
             put2byte(data, hdr + 3, pPage.nCell);

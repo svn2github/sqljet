@@ -402,20 +402,7 @@ public class SqlJetUtility {
      * @return
      */
     public static ByteBuffer slice(ByteBuffer b, int pos) {
-        return slice(b, pos, b.remaining() - pos);
-    }
-
-    /**
-     * Implements address arithmetic on byte buffer.
-     * 
-     * @param b
-     * @param pos
-     * @return
-     */
-    public static ByteBuffer slice(ByteBuffer b, int pos, int count) {
-        if (null == b)
-            return null;
-        return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, count).slice();
+        return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, b.remaining() - pos).slice();
     }
 
     /**

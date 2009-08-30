@@ -267,10 +267,11 @@ public class SqlJetFile implements ISqlJetFile {
         assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            final ByteBuffer dst = SqlJetUtility.slice(buffer, 0, amount);
+            buffer.clear().limit(amount);
             TIMER_START();
-            final int read = file.getChannel().read(dst, offset);
+            final int read = file.getChannel().read(buffer, offset);
             TIMER_END();
+            buffer.clear();
             OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
             return read < 0 ? 0 : read;
         } catch (IOException e) {
@@ -290,10 +291,11 @@ public class SqlJetFile implements ISqlJetFile {
         assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            ByteBuffer src = SqlJetUtility.slice(buffer, 0, amount);
+            buffer.clear().limit(amount);
             TIMER_START();
-            final int write = file.getChannel().write(src, offset);
+            final int write = file.getChannel().write(buffer, offset);
             TIMER_END();
+            buffer.clear();
             OSTRACE("WRITE %s %5d %7d %d\n", this.filePath, write, offset, TIMER_ELAPSED());
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_WRITE, e);

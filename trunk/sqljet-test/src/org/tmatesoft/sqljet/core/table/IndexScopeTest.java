@@ -30,8 +30,8 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class IndexScopeTest extends AbstractNewDbTest {
 
-    private ISqlJetTable table, table1, table2, table3;
-
+    private ISqlJetTable table, table1, table2, table3, table4;
+    
     /**
      * @throws java.lang.Exception
      */
@@ -51,7 +51,10 @@ public class IndexScopeTest extends AbstractNewDbTest {
 
                 db.createTable("create table t2(a integer, b integer, primary key(a,b))");
                 db.createTable("create table t3(a integer primary key)");
-                
+
+                db.createTable("create table t4(a text not null primary key, b integer not null)");
+                db.createIndex("create index b4 on t4(b)");
+
                 table = db.getTable("t");
 
                 for (int i = 10; i > 0; i--) {
@@ -75,6 +78,14 @@ public class IndexScopeTest extends AbstractNewDbTest {
                 table3.insert(5);
                 table3.insert(7);
                 table3.insert(9);
+                
+                table4 = db.getTable("t4");
+                table4.insert("s", 10);
+                table4.insert("q", 4);
+                table4.insert("l", 3);
+                table4.insert("j", 2);
+                table4.insert("e", 1);
+                table4.insert("t", 8);
                 
                 return null;
 
@@ -223,6 +234,20 @@ public class IndexScopeTest extends AbstractNewDbTest {
         Assert.assertTrue(c.next());
         Assert.assertEquals(7L, c.getInteger("a"));
         Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
+
+    @Test
+    public void scopeDeleteInScope() throws SqlJetException {
+        final ISqlJetCursor c = table4.scope("b4", new Object[] { 7L }, new Object[] { 20L });
+        // should get two rows, one with 8, another with 10. 
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(8L, c.getInteger("b"));
+        c.delete();
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(10L, c.getInteger("b"));
+        c.delete();
         Assert.assertTrue(c.eof());
         c.close();
     }

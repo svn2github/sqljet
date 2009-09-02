@@ -163,20 +163,18 @@ public class SqlJetSimpleExample {
             System.out.println();
             System.out.println(">Employees older than 30 years old (born before " + formatDate(calendar.getTimeInMillis()) + "):");
             System.out.println();
-            printRecords(table.scope(DOB_INDEX, new Object[] {0}, new Object[] {calendar.getTimeInMillis()}));
+            printRecords(table.scope(DOB_INDEX, new Object[] {0L}, new Object[] {calendar.getTimeInMillis()}));
 
-            deleteCursor = table.scope(DOB_INDEX, new Object[] {0}, new Object[] {calendar.getTimeInMillis()});
+            deleteCursor = table.scope(DOB_INDEX, new Object[] {0L}, new Object[] {calendar.getTimeInMillis()});
             System.out.println();
             System.out.println(">Deleting records of employees older than 30 years old (born before " + formatDate(calendar.getTimeInMillis()) + "):");
             System.out.println();
-            if (!deleteCursor.eof()) {
-                do {
-                    System.out.print(".");
-                    deleteCursor.delete();
-                } while(!deleteCursor.eof());
+            while (!deleteCursor.eof()) {
+                System.out.println("deleting: " + deleteCursor.getRowId() + " : " + deleteCursor.getString(SECOND_NAME_FIELD) + ", was born on " 
+                        + formatDate(deleteCursor.getInteger(DOB_FIELD)));
+                deleteCursor.delete();
             }
         } finally {
-            System.out.println();
             deleteCursor.close();
             db.commit();
         }
@@ -194,7 +192,7 @@ public class SqlJetSimpleExample {
         db.beginTransaction(SqlJetTransactionMode.WRITE);
         ISqlJetCursor updateCursor = null;
         try {
-            table.insert("Petrov", "Ivan", 0);
+            table.insert("Smith", "John", 0);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date(System.currentTimeMillis()));
             updateCursor = table.open();
@@ -212,6 +210,10 @@ public class SqlJetSimpleExample {
         db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
         try {
             printRecords(table.order(table.getPrimaryKeyIndexName()));
+            System.out.println();
+            System.out.println(">Same in order defined by " + FULL_NAME_INDEX + " :");
+            System.out.println();
+            printRecords(table.order(FULL_NAME_INDEX));
         } finally {
             db.commit();
         }

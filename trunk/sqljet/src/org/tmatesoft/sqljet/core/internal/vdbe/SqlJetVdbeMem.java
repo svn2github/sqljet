@@ -91,7 +91,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     int n;
 
     /** Some combination of MEM_Null, MEM_Str, MEM_Dyn, etc. */
-    Set<SqlJetVdbeMemFlags> flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
+    EnumSet<SqlJetVdbeMemFlags> flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
     /** One of SQLITE_NULL, SQLITE_TEXT, SQLITE_INTEGER, etc */
     SqlJetValueType type = SqlJetValueType.NULL;
@@ -142,9 +142,9 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
          * Interchange pMem1 and pMem2 if the collating sequence specifies* DESC
          * order.
          */
-        Set<SqlJetVdbeMemFlags> f1 = pMem1.flags;
-        Set<SqlJetVdbeMemFlags> f2 = pMem2.flags;
-        Set<SqlJetVdbeMemFlags> combined_flags = EnumSet.copyOf(f1);
+        EnumSet<SqlJetVdbeMemFlags> f1 = pMem1.flags;
+        EnumSet<SqlJetVdbeMemFlags> f2 = pMem2.flags;
+        EnumSet<SqlJetVdbeMemFlags> combined_flags = EnumSet.copyOf(f1);
         combined_flags.addAll(f2);
         assert (!combined_flags.contains(SqlJetVdbeMemFlags.RowSet));
 

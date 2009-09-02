@@ -358,9 +358,9 @@ public class SqlJetUtility {
      */
     public static int memcmp(ByteBuffer a1, ByteBuffer a2, int count) {
         for (int i = 0; i < count; i++) {
-            final Short b1 = Short.valueOf(SqlJetUtility.getUnsignedByte(a1, i));
-            final Short b2 = Short.valueOf(SqlJetUtility.getUnsignedByte(a2, i));
-            final int c = b1.compareTo(b2);
+            final short b1 = SqlJetUtility.getUnsignedByte(a1, i);
+            final short b2 = SqlJetUtility.getUnsignedByte(a2, i);
+            final int c = b1- b2;
             if (0 != c)
                 return c;
         }

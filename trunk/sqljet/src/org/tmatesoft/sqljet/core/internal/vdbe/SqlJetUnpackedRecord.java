@@ -104,14 +104,14 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
             int[] serial_type1 = new int[1];
 
             /* Read the serial types for the next element in each key. */
-            idx1 += SqlJetUtility.getVarint32(SqlJetUtility.slice(pKey1, idx1), serial_type1);
+            idx1 += SqlJetUtility.getVarint32(pKey1, idx1, serial_type1);
             if (d1 >= nKey1 && SqlJetVdbeSerialType.serialTypeLen(serial_type1[0]) > 0)
                 break;
 
             /*
              * Extract the values to be compared.
              */
-            d1 += SqlJetVdbeSerialType.serialGet(SqlJetUtility.slice(pKey1, d1), serial_type1[0], mem1);
+            d1 += SqlJetVdbeSerialType.serialGet(pKey1, d1, serial_type1[0], mem1);
 
             /*
              * Do the comparison

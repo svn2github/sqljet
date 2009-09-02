@@ -159,12 +159,14 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
             }
         } else {
             if (firstKey != null) {
-                if (indexTable.compareKey(firstKey) < 0)
+                if (indexTable.compareKey(firstKey) < 0) {
                     return false;
+                }
             }
             if (lastKey != null) {
-                if (indexTable.compareKey(lastKey) > 0)
+                if (indexTable.compareKey(lastKey) > 0) {
                     return false;
+                }
             }
         }
         return true;
@@ -213,6 +215,9 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      */
     @Override
     public void delete() throws SqlJetException {
+        if (indexTable != null) {
+            getBtreeDataTable().goToRow(indexTable.getKeyRowId());
+        }
         super.delete();
         db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -221,6 +226,9 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 return false;
             }
         });
+        if (indexTable != null) {
+            getBtreeDataTable().goToRow(indexTable.getKeyRowId());
+        }
     }
 
 }

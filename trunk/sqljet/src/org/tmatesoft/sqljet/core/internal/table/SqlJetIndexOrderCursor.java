@@ -105,8 +105,10 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
             }
         });
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#last()
      */
     @Override
@@ -125,7 +127,9 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
         });
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#previous()
      */
     @Override
@@ -143,5 +147,22 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
             }
         });
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#delete()
+     */
+    @Override
+    public void delete() throws SqlJetException {
+        if (indexTable != null) {
+            goTo(indexTable.getKeyRowId());
+        }
+        super.delete();
+        if (indexTable != null) {
+            goTo(indexTable.getKeyRowId());
+        }
+    }
+
 }

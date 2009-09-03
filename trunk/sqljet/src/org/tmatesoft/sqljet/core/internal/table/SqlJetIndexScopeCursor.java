@@ -215,9 +215,6 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      */
     @Override
     public void delete() throws SqlJetException {
-        if (indexTable != null) {
-            getBtreeDataTable().goToRow(indexTable.getKeyRowId());
-        }
         super.delete();
         db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -226,9 +223,6 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 return false;
             }
         });
-        if (indexTable != null) {
-            getBtreeDataTable().goToRow(indexTable.getKeyRowId());
-        }
     }
 
 }

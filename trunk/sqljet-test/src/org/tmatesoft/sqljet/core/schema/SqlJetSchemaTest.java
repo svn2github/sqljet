@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -274,6 +275,25 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         });
         Assert.assertNull(db.getSchema().getIndex("test1_name_index"));
         Assert.assertNull(db.getSchema().getIndex("test1_value_index"));
+    }
+
+    @Test
+    public void dropAll() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                 ///Set<String> indices = db.getSchema().getIndexNames();
+                 Set<String> tables = db.getSchema().getTableNames();
+                 for (String tableName : tables) {
+                    ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
+                    Set<ISqlJetIndexDef> tableIndices = db.getSchema().getIndexes(tableDef.getName());
+                    for (ISqlJetIndexDef indexDef : tableIndices) {
+                       db.dropIndex(indexDef.getName());
+                    }
+                    db.dropTable(tableName);
+                  }
+                 return null;
+               }
+        });
     }
 
     @Test

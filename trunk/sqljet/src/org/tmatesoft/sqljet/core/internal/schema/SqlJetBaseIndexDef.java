@@ -96,4 +96,14 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
     public String toSQL() {
         return "";
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef#isImplicit()
+     */
+    public boolean isImplicit() {
+        return true;
+    }
+
 }

@@ -127,4 +127,16 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
         buffer.append(')');
         return buffer.toString();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.schema.SqlJetBaseIndexDef#isImplicit()
+     */
+    @Override
+    public boolean isImplicit() {
+        return false;
+    }
+
 }

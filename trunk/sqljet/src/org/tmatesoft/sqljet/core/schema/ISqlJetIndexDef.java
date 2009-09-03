@@ -32,6 +32,9 @@ public interface ISqlJetIndexDef {
     public List<ISqlJetIndexedColumn> getColumns();
 
     public ISqlJetIndexedColumn getColumn(String name);
-    
+
     public String toSQL();
+
+    public boolean isImplicit();
+
 }

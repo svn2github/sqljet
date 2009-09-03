@@ -65,6 +65,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
+    private static final String CANT_DELETE_IMPLICIT_INDEX = "Can't delete implicit index \"%s\"";
+
     private static final String CREATE_TABLE_SQLITE_SEQUENCE = "CREATE TABLE sqlite_sequence(name,seq)";
 
     private static final String SQLITE_SEQUENCE = "SQLITE_SEQUENCE";
@@ -218,7 +220,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                     indexDef.setRowId(table.getCursor().getKeySize());
                     indexDefs.put(name, indexDef);
                 } else {
-                    ISqlJetIndexDef indexDef = new SqlJetBaseIndexDef(name, tableName, page);
+                    SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(name, tableName, page);
+                    indexDef.setRowId(table.getCursor().getKeySize());
                     indexDefs.put(name, indexDef);
                 }
             }
@@ -600,6 +603,12 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
         final SqlJetBaseIndexDef indexDef = (SqlJetBaseIndexDef) indexDefs.get(indexName);
 
+        if (!allowAutoIndex && indexDef.isImplicit()) {
+            if (throwIfFial)
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format(CANT_DELETE_IMPLICIT_INDEX, indexName));
+            return false;
+        }
+
         final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
@@ -625,7 +634,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 if (!allowAutoIndex && schemaTable.isNull(SQL_FIELD)) {
                     if (throwIfFial)
-                        throw new SqlJetException(SqlJetErrorCode.MISUSE);
+                        throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format(CANT_DELETE_IMPLICIT_INDEX,
+                                indexName));
                     return false;
                 }
 

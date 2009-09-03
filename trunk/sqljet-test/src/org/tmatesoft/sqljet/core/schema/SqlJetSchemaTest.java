@@ -87,7 +87,8 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetTableDef createTable = db.createTable("create table test( id integer primary key, name text )");
+                final ISqlJetTableDef createTable = db
+                        .createTable("create table test( id integer primary key, name text )");
                 final ISqlJetTable openTable = db.getTable(createTable.getName());
                 logger.info(createTable.toString());
                 openTable.insert(null, "test");
@@ -281,18 +282,20 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     public void dropAll() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                 ///Set<String> indices = db.getSchema().getIndexNames();
-                 Set<String> tables = db.getSchema().getTableNames();
-                 for (String tableName : tables) {
+                // /Set<String> indices = db.getSchema().getIndexNames();
+                Set<String> tables = db.getSchema().getTableNames();
+                for (String tableName : tables) {
                     ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
                     Set<ISqlJetIndexDef> tableIndices = db.getSchema().getIndexes(tableDef.getName());
                     for (ISqlJetIndexDef indexDef : tableIndices) {
-                       db.dropIndex(indexDef.getName());
+                        if (!indexDef.isImplicit()) {
+                            db.dropIndex(indexDef.getName());
+                        }
                     }
                     db.dropTable(tableName);
-                  }
-                 return null;
-               }
+                }
+                return null;
+            }
         });
     }
 

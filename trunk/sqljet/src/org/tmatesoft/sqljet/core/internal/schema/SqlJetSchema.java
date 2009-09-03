@@ -125,7 +125,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     public Set<String> getTableNames() throws SqlJetException {
         db.getMutex().enter();
         try {
-            return tableDefs.keySet();
+            return new HashSet<String>(tableDefs.keySet());
         } finally {
             db.getMutex().leave();
         }
@@ -143,7 +143,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     public Set<String> getIndexNames() throws SqlJetException {
         db.getMutex().enter();
         try {
-            return indexDefs.keySet();
+            return new HashSet<String>(indexDefs.keySet());
         } finally {
             db.getMutex().leave();
         }

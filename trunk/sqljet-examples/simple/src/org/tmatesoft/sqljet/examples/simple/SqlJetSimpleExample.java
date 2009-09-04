@@ -21,11 +21,15 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -52,11 +56,17 @@ public class SqlJetSimpleExample {
         SqlJetDb db = SqlJetDb.open(dbFile, true);
         // set DB option that have to be set before running any transactions: 
         db.getOptions().setAutovacuum(true);
-        db.beginTransaction(SqlJetTransactionMode.WRITE);
-        try {
-            // set DB option that have to be set in a transaction: 
-            db.getOptions().setUserVersion(1);
+        // set DB option that have to be set in a transaction: 
+        db.runTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getOptions().setUserVersion(1);
+                return true;
+            }
+        }, SqlJetTransactionMode.WRITE);
+       
             
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        try {            
             String createTableQuery = "CREATE TABLE " + TABLE_NAME + " (" + SECOND_NAME_FIELD + " TEXT NOT NULL PRIMARY KEY , " + FIRST_NAME_FIELD + " TEXT NOT NULL, " + DOB_FIELD + " INTEGER NOT NULL)";
             String createFirstNameIndexQuery = "CREATE INDEX " + FULL_NAME_INDEX + " ON " + TABLE_NAME + "(" +  FIRST_NAME_FIELD + "," + SECOND_NAME_FIELD + ")";
             String createDateIndexQuery = "CREATE INDEX " + DOB_INDEX + " ON " + TABLE_NAME + "(" +  DOB_FIELD + ")";
@@ -82,8 +92,7 @@ public class SqlJetSimpleExample {
         System.out.println(">Database schema objects:");
         System.out.println();
         System.out.println(db.getSchema());
-        System.out.println(db.getOptions());
-        
+        System.out.println(db.getOptions());        
         
         // insert rows:
         db.beginTransaction(SqlJetTransactionMode.WRITE);
@@ -93,7 +102,7 @@ public class SqlJetSimpleExample {
             calendar.clear();
             calendar.set(1981, 4, 19);
             table.insert("Prochaskova", "Elena", calendar.getTimeInMillis());
-            calendar.set(1976, 5, 19);
+            calendar.set(1967, 5, 19);
             table.insert("Scherbina", "Sergei", calendar.getTimeInMillis());
             calendar.set(1987, 6, 19);
             table.insert("Vadishev", "Semen", calendar.getTimeInMillis());
@@ -154,28 +163,28 @@ public class SqlJetSimpleExample {
             db.commit();
         }
 
-        db.beginTransaction(SqlJetTransactionMode.WRITE);
-        ISqlJetCursor deleteCursor = null;
-        try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date(System.currentTimeMillis()));
-            calendar.add(Calendar.YEAR, -30);
-            System.out.println();
-            System.out.println(">Employees older than 30 years old (born before " + formatDate(calendar.getTimeInMillis()) + "):");
-            System.out.println();
-            printRecords(table.scope(DOB_INDEX, new Object[] {0L}, new Object[] {calendar.getTimeInMillis()}));
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        calendar.add(Calendar.YEAR, -30);
 
-            deleteCursor = table.scope(DOB_INDEX, new Object[] {0L}, new Object[] {calendar.getTimeInMillis()});
-            System.out.println();
-            System.out.println(">Deleting records of employees older than 30 years old (born before " + formatDate(calendar.getTimeInMillis()) + "):");
-            System.out.println();
+        System.out.println();
+        System.out.println(">Deleting rows of employees older than 30 years old.");
+        System.out.println();
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        try {
+            ISqlJetCursor deleteCursor = table.scope(DOB_INDEX, 
+                     new Object[] {Long.MIN_VALUE}, 
+                     new Object[] {calendar.getTimeInMillis()});
             while (!deleteCursor.eof()) {
-                System.out.println("deleting: " + deleteCursor.getRowId() + " : " + deleteCursor.getString(SECOND_NAME_FIELD) + ", was born on " 
-                        + formatDate(deleteCursor.getInteger(DOB_FIELD)));
+                System.out.println("Deleting: " + 
+                        deleteCursor.getRowId() + " : " + 
+                        deleteCursor.getString(FIRST_NAME_FIELD) + " " + 
+                        deleteCursor.getString(SECOND_NAME_FIELD) + " was born on " + 
+                        formatDate(deleteCursor.getInteger(DOB_FIELD)));
                 deleteCursor.delete();
             }
-        } finally {
             deleteCursor.close();
+        } finally {
             db.commit();
         }
 
@@ -193,7 +202,6 @@ public class SqlJetSimpleExample {
         ISqlJetCursor updateCursor = null;
         try {
             table.insert("Smith", "John", 0);
-            Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date(System.currentTimeMillis()));
             updateCursor = table.open();
             do {
@@ -217,7 +225,28 @@ public class SqlJetSimpleExample {
         } finally {
             db.commit();
         }
-        
+       
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        try {
+            Set<String> tables = db.getSchema().getTableNames();
+            for (String tableName : tables) {
+                ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
+                Set<ISqlJetIndexDef> tableIndices = db.getSchema().getIndexes(tableDef.getName());
+                
+                for (ISqlJetIndexDef indexDef : tableIndices) {
+                    
+                    if (!indexDef.isImplicit()) {
+                        System.out.println("dropping index: " + indexDef.getName());
+                        db.dropIndex(indexDef.getName());
+                    }
+                }
+                System.out.println("dropping table: " + tableDef.getName());
+                db.dropTable(tableDef.getName());
+            }
+        } finally {
+            db.commit();
+        }
+
         db.close();
     }
     

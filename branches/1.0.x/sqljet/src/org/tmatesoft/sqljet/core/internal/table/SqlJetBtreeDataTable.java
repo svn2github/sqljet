@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -557,13 +558,39 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFields(row) : null;
 
-        // check unique indexes
-        if (!hasNull(row) && Action.DELETE != action) {
-            for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
+        class IndexKeys {
+
+            ISqlJetBtreeIndexTable indexTable;
+            Object[] currentKey;
+            Object[] key;
+
+            public IndexKeys(ISqlJetBtreeIndexTable indexTable, Object[] currentKey, Object[] key) {
+                this.indexTable = indexTable;
+                this.currentKey = currentKey;
+                this.key = key;
+            }
+        }
+
+        final List<IndexKeys> indexKeys = new ArrayList<IndexKeys>(indexesDefs.size());
+
+        for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
+            
+            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
+                    indexDef);
+            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
+            if (Action.UPDATE == action) {
+                if (currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
+                    continue;
+                }
+            }
+            final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
+            indexKeys.add(new IndexKeys(indexTable, currentKey, key));
+
+            // check unique indexes
+            if (!hasNull(row) && Action.DELETE != action) {
                 if (indexDef.isUnique() || tableDef.getColumnIndexConstraint(indexDef.getName()) != null
                         || tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
-                    final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
-                    final long lookup = indexTable.lookup(false, getKeyForIndex(fields, indexDef));
+                    final long lookup = indexTable.lookup(false, key);
                     if (lookup != 0) {
                         if (Action.INSERT == action) {
                             throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Insert fails: unique index "
@@ -578,21 +605,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
 
         // modify indexes
-        for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
-            final ISqlJetBtreeIndexTable indexTable = indexesTables.get(indexDef.getName());
-            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
-                    indexDef);
-            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
-            if (Action.UPDATE == action) {
-                if (currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
-                    continue;
-                }
-            }
+        for (final IndexKeys i : indexKeys) {
             if (Action.INSERT != action) {
-                indexTable.delete(currentRowId, currentKey);
+                i.indexTable.delete(currentRowId, i.currentKey);
             }
             if (Action.DELETE != action) {
-                indexTable.insert(rowId, true, key);
+                i.indexTable.insert(rowId, true, i.key);
             }
         }
 

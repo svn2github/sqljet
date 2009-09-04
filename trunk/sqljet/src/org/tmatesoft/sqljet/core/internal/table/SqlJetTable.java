@@ -143,19 +143,33 @@ public class SqlJetTable implements ISqlJetTable {
             throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetIndexScopeCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,
-                        firstKey, lastKey);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                if (firstKey != null && lastKey != null) {
+                    final String index = indexName == null ? table.getPrimaryKeyIndex() : indexName;
+                    if (index != null) {
+                        final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(schema, index, false);
+                        try {
+                            if (indexTable.compareKeys(firstKey, lastKey) < 0) {
+                                return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName,
+                                        lastKey, firstKey));
+                            }
+                        } finally {
+                            indexTable.close();
+                        }
+                    }
+                }
+                return new SqlJetIndexScopeCursor(table, db, indexName, firstKey, lastKey);
             }
         });
     }
-    
+
     public void clear() throws SqlJetException {
         runWriteTransaction(new ISqlJetTableRun() {
             public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
-                table.clear();                
+                table.clear();
                 return null;
             }
-        });        
+        });
     }
-    
+
 }

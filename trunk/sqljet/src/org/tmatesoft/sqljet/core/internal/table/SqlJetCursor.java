@@ -175,8 +175,18 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     public boolean getBoolean(final int field) throws SqlJetException {
         return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                return btreeTable.getInteger(field)!=0;
+                return btreeTable.getInteger(field) != 0;
             }
-        });        
+        });
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#reverse()
+     */
+    public ISqlJetCursor reverse() throws SqlJetException {
+        return new SqlJetReverseOrderCursor(this);
+    }
+
 }

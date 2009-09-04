@@ -300,4 +300,13 @@ public interface ISqlJetCursor {
      * @throws SqlJetException
      */
     void delete() throws SqlJetException;
+
+    /**
+     * Returns cursor with reversed order.
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetCursor reverse() throws SqlJetException;
+
 }

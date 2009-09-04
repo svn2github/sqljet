@@ -11,8 +11,6 @@ This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; version 2 of the License.
 
-Commercial dual licensing scheme is available at the same time. 
-
 For information on how to redistribute this software under 
 the terms of a license other than GNU General Public License 
 contact TMate Software at support@sqljet.com 
@@ -35,6 +33,7 @@ contact TMate Software at support@sqljet.com
 
 SQLJet web site: http://sqljet.com/
 SQLJet source code: http://svn.sqljet.com/repos/sqljet/
+SQLJet API usage tutorial: http://code.google.com/p/sqljet/wiki/SimpleExample
 
 SQLite web site: http://sqlite.org/
 

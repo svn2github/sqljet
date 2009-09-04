@@ -19,8 +19,6 @@
 		<mkdir dir="sqljet-test/bin"/>
 
 		<mkdir dir="sqljet-examples/browser/bin"/>
-		<mkdir dir="sqljet-examples/expenses/bin"/>
-		<mkdir dir="sqljet-examples/inventory/bin"/>
 		
         <delete verbose="false" includeemptydirs="true" failonerror="true">
             <fileset dir="build">
@@ -36,12 +34,6 @@
                 <include name="**/**" />
             </fileset>
             <fileset dir="sqljet-examples/browser/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/expenses/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/inventory/bin">
                 <include name="**/**" />
             </fileset>
         </delete>
@@ -90,8 +82,6 @@ public class SqlParser</replacevalue>
 
 	<target name="compile-examples" depends="compile">
 		<mkdir dir="sqljet-examples/browser/bin" />
-        <mkdir dir="sqljet-examples/expenses/bin" />
-        <mkdir dir="sqljet-examples/inventory/bin" />
 
     	<javac destdir="sqljet-examples/browser/bin" srcdir="sqljet-examples/browser/src" debug="true">
             <classpath>
@@ -100,18 +90,6 @@ public class SqlParser</replacevalue>
             </classpath>
     		<classpath path="sqljet/bin" />
     	</javac>
-    	<javac destdir="sqljet-examples/expenses/bin" srcdir="sqljet-examples/expenses/src" debug="true">
-    		<classpath path="sqljet/bin" />
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-    	</javac>
-    	<javac destdir="sqljet-examples/inventory/bin" srcdir="sqljet-examples/inventory/src" debug="true">
-    		<classpath path="sqljet/bin" />
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-       	</javac>
     </target>
 	
 	<target name="generate-key">

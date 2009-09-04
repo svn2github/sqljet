@@ -128,6 +128,17 @@ public class SqlJetSimpleExample {
         } finally {
             db.commit();
         }
+
+        // getting all rows in table, sorted by PK.        
+        System.out.println();
+        System.out.println(">All employees in order defined by PK (" + table.getPrimaryKeyIndexName() + "), reversed:");
+        System.out.println();
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        try {
+            printRecords(table.order(table.getPrimaryKeyIndexName()).reverse());
+        } finally {
+            db.commit();
+        }
         
         // getting all rows in table, sorted by index.        
         System.out.println();
@@ -226,6 +237,9 @@ public class SqlJetSimpleExample {
             db.commit();
         }
        
+        System.out.println();
+        System.out.println(">Dropping tables and indices:");
+        System.out.println();
         db.beginTransaction(SqlJetTransactionMode.WRITE);
         try {
             Set<String> tables = db.getSchema().getTableNames();

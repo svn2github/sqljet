@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -86,7 +87,8 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
             public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetTableDef createTable = db.createTable("create table test( id integer primary key, name text )");
+                final ISqlJetTableDef createTable = db
+                        .createTable("create table test( id integer primary key, name text )");
                 final ISqlJetTable openTable = db.getTable(createTable.getName());
                 logger.info(createTable.toString());
                 openTable.insert(null, "test");
@@ -274,6 +276,27 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         });
         Assert.assertNull(db.getSchema().getIndex("test1_name_index"));
         Assert.assertNull(db.getSchema().getIndex("test1_value_index"));
+    }
+
+    @Test
+    public void dropAll() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                // /Set<String> indices = db.getSchema().getIndexNames();
+                Set<String> tables = db.getSchema().getTableNames();
+                for (String tableName : tables) {
+                    ISqlJetTableDef tableDef = db.getSchema().getTable(tableName);
+                    Set<ISqlJetIndexDef> tableIndices = db.getSchema().getIndexes(tableDef.getName());
+                    for (ISqlJetIndexDef indexDef : tableIndices) {
+                        if (!indexDef.isImplicit()) {
+                            db.dropIndex(indexDef.getName());
+                        }
+                    }
+                    db.dropTable(tableName);
+                }
+                return null;
+            }
+        });
     }
 
     @Test

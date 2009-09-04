@@ -344,8 +344,9 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#reverse()
      */
+    
     public ISqlJetCursor reverse() throws SqlJetException {
-        return cursor;
+        return new SqlJetReverseOrderCursor(this);
     }
 
 }

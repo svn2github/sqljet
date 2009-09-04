@@ -97,6 +97,46 @@ public class IndexOrderTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void orderReverse() throws SqlJetException {
+        long l = Long.MAX_VALUE;
+        final ISqlJetCursor c = table.order("b").reverse();
+        int rowCount = 0;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long b = c.getInteger("b");
+                Assert.assertTrue(l > b);
+                l = b;
+                rowCount++;
+            }
+        } finally {
+            c.close();
+        }
+        Assert.assertTrue(c.eof());
+        Assert.assertTrue(rowCount == 10);
+    }
+
+    @Test
+    public void orderReverseReverse() throws SqlJetException {
+        long l = Long.MIN_VALUE;
+        final ISqlJetCursor c = table.order("b").reverse().reverse();
+        int rowCount = 0;
+        try {
+            if (!c.eof()) {
+                do {
+                    final long b = c.getInteger("b");
+                    Assert.assertTrue(l < b);
+                    l = b;
+                    rowCount++;
+                } while (c.next());
+            }
+        } finally {
+            c.close();
+        }
+        Assert.assertTrue(c.eof());
+        Assert.assertTrue(rowCount == 10);
+    }
+
+    @Test
     public void orderMulti() throws SqlJetException {
         long l = Long.MIN_VALUE;
         final ISqlJetCursor c = table.order("cb");

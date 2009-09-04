@@ -131,7 +131,7 @@ public class SqlJetSimpleExample {
 
         // getting all rows in table, sorted by PK.        
         System.out.println();
-        System.out.println(">All employees in order defined by PK (" + table.getPrimaryKeyIndexName() + "), reversed:");
+        System.out.println(">All employees in order defined by " + DOB_INDEX + ", reversed:");
         System.out.println();
         db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
         try {

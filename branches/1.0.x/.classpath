@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="sqljet/bin" path="sqljet/src"/>
+	<classpathentry kind="src" output="sqljet-examples/simple/bin" path="sqljet-examples/simple/src"/>
 	<classpathentry kind="src" output="sqljet-examples/browser/bin" path="sqljet-examples/browser/src"/>
 	<classpathentry kind="src" output="sqljet-examples/inventory/bin" path="sqljet-examples/inventory/src"/>
 	<classpathentry kind="src" output="sqljet-examples/expenses/bin" path="sqljet-examples/expenses/src"/>

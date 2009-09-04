@@ -159,12 +159,14 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
             }
         } else {
             if (firstKey != null) {
-                if (indexTable.compareKey(firstKey) < 0)
+                if (indexTable.compareKey(firstKey) < 0) {
                     return false;
+                }
             }
             if (lastKey != null) {
-                if (indexTable.compareKey(lastKey) > 0)
+                if (indexTable.compareKey(lastKey) > 0) {
                     return false;
+                }
             }
         }
         return true;

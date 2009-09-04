@@ -250,7 +250,10 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
                     return false;
                 if (getKeyRowId(record) == rowId) {
                     cursor.delete();
-                    clearRecordCache();                    
+                    clearRecordCache();
+                    if (cursorMoveTo(k, false) < 0) {
+                        next();
+                    }
                     return true;
                 }
             } while (next());

@@ -145,6 +145,17 @@ public class SqlJetOptions implements ISqlJetOptions {
         pageCacheSize = readPageCacheSize();
         encoding = readEncoding();
     }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("ENCODING: " + encoding + "\n");
+        sb.append("SCHEMA VERSION: " + schemaCookie + "\n");
+        sb.append("USER VERSION: " + userCookie + "\n");
+        sb.append("FILE FORMAT: " + fileFormat + "\n");
+        sb.append("AUTOVACUUM: " + autovacuum + "\n");
+        sb.append("CACHE SIZE: " + pageCacheSize);
+        return sb.toString();
+    }
 
     private SqlJetEncoding readEncoding() throws SqlJetException {
         switch (btree.getMeta(ENCODING)) {

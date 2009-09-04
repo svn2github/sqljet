@@ -267,8 +267,39 @@ public class IndexScopeTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void scopeReverse2() throws SqlJetException {
+        ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
+        c = c.reverse();
+        
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(4L, c.getInteger("b"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(3L, c.getInteger("b"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(2L, c.getInteger("b"));
+        Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
+
+    @Test
     public void scopePrimaryReverse() throws SqlJetException {
         final ISqlJetCursor c = table2.scope(null, new Object[] { 4 }, new Object[] { 2 });
+        Assert.assertTrue(!c.eof());
+        Assert.assertEquals(4L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(3L, c.getInteger("a"));
+        Assert.assertTrue(c.next());
+        Assert.assertEquals(2L, c.getInteger("a"));
+        Assert.assertTrue(!c.next());
+        Assert.assertTrue(c.eof());
+        c.close();
+    }
+
+    @Test
+    public void scopePrimaryReverse2() throws SqlJetException {
+        ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
+        c = c.reverse();
         Assert.assertTrue(!c.eof());
         Assert.assertEquals(4L, c.getInteger("a"));
         Assert.assertTrue(c.next());

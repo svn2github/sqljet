@@ -562,7 +562,11 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
 
-        btree.dropTable(tableDef.getPage());
+        final int page = tableDef.getPage();
+        final int moved = btree.dropTable(page);
+        if (moved != 0) {
+            movePage(page, moved);
+        }
 
         tableDefs.remove(tableName);
 
@@ -649,10 +653,60 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
 
-        btree.dropTable(indexDef.getPage());
+        final int page = indexDef.getPage();
+        final int moved = btree.dropTable(page);
+        if (moved != 0) {
+            movePage(page, moved);
+        }
 
         return true;
 
+    }
+
+    /**
+     * @param page
+     * @param moved
+     * @throws SqlJetException
+     */
+    private void movePage(final int page, final int moved) throws SqlJetException {
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        try {
+            schemaTable.lock();
+            try {
+                for (schemaTable.first(); !schemaTable.eof(); schemaTable.next()) {
+                    final ISqlJetBtreeRecord record = schemaTable.getRecord();
+                    final long pageField = record.getIntField(PAGE_FIELD);
+                    if (pageField == moved) {
+                        final String name = record.getStringField(NAME_FIELD, db.getOptions().getEncoding());
+                        final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
+                        final long rowId = cursor.getKeySize();
+                        record.getFields().get(PAGE_FIELD).setInt64(page);
+                        final ByteBuffer pData = record.getRawRecord();
+                        cursor.delete();
+                        cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
+                        final ISqlJetIndexDef index = getIndex(name);
+                        if (index != null) {
+                            if (index instanceof SqlJetBaseIndexDef) {
+                                ((SqlJetBaseIndexDef) index).setPage(page);
+                            }
+                        } else {
+                            final ISqlJetTableDef table = getTable(name);
+                            if (table != null) {
+                                if (table instanceof SqlJetTableDef) {
+                                    ((SqlJetTableDef) table).setPage(page);
+                                }
+                            }
+                        }
+                        return;
+                    }
+                }
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
     }
 
     public void dropIndex(String indexName) throws SqlJetException {

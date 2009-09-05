@@ -510,9 +510,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
         isInit = true;
     }
 
-    /*
-     * * Add a page of the database file to the freelist.** sqlite3PagerUnref()
-     * is NOT called for pPage.
+    /**
+     * Add a page of the database file to the freelist. 
+     * unref() is NOT called for pPage.
      */
     public void freePage() throws SqlJetException {
         SqlJetMemPage pPage1 = pBt.pPage1;

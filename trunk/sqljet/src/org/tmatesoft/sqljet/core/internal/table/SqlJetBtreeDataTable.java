@@ -574,7 +574,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         final List<IndexKeys> indexKeys = new ArrayList<IndexKeys>(indexesDefs.size());
 
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
-            
+
             final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
                     indexDef);
             final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
@@ -897,6 +897,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         } else {
             return valueMem;
         }
+    }
+
+    public ISqlJetBtreeIndexTable getIndex(String indexName) {
+        return indexesTables.get(indexName);
     }
 
 }

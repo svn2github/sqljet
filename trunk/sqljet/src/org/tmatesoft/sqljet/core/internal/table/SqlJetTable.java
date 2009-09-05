@@ -145,7 +145,7 @@ public class SqlJetTable implements ISqlJetTable {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
-                if (reverse(indexName, firstKey, lastKey, table)) {
+                if (isNeedReverse(indexName, firstKey, lastKey, table)) {
                     return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, lastKey,
                             firstKey));
                 } else {
@@ -173,18 +173,19 @@ public class SqlJetTable implements ISqlJetTable {
      * @return
      * @throws SqlJetException
      */
-    private boolean reverse(final String indexName, final Object[] firstKey, final Object[] lastKey,
+    private boolean isNeedReverse(final String indexName, final Object[] firstKey, final Object[] lastKey,
             final SqlJetBtreeDataTable table) throws SqlJetException {
         if (firstKey != null && lastKey != null && firstKey.length > 0 && lastKey.length > 0) {
             final Object[] first = SqlJetUtility.adjustNumberTypes(firstKey);
             final Object[] last = SqlJetUtility.adjustNumberTypes(lastKey);
             final String index = indexName == null ? table.getPrimaryKeyIndex() : indexName;
             if (index != null) {
-                final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(schema, index, false);
-                try {
-                    return (indexTable.compareKeys(first, last) < 0);
-                } finally {
-                    indexTable.close();
+                final ISqlJetBtreeIndexTable indexTable = table.getIndex(index);
+                if (indexTable != null) {
+                    return indexTable.compareKeys(first, last) < 0;
+                } else {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Index \"%s\" doesn't exists",
+                            index));
                 }
             } else if (first[0] instanceof Long && last[0] instanceof Long) {
                 return ((Long) first[0]).compareTo((Long) last[0]) > 0;

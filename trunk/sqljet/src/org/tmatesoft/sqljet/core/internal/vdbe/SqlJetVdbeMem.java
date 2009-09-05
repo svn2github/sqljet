@@ -26,7 +26,6 @@ import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.strlen30;
 
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 

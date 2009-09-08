@@ -137,6 +137,26 @@ public class IndexOrderTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void orderReverseIPK() throws SqlJetException {
+        long l = Long.MAX_VALUE;
+        final ISqlJetCursor c = table.order(null).reverse();
+        int rowCount = 0;
+        try {
+            for (c.first(); !c.eof(); c.next()) {
+                final long a = c.getInteger("a");
+                Assert.assertTrue(l > a);
+                l = a;
+                rowCount++;
+            }
+        } finally {
+            c.close();
+        }
+        Assert.assertTrue(c.eof());
+        Assert.assertTrue(rowCount == 10);
+    }
+
+    
+    @Test
     public void orderMulti() throws SqlJetException {
         long l = Long.MIN_VALUE;
         final ISqlJetCursor c = table.order("cb");

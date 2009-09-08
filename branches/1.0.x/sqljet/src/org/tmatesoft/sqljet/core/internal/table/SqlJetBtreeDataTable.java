@@ -20,7 +20,6 @@ package org.tmatesoft.sqljet.core.internal.table;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -574,7 +573,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         final List<IndexKeys> indexKeys = new ArrayList<IndexKeys>(indexesDefs.size());
 
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
-            
+
             final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
                     indexDef);
             final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
@@ -897,6 +896,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         } else {
             return valueMem;
         }
+    }
+
+    public ISqlJetBtreeIndexTable getIndex(String indexName) {
+        return indexesTables.get(indexName);
     }
 
 }

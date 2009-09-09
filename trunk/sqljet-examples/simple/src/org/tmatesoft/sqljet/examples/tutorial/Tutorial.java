@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.examples.simple;
+package org.tmatesoft.sqljet.examples.tutorial;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -37,7 +37,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class SqlJetSimpleExample {
+public class Tutorial {
     
     private static final String DB_NAME = "db.sqlite";
     private static final String TABLE_NAME = "employees";

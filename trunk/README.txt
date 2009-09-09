@@ -33,7 +33,7 @@ contact TMate Software at support@sqljet.com
 
 SQLJet web site: http://sqljet.com/
 SQLJet source code: http://svn.sqljet.com/repos/sqljet/
-SQLJet API usage tutorial: http://code.google.com/p/sqljet/wiki/SQLJetTutorial
+SQLJet API usage tutorial: http://sqljet.com/tutorial.html
 
 SQLite web site: http://sqlite.org/
 

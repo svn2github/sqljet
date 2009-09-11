@@ -86,12 +86,12 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                     if (firstRowId == 0) {
                         return SqlJetIndexScopeCursor.super.first();
                     } else {
-                        return goTo(firstRowId);
+                        return firstRowNum(goTo(firstRowId));
                     }
                 } else {
                     final long lookup = indexTable.lookupNear(false, firstKey);
                     if (lookup != 0) {
-                        return goTo(lookup);
+                        return firstRowNum(goTo(lookup));
                     }
                 }
                 return false;
@@ -116,7 +116,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                     return !eof();
                 } else {
                     if (indexTable.next() && !eof()) {
-                        return goTo(indexTable.getKeyRowId());
+                        return nextRowNum(goTo(indexTable.getKeyRowId()));
                     }
                 }
                 return false;
@@ -188,12 +188,12 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                     if (lastRowId == 0) {
                         return SqlJetIndexScopeCursor.super.last();
                     } else {
-                        return goTo(lastRowId);
+                        return lastRowNum(goTo(lastRowId));
                     }
                 } else {
                     final long lookup = indexTable.lookupLastNear(lastKey);
                     if (lookup != 0) {
-                        return goTo(lookup);
+                        return lastRowNum(goTo(lookup));
                     }
                 }
                 return false;
@@ -223,6 +223,20 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 return false;
             }
         });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#getRowId()
+     */
+    @Override
+    public long getRowId() throws SqlJetException {
+        if (indexTable != null && !indexTable.eof()) {
+            return indexTable.getKeyRowId();
+        }
+        return super.getRowId();
     }
 
 }

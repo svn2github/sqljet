@@ -349,4 +349,24 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
         return new SqlJetReverseOrderCursor(this);
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getCurrentRow()
+     */
+    public long getCurrentRowNum() throws SqlJetException {
+        return cursor.getCurrentRowNum();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowCount()
+     */
+    public long getRowsCount() throws SqlJetException {
+        return cursor.getRowsCount();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goToRow(long)
+     */
+    public boolean goToRowNum(long rowIndex) throws SqlJetException {
+        return cursor.goToRowNum(rowIndex);
+    }
 }

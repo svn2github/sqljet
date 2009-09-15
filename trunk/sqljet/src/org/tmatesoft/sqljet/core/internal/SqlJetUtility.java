@@ -26,6 +26,7 @@ import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetError;
@@ -360,7 +361,7 @@ public class SqlJetUtility {
         for (int i = 0; i < count; i++) {
             final short b1 = SqlJetUtility.getUnsignedByte(a1, i);
             final short b2 = SqlJetUtility.getUnsignedByte(a2, i);
-            final int c = b1- b2;
+            final int c = b1 - b2;
             if (0 != c)
                 return c;
         }
@@ -1004,6 +1005,57 @@ public class SqlJetUtility {
         final Object[] copy = new Object[array.length];
         System.arraycopy(array, 0, copy, 0, array.length);
         return copy;
+    }
+
+    /**
+     * Return TRUE if z is a pure numeric string. Return FALSE and leave realnum
+     * unchanged if the string contains any character which is not part of a
+     * number.
+     * 
+     * If the string is pure numeric, set realnum to TRUE if the string contains
+     * the '.' character or an "E+000" style exponentiation suffix. Otherwise
+     * set realnum to FALSE. Note that just becaue realnum is false does not
+     * mean that the number can be successfully converted into an integer - it
+     * might be too big.
+     * 
+     * An empty string is considered non-numeric.
+     * 
+     * @param s
+     * @param realnum
+     * @return
+     */
+    public static boolean isNumber(String s, boolean[] realnum) {
+        if (s == null)
+            return false;
+        if (!NUMBER_PATTER.matcher(s).matches())
+            return false;
+        if (realnum != null && realnum.length > 0) {
+            realnum[0] = REAL_PATTERN.matcher(s).matches();
+        }
+        return true;
+    }
+
+    static private final Pattern NUMBER_PATTER = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+    static private final Pattern REAL_PATTERN = Pattern.compile("[\\.eE]+");
+
+    /**
+     * @param r
+     * @return
+     */
+    public static Long doubleToInt64(Double r) {
+        if (r == null)
+            return null;
+        if (r == Double.NaN)
+            return null;
+        if (r == Double.POSITIVE_INFINITY)
+            return null;
+        if (r == Double.NEGATIVE_INFINITY)
+            return null;
+        final double rdbl = r.doubleValue();
+        final double rint = Math.rint(rdbl);
+        if (rdbl != rint)
+            return null;
+        return Long.valueOf(r.longValue());
     }
 
 }

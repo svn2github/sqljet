@@ -398,6 +398,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.flags.add(SqlJetVdbeMemFlags.Str);
         pMem.flags.add(SqlJetVdbeMemFlags.Term);
         pMem.changeEncoding(enc);
+        type = SqlJetValueType.TEXT;
     }
 
     /*
@@ -811,6 +812,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.i = (long) pMem.r;
         if (pMem.r == (double) pMem.i) {
             pMem.flags.add(SqlJetVdbeMemFlags.Int);
+            type = SqlJetValueType.INTEGER;
         }
     }
 
@@ -825,6 +827,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         assert (!pMem.flags.contains(SqlJetVdbeMemFlags.RowSet));
         pMem.i = pMem.intValue();
         pMem.setTypeFlag(SqlJetVdbeMemFlags.Int);
+        type = SqlJetValueType.INTEGER;
     }
 
     /*
@@ -837,6 +840,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         assert (pMem.db == null || pMem.db.getMutex().held());
         pMem.r = pMem.realValue();
         pMem.setTypeFlag(SqlJetVdbeMemFlags.Real);
+        type = SqlJetValueType.FLOAT;
     }
 
     /*
@@ -860,6 +864,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         } else {
             pMem.r = r1;
             pMem.setTypeFlag(SqlJetVdbeMemFlags.Real);
+            type = SqlJetValueType.FLOAT;
         }
     }
 
@@ -1155,8 +1160,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         if (affinity == SqlJetTypeAffinity.TEXT) {
             /*
              * Only attempt the conversion to TEXT if there is an integer or
-             * real* representation (blob and NULL do not get converted) but no
-             * string* representation.
+             * real representation (blob and NULL do not get converted) but no
+             * string representation.
              */
             if (!flags.contains(SqlJetVdbeMemFlags.Str)
                     && (flags.contains(SqlJetVdbeMemFlags.Real) || flags.contains(SqlJetVdbeMemFlags.Int))) {
@@ -1192,9 +1197,16 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
                 if (!realnum[0] && (value = SqlJetUtility.atoi64(SqlJetUtility.toString(z))) != null) {
                     i = value;
                     setTypeFlag(SqlJetVdbeMemFlags.Int);
+                    type = SqlJetValueType.INTEGER;
                 } else {
                     realify();
                 }
+            }
+        } else if (type != SqlJetValueType.INTEGER && type != SqlJetValueType.FLOAT) {
+            if (flags.contains(SqlJetVdbeMemFlags.Int)) {
+                type = SqlJetValueType.INTEGER;
+            } else if (flags.contains(SqlJetVdbeMemFlags.Real)) {
+                type = SqlJetValueType.FLOAT;
             }
         }
     }
@@ -1211,6 +1223,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         if (l != null) {
             i = l;
             flags.add(SqlJetVdbeMemFlags.Int);
+            type = SqlJetValueType.INTEGER;
         }
     }
 }

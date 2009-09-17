@@ -43,6 +43,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetRowSet;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * Internally, the vdbe manipulates nearly all SQL values as Mem structures.
@@ -1150,8 +1151,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * 
      * @throws SqlJetException
      */
-    public void applyAffinity(SqlJetAffinity affinity, SqlJetEncoding enc) throws SqlJetException {
-        if (affinity == SqlJetAffinity.AFF_TEXT) {
+    public void applyAffinity(SqlJetTypeAffinity affinity, SqlJetEncoding enc) throws SqlJetException {
+        if (affinity == SqlJetTypeAffinity.TEXT) {
             /*
              * Only attempt the conversion to TEXT if there is an integer or
              * real* representation (blob and NULL do not get converted) but no
@@ -1163,8 +1164,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             }
             flags.remove(SqlJetVdbeMemFlags.Real);
             flags.remove(SqlJetVdbeMemFlags.Int);
-        } else if (affinity != SqlJetAffinity.AFF_NONE) {
-            assert (affinity == SqlJetAffinity.AFF_INTEGER || affinity == SqlJetAffinity.AFF_REAL || affinity == SqlJetAffinity.AFF_NUMERIC);
+        } else if (affinity != SqlJetTypeAffinity.NONE) {
+            assert (affinity == SqlJetTypeAffinity.INTEGER || affinity == SqlJetTypeAffinity.REAL || affinity == SqlJetTypeAffinity.NUMERIC);
             applyNumericAffinity();
             if (flags.contains(SqlJetVdbeMemFlags.Real)) {
                 applyIntegerAffinity();

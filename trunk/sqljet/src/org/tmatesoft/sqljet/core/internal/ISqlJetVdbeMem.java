@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetVdbeMemFlags;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.
@@ -335,5 +336,12 @@ public interface ISqlJetVdbeMem {
      * @throws SqlJetException 
      */
     ByteBuffer valueBlob() throws SqlJetException;
+
+    /**
+     * @param affinity
+     * @param enc
+     * @throws SqlJetException
+     */
+    void applyAffinity(SqlJetTypeAffinity affinity, SqlJetEncoding enc) throws SqlJetException;
     
 }

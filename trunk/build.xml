@@ -1,307 +1,373 @@
 <project name="sqljet" default="deploy">
 
-	<property file="sqljet.build.properties"></property>
-    <property name="build.vcs.number.1" value="local" />
-	<property name="build.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}.b${build.vcs.number.1}"/>
+	<property file="sqljet.build.properties">
+	</property>
+	<property name="build.vcs.number.1" value="local" />
+	<property name="build.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}.b${build.vcs.number.1}" />
 
 	<target name="init-build.number" if="build.vcs.number.1">
 		<copy file="sqljet.build.properties" tofile="build/sqljet.build.properties" />
-    	<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
+		<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
 	</target>
-	
-	<property name="benchmarks" value="sqljet-test/bin/benchmarks"/>
-	<property name="benchmarks.report" value="${benchmarks}/html"/>
+
+	<property name="benchmarks" value="sqljet-test/bin/benchmarks" />
+	<property name="benchmarks.report" value="${benchmarks}/html" />
 
 	<target name="clean">
 		<!-- First, create directories, which will be removed, 
 			otherwise the removal may not be able to 
 			if directories don't exist yet -->
-		<mkdir dir="build"/>
-		<mkdir dir="sqljet/bin"/>
-		<mkdir dir="sqljet-test/bin"/>
+		<mkdir dir="build" />
+		<mkdir dir="sqljet/bin" />
+		<mkdir dir="sqljet-test/bin" />
 
-		<mkdir dir="sqljet-examples/browser/bin"/>
-		<mkdir dir="sqljet-examples/expenses/bin"/>
-		<mkdir dir="sqljet-examples/inventory/bin"/>
-		
-        <delete verbose="false" includeemptydirs="true" failonerror="true">
-            <fileset dir="build">
-                <include name="**/**" />
-            </fileset>
-        </delete>
+		<mkdir dir="sqljet-examples/browser/bin" />
+		<mkdir dir="sqljet-examples/expenses/bin" />
+		<mkdir dir="sqljet-examples/inventory/bin" />
 
-        <delete verbose="false" includeemptydirs="true" failonerror="false">
-            <fileset dir="sqljet/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-test/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/browser/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/expenses/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/inventory/bin">
-                <include name="**/**" />
-            </fileset>
-        </delete>
-		
-		<mkdir dir="${benchmarks}"/>
-		<mkdir dir="${benchmarks.report}"/>
-		
-    </target>
-    
-    <target name="antlr">
-        <java classname="org.antlr.Tool" fork="true" failonerror="true">
-            <arg value="-report"/>
-            <arg value="-fo"/>
-            <arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang"/>
-            <arg value="sqljet/src/Sql.g"/>
-            <classpath>
-                <pathelement location="tools/antlr-3.1.3.jar"/>
-                <pathelement path="${java.class.path}"/>
-            </classpath>
-        </java>
-    	<!-- add @supressWarning to generated classes -->
-    	<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java" token="public class SqlLexer">
-    		<replacevalue>@SuppressWarnings({"unused"})
+		<delete verbose="false" includeemptydirs="true" failonerror="true">
+			<fileset dir="build">
+				<include name="**/**" />
+			</fileset>
+		</delete>
+
+		<delete verbose="false" includeemptydirs="true" failonerror="false">
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-test/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-examples/browser/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-examples/expenses/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-examples/inventory/bin">
+				<include name="**/**" />
+			</fileset>
+		</delete>
+
+		<mkdir dir="${benchmarks}" />
+		<mkdir dir="${benchmarks.report}" />
+
+	</target>
+
+	<target name="antlr">
+		<java classname="org.antlr.Tool" fork="true" failonerror="true">
+			<arg value="-report" />
+			<arg value="-fo" />
+			<arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang" />
+			<arg value="sqljet/src/Sql.g" />
+			<classpath>
+				<pathelement location="tools/antlr-3.1.3.jar" />
+				<pathelement path="${java.class.path}" />
+			</classpath>
+		</java>
+		<!-- add @supressWarning to generated classes -->
+		<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java" token="public class SqlLexer">
+			<replacevalue>@SuppressWarnings({"unused"})
 public class SqlLexer</replacevalue>
-    	</replace>
-    	<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java" token="public class SqlParser">
-    		<replacevalue>@SuppressWarnings({"unused", "unchecked"})
+		</replace>
+		<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java" token="public class SqlParser">
+			<replacevalue>@SuppressWarnings({"unused", "unchecked"})
 public class SqlParser</replacevalue>
-    	</replace>
-    		
-    </target>
+		</replace>
 
-    <target name="compile" depends="antlr">
-        <mkdir dir="sqljet/bin" />
-        <mkdir dir="sqljet-test/bin" />
+	</target>
 
-    	<javac destdir="sqljet/bin" srcdir="sqljet/src" debug="true">
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-    	</javac>
-        <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src" debug="true">
-            <classpath path="sqljet/bin" />
-            <classpath>
-            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-        </javac>
-    </target>
+	<target name="compile" depends="antlr">
+		<mkdir dir="sqljet/bin" />
+		<mkdir dir="sqljet-test/bin" />
+
+		<javac destdir="sqljet/bin" srcdir="sqljet/src" debug="true">
+			<classpath>
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+		</javac>
+		<javac destdir="sqljet-test/bin" srcdir="sqljet-test/src" debug="true">
+			<classpath path="sqljet/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
 
 	<target name="compile-examples" depends="compile">
 		<mkdir dir="sqljet-examples/browser/bin" />
-        <mkdir dir="sqljet-examples/expenses/bin" />
-        <mkdir dir="sqljet-examples/inventory/bin" />
+		<mkdir dir="sqljet-examples/expenses/bin" />
+		<mkdir dir="sqljet-examples/inventory/bin" />
 
-    	<javac destdir="sqljet-examples/browser/bin" srcdir="sqljet-examples/browser/src" debug="true">
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            	<fileset dir="sqljet-examples/browser/lib" includes="*.jar"/>
-            </classpath>
-    		<classpath path="sqljet/bin" />
-    	</javac>
-    	<javac destdir="sqljet-examples/expenses/bin" srcdir="sqljet-examples/expenses/src" debug="true">
-    		<classpath path="sqljet/bin" />
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-    	</javac>
-    	<javac destdir="sqljet-examples/inventory/bin" srcdir="sqljet-examples/inventory/src" debug="true">
-    		<classpath path="sqljet/bin" />
-            <classpath>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
-       	</javac>
-    </target>
-	
+		<javac destdir="sqljet-examples/browser/bin" srcdir="sqljet-examples/browser/src" debug="true">
+			<classpath>
+				<fileset dir="lib" includes="*.jar" />
+				<fileset dir="sqljet-examples/browser/lib" includes="*.jar" />
+			</classpath>
+			<classpath path="sqljet/bin" />
+		</javac>
+		<javac destdir="sqljet-examples/expenses/bin" srcdir="sqljet-examples/expenses/src" debug="true">
+			<classpath path="sqljet/bin" />
+			<classpath>
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+		</javac>
+		<javac destdir="sqljet-examples/inventory/bin" srcdir="sqljet-examples/inventory/src" debug="true">
+			<classpath path="sqljet/bin" />
+			<classpath>
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+
 	<target name="generate-key">
-        <mkdir dir="build" />
+		<mkdir dir="build" />
 		<genkey alias="tmate" storepass="secret" keystore="build/keystore">
-		  <dname>
-		    <param name="CN" value="TMate Software"/>
-		    <param name="C"  value="CZ"/>
-		  </dname>
+			<dname>
+				<param name="CN" value="TMate Software" />
+				<param name="C" value="CZ" />
+			</dname>
 		</genkey>
 	</target>
-    
+
 	<target name="deploy" depends="clean, compile, compile-examples, generate-key">
-        <mkdir dir="build" />
-    	<!-- update svnkit.build.properties here -->
-    	<antcall target="init-build.number"/>
+		<mkdir dir="build" />
+		<!-- update svnkit.build.properties here -->
+		<antcall target="init-build.number" />
 
 		<jar destfile="build/sqljet.${build.number}.jar">
-            <fileset dir="sqljet/bin">
-                <include name="**/**"/>
-            </fileset>
-            <fileset dir="build">
-                <include name="sqljet.build.properties"/>
-            </fileset>
-        </jar>
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="build">
+				<include name="sqljet.build.properties" />
+			</fileset>
+		</jar>
 
-        <zip destfile="build/sqljet.${build.number}.src.zip">
-            <zipfileset dir="sqljet/src" prefix="src">
-                <exclude name="**/.*"/>
-                <exclude name=".*"/>
-            </zipfileset>
-            <zipfileset dir=""> 
-                <include name="COPYING"/>
-                <include name="README.txt"/>
-            </zipfileset>
-        </zip>
+		<zip destfile="build/sqljet.${build.number}.src.zip">
+			<zipfileset dir="sqljet/src" prefix="src">
+				<exclude name="**/.*" />
+				<exclude name=".*" />
+			</zipfileset>
+			<zipfileset dir="">
+				<include name="COPYING" />
+				<include name="README.txt" />
+			</zipfileset>
+		</zip>
 
 		<!-- examples (browser) -->
 		<manifest file="build/MANIFEST.MF">
-		    <attribute name="Built-By" value="TMate Software"/>
-	      <attribute name="Main-Class" value="org.tmatesoft.sqljet.browser.DBBrowser"/>
-	      <attribute name="Class-Path" value="sqljet.${build.number}.jar"/>
-	      <attribute name="Implementation-Title" value="SQLJet Database Browser"/>
-	      <attribute name="Implementation-Version" value="${build.number}"/>
-	      <attribute name="Implementation-Vendor" value="TMate Software"/>
+			<attribute name="Built-By" value="TMate Software" />
+			<attribute name="Main-Class" value="org.tmatesoft.sqljet.browser.DBBrowser" />
+			<attribute name="Class-Path" value="sqljet.${build.number}.jar" />
+			<attribute name="Implementation-Title" value="SQLJet Database Browser" />
+			<attribute name="Implementation-Version" value="${build.number}" />
+			<attribute name="Implementation-Vendor" value="TMate Software" />
 		</manifest>
 		<jar destfile="build/sqljet-browser.${build.number}.jar" manifest="build/MANIFEST.MF">
-            <fileset dir="sqljet-examples/browser/bin">
-                <include name="**/**"/>
-            </fileset>
+			<fileset dir="sqljet-examples/browser/bin">
+				<include name="**/**" />
+			</fileset>
 			<zipfileset src="sqljet-examples/browser/lib/org-netbeans-swing-outline.jar">
-                <include name="**/**"/>
+				<include name="**/**" />
 			</zipfileset>
-        </jar>
-		<delete file="build/MANIFEST.MF"/>
-		
-		<mkdir dir="build/lib"/>
-		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar"></copy>
-		<copy todir="build">
-            <fileset dir="sqljet-examples/browser">
-                <include name="browser.jnlp"/>
-            </fileset>
+		</jar>
+		<delete file="build/MANIFEST.MF" />
+
+		<mkdir dir="build/lib" />
+		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar">
 		</copy>
-		<replace token="%version%" file="build/browser.jnlp" value="${build.number}"></replace>
-		
-		<signjar
-		    alias="tmate" keystore="build/keystore"
-		    storepass="secret"
-		    lazy="true"			
-		    >
-		  <path>
-		    <fileset dir="build" includes="**/*.jar" />
-		  </path>
+		<copy todir="build">
+			<fileset dir="sqljet-examples/browser">
+				<include name="browser.jnlp" />
+			</fileset>
+		</copy>
+		<replace token="%version%" file="build/browser.jnlp" value="${build.number}">
+		</replace>
+
+		<signjar alias="tmate" keystore="build/keystore" storepass="secret" lazy="true">
+			<path>
+				<fileset dir="build" includes="**/*.jar" />
+			</path>
 		</signjar>
-		
+
 		<zip destfile="build/sqljet-browser.${build.number}.src.zip">
-            <zipfileset dir="sqljet-examples/browser/src" prefix="src">
-                <exclude name="**/.*"/>
-                <exclude name=".*"/>
-            </zipfileset>
-            <zipfileset dir=""> 
-                <include name="COPYING"/>
-            </zipfileset>
-        </zip>
+			<zipfileset dir="sqljet-examples/browser/src" prefix="src">
+				<exclude name="**/.*" />
+				<exclude name=".*" />
+			</zipfileset>
+			<zipfileset dir="">
+				<include name="COPYING" />
+			</zipfileset>
+		</zip>
 
 		<zip destfile="build/sqljet-browser.${build.number}.jnlp.zip">
-            <zipfileset dir="build" prefix="browser">
-                <include name="sqljet.${build.number}.jar"/>
-                <include name="sqljet-browser.${build.number}.jar"/>
-            </zipfileset>
-            <zipfileset dir="build/lib" prefix="browser">
-                <include name="**/**"/>
-            </zipfileset>
-            <zipfileset dir="build" prefix="">
-                <include name="browser.jnlp"/>
-            </zipfileset>
-        </zip>
-		
+			<zipfileset dir="build" prefix="browser">
+				<include name="sqljet.${build.number}.jar" />
+				<include name="sqljet-browser.${build.number}.jar" />
+			</zipfileset>
+			<zipfileset dir="build/lib" prefix="browser">
+				<include name="**/**" />
+			</zipfileset>
+			<zipfileset dir="build" prefix="">
+				<include name="browser.jnlp" />
+			</zipfileset>
+		</zip>
 
-        <zip destfile="build/sqljet.${build.number}.zip">
-            <zipfileset dir="build" prefix="sqljet.${build.number}">
-                <include name="sqljet.${build.number}.jar"/>
-                <include name="sqljet.${build.number}.src.zip"/>
-                <include name="sqljet-browser.${build.number}.jar"/>
-                <include name="sqljet-browser.${build.number}.src.zip"/>
-            </zipfileset>
-            <zipfileset dir="lib" prefix="sqljet.${build.number}">
-                <include name="**/**"/>
-            </zipfileset>
-            <zipfileset dir="" prefix="sqljet.${build.number}">
-                <include name="COPYING"/>
-                <include name="README.txt"/>
-            </zipfileset>
-        </zip>
-        
-        <delete file="build/sqljet.${build.number}.src.zip"></delete>
-        <delete file="build/sqljet.${build.number}.jar"></delete>
-        <delete file="build/sqljet-browser.${build.number}.src.zip"></delete>
-        <delete file="build/sqljet-browser.${build.number}.jar"></delete>
-        <delete file="build/sqljet.build.properties"></delete>
-        <delete file="build/keystore"></delete>
-        <delete file="build/browser.jnlp"></delete>
-        <delete dir="build/lib" includeemptydirs="true">
-			<include name="**/**"/>
+
+		<zip destfile="build/sqljet.${build.number}.zip">
+			<zipfileset dir="build" prefix="sqljet.${build.number}">
+				<include name="sqljet.${build.number}.jar" />
+				<include name="sqljet.${build.number}.src.zip" />
+				<include name="sqljet-browser.${build.number}.jar" />
+				<include name="sqljet-browser.${build.number}.src.zip" />
+			</zipfileset>
+			<zipfileset dir="lib" prefix="sqljet.${build.number}">
+				<include name="**/**" />
+			</zipfileset>
+			<zipfileset dir="" prefix="sqljet.${build.number}">
+				<include name="COPYING" />
+				<include name="README.txt" />
+			</zipfileset>
+		</zip>
+
+		<delete file="build/sqljet.${build.number}.src.zip">
 		</delete>
-    </target>
+		<delete file="build/sqljet.${build.number}.jar">
+		</delete>
+		<delete file="build/sqljet-browser.${build.number}.src.zip">
+		</delete>
+		<delete file="build/sqljet-browser.${build.number}.jar">
+		</delete>
+		<delete file="build/sqljet.build.properties">
+		</delete>
+		<delete file="build/keystore">
+		</delete>
+		<delete file="build/browser.jnlp">
+		</delete>
+		<delete dir="build/lib" includeemptydirs="true">
+			<include name="**/**" />
+		</delete>
+	</target>
 
 	<target name="test" depends="deploy">
-		<echoproperties prefix="os."/>		
-		<echoproperties prefix="java.vm."/>		
+		<echoproperties prefix="os." />
+		<echoproperties prefix="java.vm." />
 		<junit>
-			<jvmarg value="-ea"/>			
-			<jvmarg value="-Xmx128m"/>			
+			<jvmarg value="-ea" />
+			<jvmarg value="-server" />
 			<formatter type="plain" usefile="false" />
 			<classpath path="sqljet/bin" />
-            <classpath path="sqljet-test/bin" />
-            <classpath>
-            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
 			<batchtest fork="yes" todir="sqljet-test/bin">
-			    <fileset dir="sqljet-test/src">
-			      <include name="**/*Test*.java"/>
-			      <exclude name="**/*Abstract*.java"/>
-			      <exclude name="**/*Mock*.java"/>
-			    </fileset>
-			 </batchtest>
-			<sysproperty key="SQLJET_FILE_LOG" value="false"/>
-			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="false"/>
-			<sysproperty key="SQLJET_PAGER_LOG" value="false"/>
-			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
-			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true"/>
-			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100"/>
+				<fileset dir="sqljet-test/src">
+					<include name="**/*Test*.java" />
+					<exclude name="**/*Abstract*.java" />
+					<exclude name="**/*Mock*.java" />
+					<exclude name="**/*sandbox*/**/**.*" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_FILE_LOG" value="false" />
+			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="false" />
+			<sysproperty key="SQLJET_PAGER_LOG" value="false" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true" />
+			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
 		</junit>
 	</target>
 
 	<target name="benchmarks" depends="deploy">
 		<junit>
-			<sysproperty key="SQLJET_TESTS_LOGGING" value="false"/>
-			<sysproperty key="SqlJetBenchmark.TimeLog" value="false"/>
-			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10"/>
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
 			<classpath path="sqljet/bin" />
-            <classpath path="sqljet-test/bin" />
-            <classpath>
-            	<fileset dir="sqljet-test/lib" includes="*.jar"/>
-            	<fileset dir="lib" includes="*.jar"/>
-            </classpath>
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
 			<formatter type="plain" usefile="false" />
 			<batchtest fork="yes" todir="${benchmarks}">
 				<formatter type="xml" />
-			    <fileset dir="sqljet-test/src">
-			      <include name="**/SqlJetBenchmark.java"/>
-			    </fileset>
-			    <fileset dir="sqljet-test/src">
-				  <include name="**/NestedVmBenchmark.java"/>
-			    </fileset>
-			 </batchtest>
+				<fileset dir="sqljet-test/src">
+					<include name="**/SqlJetBenchmark.java" />
+				</fileset>
+				<fileset dir="sqljet-test/src">
+					<include name="**/NestedVmBenchmark.java" />
+				</fileset>
+			</batchtest>
 		</junit>
 		<junitreport todir="${benchmarks}">
-		  <fileset dir="${benchmarks}">
-		    <include name="TEST-*.xml"/>
-		  </fileset>
-		  <report format="noframes" todir="${benchmarks.report}"/>
-		</junitreport>		
-	</target>	
+			<fileset dir="${benchmarks}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" todir="${benchmarks.report}" />
+		</junitreport>
+	</target>
+
+	<target name="sandbox-test" depends="deploy">
+		<junit>
+			<jvmarg value="-server" />
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+				<fileset dir="sqljet-test/src">
+					<include name="**/*sandbox*/**/*Test*.java" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+		</junit>
+	</target>
 	
+	<target name="sandbox-server-benchmarks" depends="deploy">
+		<junit>
+			<jvmarg value="-server" />
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+				<fileset dir="sqljet-test/src">
+					<include name="**/*sandbox*/**/*Benchmarks*.java" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+		</junit>
+	</target>
+
+	<target name="sandbox-client-benchmarks" depends="deploy">
+		<junit>
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+				<fileset dir="sqljet-test/src">
+					<include name="**/*sandbox*/**/*Benchmarks*.java" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+		</junit>
+	</target>
+
+	<target name="sandbox-benchmarks" depends="deploy,sandbox-server-benchmarks,sandbox-client-benchmarks" />
+
 </project>

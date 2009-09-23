@@ -1,4 +1,4 @@
-<project name="sqljet" default="deploy">
+<project name="sqljet" default="deploy" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
 	<property file="sqljet.build.properties">
 	</property>
@@ -256,6 +256,62 @@ public class SqlParser</replacevalue>
 		</delete>
 	</target>
 
+	<target name="deploy-maven" depends="clean,compile">
+		<path id="maven-ant-tasks.classpath" path="tools/maven-ant-tasks-2.0.10.jar" />
+		<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+		
+		<mkdir dir="build/maven-deploy"/>
+		<mkdir dir="build/maven-deploy/org.tmatesoft.sqljet-${build.number}"/>
+
+		<jar destfile="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/sqljet-${build.number}.jar">
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="build">
+				<include name="sqljet.build.properties" />
+			</fileset>
+
+            <fileset dir="" >
+                <include name="COPYING" />
+            </fileset>
+		</jar>
+
+		<jar destfile="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/sqljet-${build.number}-sources.jar">
+            <fileset dir="">
+                <include name="README.txt" />
+            </fileset>
+			<fileset dir="sqljet/src">
+				<exclude name=".svn"/>
+				<exclude name=".svn/**"/>
+			</fileset>
+			<fileset dir="" >
+                <include name="COPYING" />
+            </fileset>
+            <fileset dir="build" >
+                <include name="sqljet.build.properties" />
+            </fileset>
+		</jar>
+		
+		<copy file="pom.xml" tofile="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/pom.xml"/>
+        <replace token="%sqljet.version%" value="${build.number}" file="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/pom.xml"/>
+		<replace token="%antlr.version%" value="${antlr.version}" file="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/pom.xml"/>
+
+		<artifact:pom id="sqljet.pom" file="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/pom.xml" />
+		
+		<mkdir dir="build/maven-deploy/m2repo"/>
+		
+		<artifact:deploy file="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/sqljet-${build.number}.jar">
+			<attach file="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/sqljet-${build.number}-sources.jar" classifier="sources" />
+			<remoteRepository url="file://${basedir}/build/maven-deploy/m2repo" />
+			<pom refid="sqljet.pom"/>
+		</artifact:deploy>
+
+		<delete dir="build/maven-deploy" >
+			<include name="org.tmatesoft.sqljet-${build.number}/**"/>
+	    </delete>
+		<delete dir="build/maven-deploy/org.tmatesoft.sqljet-${build.number}" />
+	</target>
+	
 	<target name="test" depends="deploy">
 		<echoproperties prefix="os." />
 		<echoproperties prefix="java.vm." />

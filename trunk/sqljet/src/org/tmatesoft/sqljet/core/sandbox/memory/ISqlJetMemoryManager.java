@@ -33,13 +33,35 @@ public interface ISqlJetMemoryManager {
     int LONG_SIZE = 8;
 
     /**
-     * Allocates memory chunk {@link ISqlJetMemoryBuffer}.
+     * Get buffers implementation type which is used by default.
+     * 
+     * @return
+     */
+    SqlJetMemoryBufferType getDefaultBufferType();
+
+    /**
+     * Get buffers implementation which is used by default.
+     * 
+     * @param bufferType
+     */
+    void setDefaultBufferType(SqlJetMemoryBufferType bufferType);
+
+    /**
+     * Allocates memory chunk {@link ISqlJetMemoryBuffer} using default buffer
+     * type.
      * 
      * @param size
      *            size of buffer in bytes
      * @return allocated buffer
      */
     ISqlJetMemoryBuffer allocate(int size);
+
+    /**
+     * @param size
+     * @param bufferType
+     * @return
+     */
+    ISqlJetMemoryBuffer allocate(int size, SqlJetMemoryBufferType bufferType);
 
     /**
      * Fries memory.

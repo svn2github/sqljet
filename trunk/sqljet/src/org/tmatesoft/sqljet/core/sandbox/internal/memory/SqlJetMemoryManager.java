@@ -19,6 +19,7 @@ package org.tmatesoft.sqljet.core.sandbox.internal.memory;
 
 import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer;
 import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
+import org.tmatesoft.sqljet.core.sandbox.memory.SqlJetMemoryBufferType;
 
 /**
  * @author TMate Software Ltd.
@@ -26,6 +27,32 @@ import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
  * 
  */
 public class SqlJetMemoryManager implements ISqlJetMemoryManager {
+
+    private SqlJetMemoryBufferType defaultBufferType = SqlJetMemoryBufferType.ARRAY;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager#
+     * getDefaultBufferType()
+     */
+    public SqlJetMemoryBufferType getDefaultBufferType() {
+        return defaultBufferType;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @seeorg.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager#
+     * setDefaultBufferType
+     * (org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager
+     * .BufferType)
+     */
+    public void setDefaultBufferType(final SqlJetMemoryBufferType bufferType) {
+        if (bufferType != null) {
+            defaultBufferType = bufferType;
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -35,8 +62,33 @@ public class SqlJetMemoryManager implements ISqlJetMemoryManager {
      * #allocate(int)
      */
     public ISqlJetMemoryBuffer allocate(final int size) {
+        return allocate(size, defaultBufferType);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager#allocate
+     * (int,
+     * org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager.BufferType)
+     */
+    public ISqlJetMemoryBuffer allocate(int size, SqlJetMemoryBufferType bufferType) {
         if (size > 0) {
-            SqlJetByteArrayBuffer buffer = new SqlJetByteArrayBuffer();
+            final ISqlJetMemoryBuffer buffer;
+            switch (bufferType) {
+            case ARRAY:
+                buffer = new SqlJetByteArrayBuffer();
+                break;
+            case BUFFER:
+                buffer = new SqlJetByteBuffer();
+                break;
+            case DIRECT:
+                buffer = new SqlJetDirectByteBuffer();
+                break;
+            default:
+                buffer = new SqlJetByteArrayBuffer();
+            }
             buffer.allocate(size);
             return buffer;
         } else {

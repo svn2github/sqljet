@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer;
+import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
 import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryPointer;
 
 /**
@@ -122,7 +123,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public int getInt(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.INT_SIZE);
 
         return SqlJetBytesUtility.getInt(buffer, pointer);
     }
@@ -137,7 +138,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public long getLong(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.LONG_SIZE);
 
         return SqlJetBytesUtility.getLong(buffer, pointer);
     }
@@ -152,7 +153,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public short getShort(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
 
         return SqlJetBytesUtility.getShort(buffer, pointer);
     }
@@ -182,7 +183,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public long getIntUnsigned(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.INT_SIZE);
 
         return SqlJetBytesUtility.toUnsignedInt(getInt(pointer));
     }
@@ -197,7 +198,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public int getShortUnsigned(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
 
         return SqlJetBytesUtility.toUnsignedShort(getShort(pointer));
     }
@@ -227,7 +228,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public void setInt(final int pointer, final int value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.LONG_SIZE);
 
         SqlJetBytesUtility.putInt(buffer, pointer, value);
     }
@@ -242,7 +243,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public void setLong(final int pointer, final long value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.LONG_SIZE);
 
         SqlJetBytesUtility.putLong(buffer, pointer, value);
     }
@@ -257,7 +258,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public void setShort(final int pointer, final short value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
 
         SqlJetBytesUtility.putShort(buffer, pointer, value);
     }
@@ -287,7 +288,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public void setIntUnsigned(final int pointer, final long value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.INT_SIZE);
 
         setInt(pointer, (int) SqlJetBytesUtility.toUnsignedInt(value));
     }
@@ -302,7 +303,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public void setShortUnsigned(final int pointer, final int value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
 
         setShort(pointer, (short) SqlJetBytesUtility.toUnsignedShort(value));
     }

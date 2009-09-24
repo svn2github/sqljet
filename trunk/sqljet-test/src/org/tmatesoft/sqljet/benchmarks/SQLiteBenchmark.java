@@ -25,6 +25,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.Random;
 
+import org.junit.BeforeClass;
+
 import junit.framework.Assert;
 
 /**
@@ -36,6 +38,13 @@ public class SQLiteBenchmark extends AbstractBenchmark {
 
     private Connection conn;
     private Statement stat;
+
+    @BeforeClass
+    static public void setUpClass() throws Exception {
+        AbstractBenchmark.setUpClass();
+        final SQLiteBenchmark warmUp = new SQLiteBenchmark();
+        warmUp.warmUp();
+    }
 
     @Override
     public void setUp() throws Exception {

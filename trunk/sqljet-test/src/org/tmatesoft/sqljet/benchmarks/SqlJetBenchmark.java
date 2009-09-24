@@ -42,7 +42,7 @@ public class SqlJetBenchmark extends AbstractBenchmark {
     static public void setUpClass() throws Exception {
         AbstractBenchmark.setUpClass();
         final SqlJetBenchmark warmUp = new SqlJetBenchmark();
-        warmUp.runTests();
+        warmUp.warmUp();
     }
 
     @Override

@@ -48,6 +48,8 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     protected File dbFile;
 
+    private boolean warmUp = false;
+
     protected interface Measure {
         void measure() throws Exception;
     }
@@ -89,7 +91,11 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     }
 
     protected void measure(String name, Measure m) throws Exception {
-        logTime(name, getTime(m));
+        if (!warmUp) {
+            logTime(name, getTime(m));
+        } else {
+            m.measure(); // just warm up
+        }
     }
 
     @Test
@@ -113,7 +119,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @Test
     public abstract void locate() throws Exception;
 
-    protected void runTests() throws Exception {
+    private void runTests() throws Exception {
 
         setUp();
         nothing();
@@ -144,4 +150,14 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
         tearDown();
 
     }
+
+    protected void warmUp() throws Exception {
+        warmUp = true;
+        try {
+            runTests();
+        } finally {
+            warmUp = false;
+        }
+    }
+
 }

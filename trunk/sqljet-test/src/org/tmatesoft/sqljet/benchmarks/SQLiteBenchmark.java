@@ -32,7 +32,7 @@ import junit.framework.Assert;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class NestedVmBenchmark extends AbstractBenchmark {
+public class SQLiteBenchmark extends AbstractBenchmark {
 
     private Connection conn;
     private Statement stat;

@@ -114,4 +114,34 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @Test
     public abstract void locate() throws Exception;
 
+    @Test
+    public void selectAll_() throws Exception{
+        selectAll();
+    }
+
+    @Test
+    public void updateAll_() throws Exception{
+        updateAll();
+    }
+
+    @Test
+    public void deleteAll_() throws Exception{
+        deleteAll();
+    }
+
+    @Test
+    public void insertRandoms_() throws Exception{
+        insertRandoms();
+    }
+
+    @Test
+    public void clear_() throws Exception{
+        clear();
+    }
+
+    @Test
+    public void locate_() throws Exception{
+        locate();
+    }
+    
 }

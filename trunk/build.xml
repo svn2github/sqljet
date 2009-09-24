@@ -1,7 +1,6 @@
 <project name="sqljet" default="deploy" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
-	<property file="sqljet.build.properties">
-	</property>
+	<property file="sqljet.build.properties"/>
 	<property name="build.vcs.number.1" value="local" />
 	<property name="build.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}.b${build.vcs.number.1}" />
 
@@ -342,18 +341,93 @@ public class SqlParser</replacevalue>
 		</junit>
 	</target>
 
-	<target name="benchmarks" depends="deploy">
-		<junit>
+	<target name="benchmarks-warming" depends="deploy">
+		<echo message="Warming benchmarks..."/>		
+		
+		<junit showoutput="false" printsummary="false">		
 			<jvmarg value="-server" />
-			<jvmarg value="-da" />
-			<jvmarg value="-dsa" />			
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
 			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
 			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
 			<classpath path="sqljet/bin" />
 			<classpath path="sqljet-test/bin" />
 			<classpath>
-				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
+				<fileset dir="sqljet-test/src">
+					<include name="**/SqlJetBenchmark.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junit>		
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056-pure.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
+				<fileset dir="sqljet-test/src">
+					<include name="**/SQLiteBenchmark.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<junit>		
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
+				<fileset dir="sqljet-test/src">
+					<include name="**/SQLiteBenchmark.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+		
+	</target>
+
+	
+	<target name="benchmarks" depends="deploy, benchmarks-warming">
+		
+		<echoproperties prefix="os." />
+		<echoproperties prefix="java.vm." />		
+		
+		<echo message="Performng actual benchmarks..."/>		
+		
+		<echo message="SQLJet"/>		
+		<junit>		
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056.jar" />
 				<fileset dir="lib" includes="*.jar" />
 			</classpath>
 			<formatter type="plain" usefile="false" />
@@ -362,17 +436,60 @@ public class SqlParser</replacevalue>
 				<fileset dir="sqljet-test/src">
 					<include name="**/SqlJetBenchmark.java" />
 				</fileset>
+			</batchtest>
+		</junit>
+
+		<echo message="SQLite native"/>		
+		<junit>		
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056-pure.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<formatter type="plain" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
 				<fileset dir="sqljet-test/src">
-					<include name="**/NestedVmBenchmark.java" />
+					<include name="**/SQLiteBenchmark.java" />
 				</fileset>
 			</batchtest>
 		</junit>
+
+		<echo message="SQLite NestedVM"/>		
+		<junit>		
+			<jvmarg value="-server" />
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
+			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" 
+					excludes="sqlitejdbc-v056.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<formatter type="plain" usefile="false" />
+			<batchtest fork="yes" todir="${benchmarks}">
+				<formatter type="xml" />
+				<fileset dir="sqljet-test/src">
+					<include name="**/SQLiteBenchmark.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
 		<junitreport todir="${benchmarks}">
 			<fileset dir="${benchmarks}">
 				<include name="TEST-*.xml" />
 			</fileset>
 			<report format="noframes" todir="${benchmarks.report}" />
 		</junitreport>
+		
 	</target>
 
 	<target name="sandbox-test" depends="deploy">

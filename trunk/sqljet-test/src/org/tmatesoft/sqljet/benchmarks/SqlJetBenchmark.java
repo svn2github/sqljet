@@ -21,6 +21,7 @@ import java.util.Random;
 
 import junit.framework.Assert;
 
+import org.junit.BeforeClass;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
@@ -36,6 +37,13 @@ public class SqlJetBenchmark extends AbstractBenchmark {
 
     private SqlJetDb db;
     private ISqlJetTable table;
+
+    @BeforeClass
+    static public void setUpClass() throws Exception {
+        AbstractBenchmark.setUpClass();
+        final SqlJetBenchmark warmUp = new SqlJetBenchmark();
+        warmUp.runTests();
+    }
 
     @Override
     public void setUp() throws Exception {
@@ -55,7 +63,7 @@ public class SqlJetBenchmark extends AbstractBenchmark {
     @Override
     public void nothing() throws Exception {
     }
-    
+
     @Override
     public void selectAll() throws Exception {
         measure("SqlJetBenchmark.selectAll", new Measure() {

@@ -37,8 +37,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
 
     private static final String SQL_JET_BENCHMARK_TIME_LOG = "SqlJetBenchmark.TimeLog";
     public static final String DB_FILE = "sqljet-test/db/rep-cache/rep-cache.db";
-    // public static final String WORK_PATH = "F://";
-    public static final String WORK_PATH = null;
+    public static final String WORK_PATH = null; // "F:"
     public static final String COPY_PREFIX = "copy";
     public static final String TABLE_NAME = "rep_cache";
     protected static final int SCALE_FACTOR = SqlJetUtility.getIntSysProp("SqlJetBenchmark.ScaleFactor", 1);
@@ -114,34 +113,35 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @Test
     public abstract void locate() throws Exception;
 
-    @Test
-    public void selectAll_() throws Exception{
+    protected void runTests() throws Exception {
+
+        setUp();
+        nothing();
+        tearDown();
+
+        setUp();
         selectAll();
-    }
+        tearDown();
 
-    @Test
-    public void updateAll_() throws Exception{
+        setUp();
         updateAll();
-    }
+        tearDown();
 
-    @Test
-    public void deleteAll_() throws Exception{
+        setUp();
         deleteAll();
-    }
+        tearDown();
 
-    @Test
-    public void insertRandoms_() throws Exception{
+        setUp();
         insertRandoms();
-    }
+        tearDown();
 
-    @Test
-    public void clear_() throws Exception{
+        setUp();
         clear();
-    }
+        tearDown();
 
-    @Test
-    public void locate_() throws Exception{
+        setUp();
         locate();
+        tearDown();
+
     }
-    
 }

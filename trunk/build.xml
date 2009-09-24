@@ -343,8 +343,13 @@ public class SqlParser</replacevalue>
 	
 	<target name="benchmarks" depends="deploy">		
 		<echoproperties prefix="os." />
-		<echoproperties prefix="java.vm." />		
-		<echo message="SQLJet"/>		
+		<echoproperties prefix="java.vm." />
+		
+		<echo>
+			*SQLJet ${build.number} (trunk)*
+			
+			{{{
+		</echo>		
 		<junit>		
 			<jvmarg value="-server" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
@@ -366,7 +371,13 @@ public class SqlParser</replacevalue>
 			</batchtest>
 		</junit>
 
-		<echo message="SQLite-native"/>		
+		<echo>
+			}}}
+
+			*[http://www.zentus.com/sqlitejdbc/ SQLiteJDBC] v056 (SQLite 3.6.14.2 native)*
+
+			{{{			
+		</echo>
 		<junit>		
 			<jvmarg value="-server" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
@@ -388,7 +399,13 @@ public class SqlParser</replacevalue>
 			</batchtest>
 		</junit>
 
-		<echo message="SQLite-nestedVM"/>		
+		<echo>
+			}}}
+
+			*[http://www.zentus.com/sqlitejdbc/ SQLiteJDBC] v056 (NestedVM)*
+
+			{{{			
+		</echo>
 		<junit>		
 			<jvmarg value="-server" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
@@ -409,6 +426,10 @@ public class SqlParser</replacevalue>
 				</fileset>
 			</batchtest>
 		</junit>
+		
+		<echo>
+			}}}
+		</echo>
 
 		<junitreport todir="${benchmarks}">
 			<fileset dir="${benchmarks}">

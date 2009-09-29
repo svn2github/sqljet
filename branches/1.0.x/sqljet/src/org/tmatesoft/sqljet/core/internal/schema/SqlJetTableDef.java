@@ -287,23 +287,29 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         buffer.append("/");
         buffer.append(getRowId());
         buffer.append(": ");
-        buffer.append(toSQL());
+        buffer.append(toSQL(false));
         return buffer.toString();
     }
 
     public String toSQL() {
+        return toSQL(true);
+    }
+
+    public String toSQL(boolean schemaStrict) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("CREATE ");
         if (isTemporary()) {
             buffer.append("TEMPORARY ");
         }
         buffer.append("TABLE ");
-        if (isKeepExisting()) {
-            buffer.append("IF NOT EXISTS ");
-        }
-        if (getDatabaseName() != null) {
-            buffer.append(getDatabaseName());
-            buffer.append('.');
+        if (!schemaStrict) {
+            if (isKeepExisting()) {
+                buffer.append("IF NOT EXISTS ");
+            }
+            if (getDatabaseName() != null) {
+                buffer.append(getDatabaseName());
+                buffer.append('.');
+            }
         }
         buffer.append(getName());
         buffer.append(" (");
@@ -316,9 +322,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         }
         List<ISqlJetTableConstraint> constraints = getConstraints();
         for (int i = 0; i < constraints.size(); i++) {
-            if (i > 0) {
-                buffer.append(", ");
-            }
+            buffer.append(", ");
             buffer.append(constraints.get(i).toString());
         }
         buffer.append(')');

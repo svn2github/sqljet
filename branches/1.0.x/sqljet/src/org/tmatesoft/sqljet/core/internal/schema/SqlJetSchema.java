@@ -293,8 +293,13 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if (tableDefs.containsKey(tableName))
-            throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + tableName + "\" exists already");
+        if (tableDefs.containsKey(tableName)) {
+            if (tableDef.isKeepExisting()) {
+                return tableDefs.get(tableName);
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + tableName + "\" exists already");
+            }
+        }
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
@@ -448,8 +453,13 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if (indexDefs.containsKey(indexName))
-            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
+        if (indexDefs.containsKey(indexName)) {
+            if (indexDef.isKeepExisting()) {
+                return indexDefs.get(indexName);
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
+            }
+        }
 
         if (null == indexDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);

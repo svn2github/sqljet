@@ -18,11 +18,10 @@
 package org.tmatesoft.sqljet.core.internal.btree;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.util.Set;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -36,6 +35,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
@@ -60,6 +60,11 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  */
 public class SqlJetBtree implements ISqlJetBtree {
 
+    /**
+     * 
+     */
+    private static final ISqlJetMemoryPointer PAGE1_21 = SqlJetUtility.wrapPtr(new byte[] { (byte) 0100,
+                            (byte) 040, (byte) 040 });
     static final String SQLJET_BTREE_LOGGER = "SQLJET_BTREE";
     private static Logger logger = Logger.getLogger(SQLJET_BTREE_LOGGER);
     private static final boolean SQLJET_BTREE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_BTREE_LOG", false);
@@ -242,7 +247,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         ISqlJetFileSystem pVfs; /* The VFS to use for this btree */
         SqlJetBtreeShared pBt = null; /* Shared part of btree structure */
         int nReserve;
-        ByteBuffer zDbHeader = ByteBuffer.allocate(100);
+        ISqlJetMemoryPointer zDbHeader = SqlJetUtility.allocatePtr(100);
 
         /*
          * Set the variable isMemdb to true for an in-memory database, or false
@@ -689,7 +694,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                 int pageSize;
                 int usableSize;
-                ByteBuffer page1 = pPage1.aData;
+                ISqlJetMemoryPointer page1 = pPage1.aData;
                 rc = SqlJetErrorCode.NOTADB;
                 if (SqlJetUtility.memcmp(page1, zMagicHeader, 16) != 0) {
                     throw new SqlJetException(rc);
@@ -708,8 +713,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                  * to vary, but as of version 3.6.0, we require them to be
                  * fixed.
                  */
-                if (SqlJetUtility.memcmp(SqlJetUtility.slice(page1, 21), ByteBuffer.wrap(new byte[] { (byte) 0100,
-                        (byte) 040, (byte) 040 }), 3) != 0) {
+                if (SqlJetUtility.memcmp(page1, 21, PAGE1_21, 0, 3) != 0) {
                     throw new SqlJetException(rc);
                 }
 
@@ -790,7 +794,7 @@ public class SqlJetBtree implements ISqlJetBtree {
 
         SqlJetMemPage pP1 = pBt.pPage1;
         assert (pP1 != null);
-        ByteBuffer data = pP1.aData;
+        ISqlJetMemoryPointer data = pP1.aData;
         pP1.pDbPage.write();
         SqlJetUtility.memcpy(data, zMagicHeader, zMagicHeader.remaining());
         assert (zMagicHeader.remaining() == 16);
@@ -1756,8 +1760,8 @@ public class SqlJetBtree implements ISqlJetBtree {
 
                     pFromPage = pBtFrom.pPager.getPage(iFrom);
 
-                    ByteBuffer zTo = pToPage.getData();
-                    ByteBuffer zFrom = pFromPage.getData();
+                    ISqlJetMemoryPointer zTo = pToPage.getData();
+                    ISqlJetMemoryPointer zFrom = pFromPage.getData();
                     int nCopy;
 
                     int nFrom = 0;
@@ -1833,7 +1837,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 }
 
                 pFromPage = pBtFrom.pPager.getPage(iFrom);
-                ByteBuffer zFrom = pFromPage.getData();
+                ISqlJetMemoryPointer zFrom = pFromPage.getData();
                 pFile.write(zFrom, nFromPageSize, iOff);
                 pFromPage.unref();
             }
@@ -2104,7 +2108,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         try {
 
             ISqlJetPage pDbPage = null;
-            ByteBuffer pP1;
+            ISqlJetMemoryPointer pP1;
 
             pBt.db = this.db;
 
@@ -2169,7 +2173,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             pBt.db = this.db;
             assert (this.inTrans == TransMode.WRITE);
             assert (pBt.pPage1 != null);
-            ByteBuffer pP1 = pBt.pPage1.aData;
+            ISqlJetMemoryPointer pP1 = pBt.pPage1.aData;
             pBt.pPage1.pDbPage.write();
             SqlJetUtility.put4byte(pP1, 36 + idx * 4, value);
             if (idx == 7) {

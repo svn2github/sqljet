@@ -15,11 +15,13 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.sandbox.internal.memory;
+package org.tmatesoft.sqljet.core.internal.memory;
 
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
-import org.tmatesoft.sqljet.core.sandbox.memory.SqlJetMemoryBufferType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryManager;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
+import org.tmatesoft.sqljet.core.internal.SqlJetMemoryBufferType;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -28,7 +30,8 @@ import org.tmatesoft.sqljet.core.sandbox.memory.SqlJetMemoryBufferType;
  */
 public class SqlJetMemoryManager implements ISqlJetMemoryManager {
 
-    private SqlJetMemoryBufferType defaultBufferType = SqlJetMemoryBufferType.ARRAY;
+    private SqlJetMemoryBufferType defaultBufferType = SqlJetUtility.getEnumSysProp(
+            "SqlJetMemoryManager.defaultBufferType", SqlJetMemoryBufferType.ARRAY);
 
     /*
      * (non-Javadoc)
@@ -58,6 +61,27 @@ public class SqlJetMemoryManager implements ISqlJetMemoryManager {
      * (non-Javadoc)
      * 
      * @see
+     * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryManager#allocatePtr(int)
+     */
+    public ISqlJetMemoryPointer allocatePtr(int size) {
+        return allocate(size).getPointer(0);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryManager#allocatePtr(int,
+     * org.tmatesoft.sqljet.core.internal.SqlJetMemoryBufferType)
+     */
+    public ISqlJetMemoryPointer allocatePtr(int size, SqlJetMemoryBufferType bufferType) {
+        return allocate(size, bufferType).getPointer(0);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryManager
      * #allocate(int)
      */
@@ -74,7 +98,7 @@ public class SqlJetMemoryManager implements ISqlJetMemoryManager {
      * org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager.BufferType)
      */
     public ISqlJetMemoryBuffer allocate(int size, SqlJetMemoryBufferType bufferType) {
-        if (size > 0) {
+        if (size >= 0) {
             final ISqlJetMemoryBuffer buffer;
             switch (bufferType) {
             case ARRAY:

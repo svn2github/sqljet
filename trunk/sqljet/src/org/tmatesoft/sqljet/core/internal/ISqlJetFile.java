@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -107,7 +106,7 @@ public interface ISqlJetFile {
      * @return
      * @throws SqlJetIOException 
      */
-    int read(final ByteBuffer buffer, final int amount, final long offset) throws SqlJetIOException;
+    int read(final ISqlJetMemoryPointer buffer, final int amount, final long offset) throws SqlJetIOException;
 
     /**
      * Write data from a buffer into a file. 
@@ -118,7 +117,7 @@ public interface ISqlJetFile {
      * @return
      * @throws SqlJetIOException 
      */
-    void write(final ByteBuffer buffer, final int amount, final long offset) throws SqlJetIOException;
+    void write(final ISqlJetMemoryPointer buffer, final int amount, final long offset) throws SqlJetIOException;
 
     /**
      * Truncate an open file to a specified size

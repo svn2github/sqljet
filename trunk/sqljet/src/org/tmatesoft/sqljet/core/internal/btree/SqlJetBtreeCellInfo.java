@@ -1,6 +1,6 @@
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import java.nio.ByteBuffer;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 
 /**
  * An instance of the following structure is used to hold information
@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
  * based on information extract from the raw disk page.
  */
 class SqlJetBtreeCellInfo{
-    ByteBuffer pCell;     /* Pointer to the start of cell content */
+    ISqlJetMemoryPointer pCell;     /* Pointer to the start of cell content */
     long nKey;      /* The key for INTKEY tables, or number of bytes in key */
     int nData;     /* Number of bytes of data */
     int nPayload;  /* Total amount of payload */

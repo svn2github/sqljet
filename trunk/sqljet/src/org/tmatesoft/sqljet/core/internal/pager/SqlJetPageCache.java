@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -233,7 +232,7 @@ public class SqlJetPageCache implements ISqlJetPageCache {
             }
             pPage.nRef++;
             if (null == pPage.pData)
-                pPage.pData = ByteBuffer.allocate(szPage);
+                pPage.pData = SqlJetUtility.allocatePtr(szPage, SqlJetPage.BUFFER_TYPE);
             pPage.pCache = this;
             pPage.pgno = pgno;
             if (pgno == 1) {

@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
@@ -101,7 +100,7 @@ public interface ISqlJetVdbeMem {
      * @return
      * @throws SqlJetException
      */
-    ByteBuffer valueText(SqlJetEncoding enc) throws SqlJetException;
+    ISqlJetMemoryPointer valueText(SqlJetEncoding enc) throws SqlJetException;
 
     /**
      * Make sure pMem->z points to a writable allocation of at least n bytes.
@@ -178,7 +177,7 @@ public interface ISqlJetVdbeMem {
      * 
      * @throws SqlJetException
      */
-    void setStr(ByteBuffer z, SqlJetEncoding enc) throws SqlJetException;
+    void setStr(ISqlJetMemoryPointer z, SqlJetEncoding enc) throws SqlJetException;
 
     /**
      * Delete any previous value and set the value stored in *pMem to val,
@@ -335,7 +334,7 @@ public interface ISqlJetVdbeMem {
      * 
      * @throws SqlJetException 
      */
-    ByteBuffer valueBlob() throws SqlJetException;
+    ISqlJetMemoryPointer valueBlob() throws SqlJetException;
 
     /**
      * @param affinity

@@ -19,12 +19,12 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -132,7 +132,7 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
     public byte[] getBlobAsArray(final String fieldName) throws SqlJetException {
         return (byte[]) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
+                ISqlJetMemoryPointer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
                 return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
         });
@@ -141,7 +141,7 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
     public InputStream getBlobAsStream(final String fieldName) throws SqlJetException {
         return (InputStream) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                ByteBuffer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
+                ISqlJetMemoryPointer buffer = getBtreeDataTable().getBlob(getFieldSafe(fieldName));
                 return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
         });
@@ -167,7 +167,6 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
         });
     }
 
-    
     public void update(final Object... values) throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {

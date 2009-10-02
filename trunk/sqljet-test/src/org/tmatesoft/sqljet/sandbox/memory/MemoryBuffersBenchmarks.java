@@ -19,11 +19,11 @@ package org.tmatesoft.sqljet.sandbox.memory;
 
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetAbstractLoggedTest;
-import org.tmatesoft.sqljet.core.sandbox.internal.memory.SqlJetMemoryManager;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryPointer;
-import org.tmatesoft.sqljet.core.sandbox.memory.SqlJetMemoryBufferType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryManager;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
+import org.tmatesoft.sqljet.core.internal.SqlJetMemoryBufferType;
+import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryManager;
 
 /**
  * @author TMate Software Ltd.
@@ -53,7 +53,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             byte v = p.getByte();
             v += more(i);
-            p.setByte(v);
+            p.putByte(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -67,7 +67,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             int v = p.getInt();
             v += more(i);
-            p.setInt(v);
+            p.putInt(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -81,7 +81,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.LONG_SIZE));
             long v = p.getLong();
             v += more(i);
-            p.setLong(v);
+            p.putLong(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -95,7 +95,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             int v = p.getByteUnsigned();
             v += more(i);
-            p.setByteUnsigned(v);
+            p.putByteUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -109,7 +109,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             long v = p.getIntUnsigned();
             v += more(i);
-            p.setIntUnsigned(v);
+            p.putIntUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -123,7 +123,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             byte v = p.getByte();
             v += more(i);
-            p.setByte(v);
+            p.putByte(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -137,7 +137,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             int v = p.getInt();
             v += more(i);
-            p.setInt(v);
+            p.putInt(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -151,7 +151,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.LONG_SIZE));
             long v = p.getLong();
             v += more(i);
-            p.setLong(v);
+            p.putLong(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -165,7 +165,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             int v = p.getByteUnsigned();
             v += more(i);
-            p.setByteUnsigned(v);
+            p.putByteUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -179,7 +179,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             long v = p.getIntUnsigned();
             v += more(i);
-            p.setIntUnsigned(v);
+            p.putIntUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -193,7 +193,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             byte v = p.getByte();
             v += more(i);
-            p.setByte(v);
+            p.putByte(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -207,7 +207,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             int v = p.getInt();
             v += more(i);
-            p.setInt(v);
+            p.putInt(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -221,7 +221,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.LONG_SIZE));
             long v = p.getLong();
             v += more(i);
-            p.setLong(v);
+            p.putLong(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);
@@ -235,7 +235,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % CAPACITY);
             int v = p.getByteUnsigned();
             v += more(i);
-            p.setByteUnsigned(v);
+            p.putByteUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getByte()));
         memoryManager.free(b);
@@ -249,7 +249,7 @@ public class MemoryBuffersBenchmarks extends SqlJetAbstractLoggedTest {
             p.setPointer(MUCH % (CAPACITY - ISqlJetMemoryManager.INT_SIZE));
             long v = p.getIntUnsigned();
             v += more(i);
-            p.setIntUnsigned(v);
+            p.putIntUnsigned(v);
         }
         logger.info(String.format("%d\n", p.getInt()));
         memoryManager.free(b);

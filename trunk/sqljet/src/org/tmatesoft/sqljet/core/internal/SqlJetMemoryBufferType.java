@@ -1,4 +1,4 @@
-package org.tmatesoft.sqljet.core.sandbox.memory;
+package org.tmatesoft.sqljet.core.internal;
 
 /**
  * Types of buffers implementation.

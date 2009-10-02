@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.logging.Level;
@@ -32,17 +31,63 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.memory.SqlJetByteBuffer;
+import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryManager;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetUtility {
+public final class SqlJetUtility {
 
     private static final Logger logger = Logger.getLogger("SIGNED");
     static {
         logger.setLevel(getBoolSysProp("LOG_SIGNED", false) ? Level.ALL : Level.OFF);
+    }
+
+    public static final ISqlJetMemoryManager memoryManager = new SqlJetMemoryManager();
+
+    public static final ISqlJetMemoryPointer allocatePtr(int size) {
+        return memoryManager.allocatePtr(size);
+    }
+
+    public static final ISqlJetMemoryPointer allocatePtr(int size, SqlJetMemoryBufferType bufferType) {
+        return memoryManager.allocatePtr(size, bufferType);
+    }
+
+    /**
+     * 
+     * @param buf
+     * @return
+     */
+    public static final ISqlJetMemoryPointer pointer(ISqlJetMemoryPointer p) {
+        return p.getBuffer().getPointer(p.getPointer());
+    }
+
+    /**
+     * Implements address arithmetic on byte buffer.
+     * 
+     * @param p
+     * @param pos
+     * @return
+     */
+    public static final ISqlJetMemoryPointer pointer(ISqlJetMemoryPointer p, int pos) {
+        return p.getBuffer().getPointer(p.getAbsolute(pos));
+    }
+
+    public static final void movePtr(ISqlJetMemoryPointer p, int pos) {
+        p.movePointer(pos);
+    }
+
+    /**
+     * @param bs
+     * @return
+     */
+    public static final ISqlJetMemoryPointer wrapPtr(byte[] bs) {
+        final ISqlJetMemoryPointer p = allocatePtr(bs.length);
+        p.putBytes(bs);
+        return p;
     }
 
     public static String getSysProp(final String propName, final String defValue) throws SqlJetError {
@@ -101,54 +146,53 @@ public class SqlJetUtility {
     /**
      * Read a two-byte big-endian integer values.
      */
-    public static int get2byte(ByteBuffer x) {
+    public static final int get2byte(ISqlJetMemoryPointer x) {
         return get2byte(x, 0);
     }
 
     /**
      * Read a two-byte big-endian integer values.
      */
-    public static int get2byte(ByteBuffer x, int off) {
-        return toUnsigned(x.getShort(off));
+    public static final int get2byte(ISqlJetMemoryPointer x, int off) {
+        return x.getShortUnsigned(off);
     }
 
     /**
      * Write a two-byte big-endian integer values.
      */
-    public static void put2byte(ByteBuffer p, int v) {
+    public static final void put2byte(ISqlJetMemoryPointer p, int v) {
         put2byte(p, 0, v);
     }
 
     /**
      * Write a two-byte big-endian integer values.
      */
-    public static void put2byte(ByteBuffer p, int off, int v) {
-        p.putShort(off, fromUnsigned(v));
+    public static final void put2byte(ISqlJetMemoryPointer p, int off, int v) {
+        p.putShortUnsigned(off, v);
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static ByteBuffer put4byte(int v) {
+    public static final ISqlJetMemoryPointer put4byte(int v) {
         if (v < 0)
             log(logger, "signed %d", v);
-        final ByteBuffer b = ByteBuffer.allocate(4);
+        final ISqlJetMemoryPointer b = allocatePtr(4);
         b.putInt(0, v);
-        b.rewind();
         return b;
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static int get4byte(ByteBuffer p) {
+    public static final int get4byte(ISqlJetMemoryPointer p) {
         return get4byte(p, 0);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static int get4byte(ByteBuffer p, int pos) {
+    public static final int get4byte(ISqlJetMemoryPointer p, int pos) {
         int v = p.getInt(pos);
         if (v < 0)
             log(logger, "signed %d", v);
@@ -158,18 +202,18 @@ public class SqlJetUtility {
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byte(ByteBuffer p, int pos, long v) {
-        if (null == p || (p.capacity() - pos) < 4)
+    public static final void put4byte(ISqlJetMemoryPointer p, int pos, long v) {
+        if (null == p || (p.remaining() - pos) < 4)
             throw new SqlJetError("Wrong destination");
         if (v < 0)
             log(logger, "signed %d", v);
-        p.putInt(pos, fromUnsigned(v));
+        p.putIntUnsigned(pos, v);
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byte(ByteBuffer p, long v) {
+    public static final void put4byte(ISqlJetMemoryPointer p, long v) {
         put4byte(p, 0, v);
     }
 
@@ -178,28 +222,29 @@ public class SqlJetUtility {
      * @param src
      * @param length
      */
-    public static void memcpy(byte[] dest, byte[] src, int length) {
+    public static final void memcpy(byte[] dest, byte[] src, int length) {
         System.arraycopy(src, 0, dest, 0, length);
     }
 
-    public static void memcpy(byte[] dest, int dstPos, byte[] src, int srcPos, int length) {
+    public static final void memcpy(byte[] dest, int dstPos, byte[] src, int srcPos, int length) {
         System.arraycopy(src, srcPos, dest, dstPos, length);
     }
 
-    public static void memcpy(ByteBuffer dest, ByteBuffer src, int length) {
-        System.arraycopy(src.array(), src.arrayOffset(), dest.array(), dest.arrayOffset(), length);
+    public static final void memcpy(ISqlJetMemoryPointer dest, ISqlJetMemoryPointer src, int length) {
+        dest.copyFrom(src, length);
     }
 
-    public static void memcpy(ByteBuffer dest, int dstPos, ByteBuffer src, int srcPos, int length) {
-        System.arraycopy(src.array(), src.arrayOffset() + srcPos, dest.array(), dest.arrayOffset() + dstPos, length);
+    public static final void memcpy(ISqlJetMemoryPointer dest, int dstPos, ISqlJetMemoryPointer src, int srcPos,
+            int length) {
+        dest.copyFrom(dstPos, src, srcPos, length);
     }
 
-    public static void memcpy(SqlJetCloneable[] dest, SqlJetCloneable[] src, int length) throws SqlJetException {
+    public static final void memcpy(SqlJetCloneable[] dest, SqlJetCloneable[] src, int length) throws SqlJetException {
         memcpy(src, 0, dest, 0, length);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends SqlJetCloneable> T memcpy(T src) throws SqlJetException {
+    public static final <T extends SqlJetCloneable> T memcpy(T src) throws SqlJetException {
         try {
             return (T) src.clone();
         } catch (CloneNotSupportedException e) {
@@ -216,7 +261,7 @@ public class SqlJetUtility {
      * 
      * @throws SqlJetException
      */
-    private static void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length)
+    private static final void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length)
             throws SqlJetException {
         for (int x = srcPos, y = dstPos; x < src.length && y < dest.length; x++, y++) {
             final SqlJetCloneable o = src[x];
@@ -236,8 +281,8 @@ public class SqlJetUtility {
      * @param value
      * @param count
      */
-    public static void memset(byte[] data, int from, byte value, int count) {
-        Arrays.fill(data, from, from + count, value);
+    public static final void memset(ISqlJetMemoryPointer data, int from, byte value, int count) {
+        data.fill(from, count, value);
     }
 
     /**
@@ -245,7 +290,7 @@ public class SqlJetUtility {
      * @param value
      * @param count
      */
-    public static void memset(byte[] data, byte value, int count) {
+    public static final void memset(ISqlJetMemoryPointer data, byte value, int count) {
         memset(data, 0, value, count);
     }
 
@@ -253,36 +298,8 @@ public class SqlJetUtility {
      * @param data
      * @param value
      */
-    public static void memset(byte[] data, byte value) {
-        memset(data, value, data.length);
-    }
-
-    /**
-     * @param data
-     * @param from
-     * @param value
-     * @param count
-     */
-    public static void memset(ByteBuffer data, int from, byte value, int count) {
-        final int i = data.arrayOffset() + from;
-        Arrays.fill(data.array(), i, i + count, value);
-    }
-
-    /**
-     * @param data
-     * @param value
-     * @param count
-     */
-    public static void memset(ByteBuffer data, byte value, int count) {
-        memset(data, 0, value, count);
-    }
-
-    /**
-     * @param data
-     * @param value
-     */
-    public static void memset(ByteBuffer data, byte value) {
-        memset(data, value, data.capacity());
+    public static final void memset(ISqlJetMemoryPointer data, byte value) {
+        memset(data, value, data.remaining());
     }
 
     /**
@@ -298,7 +315,7 @@ public class SqlJetUtility {
         return (p - from);
     }
 
-    public static int strlen(ByteBuffer s, int from) {
+    public static int strlen(ISqlJetMemoryPointer s, int from) {
         int p = from;
         /* Loop over the data in s. */
         while (p < s.remaining() && getUnsignedByte(s, p) != 0)
@@ -329,7 +346,7 @@ public class SqlJetUtility {
      * @param i
      * @return
      */
-    public static int memcmp(byte[] a1, byte[] a2, int count) {
+    public static final int memcmp(byte[] a1, byte[] a2, int count) {
         for (int i = 0; i < count; i++) {
             final Byte b1 = Byte.valueOf(a1[i]);
             final Byte b2 = Byte.valueOf(a2[i]);
@@ -340,7 +357,7 @@ public class SqlJetUtility {
         return 0;
     }
 
-    public static int memcmp(byte[] a1, int from1, byte[] a2, int from2, int count) {
+    public static final int memcmp(byte[] a1, int from1, byte[] a2, int from2, int count) {
         for (int i = 0; i < count; i++) {
             final Byte b1 = Byte.valueOf(a1[from1 + i]);
             final Byte b2 = Byte.valueOf(a2[from2 + i]);
@@ -357,10 +374,27 @@ public class SqlJetUtility {
      * @param count
      * @return
      */
-    public static int memcmp(ByteBuffer a1, ByteBuffer a2, int count) {
+    public static final int memcmp(ISqlJetMemoryPointer a1, ISqlJetMemoryPointer a2, int count) {
         for (int i = 0; i < count; i++) {
-            final short b1 = SqlJetUtility.getUnsignedByte(a1, i);
-            final short b2 = SqlJetUtility.getUnsignedByte(a2, i);
+            final int b1 = SqlJetUtility.getUnsignedByte(a1, i);
+            final int b2 = SqlJetUtility.getUnsignedByte(a2, i);
+            final int c = b1 - b2;
+            if (0 != c)
+                return c;
+        }
+        return 0;
+    }
+
+    /**
+     * @param z
+     * @param z2
+     * @param count
+     * @return
+     */
+    public static final int memcmp(ISqlJetMemoryPointer a1, int a1offs, ISqlJetMemoryPointer a2, int a2offs, int count) {
+        for (int i = 0; i < count; i++) {
+            final int b1 = SqlJetUtility.getUnsignedByte(a1, a1offs + i);
+            final int b2 = SqlJetUtility.getUnsignedByte(a2, a2offs + i);
             final int c = b1 - b2;
             if (0 != c)
                 return c;
@@ -396,27 +430,6 @@ public class SqlJetUtility {
     }
 
     /**
-     * Implements address arithmetic on byte buffer.
-     * 
-     * @param b
-     * @param pos
-     * @return
-     */
-    public static ByteBuffer slice(ByteBuffer b, int pos) {
-        if (pos < 0) {
-            return ByteBuffer.wrap(b.array(), b.arrayOffset() + pos, b.remaining() - pos).slice();
-        } else {
-            b.mark();
-            try {
-                b.position(pos);
-                return b.slice();
-            } finally {
-                b.reset();
-            }
-        }
-    }
-
-    /**
      * The variable-length integer encoding is as follows:
      * 
      * KEY: A = 0xxxxxxx 7 bits of data and one flag bit B = 1xxxxxxx 7 bits of
@@ -436,7 +449,7 @@ public class SqlJetUtility {
      * Except, if we get to the 9th byte, it stores the full 8 bits and is the
      * last byte.
      */
-    public static int putVarint(ByteBuffer p, long v) {
+    public static int putVarint(ISqlJetMemoryPointer p, long v) {
         int i, j, n;
         if ((v & (((long) 0xff000000) << 32)) != 0) {
             SqlJetUtility.putUnsignedByte(p, 8, (byte) v);
@@ -468,7 +481,7 @@ public class SqlJetUtility {
      * inlines the single-byte case. All code should use the MACRO version as
      * this function assumes the single-byte case has already been handled.
      */
-    public static int putVarint32(ByteBuffer p, int v) {
+    public static int putVarint32(ISqlJetMemoryPointer p, int v) {
         if (v < 0x80) {
             SqlJetUtility.putUnsignedByte(p, 0, (byte) v);
             return 1;
@@ -490,21 +503,21 @@ public class SqlJetUtility {
      * Read a 64-bit variable-length integer from memory starting at p[0].
      * Return the number of bytes read. The value is stored in *v.
      */
-    public static byte getVarint(ByteBuffer p, long[] v) {
+    public static byte getVarint(ISqlJetMemoryPointer p, long[] v) {
         return getVarint(p, 0, v);
     }
 
-    public static byte getVarint(ByteBuffer p, int offset, long[] v) {
+    public static byte getVarint(ISqlJetMemoryPointer p, int offset, long[] v) {
         long l = 0;
         for (byte i = 0; i < 8; i++) {
-            short b = SqlJetUtility.getUnsignedByte(p, i + offset);
+            final int b = SqlJetUtility.getUnsignedByte(p, i + offset);
             l = (l << 7) | (b & 0x7f);
             if ((b & 0x80) == 0) {
                 v[0] = l;
                 return ++i;
             }
         }
-        short b = SqlJetUtility.getUnsignedByte(p, 8 + offset);
+        final int b = SqlJetUtility.getUnsignedByte(p, 8 + offset);
         l = (l << 8) | b;
         v[0] = l;
         return 9;
@@ -519,13 +532,13 @@ public class SqlJetUtility {
      * 
      * @throws SqlJetExceptionRemove
      */
-    public static byte getVarint32(ByteBuffer p, int[] v) {
+    public static byte getVarint32(ISqlJetMemoryPointer p, int[] v) {
         return getVarint32(p, 0, v);
     }
 
-    public static byte getVarint32(ByteBuffer p, int offset, int[] v) {
+    public static byte getVarint32(ISqlJetMemoryPointer p, int offset, int[] v) {
 
-        short x = SqlJetUtility.getUnsignedByte(p, 0 + offset);
+        int x = SqlJetUtility.getUnsignedByte(p, 0 + offset);
         if (x < 0x80) {
             v[0] = x;
             return 1;
@@ -621,7 +634,7 @@ public class SqlJetUtility {
      * @param mutex
      * @return
      */
-    public static boolean mutex_held(ISqlJetMutex mutex) {
+    public static final boolean mutex_held(ISqlJetMutex mutex) {
         return mutex == null || mutex.held();
     }
 
@@ -632,9 +645,9 @@ public class SqlJetUtility {
      * @param z
      * @return
      */
-    public static int strlen30(ByteBuffer z) {
+    public static int strlen30(ISqlJetMemoryPointer z) {
         int i = 0;
-        final int l = z.limit();
+        final int l = z.getPointer();
         for (; i < l && SqlJetUtility.getUnsignedByte(z, i) != 0; i++)
             ;
         return 0x3fffffff & (int) (i);
@@ -647,8 +660,8 @@ public class SqlJetUtility {
      * @param index
      * @return
      */
-    public static short getUnsignedByte(ByteBuffer byteBuffer, int index) {
-        return ((short) (byteBuffer.get(index) & (short) 0xff));
+    public static final int getUnsignedByte(ISqlJetMemoryPointer byteBuffer, int index) {
+        return byteBuffer.getByteUnsigned(index);
     }
 
     /**
@@ -659,8 +672,9 @@ public class SqlJetUtility {
      * @param value
      * @return
      */
-    public static ByteBuffer putUnsignedByte(ByteBuffer byteBuffer, int index, short value) {
-        return byteBuffer.put(index, (byte) (value & 0xff));
+    public static final ISqlJetMemoryPointer putUnsignedByte(ISqlJetMemoryPointer byteBuffer, int index, int value) {
+        byteBuffer.putByteUnsigned(index, value);
+        return byteBuffer;
     }
 
     /**
@@ -669,11 +683,10 @@ public class SqlJetUtility {
      * @param buf
      * @return
      */
-    public static String toString(ByteBuffer buf) {
+    public static String toString(ISqlJetMemoryPointer buf) {
         synchronized (buf) {
             byte[] bytes = new byte[buf.remaining()];
-            buf.get(bytes);
-            buf.rewind();
+            buf.getBytes(bytes);
             return new String(bytes);
         }
     }
@@ -685,15 +698,14 @@ public class SqlJetUtility {
      * @return
      * @throws SqlJetException
      */
-    public static String toString(ByteBuffer buf, SqlJetEncoding enc) throws SqlJetException {
+    public static String toString(ISqlJetMemoryPointer buf, SqlJetEncoding enc) throws SqlJetException {
         if (buf == null)
             return null;
         if (enc == null)
             return null;
         synchronized (buf) {
             byte[] bytes = new byte[buf.remaining()];
-            buf.get(bytes);
-            buf.rewind();
+            buf.getBytes(bytes);
             try {
                 return new String(bytes, enc.getCharsetName());
             } catch (UnsupportedEncodingException e) {
@@ -710,9 +722,9 @@ public class SqlJetUtility {
      * @return
      * @throws SqlJetException
      */
-    public static ByteBuffer fromString(String s, SqlJetEncoding enc) throws SqlJetException {
+    public static ISqlJetMemoryPointer fromString(String s, SqlJetEncoding enc) throws SqlJetException {
         try {
-            return ByteBuffer.wrap(s.getBytes(enc.getCharsetName()));
+            return wrapPtr(s.getBytes(enc.getCharsetName()));
         } catch (UnsupportedEncodingException e) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charset " + enc.name());
         }
@@ -727,7 +739,8 @@ public class SqlJetUtility {
      * @return
      * @throws SqlJetException
      */
-    public static ByteBuffer translate(ByteBuffer buf, SqlJetEncoding from, SqlJetEncoding to) throws SqlJetException {
+    public static ISqlJetMemoryPointer translate(ISqlJetMemoryPointer buf, SqlJetEncoding from, SqlJetEncoding to)
+            throws SqlJetException {
         return fromString(toString(buf, from), to);
     }
 
@@ -735,7 +748,7 @@ public class SqlJetUtility {
      * @param s
      * @return
      */
-    public static String trim(String s) {
+    public static final String trim(String s) {
         return null != s ? s.trim() : null;
     }
 
@@ -754,7 +767,6 @@ public class SqlJetUtility {
 
     /**
      * @param logger
-     *            TODO
      * @param format
      * @param args
      */
@@ -770,19 +782,19 @@ public class SqlJetUtility {
         logger.info(s.toString());
     }
 
-    public static short toUnsigned(byte value) {
+    public static final short toUnsigned(byte value) {
         return (short) (value & (short) 0xff);
     }
 
-    public static byte fromUnsigned(short value) {
+    public static final byte fromUnsigned(short value) {
         return (byte) (value & 0xff);
     }
 
-    public static int toUnsigned(short value) {
+    public static final int toUnsigned(short value) {
         return (int) (value & (int) 0xffff);
     }
 
-    public static short fromUnsigned(int value) {
+    public static final short fromUnsigned(int value) {
         return (short) (value & 0xffff);
     }
 
@@ -790,75 +802,68 @@ public class SqlJetUtility {
         return (long) (value & (long) 0xffffffffL);
     }
 
-    public static int fromUnsigned(long value) {
+    public static final int fromUnsigned(long value) {
         return (int) (value & 0xffffffffL);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static long get4byteUnsigned(byte[] p) {
-        return get4byteUnsigned(ByteBuffer.wrap(p));
+    public static final long get4byteUnsigned(byte[] p) {
+        return get4byteUnsigned(SqlJetUtility.wrapPtr(p));
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static long get4byteUnsigned(byte[] p, int pos) {
-        return get4byteUnsigned(ByteBuffer.wrap(p));
+    public static final long get4byteUnsigned(byte[] p, int pos) {
+        return get4byteUnsigned(SqlJetUtility.wrapPtr(p));
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static ByteBuffer put4byteUnsigned(long v) {
+    public static final ISqlJetMemoryPointer put4byteUnsigned(long v) {
         if (v < 0)
             log(logger, "signed %d", v);
-        final ByteBuffer b = ByteBuffer.allocate(4);
-        b.putInt(0, fromUnsigned(v)).rewind();
+        final ISqlJetMemoryPointer b = SqlJetUtility.allocatePtr(4);
+        b.putIntUnsigned(v);
         return b;
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byteUnsigned(byte[] p, int pos, long v) {
-        put4byteUnsigned(ByteBuffer.wrap(p), pos, v);
+    public static final void put4byteUnsigned(byte[] p, int pos, long v) {
+        put4byteUnsigned(SqlJetUtility.wrapPtr(p), pos, v);
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static long get4byteUnsigned(ByteBuffer p) {
-        return get4byteUnsigned(p, 0);
+    public static final long get4byteUnsigned(ISqlJetMemoryPointer p) {
+        return p.getIntUnsigned();
     }
 
     /**
      * Read a four-byte big-endian integer value.
      */
-    public static long get4byteUnsigned(ByteBuffer p, int pos) {
-        long v = toUnsigned(p.getInt(pos));
-        if (v < 0)
-            log(logger, "signed %d", v);
-        return v;
+    public static final long get4byteUnsigned(ISqlJetMemoryPointer p, int pos) {
+        return p.getIntUnsigned(pos);
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byteUnsigned(ByteBuffer p, int pos, long v) {
-        if (null == p || (p.capacity() - pos) < 4)
-            throw new SqlJetError("Wrong destination");
-        if (v < 0)
-            log(logger, "signed %d", v);
-        p.putInt(pos, fromUnsigned(v));
+    public static final void put4byteUnsigned(ISqlJetMemoryPointer p, int pos, long v) {
+        p.putIntUnsigned(pos, v);
     }
 
     /**
      * Write a four-byte big-endian integer value.
      */
-    public static void put4byteUnsigned(ByteBuffer p, long v) {
-        put4byteUnsigned(p, 0, v);
+    public static final void put4byteUnsigned(ISqlJetMemoryPointer p, long v) {
+        p.putIntUnsigned(v);
     }
 
     /**
@@ -866,17 +871,26 @@ public class SqlJetUtility {
      * @param slice
      * @param n
      */
-    public static void memmove(ByteBuffer dst, ByteBuffer src, int n) {
+    public static final void memmove(ISqlJetMemoryPointer dst, ISqlJetMemoryPointer src, int n) {
+        memmove(dst, 0, src, 0, n);
+    }
+
+    /**
+     * @param z
+     * @param slice
+     * @param n
+     */
+    public static final void memmove(ISqlJetMemoryPointer dst, int dstOffs, ISqlJetMemoryPointer src, int srcOffs, int n) {
         byte[] b = new byte[n];
-        src.get(b, 0, n);
-        dst.put(b, 0, n);
+        src.getBytes(srcOffs, b, n);
+        dst.putBytes(dstOffs, b, n);
     }
 
     /**
      * @param z
      * @return
      */
-    public static double atof(ByteBuffer z) {
+    public static final double atof(ISqlJetMemoryPointer z) {
         final String s = toString(z);
         return Double.valueOf(s).doubleValue();
     }
@@ -885,7 +899,7 @@ public class SqlJetUtility {
      * @param str
      * @return
      */
-    public static Long atoi64(String str) {
+    public static final Long atoi64(String str) {
         return Long.valueOf(str);
     }
 
@@ -895,7 +909,7 @@ public class SqlJetUtility {
      * @param i
      * @return
      */
-    public static long absolute(long i) {
+    public static final long absolute(long i) {
         long u;
         u = i < 0 ? -i : i;
         if (u == Integer.MIN_VALUE || u == Long.MIN_VALUE)
@@ -908,14 +922,14 @@ public class SqlJetUtility {
      * @param dataRowId
      * @return
      */
-    public static Object[] addArrays(Object[] array1, Object[] array2) {
+    public static final Object[] addArrays(Object[] array1, Object[] array2) {
         Object[] a = new Object[array1.length + array2.length];
         System.arraycopy(array1, 0, a, 0, array1.length);
         System.arraycopy(array2, 0, a, array1.length, array2.length);
         return a;
     }
 
-    public static Object[] insertArray(Object[] intoArray, Object[] insertArray, int pos) {
+    public static final Object[] insertArray(Object[] intoArray, Object[] insertArray, int pos) {
         Object[] a = new Object[intoArray.length + insertArray.length];
         System.arraycopy(intoArray, 0, a, 0, pos);
         System.arraycopy(insertArray, 0, a, pos, insertArray.length);
@@ -923,23 +937,23 @@ public class SqlJetUtility {
         return a;
     }
 
-    public static <E extends Enum<E>> EnumSet<E> of(E e1, E... e) {
+    public static final <E extends Enum<E>> EnumSet<E> of(E e1, E... e) {
         return EnumSet.of(e1, e);
     }
 
-    public static <E extends Enum<E>> EnumSet<E> of(E e) {
+    public static final <E extends Enum<E>> EnumSet<E> of(E e) {
         return EnumSet.of(e);
     }
 
-    public static <E extends Enum<E>> EnumSet<E> of(E e1, E e2) {
+    public static final <E extends Enum<E>> EnumSet<E> of(E e1, E e2) {
         return EnumSet.of(e1, e2);
     }
 
-    public static <E extends Enum<E>> EnumSet<E> of(E e1, E e2, E e3) {
+    public static final <E extends Enum<E>> EnumSet<E> of(E e1, E e2, E e3) {
         return EnumSet.of(e1, e2, e3);
     }
 
-    public static <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
+    public static final <E extends Enum<E>> EnumSet<E> noneOf(Class<E> elementType) {
         return EnumSet.noneOf(elementType);
     }
 
@@ -947,21 +961,28 @@ public class SqlJetUtility {
      * @param key
      * @return
      */
-    public static Object[] adjustNumberTypes(Object[] key) {
+    public static final Object[] adjustNumberTypes(Object[] key) {
         if (null == key)
             return null;
         for (int i = 0; i < key.length; i++) {
-            final Object obj = key[i];
-            if (obj instanceof Number) {
-                if (obj instanceof Byte || obj instanceof Short || obj instanceof Integer) {
-                    key[i] = Long.valueOf(((Number) obj).longValue());
-                } else if (obj instanceof Float) {
-                    // TODO may be better solution exists?
-                    key[i] = Double.parseDouble(Float.toString((Float) obj));
-                }
-            }
+            key[i] = adjustNumberType(key[i]);
         }
         return key;
+    }
+
+    public static final Object adjustNumberType(Object value) {
+        if (null == value) {
+            return null;
+        }
+        if (value instanceof Number) {
+            if (value instanceof Byte || value instanceof Short || value instanceof Integer) {
+                return Long.valueOf(((Number) value).longValue());
+            } else if (value instanceof Float) {
+                // TODO may be better solution exists?
+                return Double.parseDouble(Float.toString((Float) value));
+            }
+        }
+        return value;
     }
 
     /**
@@ -969,14 +990,14 @@ public class SqlJetUtility {
      * @return
      * @throws SqlJetException
      */
-    public static ByteBuffer streamToBuffer(InputStream stream) throws SqlJetException {
+    public static ISqlJetMemoryPointer streamToBuffer(InputStream stream) throws SqlJetException {
         if (stream == null)
             return null;
         try {
             byte[] b = new byte[stream.available()];
-            final int i = stream.read(b);
+            stream.read(b);
             stream.reset();
-            return ByteBuffer.wrap(b, 0, i);
+            return wrapPtr(b);
         } catch (IOException e) {
             throw new SqlJetException(SqlJetErrorCode.IOERR, e);
         }
@@ -987,11 +1008,11 @@ public class SqlJetUtility {
      * @param buffer
      * @return
      */
-    public static byte[] readByteBuffer(ByteBuffer buffer) {
+    public static byte[] readByteBuffer(ISqlJetMemoryPointer buffer) {
         if (buffer == null)
             return null;
         byte[] array = new byte[buffer.remaining()];
-        buffer.get(array).rewind();
+        buffer.getBytes(array);
         return array;
     }
 
@@ -1056,6 +1077,14 @@ public class SqlJetUtility {
         if (rdbl != rint)
             return null;
         return Long.valueOf(r.longValue());
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    public static ISqlJetMemoryPointer fromByteBuffer(ByteBuffer b) {
+        return new SqlJetByteBuffer(b).getPointer(0);
     }
 
 }

@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.sandbox.memory;
+package org.tmatesoft.sqljet.core.internal;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -80,7 +80,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setByte(int pointer, byte value);
+    void putByte(int pointer, byte value);
 
     /**
      * Read short at pointer.
@@ -96,7 +96,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setShort(int pointer, short value);
+    void putShort(int pointer, short value);
 
     /**
      * Read int at pointer.
@@ -112,7 +112,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setInt(int pointer, int value);
+    void putInt(int pointer, int value);
 
     /**
      * Read long at pointer.
@@ -128,7 +128,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setLong(int pointer, long value);
+    void putLong(int pointer, long value);
 
     /**
      * Read unsigned byte at pointer.
@@ -144,7 +144,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setByteUnsigned(int pointer, int value);
+    void putByteUnsigned(int pointer, int value);
 
     /**
      * Read unsigned short at pointer.
@@ -160,7 +160,7 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setShortUnsigned(int pointer, int value);
+    void putShortUnsigned(int pointer, int value);
 
     /**
      * Read unsigned int at pointer.
@@ -176,11 +176,11 @@ public interface ISqlJetMemoryBuffer {
      * @param pointer
      * @param value
      */
-    void setIntUnsigned(int pointer, long value);
+    void putIntUnsigned(int pointer, long value);
 
     /**
-     * Read from file into memory chunk at pointer.
-     * Method isn't synchronized on file.
+     * Read from file into memory chunk at pointer. Method isn't synchronized on
+     * file.
      * 
      * @param pointer
      * @param file
@@ -192,8 +192,8 @@ public interface ISqlJetMemoryBuffer {
     int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
 
     /**
-     * Write from memory chunk at pointer to file.
-     * Method isn't synchronized on file.
+     * Write from memory chunk at pointer to file. Method isn't synchronized on
+     * file.
      * 
      * @param pointer
      * @param file
@@ -203,5 +203,49 @@ public interface ISqlJetMemoryBuffer {
      * @throws IOException
      */
     int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
+
+    /**
+     * @param dstPos
+     * @param src
+     * @param srcPos
+     * @param count
+     */
+    void copyFrom(int dstPos, ISqlJetMemoryBuffer src, int srcPos, int count);
+
+    /**
+     * @param from
+     * @param count
+     * @param value
+     */
+    void fill(int from, int count, byte value);
+
+    /**
+     * @param absolute
+     * @param bytes
+     * @param to
+     * @param count
+     */
+    void getBytes(int pointer, byte[] bytes, int to, int count);
+
+    /**
+     * @param absolute
+     * @param bytes
+     * @param to
+     * @param count
+     */
+    void putBytes(int pointer, byte[] bytes, int from, int count);
+
+    /**
+     * @return
+     */
+    byte[] asArray();
+
+    /**
+     * @param pointer
+     * @param buffer
+     * @param pointer2
+     * @return
+     */
+    int compareTo(int pointer, ISqlJetMemoryBuffer buffer, int bufferPointer);
 
 }

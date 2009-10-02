@@ -15,14 +15,16 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.sandbox.internal.memory;
+package org.tmatesoft.sqljet.core.internal.memory;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryManager;
-import org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryPointer;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryManager;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
  * @author TMate Software Ltd.
@@ -41,8 +43,8 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * #allocate(int)
      */
     public void allocate(final int size) {
-        assert (size > 0);
-        
+        assert (size >= 0);
+
         buffer = new byte[size];
     }
 
@@ -93,7 +95,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
     public ISqlJetMemoryPointer getPointer(final int pointer) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer < buffer.length);
+        assert (pointer <= buffer.length);
 
         return new SqlJetMemoryPointer(this, pointer);
     }
@@ -210,7 +212,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setByte(int, byte)
      */
-    public void setByte(final int pointer, final byte value) {
+    public void putByte(final int pointer, final byte value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer < buffer.length);
@@ -225,10 +227,10 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setInt(int, int)
      */
-    public void setInt(final int pointer, final int value) {
+    public void putInt(final int pointer, final int value) {
         assert (buffer != null);
         assert (pointer >= 0);
-        assert (pointer <= buffer.length - ISqlJetMemoryManager.LONG_SIZE);
+        assert (pointer <= buffer.length - ISqlJetMemoryManager.INT_SIZE);
 
         SqlJetBytesUtility.putInt(buffer, pointer, value);
     }
@@ -240,7 +242,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setLong(int, long)
      */
-    public void setLong(final int pointer, final long value) {
+    public void putLong(final int pointer, final long value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer <= buffer.length - ISqlJetMemoryManager.LONG_SIZE);
@@ -255,7 +257,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setShort(int, short)
      */
-    public void setShort(final int pointer, final short value) {
+    public void putShort(final int pointer, final short value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
@@ -270,12 +272,12 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedByte(int, int)
      */
-    public void setByteUnsigned(final int pointer, final int value) {
+    public void putByteUnsigned(final int pointer, final int value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer < buffer.length);
 
-        setByte(pointer, (byte) SqlJetBytesUtility.toUnsignedByte(value));
+        putByte(pointer, (byte) SqlJetBytesUtility.toUnsignedByte(value));
     }
 
     /*
@@ -285,12 +287,12 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedInt(int, long)
      */
-    public void setIntUnsigned(final int pointer, final long value) {
+    public void putIntUnsigned(final int pointer, final long value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer <= buffer.length - ISqlJetMemoryManager.INT_SIZE);
 
-        setInt(pointer, (int) SqlJetBytesUtility.toUnsignedInt(value));
+        putInt(pointer, (int) SqlJetBytesUtility.toUnsignedInt(value));
     }
 
     /*
@@ -300,12 +302,12 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedShort(int, int)
      */
-    public void setShortUnsigned(final int pointer, final int value) {
+    public void putShortUnsigned(final int pointer, final int value) {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer <= buffer.length - ISqlJetMemoryManager.SHORT_SIZE);
 
-        setShort(pointer, (short) SqlJetBytesUtility.toUnsignedShort(value));
+        putShort(pointer, (short) SqlJetBytesUtility.toUnsignedShort(value));
     }
 
     /*
@@ -349,4 +351,95 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
         return count;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#asArray()
+     */
+    public byte[] asArray() {
+        return buffer;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#copyFrom(int,
+     * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer, int, int)
+     */
+    public void copyFrom(int dstPos, ISqlJetMemoryBuffer src, int srcPos, int count) {
+        if (src instanceof SqlJetByteArrayBuffer) {
+            final SqlJetByteArrayBuffer srcBuf = (SqlJetByteArrayBuffer) src;
+            System.arraycopy(srcBuf.buffer, srcPos, buffer, dstPos, count);
+        } else {
+            final byte[] b = new byte[count];
+            src.getBytes(srcPos, b, 0, count);
+            putBytes(dstPos, b, 0, count);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#fill(int,
+     * int, byte)
+     */
+    public void fill(int from, int count, byte value) {
+        Arrays.fill(buffer, from, from + count, value);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#getBytes(int,
+     * byte[], int, int)
+     */
+    public void getBytes(int pointer, byte[] bytes, int to, int count) {
+        System.arraycopy(buffer, pointer, bytes, to, count);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#putBytes(int,
+     * byte[], int, int)
+     */
+    public void putBytes(int pointer, byte[] bytes, int from, int count) {
+        System.arraycopy(bytes, from, buffer, pointer, count);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#compareTo(int,
+     * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer, int)
+     */
+    public int compareTo(int pointer, ISqlJetMemoryBuffer buffer, int bufferPointer) {
+        final int thisCount = getSize() - pointer;
+        final int bufferCount = buffer.getSize() - bufferPointer;
+        final int count = thisCount > bufferCount ? bufferCount : thisCount;
+        if (buffer instanceof SqlJetByteArrayBuffer) {
+            final SqlJetByteArrayBuffer b = (SqlJetByteArrayBuffer) buffer;
+            final int cmp = SqlJetUtility.memcmp(this.buffer, pointer, b.buffer, bufferPointer, count);
+            if (cmp != 0) {
+                return cmp;
+            }
+        } else {
+            final byte[] b = new byte[thisCount];
+            buffer.getBytes(bufferPointer, b, 0, thisCount);
+            final int cmp = SqlJetUtility.memcmp(this.buffer, pointer, b, bufferPointer, count);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        if (thisCount != bufferCount) {
+            if (thisCount > bufferCount) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } else {
+            return 0;
+        }
+    }
 }

@@ -13,7 +13,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +23,7 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -411,7 +411,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getBlob(int)
      */
-    public ByteBuffer getBlob(int field) throws SqlJetException {
+    public ISqlJetMemoryPointer getBlob(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
         if (value==null || value.isNull())
             return null;

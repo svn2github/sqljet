@@ -17,8 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
@@ -59,7 +57,7 @@ public interface ISqlJetBtreeCursor {
      * @return
      * @throws SqlJetException
      */
-    int moveTo( ByteBuffer pKey, long nKey, boolean bias ) throws SqlJetException;
+    int moveTo( ISqlJetMemoryPointer pKey, long nKey, boolean bias ) throws SqlJetException;
     
     /**
      * Move the cursor so that it points to an entry near the key 
@@ -126,7 +124,7 @@ public interface ISqlJetBtreeCursor {
      * @param bias True if this is likely an append
      * @throws SqlJetException
      */
-    void insert( ByteBuffer pKey, long nKey, ByteBuffer pData, int nData,
+    void insert( ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData,
          int nZero, boolean bias) throws SqlJetException;
     
     /** Move the cursor to the first entry in the table.
@@ -201,7 +199,7 @@ public interface ISqlJetBtreeCursor {
     * wrong.  An error is thrown if "offset+amt" is larger than
     * the available payload.
     */
-    void key( int offset, int amt, ByteBuffer buf) throws SqlJetException;
+    void key( int offset, int amt, ISqlJetMemoryPointer buf) throws SqlJetException;
     
     /**
      * Return the database connection handle for a cursor.
@@ -228,7 +226,7 @@ public interface ISqlJetBtreeCursor {
      * 
      * @return
      */
-    ByteBuffer keyFetch( int[] pAmt) throws SqlJetException;
+    ISqlJetMemoryPointer keyFetch( int[] pAmt) throws SqlJetException;
     
     /**
      * For the entry that cursor pCur is point to, return as
@@ -246,7 +244,7 @@ public interface ISqlJetBtreeCursor {
      * 
      * @return
      */
-    ByteBuffer dataFetch( int[] pAmt ) throws SqlJetException;
+    ISqlJetMemoryPointer dataFetch( int[] pAmt ) throws SqlJetException;
     
     /**
      * Return the number of bytes of data in the entry the
@@ -273,7 +271,7 @@ public interface ISqlJetBtreeCursor {
      * @param buf
      * @throws SqlJetException
      */
-    void data( int offset, int amt, ByteBuffer buf ) throws SqlJetException;
+    void data( int offset, int amt, ISqlJetMemoryPointer buf ) throws SqlJetException;
 
     /**
      * Must be a cursor opened for writing on an 
@@ -287,7 +285,7 @@ public interface ISqlJetBtreeCursor {
      * @param data
      * @throws SqlJetException
      */
-    void putData( int offset, int amt, ByteBuffer data) throws SqlJetException;
+    void putData( int offset, int amt, ISqlJetMemoryPointer data) throws SqlJetException;
     
     /**
      * Set a flag on this cursor to cache the locations of pages from the 

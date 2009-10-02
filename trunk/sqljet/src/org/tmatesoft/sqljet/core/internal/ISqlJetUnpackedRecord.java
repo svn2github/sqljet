@@ -17,8 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
@@ -68,6 +66,6 @@ public interface ISqlJetUnpackedRecord {
      * @return
      * @throws SqlJetException 
      */
-    int recordCompare(int i, ByteBuffer cellKey) throws SqlJetException;
+    int recordCompare(int i, ISqlJetMemoryPointer cellKey) throws SqlJetException;
 
 }

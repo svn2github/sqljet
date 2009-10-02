@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.schema;
 
-import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +35,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.lang.SqlLexer;
@@ -318,7 +318,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                         TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
-                final ByteBuffer pData = record.getRawRecord();
+                final ISqlJetMemoryPointer pData = record.getRawRecord();
                 final long rowId = schemaTable.newRowId();
                 schemaTable.getCursor().insert(null, rowId, pData, pData.remaining(), 0, false);
 
@@ -425,7 +425,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
         final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), INDEX_TYPE,
                 autoIndexName, tableName, page, null);
-        final ByteBuffer pData = record.getRawRecord();
+        final ISqlJetMemoryPointer pData = record.getRawRecord();
         schemaTable.getCursor().insert(null, schemaTable.newRowId(), pData, pData.remaining(), 0, false);
         final SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(autoIndexName, tableName, page);
         indexDef.setRowId(schemaTable.getCursor().getKeySize());
@@ -499,7 +499,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                         INDEX_TYPE, indexName, tableName, page, indexDef.toSQL());
-                final ByteBuffer pData = record.getRawRecord();
+                final ISqlJetMemoryPointer pData = record.getRawRecord();
                 final long rowId = schemaTable.newRowId();
                 schemaTable.getCursor().insert(null, rowId, pData, pData.remaining(), 0, false);
 
@@ -691,7 +691,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                         final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
                         final long rowId = cursor.getKeySize();
                         record.getFields().get(PAGE_FIELD).setInt64(page);
-                        final ByteBuffer pData = record.getRawRecord();
+                        final ISqlJetMemoryPointer pData = record.getRawRecord();
                         cursor.delete();
                         cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
                         final ISqlJetIndexDef index = getIndex(name);

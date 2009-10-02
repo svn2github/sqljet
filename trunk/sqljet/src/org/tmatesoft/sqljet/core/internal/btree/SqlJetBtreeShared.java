@@ -19,7 +19,6 @@ package org.tmatesoft.sqljet.core.internal.btree;
 
 import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +26,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
@@ -131,7 +131,7 @@ public class SqlJetBtreeShared {
     SqlJetBtree pExclusive;
 
     /** BtShared.pageSize bytes of space for tmp use */
-    ByteBuffer pTmpSpace;
+    ISqlJetMemoryPointer pTmpSpace;
 
     /**
      * The database page the PENDING_BYTE occupies. This page is never used.
@@ -239,7 +239,7 @@ public class SqlJetBtreeShared {
      */
     public void ptrmapPut(int key, short eType, int parent) throws SqlJetException {
         ISqlJetPage pDbPage; /* The pointer map page */
-        ByteBuffer pPtrmap; /* The pointer map data */
+        ISqlJetMemoryPointer pPtrmap; /* The pointer map data */
         int iPtrmap; /* The pointer map page number */
         int offset; /* Offset in pointer map page */
 
@@ -279,7 +279,7 @@ public class SqlJetBtreeShared {
     public void ptrmapGet(int key, short[] pEType, int[] pPgno) throws SqlJetException {
         ISqlJetPage pDbPage; /* The pointer map page */
         int iPtrmap; /* Pointer map page index */
-        ByteBuffer pPtrmap; /* Pointer map page data */
+        ISqlJetMemoryPointer pPtrmap; /* Pointer map page data */
         int offset; /* Offset of entry in pointer map */
 
         assert (mutex.held());
@@ -290,7 +290,7 @@ public class SqlJetBtreeShared {
 
         offset = PTRMAP_PTROFFSET(iPtrmap, key);
         assert (pEType != null && pEType.length > 0);
-        pEType[0] = SqlJetUtility.getUnsignedByte(pPtrmap, offset);
+        pEType[0] = (short) SqlJetUtility.getUnsignedByte(pPtrmap, offset);
         if (pPgno != null && pPgno.length > 0)
             pPgno[0] = SqlJetUtility.get4byte(pPtrmap, offset + 1);
 
@@ -490,7 +490,7 @@ public class SqlJetBtreeShared {
                         /* Extract a leaf from the trunk */
                         int closest;
                         int iPage;
-                        ByteBuffer aData = pTrunk.aData;
+                        ISqlJetMemoryPointer aData = pTrunk.aData;
                         pTrunk.pDbPage.write();
                         if (nearby > 0) {
                             int i, dist;
@@ -905,7 +905,7 @@ public class SqlJetBtreeShared {
      */
     public void clearDatabasePage(int pgno, boolean freePageFlag, int[] pnChange) throws SqlJetException {
         SqlJetMemPage pPage = null;
-        ByteBuffer pCell;
+        ISqlJetMemoryPointer pCell;
         int i;
 
         assert (mutex.held());
@@ -1092,8 +1092,9 @@ public class SqlJetBtreeShared {
     public void allocateTempSpace() {
         if (pTmpSpace == null) {
             // Allocate double space and point to middle because of some mad
-            // address ariphmetics (sergey.scherbina)
-            pTmpSpace = SqlJetUtility.slice(ByteBuffer.allocate(pageSize * 2), pageSize);
+            // address arithmetics (sergey.scherbina)
+            pTmpSpace = SqlJetUtility.allocatePtr(pageSize * 2);
+            SqlJetUtility.movePtr(pTmpSpace, pageSize);
         }
     }
 

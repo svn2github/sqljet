@@ -17,16 +17,21 @@
  */
 package org.tmatesoft.sqljet.core.internal.btree;
 
-import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.*;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.get2byte;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.get4byte;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.memcpy;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.movePtr;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.mutex_held;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.pointer;
+import static org.tmatesoft.sqljet.core.internal.SqlJetUtility.put4byte;
 import static org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TRACE;
-
-import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
@@ -88,7 +93,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     CursorState eState;
 
     /** Saved key that was cursor's last known position */
-    ByteBuffer pKey;
+    ISqlJetMemoryPointer pKey;
 
     /** Size of pKey, or last integer key */
     long nKey;
@@ -127,30 +132,26 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * <li>
      * CURSOR_VALID: Cursor points to a valid entry. getPayload() etc. may be
-     * called.
-     * </li>
+     * called.</li>
      * 
      * <li>
      * CURSOR_INVALID: Cursor does not point to a valid entry. This can happen
      * (for example) because the table is empty or because BtreeCursorFirst()
-     * has not been called.
-     * </li>
+     * has not been called.</li>
      * 
      * <li>
      * CURSOR_REQUIRESEEK: The table that this cursor was opened on still
      * exists, but has been modified since the cursor was last used. The cursor
      * position is saved in variables BtCursor.pKey and BtCursor.nKey. When a
      * cursor is in this state, restoreCursorPosition() can be called to attempt
-     * to seek the cursor to the saved position.
-     * </li>
+     * to seek the cursor to the saved position.</li>
      * 
      * <li>
      * CURSOR_FAULT: A unrecoverable error (an I/O error or a malloc failure)
      * has occurred on a different connection that shares the BtShared cache
      * with this cursor. The error has left the cache in an inconsistent state.
      * Do nothing else with this cursor. Any attempt to use the cursor should
-     * return the error code stored in BtCursor.skip
-     * </li>
+     * return the error code stored in BtCursor.skip</li>
      * 
      * </ul>
      * 
@@ -325,7 +326,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long,
      * boolean)
      */
-    public int moveTo(ByteBuffer pKey, long nKey, boolean bias) throws SqlJetException {
+    public int moveTo(ISqlJetMemoryPointer pKey, long nKey, boolean bias) throws SqlJetException {
         /* Unpacked index key */
         SqlJetUnpackedRecord pIdxKey;
 
@@ -464,8 +465,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      *            read beginning at data if this is true
      * @return
      */
-    private ByteBuffer fetchPayload(int[] pAmt, boolean skipKey) {
-        ByteBuffer aPayload;
+    private ISqlJetMemoryPointer fetchPayload(int[] pAmt, boolean skipKey) {
+        ISqlJetMemoryPointer aPayload;
         SqlJetMemPage pPage;
         int nKey;
         int nLocal;
@@ -476,15 +477,14 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         pPage = this.apPage[this.iPage];
         assert (this.aiIdx[this.iPage] < pPage.nCell);
         this.getCellInfo();
-        aPayload = this.info.pCell;
-        aPayload = SqlJetUtility.slice(aPayload, this.info.nHeader);
+        aPayload = SqlJetUtility.pointer(this.info.pCell, this.info.nHeader);
         if (pPage.intKey) {
             nKey = 0;
         } else {
             nKey = (int) this.info.nKey;
         }
         if (skipKey) {
-            aPayload = SqlJetUtility.slice(aPayload, nKey);
+            SqlJetUtility.movePtr(aPayload, nKey);
             nLocal = this.info.nLocal - nKey;
         } else {
             nLocal = this.info.nLocal;
@@ -546,17 +546,17 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 this.aiIdx[this.iPage] = ((upr + lwr) / 2);
             }
             for (;;) {
-                ByteBuffer pCellKey;
+                ISqlJetMemoryPointer pCellKey;
                 long[] nCellKey = new long[1];
                 int idx = this.aiIdx[this.iPage];
                 this.info.nSize = 0;
                 this.validNKey = true;
                 if (pPage.intKey) {
-                    ByteBuffer pCell;
-                    pCell = SqlJetUtility.slice(pPage.findCell(idx), pPage.childPtrSize);
+                    ISqlJetMemoryPointer pCell;
+                    pCell = SqlJetUtility.pointer(pPage.findCell(idx), pPage.childPtrSize);
                     if (pPage.hasData) {
                         int[] dummy = new int[1];
-                        pCell = SqlJetUtility.slice(pCell, SqlJetUtility.getVarint32(pCell, dummy));
+                        SqlJetUtility.movePtr(pCell, SqlJetUtility.getVarint32(pCell, dummy));
                     }
                     SqlJetUtility.getVarint(pCell, nCellKey);
                     if (nCellKey[0] == intKey) {
@@ -574,7 +574,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     if (available[0] >= nCellKey[0]) {
                         c = pIdxKey.recordCompare((int) nCellKey[0], pCellKey);
                     } else {
-                        pCellKey = ByteBuffer.allocate((int) nCellKey[0]);
+                        pCellKey = SqlJetUtility.allocatePtr((int) nCellKey[0]);
                         try {
                             this.key(0, (int) nCellKey[0], pCellKey);
                         } finally {
@@ -674,7 +674,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
         SqlJetMemPage pPage = pCur.apPage[pCur.iPage];
         int idx;
-        ByteBuffer pCell;
+        ISqlJetMemoryPointer pCell;
         int pgnoChild = 0;
         SqlJetBtree p = pCur.pBtree;
         SqlJetBtreeShared pBt = p.pBt;
@@ -730,10 +730,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             SqlJetBtreeCursor leafCur;
             SqlJetMemPage pLeafPage = null;
 
-            ByteBuffer pNext;
+            ISqlJetMemoryPointer pNext;
             @SuppressWarnings("unused")
             boolean notUsed;
-            ByteBuffer tempCell = null;
+            ISqlJetMemoryPointer tempCell = null;
             assert (!pPage.intKey);
             leafCur = pCur.getTempCursor();
             notUsed = leafCur.next();
@@ -753,7 +753,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 assert (pBt.MX_CELL_SIZE() >= szNext + 4);
                 pBt.allocateTempSpace();
                 tempCell = pBt.pTmpSpace;
-                pPage.insertCell(idx, slice(pNext, -4), szNext + 4, tempCell, (byte) 0);
+                pPage.insertCell(idx, pointer(pNext, -4), szNext + 4, tempCell, (byte) 0);
 
                 /*
                  * The "if" statement in the next code block is critical. The
@@ -913,7 +913,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int i, j, k; /* Loop counters */
         int idx; /* Index of pPage in pParent->aCell[] */
         int nxDiv; /* Next divider slot in pParent->aCell[] */
-//        int rc; /* The return code */
+        // int rc; /* The return code */
         int leafCorrection; /* 4 if pPage is a leaf. 0 if not */
         boolean leafData; /* True if pPage is a leaf of a LEAFDATA tree */
         int usableSpace; /* Bytes in pPage beyond the header */
@@ -921,7 +921,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int subtotal; /* Subtotal of bytes in cells on one page */
         int iSpace1 = 0; /* First unused byte of aSpace1[] */
         int iSpace2 = 0; /* First unused byte of aSpace2[] */
-//        int szScratch; /* Size of scratch memory requested */
+        // int szScratch; /* Size of scratch memory requested */
         /* pPage and up to two siblings */
         SqlJetMemPage[] apOld = new SqlJetMemPage[NB];
         int[] pgnoOld = new int[NB]; /* Page numbers for each page in apOld[] */
@@ -931,19 +931,26 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         SqlJetMemPage[] apNew = new SqlJetMemPage[NB + 2];
         /* Page numbers for each page in apNew[] */
         int[] pgnoNew = new int[NB + 2];
-        ByteBuffer[] apDiv = new ByteBuffer[NB]; /* Divider cells in pParent */
+        ISqlJetMemoryPointer[] apDiv = new ISqlJetMemoryPointer[NB]; /*
+                                                                      * Divider
+                                                                      * cells in
+                                                                      * pParent
+                                                                      */
         /* Index in aCell[] of cell after i-th page */
         int[] cntNew = new int[NB + 2];
         /* Combined size of cells place on i-th page */
         int[] szNew = new int[NB + 2];
-        ByteBuffer[] apCell = null; /* All cells begin balanced */
+        ISqlJetMemoryPointer[] apCell = null; /* All cells begin balanced */
         int[] szCell; /* Local size of all cells in apCell[] */
         /* Space for holding data of apCopy[] */
-        ByteBuffer[] aCopy = new ByteBuffer[NB];
-        ByteBuffer aSpace1; /* Space for copies of dividers cells before balance */
+        ISqlJetMemoryPointer[] aCopy = new ISqlJetMemoryPointer[NB];
+        ISqlJetMemoryPointer aSpace1; /*
+                                       * Space for copies of dividers cells
+                                       * before balance
+                                       */
         /* Space for overflow dividers cells after balance */
-        ByteBuffer aSpace2 = null;
-        ByteBuffer aFrom = null;
+        ISqlJetMemoryPointer aSpace2 = null;
+        ISqlJetMemoryPointer aFrom = null;
 
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.pBt.mutex.held());
@@ -967,10 +974,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             /*
              * A special case: If a new entry has just been inserted into a
              * table (that is, a btree with integer keys and all data at the
-             * leaves) and the new entry is the right-most entry in the tree
-             * (it has the largest key) then use the special balance_quick()
-             * routine for balancing. balance_quick() is much faster and
-             * results in a tighter packing of data in the common case.
+             * leaves) and the new entry is the right-most entry in the tree (it
+             * has the largest key) then use the special balance_quick() routine
+             * for balancing. balance_quick() is much faster and results in a
+             * tighter packing of data in the common case.
              */
             if (pPage.leaf && pPage.intKey && pPage.nOverflow == 1 && pPage.aOvfl[0].idx == pPage.nCell
                     && pParent.pgno != 1 && get4byte(pParent.aData, pParent.hdrOffset + 8) == pPage.pgno) {
@@ -995,12 +1002,12 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             pParent.assertParentIndex(idx, pPage.pgno);
 
             /*
-             * Find sibling pages to pPage and the cells in pParent that
-             * divide the siblings. An attempt is made to find NN siblings on
-             * either side of pPage. More siblings are taken from one side,
-             * however, if pPage there are fewer than NN siblings on the other
-             * side. If pParent has NB or fewer children then all children of
-             * pParent are taken.
+             * Find sibling pages to pPage and the cells in pParent that divide
+             * the siblings. An attempt is made to find NN siblings on either
+             * side of pPage. More siblings are taken from one side, however, if
+             * pPage there are fewer than NN siblings on the other side. If
+             * pParent has NB or fewer children then all children of pParent are
+             * taken.
              */
             nxDiv = idx - NN;
             if (nxDiv + NB > pParent.nCell) {
@@ -1038,13 +1045,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * * Allocate space for memory structures
              */
 
-            apCell = new ByteBuffer[nMaxCells];
+            apCell = new ISqlJetMemoryPointer[nMaxCells];
             szCell = new int[nMaxCells];
-            aSpace1 = ByteBuffer.allocate(pBt.pageSize);
+            aSpace1 = SqlJetUtility.allocatePtr(pBt.pageSize);
             if (pBt.autoVacuum) {
-                aFrom = ByteBuffer.allocate(nMaxCells);
+                aFrom = SqlJetUtility.allocatePtr(nMaxCells);
             }
-            aSpace2 = ByteBuffer.allocate(pBt.pageSize);
+            aSpace2 = SqlJetUtility.allocatePtr(pBt.pageSize);
 
             /*
              * Make copies of the content of pPage and its siblings into
@@ -1054,22 +1061,22 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              */
             for (i = 0; i < nOld; i++) {
                 SqlJetMemPage p = apCopy[i] = (SqlJetMemPage) memcpy(apOld[i]);
-                p.aData = aCopy[i] = ByteBuffer.allocate(pBt.pageSize);
+                p.aData = aCopy[i] = SqlJetUtility.allocatePtr(pBt.pageSize);
                 memcpy(p.aData, apOld[i].aData, pBt.pageSize);
             }
 
             /*
-             * Load pointers to all cells on sibling pages and the divider
-             * cells into the local apCell[] array. Make copies of the divider
-             * cells into space obtained form aSpace1[] and remove the the
-             * divider Cells* from pParent. 
+             * Load pointers to all cells on sibling pages and the divider cells
+             * into the local apCell[] array. Make copies of the divider cells
+             * into space obtained form aSpace1[] and remove the the divider
+             * Cells* from pParent.
              * 
-             * If the siblings are on leaf pages,
-             * then the child pointers of the divider cells are stripped from
-             * the cells before they are copied into aSpace1[]. In this way,
-             * all cells in apCell[] are without child pointers. If siblings
-             * are not leaves, then all cell in apCell[] include child
-             * pointers. Either way, all cells in apCell[] are alike.
+             * If the siblings are on leaf pages, then the child pointers of the
+             * divider cells are stripped from the cells before they are copied
+             * into aSpace1[]. In this way, all cells in apCell[] are without
+             * child pointers. If siblings are not leaves, then all cell in
+             * apCell[] include child pointers. Either way, all cells in
+             * apCell[] are alike.
              * 
              * leafCorrection: 4 if pPage is a leaf. 0 if pPage is not a leaf.
              * leafData: 1 if pPage holds key+data and pParent holds only keys.
@@ -1109,15 +1116,15 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                          */
                         pParent.dropCell(nxDiv, sz);
                     } else {
-                        ByteBuffer pTemp;
+                        ISqlJetMemoryPointer pTemp;
                         assert (nCell < nMaxCells);
                         szCell[nCell] = sz;
-                        pTemp = slice(aSpace1, iSpace1);
+                        pTemp = pointer(aSpace1, iSpace1);
                         iSpace1 += sz;
                         assert (sz <= pBt.pageSize / 4);
                         assert (iSpace1 <= pBt.pageSize);
                         memcpy(pTemp, apDiv[i], sz);
-                        apCell[nCell] = slice(pTemp, leafCorrection);
+                        apCell[nCell] = pointer(pTemp, leafCorrection);
                         if (pBt.autoVacuum) {
                             SqlJetUtility.putUnsignedByte(aFrom, nCell, (byte) 0xFF);
                         }
@@ -1131,7 +1138,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                              * The right pointer of the child page pOld becomes
                              * the left pointer of the divider cell
                              */
-                            memcpy(apCell[nCell], slice(pOld.aData, pOld.hdrOffset + 8), 4);
+                            memcpy(apCell[nCell], 0, pOld.aData, pOld.hdrOffset + 8, 4);
                         } else {
                             assert (leafCorrection == 4);
                             if (szCell[nCell] < 4) {
@@ -1151,11 +1158,11 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * index in apCell[] of the cell that divides page i from page i+1.
              * cntNew[k] should equal nCell.
              * 
-             * Values computed by this block:
-             * <p> k: The total number of sibling pages. </p>
-             * <p> szNew[i]: Spaced used on the i-th sibling page. </p>
-             * <p> cntNew[i]: Index in apCell[] and szCell[] for the first cell to the right of the i-th sibling page.</p>
-             * <p> usableSpace: Number of bytes of space available on each sibling.</p>
+             * Values computed by this block: <p> k: The total number of sibling
+             * pages. </p> <p> szNew[i]: Spaced used on the i-th sibling page.
+             * </p> <p> cntNew[i]: Index in apCell[] and szCell[] for the first
+             * cell to the right of the i-th sibling page.</p> <p> usableSpace:
+             * Number of bytes of space available on each sibling.</p>
              */
             usableSpace = pBt.usableSize - 12 + leafCorrection;
             for (subtotal = k = i = 0; i < nCell; i++) {
@@ -1179,13 +1186,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * The packing computed by the previous block is biased toward the
              * siblings on the left side. The left siblings are always nearly
              * full, while the right-most sibling might be nearly empty. This
-             * block of code attempts to adjust the packing of siblings to get
-             * a better balance. 
+             * block of code attempts to adjust the packing of siblings to get a
+             * better balance.
              * 
-             * This adjustment is more than an optimization.
-             * The packing above might be so out of balance as to be illegal.
-             * For example, the right-most sibling might be completely empty.
-             * This adjustment is not optional.
+             * This adjustment is more than an optimization. The packing above
+             * might be so out of balance as to be illegal. For example, the
+             * right-most sibling might be completely empty. This adjustment is
+             * not optional.
              */
             for (i = k - 1; i > 0; i--) {
                 int szRight = szNew[i]; /* Size of sibling on the right */
@@ -1328,16 +1335,16 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                  * sibling, insert a divider cell into the parent page.
                  */
                 if (i < nNew - 1 && j < nCell) {
-                    ByteBuffer pCell;
-                    ByteBuffer pTemp;
+                    ISqlJetMemoryPointer pCell;
+                    ISqlJetMemoryPointer pTemp;
                     int sz;
 
                     assert (j < nMaxCells);
                     pCell = apCell[j];
                     sz = szCell[j] + leafCorrection;
-                    pTemp = slice(aSpace2, iSpace2);
+                    pTemp = pointer(aSpace2, iSpace2);
                     if (!pNew.leaf) {
-                        memcpy(slice(pNew.aData, 8), pCell, 4);
+                        memcpy(pNew.aData, 8, pCell, 0, 4);
                         if (pBt.autoVacuum
                                 && (SqlJetUtility.getUnsignedByte(aFrom, j) == 0xFF || apCopy[SqlJetUtility
                                         .getUnsignedByte(aFrom, j)].pgno != pNew.pgno)) {
@@ -1359,7 +1366,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     } else {
                         // There is mad address ariphmetic which causes
                         // allocation of double tmp space (sergey.scherbina)
-                        pCell = slice(pCell, -4);
+                        movePtr(pCell, -4);
                         /*
                          * Obscure case for non-leaf-data trees: If the cell at
                          * pCell was previously stored on a leaf node, and its
@@ -1408,8 +1415,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             assert (nOld > 0);
             assert (nNew > 0);
             if ((pageFlags & SqlJetMemPage.PTF_LEAF) == 0) {
-                ByteBuffer zChild = slice(apCopy[nOld - 1].aData, 8);
-                memcpy(slice(apNew[nNew - 1].aData, 8), zChild, 4);
+                final ISqlJetMemoryPointer zChild = pointer(apCopy[nOld - 1].aData, 8);
+                memcpy(apNew[nNew - 1].aData, 8, zChild, 0, 4);
                 if (pBt.autoVacuum) {
                     pBt.ptrmapPut(get4byte(zChild), SqlJetBtreeShared.PTRMAP_BTREE, apNew[nNew - 1].pgno);
                 }
@@ -1417,7 +1424,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             assert (pParent.pDbPage.isWriteable());
             if (nxDiv == pParent.nCell + pParent.nOverflow) {
                 /* Right-most sibling is the right-most child of pParent */
-                put4byte(slice(pParent.aData, pParent.hdrOffset + 8), pgnoNew[nNew - 1]);
+                put4byte(pParent.aData, pParent.hdrOffset + 8, pgnoNew[nNew - 1]);
             } else {
                 /*
                  * Right-most sibling is the left child of the first entry in
@@ -1486,18 +1493,18 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
         SqlJetMemPage pNew = null;
         int[] pgnoNew = new int[1];
-        ByteBuffer pCell;
+        ISqlJetMemoryPointer pCell;
         int szCell;
         SqlJetBtreeCellInfo info = new SqlJetBtreeCellInfo();
         SqlJetMemPage pPage = pCur.apPage[pCur.iPage];
         SqlJetMemPage pParent = pCur.apPage[pCur.iPage - 1];
         SqlJetBtreeShared pBt = pPage.pBt;
-        int parentIdx = pParent.nCell; /* pParent new divider cell index */
-        int parentSize; /* Size of new divider cell */
-        ByteBuffer parentCell = ByteBuffer.allocate(64); /*
-                                                          * Space for the new
-                                                          * divider cell
-                                                          */
+        /* pParent new divider cell index */
+        int parentIdx = pParent.nCell;
+        /* Size of new divider cell */
+        int parentSize;
+        /* Space for the new divider cell */
+        ISqlJetMemoryPointer parentCell = SqlJetUtility.allocatePtr(64);
 
         assert (pPage.pBt.mutex.held());
 
@@ -1512,7 +1519,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             szCell = pPage.cellSizePtr(pCell);
             assert (pNew.pDbPage.isWriteable());
             pNew.zeroPage(SqlJetUtility.getUnsignedByte(pPage.aData, 0));
-            pNew.assemblePage(1, new ByteBuffer[] { pCell }, new int[] { szCell });
+            pNew.assemblePage(1, new ISqlJetMemoryPointer[] { pCell }, new int[] { szCell });
             pPage.nOverflow = 0;
 
             /*
@@ -1599,7 +1606,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int pgnoChild; /* Page number for pChild */
         SqlJetBtreeShared pBt; /* The main BTree structure */
         int mxCellPerPage; /* Maximum number of cells per page */
-        ByteBuffer[] apCell; /* All cells from pages being balanced */
+        ISqlJetMemoryPointer[] apCell; /* All cells from pages being balanced */
         int[] szCell; /* Local size of all cells */
 
         assert (pCur.iPage == 0);
@@ -1609,7 +1616,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (pPage.pBt.mutex.held());
         pBt = pPage.pBt;
         mxCellPerPage = pBt.MX_CELL();
-        apCell = new ByteBuffer[mxCellPerPage];
+        apCell = new ISqlJetMemoryPointer[mxCellPerPage];
         szCell = new int[mxCellPerPage];
         if (pPage.leaf) {
             /* The table is completely empty */
@@ -1694,8 +1701,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         int[] pgnoChild = new int[1]; /* Page number of the new child page */
         SqlJetBtreeShared pBt; /* The BTree */
         int usableSize; /* Total usable size of a page */
-        ByteBuffer data; /* Content of the parent page */
-        ByteBuffer cdata; /* Content of the child page */
+        ISqlJetMemoryPointer data; /* Content of the parent page */
+        ISqlJetMemoryPointer cdata; /* Content of the child page */
         int hdr; /* Offset to page header in parent */
         int cbrk; /* Offset to content of first cell in parent */
 
@@ -1713,8 +1720,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         hdr = pPage.hdrOffset;
         cbrk = get2byte(data, hdr + 5);
         cdata = pChild.aData;
-        memcpy(cdata, slice(data, hdr), pPage.cellOffset + 2 * pPage.nCell - hdr);
-        memcpy(slice(cdata, cbrk), slice(data, cbrk), usableSize - cbrk);
+        memcpy(cdata, 0, data, hdr, pPage.cellOffset + 2 * pPage.nCell - hdr);
+        memcpy(cdata, cbrk, data, cbrk, usableSize - cbrk);
 
         try {
 
@@ -1799,8 +1806,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long,
      * byte[], int, int, boolean)
      */
-    public void insert(ByteBuffer pKey, long nKey, ByteBuffer pData, int nData, int zero, boolean bias)
-            throws SqlJetException {
+    public void insert(ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData, int zero,
+            boolean bias) throws SqlJetException {
 
         final SqlJetBtreeCursor pCur = this;
 
@@ -1810,8 +1817,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         SqlJetMemPage pPage;
         SqlJetBtree p = pCur.pBtree;
         SqlJetBtreeShared pBt = p.pBt;
-        ByteBuffer oldCell;
-        ByteBuffer newCell = null;
+        ISqlJetMemoryPointer oldCell;
+        ISqlJetMemoryPointer newCell = null;
 
         assert (cursorHoldsMutex(pCur));
         assert (pBt.inTransaction == TransMode.WRITE);
@@ -2128,7 +2135,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (cursorHoldsMutex(pCur));
         assert (pPage != null);
         assert (pPage.pBt == pCur.pBt);
-        return SqlJetUtility.getUnsignedByte(pPage.aData, pPage.hdrOffset);
+        return (short) SqlJetUtility.getUnsignedByte(pPage.aData, pPage.hdrOffset);
     }
 
     /*
@@ -2154,7 +2161,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
      */
-    public void key(int offset, int amt, ByteBuffer buf) throws SqlJetException {
+    public void key(int offset, int amt, ISqlJetMemoryPointer buf) throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
         assert (cursorHoldsMutex(pCur));
         pCur.restoreCursorPosition();
@@ -2211,11 +2218,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @throws SqlJetException
      */
-    private void accessPayload(int offset, int amt, ByteBuffer pBuf, int skipKey, boolean eOp) throws SqlJetException {
+    private void accessPayload(int offset, int amt, ISqlJetMemoryPointer pBuf, int skipKey, boolean eOp)
+            throws SqlJetException {
 
+        pBuf = SqlJetUtility.pointer(pBuf);
         final SqlJetBtreeCursor pCur = this;
 
-        ByteBuffer aPayload;
+        ISqlJetMemoryPointer aPayload;
         int nKey;
         int iIdx = 0;
         /* Btree page of current entry */
@@ -2229,14 +2238,14 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         assert (cursorHoldsMutex(pCur));
 
         pCur.getCellInfo();
-        aPayload = slice(pCur.info.pCell, pCur.info.nHeader);
+        aPayload = pointer(pCur.info.pCell, pCur.info.nHeader);
         nKey = (pPage.intKey ? 0 : (int) pCur.info.nKey);
 
         if (skipKey != 0) {
             offset += nKey;
         }
         if (offset + amt > nKey + pCur.info.nData
-                || (aPayload.arrayOffset() + pCur.info.nLocal) > (pPage.aData.arrayOffset() + pBt.usableSize)) {
+                || (aPayload.getPointer() + pCur.info.nLocal) > (pPage.aData.getPointer() + pBt.usableSize)) {
             /* Trying to read or write past the end of the data is an error */
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
@@ -2247,9 +2256,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             if (a + offset > pCur.info.nLocal) {
                 a = pCur.info.nLocal - offset;
             }
-            copyPayload(slice(aPayload, offset), pBuf, a, eOp, pPage.pDbPage);
+            copyPayload(aPayload, offset, pBuf, 0, a, eOp, pPage.pDbPage);
             offset = 0;
-            pBuf = slice(pBuf, a);
+            pBuf.movePointer(a);
             amt -= a;
         } else {
             offset -= pCur.info.nLocal;
@@ -2259,7 +2268,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             int ovflSize = pBt.usableSize - 4; /* Bytes content per ovfl page */
             int nextPage;
 
-            nextPage = get4byte(slice(aPayload, pCur.info.nLocal));
+            nextPage = get4byte(aPayload, pCur.info.nLocal);
 
             /*
              * If the isIncrblobHandle flag is set and the BtCursor.aOverflow[]*
@@ -2323,11 +2332,11 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     if (a + offset > ovflSize) {
                         a = ovflSize - offset;
                     }
-                    copyPayload(slice(aPayload, offset + 4), pBuf, a, eOp, pDbPage);
+                    copyPayload(aPayload, offset + 4, pBuf, 0, a, eOp, pDbPage);
                     pDbPage.unref();
                     offset = 0;
                     amt -= a;
-                    pBuf = slice(pBuf, a);
+                    pBuf.movePointer(a);
                 }
             }
         }
@@ -2360,15 +2369,15 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @throws SqlJetException
      */
-    private void copyPayload(ByteBuffer pPayload, ByteBuffer pBuf, int nByte, boolean eOp, ISqlJetPage pDbPage)
-            throws SqlJetException {
+    private void copyPayload(ISqlJetMemoryPointer pPayload, int payloadOffset, ISqlJetMemoryPointer pBuf,
+            int bufOffset, int nByte, boolean eOp, ISqlJetPage pDbPage) throws SqlJetException {
         if (eOp) {
             /* Copy data from buffer to page (a write operation) */
             pDbPage.write();
-            memcpy(pPayload, pBuf, nByte);
+            memcpy(pPayload, payloadOffset, pBuf, bufOffset, nByte);
         } else {
             /* Copy data from page to buffer (a read operation) */
-            memcpy(pBuf, pPayload, nByte);
+            memcpy(pBuf, bufOffset, pPayload, payloadOffset, nByte);
         }
     }
 
@@ -2387,7 +2396,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#keyFetch(int[])
      */
-    public ByteBuffer keyFetch(int[] amt) {
+    public ISqlJetMemoryPointer keyFetch(int[] amt) {
         assert (cursorHoldsMutex(this));
         if (eState == CursorState.VALID) {
             return fetchPayload(amt, false);
@@ -2400,7 +2409,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#dataFetch(int[])
      */
-    public ByteBuffer dataFetch(int[] amt) {
+    public ISqlJetMemoryPointer dataFetch(int[] amt) {
         assert (cursorHoldsMutex(this));
         if (eState == CursorState.VALID) {
             return fetchPayload(amt, true);
@@ -2431,7 +2440,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#data(int, int, byte[])
      */
-    public void data(int offset, int amt, ByteBuffer buf) throws SqlJetException {
+    public void data(int offset, int amt, ISqlJetMemoryPointer buf) throws SqlJetException {
 
         if (eState == CursorState.INVALID) {
             throw new SqlJetException(SqlJetErrorCode.ABORT);
@@ -2451,7 +2460,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#putData(int, int,
      * byte[])
      */
-    public void putData(int offset, int amt, ByteBuffer data) throws SqlJetException {
+    public void putData(int offset, int amt, ISqlJetMemoryPointer data) throws SqlJetException {
 
         assert (cursorHoldsMutex(this));
         assert (mutex_held(this.pBtree.db.getMutex()));
@@ -2521,7 +2530,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * bytes of key* data.
              */
             if (!pCur.apPage[0].intKey) {
-                ByteBuffer pKey = ByteBuffer.allocate((int) pCur.nKey);
+                ISqlJetMemoryPointer pKey = SqlJetUtility.allocatePtr((int) pCur.nKey);
                 pCur.key(0, (int) pCur.nKey, pKey);
                 pCur.pKey = pKey;
             }

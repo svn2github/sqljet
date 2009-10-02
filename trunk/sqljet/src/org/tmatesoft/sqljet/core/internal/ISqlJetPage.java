@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -145,7 +144,7 @@ public interface ISqlJetPage {
      * 
      * 
      */
-    ByteBuffer getData();
+    ISqlJetMemoryPointer getData();
 
     /**
      * 

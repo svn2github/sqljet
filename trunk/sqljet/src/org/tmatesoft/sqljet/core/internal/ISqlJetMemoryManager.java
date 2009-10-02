@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.sandbox.memory;
+package org.tmatesoft.sqljet.core.internal;
 
 /**
  * Default implementation of SQLJet's memory manager. It allows allocate memory
@@ -63,6 +63,23 @@ public interface ISqlJetMemoryManager {
      */
     ISqlJetMemoryBuffer allocate(int size, SqlJetMemoryBufferType bufferType);
 
+    /**
+     * Allocates memory chunk {@link ISqlJetMemoryBuffer} using default buffer
+     * type.
+     * 
+     * @param size
+     *            size of buffer in bytes
+     * @return allocated buffer
+     */
+    ISqlJetMemoryPointer allocatePtr(int size);
+
+    /**
+     * @param size
+     * @param bufferType
+     * @return
+     */
+    ISqlJetMemoryPointer allocatePtr(int size, SqlJetMemoryBufferType bufferType);
+    
     /**
      * Fries memory.
      * 

@@ -17,9 +17,8 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -54,11 +53,11 @@ public class SqlJetVdbeSerialType {
      *            Memory cell to write value into
      * @return
      */
-    public static int serialGet(ByteBuffer buf, int serial_type, SqlJetVdbeMem pMem) {
+    public static int serialGet(ISqlJetMemoryPointer buf, int serial_type, SqlJetVdbeMem pMem) {
         return serialGet(buf, 0, serial_type, pMem);
     }
 
-    public static int serialGet(ByteBuffer buf, int offset, int serial_type, SqlJetVdbeMem pMem) {
+    public static int serialGet(ISqlJetMemoryPointer buf, int offset, int serial_type, SqlJetVdbeMem pMem) {
         switch (serial_type) {
         case 10: /* Reserved for future use */
         case 11: /* Reserved for future use */
@@ -68,7 +67,7 @@ public class SqlJetVdbeSerialType {
             break;
         }
         case 1: { /* 1-byte signed integer */
-            pMem.i = buf.get(offset);
+            pMem.i = buf.getByte(offset);
             pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Int);
             pMem.type = SqlJetValueType.INTEGER;
             return 1;
@@ -82,7 +81,7 @@ public class SqlJetVdbeSerialType {
             return 2;
         }
         case 3: { /* 3-byte signed integer */
-            pMem.i = (buf.get(offset) << 16) | (SqlJetUtility.getUnsignedByte(buf, offset + 1) << 8)
+            pMem.i = (buf.getByte(offset) << 16) | (SqlJetUtility.getUnsignedByte(buf, offset + 1) << 8)
                     | SqlJetUtility.getUnsignedByte(buf, offset + 2);
             pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Int);
             pMem.type = SqlJetValueType.INTEGER;
@@ -146,7 +145,7 @@ public class SqlJetVdbeSerialType {
         }
         default: {
             int len = (serial_type - 12) / 2;
-            pMem.z = SqlJetUtility.slice(buf, offset);
+            pMem.z = SqlJetUtility.pointer(buf, offset);
             pMem.n = len;
             pMem.xDel = null;
             if ((serial_type & 0x01) != 0) {
@@ -221,7 +220,7 @@ public class SqlJetVdbeSerialType {
      * bytes in the zero-filled tail is included in the return value only if
      * those bytes were zeroed in buf[].
      */
-    public static int serialPut(ByteBuffer buf, int nBuf, SqlJetVdbeMem pMem, int file_format) {
+    public static int serialPut(ISqlJetMemoryPointer buf, int nBuf, SqlJetVdbeMem pMem, int file_format) {
         int serial_type = serialType(pMem, file_format);
         int len;
 
@@ -237,8 +236,8 @@ public class SqlJetVdbeSerialType {
             len = i = serialTypeLen(serial_type);
             assert (len <= nBuf);
             while (i-- > 0) {
-                SqlJetUtility.putUnsignedByte(buf, i, (byte) (v & 0xFF));
-                v >>= 8;
+                buf.putByteUnsigned(i,(int) v);
+                v >>>= 8;
             }
             return len;
         }
@@ -254,7 +253,7 @@ public class SqlJetVdbeSerialType {
                 if (len > nBuf) {
                     len = nBuf;
                 }
-                SqlJetUtility.memset(SqlJetUtility.slice(buf, pMem.n), (byte) 0, len - pMem.n);
+                SqlJetUtility.memset(buf, pMem.n, (byte) 0, len - pMem.n);
             }
             return len;
         }

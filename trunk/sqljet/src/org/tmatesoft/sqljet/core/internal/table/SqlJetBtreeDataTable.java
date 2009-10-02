@@ -17,7 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
@@ -333,7 +333,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @throws SqlJetException
      */
     private void doInsert(final long rowId, final Object[] row) throws SqlJetException {
-        final ByteBuffer pData;
+        final ISqlJetMemoryPointer pData;
         if (!tableDef.isRowIdPrimaryKey()) {
             pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
         } else {
@@ -448,7 +448,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (newRowId == currentRowId && Arrays.equals(row, currentRow))
             return;
 
-        final ByteBuffer pData;
+        final ISqlJetMemoryPointer pData;
         if (!tableDef.isRowIdPrimaryKey()) {
             pData = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), row).getRawRecord();
         } else {
@@ -553,7 +553,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
 
         if (existsRowId) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Record with given ROWID already exists");
+            throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Record with given ROWID already exists");
         }
 
         final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFields(row) : null;
@@ -710,9 +710,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (!tableDef.isRowIdPrimaryKey())
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index not defined");
         if (key.length == 1) {
-            final Object[] k = SqlJetUtility.adjustNumberTypes(key);
-            if (k[0] instanceof Long) {
-                return (Long) k[0];
+            final Object k = SqlJetUtility.adjustNumberType(key[0]);
+            if (k instanceof Long) {
+                return (Long) k;
             }
         }
         throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad key");

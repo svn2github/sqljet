@@ -112,10 +112,13 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setDouble((Double) value);
             } else if (value instanceof ByteBuffer) {
                 mem.setStr(SqlJetUtility.fromByteBuffer((ByteBuffer) value), encoding);
+                mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
             } else if (value instanceof InputStream) {
                 mem.setStr(SqlJetUtility.streamToBuffer((InputStream) value), encoding);
+                mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
             } else if ("byte[]".equalsIgnoreCase(value.getClass().getCanonicalName())) {
                 mem.setStr(SqlJetUtility.wrapPtr((byte[]) value), encoding);
+                mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value #" + i + " " + value.toString());
             }
@@ -319,20 +322,20 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         }
 
         /*
-         * If we dynamically allocated space to hold the data (in the*
-         * sqlite3VdbeMemFromBtree() call above) then transfer control of that*
-         * dynamically allocated space over to the pDest structure.* This
+         * If we dynamically allocated space to hold the data (in the
+         * sqlite3VdbeMemFromBtree() call above) then transfer control of that
+         * dynamically allocated space over to the pDest structure. This
          * prevents a memory copy.
          */
         if (sMem.zMalloc != null) {
             assert (sMem.z == sMem.zMalloc);
             assert (!pDest.flags.contains(SqlJetVdbeMemFlags.Dyn));
-            assert (!(pDest.flags.contains(SqlJetVdbeMemFlags.Blob) || pDest.flags.contains(SqlJetVdbeMemFlags.Str)) || pDest.z == sMem.z);
+            assert (!(pDest.flags.contains(SqlJetVdbeMemFlags.Blob) || pDest.flags.contains(SqlJetVdbeMemFlags.Str)) || pDest.z.getBuffer() == sMem.z.getBuffer());
             pDest.flags.remove(SqlJetVdbeMemFlags.Ephem);
             pDest.flags.remove(SqlJetVdbeMemFlags.Static);
             pDest.flags.add(SqlJetVdbeMemFlags.Term);
-            pDest.z = sMem.z;
-            pDest.zMalloc = sMem.zMalloc;
+            //pDest.z = sMem.z;
+            //pDest.zMalloc = sMem.zMalloc;
         }
 
         pDest.makeWriteable();

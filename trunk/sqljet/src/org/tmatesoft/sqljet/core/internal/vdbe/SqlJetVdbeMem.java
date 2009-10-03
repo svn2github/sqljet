@@ -738,14 +738,10 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         }
 
         int nByte = z.remaining(); /* New value for pMem->n */
-        int iLimit = ISqlJetLimits.SQLJET_MAX_LENGTH; /*
-                                                       * Maximum allowed string
-                                                       * or blob size
-                                                       */
-        flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class); /*
-                                                                 * New value for
-                                                                 * pMem->flags
-                                                                 */
+        /* Maximum allowed string or blob size */        
+        int iLimit = ISqlJetLimits.SQLJET_MAX_LENGTH; 
+        /* New value for pMem->flags */        
+        flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class); 
 
         flags.add(enc == null ? SqlJetVdbeMemFlags.Blob : SqlJetVdbeMemFlags.Str);
 
@@ -1096,6 +1092,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             expandBlob();
             flags.remove(SqlJetVdbeMemFlags.Str);
             flags.add(SqlJetVdbeMemFlags.Blob);
+            z.limit(n);
             return z;
         } else {
             return valueText(SqlJetEncoding.UTF8);

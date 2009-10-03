@@ -1024,12 +1024,11 @@ public class SqlJetBtreeShared {
 
         assert (mutex.held());
         /* One of these must not be NULL. Otherwise, why call this function? */
-        assert ((ppPage != null && ppPage.length != 0 && ppPage[0] != null) || (pPgnoNext != null
-                && pPgnoNext.length != 0 && pPgnoNext[0] != 0));
+        assert ((ppPage != null && ppPage.length != 0) || (pPgnoNext != null && pPgnoNext.length != 0));
 
         /*
-         * If pPgnoNext is NULL, then this function is being called to obtain* a
-         * MemPage* reference only. No page-data is required in this case.
+         * If pPgnoNext is NULL, then this function is being called to obtain a
+         * MemPage reference only. No page-data is required in this case.
          */
         if (pPgnoNext == null || pPgnoNext.length == 0 || pPgnoNext[0] == 0) {
             ppPage[0] = getPage(ovfl, true);
@@ -1037,10 +1036,10 @@ public class SqlJetBtreeShared {
         }
 
         /*
-         * Try to find the next page in the overflow list using the* autovacuum
-         * pointer-map pages. Guess that the next page in* the overflow list is
-         * page number (ovfl+1). If that guess turns* out to be wrong, fall back
-         * to loading the data of page* number ovfl to determine the next page
+         * Try to find the next page in the overflow list using the autovacuum
+         * pointer-map pages. Guess that the next page in the overflow list is
+         * page number (ovfl+1). If that guess turns out to be wrong, fall back
+         * to loading the data of page number ovfl to determine the next page
          * number.
          */
         if (autoVacuum) {
@@ -1061,7 +1060,7 @@ public class SqlJetBtreeShared {
             }
         }
 
-        if (next == 0 || (ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
+        if (next == 0 || (ppPage != null && ppPage.length != 0)) {
             SqlJetMemPage pPage = null;
 
             try {
@@ -1071,7 +1070,7 @@ public class SqlJetBtreeShared {
                     next = SqlJetUtility.get4byte(pPage.aData, 0);
                 }
 
-                if ((ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
+                if (ppPage != null && ppPage.length != 0) {
                     ppPage[0] = pPage;
                 } else {
                     SqlJetMemPage.releasePage(pPage);

@@ -101,4 +101,13 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
 
     }
 
+    @Test
+    public void fieldSize() throws Exception {
+        final String sql = "CREATE TABLE SITE_VARS (SITEID VARCHAR (10) NOT NULL,"
+                + " VARNAME VARCHAR (50) NOT NULL, VALUE VARCHAR (500))";
+        final ISqlJetTableDef t = db.createTable(sql);
+        final String sql2 = t.toSQL();
+        Assert.assertEquals(sql, sql2);
+    }
+
 }

@@ -74,10 +74,10 @@ public class SqlJetTypeDef implements ISqlJetTypeDef {
         }
         if (getSize1() != null) {
             buffer.append(" (");
-            buffer.append(getSize1());
+            buffer.append(String.format("%.0f", getSize1()));
             if (getSize2() != null) {
                 buffer.append(", ");
-                buffer.append(getSize2());
+                buffer.append(String.format("%.0f", getSize2()));
             }
             buffer.append(')');
         }

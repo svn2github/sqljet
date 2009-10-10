@@ -3495,6 +3495,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                         writeJournalHdr();
                     }
                 }
+                pPg.pDirty = null;                
                 if (pPg.getPageNumber() > dbSize && subjRequiresPage(pPg)) {
                     subjournalPage(pPg);
                 }

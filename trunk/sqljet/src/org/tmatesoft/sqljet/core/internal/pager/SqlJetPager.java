@@ -3122,9 +3122,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                  */
                 pageCache.cleanAll();
 
-                if (dbSize < dbFileSize) {
+                if (dbSize != dbFileSize) {
                     assert (state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0);
-                    doTruncate(dbSize);
+                    doTruncate(dbSize - (dbSize == PAGER_MJ_PGNO() ? 1 : 0));
                 }
 
                 /* Sync the database file. */
@@ -3208,6 +3208,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 fd.write(pData, pageSize, offset);
                 if (page.getPageNumber() == 1) {
                     SqlJetUtility.memcpy(dbFileVers, 0, pData, 24, dbFileVers.remaining());
+                }
+                if (page.getPageNumber() > dbFileSize) {
+                    dbFileSize = page.getPageNumber();
                 }
             } else {
                 PAGERTRACE("NOSTORE %s page %d\n", PAGERID(), pList.getPageNumber());
@@ -3495,7 +3498,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                         writeJournalHdr();
                     }
                 }
-                pPg.pDirty = null;                
+                pPg.pDirty = null;
                 if (pPg.getPageNumber() > dbSize && subjRequiresPage(pPg)) {
                     subjournalPage(pPg);
                 }

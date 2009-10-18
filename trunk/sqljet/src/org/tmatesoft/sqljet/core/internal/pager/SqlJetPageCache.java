@@ -745,6 +745,10 @@ public class SqlJetPageCache implements ISqlJetPageCache {
                     i.remove();
                     continue;
                 }
+                if(p.getRefCount()>0){
+                    i.remove();
+                    continue;                    
+                }
                 final Set<SqlJetPageFlags> flags = p.getFlags();
                 if (flags.contains(SqlJetPageFlags.DIRTY) || flags.contains(SqlJetPageFlags.NEED_SYNC)) {
                     continue;

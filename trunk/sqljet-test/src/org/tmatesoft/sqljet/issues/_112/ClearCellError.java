@@ -14,7 +14,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 public class ClearCellError extends AbstractNewDbTest {
 
-    private static final int INSERTS_COUNT = 1000;
+    private static final int INSERTS_COUNT = 10000;
 
     private static final String TABLE_DDL = "CREATE TABLE IF NOT EXISTS tiles (x int, y int, z int, s int, image blob, PRIMARY KEY (x,y,z,s))";
     private static final String INDEX_DDL = "CREATE INDEX IF NOT EXISTS IND on tiles (x,y,z,s)";

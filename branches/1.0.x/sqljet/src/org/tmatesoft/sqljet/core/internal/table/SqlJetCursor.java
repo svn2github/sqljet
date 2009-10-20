@@ -19,10 +19,10 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
@@ -145,7 +145,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     public byte[] getBlobAsArray(final int field) throws SqlJetException {
         return (byte[]) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                ByteBuffer buffer = btreeTable.getBlob(field);
+                ISqlJetMemoryPointer buffer = btreeTable.getBlob(field);
                 return buffer != null ? SqlJetUtility.readByteBuffer(buffer) : null;
             }
         });
@@ -154,7 +154,7 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     public InputStream getBlobAsStream(final int field) throws SqlJetException {
         return (InputStream) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                ByteBuffer buffer = btreeTable.getBlob(field);
+                ISqlJetMemoryPointer buffer = btreeTable.getBlob(field);
                 return buffer != null ? new ByteArrayInputStream(SqlJetUtility.readByteBuffer(buffer)) : null;
             }
         });
@@ -164,8 +164,8 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
         return db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 Object value = btreeTable.getValue(field);
-                if (value instanceof ByteBuffer) {
-                    return new ByteArrayInputStream(SqlJetUtility.readByteBuffer((ByteBuffer) value));
+                if (value instanceof ISqlJetMemoryPointer) {
+                    return new ByteArrayInputStream(SqlJetUtility.readByteBuffer((ISqlJetMemoryPointer) value));
                 }
                 return value;
             }

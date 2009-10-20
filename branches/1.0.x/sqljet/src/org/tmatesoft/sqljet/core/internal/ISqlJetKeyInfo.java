@@ -17,8 +17,6 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**
@@ -45,6 +43,6 @@ public interface ISqlJetKeyInfo {
      * @param pKey The binary record
      * @return
      */
-    SqlJetUnpackedRecord recordUnpack(int nKey, ByteBuffer pKey);
+    SqlJetUnpackedRecord recordUnpack(int nKey, ISqlJetMemoryPointer pKey);
 
 }

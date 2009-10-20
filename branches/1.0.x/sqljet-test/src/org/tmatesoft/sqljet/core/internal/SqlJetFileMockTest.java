@@ -17,17 +17,12 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
-import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
-import org.tmatesoft.sqljet.core.internal.SqlJetLockType;
 
 /**
  * @author TMate Software Ltd.
@@ -69,7 +64,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
                 if (file != null)
                     file.close();
             } finally {
-                try{
+                try {
                     if (file2 != null)
                         file2.close();
                 } finally {
@@ -102,7 +97,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testReadEmpty() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final ByteBuffer b = ByteBuffer.allocate(1);
+        final ISqlJetMemoryPointer b = SqlJetUtility.allocatePtr(1);
         final int r = file.read(b, 1, 0);
         Assert.assertEquals("Read empty file should return empty data", 0, r);
     }
@@ -110,18 +105,18 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testWriteRead() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
+        final ISqlJetMemoryPointer wb = SqlJetUtility.wrapPtr(new byte[] { 1 });
         file.write(wb, 1, 0);
-        final ByteBuffer rb = ByteBuffer.allocate(1);
+        final ISqlJetMemoryPointer rb = SqlJetUtility.allocatePtr(1);
         file.read(rb, 1, 0);
-        Assert.assertArrayEquals("Reading should get the same data as it was written", 
-                wb.array(), rb.array());
+        Assert.assertArrayEquals("Reading should get the same data as it was written", wb.getBuffer().asArray(), rb
+                .getBuffer().asArray());
     }
 
     @Test
     public void testSize() throws Exception {
         final long fileSize = file.fileSize();
-        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
+        final ISqlJetMemoryPointer wb = SqlJetUtility.wrapPtr(new byte[] { 1 });
         file.write(wb, wb.remaining(), fileSize);
         Assert.assertTrue("File size should be increased after writing after end of file", file.fileSize() > fileSize);
     }
@@ -129,7 +124,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test
     public void testTruncate() throws Exception {
         Assert.assertTrue(0 == path.length());
-        final ByteBuffer wb = ByteBuffer.wrap(new byte[] { 1 });
+        final ISqlJetMemoryPointer wb = SqlJetUtility.wrapPtr(new byte[] { 1 });
         final long fileSize = file.fileSize();
         file.write(wb, wb.remaining(), fileSize);
         file.truncate(0);
@@ -209,8 +204,8 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
-                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
-                    file2.lock(SqlJetLockType.EXCLUSIVE);
+                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED)
+                        && file2.lock(SqlJetLockType.EXCLUSIVE);
             }
         });
         Assert.assertFalse(lock2.get());
@@ -274,8 +269,8 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(lock.get());
         final Future<Boolean> lock2 = execThread(new Callable<Boolean>() {
             public Boolean call() throws Exception {
-                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED) && 
-                    file.lock(SqlJetLockType.EXCLUSIVE);
+                return file2.lock(SqlJetLockType.SHARED) && file2.lock(SqlJetLockType.RESERVED)
+                        && file.lock(SqlJetLockType.EXCLUSIVE);
             }
         });
         Assert.assertFalse(lock2.get());
@@ -296,7 +291,7 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         });
         Assert.assertTrue(lock2.get());
     }
-    
+
     @Test
     public void testLockClose() throws Exception {
         Assert.assertTrue(file.lock(SqlJetLockType.SHARED));
@@ -311,5 +306,5 @@ public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertTrue(file.unlock(SqlJetLockType.SHARED));
         Assert.assertTrue(file.unlock(SqlJetLockType.NONE));
     }
-    
+
 }

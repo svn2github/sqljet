@@ -18,7 +18,6 @@
 package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +31,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPageCallback;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
@@ -260,10 +260,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     int sectorSize;
 
     /** Pager.pageSize bytes of space for tmp use */
-    ByteBuffer tmpSpace;
+    ISqlJetMemoryPointer tmpSpace;
 
     /** Changes whenever database file changes */
-    ByteBuffer dbFileVers = ByteBuffer.allocate(16);
+    ISqlJetMemoryPointer dbFileVers = SqlJetUtility.allocatePtr(16);
 
     /** Size limit for persistent journal files */
     long journalSizeLimit;
@@ -432,7 +432,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             this.state = SqlJetPagerState.EXCLUSIVE;
         }
 
-        this.tmpSpace = ByteBuffer.allocate(szPageDflt);
+        this.tmpSpace = SqlJetUtility.allocatePtr(szPageDflt);
 
         pageCache = new SqlJetPageCache();
         pageCache.open(szPageDflt, !memDb, !memDb ? this : null);
@@ -635,7 +635,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getTempSpace()
      */
-    public ByteBuffer getTempSpace() {
+    public ISqlJetMemoryPointer getTempSpace() {
         return tmpSpace;
     }
 
@@ -674,7 +674,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             this.pageSize = pageSize;
             if (!this.memDb)
                 setSectorSize();
-            this.tmpSpace = ByteBuffer.allocate(pageSize);
+            this.tmpSpace = SqlJetUtility.allocatePtr(pageSize);
             pageCache.setPageSize(pageSize);
         }
         return this.pageSize;
@@ -766,7 +766,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#readFileHeader(int, byte[])
      */
-    public void readFileHeader(final int count, final ByteBuffer buffer) throws SqlJetIOException {
+    public void readFileHeader(final int count, final ISqlJetMemoryPointer buffer) throws SqlJetIOException {
         assert (null != fd || tempFile);
         if (null != fd) {
             try {
@@ -1113,7 +1113,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param data
      * @return
      */
-    private long dataHash(int numByte, ByteBuffer data) {
+    private long dataHash(int numByte, ISqlJetMemoryPointer data) {
         long hash = 0;
         /*
          * int i; for (i = 0; i < numByte; i++) { hash = (hash * 1039) +
@@ -1171,7 +1171,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_SHORT_READ);
         }
         long offset = (pageNumber - 1) * pageSize;
-        final ByteBuffer data = page.getData();
+        final ISqlJetMemoryPointer data = page.getData();
         fd.read(data, pageSize, offset);
         if (1 == pageNumber) {
             SqlJetUtility.memcpy(dbFileVers, 0, data, 24, dbFileVers.remaining());
@@ -1354,7 +1354,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * not be detected. The chance of an undetected change is so
                      * small that it can be neglected.
                      */
-                    ByteBuffer dbFileVers = ByteBuffer.allocate(this.dbFileVers.remaining());
+                    ISqlJetMemoryPointer dbFileVers = SqlJetUtility.allocatePtr(this.dbFileVers.remaining());
                     getPageCount();
 
                     if (null != errCode) {
@@ -1751,8 +1751,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         boolean master_open = false;
         ISqlJetFile pMaster = null;
-        ByteBuffer zMasterJournal = null; /* Contents of master journal file */
-        int nMasterJournal; /* Size of master journal file */
+        /* Contents of master journal file */
+        ISqlJetMemoryPointer zMasterJournal = null;
+        /* Size of master journal file */
+        int nMasterJournal;
 
         try {
 
@@ -1773,14 +1775,14 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                  * Load the entire master journal file into space obtained from
                  * sqlite3_malloc() and pointed to by zMasterJournal.
                  */
-                zMasterJournal = ByteBuffer.allocate(nMasterJournal);
+                zMasterJournal = SqlJetUtility.allocatePtr(nMasterJournal);
                 pMaster.read(zMasterJournal, nMasterJournal, 0);
 
                 int nMasterPtr = 0;
                 while (nMasterPtr < nMasterJournal) {
 
                     int zMasterPtr = SqlJetUtility.strlen(zMasterJournal, nMasterPtr);
-                    String zJournal = new String(zMasterJournal.array(), nMasterPtr, zMasterPtr);
+                    String zJournal = SqlJetUtility.toString(SqlJetUtility.pointer(zMasterJournal, nMasterPtr));
                     final File journalPath = new File(zJournal);
                     boolean exists = fileSystem.access(journalPath, SqlJetFileAccesPermission.EXISTS);
 
@@ -1953,7 +1955,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     private void zeroJournalHdr(boolean doTruncate) throws SqlJetException {
 
         SqlJetException rc = null;
-        ByteBuffer zeroHdr = ByteBuffer.allocate(28);
+        ISqlJetMemoryPointer zeroHdr = SqlJetUtility.allocatePtr(28);
 
         if (journalOff > 0) {
 
@@ -2046,7 +2048,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         ISqlJetPage pPg; /* An existing page in the cache */
         int pgno; /* The page number of a page in journal */
         long cksum; /* Checksum used for sanity checking */
-        ByteBuffer aData; /* Temporary storage for the page */
+        ISqlJetMemoryPointer aData; /* Temporary storage for the page */
         ISqlJetFile jfd; /* The file descriptor for the journal file */
 
         assert (isMainJrnl || pDone != null); /*
@@ -2167,7 +2169,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * a result of an internal error resulting in an automatic call to
              * sqlite3PagerRollback().
              */
-            final ByteBuffer pData = pPg.getData();
+            final ISqlJetMemoryPointer pData = pPg.getData();
             SqlJetUtility.memcpy(pData, aData, pageSize);
 
             if (null != reiniter) {
@@ -2234,7 +2236,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param data
      * @return
      */
-    long cksum(ByteBuffer data) {
+    long cksum(ISqlJetMemoryPointer data) {
         long cksum = cksumInit;
         int i = pageSize - 200;
         while (i > 0) {
@@ -2266,11 +2268,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         int len;
         long szJ;
         long cksum;
-        int u; /* Unsigned loop counter */
-        ByteBuffer aMagic = ByteBuffer.allocate(8); /*
-                                                     * A buffer to hold the
-                                                     * magic header
-                                                     */
+        /* Unsigned loop counter */
+        int u;
+        /* A buffer to hold the magic header */
+        ISqlJetMemoryPointer aMagic = SqlJetUtility.allocatePtr(8);
 
         szJ = journal.fileSize();
         if (szJ < 16)
@@ -2283,7 +2284,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         if (0 != SqlJetUtility.memcmp(aMagic, aJournalMagic, aMagic.remaining()))
             return null;
 
-        ByteBuffer zMaster = ByteBuffer.allocate(len);
+        ISqlJetMemoryPointer zMaster = SqlJetUtility.allocatePtr(len);
         journal.read(zMaster, len, szJ - 16 - len);
 
         /* See if the checksum matches the master journal name */
@@ -2300,7 +2301,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             return null;
         }
 
-        return new String(zMaster.array());
+        return SqlJetUtility.toString(zMaster);
     }
 
     /**
@@ -2310,7 +2311,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @throws SqlJetIOException
      */
     private int read32bits(final ISqlJetFile fd, final long offset) throws SqlJetIOException {
-        ByteBuffer ac = ByteBuffer.allocate(4);
+        ISqlJetMemoryPointer ac = SqlJetUtility.allocatePtr(4);
         fd.read(ac, ac.remaining(), offset);
         return SqlJetUtility.get4byte(ac);
     }
@@ -2322,7 +2323,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @throws SqlJetIOException
      */
     private long read32bitsUnsigned(final ISqlJetFile fd, final long offset) throws SqlJetIOException {
-        ByteBuffer ac = ByteBuffer.allocate(4);
+        ISqlJetMemoryPointer ac = SqlJetUtility.allocatePtr(4);
         fd.read(ac, ac.remaining(), offset);
         return SqlJetUtility.get4byteUnsigned(ac);
     }
@@ -2348,10 +2349,8 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         int[] result = new int[2];
 
-        ByteBuffer aMagic = ByteBuffer.allocate(8); /*
-                                                     * A buffer to hold the
-                                                     * magic header
-                                                     */
+        /* A buffer to hold the magic header */
+        ISqlJetMemoryPointer aMagic = SqlJetUtility.allocatePtr(8);
         long jrnlOff;
         int iPageSize;
         int iSectorSize;
@@ -2583,7 +2582,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 if (currentSize > newSize) {
                     fd.truncate(newSize);
                 } else {
-                    final ByteBuffer b = ByteBuffer.allocate(1);
+                    final ISqlJetMemoryPointer b = SqlJetUtility.allocatePtr(1);
                     fd.write(b, 1, newSize - 1);
                 }
                 dbFileSize = nPage;
@@ -2634,7 +2633,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
                 if (!dc.contains(SqlJetDeviceCharacteristics.IOCAP_SAFE_APPEND)) {
                     long jrnlOff = journalHdrOffset();
-                    ByteBuffer zMagic = ByteBuffer.allocate(8);
+                    ISqlJetMemoryPointer zMagic = SqlJetUtility.allocatePtr(8);
 
                     /*
                      * This block deals with an obscure problem. If the last
@@ -2660,7 +2659,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                     try {
                         jfd.read(zMagic, 8, jrnlOff);
                         if (0 == SqlJetUtility.memcmp(zMagic, aJournalMagic, 8)) {
-                            ByteBuffer zerobyte = ByteBuffer.allocate(1);
+                            ISqlJetMemoryPointer zerobyte = SqlJetUtility.allocatePtr(1);
                             jfd.write(zerobyte, 1, jrnlOff);
                         }
                     } catch (SqlJetIOException e) {
@@ -2713,7 +2712,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * 
      */
     void subjournalPage(SqlJetPage pPg) throws SqlJetIOException {
-        ByteBuffer pData = pPg.getData();
+        ISqlJetMemoryPointer pData = pPg.getData();
         long offset = stmtNRec * (4 + pageSize);
 
         PAGERTRACE("STMT-JOURNAL %s page %d\n", PAGERID(), pPg.pgno);
@@ -2733,12 +2732,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @throws SqlJetIOException
      */
     static void write32bits(ISqlJetFile fd, long offset, int val) throws SqlJetIOException {
-        final ByteBuffer b = SqlJetUtility.put4byte(val);
+        final ISqlJetMemoryPointer b = SqlJetUtility.put4byte(val);
         fd.write(b, b.remaining(), offset);
     }
 
     static void write32bitsUnsigned(ISqlJetFile fd, long offset, long val) throws SqlJetIOException {
-        final ByteBuffer b = SqlJetUtility.put4byteUnsigned(val);
+        final ISqlJetMemoryPointer b = SqlJetUtility.put4byteUnsigned(val);
         fd.write(b, b.remaining(), offset);
     }
 
@@ -2801,7 +2800,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         SqlJetException rc = null;
 
-        ByteBuffer zHeader = tmpSpace;
+        ISqlJetMemoryPointer zHeader = tmpSpace;
         int nHeader = pageSize;
         int nWrite;
         int ii;
@@ -2906,15 +2905,15 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param pos
      * @param v
      */
-    private void put32bits(ByteBuffer p, int pos, int v) {
+    private void put32bits(ISqlJetMemoryPointer p, int pos, int v) {
         SqlJetUtility.put4byte(p, pos, v);
     }
 
-    private void put32bits(ByteBuffer p, int v) {
+    private void put32bits(ISqlJetMemoryPointer p, int v) {
         put32bits(p, 0, v);
     }
 
-    private void put32bitsUnsigned(ByteBuffer p, int pos, long v) {
+    private void put32bitsUnsigned(ISqlJetMemoryPointer p, int pos, long v) {
         SqlJetUtility.put4byteUnsigned(p, pos, v);
     }
 
@@ -3204,7 +3203,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
                 PAGERTRACE("STORE %s page %d hash(%08x)\n", PAGERID(), pList.getPageNumber(), pageHash(pList));
 
-                ByteBuffer pData = page.getData();
+                ISqlJetMemoryPointer pData = page.getData();
 
                 fd.write(pData, pageSize, offset);
                 if (page.getPageNumber() == 1) {
@@ -3277,7 +3276,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         long jrnlOff;
         long jrnlSize;
         int cksum = 0;
-        ByteBuffer zBuf = ByteBuffer.allocate(aJournalMagic.remaining() + 2 * 4);
+        ISqlJetMemoryPointer zBuf = SqlJetUtility.allocatePtr(aJournalMagic.remaining() + 2 * 4);
 
         if (null == master || setMaster)
             return;
@@ -3286,7 +3285,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         setMaster = true;
 
-        final ByteBuffer zMaster = ByteBuffer.wrap(master.getBytes());
+        final ISqlJetMemoryPointer zMaster = SqlJetUtility.wrapPtr(master.getBytes());
 
         len = zMaster.remaining();
         for (i = 0; i < len; i++) {

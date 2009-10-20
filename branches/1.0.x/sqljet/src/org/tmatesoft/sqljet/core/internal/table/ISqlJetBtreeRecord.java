@@ -17,12 +17,12 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 
 /**
@@ -48,7 +48,7 @@ public interface ISqlJetBtreeRecord {
     /**
      * @return
      */
-    ByteBuffer getRawRecord();
+    ISqlJetMemoryPointer getRawRecord();
 
     /**
      * @param field

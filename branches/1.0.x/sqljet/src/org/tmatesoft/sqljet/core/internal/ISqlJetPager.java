@@ -18,7 +18,6 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -63,9 +62,8 @@ public interface ISqlJetPager {
      * initializing the checksum to random value which is different for every
      * journal, we minimize that risk.
      */
-    ByteBuffer aJournalMagic =  ByteBuffer.wrap( new byte[] { 
-            (byte) 0xd9, (byte) 0xd5, (byte) 0x05, (byte) 0xf9, (byte) 0x20, (byte) 0xa1, (byte) 0x63,
-            (byte) 0xd7 } );
+    ISqlJetMemoryPointer aJournalMagic = SqlJetUtility.wrapPtr(new byte[] { (byte) 0xd9, (byte) 0xd5, (byte) 0x05,
+            (byte) 0xf9, (byte) 0x20, (byte) 0xa1, (byte) 0x63, (byte) 0xd7 });
 
     /**
      * The maximum legal page number is (2^31 - 1).
@@ -236,7 +234,7 @@ public interface ISqlJetPager {
      * 
      * @return
      */
-    ByteBuffer getTempSpace();
+    ISqlJetMemoryPointer getTempSpace();
 
     /**
      * Set the busy handler function.
@@ -310,9 +308,9 @@ public interface ISqlJetPager {
      * 
      * @param count
      * @param buffer
-     * @throws SqlJetIOException 
+     * @throws SqlJetIOException
      */
-    void readFileHeader(final int count, final ByteBuffer buffer) throws SqlJetIOException;
+    void readFileHeader(final int count, final ISqlJetMemoryPointer buffer) throws SqlJetIOException;
 
     /**
      * Return the total number of pages in the disk file associated with pager.
@@ -383,7 +381,7 @@ public interface ISqlJetPager {
      *            Do not bother reading content from disk if false
      * 
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     ISqlJetPage acquirePage(final int pageNumber, final boolean read) throws SqlJetException;
 
@@ -393,7 +391,7 @@ public interface ISqlJetPager {
      * @param pageNumber
      *            Page number to fetch
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     ISqlJetPage getPage(final int pageNumber) throws SqlJetException;
 
@@ -411,7 +409,7 @@ public interface ISqlJetPager {
      * @param pageNumber
      *            Page number to lookup
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     ISqlJetPage lookupPage(final int pageNumber) throws SqlJetException;
 
@@ -440,7 +438,7 @@ public interface ISqlJetPager {
      * exclusive is ignored if a transaction is already active.
      * 
      * @param exclusive
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void begin(boolean exclusive) throws SqlJetException;
 
@@ -466,7 +464,7 @@ public interface ISqlJetPager {
      * 
      * @param master
      * @param noSync
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void commitPhaseOne(final String master, boolean noSync) throws SqlJetException;
 
@@ -475,7 +473,8 @@ public interface ISqlJetPager {
      * 
      * If the commit fails for any reason, a rollback attempt is made and an
      * error code is returned. If the commit worked, SQLITE_OK is returned.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      * 
      */
     void commitPhaseTwo() throws SqlJetException;
@@ -504,14 +503,16 @@ public interface ISqlJetPager {
 
     /**
      * Sync the pager file to disk.
-     * @throws SqlJetIOException 
+     * 
+     * @throws SqlJetIOException
      * 
      */
     void sync() throws SqlJetIOException;
 
     /**
      * Ensure that there are at least nSavepoint savepoints open.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     void openSavepoint(int nSavepoint) throws SqlJetException;
 
@@ -526,7 +527,8 @@ public interface ISqlJetPager {
      * 
      * If there are less than (iSavepoint+1) active savepoints when this
      * function is called it is a no-op.
-     * @throws SqlJetException 
+     * 
+     * @throws SqlJetException
      */
     void savepoint(SqlJetSavepointOperation op, int iSavepoint) throws SqlJetException;
 

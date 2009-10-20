@@ -17,14 +17,13 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetCollSeq;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetKeyInfo;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
@@ -50,7 +49,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
     /* Collating sequence for each term of the key */
     ISqlJetCollSeq[] aColl;
 
-    public SqlJetUnpackedRecord recordUnpack(int nKey, ByteBuffer pKey) {
+    public SqlJetUnpackedRecord recordUnpack(int nKey, ISqlJetMemoryPointer pKey) {
         SqlJetKeyInfo pKeyInfo = this;
         int d;
         int idx;
@@ -71,7 +70,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
         while (idx < szHdr[0] && u < p.nField) {
             int[] serial_type = new int[1];
 
-            idx += SqlJetUtility.getVarint32(SqlJetUtility.slice(pKey, idx), serial_type);
+            idx += SqlJetUtility.getVarint32(SqlJetUtility.pointer(pKey, idx), serial_type);
             if (d >= nKey && SqlJetVdbeSerialType.serialTypeLen(serial_type[0]) > 0)
                 break;
             pMem[u] = new SqlJetVdbeMem();
@@ -79,7 +78,7 @@ public class SqlJetKeyInfo implements ISqlJetKeyInfo {
             pMem[u].db = pKeyInfo.db;
             pMem[u].flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
             pMem[u].zMalloc = null;
-            d += SqlJetVdbeSerialType.serialGet(SqlJetUtility.slice(pKey, d), serial_type[0], pMem[u]);
+            d += SqlJetVdbeSerialType.serialGet(SqlJetUtility.pointer(pKey, d), serial_type[0], pMem[u]);
             u++;
         }
         assert (u <= pKeyInfo.nField + 1);

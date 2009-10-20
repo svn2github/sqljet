@@ -17,14 +17,12 @@
  */
 package org.tmatesoft.sqljet.core.internal;
 
-import java.nio.ByteBuffer;
-
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetCollSeq {
 
@@ -41,7 +39,7 @@ public interface ISqlJetCollSeq {
      * @param z2
      * @return
      */
-    int cmp(Object userData, int n, ByteBuffer z, int n2, ByteBuffer z2);
+    int cmp(Object userData, int n, ISqlJetMemoryPointer z, int n2, ISqlJetMemoryPointer z2);
 
     /**
      * @return

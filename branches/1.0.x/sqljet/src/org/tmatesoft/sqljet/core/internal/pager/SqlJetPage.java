@@ -17,14 +17,15 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPage;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
+import org.tmatesoft.sqljet.core.internal.SqlJetMemoryBufferType;
 import org.tmatesoft.sqljet.core.internal.SqlJetPageFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -36,8 +37,14 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public class SqlJetPage implements ISqlJetPage {
 
+    /**
+     * 
+     */
+    public static final SqlJetMemoryBufferType BUFFER_TYPE = SqlJetUtility.getEnumSysProp(
+            "SqlJetPage.BUFFER_TYPE", SqlJetMemoryBufferType.ARRAY);
+
     /** Content of this page */
-    ByteBuffer pData;
+    ISqlJetMemoryPointer pData;
 
     /** Extra content */
     Object pExtra;
@@ -83,7 +90,7 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      */
     SqlJetPage(int szPage) {
-        pData = ByteBuffer.allocate(szPage);
+        pData = SqlJetUtility.allocatePtr(szPage, BUFFER_TYPE);
     }
 
     /*
@@ -182,7 +189,7 @@ public class SqlJetPage implements ISqlJetPage {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetPage#getData()
      */
-    public ByteBuffer getData() {
+    public ISqlJetMemoryPointer getData() {
         // assertion( nRef>0 || pPager.memDb );
         return pData;
     }

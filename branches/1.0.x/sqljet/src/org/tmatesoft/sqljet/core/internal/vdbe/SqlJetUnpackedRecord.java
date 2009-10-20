@@ -17,10 +17,10 @@
  */
 package org.tmatesoft.sqljet.core.internal.vdbe;
 
-import java.nio.ByteBuffer;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -75,7 +75,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
      * @see org.tmatesoft.sqljet.core.ISqlJetUnpackedRecord#recordCompare(int,
      * java.nio.ByteBuffer)
      */
-    public int recordCompare(int nKey1, ByteBuffer pKey1) throws SqlJetException {
+    public int recordCompare(int nKey1, ISqlJetMemoryPointer pKey1) throws SqlJetException {
 
         final SqlJetUnpackedRecord pPKey2 = this;
 

@@ -45,8 +45,8 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
     public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, Object[] firstKey,
             Object[] lastKey) throws SqlJetException {
         super(table, db, indexName);
-        this.firstKey = SqlJetUtility.adjustNumberTypes(SqlJetUtility.copyArray(firstKey));
-        this.lastKey = SqlJetUtility.adjustNumberTypes(SqlJetUtility.copyArray(lastKey));
+        this.firstKey = SqlJetUtility.copyArray(firstKey);
+        this.lastKey = SqlJetUtility.copyArray(lastKey);
         if (null == indexTable) {
             firstRowId = getRowIdFromKey(this.firstKey);
             lastRowId = getRowIdFromKey(this.lastKey);

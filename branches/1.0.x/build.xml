@@ -1,6 +1,6 @@
 <project name="sqljet" default="deploy">
 
-	<property file="sqljet.build.properties"></property>
+	<property file="sqljet.build.properties" />
     <property name="build.vcs.number.1" value="local" />
 	<property name="build.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}.b${build.vcs.number.1}"/>
 
@@ -67,11 +67,13 @@ public class SqlParser</replacevalue>
         <mkdir dir="sqljet-test/bin" />
 
     	<javac destdir="sqljet/bin" srcdir="sqljet/src" debug="true">
+    	    <compilerarg value="-O" />    	
             <classpath>
             	<fileset dir="lib" includes="*.jar"/>
             </classpath>
     	</javac>
         <javac destdir="sqljet-test/bin" srcdir="sqljet-test/src" debug="true">
+    	    <compilerarg value="-O" />    	
             <classpath path="sqljet/bin" />
             <classpath>
             	<fileset dir="sqljet-test/lib" includes="*.jar"/>
@@ -84,6 +86,7 @@ public class SqlParser</replacevalue>
 		<mkdir dir="sqljet-examples/browser/bin" />
 
     	<javac destdir="sqljet-examples/browser/bin" srcdir="sqljet-examples/browser/src" debug="true">
+    	    <compilerarg value="-O" />    	
             <classpath>
             	<fileset dir="lib" includes="*.jar"/>
             	<fileset dir="sqljet-examples/browser/lib" includes="*.jar"/>

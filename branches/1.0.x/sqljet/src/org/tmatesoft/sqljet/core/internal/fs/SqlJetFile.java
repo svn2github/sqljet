@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +36,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetDeviceCharacteristics;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -260,18 +260,16 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
-    public synchronized int read(ByteBuffer buffer, int amount, long offset) throws SqlJetIOException {
+    public synchronized int read(ISqlJetMemoryPointer buffer, int amount, long offset) throws SqlJetIOException {
         assert (amount > 0);
         assert (offset >= 0);
         assert (buffer != null);
         assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            buffer.clear().limit(amount);
             TIMER_START();
-            final int read = file.getChannel().read(buffer, offset);
+            final int read = buffer.readFromFile(file, offset, amount);
             TIMER_END();
-            buffer.clear();
             OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
             return read < 0 ? 0 : read;
         } catch (IOException e) {
@@ -284,18 +282,16 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
-    public synchronized void write(ByteBuffer buffer, int amount, long offset) throws SqlJetIOException {
+    public synchronized void write(ISqlJetMemoryPointer buffer, int amount, long offset) throws SqlJetIOException {
         assert (amount > 0);
         assert (offset >= 0);
         assert (buffer != null);
         assert (buffer.remaining() >= amount);
         assert (file != null);
         try {
-            buffer.clear().limit(amount);
             TIMER_START();
-            final int write = file.getChannel().write(buffer, offset);
+            final int write = buffer.writeToFile(file, offset, amount);
             TIMER_END();
-            buffer.clear();
             OSTRACE("WRITE %s %5d %7d %d\n", this.filePath, write, offset, TIMER_ELAPSED());
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_WRITE, e);

@@ -154,16 +154,25 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
                 }
 
                 final long rn = currentRowNum;
-                if (rowNum < currentRowNum) {
-                    first();
-                    currentRowNum = 0;
-                }
 
-                for (; !eof(); next()) {
-                    currentRowNum++;
+                while (!eof()) {
+                    if (rowNum > currentRowNum) {
+                        currentRowNum++;
+                    } else {
+                        currentRowNum--;
+                    }
                     if (currentRowNum == rowNum) {
                         currentRowId = getRowIdSafe();
                         return true;
+                    }
+                    if (rowNum > currentRowNum) {
+                        if (!next()) {
+                            break;
+                        }
+                    } else {
+                        if (!previous()) {
+                            break;
+                        }
                     }
                 }
 

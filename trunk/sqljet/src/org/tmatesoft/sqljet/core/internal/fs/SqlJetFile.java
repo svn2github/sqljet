@@ -35,6 +35,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
+import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetDeviceCharacteristics;
@@ -51,20 +52,21 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public class SqlJetFile implements ISqlJetFile {
 
-    public static final int SQLJET_DEFAULT_SECTOR_SIZE = 512;
+    private static final boolean SQLJET_LOG_FILES = SqlJetUtility.getBoolSysProp(SqlJetLogDefinitions.SQLJET_LOG_FILES,
+            false);
 
-    static final String SQLJET_FILE_LOGGER = "SQLJET_FILE";
-    private static Logger logger = Logger.getLogger(SQLJET_FILE_LOGGER);
+    private static final boolean SQLJET_LOG_FILES_PERFORMANCE = SqlJetUtility.getBoolSysProp(
+            SqlJetLogDefinitions.SQLJET_LOG_FILES_PERFORMANCE, false);
 
-    private static final boolean SQLJET_FILE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_FILE_LOG", false);
-    private static final boolean SQLJET_FILE_PERFORMANCE_LOG = SqlJetUtility.getBoolSysProp(
-            "SQLJET_FILE_PERFORMANCE_LOG", false);
+    private static Logger filesLogger = Logger.getLogger(SqlJetLogDefinitions.SQLJET_LOG_FILES);
 
     private static void OSTRACE(String format, Object... args) {
-        if (SQLJET_FILE_LOG) {
-            SqlJetUtility.log(logger, format, args);
+        if (SQLJET_LOG_FILES) {
+            SqlJetUtility.log(filesLogger, format, args);
         }
     }
+
+    public static final int SQLJET_DEFAULT_SECTOR_SIZE = 512;
 
     private long timer_start = 0;
     private long timer_elapsed = 0;
@@ -80,7 +82,7 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      */
     private void TIMER_END() {
-        if (SQLJET_FILE_PERFORMANCE_LOG)
+        if (SQLJET_LOG_FILES_PERFORMANCE)
             timer_elapsed = System.nanoTime() - timer_start;
     }
 
@@ -88,7 +90,7 @@ public class SqlJetFile implements ISqlJetFile {
      * 
      */
     private void TIMER_START() {
-        if (SQLJET_FILE_PERFORMANCE_LOG)
+        if (SQLJET_LOG_FILES_PERFORMANCE)
             timer_start = System.nanoTime();
     }
 

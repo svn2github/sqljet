@@ -23,7 +23,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.EnumSet;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -31,6 +30,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.memory.SqlJetByteBuffer;
 import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryManager;
 
@@ -41,12 +41,48 @@ import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryManager;
  */
 public final class SqlJetUtility {
 
-    private static final Logger logger = Logger.getLogger("SIGNED");
-    static {
-        logger.setLevel(getBoolSysProp("LOG_SIGNED", false) ? Level.ALL : Level.OFF);
-    }
+    public static final String SQLJET_PACKAGENAME = "org.tmatesoft.sqljet";
+
+    private static final boolean SQLJET_LOG_STACKTRACE = getBoolSysProp(SqlJetLogDefinitions.SQLJET_LOG_STACKTRACE,
+            false);
+
+    private static final boolean SQLJET_LOG_SIGNED = getBoolSysProp(SqlJetLogDefinitions.SQLJET_LOG_SIGNED, false);
+
+    private static final Logger signedLogger = Logger.getLogger(SqlJetLogDefinitions.SQLJET_LOG_SIGNED);
 
     public static final ISqlJetMemoryManager memoryManager = new SqlJetMemoryManager();
+
+    /**
+     * @param logger
+     * @param format
+     * @param args
+     */
+    public static void log(Logger logger, String format, Object... args) {
+        StringBuilder s = new StringBuilder();
+        s.append(String.format(format, args)).append('\n');
+        if (SQLJET_LOG_STACKTRACE) {
+            logStackTrace(s);
+        }
+        logger.info(s.toString());
+    }
+
+    /**
+     * @param s
+     */
+    private static void logStackTrace(StringBuilder s) {
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            final String l = stackTraceElement.toString();
+            if (l.startsWith(SQLJET_PACKAGENAME))
+                s.append('\t').append(l).append('\n');
+        }
+    }
+
+    private static void logSigned(long v) {
+        if (SQLJET_LOG_SIGNED && v < 0) {
+            log(signedLogger, "signed %d", v);
+        }
+    }
 
     public static final ISqlJetMemoryPointer allocatePtr(int size) {
         return memoryManager.allocatePtr(size);
@@ -175,8 +211,7 @@ public final class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static final ISqlJetMemoryPointer put4byte(int v) {
-        if (v < 0)
-            log(logger, "signed %d", v);
+        logSigned(v);
         final ISqlJetMemoryPointer b = allocatePtr(4);
         b.putInt(0, v);
         return b;
@@ -194,8 +229,7 @@ public final class SqlJetUtility {
      */
     public static final int get4byte(ISqlJetMemoryPointer p, int pos) {
         int v = p.getInt(pos);
-        if (v < 0)
-            log(logger, "signed %d", v);
+        logSigned(v);
         return v;
     }
 
@@ -205,8 +239,7 @@ public final class SqlJetUtility {
     public static final void put4byte(ISqlJetMemoryPointer p, int pos, long v) {
         if (null == p || (p.remaining() - pos) < 4)
             throw new SqlJetError("Wrong destination");
-        if (v < 0)
-            log(logger, "signed %d", v);
+        logSigned(v);
         p.putIntUnsigned(pos, v);
     }
 
@@ -765,23 +798,6 @@ public final class SqlJetUtility {
         return i;
     }
 
-    /**
-     * @param logger
-     * @param format
-     * @param args
-     */
-    public static void log(Logger logger, String format, Object... args) {
-        StringBuilder s = new StringBuilder();
-        s.append(String.format(format, args)).append('\n');
-        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTraceElement : stackTrace) {
-            final String l = stackTraceElement.toString();
-            if (l.startsWith("org.tmatesoft.sqljet"))
-                s.append('\t').append(l).append('\n');
-        }
-        logger.info(s.toString());
-    }
-
     public static final short toUnsigned(byte value) {
         return (short) (value & (short) 0xff);
     }
@@ -824,8 +840,7 @@ public final class SqlJetUtility {
      * Write a four-byte big-endian integer value.
      */
     public static final ISqlJetMemoryPointer put4byteUnsigned(long v) {
-        if (v < 0)
-            log(logger, "signed %d", v);
+        logSigned(v);
         final ISqlJetMemoryPointer b = SqlJetUtility.allocatePtr(4);
         b.putIntUnsigned(v);
         return b;

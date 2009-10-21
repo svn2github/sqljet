@@ -76,11 +76,12 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     public ISqlJetCursor lookup(final String indexName, final Object... key) throws SqlJetException {
-        final Object[] k = SqlJetUtility.adjustNumberTypes(key);      
+        final Object[] k = SqlJetUtility.adjustNumberTypes(key);
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetIndexScopeCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName,
-                        k, k);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                checkIndexName(indexName, table);
+                return new SqlJetIndexScopeCursor(table, db, indexName, k, k);
             }
         });
     }
@@ -130,7 +131,9 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetCursor order(final String indexName) throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetIndexOrderCursor(new SqlJetBtreeDataTable(schema, tableName, write), db, indexName);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                checkIndexName(indexName, table);
+                return new SqlJetIndexOrderCursor(table, db, indexName);
             }
         });
     }
@@ -144,13 +147,13 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey)
             throws SqlJetException {
         final Object[] first = SqlJetUtility.adjustNumberTypes(firstKey);
-        final Object[] last = SqlJetUtility.adjustNumberTypes(lastKey);        
+        final Object[] last = SqlJetUtility.adjustNumberTypes(lastKey);
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
-                if (isNeedReverse(indexName, first, last, table)) {
-                    return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, last,
-                            first));
+                checkIndexName(indexName, table);
+                if (isNeedReverse(getIndexTable(indexName, table), first, last)) {
+                    return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, last, first));
                 } else {
                     return new SqlJetIndexScopeCursor(table, db, indexName, first, last);
                 }
@@ -176,23 +179,40 @@ public class SqlJetTable implements ISqlJetTable {
      * @return
      * @throws SqlJetException
      */
-    private boolean isNeedReverse(final String indexName, final Object[] firstKey, final Object[] lastKey,
-            final SqlJetBtreeDataTable table) throws SqlJetException {
+    private boolean isNeedReverse(final ISqlJetBtreeIndexTable indexTable, final Object[] firstKey,
+            final Object[] lastKey) throws SqlJetException {
         if (firstKey != null && lastKey != null && firstKey.length > 0 && lastKey.length > 0) {
-            final String index = indexName == null ? table.getPrimaryKeyIndex() : indexName;
-            if (index != null) {
-                final ISqlJetBtreeIndexTable indexTable = table.getIndex(index);
-                if (indexTable != null) {
-                    return indexTable.compareKeys(firstKey, lastKey) < 0;
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Index \"%s\" doesn't exists",
-                            index));
-                }
-            } else if (firstKey[0] instanceof Long && firstKey[0] instanceof Long) {
-                return ((Long) firstKey[0]).compareTo((Long) firstKey[0]) > 0;
+            if (indexTable != null) {
+                return indexTable.compareKeys(firstKey, lastKey) < 0;
+            } else if (firstKey.length == 1 && lastKey.length == 1 && firstKey[0] instanceof Long
+                    && lastKey[0] instanceof Long) {
+                return ((Long) firstKey[0]).compareTo((Long) lastKey[0]) > 0;
             }
         }
         return false;
+    }
+
+    private ISqlJetBtreeIndexTable getIndexTable(final String indexName, final SqlJetBtreeDataTable table) {
+        final String index = indexName == null ? table.getPrimaryKeyIndex() : indexName;
+        return index != null ? table.getIndex(index) : null;
+    }
+
+    private void checkIndexName(final String indexName, final SqlJetBtreeDataTable table) throws SqlJetException {
+        if (!isIndexNameValid(indexName, table)) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Index not exists: %s", indexName));
+        }
+    }
+
+    private boolean isIndexNameValid(final String indexName, final SqlJetBtreeDataTable table) {
+        if (indexName != null) {
+            return getIndexTable(indexName, table) != null;
+        } else {
+            if (table.getDefinition().isRowIdPrimaryKey()) {
+                return true;
+            } else {
+                return table.getPrimaryKeyIndex() != null;
+            }
+        }
     }
 
 }

@@ -30,8 +30,8 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public class IndexScopeTest extends AbstractNewDbTest {
 
-    private ISqlJetTable table, table1, table2, table3, table4;
-    
+    private ISqlJetTable table, table1, table2, table3, table4, table5;
+
     /**
      * @throws java.lang.Exception
      */
@@ -54,6 +54,8 @@ public class IndexScopeTest extends AbstractNewDbTest {
 
                 db.createTable("create table t4(a text not null primary key, b integer not null)");
                 db.createIndex("create index b4 on t4(b)");
+
+                db.createTable("create table t5(a integer)");
 
                 table = db.getTable("t");
 
@@ -78,7 +80,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
                 table3.insert(5);
                 table3.insert(7);
                 table3.insert(9);
-                
+
                 table4 = db.getTable("t4");
                 table4.insert("s", 10);
                 table4.insert("q", 4);
@@ -86,7 +88,9 @@ public class IndexScopeTest extends AbstractNewDbTest {
                 table4.insert("j", 2);
                 table4.insert("e", 1);
                 table4.insert("t", 8);
-                
+
+                table5 = db.getTable("t5");
+
                 return null;
 
             }
@@ -188,7 +192,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
 
     @Test
     public void scopeMulti1() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("ab", new Object[] { 2,9 }, new Object[] { 9,2 });
+        final ISqlJetCursor c = table.scope("ab", new Object[] { 2, 9 }, new Object[] { 9, 2 });
         Assert.assertTrue(!c.eof());
         Assert.assertEquals(2L, c.getInteger("a"));
         Assert.assertEquals(9L, c.getInteger("b"));
@@ -197,7 +201,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
         Assert.assertEquals(8L, c.getInteger("b"));
         c.close();
     }
-    
+
     @Test
     public void scopePrimary() throws SqlJetException {
         final ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
@@ -241,7 +245,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
     @Test
     public void scopeDeleteInScope() throws SqlJetException {
         final ISqlJetCursor c = table4.scope("b4", new Object[] { 7L }, new Object[] { 20L });
-        // should get two rows, one with 8, another with 10. 
+        // should get two rows, one with 8, another with 10.
         Assert.assertTrue(!c.eof());
         Assert.assertEquals(8L, c.getInteger("b"));
         c.delete();
@@ -251,7 +255,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
         Assert.assertTrue(c.eof());
         c.close();
     }
-    
+
     @Test
     public void scopeReverse() throws SqlJetException {
         final ISqlJetCursor c = table.scope("b", new Object[] { 4 }, new Object[] { 2 });
@@ -270,7 +274,7 @@ public class IndexScopeTest extends AbstractNewDbTest {
     public void scopeReverse2() throws SqlJetException {
         ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
         c = c.reverse();
-        
+
         Assert.assertTrue(!c.eof());
         Assert.assertEquals(4L, c.getInteger("b"));
         Assert.assertTrue(c.next());
@@ -311,5 +315,40 @@ public class IndexScopeTest extends AbstractNewDbTest {
         c.close();
     }
 
-    
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexScope() throws SqlJetException {
+        table.scope("unexistedIndex", new Object[] { 1 }, new Object[] { 10 });
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexLookup() throws SqlJetException {
+        table.lookup("unexistedIndex", new Object[] { 10 });
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexOrder() throws SqlJetException {
+        table.order("unexistedIndex");
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexScope2() throws SqlJetException {
+        table5.scope(null, new Object[] { 1 }, new Object[] { 10 });
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexLookup2() throws SqlJetException {
+        table5.lookup(null, new Object[] { 10 });
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void unexistedIndexOrder2() throws SqlJetException {
+        table5.order(null);
+        Assert.assertTrue(false);
+    }
+
 }

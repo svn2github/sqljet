@@ -27,6 +27,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
+import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
@@ -79,13 +80,14 @@ import org.tmatesoft.sqljet.core.internal.fs.SqlJetFile;
  */
 public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
 
-    static final String SQLJET_PAGER_LOGGER = "SQLJET_PAGER";
-    private static Logger logger = Logger.getLogger(SQLJET_PAGER_LOGGER);
-    private static final boolean SQLJET_PAGER_LOG = SqlJetUtility.getBoolSysProp("SQLJET_PAGER_LOG", false);
+    private static Logger pagerLogger = Logger.getLogger(SqlJetLogDefinitions.SQLJET_LOG_PAGER);
+
+    private static final boolean SQLJET_LOG_PAGER = SqlJetUtility.getBoolSysProp(SqlJetLogDefinitions.SQLJET_LOG_PAGER,
+            false);
 
     static void PAGERTRACE(String format, Object... args) {
-        if (SQLJET_PAGER_LOG) {
-            SqlJetUtility.log(logger, format, args);
+        if (SQLJET_LOG_PAGER) {
+            SqlJetUtility.log(pagerLogger, format, args);
         }
     }
 

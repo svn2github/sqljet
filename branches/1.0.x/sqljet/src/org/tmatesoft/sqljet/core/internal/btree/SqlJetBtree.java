@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
@@ -60,19 +61,19 @@ import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
  */
 public class SqlJetBtree implements ISqlJetBtree {
 
-    /**
-     * 
-     */
-    private static final ISqlJetMemoryPointer PAGE1_21 = SqlJetUtility.wrapPtr(new byte[] { (byte) 0100,
-                            (byte) 040, (byte) 040 });
-    static final String SQLJET_BTREE_LOGGER = "SQLJET_BTREE";
-    private static Logger logger = Logger.getLogger(SQLJET_BTREE_LOGGER);
-    private static final boolean SQLJET_BTREE_LOG = SqlJetUtility.getBoolSysProp("SQLJET_BTREE_LOG", false);
+    private static Logger btreeLogger = Logger.getLogger(SqlJetLogDefinitions.SQLJET_LOG_BTREE);
+
+    private static final boolean SQLJET_LOG_BTREE = SqlJetUtility.getBoolSysProp(SqlJetLogDefinitions.SQLJET_LOG_BTREE,
+            false);
 
     static void TRACE(String format, Object... args) {
-        if (SQLJET_BTREE_LOG)
-            logger.info(String.format(format, args));
+        if (SQLJET_LOG_BTREE) {
+            SqlJetUtility.log(btreeLogger, format, args);
+        }
     }
+
+    private static final ISqlJetMemoryPointer PAGE1_21 = SqlJetUtility.wrapPtr(new byte[] { (byte) 0100, (byte) 040,
+            (byte) 040 });
 
     /** The database connection holding this btree */
     ISqlJetDbHandle db;
@@ -1219,7 +1220,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      */
     protected void pageReinit(ISqlJetPage page) throws SqlJetException {
         final SqlJetMemPage pPage = (SqlJetMemPage) page.getExtra();
-        if (pPage!=null && pPage.isInit) {
+        if (pPage != null && pPage.isInit) {
             assert (pPage.pBt.mutex.held());
             pPage.isInit = false;
             if (page.getRefCount() > 0) {

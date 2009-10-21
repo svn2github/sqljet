@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetTableDataCursor extends SqlJetCursor {
+public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
 
     public SqlJetTableDataCursor(ISqlJetBtreeDataTable table, SqlJetDb db) throws SqlJetException {
         super(table, db);
@@ -220,6 +220,7 @@ public class SqlJetTableDataCursor extends SqlJetCursor {
                 return null;
             }
         });
+        super.delete();
     }
 
 }

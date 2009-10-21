@@ -59,7 +59,7 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
                     return SqlJetIndexOrderCursor.super.first();
                 } else {
                     if (indexTable.first()) {
-                        return goTo(indexTable.getKeyRowId());
+                        return firstRowNum(goTo(indexTable.getKeyRowId()));
                     }
                 }
                 return false;
@@ -80,7 +80,7 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
                     return SqlJetIndexOrderCursor.super.next();
                 } else {
                     if (indexTable.next()) {
-                        return goTo(indexTable.getKeyRowId());
+                        return nextRowNum(goTo(indexTable.getKeyRowId()));
                     }
                 }
                 return false;
@@ -119,7 +119,7 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
                     return SqlJetIndexOrderCursor.super.last();
                 } else {
                     if (indexTable.last()) {
-                        return goTo(indexTable.getKeyRowId());
+                        return lastRowNum(goTo(indexTable.getKeyRowId()));
                     }
                 }
                 return false;
@@ -140,7 +140,7 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
                     return SqlJetIndexOrderCursor.super.previous();
                 } else {
                     if (indexTable.previous()) {
-                        return goTo(indexTable.getKeyRowId());
+                        return previousRowNum(goTo(indexTable.getKeyRowId()));
                     }
                 }
                 return false;

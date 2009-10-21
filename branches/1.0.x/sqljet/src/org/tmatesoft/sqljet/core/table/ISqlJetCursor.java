@@ -309,4 +309,29 @@ public interface ISqlJetCursor {
      */
     ISqlJetCursor reverse() throws SqlJetException;
 
+    /**
+     * Returns count of rows in cursor.
+     * 
+     * @return
+     * @throws SqlJetException 
+     */
+    long getRowsCount() throws SqlJetException;
+
+    /**
+     * Returns number of current row.
+     * 
+     * @return
+     * @throws SqlJetException 
+     */
+    long getCurrentRowNum() throws SqlJetException;
+
+    /**
+     * Goes to passed rows number. Returns true if success.
+     * 
+     * @param rowIndex
+     * @return
+     * @throws SqlJetException 
+     */
+    boolean goToRowNum(long rowIndex) throws SqlJetException;
+
 }

@@ -1840,7 +1840,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.intKey || nKey >= 0);
         assert (pPage.leaf || !pPage.intKey);
-        TRACE("INSERT: table=%d nkey=%lld ndata=%d page=%d %s\n", pCur.pgnoRoot, nKey, pData, pPage.pgno,
+        TRACE("INSERT: table=%d nkey=%d ndata=%b page=%d %s\n", pCur.pgnoRoot, nKey, pData, pPage.pgno,
                 loc == 0 ? "overwrite" : "new entry");
         assert (pPage.isInit);
         pBt.allocateTempSpace();

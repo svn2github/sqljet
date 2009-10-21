@@ -146,6 +146,7 @@ public class SqlJetVdbeSerialType {
         default: {
             int len = (serial_type - 12) / 2;
             pMem.z = SqlJetUtility.pointer(buf, offset);
+            pMem.z.limit(len);
             pMem.n = len;
             pMem.xDel = null;
             if ((serial_type & 0x01) != 0) {
@@ -236,7 +237,7 @@ public class SqlJetVdbeSerialType {
             len = i = serialTypeLen(serial_type);
             assert (len <= nBuf);
             while (i-- > 0) {
-                buf.putByteUnsigned(i,(int) v);
+                buf.putByteUnsigned(i, (int) v);
                 v >>>= 8;
             }
             return len;

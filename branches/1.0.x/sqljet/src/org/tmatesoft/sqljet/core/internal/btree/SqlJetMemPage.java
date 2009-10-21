@@ -637,7 +637,10 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (ovflPgno[0] == 0 || nOvfl > 0);
         while (nOvfl-- != 0) {
             SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
-            if (ovflPgno[0] == 0 || ovflPgno[0] > pBt.pPager.getPageCount()) {
+            if (ovflPgno[0] <2 || ovflPgno[0] > pBt.pPager.getPageCount()) {
+                /* 0 is not a legal page number and page 1 cannot be an 
+                 ** overflow page. Therefore if ovflPgno<2 or past the end of the 
+                 ** file the database must be corrupt. */
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 

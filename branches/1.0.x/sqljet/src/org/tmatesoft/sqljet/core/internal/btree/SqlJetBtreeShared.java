@@ -438,7 +438,7 @@ public class SqlJetBtreeShared {
                         SqlJetUtility.memcpy(pPage1.aData, 32, pTrunk.aData, 0, 4);
                         ppPage = pTrunk;
                         pTrunk = null;
-                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno, n - 1);
+                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno[0], n - 1);
                     } else if (k > usableSize / 4 - 2) {
                         /* Value of k is out of range. Database corruption */
                         throw new SqlJetException(SqlJetErrorCode.CORRUPT);
@@ -485,7 +485,7 @@ public class SqlJetBtreeShared {
                             }
                         }
                         pTrunk = null;
-                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno, n - 1);
+                        TRACE("ALLOCATE: %d trunk - %d free pages left\n", pPgno[0], n - 1);
                     } else {
                         /* Extract a leaf from the trunk */
                         int closest;
@@ -520,7 +520,7 @@ public class SqlJetBtreeShared {
                                 /* Free page off the end of the file */
                                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                             }
-                            TRACE("ALLOCATE: %d was leaf %d of %d on trunk %d" + ": %d more free pages\n", pPgno,
+                            TRACE("ALLOCATE: %d was leaf %d of %d on trunk %d" + ": %d more free pages\n", pPgno[0],
                                     closest + 1, k, pTrunk.pgno, n - 1);
                             if (closest < k - 1) {
                                 SqlJetUtility.memcpy(aData, 8 + closest * 4, aData, 4 + k * 4, 4);
@@ -555,7 +555,7 @@ public class SqlJetBtreeShared {
                      * allocated page becomes a new pointer-map page, the second
                      * is used by the caller.
                      */
-                    TRACE("ALLOCATE: %d from end of file (pointer-map page)\n", pPgno);
+                    TRACE("ALLOCATE: %d from end of file (pointer-map page)\n", pPgno[0]);
                     assert (pPgno[0] != PENDING_BYTE_PAGE());
                     pPgno[0]++;
                     if (pPgno[0] == PENDING_BYTE_PAGE()) {
@@ -570,7 +570,7 @@ public class SqlJetBtreeShared {
                 } catch (SqlJetException e) {
                     SqlJetMemPage.releasePage(ppPage);
                 }
-                TRACE("ALLOCATE: %d from end of file\n", pPgno);
+                TRACE("ALLOCATE: %d from end of file\n", pPgno[0]);
             }
 
             assert (pPgno[0] != PENDING_BYTE_PAGE());
@@ -1024,12 +1024,11 @@ public class SqlJetBtreeShared {
 
         assert (mutex.held());
         /* One of these must not be NULL. Otherwise, why call this function? */
-        assert ((ppPage != null && ppPage.length != 0 && ppPage[0] != null) || (pPgnoNext != null
-                && pPgnoNext.length != 0 && pPgnoNext[0] != 0));
+        assert ((ppPage != null && ppPage.length != 0) || (pPgnoNext != null && pPgnoNext.length != 0));
 
         /*
-         * If pPgnoNext is NULL, then this function is being called to obtain* a
-         * MemPage* reference only. No page-data is required in this case.
+         * If pPgnoNext is NULL, then this function is being called to obtain a
+         * MemPage reference only. No page-data is required in this case.
          */
         if (pPgnoNext == null || pPgnoNext.length == 0 || pPgnoNext[0] == 0) {
             ppPage[0] = getPage(ovfl, true);
@@ -1037,10 +1036,10 @@ public class SqlJetBtreeShared {
         }
 
         /*
-         * Try to find the next page in the overflow list using the* autovacuum
-         * pointer-map pages. Guess that the next page in* the overflow list is
-         * page number (ovfl+1). If that guess turns* out to be wrong, fall back
-         * to loading the data of page* number ovfl to determine the next page
+         * Try to find the next page in the overflow list using the autovacuum
+         * pointer-map pages. Guess that the next page in the overflow list is
+         * page number (ovfl+1). If that guess turns out to be wrong, fall back
+         * to loading the data of page number ovfl to determine the next page
          * number.
          */
         if (autoVacuum) {
@@ -1061,7 +1060,7 @@ public class SqlJetBtreeShared {
             }
         }
 
-        if (next == 0 || (ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
+        if (next == 0 || (ppPage != null && ppPage.length != 0)) {
             SqlJetMemPage pPage = null;
 
             try {
@@ -1071,7 +1070,7 @@ public class SqlJetBtreeShared {
                     next = SqlJetUtility.get4byte(pPage.aData, 0);
                 }
 
-                if ((ppPage != null && ppPage.length != 0 && ppPage[0] != null)) {
+                if (ppPage != null && ppPage.length != 0) {
                     ppPage[0] = pPage;
                 } else {
                     SqlJetMemPage.releasePage(pPage);

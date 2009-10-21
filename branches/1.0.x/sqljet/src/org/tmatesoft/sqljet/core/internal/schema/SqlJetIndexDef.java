@@ -100,18 +100,24 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
     }
 
     public String toSQL() {
+        return toSQL(true);
+    }
+
+    public String toSQL(boolean schemaStrict) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("CREATE ");
         if (isUnique()) {
             buffer.append("UNIQUE ");
         }
         buffer.append("INDEX ");
-        if (isKeepExisting()) {
-            buffer.append("IF NOT EXISTS ");
-        }
-        if (getDatabaseName() != null) {
-            buffer.append(getDatabaseName());
-            buffer.append('.');
+        if (!schemaStrict) {
+            if (isKeepExisting()) {
+                buffer.append("IF NOT EXISTS ");
+            }
+            if (getDatabaseName() != null) {
+                buffer.append(getDatabaseName());
+                buffer.append('.');
+            }
         }
         buffer.append(getName());
         buffer.append(" ON ");

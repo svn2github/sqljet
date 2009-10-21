@@ -40,6 +40,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * @author TMate Software Ltd.
@@ -890,12 +891,27 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     @Override
     protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
-        final ISqlJetVdbeMem valueMem = super.getValueMem(field);
+        ISqlJetVdbeMem valueMem = super.getValueMem(field);
         if (field < defaults.getFieldsCount() && (valueMem == null || valueMem.isNull())) {
-            return defaults.getFields().get(field);
-        } else {
-            return valueMem;
+            valueMem = defaults.getFields().get(field);
         }
+        if (valueMem != null) {
+            valueMem.applyAffinity(getFieldAffinity(field), getEncoding());
+        }
+        return valueMem;
+    }
+
+    /**
+     * @param field
+     * @return
+     * @throws SqlJetException
+     */
+    private SqlJetTypeAffinity getFieldAffinity(int field) throws SqlJetException {
+        final List<ISqlJetColumnDef> columns = getDefinition().getColumns();
+        if (field < 0 || field >= columns.size()) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value for field number");
+        }
+        return columns.get(field).getTypeAffinity();
     }
 
     public ISqlJetBtreeIndexTable getIndex(String indexName) {

@@ -45,6 +45,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetRowSet;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 
 /**
  * Internally, the vdbe manipulates nearly all SQL values as Mem structures.
@@ -399,6 +400,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.flags.add(SqlJetVdbeMemFlags.Str);
         pMem.flags.add(SqlJetVdbeMemFlags.Term);
         pMem.changeEncoding(enc);
+        type = SqlJetValueType.TEXT;
     }
 
     /*
@@ -808,6 +810,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         pMem.i = (long) pMem.r;
         if (pMem.r == (double) pMem.i) {
             pMem.flags.add(SqlJetVdbeMemFlags.Int);
+            type = SqlJetValueType.INTEGER;
         }
     }
 
@@ -822,6 +825,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         assert (!pMem.flags.contains(SqlJetVdbeMemFlags.RowSet));
         pMem.i = pMem.intValue();
         pMem.setTypeFlag(SqlJetVdbeMemFlags.Int);
+        type = SqlJetValueType.INTEGER;
     }
 
     /*
@@ -834,6 +838,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         assert (pMem.db == null || pMem.db.getMutex().held());
         pMem.r = pMem.realValue();
         pMem.setTypeFlag(SqlJetVdbeMemFlags.Real);
+        type = SqlJetValueType.FLOAT;
     }
 
     /*
@@ -857,6 +862,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         } else {
             pMem.r = r1;
             pMem.setTypeFlag(SqlJetVdbeMemFlags.Real);
+            type = SqlJetValueType.FLOAT;
         }
     }
 
@@ -1090,6 +1096,133 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             return z;
         } else {
             return valueText(SqlJetEncoding.UTF8);
+        }
+    }
+
+    /**
+     * Processing is determine by the affinity parameter:
+     * 
+     * <table>
+     * <tr>
+     * <td>
+     * <ul>
+     * <li>AFF_INTEGER:</li>
+     * <li>AFF_REAL:</li>
+     * <li>AFF_NUMERIC:</li>
+     * </ul>
+     * </td>
+     * <td></td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>
+     * Try to convert value to an integer representation or a floating-point
+     * representation if an integer representation is not possible. Note that
+     * the integer representation is always preferred, even if the affinity is
+     * REAL, because an integer representation is more space efficient on disk.</td>
+     * </tr>
+     * <tr>
+     * <td>
+     * <ul>
+     * <li>AFF_TEXT:</li>
+     * </ul>
+     * </td>
+     * <td></td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>Convert value to a text representation.</td>
+     * </tr>
+     * 
+     * <tr>
+     * <td>
+     * <ul>
+     * <li>AFF_NONE:</li>
+     * </ul>
+     * </td>
+     * <td></td>
+     * </tr>
+     * <tr>
+     * <td></td>
+     * <td>No-op. value is unchanged.</td>
+     * </tr>
+     * </table>
+     * 
+     * @param affinity
+     *            The affinity to be applied
+     * @param enc
+     *            Use this text encoding
+     * 
+     * @throws SqlJetException
+     */
+    public void applyAffinity(SqlJetTypeAffinity affinity, SqlJetEncoding enc) throws SqlJetException {
+        if (affinity == SqlJetTypeAffinity.TEXT) {
+            /*
+             * Only attempt the conversion to TEXT if there is an integer or
+             * real representation (blob and NULL do not get converted) but no
+             * string representation.
+             */
+            if (!flags.contains(SqlJetVdbeMemFlags.Str)
+                    && (flags.contains(SqlJetVdbeMemFlags.Real) || flags.contains(SqlJetVdbeMemFlags.Int))) {
+                stringify(enc);
+            }
+            flags.remove(SqlJetVdbeMemFlags.Real);
+            flags.remove(SqlJetVdbeMemFlags.Int);
+        } else if (affinity != SqlJetTypeAffinity.NONE) {
+            assert (affinity == SqlJetTypeAffinity.INTEGER || affinity == SqlJetTypeAffinity.REAL || affinity == SqlJetTypeAffinity.NUMERIC);
+            applyNumericAffinity();
+            if (flags.contains(SqlJetVdbeMemFlags.Real)) {
+                applyIntegerAffinity();
+            }
+        }
+    }
+
+    /**
+     * Try to convert a value into a numeric representation if we can do so
+     * without loss of information. In other words, if the string looks like a
+     * number, convert it into a number. If it does not look like a number,
+     * leave it alone.
+     * 
+     * @throws SqlJetException
+     */
+    public void applyNumericAffinity() throws SqlJetException {
+        if (!flags.contains(SqlJetVdbeMemFlags.Real) && !flags.contains(SqlJetVdbeMemFlags.Int)) {
+            boolean[] realnum = { false };
+            nulTerminate();
+            if (flags.contains(SqlJetVdbeMemFlags.Str)
+                    && SqlJetUtility.isNumber(SqlJetUtility.toString(z, enc), realnum)) {
+                Long value;
+                changeEncoding(SqlJetEncoding.UTF8);
+                if (!realnum[0] && (value = SqlJetUtility.atoi64(SqlJetUtility.toString(z))) != null) {
+                    i = value;
+                    setTypeFlag(SqlJetVdbeMemFlags.Int);
+                    type = SqlJetValueType.INTEGER;
+                } else {
+                    realify();
+                }
+            }
+        } else if (type != SqlJetValueType.INTEGER && type != SqlJetValueType.FLOAT) {
+            if (flags.contains(SqlJetVdbeMemFlags.Int)) {
+                type = SqlJetValueType.INTEGER;
+            } else if (flags.contains(SqlJetVdbeMemFlags.Real)) {
+                type = SqlJetValueType.FLOAT;
+            }
+        }
+    }
+
+    /**
+     * The MEM structure is already a MEM_Real. Try to also make it a MEM_Int if
+     * we can.
+     */
+    void applyIntegerAffinity() {
+        assert (flags.contains(SqlJetVdbeMemFlags.Real));
+        assert (!flags.contains(SqlJetVdbeMemFlags.RowSet));
+        assert (db == null || SqlJetUtility.mutex_held(db.getMutex()));
+        final Long l = SqlJetUtility.doubleToInt64(r);
+        if (l != null) {
+            i = l;
+            flags.add(SqlJetVdbeMemFlags.Int);
+            type = SqlJetValueType.INTEGER;
         }
     }
 }

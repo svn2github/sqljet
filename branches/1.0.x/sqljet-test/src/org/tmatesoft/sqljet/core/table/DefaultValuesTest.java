@@ -65,4 +65,16 @@ public class DefaultValuesTest extends AbstractNewDbTest {
         Assert.assertEquals(1L, c.getInteger("b"));
     }
 
+    @Test
+    public void insertAffinity() throws SqlJetException {
+        final ISqlJetTable t = db.getTable("t");
+        t.insert();
+        final ISqlJetCursor c = t.open();
+        Assert.assertFalse(c.isNull("b"));
+        Object b = c.getValue("b");
+        Assert.assertTrue(b != null);
+        Assert.assertTrue(b.getClass() == Long.class);
+        Assert.assertEquals(1L, c.getValue("b"));
+    }
+
 }

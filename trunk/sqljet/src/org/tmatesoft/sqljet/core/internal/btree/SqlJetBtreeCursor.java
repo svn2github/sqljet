@@ -1832,10 +1832,21 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             throw new SqlJetException(pCur.error);
         }
 
-        /* Save the positions of any other cursors open on this table */
-        pCur.clearCursor();
+        /*
+         * Save the positions of any other cursors open on this table.
+         * 
+         * In some cases, the call to sqlite3BtreeMoveto() below is a no-op. For
+         * example, when inserting data into a table with auto-generated integer
+         * keys, the VDBE layer invokes sqlite3BtreeLast() to figure out the
+         * integer key to use. It then calls this function to actually insert
+         * the data into the intkey B-Tree. In this case sqlite3BtreeMoveto()
+         * recognizes that the cursor is already where it needs to be and
+         * returns without doing any work. To avoid thwarting these
+         * optimizations, it is important not to clear the cursor here.
+         */
         pBt.saveAllCursors(pCur.pgnoRoot, pCur);
         loc = pCur.moveTo(pKey, nKey, bias);
+        assert (pCur.eState == CursorState.VALID || (pCur.eState == CursorState.INVALID && loc != 0));
 
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.intKey || nKey >= 0);

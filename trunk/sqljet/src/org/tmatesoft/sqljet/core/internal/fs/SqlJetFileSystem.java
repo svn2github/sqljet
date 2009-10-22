@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 
 /**
  * Default implementation of ISqlJetFileSystem.
- *
+ * 
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -93,8 +93,8 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#open(java.io.File,
      * java.util.Set)
      */
-    public ISqlJetFile open(final File path, final SqlJetFileType type,
-            final Set<SqlJetFileOpenPermission> permissions) throws SqlJetException {
+    public ISqlJetFile open(final File path, final SqlJetFileType type, final Set<SqlJetFileOpenPermission> permissions)
+            throws SqlJetException {
 
         if (null == type)
             throw new SqlJetException(SqlJetErrorCode.BAD_PARAMETER, "File type must not be null to open file");
@@ -117,19 +117,19 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
          * EXCLUSIVE is set, then CREATE must also be set. (d) if DELETEONCLOSE
          * is set, then CREATE must also be set.
          */
-        assert((!isReadonly || !isReadWrite) && (isReadWrite || isReadonly));
-        assert(!isCreate || isReadWrite);
-        assert(!isExclusive || isCreate);
-        assert(!isDelete || isCreate);
+        assert ((!isReadonly || !isReadWrite) && (isReadWrite || isReadonly));
+        assert (!isCreate || isReadWrite);
+        assert (!isExclusive || isCreate);
+        assert (!isDelete || isCreate);
 
         /*
          * The main DB, main journal, and master journal are never automatically
          * deleted
          */
 
-        assert(SqlJetFileType.MAIN_DB != type || !isDelete);
-        assert(SqlJetFileType.MAIN_JOURNAL != type || !isDelete);
-        assert(SqlJetFileType.MASTER_JOURNAL != type || !isDelete);
+        assert (SqlJetFileType.MAIN_DB != type || !isDelete);
+        assert (SqlJetFileType.MAIN_JOURNAL != type || !isDelete);
+        assert (SqlJetFileType.MASTER_JOURNAL != type || !isDelete);
 
         final File filePath;
 
@@ -137,31 +137,45 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             try {
                 filePath = path.getCanonicalFile();
             } catch (IOException e) {
-                throw new SqlJetException(SqlJetErrorCode.CANTOPEN,e);
+                throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
             }
         } else {
 
-            assert(isDelete
-            && !(isCreate && (SqlJetFileType.MASTER_JOURNAL == type || SqlJetFileType.MAIN_JOURNAL == type)));
+            assert (isDelete && !(isCreate && (SqlJetFileType.MASTER_JOURNAL == type || SqlJetFileType.MAIN_JOURNAL == type)));
             try {
                 filePath = getTempFile();
             } catch (IOException e) {
-                throw new SqlJetException(SqlJetErrorCode.CANTOPEN,e);
+                throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
             }
 
-            assert(null != filePath);
+            assert (null != filePath);
         }
 
-        if(!isReadWrite && !filePath.exists()) {
-            throw new SqlJetException(SqlJetErrorCode.CANTOPEN);            
+        if (!isReadWrite && !filePath.exists()) {
+            throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
         }
-        
-        //final String mode = isReadWrite ? "rws" : "r";
-        final String mode = "rw"; // because Java can't lock read-only files we open always for write
 
-        final RandomAccessFile file;
+        final String mode = "rw"; // because Java can't lock read-only files we
+        // open always for write
+
+        RandomAccessFile file;
         try {
-            file = new RandomAccessFile(filePath, mode);
+            try {
+                file = new RandomAccessFile(filePath, mode);
+            } catch (FileNotFoundException e) {
+                /*
+                 * As found, on windows some antiviruses often provisionally
+                 * block access to temporary created files. In this case just
+                 * wait some short time and retry.
+                 * 
+                 * TODO improve this solution likewise as in SVNFileUtil.
+                 */
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e1) {
+                }
+                file = new RandomAccessFile(filePath, mode);
+            }
         } catch (FileNotFoundException e) {
 
             if (isReadWrite && !isExclusive) {
@@ -199,8 +213,8 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#delete(java.io.File,
      * boolean)
      */
-    public boolean delete(File path, boolean sync){
-        assert(null != path);
+    public boolean delete(File path, boolean sync) {
+        assert (null != path);
         final boolean delete = path.delete();
         // TODO may be it is possible to syncing in some way
         return delete;
@@ -214,8 +228,8 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      */
     public boolean access(File path, SqlJetFileAccesPermission permission) throws SqlJetException {
 
-        assert(null != path);
-        assert(null != permission);
+        assert (null != path);
+        assert (null != permission);
 
         switch (permission) {
         case EXISTS:
@@ -239,7 +253,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#currentTime()
      */
-    public long currentTime(){
+    public long currentTime() {
         return System.currentTimeMillis();
     }
 
@@ -248,8 +262,8 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#randomness(int)
      */
-    public byte[] randomness(int numBytes){
-        assert(numBytes > 0);
+    public byte[] randomness(int numBytes) {
+        assert (numBytes > 0);
         final byte[] bytes = new byte[numBytes];
         random.nextBytes(bytes);
         return bytes;
@@ -260,8 +274,8 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#sleep(int)
      */
-    public long sleep(long microseconds){
-        assert(microseconds > 0);
+    public long sleep(long microseconds) {
+        assert (microseconds > 0);
         final long t = System.currentTimeMillis();
         try {
             Thread.sleep(microseconds);
@@ -270,23 +284,28 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         return System.currentTimeMillis() - t;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#memJournalOpen()
      */
     public ISqlJetFile memJournalOpen() {
         return new SqlJetMemJournal();
     }
-    
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.ISqlJetFileSystem#getFullPath(java.io.File)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.ISqlJetFileSystem#getFullPath(java.io.File)
      */
     public String getFullPath(File filename) throws SqlJetException {
-        assert(filename!=null);
+        assert (filename != null);
         try {
             return filename.getCanonicalPath();
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_ACCESS, e);
         }
     }
-    
+
 }

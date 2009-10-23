@@ -158,7 +158,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         final String mode = "rw"; // because Java can't lock read-only files we
         // open always for write
 
-        RandomAccessFile file;
+        RandomAccessFile file = null;
         try {
             try {
                 file = new RandomAccessFile(filePath, mode);
@@ -170,11 +170,20 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
                  * 
                  * TODO improve this solution likewise as in SVNFileUtil.
                  */
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e1) {
+                for (int i = 0; i < 10; i++) {
+                    try {
+                        Thread.sleep(10);
+                        file = new RandomAccessFile(filePath, mode);
+                    } catch (InterruptedException e1) {
+                    } catch (FileNotFoundException e1) {
+                    }
+                    if (file != null) {
+                        break;
+                    }
                 }
-                file = new RandomAccessFile(filePath, mode);
+                if (file == null) {
+                    file = new RandomAccessFile(filePath, mode);
+                }
             }
         } catch (FileNotFoundException e) {
 

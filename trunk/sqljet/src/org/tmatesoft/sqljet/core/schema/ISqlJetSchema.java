@@ -36,4 +36,6 @@ public interface ISqlJetSchema {
     ISqlJetIndexDef getIndex(String name) throws SqlJetException;
 
     Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
+
+    ISqlJetTableDef alterTable(String sql) throws SqlJetException;
 }

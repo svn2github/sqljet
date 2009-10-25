@@ -47,24 +47,23 @@ public class SqlJetTable implements ISqlJetTable {
     private ISqlJetSchema schema;
     private String tableName;
     private boolean write;
-    private ISqlJetTableDef tableDef;
 
     public SqlJetTable(SqlJetDb db, ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
         this.db = db;
         this.schema = schema;
         this.tableName = tableName;
         this.write = write;
-        this.tableDef = schema.getTable(tableName);
-        if (null == this.tableDef)
+        if (null == getDefinition())
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
     }
 
     public String getPrimaryKeyIndexName() throws SqlJetException {
-        return tableDef.isRowIdPrimaryKey() ? null : tableDef.getPrimaryKeyIndexName();
+        final ISqlJetTableDef definition = getDefinition();
+        return definition.isRowIdPrimaryKey() ? null : definition.getPrimaryKeyIndexName();
     }
 
     public ISqlJetTableDef getDefinition() throws SqlJetException {
-        return tableDef;
+        return schema.getTable(tableName);
     };
 
     public ISqlJetCursor open() throws SqlJetException {

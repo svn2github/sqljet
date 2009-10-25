@@ -17,6 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.schema;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -744,6 +745,139 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (doDropIndex(indexName, false, true)) {
             db.getOptions().changeSchemaVersion();
             indexDefs.remove(indexName);
+        }
+
+    }
+
+    /**
+     * @param tableName
+     * @param newTableName
+     * @param newColumnDef
+     * @return
+     * @throws SqlJetException
+     */
+    private ISqlJetTableDef alterTableSafe(String tableName, String newTableName, ISqlJetColumnDef newColumnDef)
+            throws SqlJetException {
+
+        if (null == tableName) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table name isn't defined");
+        }
+
+        if (null == newTableName && null == newColumnDef) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Not defined any altering");
+        }
+
+        tableName = tableName.trim();
+        boolean renameTable = false;
+        if (null != newTableName) {
+            renameTable = true;
+            newTableName = newTableName.trim();
+        } else {
+            newTableName = tableName;
+        }
+
+        final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
+        if (null == tableDef) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Table \"%s\" not found", tableName));
+        }
+
+        List<ISqlJetColumnDef> columns = tableDef.getColumns();
+        if (null != newColumnDef) {
+            final String fieldName = newColumnDef.getName().trim();
+            if (tableDef.getColumn(fieldName) != null) {
+                throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format(
+                        "Field \"%s\" already exists in table \"%s\"", fieldName, tableName));
+            }
+            columns = new ArrayList<ISqlJetColumnDef>(columns);
+            columns.add(newColumnDef);
+        }
+
+        final int page = tableDef.getPage();
+        final long rowId = tableDef.getRowId();
+
+        final SqlJetTableDef alterDef = new SqlJetTableDef(newTableName, null, tableDef.isTemporary(), false, columns,
+                tableDef.getConstraints(), page, rowId);
+
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        try {
+            schemaTable.lock();
+            try {
+
+                final ISqlJetBtreeCursor cursor = schemaTable.getCursor();
+                cursor.moveTo(null, rowId, false);
+                final String typeField = schemaTable.getString(TYPE_FIELD);
+                if (null == typeField || !TABLE_TYPE.equals(typeField)) {
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                }
+                final String nameField = schemaTable.getString(NAME_FIELD);
+                if (null == nameField || !tableName.equals(nameField)) {
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                }
+                final String tableField = schemaTable.getString(TABLE_FIELD);
+                if (null == tableField || !tableName.equals(tableField)) {
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                }
+                final Long pageField = schemaTable.getInteger(PAGE_FIELD);
+                if (null == pageField || !pageField.equals(new Long(page))) {
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                }
+                final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
+                        TABLE_TYPE, newTableName, newTableName, page, alterDef.toSQL());
+                final ISqlJetMemoryPointer pData = record.getRawRecord();
+                cursor.insert(null, rowId, pData, pData.remaining(), 0, false);
+
+                if (renameTable && !tableName.equals(newTableName)) {
+                    renameTablesIndices(schemaTable, tableName, newTableName);
+                }
+
+                db.getOptions().changeSchemaVersion();
+
+                tableDefs.put(tableName, alterDef);
+                return alterDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+        } finally {
+            schemaTable.close();
+        }
+
+    }
+
+    /**
+     * @param schemaTable
+     * @param newTableName
+     * @param tableName
+     * @throws SqlJetException
+     */
+    private void renameTablesIndices(final SqlJetBtreeTable schemaTable, String tableName, String newTableName)
+            throws SqlJetException {
+        // TODO
+        throw new SqlJetException(SqlJetErrorCode.INTERNAL, "Not implemented yet");
+    }
+
+    private CommonTree parseAlterTable(String sql) throws SqlJetException {
+        try {
+            CharStream chars = new ANTLRStringStream(sql);
+            SqlLexer lexer = new SqlLexer(chars);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            SqlParser parser = new SqlParser(tokens);
+            return (CommonTree) parser.alter_table_stmt().getTree();
+        } catch (RecognitionException re) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
+        }
+    }
+
+    public ISqlJetTableDef alterTable(String sql) throws SqlJetException {
+
+        final SqlJetAlterTableDef alterTableDef = new SqlJetAlterTableDef(parseAlterTable(sql));
+
+        db.getMutex().enter();
+        try {
+            return alterTableSafe(alterTableDef.getTableName(), alterTableDef.getNewTableName(), alterTableDef
+                    .getNewColumnDef());
+        } finally {
+            db.getMutex().leave();
         }
 
     }

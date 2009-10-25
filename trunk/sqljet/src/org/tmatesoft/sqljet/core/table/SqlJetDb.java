@@ -468,4 +468,21 @@ public class SqlJetDb implements ISqlJetLimits {
         });
     }
 
+    /**
+     * Alters table.
+     * 
+     * @param sql
+     * @return
+     * @throws SqlJetException
+     */
+    public ISqlJetTableDef alterTable(final String sql) throws SqlJetException {
+        checkOpen();
+        return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return schema.alterTable(sql);
+            }
+        });
+
+    }
+
 }

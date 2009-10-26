@@ -275,14 +275,14 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     protected static boolean checkField(ISqlJetBtreeRecord record, int field) throws SqlJetException {
-        return (field >= 0 && record!=null && field < record.getFieldsCount());
+        return (field >= 0 && record != null && field < record.getFieldsCount());
     }
 
     protected ISqlJetVdbeMem getValueMem(int field) throws SqlJetException {
         final ISqlJetBtreeRecord r = getRecord();
         if (null == r)
             return null;
-        if (!checkField(r,field))
+        if (!checkField(r, field))
             return null;
         final List<ISqlJetVdbeMem> fields = r.getFields();
         if (null == fields)
@@ -305,7 +305,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     public Object getValueUncached(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null || value.isNull())
+        if (value == null || value.isNull())
             return null;
         switch (value.getType()) {
         case INTEGER:
@@ -359,7 +359,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public String getString(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null || value.isNull())
+        if (value == null || value.isNull())
             return null;
         return SqlJetUtility.toString(value.valueText(getEncoding()), getEncoding());
     }
@@ -373,7 +373,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public long getInteger(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null || value.isNull())
+        if (value == null || value.isNull())
             return 0;
         return value.intValue();
     }
@@ -386,7 +386,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public double getFloat(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null || value.isNull())
+        if (value == null || value.isNull())
             return 0;
         return value.realValue();
     }
@@ -400,7 +400,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null)
+        if (value == null)
             return SqlJetValueType.NULL;
         return value.getType();
     }
@@ -413,7 +413,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public ISqlJetMemoryPointer getBlob(int field) throws SqlJetException {
         final ISqlJetVdbeMem value = getValueMem(field);
-        if (value==null || value.isNull())
+        if (value == null || value.isNull())
             return null;
         return value.valueBlob();
     }
@@ -549,13 +549,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     /**
-     * @return the cursor
-     */
-    public ISqlJetBtreeCursor getCursor() {
-        return cursor;
-    }
-
-    /**
      * @param i
      * @return
      */
@@ -573,4 +566,37 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         btree.clearTable(rootPage, null);
     }
 
+    public long getKeySize() throws SqlJetException {
+        clearRecordCache();
+        return cursor.getKeySize();
+    }
+
+    public int moveTo(ISqlJetMemoryPointer pKey, long nKey, boolean bias) throws SqlJetException {
+        clearRecordCache();
+        return cursor.moveTo(pKey, nKey, bias);
+    }
+
+    /**
+     * @param object
+     * @param rowId
+     * @param pData
+     * @param remaining
+     * @param i
+     * @param b
+     * @throws SqlJetException 
+     */
+    public void insert(ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData, int nZero,
+            boolean bias) throws SqlJetException {
+        clearRecordCache();
+        cursor.insert(pKey, nKey, pData, nData, nZero, bias);
+    }
+
+    /**
+     * @throws SqlJetException 
+     * 
+     */
+    public void delete() throws SqlJetException {
+        clearRecordCache();
+        cursor.delete();
+    }
 }

@@ -31,6 +31,15 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
     private final boolean ifNotExists;
     private final List<ISqlJetIndexedColumn> columns;
 
+    SqlJetIndexDef(final String name, final String tableName, final int page, final String databaseName,
+            final boolean unique, final boolean ifNotExists, final List<ISqlJetIndexedColumn> columns) {
+        super(name, tableName, page);
+        this.databaseName = databaseName;
+        this.unique = unique;
+        this.ifNotExists = ifNotExists;
+        this.columns = Collections.unmodifiableList(columns);
+    }
+
     public SqlJetIndexDef(CommonTree ast, int page) {
         super(null, null, page);
 

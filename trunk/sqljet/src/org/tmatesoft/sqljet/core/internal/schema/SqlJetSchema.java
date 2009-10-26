@@ -773,6 +773,11 @@ public class SqlJetSchema implements ISqlJetSchema {
             newTableName = tableName;
         }
 
+        if (renameTable && tableDefs.containsKey(newTableName)) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, String
+                    .format("Table \"%s\" already exists", newTableName));
+        }
+
         final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
         if (null == tableDef) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Table \"%s\" not found", tableName));
@@ -831,9 +836,9 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 if (renameTable && !tableName.equals(newTableName)) {
                     renameTablesIndices(schemaTable, tableName, newTableName);
-                    tableDefs.remove(tableName);
                 }
 
+                tableDefs.remove(tableName);
                 tableDefs.put(newTableName, alterDef);
 
                 return alterDef;

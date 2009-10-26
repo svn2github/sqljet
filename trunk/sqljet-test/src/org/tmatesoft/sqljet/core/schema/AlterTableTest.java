@@ -44,6 +44,7 @@ public class AlterTableTest extends AbstractNewDbTest {
         final ISqlJetTableDef createTable = db.createTable("create table t(a text primary key);");
         table = db.getTable(createTable.getName());
         db.createIndex("create index i on t(a);");
+        db.createTable("create table t2(a int primary key);");
     }
 
     /**
@@ -115,6 +116,12 @@ public class AlterTableTest extends AbstractNewDbTest {
         Assert.assertNotNull(alterTable);
         Assert.assertTrue("t1".equals(alterTable.getName()));
         assertDbOpen();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void renameTable2() throws SqlJetException {
+        db.alterTable("alter table t rename to t2;");
+        Assert.assertTrue(false);
     }
 
 }

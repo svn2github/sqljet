@@ -35,7 +35,6 @@ import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
@@ -897,13 +896,16 @@ public class SqlJetSchema implements ISqlJetSchema {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
 
-                final String newIndexName = index.isImplicit() ? SqlJetBtreeTable.generateAutoIndexName(tableName, ++i)
-                        : indexName;
-                indexDef.setName(newIndexName);
                 indexDef.setTableName(newTableName);
 
-                indexDefs.remove(indexName);
-                indexDefs.put(newIndexName, indexDef);
+                String newIndexName = indexName;
+
+                if (index.isImplicit()) {                    
+                    newIndexName = SqlJetBtreeTable.generateAutoIndexName(tableName, ++i);                    
+                    indexDef.setName(newIndexName);
+                    indexDefs.remove(indexName);
+                    indexDefs.put(newIndexName, indexDef);
+                }
 
                 final ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
                         INDEX_TYPE, newIndexName, newTableName, page, indexDef.toSQL());

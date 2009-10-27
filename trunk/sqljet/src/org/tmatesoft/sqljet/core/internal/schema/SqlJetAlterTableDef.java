@@ -55,15 +55,19 @@ public class SqlJetAlterTableDef {
         final CommonTree child = (CommonTree) ast.getChild(4);
         if ("add".equalsIgnoreCase(action)) {
             newTableName = null;
+            final CommonTree newColumnNode;
             if ("column".equalsIgnoreCase(child.getText())) {
-                if (childCount < 6) {
+                if (childCount != 6) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
                 }
-                final CommonTree newColumnNode = (CommonTree) ast.getChild(5);
-                newColumnDef = new SqlJetColumnDef(newColumnNode);
+                newColumnNode = (CommonTree) ast.getChild(5);
             } else {
-                newColumnDef = new SqlJetColumnDef(child);
+                if (childCount != 5) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
+                }
+                newColumnNode = child;
             }
+            newColumnDef = new SqlJetColumnDef(newColumnNode);
         } else if ("rename".equalsIgnoreCase(action)) {
             newColumnDef = null;
             assert ("to".equalsIgnoreCase(child.getText()));

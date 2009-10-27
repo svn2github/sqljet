@@ -49,6 +49,8 @@ import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDefault;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
@@ -784,11 +786,32 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null != newColumnDef) {
+
             final String fieldName = newColumnDef.getName().trim();
             if (tableDef.getColumn(fieldName) != null) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format(
                         "Field \"%s\" already exists in table \"%s\"", fieldName, tableName));
             }
+
+            final List<ISqlJetColumnConstraint> constraints = newColumnDef.getConstraints();
+            if (null != constraints && 0 != constraints.size()) {
+                boolean notNull = false;
+                boolean defaultValue = false;
+                for (final ISqlJetColumnConstraint constraint : constraints) {
+                    if (constraint instanceof ISqlJetColumnNotNull) {
+                        notNull = true;
+                    } else if (constraint instanceof ISqlJetColumnDefault) {
+                        defaultValue = true;
+                    } else {
+                        throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format("Invalid constraint: %s",
+                                constraint.toString()));
+                    }
+                }
+                if (notNull && !defaultValue) {
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "NOT NULL requires to have DEFAULT value");
+                }
+            }
+
             columns = new ArrayList<ISqlJetColumnDef>(columns);
             columns.add(newColumnDef);
         }
@@ -900,8 +923,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 String newIndexName = indexName;
 
-                if (index.isImplicit()) {                    
-                    newIndexName = SqlJetBtreeTable.generateAutoIndexName(tableName, ++i);                    
+                if (index.isImplicit()) {
+                    newIndexName = SqlJetBtreeTable.generateAutoIndexName(tableName, ++i);
                     indexDef.setName(newIndexName);
                     indexDefs.remove(indexName);
                     indexDefs.put(newIndexName, indexDef);

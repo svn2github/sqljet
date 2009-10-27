@@ -109,12 +109,44 @@ public class AlterTableTest extends AbstractNewDbTest {
         assertDbOpen();
     }
 
+    @Test(expected = SqlJetException.class)
+    public void addField5() throws SqlJetException {
+        db.alterTable("alter table t add column b int not null;");
+        assertDbOpen();
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void addField6() throws SqlJetException {
+        db.alterTable("alter table t add column b int primary key;");
+        assertDbOpen();
+        Assert.assertTrue(false);
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void addField7() throws SqlJetException {
+        db.alterTable("alter table t add column b int unique;");
+        assertDbOpen();
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void addField8() throws SqlJetException {
+        try {
+            db.alterTable("alter table t add column b int primary key;");
+            Assert.assertTrue(false);
+        } catch (SqlJetException e) {
+            assertDbOpen();
+        }
+    }
+
     @Test
     public void renameTable() throws SqlJetException {
         final ISqlJetTableDef alterTable = db.alterTable("alter table t rename to t1;");
-        final ISqlJetTable t = db.getTable("t1");
         Assert.assertNotNull(alterTable);
         Assert.assertTrue("t1".equals(alterTable.getName()));
+        final ISqlJetTable t = db.getTable("t1");
+        Assert.assertNotNull(t);
         assertDbOpen();
     }
 

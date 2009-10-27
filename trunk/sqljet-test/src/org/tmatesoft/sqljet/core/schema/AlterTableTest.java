@@ -74,6 +74,18 @@ public class AlterTableTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void addField1() throws SqlJetException {
+        final ISqlJetTableDef alterTable = db.alterTable("alter table t add b int");
+        final ISqlJetTable t = db.getTable("t");
+        Assert.assertNotNull(alterTable);
+        Assert.assertNotNull(alterTable.getColumn("b"));
+        Assert.assertNotNull(table.getDefinition().getColumn("b"));
+        Assert.assertNotNull(t);
+        Assert.assertNotNull(t.getDefinition().getColumn("b"));
+        assertDbOpen();
+    }
+
+    @Test
     public void addField2() throws SqlJetException {
         final ISqlJetTableDef alterTable = db.alterTable("alter table t add column b int;");
         final ISqlJetTable t = db.getTable("t");

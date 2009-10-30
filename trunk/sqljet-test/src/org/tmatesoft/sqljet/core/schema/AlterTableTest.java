@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.lang.SqlJetParserException;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -142,16 +143,37 @@ public class AlterTableTest extends AbstractNewDbTest {
         Assert.assertTrue(false);
     }
 
-    @Test
+    @Test(expected = SqlJetException.class)
     public void addField8() throws SqlJetException {
         try {
             db.alterTable("alter table t add column b int primary key;");
             Assert.assertTrue(false);
         } catch (SqlJetException e) {
             assertDbOpen();
+            throw e;
         }
     }
 
+    @Test(expected = SqlJetParserException.class)
+    public void addField9() throws SqlJetException {
+        try {
+            db.alterTable("alter table t add column b int, c int;");
+            Assert.assertTrue(false);
+        } catch (SqlJetException e) {
+            assertDbOpen();
+        }
+    }
+
+    @Test(expected = SqlJetParserException.class)
+    public void addField10() throws SqlJetException {
+        try {
+            db.alterTable("alter table t add column b int, c int;");
+            Assert.assertTrue(false);
+        } catch (SqlJetException e) {
+            assertDbOpen();
+        }
+    }
+    
     @Test
     public void renameTable() throws SqlJetException {
         final ISqlJetTableDef alterTable = db.alterTable("alter table t rename to t1;");

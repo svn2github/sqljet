@@ -942,13 +942,13 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
-    private CommonTree parseAlterTable(String sql) throws SqlJetException {
+    private CommonTree parseSqlStatement(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
-            return (CommonTree) parser.alter_table_stmt().getTree();
+            return (CommonTree) parser.sql_stmt_itself().getTree();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -956,7 +956,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     public ISqlJetTableDef alterTable(String sql) throws SqlJetException {
 
-        final SqlJetAlterTableDef alterTableDef = new SqlJetAlterTableDef(parseAlterTable(sql));
+        final SqlJetAlterTableDef alterTableDef = new SqlJetAlterTableDef(parseSqlStatement(sql));
 
         db.getMutex().enter();
         try {

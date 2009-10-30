@@ -82,7 +82,9 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
 }
 
 // Input is a list of statements.
-sql_stmt_list: sql_stmt (SEMI! (sql_stmt SEMI!)* )?;
+sql_stmt_list: sql_stmt (SEMI! (sql_stmt SEMI!)* )? EOF!;
+
+sql_stmt_itself: sql_stmt (SEMI!)? EOF!;
 
 sql_stmt: (EXPLAIN (QUERY PLAN)?)? sql_stmt_core;
 

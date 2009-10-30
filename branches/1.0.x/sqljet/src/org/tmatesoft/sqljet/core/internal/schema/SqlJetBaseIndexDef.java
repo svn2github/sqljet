@@ -94,7 +94,7 @@ public class SqlJetBaseIndexDef implements ISqlJetIndexDef {
     }
 
     public String toSQL() {
-        return "";
+        return null;
     }
 
     /*

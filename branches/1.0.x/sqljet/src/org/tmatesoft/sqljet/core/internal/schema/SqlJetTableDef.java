@@ -62,6 +62,18 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     // index name -> table index constraint
     private final Map<String, SqlJetTableIndexConstraint> tableConstrainsIndexCache = new HashMap<String, SqlJetTableIndexConstraint>();
 
+    SqlJetTableDef(String name, String databaseName, boolean temporary, boolean ifNotExists,
+            List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) {
+        this.name = name;
+        this.databaseName = databaseName;
+        this.temporary = temporary;
+        this.ifNotExists = ifNotExists;
+        this.columns = Collections.unmodifiableList(columns);
+        this.constraints = Collections.unmodifiableList(constraints);
+        this.page = page;
+        this.rowId = rowid;
+    }
+
     public SqlJetTableDef(CommonTree ast, int page) throws SqlJetException {
         CommonTree optionsNode = (CommonTree) ast.getChild(0);
         temporary = hasOption(optionsNode, "temporary");

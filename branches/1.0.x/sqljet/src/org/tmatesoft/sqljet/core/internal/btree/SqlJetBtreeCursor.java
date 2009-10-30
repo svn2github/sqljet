@@ -1832,10 +1832,21 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             throw new SqlJetException(pCur.error);
         }
 
-        /* Save the positions of any other cursors open on this table */
-        pCur.clearCursor();
+        /*
+         * Save the positions of any other cursors open on this table.
+         * 
+         * In some cases, the call to sqlite3BtreeMoveto() below is a no-op. For
+         * example, when inserting data into a table with auto-generated integer
+         * keys, the VDBE layer invokes sqlite3BtreeLast() to figure out the
+         * integer key to use. It then calls this function to actually insert
+         * the data into the intkey B-Tree. In this case sqlite3BtreeMoveto()
+         * recognizes that the cursor is already where it needs to be and
+         * returns without doing any work. To avoid thwarting these
+         * optimizations, it is important not to clear the cursor here.
+         */
         pBt.saveAllCursors(pCur.pgnoRoot, pCur);
         loc = pCur.moveTo(pKey, nKey, bias);
+        assert (pCur.eState == CursorState.VALID || (pCur.eState == CursorState.INVALID && loc != 0));
 
         pPage = pCur.apPage[pCur.iPage];
         assert (pPage.intKey || nKey >= 0);
@@ -1863,20 +1874,60 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         } else if (loc < 0 && pPage.nCell > 0) {
             assert (pPage.leaf);
             idx = ++pCur.aiIdx[pCur.iPage];
-            pCur.info.nSize = 0;
-            pCur.validNKey = false;
         } else {
             assert (pPage.leaf);
         }
-        pPage.insertCell(idx, newCell, szNew, null, (byte) 0);
-        pCur.balance(true);
 
-        /*
-         * Must make sure nOverflow is reset to zero even if the balance()*
-         * fails. Internal data structure corruption will result otherwise.
-         */
-        pCur.apPage[pCur.iPage].nOverflow = 0;
-        pCur.moveToRoot();
+        try {
+            pPage.insertCell(idx, newCell, szNew, null, (byte) 0);
+
+            assert (pPage.nCell > 0 || pPage.nOverflow > 0);
+
+        } finally {
+            /*
+             * If no error has occured and pPage has an overflow cell, call
+             * balance() to redistribute the cells within the tree. Since
+             * balance() may move the cursor, zero the BtCursor.info.nSize and
+             * BtCursor.validNKey variables.
+             * 
+             * Previous versions of SQLite called moveToRoot() to move the
+             * cursor back to the root page as balance() used to invalidate the
+             * contents of BtCursor.apPage[] and BtCursor.aiIdx[]. Instead of
+             * doing that, set the cursor state to "invalid". This makes common
+             * insert operations slightly faster.
+             * 
+             * There is a subtle but important optimization here too. When
+             * inserting multiple records into an intkey b-tree using a single
+             * cursor (as can happen while processing an
+             * "INSERT INTO ... SELECT" statement), it is advantageous to leave
+             * the cursor pointing to the last entry in the b-tree if possible.
+             * If the cursor is left pointing to the last entry in the table,
+             * and the next row inserted has an integer key larger than the
+             * largest existing key, it is possible to insert the row without
+             * seeking the cursor. This can be a big performance boost.
+             */
+            pCur.info.nSize = 0;
+            pCur.validNKey = false;
+        }
+        
+        if (pPage.nOverflow > 0) {
+
+            try {
+                pCur.balance(true);
+            } finally {
+                /*
+                 * Must make sure nOverflow is reset to zero even if the
+                 * balance() fails. Internal data structure corruption will
+                 * result otherwise. Also, set the cursor state to invalid. This
+                 * stops saveCursorPosition() from trying to save the current
+                 * position of the cursor.
+                 */
+                pCur.apPage[pCur.iPage].nOverflow = 0;
+                pCur.eState = CursorState.INVALID;
+            }
+        }
+        assert (pCur.apPage[pCur.iPage].nOverflow == 0);
+
     }
 
     /*

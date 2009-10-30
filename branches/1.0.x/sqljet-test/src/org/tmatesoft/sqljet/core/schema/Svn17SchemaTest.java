@@ -26,7 +26,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class Svn17Schema extends AbstractNewDbTest {
+public class Svn17SchemaTest extends AbstractNewDbTest {
 
     private static final String[] svn17WcTables =
 

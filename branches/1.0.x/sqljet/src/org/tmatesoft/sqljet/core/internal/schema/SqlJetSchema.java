@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -127,7 +128,9 @@ public class SqlJetSchema implements ISqlJetSchema {
     public Set<String> getTableNames() throws SqlJetException {
         db.getMutex().enter();
         try {
-            return new HashSet<String>(tableDefs.keySet());
+            final Set<String> s = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            s.addAll(tableDefs.keySet());
+            return s;
         } finally {
             db.getMutex().leave();
         }
@@ -145,7 +148,9 @@ public class SqlJetSchema implements ISqlJetSchema {
     public Set<String> getIndexNames() throws SqlJetException {
         db.getMutex().enter();
         try {
-            return new HashSet<String>(indexDefs.keySet());
+            final Set<String> s = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            s.addAll(indexDefs.keySet());
+            return s;
         } finally {
             db.getMutex().leave();
         }
@@ -398,7 +403,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     private void checkSequenceTable() throws SqlJetException {
-        if (!getTableNames().contains(SQLITE_SEQUENCE)) {
+        if (!tableDefs.containsKey(SQLITE_SEQUENCE)) {
             createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
         }
     }
@@ -407,7 +412,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     public ISqlJetBtreeDataTable openSequenceTable() throws SqlJetException {
-        if (getTableNames().contains(SQLITE_SEQUENCE)) {
+        if (tableDefs.containsKey(SQLITE_SEQUENCE)) {
             return new SqlJetBtreeDataTable(this, SQLITE_SEQUENCE, true);
         } else {
             return null;

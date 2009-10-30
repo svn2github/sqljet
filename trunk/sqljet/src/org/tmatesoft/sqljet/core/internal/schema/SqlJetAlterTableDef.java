@@ -45,9 +45,10 @@ public class SqlJetAlterTableDef {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
         }
         final CommonTree alterNode = (CommonTree) ast.getChild(0);
-        assert ("alter".equalsIgnoreCase(alterNode.getText()));
         final CommonTree tableNode = (CommonTree) ast.getChild(1);
-        assert ("table".equalsIgnoreCase(tableNode.getText()));
+        if (!"alter".equalsIgnoreCase(alterNode.getText()) || !"table".equalsIgnoreCase(tableNode.getText())) {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
+        }
         final CommonTree tableNameNode = (CommonTree) ast.getChild(2);
         tableName = tableNameNode.getText();
         final CommonTree actionNode = (CommonTree) ast.getChild(3);

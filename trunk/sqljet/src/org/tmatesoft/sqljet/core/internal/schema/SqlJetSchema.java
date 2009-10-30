@@ -754,8 +754,12 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @return
      * @throws SqlJetException
      */
-    private ISqlJetTableDef alterTableSafe(String tableName, String newTableName, ISqlJetColumnDef newColumnDef)
-            throws SqlJetException {
+    private ISqlJetTableDef alterTableSafe(final SqlJetAlterTableDef alterTableDef) throws SqlJetException {
+
+        assert (null != alterTableDef);
+        String tableName = alterTableDef.getTableName();
+        String newTableName = alterTableDef.getNewTableName();
+        ISqlJetColumnDef newColumnDef = alterTableDef.getNewColumnDef();
 
         if (null == tableName) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table name isn't defined");
@@ -957,11 +961,13 @@ public class SqlJetSchema implements ISqlJetSchema {
     public ISqlJetTableDef alterTable(String sql) throws SqlJetException {
 
         final SqlJetAlterTableDef alterTableDef = new SqlJetAlterTableDef(parseSqlStatement(sql));
+        if (null == alterTableDef) {
+            throw new SqlJetException(SqlJetErrorCode.INTERNAL);
+        }
 
         db.getMutex().enter();
         try {
-            return alterTableSafe(alterTableDef.getTableName(), alterTableDef.getNewTableName(), alterTableDef
-                    .getNewColumnDef());
+            return alterTableSafe(alterTableDef);
         } finally {
             db.getMutex().leave();
         }

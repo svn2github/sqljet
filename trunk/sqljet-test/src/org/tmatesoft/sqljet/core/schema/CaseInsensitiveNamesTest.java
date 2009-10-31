@@ -52,4 +52,16 @@ public class CaseInsensitiveNamesTest extends AbstractNewDbTest {
         Assert.assertNotNull(t.scope("ii", new Object[] { 0 }, new Object[] { 0 }));
     }
 
+    @Test
+    public void caseInsensitiveFieldsTest() throws SqlJetException {
+        final ISqlJetTableDef def = db.createTable("create table t(a int, B int)");
+        Assert.assertNotNull(def.getColumn("A"));
+        Assert.assertNotNull(def.getColumn("b"));
+        final ISqlJetTable table = db.getTable("T");
+        Assert.assertNotNull(table);
+        final ISqlJetTableDef def2 = table.getDefinition();
+        Assert.assertNotNull(def2.getColumn("A"));
+        Assert.assertNotNull(def2.getColumn("b"));
+    }
+
 }

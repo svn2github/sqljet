@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -100,8 +101,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * 
      */
     private void openIndexes(ISqlJetSchema schema) throws SqlJetException {
-        indexesDefs = new HashMap<String, ISqlJetIndexDef>();
-        indexesTables = new HashMap<String, ISqlJetBtreeIndexTable>();
+        indexesDefs = new TreeMap<String, ISqlJetIndexDef>(String.CASE_INSENSITIVE_ORDER);
+        indexesTables = new TreeMap<String, ISqlJetBtreeIndexTable>(String.CASE_INSENSITIVE_ORDER);
         for (final ISqlJetIndexDef indexDef : schema.getIndexes(tableDef.getName())) {
             indexesDefs.put(indexDef.getName(), indexDef);
             final SqlJetBtreeIndexTable indexTable;

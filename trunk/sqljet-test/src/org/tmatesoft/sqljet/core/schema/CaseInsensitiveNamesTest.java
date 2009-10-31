@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 
 /**
  * @author TMate Software Ltd.
@@ -30,11 +31,25 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 public class CaseInsensitiveNamesTest extends AbstractNewDbTest {
 
     @Test
-    public void caseInsensitiveNamesTest() throws SqlJetException {
+    public void caseInsensitiveTablesTest() throws SqlJetException {
         db.createTable("create table t(a int)");
         Assert.assertNotNull(db.getTable("T"));
         db.createTable("create table TT(a int)");
         Assert.assertNotNull(db.getTable("tt"));
+    }
+
+    @Test
+    public void caseInsensitiveIndicesTest() throws SqlJetException {
+        final ISqlJetTable t = db.getTable(db.createTable("create table t(a int)").getName());
+        db.createIndex("create index i on t(a)");
+        Assert.assertNotNull(t.getIndexDef("I"));
+        Assert.assertNotNull(t.order("I"));
+        Assert.assertNotNull(t.lookup("I", 0));
+        Assert.assertNotNull(t.scope("I", new Object[] { 0 }, new Object[] { 0 }));
+        db.createIndex("create index II on t(a)");
+        Assert.assertNotNull(t.getIndexDef("ii"));
+        Assert.assertNotNull(t.order("ii"));
+        Assert.assertNotNull(t.scope("ii", new Object[] { 0 }, new Object[] { 0 }));
     }
 
 }

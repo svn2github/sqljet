@@ -18,8 +18,10 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
@@ -40,6 +42,34 @@ public interface ISqlJetTable {
      * Get table's schema definition.
      */
     ISqlJetTableDef getDefinition() throws SqlJetException;
+
+
+    /**
+     * Get indexes of table.
+     * 
+     * @param tableName
+     * @return
+     * @throws SqlJetException
+     */
+    Set<ISqlJetIndexDef> getIndexesDefs() throws SqlJetException;
+
+    /**
+     * 
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    Set<String> getIndexesNames() throws SqlJetException;
+
+    /**
+     * Get index by name.
+     * 
+     * @param name
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetIndexDef getIndexDef(String name) throws SqlJetException;
+
 
     /**
      * Open cursor for all table records. Client is responsible to close the

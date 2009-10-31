@@ -17,11 +17,16 @@
  */
 package org.tmatesoft.sqljet.core.internal.table;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -65,6 +70,58 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetTableDef getDefinition() throws SqlJetException {
         return schema.getTable(tableName);
     };
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetTable#getIndexes(java.lang.String)
+     */
+    public Set<ISqlJetIndexDef> getIndexesDefs() throws SqlJetException {
+        return schema.getIndexes(tableName);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getIndexNames()
+     */
+    public Set<String> getIndexesNames() throws SqlJetException {
+        final Set<String> result = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        final Set<ISqlJetIndexDef> indexesDefs = getIndexesDefs();
+        if (null != indexesDefs) {
+            for (final ISqlJetIndexDef indexDef : indexesDefs) {
+                if (null != indexDef) {
+                    result.add(indexDef.getName());
+                }
+            }
+        }
+        return Collections.unmodifiableSet(result);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetTable#getIndex(java.lang.String)
+     */
+    public ISqlJetIndexDef getIndexDef(String name) throws SqlJetException {
+        if (null == name) {
+            name = getPrimaryKeyIndexName();
+            if (null == name) {
+                return null;
+            }
+        }
+        final Set<ISqlJetIndexDef> indexesDefs = getIndexesDefs();
+        if (null != indexesDefs) {
+            for (final ISqlJetIndexDef indexDef : indexesDefs) {
+                if (null != indexDef && name.equalsIgnoreCase(indexDef.getName())) {
+                    return indexDef;
+                }
+            }
+        }
+        return null;
+    }
 
     public ISqlJetCursor open() throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {

@@ -1222,7 +1222,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         if (SqlJetPagerState.UNLOCK == state || isErrorReset)
             try {
-                // if (!memDb) {
 
                 boolean isHotJournal = false;
                 assert (!memDb);
@@ -1282,7 +1281,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * exclusive-access mode also requires a read/write file
                      * handle.
                      */
-                    if (!isErrorReset && !journalOpen) {
+                    if (null == jfd) {
 
                         if (fileSystem.access(journal, SqlJetFileAccesPermission.EXISTS)) {
 
@@ -1303,10 +1302,14 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
                         } else {
                             /*
-                             * If the journal does not exist, that means some
-                             * other process has already rolled it back
+                             * If the journal does not exist, it usually means
+                             * that some other connection managed to get in and
+                             * roll it back before this connection obtained the
+                             * exclusive lock above. Or, it may mean that the
+                             * pager was in the error-state when this function
+                             * was called and the journal file does not exist.
                              */
-                            throw new SqlJetException(SqlJetErrorCode.BUSY);
+                            endTransaction(false);
                         }
 
                         journalOpen = true;
@@ -1324,11 +1327,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                         try {
                             pageCache.clear();
                         } finally {
-                            try {
-                                playback(true);
-                            } catch (SqlJetException e) {
-                                error(e);
-                                throw e;
+                            if (null != jfd) {
+                                try {
+                                    playback(true);
+                                } catch (SqlJetException e) {
+                                    error(e);
+                                    throw e;
+                                }
                             }
                         }
                         assert (SqlJetPagerState.SHARED == state || (SqlJetPagerLockingMode.EXCLUSIVE == lockingMode && SqlJetPagerState.SHARED

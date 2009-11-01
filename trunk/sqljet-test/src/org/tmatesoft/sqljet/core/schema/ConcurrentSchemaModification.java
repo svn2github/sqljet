@@ -35,21 +35,43 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class ConcurrentSchemaModification extends AbstractNewDbTest {
 
-    private static final String CREATE = "create table %s%d(a int);";
+    private ExecutorService threadPool;
 
-    private class Task implements Runnable {
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        threadPool = Executors.newCachedThreadPool();
+    }
 
-        private String taskName;
-        private boolean run = true;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.AbstractNewDbTest#tearDown()
+     */
+    @Override
+    public void tearDown() throws Exception {
+        try {
+            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+        } finally {
+            super.tearDown();
+        }
+    }
 
-        public Task(String taskName) {
+    private class TransactionTask implements Runnable {
+
+        protected String taskName;
+        protected boolean run = true;
+
+        public TransactionTask(String taskName) {
             this.taskName = taskName;
         }
 
         public void run() {
             int i = 0;
+            final Thread currentThread = Thread.currentThread();
+            final String threadName = currentThread.getName();
             try {
-                Thread.currentThread().setName(taskName);
+                currentThread.setName(taskName);
                 while (run) {
                     try {
                         SqlJetDb db = null;
@@ -58,8 +80,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
                             db = SqlJetDb.open(file, true);
                             db.runWriteTransaction(new ISqlJetTransaction() {
                                 public Object run(SqlJetDb db) throws SqlJetException {
-                                    db.createTable(String.format(CREATE, taskName, n));
-                                    return null;
+                                    return workInTransaction(db, n);
                                 }
                             });
                         } finally {
@@ -74,22 +95,59 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             } catch (Exception e) {
                 logger.log(Level.INFO, taskName, e);
             } finally {
-                Thread.currentThread().setName(null);
+                currentThread.setName(threadName);
             }
+        }
+
+        protected Object workInTransaction(SqlJetDb db, int n) throws SqlJetException {
+            return null;
         }
 
         public void kill() {
             run = false;
+        }                
+        
+    }
+
+    private class SleepTask extends TransactionTask {
+
+        public SleepTask(String taskName) {
+            super(taskName);
         }
+
+        @Override
+        protected Object workInTransaction(SqlJetDb db, int n) throws SqlJetException {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                logger.log(Level.INFO, taskName, e);
+            }
+            return null;
+        }
+
+    }
+
+    private class SchemaModificationTask extends TransactionTask {
+
+        private static final String CREATE = "create table %s%d(a int);";
+
+        public SchemaModificationTask(String taskName) {
+            super(taskName);
+        }
+
+        @Override
+        protected Object workInTransaction(SqlJetDb db, int n) throws SqlJetException {
+            db.createTable(String.format(CREATE, taskName, n));
+            return null;
+        }
+
     }
 
     @Test
-    public void concurrentSchemaModification() throws Exception {
-
-        final ExecutorService threadPool = Executors.newCachedThreadPool();
-        final Task task1 = new Task("thread1");
-        final Task task2 = new Task("thread2");
-        final Task task3 = new Task("thread3");
+    public void concurrentTransactions() throws Exception {
+        final TransactionTask task1 = new TransactionTask("thread1");
+        final TransactionTask task2 = new TransactionTask("thread2");
+        final TransactionTask task3 = new TransactionTask("thread3");
         try {
             threadPool.submit(task1);
             threadPool.submit(task2);
@@ -99,7 +157,40 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             task1.kill();
             task2.kill();
             task3.kill();
-            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    public void concurrentSleep() throws Exception {
+        final TransactionTask task1 = new SleepTask("thread1");
+        final TransactionTask task2 = new SleepTask("thread2");
+        final TransactionTask task3 = new SleepTask("thread3");
+        try {
+            threadPool.submit(task1);
+            threadPool.submit(task2);
+            threadPool.submit(task3);
+            Thread.sleep(10000);
+        } finally {
+            task1.kill();
+            task2.kill();
+            task3.kill();
+        }
+    }
+
+    @Test
+    public void concurrentSchemaModification() throws Exception {
+        final TransactionTask task1 = new SchemaModificationTask("thread1");
+        final TransactionTask task2 = new SchemaModificationTask("thread2");
+        final TransactionTask task3 = new SchemaModificationTask("thread3");
+        try {
+            threadPool.submit(task1);
+            threadPool.submit(task2);
+            threadPool.submit(task3);
+            Thread.sleep(10000);
+        } finally {
+            task1.kill();
+            task2.kill();
+            task3.kill();
         }
     }
 }

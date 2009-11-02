@@ -390,7 +390,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#setLimit(int)
      */
-    public void setLimit(long limit) {
+    public void setLimit(long limit) throws SqlJetException {
         cursor.setLimit(limit);
     }
 }

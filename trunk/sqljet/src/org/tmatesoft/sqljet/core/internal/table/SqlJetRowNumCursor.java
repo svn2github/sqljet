@@ -51,10 +51,13 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     /**
      * @param limit
      *            the limit to set
+     * @throws SqlJetException
      */
-    public void setLimit(long limit) {
+    public void setLimit(long limit) throws SqlJetException {
         if (limit >= 0) {
             this.limit = limit;
+            rowsCount = -1;
+            first();
         }
     }
 
@@ -265,7 +268,11 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      */
     @Override
     public boolean last() throws SqlJetException {
-        return lastRowNum(super.last());
+        if (limit > 0 && goToRowNum(limit)) {
+            return true;
+        } else {
+            return lastRowNum(super.last());
+        }
     }
 
     protected boolean firstRowNum(boolean first) throws SqlJetException {
@@ -310,7 +317,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     }
 
     private long getRowIdSafe() throws SqlJetException {
-        return eof() ? 0 : getRowId();
+        return super.eof() ? 0 : getRowId();
     }
 
     /*
@@ -320,11 +327,10 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      */
     @Override
     public boolean eof() throws SqlJetException {
-        final boolean eof = super.eof();
-        if (!eof && limit > 0) {
-            return limit > currentRowNum;
+        if (limit > 0) {
+            return currentRowNum >= limit;
         } else {
-            return eof;
+            return super.eof();
         }
     }
 

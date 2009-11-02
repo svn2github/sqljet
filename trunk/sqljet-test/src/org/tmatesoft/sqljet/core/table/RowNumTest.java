@@ -191,14 +191,22 @@ public class RowNumTest extends AbstractDataCopyTest {
     public void testLimit() throws SqlJetException {
         final ISqlJetCursor c = table.open();
         try {
+            Assert.assertTrue(c.getRowsCount() > 10);
+            Assert.assertTrue(c.goToRowNum(11));
             c.setLimit(10);
             for (c.first(); !c.eof(); c.next())
                 ;
-            Assert.assertTrue(c.getCurrentRowNum() <= c.getLimit());
+            Assert.assertTrue(c.getCurrentRowNum() <= 10);
             c.first();
             c.last();
-            Assert.assertTrue(c.getCurrentRowNum() <= c.getLimit());
-            Assert.assertFalse(c.goToRowNum(c.getLimit() + 1));
+            Assert.assertTrue(c.getCurrentRowNum() <= 10);
+            Assert.assertFalse(c.goToRowNum(11));
+            Assert.assertTrue(c.getRowsCount() == 10);
+            c.setLimit(0);
+            Assert.assertTrue(c.getRowsCount() > 10);
+            Assert.assertTrue(c.goToRowNum(11));
+            c.last();
+            Assert.assertTrue(c.getCurrentRowNum() > 10);
         } finally {
             c.close();
         }

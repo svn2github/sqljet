@@ -339,8 +339,9 @@ public interface ISqlJetCursor {
      * cursor will not be limited.
      * 
      * @param limit
+     * @throws SqlJetException 
      */
-    void setLimit(long limit);
+    void setLimit(long limit) throws SqlJetException;
 
     /**
      * Returns limit of cursor.

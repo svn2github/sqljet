@@ -334,4 +334,14 @@ public interface ISqlJetCursor {
      */
     boolean goToRowNum(long rowIndex) throws SqlJetException;
 
+    /**
+     * @param limit
+     */
+    void setLimit(long limit);
+
+    /**
+     * @return
+     */
+    long getLimit();
+
 }

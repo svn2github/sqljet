@@ -344,29 +344,53 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#reverse()
      */
-    
+
     public ISqlJetCursor reverse() throws SqlJetException {
         return new SqlJetReverseOrderCursor(this);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getCurrentRow()
      */
     public long getCurrentRowNum() throws SqlJetException {
         return cursor.getCurrentRowNum();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowCount()
      */
     public long getRowsCount() throws SqlJetException {
         return cursor.getRowsCount();
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goToRow(long)
      */
     public boolean goToRowNum(long rowIndex) throws SqlJetException {
         return cursor.goToRowNum(rowIndex);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getLimit()
+     */
+    public long getLimit() {
+        return cursor.getLimit();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#setLimit(int)
+     */
+    public void setLimit(long limit) {
+        cursor.setLimit(limit);
     }
 }

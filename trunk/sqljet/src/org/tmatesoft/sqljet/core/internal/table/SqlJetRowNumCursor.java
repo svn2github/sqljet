@@ -49,19 +49,22 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     }
 
     /**
-     * @param limit the limit to set
+     * @param limit
+     *            the limit to set
      */
     public void setLimit(long limit) {
-        this.limit = limit;
+        if (limit >= 0) {
+            this.limit = limit;
+        }
     }
-    
+
     /**
      * @return the limit
      */
     public long getLimit() {
         return limit;
     }
-    
+
     /*
      * (non-Javadoc)
      * 

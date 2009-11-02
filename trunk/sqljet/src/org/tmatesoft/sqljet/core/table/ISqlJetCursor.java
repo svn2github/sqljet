@@ -313,7 +313,7 @@ public interface ISqlJetCursor {
      * Returns count of rows in cursor.
      * 
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     long getRowsCount() throws SqlJetException;
 
@@ -321,7 +321,7 @@ public interface ISqlJetCursor {
      * Returns number of current row.
      * 
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     long getCurrentRowNum() throws SqlJetException;
 
@@ -330,16 +330,21 @@ public interface ISqlJetCursor {
      * 
      * @param rowIndex
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     boolean goToRowNum(long rowIndex) throws SqlJetException;
 
     /**
+     * Sets limit for cursor. If value is negative or zero it just ignored and
+     * cursor will not be limited.
+     * 
      * @param limit
      */
     void setLimit(long limit);
 
     /**
+     * Returns limit of cursor.
+     * 
      * @return
      */
     long getLimit();

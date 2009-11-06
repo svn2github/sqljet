@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -168,6 +169,10 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
     }
 
     public void update(final Object... values) throws SqlJetException {
+        updateOr(null, values);
+    }
+
+    public void updateOr(final SqlJetConflictAction onConflict, final Object... values) throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
@@ -175,13 +180,18 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
                             "Table is empty or current record doesn't't point to data row");
                 }
-                table.updateCurrent(values);
+                table.updateCurrent(onConflict, values);
                 return null;
             }
         });
     }
 
     public long updateWithRowId(final long rowId, final Object... values) throws SqlJetException {
+        return updateWithRowIdOr(null, rowId, values);
+    }
+
+    public long updateWithRowIdOr(final SqlJetConflictAction onConflict, final long rowId, final Object... values)
+            throws SqlJetException {
         return (Long) db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
@@ -189,12 +199,17 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
                             "Table is empty or current record doesn't't point to data row");
                 }
-                return table.updateCurrentWithRowId(rowId, values);
+                return table.updateCurrentWithRowId(onConflict, rowId, values);
             }
         });
     }
 
     public void updateByFieldNames(final Map<String, Object> values) throws SqlJetException {
+        updateByFieldNamesOr(null, values);
+    }
+
+    public void updateByFieldNamesOr(final SqlJetConflictAction onConflict, final Map<String, Object> values)
+            throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetBtreeDataTable table = getBtreeDataTable();
@@ -202,7 +217,7 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE,
                             "Table is empty or current record doesn't point to data row");
                 }
-                table.update(values);
+                table.update(onConflict, values);
                 return null;
             }
         });

@@ -22,6 +22,7 @@ import java.util.Map;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
  * @author TMate Software Ltd.
@@ -74,7 +75,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    long insert(Object... values) throws SqlJetException;
+    long insert(SqlJetConflictAction onConflict, Object... values) throws SqlJetException;
 
     /**
      * Update an entry in the table by rowId.
@@ -83,7 +84,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    void update(long rowId, Object... values) throws SqlJetException;
+    void update(SqlJetConflictAction onConflict, long rowId, Object... values) throws SqlJetException;
 
     /**
      * Update the current entry in the table.
@@ -91,7 +92,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    void updateCurrent(Object... values) throws SqlJetException;
+    void updateCurrent(SqlJetConflictAction onConflict, Object... values) throws SqlJetException;
 
     /**
      * Update the rowId and values an entry in the table by rowId.
@@ -100,7 +101,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    long updateWithRowId(long rowId, long newRowId, Object... values) throws SqlJetException;
+    long updateWithRowId(SqlJetConflictAction onConflict, long rowId, long newRowId, Object... values) throws SqlJetException;
 
     /**
      * Update the rowId and values in current entry in the table.
@@ -108,7 +109,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @param values
      * @throws SqlJetException
      */
-    long updateCurrentWithRowId(long newRowId, Object... values) throws SqlJetException;
+    long updateCurrentWithRowId(SqlJetConflictAction onConflict, long newRowId, Object... values) throws SqlJetException;
     
     /**
      * Delete record by row's ID.
@@ -162,20 +163,20 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @return
      * @throws SqlJetException
      */
-    long insert(Map<String, Object> values) throws SqlJetException;
+    long insert(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException;
 
     /**
      * @param rowId
      * @param values
      * @throws SqlJetException
      */
-    void update(long rowId, Map<String, Object> values) throws SqlJetException;
+    void update(SqlJetConflictAction onConflict, long rowId, Map<String, Object> values) throws SqlJetException;
 
     /**
      * @param values
      * @throws SqlJetException
      */
-    void update(Map<String, Object> values) throws SqlJetException;
+    void update(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException;
 
     /**
      * @param indexName
@@ -189,7 +190,7 @@ public interface ISqlJetBtreeDataTable extends ISqlJetBtreeTable {
      * @return
      * @throws SqlJetException 
      */
-    long insertWithRowId(long rowId, Object[] values) throws SqlJetException;
+    long insertWithRowId(SqlJetConflictAction onConflict, long rowId, Object[] values) throws SqlJetException;
 
     /**
      * @param indexName

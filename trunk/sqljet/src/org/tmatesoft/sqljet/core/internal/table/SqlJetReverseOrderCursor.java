@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 
 /**
@@ -322,6 +323,17 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
      * (non-Javadoc)
      * 
      * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetCursor#update(org.tmatesoft.sqljet
+     * .core.schema.SqlJetConflictAction, java.lang.Object[])
+     */
+    public void updateOr(SqlJetConflictAction onConflict, Object... values) throws SqlJetException {
+        cursor.updateOr(onConflict, values);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateByFieldNames(java
      * .util.Map)
      */
@@ -332,11 +344,33 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateByFieldNames(org.
+     * tmatesoft.sqljet.core.schema.SqlJetConflictAction, java.util.Map)
+     */
+    public void updateByFieldNamesOr(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException {
+        cursor.updateByFieldNamesOr(onConflict, values);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateWithRowId(long,
      * java.lang.Object[])
      */
     public long updateWithRowId(long rowId, Object... values) throws SqlJetException {
         return cursor.updateWithRowId(rowId, values);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateWithRowId(org.tmatesoft
+     * .sqljet.core.schema.SqlJetConflictAction, long, java.lang.Object[])
+     */
+    public long updateWithRowIdOr(SqlJetConflictAction onConflict, long rowId, Object... values) throws SqlJetException {
+        return cursor.updateWithRowIdOr(onConflict, rowId, values);
     }
 
     /*

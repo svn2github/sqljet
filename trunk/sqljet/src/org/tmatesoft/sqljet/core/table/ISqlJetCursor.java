@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
  * Cursor's interface.
@@ -295,6 +296,39 @@ public interface ISqlJetCursor {
     void updateByFieldNames(Map<String, Object> values) throws SqlJetException;
 
     /**
+     * Update the current record.
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param values
+     *            New record values.
+     * @throws SqlJetException
+     */
+    void updateOr(SqlJetConflictAction onConflict, Object... values) throws SqlJetException;
+
+    /**
+     * Update rowId and values in the current record.
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param values
+     *            New record values.
+     * @throws SqlJetException
+     */
+    long updateWithRowIdOr(SqlJetConflictAction onConflict, long rowId, Object... values) throws SqlJetException;
+
+    /**
+     * Update the current record.
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param values
+     *            New record values mapped by field names.
+     * @throws SqlJetException
+     */
+    void updateByFieldNamesOr(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException;
+
+    /**
      * Delete the current record.
      * 
      * @throws SqlJetException
@@ -339,7 +373,7 @@ public interface ISqlJetCursor {
      * cursor will not be limited.
      * 
      * @param limit
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     void setLimit(long limit) throws SqlJetException;
 

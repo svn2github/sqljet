@@ -23,6 +23,7 @@ import java.util.Set;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
  * Table's interface.
@@ -42,7 +43,6 @@ public interface ISqlJetTable {
      * Get table's schema definition.
      */
     ISqlJetTableDef getDefinition() throws SqlJetException;
-
 
     /**
      * Get indexes of table.
@@ -69,7 +69,6 @@ public interface ISqlJetTable {
      * @throws SqlJetException
      */
     ISqlJetIndexDef getIndexDef(String name) throws SqlJetException;
-
 
     /**
      * Open cursor for all table records. Client is responsible to close the
@@ -143,6 +142,48 @@ public interface ISqlJetTable {
      * @throws SqlJetException
      */
     long insertWithRowId(long rowId, Object... values) throws SqlJetException;
+
+    /**
+     * Add new record to the table with specified values. All relevant indexes
+     * are updated automatically. 
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param onConflict
+     * @param values
+     *            Values for the new record.
+     * @return
+     * @throws SqlJetException
+     */
+    long insertOr(SqlJetConflictAction onConflict, Object... values) throws SqlJetException;
+
+    /**
+     * Insert record by values by names of fields. 
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param onConflict
+     * @param values
+     * @return
+     * @throws SqlJetException
+     */
+    long insertByFieldNamesOr(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException;
+
+    /**
+     * Inserts record at specified rowId. If rowId is 0 then it generates new
+     * rowId. If table has INTEGER PRIMARY KEY column and rowId isn't 0 then
+     * value for this field will be ignored and could be specified just as null.
+     * If table has INTEGER PRIMARY KEY column and rowId is 0 then value for
+     * this field used as rowId.
+     * 
+     * Implements ON CONFLICT clause.
+     * 
+     * @param onConflict
+     * @param rowId
+     * @param values
+     * @throws SqlJetException
+     */
+    long insertWithRowIdOr(SqlJetConflictAction onConflict, long rowId, Object... values) throws SqlJetException;
 
     /**
      * @throws SqlJetException

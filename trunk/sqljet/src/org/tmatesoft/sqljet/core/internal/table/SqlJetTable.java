@@ -28,6 +28,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
@@ -155,25 +156,39 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     public long insert(final Object... values) throws SqlJetException {
-        return (Long) runWriteTransaction(new ISqlJetTableRun() {
-            public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
-                return table.insert(values);
-            }
-        });
+        return insertOr(null, values);
     }
 
     public long insertByFieldNames(final Map<String, Object> values) throws SqlJetException {
+        return insertByFieldNamesOr(null, values);
+    }
+
+    public long insertWithRowId(final long rowId, final Object... values) throws SqlJetException {
+        return insertWithRowIdOr(null, rowId, values);
+    }
+
+    public long insertOr(final SqlJetConflictAction onConflict, final Object... values) throws SqlJetException {
         return (Long) runWriteTransaction(new ISqlJetTableRun() {
             public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
-                return table.insert(values);
+                return table.insert(onConflict, values);
             }
         });
     }
 
-    public long insertWithRowId(final long rowId, final Object... values) throws SqlJetException {
+    public long insertByFieldNamesOr(final SqlJetConflictAction onConflict, final Map<String, Object> values)
+            throws SqlJetException {
         return (Long) runWriteTransaction(new ISqlJetTableRun() {
             public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
-                return table.insertWithRowId(rowId, values);
+                return table.insert(onConflict, values);
+            }
+        });
+    }
+
+    public long insertWithRowIdOr(final SqlJetConflictAction onConflict, final long rowId, final Object... values)
+            throws SqlJetException {
+        return (Long) runWriteTransaction(new ISqlJetTableRun() {
+            public Object run(ISqlJetBtreeDataTable table) throws SqlJetException {
+                return table.insertWithRowId(onConflict, rowId, values);
             }
         });
     }

@@ -261,7 +261,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
     }
 
-    @Test
+    @Test(expected = java.util.concurrent.ExecutionException.class)
     public void write() throws SqlJetException, InterruptedException, ExecutionException {
 
         final Future<Object> writer1 = execThread(new Writer(dbFile, "writer1"));
@@ -285,7 +285,7 @@ public class SqlJetTableThreadsTest extends AbstractDataCopyTest {
 
     }
 
-    @Test
+    @Test(expected = java.util.concurrent.ExecutionException.class)
     public void writeClose() throws SqlJetException, InterruptedException, ExecutionException {
 
         final Future<Object> writer1 = execThread(new Writer(dbFile, "writer1"));

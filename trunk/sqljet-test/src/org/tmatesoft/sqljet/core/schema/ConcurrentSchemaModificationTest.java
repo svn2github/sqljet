@@ -20,7 +20,8 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
@@ -33,7 +34,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class ConcurrentSchemaModification extends AbstractNewDbTest {
+public class ConcurrentSchemaModificationTest extends AbstractNewDbTest {
 
     private ExecutorService threadPool;
 
@@ -43,11 +44,6 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
         threadPool = Executors.newCachedThreadPool();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.tmatesoft.sqljet.core.AbstractNewDbTest#tearDown()
-     */
     @Override
     public void tearDown() throws Exception {
         try {
@@ -89,11 +85,11 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
                             }
                         }
                     } catch (SqlJetException e) {
-                        logger.log(Level.INFO, taskName, e);
+                        Assert.assertTrue(e.getMessage(), false);
                     }
                 }
             } catch (Exception e) {
-                logger.log(Level.INFO, taskName, e);
+                Assert.assertTrue(e.getMessage(), false);
             } finally {
                 currentThread.setName(threadName);
             }
@@ -105,24 +101,6 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
 
         public void kill() {
             run = false;
-        }                
-        
-    }
-
-    private class SleepTask extends TransactionTask {
-
-        public SleepTask(String taskName) {
-            super(taskName);
-        }
-
-        @Override
-        protected Object workInTransaction(SqlJetDb db, int n) throws SqlJetException {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.log(Level.INFO, taskName, e);
-            }
-            return null;
         }
 
     }
@@ -144,40 +122,6 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
     }
 
     @Test
-    public void concurrentTransactions() throws Exception {
-        final TransactionTask task1 = new TransactionTask("thread1");
-        final TransactionTask task2 = new TransactionTask("thread2");
-        final TransactionTask task3 = new TransactionTask("thread3");
-        try {
-            threadPool.submit(task1);
-            threadPool.submit(task2);
-            threadPool.submit(task3);
-            Thread.sleep(1000);
-        } finally {
-            task1.kill();
-            task2.kill();
-            task3.kill();
-        }
-    }
-
-    @Test
-    public void concurrentSleep() throws Exception {
-        final TransactionTask task1 = new SleepTask("thread1");
-        final TransactionTask task2 = new SleepTask("thread2");
-        final TransactionTask task3 = new SleepTask("thread3");
-        try {
-            threadPool.submit(task1);
-            threadPool.submit(task2);
-            threadPool.submit(task3);
-            Thread.sleep(1000);
-        } finally {
-            task1.kill();
-            task2.kill();
-            task3.kill();
-        }
-    }
-
-    @Test
     public void concurrentSchemaModification() throws Exception {
         final TransactionTask task1 = new SchemaModificationTask("thread1");
         final TransactionTask task2 = new SchemaModificationTask("thread2");
@@ -186,7 +130,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             threadPool.submit(task1);
             threadPool.submit(task2);
             threadPool.submit(task3);
-            Thread.sleep(1000);
+            Thread.sleep(10000);
         } finally {
             task1.kill();
             task2.kill();

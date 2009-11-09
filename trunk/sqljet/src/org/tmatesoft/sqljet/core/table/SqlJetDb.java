@@ -33,6 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.db.SqlJetDefautBusyHandler;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
@@ -79,6 +80,7 @@ public class SqlJetDb implements ISqlJetLimits {
     protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
         this.writable = writable;
         dbHandle = new SqlJetDbHandle();
+        dbHandle.setBusyHandler(new SqlJetDefautBusyHandler());
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);

@@ -2758,15 +2758,18 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         if (state == SqlJetPagerState.SHARED) {
             assert (pagesInJournal == null);
             assert (!memDb);
-            fd.lock(SqlJetLockType.RESERVED);
-            state = SqlJetPagerState.RESERVED;
-            if (exclusive) {
-                waitOnLock(SqlJetLockType.EXCLUSIVE);
-            }
-            dirtyCache = false;
-            PAGERTRACE("TRANSACTION %s\n", PAGERID());
-            if (useJournal && !tempFile && journalMode != SqlJetPagerJournalMode.OFF) {
-                openJournal();
+            if (fd.lock(SqlJetLockType.RESERVED)) {
+                state = SqlJetPagerState.RESERVED;
+                if (exclusive) {
+                    waitOnLock(SqlJetLockType.EXCLUSIVE);
+                }
+                dirtyCache = false;
+                PAGERTRACE("TRANSACTION %s\n", PAGERID());
+                if (useJournal && !tempFile && journalMode != SqlJetPagerJournalMode.OFF) {
+                    openJournal();
+                }
+            } else {
+                throw new SqlJetException(SqlJetErrorCode.BUSY);
             }
         } else if (journalOpen && journalOff == 0) {
             /*

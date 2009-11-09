@@ -37,12 +37,6 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
-    private static final int CURSOR_LOCK_RETRIES = SqlJetUtility.getIntSysProp("SqlJetBtreeTable.CURSOR_LOCK_RETRIES",
-            1000);
-
-    private static final long CURSOR_LOCK_SLEEP_MS = SqlJetUtility.getIntSysProp(
-            "SqlJetBtreeTable.CURSOR_LOCK_SLEEP_MS", 10);
-
     protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     protected ISqlJetDbHandle db;
@@ -98,25 +92,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             this.keyInfo.setEnc(db.getOptions().getEncoding());
         }
 
-        for (int i = 0; i < CURSOR_LOCK_RETRIES; i++) {
-            try {
-                this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
-                break;
-            } catch (SqlJetException e) {
-                if (SqlJetErrorCode.LOCKED == e.getErrorCode()) {
-                    try {
-                        db.getMutex().leave();
-                        Thread.sleep(CURSOR_LOCK_SLEEP_MS);
-                    } catch (InterruptedException e1) {
-                        return;
-                    } finally {
-                        db.getMutex().enter();
-                    }
-                } else {
-                    throw e;
-                }
-            }
-        }
+        this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
 
         first();
     }
@@ -583,7 +559,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @param remaining
      * @param i
      * @param b
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     public void insert(ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData, int nZero,
             boolean bias) throws SqlJetException {
@@ -592,7 +568,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     /**
-     * @throws SqlJetException 
+     * @throws SqlJetException
      * 
      */
     public void delete() throws SqlJetException {

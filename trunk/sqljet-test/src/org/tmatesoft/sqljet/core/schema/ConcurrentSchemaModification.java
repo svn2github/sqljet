@@ -51,7 +51,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
     @Override
     public void tearDown() throws Exception {
         try {
-            threadPool.awaitTermination(10, TimeUnit.SECONDS);
+            threadPool.awaitTermination(1, TimeUnit.SECONDS);
         } finally {
             super.tearDown();
         }
@@ -152,7 +152,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             threadPool.submit(task1);
             threadPool.submit(task2);
             threadPool.submit(task3);
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } finally {
             task1.kill();
             task2.kill();
@@ -169,7 +169,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             threadPool.submit(task1);
             threadPool.submit(task2);
             threadPool.submit(task3);
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } finally {
             task1.kill();
             task2.kill();
@@ -186,7 +186,7 @@ public class ConcurrentSchemaModification extends AbstractNewDbTest {
             threadPool.submit(task1);
             threadPool.submit(task2);
             threadPool.submit(task3);
-            Thread.sleep(10000);
+            Thread.sleep(1000);
         } finally {
             task1.kill();
             task2.kill();

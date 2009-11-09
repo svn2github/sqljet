@@ -50,25 +50,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
-    private static final class BusyHandler implements ISqlJetBusyHandler {
-
-        private static final int TRANSACTION_BUSY_RETRIES = SqlJetUtility.getIntSysProp(
-                "SQLJET.TRANSACTION_BUSY_RETRIES", 1000);
-        private static final int TRANSACTION_BUSY_SLEEP = SqlJetUtility.getIntSysProp("SQLJET.TRANSACTION_BUSY_SLEEP",
-                10);
-
-        public boolean call(int number) {
-            try {
-                Thread.sleep(TRANSACTION_BUSY_SLEEP);
-            } catch (InterruptedException e) {
-                return false;
-            }
-            return number <= TRANSACTION_BUSY_RETRIES;
-        }
-    }
-
-    private static final BusyHandler busyHandler = new BusyHandler();
-
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
             .of(SqlJetFileOpenPermission.READONLY);
@@ -98,7 +79,6 @@ public class SqlJetDb implements ISqlJetLimits {
     protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
         this.writable = writable;
         dbHandle = new SqlJetDbHandle();
-        dbHandle.setBusyHandler(busyHandler);
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
@@ -485,4 +465,11 @@ public class SqlJetDb implements ISqlJetLimits {
 
     }
 
+    public ISqlJetBusyHandler getBusyHandler() {
+        return dbHandle.getBusyHandler();
+    }
+
+    public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
+        dbHandle.setBusyHandler(busyHandler);
+    }
 }

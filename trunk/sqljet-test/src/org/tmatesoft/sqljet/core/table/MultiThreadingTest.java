@@ -93,7 +93,9 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             try {
                 Thread.currentThread().setName(threadName);
                 while (run) {
-                    work();
+                    synchronized (threadPool) {
+                        work();
+                    }
                 }
             } finally {
                 try {

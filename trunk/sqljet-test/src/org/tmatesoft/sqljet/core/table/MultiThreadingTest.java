@@ -178,23 +178,50 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             super(file, threadName, tableName);
         }
 
+        @Override
+        protected void work() throws Exception {
+            final ISqlJetCursor cursor = table.open();
+            try {
+                do {
+                    final Object b = cursor.getValue("b");
+                    Assert.assertNotNull(b);
+                } while (cursor.next());
+            } catch (SqlJetException e) {
+                Assert.assertTrue(e.getMessage(), false);
+            } finally {
+                cursor.close();
+            }
+        }
+    }
+
+    public static class LongReadThread extends TableThread {
+
+        protected ISqlJetCursor cursor;
+
+        public LongReadThread(final File file, final String threadName, final String tableName) {
+            super(file, threadName, tableName);
+        }
+
         protected void setUp() throws Exception {
             super.setUp();
-            table = db.getTable(TABLE_NAME);
+            cursor = table.open();
+        }
+
+        @Override
+        protected void tearDown() throws Exception {
+            super.tearDown();
+            cursor.close();
         }
 
         @Override
         protected void work() throws Exception {
-            final ISqlJetCursor c = table.open();
             try {
-                do {
-                    final Object b = c.getValue("b");
+                for (cursor.first(); !cursor.eof(); cursor.next()) {
+                    final Object b = cursor.getValue("b");
                     Assert.assertNotNull(b);
-                } while (c.next());
+                }
             } catch (SqlJetException e) {
                 Assert.assertTrue(e.getMessage(), false);
-            } finally {
-                c.close();
             }
         }
     }
@@ -244,6 +271,20 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             reader2.kill();
             writer1.kill();
             writer2.kill();
+        }
+    }
+
+    @Test
+    public void longReaders() throws Exception {
+        final LongReadThread reader1 = new LongReadThread(file, "reader1", TABLE_NAME);
+        final LongReadThread reader2 = new LongReadThread(file, "reader2", TABLE_NAME);
+        try {
+            reader1.submit();
+            reader2.submit();
+            Thread.sleep(10000);
+        } finally {
+            reader1.kill();
+            reader2.kill();
         }
     }
 

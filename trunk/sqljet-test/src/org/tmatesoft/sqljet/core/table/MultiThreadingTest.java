@@ -38,10 +38,14 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
  */
 public class MultiThreadingTest extends AbstractNewDbTest {
 
+    private static final String TABLE_NAME = "t";
+    private static final String CREATE_TABLE = "create table " + TABLE_NAME + "(a integer primary key, b integer)";
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        db.createTable("create table t(a integer primary key, b integer)");
+        db.createTable(CREATE_TABLE);
+        db.getTable(TABLE_NAME).insert(1, 1);
     }
 
     public static abstract class WorkThread implements Callable<Object> {
@@ -71,6 +75,11 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         public void kill() {
             this.kill = true;
+            try {
+                this.result.get();
+            } catch (Exception e) {
+                this.result.cancel(true);
+            }
         }
 
         public Object call() throws Exception {
@@ -101,14 +110,12 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
     }
 
-    public static class WriteThread extends WorkThread {
+    public static abstract class DbThread extends WorkThread {
 
         protected final File file;
         protected SqlJetDb db;
 
-        protected Random random = new Random();
-
-        public WriteThread(final File file, final String threadName) {
+        public DbThread(final File file, final String threadName) {
             super(threadName);
             this.file = file;
         }
@@ -127,25 +134,114 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             super.tearDown();
         }
 
+    }
+
+    public static abstract class TableThread extends DbThread {
+
+        protected final String tableName;
+        protected ISqlJetTable table;
+
+        public TableThread(final File file, final String threadName, final String tableName) {
+            super(file, threadName);
+            this.tableName = tableName;
+        }
+
+        @Override
+        protected void setUp() throws Exception {
+            super.setUp();
+            table = db.getTable(tableName);
+        }
+
+    }
+
+    public static class WriteThread extends TableThread {
+
+        protected Random random = new Random();
+
+        public WriteThread(final File file, final String threadName, final String tableName) {
+            super(file, threadName, tableName);
+        }
+
         @Override
         protected void work() throws Exception {
             try {
-                db.getTable("t").insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+                table.insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
             } catch (SqlJetException e) {
                 Assert.assertTrue(e.getMessage(), false);
             }
         }
     }
 
+    public static class ReadThread extends TableThread {
+
+        public ReadThread(final File file, final String threadName, final String tableName) {
+            super(file, threadName, tableName);
+        }
+
+        protected void setUp() throws Exception {
+            super.setUp();
+            table = db.getTable(TABLE_NAME);
+        }
+
+        @Override
+        protected void work() throws Exception {
+            final ISqlJetCursor c = table.open();
+            try {
+                do {
+                    final Object b = c.getValue("b");
+                    Assert.assertNotNull(b);
+                } while (c.next());
+            } catch (SqlJetException e) {
+                Assert.assertTrue(e.getMessage(), false);
+            } finally {
+                c.close();
+            }
+        }
+    }
+
     @Test
     public void writers() throws Exception {
-        final WriteThread writer1 = new WriteThread(file, "writer1");
-        final WriteThread writer2 = new WriteThread(file, "writer2");
+        final WriteThread writer1 = new WriteThread(file, "writer1", TABLE_NAME);
+        final WriteThread writer2 = new WriteThread(file, "writer2", TABLE_NAME);
         try {
             writer1.submit();
             writer2.submit();
             Thread.sleep(10000);
         } finally {
+            writer1.kill();
+            writer2.kill();
+        }
+    }
+
+    @Test
+    public void readers() throws Exception {
+        final ReadThread reader1 = new ReadThread(file, "reader1", TABLE_NAME);
+        final ReadThread reader2 = new ReadThread(file, "reader2", TABLE_NAME);
+        try {
+            reader1.submit();
+            reader2.submit();
+            Thread.sleep(10000);
+        } finally {
+            reader1.kill();
+            reader2.kill();
+        }
+    }
+
+    @Test
+    public void readWrite() throws Exception {
+        final ReadThread reader1 = new ReadThread(file, "reader1", TABLE_NAME);
+        final ReadThread reader2 = new ReadThread(file, "reader2", TABLE_NAME);
+        final WriteThread writer1 = new WriteThread(file, "writer1", TABLE_NAME);
+        final WriteThread writer2 = new WriteThread(file, "writer2", TABLE_NAME);
+        try {
+            reader1.submit();
+            reader2.submit();
+            writer1.submit();
+            writer2.submit();
+            Thread.sleep(10000);
+        } finally {
+            reader1.kill();
+            reader2.kill();
             writer1.kill();
             writer2.kill();
         }

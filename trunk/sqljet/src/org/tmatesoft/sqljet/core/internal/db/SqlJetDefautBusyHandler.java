@@ -10,7 +10,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  */
 public class SqlJetDefautBusyHandler implements ISqlJetBusyHandler {
     
-    private int retries = SqlJetUtility.getIntSysProp("SQLJET_BUSY_RETRIES", 1000);
+    private int retries = SqlJetUtility.getIntSysProp("SQLJET_BUSY_RETRIES", 10);
     private int sleep = SqlJetUtility.getIntSysProp("SQLJET_BUSY_SLEEP", 10);
 
     public int getRetries() {

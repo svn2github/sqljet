@@ -38,12 +38,14 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
  */
 public class MultiThreadingTest extends AbstractNewDbTest {
 
+    private static final int TIMEOUT = 1000;
     private static final String TABLE_NAME = "t";
     private static final String CREATE_TABLE = "create table " + TABLE_NAME + "(a integer primary key, b integer)";
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        db.getOptions().setAutovacuum(true);
         db.createTable(CREATE_TABLE);
         db.getTable(TABLE_NAME).insert(1, 1);
     }
@@ -86,6 +88,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             setUp();
             final String defaultThreadName = Thread.currentThread().getName();
             try {
+                Thread.currentThread().setName(threadName);
                 while (!kill) {
                     work();
                 }
@@ -233,7 +236,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         try {
             writer1.submit();
             writer2.submit();
-            Thread.sleep(10000);
+            Thread.sleep(TIMEOUT);
         } finally {
             writer1.kill();
             writer2.kill();
@@ -247,7 +250,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         try {
             reader1.submit();
             reader2.submit();
-            Thread.sleep(10000);
+            Thread.sleep(TIMEOUT);
         } finally {
             reader1.kill();
             reader2.kill();
@@ -265,7 +268,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             reader2.submit();
             writer1.submit();
             writer2.submit();
-            Thread.sleep(10000);
+            Thread.sleep(TIMEOUT);
         } finally {
             reader1.kill();
             reader2.kill();
@@ -281,10 +284,30 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         try {
             reader1.submit();
             reader2.submit();
-            Thread.sleep(10000);
+            Thread.sleep(TIMEOUT);
         } finally {
             reader1.kill();
             reader2.kill();
+        }
+    }
+
+    @Test
+    public void writeLongReaders() throws Exception {
+        final LongReadThread reader1 = new LongReadThread(file, "reader1", TABLE_NAME);
+        final WriteThread writer1 = new WriteThread(file, "writer1", TABLE_NAME) {
+            @Override
+            protected void setUp() throws Exception {
+                super.setUp();
+                db.setBusyHandler(null);
+            }
+        };
+        try {
+            reader1.submit();
+            writer1.submit();
+            Thread.sleep(TIMEOUT);
+        } finally {
+            reader1.kill();
+            writer1.kill();
         }
     }
 

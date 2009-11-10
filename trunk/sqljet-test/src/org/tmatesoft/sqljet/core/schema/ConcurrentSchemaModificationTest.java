@@ -17,11 +17,12 @@
  */
 package org.tmatesoft.sqljet.core.schema;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import junit.framework.Assert;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
@@ -44,16 +45,7 @@ public class ConcurrentSchemaModificationTest extends AbstractNewDbTest {
         threadPool = Executors.newCachedThreadPool();
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        try {
-            threadPool.awaitTermination(1, TimeUnit.SECONDS);
-        } finally {
-            super.tearDown();
-        }
-    }
-
-    private class TransactionTask implements Runnable {
+    private abstract class TransactionTask implements Callable<Object> {
 
         protected String taskName;
         protected boolean run = true;
@@ -62,42 +54,37 @@ public class ConcurrentSchemaModificationTest extends AbstractNewDbTest {
             this.taskName = taskName;
         }
 
-        public void run() {
+        public Object call() throws Exception {
             int i = 0;
             final Thread currentThread = Thread.currentThread();
             final String threadName = currentThread.getName();
             try {
                 currentThread.setName(taskName);
                 while (run) {
+                    SqlJetDb db = null;
                     try {
-                        SqlJetDb db = null;
-                        try {
-                            final int n = i++;
-                            db = SqlJetDb.open(file, true);
+                        final int n = i++;
+                        db = SqlJetDb.open(file, true);
+                        synchronized (TransactionTask.class) {
                             db.runWriteTransaction(new ISqlJetTransaction() {
                                 public Object run(SqlJetDb db) throws SqlJetException {
                                     return workInTransaction(db, n);
                                 }
                             });
-                        } finally {
-                            if (db != null) {
-                                db.close();
-                            }
                         }
-                    } catch (SqlJetException e) {
-                        Assert.assertTrue(e.getMessage(), false);
+                    } finally {
+                        if (db != null) {
+                            db.close();
+                        }
                     }
                 }
-            } catch (Exception e) {
-                Assert.assertTrue(e.getMessage(), false);
             } finally {
                 currentThread.setName(threadName);
             }
-        }
-
-        protected Object workInTransaction(SqlJetDb db, int n) throws SqlJetException {
             return null;
         }
+
+        protected abstract Object workInTransaction(SqlJetDb db, int n) throws SqlJetException;
 
         public void kill() {
             run = false;
@@ -126,15 +113,21 @@ public class ConcurrentSchemaModificationTest extends AbstractNewDbTest {
         final TransactionTask task1 = new SchemaModificationTask("thread1");
         final TransactionTask task2 = new SchemaModificationTask("thread2");
         final TransactionTask task3 = new SchemaModificationTask("thread3");
+        final Future<Object> result1;
+        final Future<Object> result2;
+        final Future<Object> result3;
         try {
-            threadPool.submit(task1);
-            threadPool.submit(task2);
-            threadPool.submit(task3);
-            Thread.sleep(10000);
+            result1 = threadPool.submit(task1);
+            result2 = threadPool.submit(task2);
+            result3 = threadPool.submit(task3);
+            Thread.sleep(1000);
         } finally {
             task1.kill();
             task2.kill();
             task3.kill();
         }
+        result1.get();
+        result2.get();
+        result3.get();
     }
 }

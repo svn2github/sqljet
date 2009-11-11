@@ -304,7 +304,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
                 new WriteThread(file, "writer1", TABLE_NAME) });
     }
 
-    @Test(expected=ExecutionException.class)
+    @Test
     public void longWrite() throws Exception {
         WorkThread.exec(TIMEOUT, new WorkThread[] { new LongWriteThread(file, "writer1", TABLE_NAME),
                 new LongWriteThread(file, "writer2", TABLE_NAME) });

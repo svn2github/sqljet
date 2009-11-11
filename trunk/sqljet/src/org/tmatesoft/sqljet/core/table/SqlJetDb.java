@@ -85,9 +85,15 @@ public class SqlJetDb implements ISqlJetLimits {
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
         open = true;
-        schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
+        readSchema();
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void readSchema() throws SqlJetException {
+        runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                SqlJetSchema schema = null;
                 btree.enter();
                 try {
                     dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
@@ -95,7 +101,7 @@ public class SqlJetDb implements ISqlJetLimits {
                 } finally {
                     btree.leave();
                 }
-                return schema;
+                return null;
             }
         });
     }
@@ -305,9 +311,11 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
         checkOpen();
-        getOptions().verifySchemaVersion(true);
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (!getOptions().verifySchemaVersion(false)) {
+                    readSchema();
+                }
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
                 } else {
@@ -474,4 +482,16 @@ public class SqlJetDb implements ISqlJetLimits {
     public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
         dbHandle.setBusyHandler(busyHandler);
     }
+
+    /**
+     * Refresh database schema.
+     * 
+     * @throws SqlJetException
+     */
+    public void refreshSchema() throws SqlJetException {
+        if (!getOptions().verifySchemaVersion(false)) {
+            readSchema();
+        }
+    }
+
 }

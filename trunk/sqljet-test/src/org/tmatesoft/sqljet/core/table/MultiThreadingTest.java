@@ -40,18 +40,14 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
     private static final int TIMEOUT = 1000;
     private static final String TABLE_NAME = "t";
-    private static final String INDEX_NAME = "i";
-    private static final String CREATE_TABLE = String.format(
-            "create table %s(a integer primary key, b integer, c integer)", TABLE_NAME);
-    private static final String CREATE_INDEX = String.format("create index %s on %s(b)", INDEX_NAME, TABLE_NAME);
+    private static final String CREATE_TABLE = String.format("create table %s(a integer primary key, b integer)",
+            TABLE_NAME);
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        db.getOptions().setAutovacuum(true);
         db.createTable(CREATE_TABLE);
-        db.createIndex(CREATE_INDEX);
-        db.getTable(TABLE_NAME).insert(1, 1, 1);
+        db.getTable(TABLE_NAME).insert(1, 1);
     }
 
     public static abstract class WorkThread implements Callable<Object> {
@@ -188,7 +184,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            table.insertOr(SqlJetConflictAction.REPLACE, 1, 1, random.nextLong());
+            table.insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
         }
 
     }
@@ -204,8 +200,8 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             final ISqlJetCursor cursor = table.open();
             try {
                 do {
-                    final Object c = cursor.getValue("c");
-                    Assert.assertNotNull(c);
+                    final Object b = cursor.getValue("b");
+                    Assert.assertNotNull(b);
                 } while (cursor.next());
             } finally {
                 cursor.close();
@@ -238,8 +234,8 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         @Override
         protected void work() throws Exception {
             for (cursor.first(); !cursor.eof(); cursor.next()) {
-                final Object c = cursor.getValue("c");
-                Assert.assertNotNull(c);
+                final Object b = cursor.getValue("b");
+                Assert.assertNotNull(b);
             }
         }
     }
@@ -257,7 +253,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         @Override
         protected void setUp() throws Exception {
             super.setUp();
-            cursor = table.lookup(INDEX_NAME, 1);
+            cursor = table.open();
         }
 
         @Override
@@ -272,7 +268,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         @Override
         protected void work() throws Exception {
             for (cursor.first(); !cursor.eof(); cursor.next()) {
-                cursor.updateOr(SqlJetConflictAction.REPLACE, 1, 1, random.nextLong());
+                cursor.updateOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
             }
         }
     }
@@ -308,7 +304,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
                 new WriteThread(file, "writer1", TABLE_NAME) });
     }
 
-    @Test
+    @Test(expected=ExecutionException.class)
     public void longWrite() throws Exception {
         WorkThread.exec(TIMEOUT, new WorkThread[] { new LongWriteThread(file, "writer1", TABLE_NAME),
                 new LongWriteThread(file, "writer2", TABLE_NAME) });

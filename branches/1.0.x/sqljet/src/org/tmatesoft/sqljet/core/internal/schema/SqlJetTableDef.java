@@ -15,9 +15,9 @@ package org.tmatesoft.sqljet.core.internal.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -57,10 +57,12 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private final List<String> primaryKeyColumns = new ArrayList<String>();
 
     // index name -> column index constraint
-    private final Map<String, SqlJetColumnIndexConstraint> columnConstraintsIndexCache = new HashMap<String, SqlJetColumnIndexConstraint>();
+    private final Map<String, SqlJetColumnIndexConstraint> columnConstraintsIndexCache = new TreeMap<String, SqlJetColumnIndexConstraint>(
+            String.CASE_INSENSITIVE_ORDER);
 
     // index name -> table index constraint
-    private final Map<String, SqlJetTableIndexConstraint> tableConstrainsIndexCache = new HashMap<String, SqlJetTableIndexConstraint>();
+    private final Map<String, SqlJetTableIndexConstraint> tableConstrainsIndexCache = new TreeMap<String, SqlJetTableIndexConstraint>(
+            String.CASE_INSENSITIVE_ORDER);
 
     SqlJetTableDef(String name, String databaseName, boolean temporary, boolean ifNotExists,
             List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) {

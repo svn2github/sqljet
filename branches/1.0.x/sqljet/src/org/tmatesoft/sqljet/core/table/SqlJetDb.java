@@ -33,6 +33,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.db.SqlJetDefautBusyHandler;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
@@ -79,13 +80,20 @@ public class SqlJetDb implements ISqlJetLimits {
     protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
         this.writable = writable;
         dbHandle = new SqlJetDbHandle();
+        dbHandle.setBusyHandler(new SqlJetDefautBusyHandler());
         btree = new SqlJetBtree();
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
         open = true;
-        schema = (SqlJetSchema) runWithLock(new ISqlJetRunnableWithLock() {
+        readSchema();
+    }
+
+    /**
+     * @throws SqlJetException
+     */
+    private void readSchema() throws SqlJetException {
+        runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                SqlJetSchema schema = null;
                 btree.enter();
                 try {
                     dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
@@ -93,7 +101,7 @@ public class SqlJetDb implements ISqlJetLimits {
                 } finally {
                     btree.leave();
                 }
-                return schema;
+                return null;
             }
         });
     }
@@ -303,9 +311,11 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
         checkOpen();
-        getOptions().verifySchemaVersion(true);
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (!getOptions().verifySchemaVersion(false)) {
+                    readSchema();
+                }
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
                 } else {
@@ -472,4 +482,16 @@ public class SqlJetDb implements ISqlJetLimits {
     public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
         dbHandle.setBusyHandler(busyHandler);
     }
+
+    /**
+     * Refresh database schema.
+     * 
+     * @throws SqlJetException
+     */
+    public void refreshSchema() throws SqlJetException {
+        if (!getOptions().verifySchemaVersion(false)) {
+            readSchema();
+        }
+    }
+
 }

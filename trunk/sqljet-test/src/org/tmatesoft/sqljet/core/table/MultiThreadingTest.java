@@ -24,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import junit.framework.Assert;
 
@@ -53,6 +55,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
     public static abstract class WorkThread implements Callable<Object> {
 
         protected static final ExecutorService threadPool = Executors.newCachedThreadPool();
+        protected static final ReadWriteLock rwlock = new ReentrantReadWriteLock();
 
         protected final String threadName;
 
@@ -89,9 +92,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
             try {
                 Thread.currentThread().setName(threadName);
                 while (run) {
-                    synchronized (threadPool) {
-                        work();
-                    }
+                    work();
                 }
             } finally {
                 try {
@@ -184,7 +185,12 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            table.insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+            rwlock.writeLock().lock();
+            try {
+                table.insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+            } finally {
+                rwlock.writeLock().unlock();
+            }
         }
 
     }
@@ -197,14 +203,19 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            final ISqlJetCursor cursor = table.open();
+            rwlock.readLock().lock();
             try {
-                do {
-                    final Object b = cursor.getValue("b");
-                    Assert.assertNotNull(b);
-                } while (cursor.next());
+                final ISqlJetCursor cursor = table.open();
+                try {
+                    do {
+                        final Object b = cursor.getValue("b");
+                        Assert.assertNotNull(b);
+                    } while (cursor.next());
+                } finally {
+                    cursor.close();
+                }
             } finally {
-                cursor.close();
+                rwlock.readLock().unlock();
             }
         }
     }
@@ -233,9 +244,14 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            for (cursor.first(); !cursor.eof(); cursor.next()) {
-                final Object b = cursor.getValue("b");
-                Assert.assertNotNull(b);
+            rwlock.readLock().lock();
+            try {
+                for (cursor.first(); !cursor.eof(); cursor.next()) {
+                    final Object b = cursor.getValue("b");
+                    Assert.assertNotNull(b);
+                }
+            } finally {
+                rwlock.readLock().unlock();
             }
         }
     }
@@ -267,8 +283,13 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            for (cursor.first(); !cursor.eof(); cursor.next()) {
-                cursor.updateOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+            rwlock.writeLock().lock();
+            try {
+                for (cursor.first(); !cursor.eof(); cursor.next()) {
+                    cursor.updateOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+                }
+            } finally {
+                rwlock.writeLock().unlock();
             }
         }
     }

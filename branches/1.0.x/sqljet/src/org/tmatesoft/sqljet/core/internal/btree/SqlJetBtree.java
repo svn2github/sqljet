@@ -133,7 +133,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         assert (db.getMutex().held());
         final ISqlJetBusyHandler busyHandler = db.getBusyHandler();
         if (busyHandler == null)
-            return true;
+            return false;
         return busyHandler.call(number);
     }
 

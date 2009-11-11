@@ -491,7 +491,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         index.lockTable(true);
         data.lockTable(true);
 
-        final long rowId = data.insert(hash, 1, 1, 1, 1);
+        final long rowId = data.insert(null, hash, 1, 1, 1, 1);
         index.insert(rowId, false, hash);
 
     }

@@ -313,9 +313,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (!getOptions().verifySchemaVersion(false)) {
-                    readSchema();
-                }
+                refreshSchema();
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
                 } else {

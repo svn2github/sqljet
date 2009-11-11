@@ -32,6 +32,8 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     private long currentRowId;
     private boolean internalMove;
 
+    private long limit;
+
     /**
      * @param table
      * @param db
@@ -42,6 +44,28 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
         rowsCount = -1;
         currentRowNum = -1;
         currentRowId = -1;
+
+        limit = 0;
+    }
+
+    /**
+     * @param limit
+     *            the limit to set
+     * @throws SqlJetException
+     */
+    public void setLimit(long limit) throws SqlJetException {
+        if (limit >= 0) {
+            this.limit = limit;
+            rowsCount = -1;
+            first();
+        }
+    }
+
+    /**
+     * @return the limit
+     */
+    public long getLimit() {
+        return limit;
     }
 
     /*
@@ -244,7 +268,11 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      */
     @Override
     public boolean last() throws SqlJetException {
-        return lastRowNum(super.last());
+        if (limit > 0 && goToRowNum(limit)) {
+            return true;
+        } else {
+            return lastRowNum(super.last());
+        }
     }
 
     protected boolean firstRowNum(boolean first) throws SqlJetException {
@@ -289,7 +317,21 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     }
 
     private long getRowIdSafe() throws SqlJetException {
-        return eof() ? 0 : getRowId();
+        return super.eof() ? 0 : getRowId();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#eof()
+     */
+    @Override
+    public boolean eof() throws SqlJetException {
+        if (limit > 0) {
+            return currentRowNum >= limit;
+        } else {
+            return super.eof();
+        }
     }
 
 }

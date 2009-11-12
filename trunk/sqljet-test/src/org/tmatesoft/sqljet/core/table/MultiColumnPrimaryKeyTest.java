@@ -75,13 +75,18 @@ public class MultiColumnPrimaryKeyTest {
 
     @Test
     public void eof() throws SqlJetException {
-        Assert.assertTrue(!table.lookup(null, 1, 1).eof());
-        Assert.assertTrue(!table.lookup(null, 1, 2).eof());
-        Assert.assertTrue(!table.lookup(null, 2, 1).eof());
-        Assert.assertTrue(table.lookup(null, 2, 2).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(!table.lookup(null, 1, 1).eof());
+                Assert.assertTrue(!table.lookup(null, 1, 2).eof());
+                Assert.assertTrue(!table.lookup(null, 2, 1).eof());
+                Assert.assertTrue(table.lookup(null, 2, 2).eof());
+                return null;
+            }
+        });
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void insert() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -91,7 +96,7 @@ public class MultiColumnPrimaryKeyTest {
         });
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void insertFail() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -100,22 +105,27 @@ public class MultiColumnPrimaryKeyTest {
             }
         });
     }
-    
+
     @Test
     public void update() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                table.lookup(null, 1, 1).update(2, 2,2);
+                table.lookup(null, 1, 1).update(2, 2, 2);
                 return null;
             }
         });
-        Assert.assertTrue(table.lookup(null, 1, 1).eof());
-        Assert.assertTrue(!table.lookup(null, 1, 2).eof());
-        Assert.assertTrue(!table.lookup(null, 2, 1).eof());
-        Assert.assertTrue(!table.lookup(null, 2, 2).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(table.lookup(null, 1, 1).eof());
+                Assert.assertTrue(!table.lookup(null, 1, 2).eof());
+                Assert.assertTrue(!table.lookup(null, 2, 1).eof());
+                Assert.assertTrue(!table.lookup(null, 2, 2).eof());
+                return null;
+            }
+        });
     }
 
-    @Test(expected=SqlJetException.class)
+    @Test(expected = SqlJetException.class)
     public void updateFail() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -124,7 +134,7 @@ public class MultiColumnPrimaryKeyTest {
             }
         });
     }
-    
+
     @Test
     public void delete() throws SqlJetException {
         db.runWriteTransaction(new ISqlJetTransaction() {
@@ -133,9 +143,14 @@ public class MultiColumnPrimaryKeyTest {
                 return null;
             }
         });
-        Assert.assertTrue(table.lookup(null, 1, 1).eof());
-        Assert.assertTrue(!table.lookup(null, 1, 2).eof());
-        Assert.assertTrue(!table.lookup(null, 2, 1).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(table.lookup(null, 1, 1).eof());
+                Assert.assertTrue(!table.lookup(null, 1, 2).eof());
+                Assert.assertTrue(!table.lookup(null, 2, 1).eof());
+                return null;
+            }
+        });
     }
-    
+
 }

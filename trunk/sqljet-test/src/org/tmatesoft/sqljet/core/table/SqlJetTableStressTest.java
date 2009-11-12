@@ -67,10 +67,17 @@ public class SqlJetTableStressTest extends TestCase {
             }
         });
 
-        ISqlJetCursor c = t.open();
-        c.last();
-        c.previous();
-        assertTrue(c.getString(0).indexOf("nogi") > 0);
-        assertEquals(99998, c.getInteger(1));
+        db.runReadTransaction(new ISqlJetTransaction() {
+
+            public Object run(SqlJetDb db) throws SqlJetException {
+                ISqlJetCursor c = t.open();
+                c.last();
+                c.previous();
+                assertTrue(c.getString(0).indexOf("nogi") > 0);
+                assertEquals(99998, c.getInteger(1));
+                return null;
+            }
+        });
+
     }
 }

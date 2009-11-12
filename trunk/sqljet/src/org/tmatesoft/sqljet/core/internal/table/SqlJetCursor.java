@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
@@ -40,9 +41,13 @@ public abstract class SqlJetCursor implements ISqlJetCursor {
     protected final ISqlJetBtreeTable btreeTable;
     protected final SqlJetDb db;
 
-    SqlJetCursor(ISqlJetBtreeTable table, SqlJetDb db) {
-        this.btreeTable = table;
-        this.db = db;
+    SqlJetCursor(ISqlJetBtreeTable table, SqlJetDb db) throws SqlJetException {
+        if (db.isInTransaction()) {
+            this.btreeTable = table;
+            this.db = db;
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Cursor requires active transaction");
+        }
     }
 
     public void close() throws SqlJetException {

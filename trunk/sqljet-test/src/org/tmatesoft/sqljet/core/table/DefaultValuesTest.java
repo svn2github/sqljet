@@ -51,30 +51,45 @@ public class DefaultValuesTest extends AbstractNewDbTest {
     public void insert() throws SqlJetException {
         final ISqlJetTable t = db.getTable("t");
         t.insert();
-        final ISqlJetCursor c = t.open();
-        Assert.assertFalse(c.isNull("b"));
-        Assert.assertEquals(1L, c.getInteger("b"));
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                Assert.assertFalse(c.isNull("b"));
+                Assert.assertEquals(1L, c.getInteger("b"));
+                return null;
+            }
+        });
     }
 
     @Test
     public void insertByNames() throws SqlJetException {
         final ISqlJetTable t = db.getTable("t");
         t.insertByFieldNames(new HashMap<String, Object>());
-        final ISqlJetCursor c = t.open();
-        Assert.assertFalse(c.isNull("b"));
-        Assert.assertEquals(1L, c.getInteger("b"));
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                Assert.assertFalse(c.isNull("b"));
+                Assert.assertEquals(1L, c.getInteger("b"));
+                return null;
+            }
+        });
     }
 
     @Test
     public void insertAffinity() throws SqlJetException {
         final ISqlJetTable t = db.getTable("t");
         t.insert();
-        final ISqlJetCursor c = t.open();
-        Assert.assertFalse(c.isNull("b"));
-        Object b = c.getValue("b");
-        Assert.assertTrue(b != null);
-        Assert.assertTrue(b.getClass() == Long.class);
-        Assert.assertEquals(1L, c.getValue("b"));
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                Assert.assertFalse(c.isNull("b"));
+                Object b = c.getValue("b");
+                Assert.assertTrue(b != null);
+                Assert.assertTrue(b.getClass() == Long.class);
+                Assert.assertEquals(1L, c.getValue("b"));
+                return null;
+            }
+        });
     }
 
 }

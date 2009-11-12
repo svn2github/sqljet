@@ -31,6 +31,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
+import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
@@ -205,15 +206,20 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         protected void work() throws Exception {
             rwlock.readLock().lock();
             try {
-                final ISqlJetCursor cursor = table.open();
-                try {
-                    do {
-                        final Object b = cursor.getValue("b");
-                        Assert.assertNotNull(b);
-                    } while (cursor.next());
-                } finally {
-                    cursor.close();
-                }
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor cursor = table.open();
+                        try {
+                            do {
+                                final Object b = cursor.getValue("b");
+                                Assert.assertNotNull(b);
+                            } while (cursor.next());
+                        } finally {
+                            cursor.close();
+                        }
+                        return null;
+                    }
+                });
             } finally {
                 rwlock.readLock().unlock();
             }
@@ -222,34 +228,28 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
     public static class LongReadThread extends TableThread {
 
-        protected ISqlJetCursor cursor;
-
         public LongReadThread(final File file, final String threadName, final String tableName) {
             super(file, threadName, tableName);
-        }
-
-        protected void setUp() throws Exception {
-            super.setUp();
-            cursor = table.open();
-        }
-
-        @Override
-        protected void tearDown() throws Exception {
-            try {
-                cursor.close();
-            } finally {
-                super.tearDown();
-            }
         }
 
         @Override
         protected void work() throws Exception {
             rwlock.readLock().lock();
             try {
-                for (cursor.first(); !cursor.eof(); cursor.next()) {
-                    final Object b = cursor.getValue("b");
-                    Assert.assertNotNull(b);
-                }
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor cursor = table.open();
+                        try {
+                            for (cursor.first(); !cursor.eof(); cursor.next()) {
+                                final Object b = cursor.getValue("b");
+                                Assert.assertNotNull(b);
+                            }
+                        } finally {
+                            cursor.close();
+                        }
+                        return null;
+                    }
+                });
             } finally {
                 rwlock.readLock().unlock();
             }
@@ -260,34 +260,27 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         protected Random random = new Random();
 
-        protected ISqlJetCursor cursor;
-
         public LongWriteThread(final File file, final String threadName, final String tableName) {
             super(file, threadName, tableName);
-        }
-
-        @Override
-        protected void setUp() throws Exception {
-            super.setUp();
-            cursor = table.open();
-        }
-
-        @Override
-        protected void tearDown() throws Exception {
-            try {
-                cursor.close();
-            } finally {
-                super.tearDown();
-            }
         }
 
         @Override
         protected void work() throws Exception {
             rwlock.writeLock().lock();
             try {
-                for (cursor.first(); !cursor.eof(); cursor.next()) {
-                    cursor.updateOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
-                }
+                db.runWriteTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor cursor = table.open();
+                        try {
+                            for (cursor.first(); !cursor.eof(); cursor.next()) {
+                                cursor.updateOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
+                            }
+                        } finally {
+                            cursor.close();
+                        }
+                        return null;
+                    }
+                });
             } finally {
                 rwlock.writeLock().unlock();
             }

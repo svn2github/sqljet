@@ -646,4 +646,5 @@ public interface ISqlJetBtree {
      */
     int getCacheSize();
     
+    void closeAllCursors() throws SqlJetException;
 }

@@ -130,82 +130,96 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexLookupNext() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
 
-        final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-        Assert.assertTrue(!lookup.eof());
-        final boolean firstNull = lookup.isNull(NAME_FIELD);
-        Assert.assertFalse(firstNull);
-        final SqlJetValueType firstType = lookup.getFieldType(NAME_FIELD);
-        Assert.assertTrue(firstType == SqlJetValueType.TEXT);
-        final String firstName = lookup.getString(NAME_FIELD);
-        Assert.assertNotNull(firstName);
-        Assert.assertEquals(TEST, firstName);
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
 
-        final boolean gotoSecond = lookup.next();
-        Assert.assertTrue(gotoSecond);
-        final boolean secondNull = lookup.isNull(NAME_FIELD);
-        Assert.assertFalse(secondNull);
-        final SqlJetValueType secondType = lookup.getFieldType(NAME_FIELD);
-        Assert.assertTrue(secondType == SqlJetValueType.TEXT);
-        final String secondName = lookup.getString(NAME_FIELD);
-        Assert.assertNotNull(secondName);
-        Assert.assertEquals(TEST, secondName);
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertTrue(!lookup.eof());
+                final boolean firstNull = lookup.isNull(NAME_FIELD);
+                Assert.assertFalse(firstNull);
+                final SqlJetValueType firstType = lookup.getFieldType(NAME_FIELD);
+                Assert.assertTrue(firstType == SqlJetValueType.TEXT);
+                final String firstName = lookup.getString(NAME_FIELD);
+                Assert.assertNotNull(firstName);
+                Assert.assertEquals(TEST, firstName);
 
-        final boolean gotoLast = lookup.next();
-        Assert.assertFalse(gotoLast);
-        final boolean eof = lookup.eof();
-        Assert.assertTrue(eof);
+                final boolean gotoSecond = lookup.next();
+                Assert.assertTrue(gotoSecond);
+                final boolean secondNull = lookup.isNull(NAME_FIELD);
+                Assert.assertFalse(secondNull);
+                final SqlJetValueType secondType = lookup.getFieldType(NAME_FIELD);
+                Assert.assertTrue(secondType == SqlJetValueType.TEXT);
+                final String secondName = lookup.getString(NAME_FIELD);
+                Assert.assertNotNull(secondName);
+                Assert.assertEquals(TEST, secondName);
 
-        lookup.close();
+                final boolean gotoLast = lookup.next();
+                Assert.assertFalse(gotoLast);
+                final boolean eof = lookup.eof();
+                Assert.assertTrue(eof);
+
+                lookup.close();
+
+                return null;
+            }
+        });
     }
 
     @Test
     public void indexDelete() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
-        Assert.assertTrue(!lookup.eof());
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertTrue(!lookup.eof());
                 lookup.delete();
                 Assert.assertFalse(lookup.eof());
                 lookup.delete();
                 Assert.assertTrue(lookup.eof());
+                lookup.close();
                 return null;
             }
         });
-        lookup.close();
     }
 
     @Test
     public void readBlob() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor cursor = table.open();
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
 
-        Assert.assertTrue(cursor.first());
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
+                final ISqlJetCursor cursor = table.open();
 
-        Assert.assertFalse(cursor.isNull(DATA_FIELD));
-        final byte[] firstData = cursor.getBlobAsArray(DATA_FIELD);
-        Assert.assertNotNull(firstData);
-        Assert.assertTrue(firstData.length > 0);
+                Assert.assertTrue(cursor.first());
 
-        Assert.assertTrue(cursor.next());
+                Assert.assertFalse(cursor.isNull(DATA_FIELD));
+                final byte[] firstData = cursor.getBlobAsArray(DATA_FIELD);
+                Assert.assertNotNull(firstData);
+                Assert.assertTrue(firstData.length > 0);
 
-        Assert.assertTrue(cursor.isNull(DATA_FIELD));
-        final byte[] secondData = cursor.getBlobAsArray(DATA_FIELD);
-        Assert.assertNull(secondData);
+                Assert.assertTrue(cursor.next());
 
-        Assert.assertTrue(cursor.next());
+                Assert.assertTrue(cursor.isNull(DATA_FIELD));
+                final byte[] secondData = cursor.getBlobAsArray(DATA_FIELD);
+                Assert.assertNull(secondData);
 
-        Assert.assertFalse(cursor.isNull(DATA_FIELD));
-        final byte[] lastData = cursor.getBlobAsArray(DATA_FIELD);
-        Assert.assertNotNull(lastData);
-        Assert.assertTrue(lastData.length > 0);
+                Assert.assertTrue(cursor.next());
 
-        Assert.assertFalse(cursor.next());
-        Assert.assertTrue(cursor.eof());
+                Assert.assertFalse(cursor.isNull(DATA_FIELD));
+                final byte[] lastData = cursor.getBlobAsArray(DATA_FIELD);
+                Assert.assertNotNull(lastData);
+                Assert.assertTrue(lastData.length > 0);
 
-        cursor.close();
+                Assert.assertFalse(cursor.next());
+                Assert.assertTrue(cursor.eof());
+
+                cursor.close();
+
+                return null;
+            }
+        });
     }
 
     @Test
@@ -252,10 +266,15 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final ISqlJetTable table = db.getTable(tableName);
         Assert.assertNotNull(table);
         final long newRowId = table.insert(null, testString);
-        final ISqlJetCursor cursor = table.open();
-        cursor.goTo(newRowId);
-        final String stringField = cursor.getString(NAME_FIELD);
-        Assert.assertEquals(testString, stringField);
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor cursor = table.open();
+                cursor.goTo(newRowId);
+                final String stringField = cursor.getString(NAME_FIELD);
+                Assert.assertEquals(testString, stringField);
+                return null;
+            }
+        });
     }
 
     @Test
@@ -323,13 +342,18 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void indexAutoupdate1() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        table.insert(null, "test1", 1);
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup.eof());
-        final String nameField = lookup.getString(1);
-        Assert.assertNotNull(nameField);
-        Assert.assertEquals("test1", nameField);
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
+                table.insert(null, "test1", 1);
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+                final String nameField = lookup.getString(1);
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)
@@ -342,135 +366,181 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void first() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
 
-        final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
 
-        Assert.assertFalse(lookupFail.first());
-        Assert.assertTrue(lookupFail.eof());
-        Assert.assertFalse(lookupFail.next());
-        Assert.assertTrue(lookupFail.eof());
-        Assert.assertFalse(lookupFail.next());
-        Assert.assertTrue(lookupFail.eof());
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
-        Assert.assertFalse(lookupFail.first());
-        Assert.assertTrue(lookupFail.eof());
-        Assert.assertFalse(lookupFail.next());
-        Assert.assertTrue(lookupFail.eof());
-        Assert.assertFalse(lookupFail.next());
-        Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.first());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
 
-        final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertFalse(lookupFail.first());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.next());
+                Assert.assertTrue(lookupFail.eof());
 
-        Assert.assertTrue(lookup.first());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertTrue(lookup.next());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertFalse(lookup.next());
-        Assert.assertTrue(lookup.eof());
-        Assert.assertFalse(lookup.next());
-        Assert.assertTrue(lookup.eof());
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
 
-        Assert.assertTrue(lookup.first());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertTrue(lookup.next());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertFalse(lookup.next());
-        Assert.assertTrue(lookup.eof());
-        Assert.assertFalse(lookup.next());
-        Assert.assertTrue(lookup.eof());
+                Assert.assertTrue(lookup.first());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+
+                Assert.assertTrue(lookup.first());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+                Assert.assertFalse(lookup.next());
+                Assert.assertTrue(lookup.eof());
+
+                return null;
+            }
+        });
     }
 
     @Test
     public void last() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
 
-        final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
 
-        Assert.assertFalse(lookupFail.last());
-        Assert.assertTrue(lookupFail.eof());
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
-        Assert.assertFalse(lookupFail.last());
-        Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.last());
+                Assert.assertTrue(lookupFail.eof());
 
-        final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertFalse(lookupFail.last());
+                Assert.assertTrue(lookupFail.eof());
 
-        Assert.assertTrue(lookup.last());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertTrue(lookup.previous());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertFalse(lookup.previous());
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+
+                Assert.assertTrue(lookup.last());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+
+                return null;
+            }
+        });
     }
 
     @Test
     public void prev() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
 
-        final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
+                final ISqlJetTable table = dbCopy.getTable(TABLE);
 
-        Assert.assertFalse(lookupFail.previous());
-        Assert.assertTrue(lookupFail.eof());
+                final ISqlJetCursor lookupFail = table.lookup(NAME_INDEX, "");
 
-        Assert.assertFalse(lookupFail.previous());
-        Assert.assertTrue(lookupFail.eof());
+                Assert.assertFalse(lookupFail.previous());
+                Assert.assertTrue(lookupFail.eof());
 
-        final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
+                Assert.assertFalse(lookupFail.previous());
+                Assert.assertTrue(lookupFail.eof());
 
-        Assert.assertTrue(lookup.next());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertTrue(lookup.previous());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertFalse(lookup.previous());
+                final ISqlJetCursor lookup = table.lookup(NAME_INDEX, TEST);
 
-        Assert.assertTrue(lookup.first());
-        Assert.assertTrue(lookup.next());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertTrue(lookup.previous());
-        Assert.assertFalse(lookup.eof());
-        Assert.assertFalse(lookup.previous());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+
+                Assert.assertTrue(lookup.first());
+                Assert.assertTrue(lookup.next());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertTrue(lookup.previous());
+                Assert.assertFalse(lookup.eof());
+                Assert.assertFalse(lookup.previous());
+
+                return null;
+            }
+        });
     }
 
     @Test
     public void insertByNames() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         values.put("value", 1);
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
         table.insertByFieldNames(values);
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup.eof());
-        final Object nameField = lookup.getValue("name");
-        Assert.assertNotNull(nameField);
-        Assert.assertEquals("test1", nameField);
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+                final Object nameField = lookup.getValue("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                return null;
+            }
+        });
     }
 
     @Test
     public void updateByNames() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor open = table.open();
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
         values.put("value", 111);
-        open.updateByFieldNames(values);
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup.eof());
-        final Object nameField = lookup.getValue("name");
-        Assert.assertNotNull(nameField);
-        Assert.assertEquals("test1", nameField);
-        Assert.assertEquals(111L, lookup.getValue("value"));
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor open = table.open();
+                open.updateByFieldNames(values);
+                return null;
+            }
+        });
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+                final Object nameField = lookup.getValue("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                Assert.assertEquals(111L, lookup.getValue("value"));
+                return null;
+            }
+        });
     }
 
     @Test
     public void updateByNamesSetNull() throws SqlJetException {
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor open = table.open();
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "zzz");
         values.put("value", null);
-        open.updateByFieldNames(values);
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "zzz");
-        Assert.assertFalse(lookup.eof());
-        Assert.assertNull(lookup.getValue("value"));
+        final ISqlJetTable table = dbCopy.getTable(TABLE);
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor open = table.open();
+                open.updateByFieldNames(values);
+                return null;
+            }
+        });
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "zzz");
+                Assert.assertFalse(lookup.eof());
+                Assert.assertNull(lookup.getValue("value"));
+                return null;
+            }
+        });
     }
 
     @Test
@@ -478,14 +548,24 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
         final ISqlJetTable table = dbCopy.getTable(TABLE);
         final Map<String, Object> values = new HashMap<String, Object>();
         values.put("name", "test1");
-        table.insertByFieldNames(values);
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        Assert.assertFalse(lookup.eof());
-        final Object nameField = lookup.getValue("name");
-        Assert.assertNotNull(nameField);
-        Assert.assertEquals("test1", nameField);
-        final Object valueField = lookup.getValue("value");
-        Assert.assertNull(valueField);
+        dbCopy.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(values);
+                return null;
+            }
+        });
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
+                Assert.assertFalse(lookup.eof());
+                final Object nameField = lookup.getValue("name");
+                Assert.assertNotNull(nameField);
+                Assert.assertEquals("test1", nameField);
+                final Object valueField = lookup.getValue("value");
+                Assert.assertNull(valueField);
+                return null;
+            }
+        });
     }
 
     @Test
@@ -512,137 +592,67 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void repCacheInsertShort() throws SqlJetException {
-        final ISqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
-        final Random random = new Random();
-        for (int i = 0; i < REPEATS_COUNT; i++) {
-            for (int y = 0; y < REPEATS_COUNT; y++) {
-                final String hash = String.valueOf(Math.abs(random.nextLong()));
-                ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
-                if (!lookup.first()) {
-                    logger.info(i + " " + hash);
-                    table.insert(hash, i, i, i, i);
-                    break;
+        repCacheDb.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable table = repCacheDb.getTable(REP_CACHE_TABLE);
+                final Random random = new Random();
+                for (int i = 0; i < REPEATS_COUNT; i++) {
+                    for (int y = 0; y < REPEATS_COUNT; y++) {
+                        final String hash = String.valueOf(Math.abs(random.nextLong()));
+                        ISqlJetCursor lookup = table.lookup(table.getPrimaryKeyIndexName(), hash);
+                        if (!lookup.first()) {
+                            logger.info(i + " " + hash);
+                            table.insert(hash, i, i, i, i);
+                            break;
+                        }
+                    }
                 }
+                return null;
             }
-        }
-    }
-
-    @Test
-    public void refreshCurrentRecord() throws SqlJetException {
-
-        final Map<String, Object> values = new HashMap<String, Object>();
-        values.put("name", "test1");
-        values.put("value", 1);
-
-        final ISqlJetTable table = dbCopy.getTable(TABLE);
-        final ISqlJetCursor open = table.open();
-
-        try {
-            open.updateByFieldNames(values);
-        } finally {
-            open.close();
-        }
-
-        final ISqlJetCursor lookup = table.lookup("test1_name_index", "test1");
-        try {
-            Assert.assertFalse(lookup.eof());
-
-            final Object nameField = lookup.getValue("name");
-            Assert.assertNotNull(nameField);
-            Assert.assertEquals("test1", nameField);
-
-            final Object valueField = lookup.getValue("value");
-            Assert.assertNotNull(valueField);
-            Assert.assertEquals(1L, valueField);
-
-            final SqlJetDb dbCopy2 = SqlJetDb.open(fileDbCopy, true);
-
-            try {
-                final ISqlJetTable table2 = dbCopy2.getTable(TABLE);
-                final ISqlJetCursor lookup2 = table2.lookup("test1_name_index", "test1");
-                try {
-                    Assert.assertFalse(lookup2.eof());
-
-                    final Object nameField2 = lookup2.getValue("name");
-                    Assert.assertNotNull(nameField2);
-                    Assert.assertEquals("test1", nameField2);
-
-                    final Object valueField2 = lookup2.getValue("value");
-                    Assert.assertNotNull(valueField2);
-                    Assert.assertEquals(1L, valueField2);
-                } finally {
-                    lookup2.close();
-                }
-
-                values.put("value", 2);
-                lookup.updateByFieldNames(values);
-
-                final Object nameField1 = lookup.getValue("name");
-                Assert.assertNotNull(nameField1);
-                Assert.assertEquals("test1", nameField1);
-
-                final Object valueField1 = lookup.getValue("value");
-                Assert.assertNotNull(valueField1);
-                Assert.assertEquals(2L, valueField1);
-
-                final ISqlJetCursor lookup2_1 = table2.lookup("test1_name_index", "test1");
-                try {
-                    Assert.assertFalse(lookup2_1.eof());
-
-                    final Object nameField2_1 = lookup2_1.getValue("name");
-                    Assert.assertNotNull(nameField2_1);
-                    Assert.assertEquals("test1", nameField2_1);
-
-                    final Object valueField2_1 = lookup2_1.getValue("value");
-                    Assert.assertNotNull(valueField2_1);
-                    Assert.assertEquals(2L, valueField2_1);
-                } finally {
-                    lookup2_1.close();
-                }
-            } finally {
-                dbCopy2.close();
-            }
-        } finally {
-            lookup.close();
-        }
-
+        });
     }
 
     @Test
     public void testManyNamesOfRowid() throws SqlJetException {
-        ISqlJetCursor c = dbCopy.getTable("test1").open();
-        c.goTo(1L);
-        Assert.assertFalse(c.eof());
-        Assert.assertEquals(1L, c.getInteger("ROWID"));
-        Assert.assertEquals(1L, c.getInteger("_ROWID_"));
-        Assert.assertEquals(1L, c.getInteger("OID"));
-        c.close();
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = dbCopy.getTable("test1").open();
+                try {
+                    c.goTo(1L);
+                    Assert.assertFalse(c.eof());
+                    Assert.assertEquals(1L, c.getInteger("ROWID"));
+                    Assert.assertEquals(1L, c.getInteger("_ROWID_"));
+                    Assert.assertEquals(1L, c.getInteger("OID"));
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
     }
 
     @Test
     public void testUpdateByNamesWithPK() throws SqlJetException {
-        final ISqlJetCursor c = dbCopy.getTable("test1").open();
-        c.goTo(1L);
-        Assert.assertFalse(c.eof());
-        Assert.assertEquals(1L, c.getInteger("id"));
-        Assert.assertEquals("test", c.getString("name"));
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
-
             public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = dbCopy.getTable("test1").open();
+                c.goTo(1L);
+                Assert.assertFalse(c.eof());
+                Assert.assertEquals(1L, c.getInteger("id"));
+                Assert.assertEquals("test", c.getString("name"));
                 Map<String, Object> values = new HashMap<String, Object>();
                 values.put("name", "mess");
                 c.updateByFieldNames(values);
+                Assert.assertEquals(1L, c.getInteger("id"));
+                Assert.assertEquals("mess", c.getString("name"));
+                c.close();
                 return null;
             }
         });
-        Assert.assertEquals(1L, c.getInteger("id"));
-        Assert.assertEquals("mess", c.getString("name"));
-        c.close();
     }
 
     private void createTableWithBlob() throws SqlJetException {
         dbCopy.runWriteTransaction(new ISqlJetTransaction() {
-
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.createTable("create table blobt (a blob)");
                 return null;
@@ -653,56 +663,61 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
     private static final String BLOB_DATA = "8Mb";
 
     private void checkBlobWasAdded() throws SqlJetException {
-        ISqlJetCursor c = dbCopy.getTable("blobt").open();
-        Assert.assertFalse(c.eof());
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                ISqlJetCursor c = dbCopy.getTable("blobt").open();
+                Assert.assertFalse(c.eof());
 
-        byte[] bytes = c.getBlobAsArray(0);
-        Assert.assertNotNull(bytes);
-        try {
-            Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+                byte[] bytes = c.getBlobAsArray(0);
+                Assert.assertNotNull(bytes);
+                try {
+                    Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
 
-        bytes = c.getBlobAsArray("a");
-        Assert.assertNotNull(bytes);
-        try {
-            Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+                bytes = c.getBlobAsArray("a");
+                Assert.assertNotNull(bytes);
+                try {
+                    Assert.assertEquals(BLOB_DATA, new String(bytes, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
 
-        InputStream stream = c.getBlobAsStream(0);
-        Assert.assertNotNull(stream);
-        byte[] blob = null;
-        try {
-            blob = new byte[stream.available()];
-            stream.read(blob);
-            stream.close();
-        } catch (IOException e) {
-            Assert.fail();
-        }
-        try {
-            Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+                InputStream stream = c.getBlobAsStream(0);
+                Assert.assertNotNull(stream);
+                byte[] blob = null;
+                try {
+                    blob = new byte[stream.available()];
+                    stream.read(blob);
+                    stream.close();
+                } catch (IOException e) {
+                    Assert.fail();
+                }
+                try {
+                    Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
 
-        stream = c.getBlobAsStream("a");
-        Assert.assertNotNull(stream);
-        blob = null;
-        try {
-            blob = new byte[stream.available()];
-            stream.read(blob);
-            stream.close();
-        } catch (IOException e) {
-            Assert.fail();
-        }
-        try {
-            Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalArgumentException(e);
-        }
+                stream = c.getBlobAsStream("a");
+                Assert.assertNotNull(stream);
+                blob = null;
+                try {
+                    blob = new byte[stream.available()];
+                    stream.read(blob);
+                    stream.close();
+                } catch (IOException e) {
+                    Assert.fail();
+                }
+                try {
+                    Assert.assertEquals(BLOB_DATA, new String(blob, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
+                }
+                return null;
+            }
+        });
     }
 
     @Test
@@ -742,23 +757,28 @@ public class SqlJetTableTest extends AbstractDataCopyTest {
 
     @Test
     public void testLookupByRowIdPK() throws SqlJetException {
-        final ISqlJetTable t = dbCopy.getTable("test1");
-        final ISqlJetCursor c1 = t.lookup(t.getPrimaryKeyIndexName(), 1);
-        try {
-            Assert.assertFalse(c1.eof());
-            Assert.assertEquals(1L, c1.getInteger("id"));
-            Assert.assertEquals("test", c1.getString("name"));
-        } finally {
-            c1.close();
-        }
-        final ISqlJetCursor c2 = t.lookup(t.getPrimaryKeyIndexName(), 2);
-        try {
-            Assert.assertFalse(c2.eof());
-            Assert.assertEquals(2L, c2.getInteger("id"));
-            Assert.assertEquals(777L, c2.getInteger("value"));
-        } finally {
-            c2.close();
-        }
+        dbCopy.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable t = dbCopy.getTable("test1");
+                final ISqlJetCursor c1 = t.lookup(t.getPrimaryKeyIndexName(), 1);
+                try {
+                    Assert.assertFalse(c1.eof());
+                    Assert.assertEquals(1L, c1.getInteger("id"));
+                    Assert.assertEquals("test", c1.getString("name"));
+                } finally {
+                    c1.close();
+                }
+                final ISqlJetCursor c2 = t.lookup(t.getPrimaryKeyIndexName(), 2);
+                try {
+                    Assert.assertFalse(c2.eof());
+                    Assert.assertEquals(2L, c2.getInteger("id"));
+                    Assert.assertEquals(777L, c2.getInteger("value"));
+                } finally {
+                    c2.close();
+                }
+                return null;
+            }
+        });
     }
 
     @Test

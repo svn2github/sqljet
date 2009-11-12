@@ -51,6 +51,10 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
+    /**
+     * 
+     */
+    private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
             .of(SqlJetFileOpenPermission.READONLY);
@@ -65,6 +69,7 @@ public class SqlJetDb implements ISqlJetLimits {
     private SqlJetSchema schema;
 
     private boolean transaction;
+    private SqlJetTransactionMode transactionMode;
 
     private boolean open = false;
 
@@ -282,7 +287,11 @@ public class SqlJetDb implements ISqlJetLimits {
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
-                    return op.run(SqlJetDb.this);
+                    if (mode != transactionMode && transactionMode == SqlJetTransactionMode.READ_ONLY) {
+                        throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
+                    } else {
+                        return op.run(SqlJetDb.this);
+                    }
                 } else {
                     beginTransaction(mode);
                     boolean success = false;
@@ -296,6 +305,7 @@ public class SqlJetDb implements ISqlJetLimits {
                             btree.rollback();
                         }
                         transaction = false;
+                        transactionMode = null;
                     }
                 }
             }
@@ -315,10 +325,11 @@ public class SqlJetDb implements ISqlJetLimits {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 refreshSchema();
                 if (transaction) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction already started");
+                    throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
                 } else {
                     btree.beginTrans(mode);
                     transaction = true;
+                    transactionMode = mode;
                     return null;
                 }
             }
@@ -335,8 +346,10 @@ public class SqlJetDb implements ISqlJetLimits {
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
+                    btree.closeAllCursors();
                     btree.commit();
                     transaction = false;
+                    transactionMode = null;
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
                 }
@@ -356,9 +369,11 @@ public class SqlJetDb implements ISqlJetLimits {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (transaction) {
                     try {
+                        btree.closeAllCursors();
                         btree.rollback();
                     } finally {
                         transaction = false;
+                        transactionMode = null;
                     }
                 } else {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
@@ -490,6 +505,15 @@ public class SqlJetDb implements ISqlJetLimits {
         if (!getOptions().verifySchemaVersion(false)) {
             readSchema();
         }
+    }
+
+    /**
+     * Return true if a transaction is active.
+     * 
+     * @return
+     */
+    public boolean isInTransaction() {
+        return transaction;
     }
 
 }

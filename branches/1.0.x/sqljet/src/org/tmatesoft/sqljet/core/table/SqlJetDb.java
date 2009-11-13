@@ -184,6 +184,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public int getCacheSize() throws SqlJetException {
         checkOpen();
+        refreshSchema();
         return (Integer) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return btree.getCacheSize();
@@ -226,6 +227,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public ISqlJetSchema getSchema() throws SqlJetException {
         checkOpen();
+        refreshSchema();
         return schema;
     }
 
@@ -239,6 +241,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public ISqlJetTable getTable(final String tableName) throws SqlJetException {
         checkOpen();
+        refreshSchema();
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetTable(db, schema, tableName, writable);
@@ -323,9 +326,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (!getOptions().verifySchemaVersion(false)) {
-                    readSchema();
-                }
+                refreshSchema();
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
                 } else {
@@ -402,6 +403,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public Object pragma(final String sql) throws SqlJetException {
         checkOpen();
+        refreshSchema();
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 return new SqlJetPragmasHandler(getOptions()).pragma(sql);

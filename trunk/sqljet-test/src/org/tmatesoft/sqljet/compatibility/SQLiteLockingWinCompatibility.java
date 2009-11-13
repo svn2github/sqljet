@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SQLiteLockingCompatibilityTest extends AbstractNewDbTest {
+public class SQLiteLockingWinCompatibility extends AbstractNewDbTest {
 
     private static final String TABLE_NAME = "t";
 

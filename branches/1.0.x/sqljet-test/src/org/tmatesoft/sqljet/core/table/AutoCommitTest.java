@@ -65,15 +65,20 @@ public class AutoCommitTest extends AbstractNewDbTest {
         try {
 
             if (success) {
-                final ISqlJetCursor lookup1 = table.lookup(null, 1);
-                Assert.assertTrue(!lookup1.eof());
-                Assert.assertEquals(2L, lookup1.getValue(B));
-                lookup1.close();
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor lookup1 = table.lookup(null, 1);
+                        Assert.assertTrue(!lookup1.eof());
+                        Assert.assertEquals(2L, lookup1.getValue(B));
+                        lookup1.close();
 
-                final ISqlJetCursor lookup3 = table.lookup(null, 3);
-                Assert.assertTrue(!lookup3.eof());
-                Assert.assertEquals(4L, lookup3.getValue(B));
-                lookup3.close();
+                        final ISqlJetCursor lookup3 = table.lookup(null, 3);
+                        Assert.assertTrue(!lookup3.eof());
+                        Assert.assertEquals(4L, lookup3.getValue(B));
+                        lookup3.close();
+                        return null;
+                    }
+                });
             }
 
         } finally {
@@ -205,10 +210,15 @@ public class AutoCommitTest extends AbstractNewDbTest {
 
     @Test
     public void updateAutoCommit() throws SqlJetException {
-        table.insert(1, 1);
-        table.insert(3, 3);
-        table.lookup(null, 1).update(null, 2);
-        table.lookup(null, 3).update(null, 4);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1, 1);
+                table.insert(3, 3);
+                table.lookup(null, 1).update(null, 2);
+                table.lookup(null, 3).update(null, 4);
+                return null;
+            }
+        });
         success = true;
     }
 
@@ -237,17 +247,27 @@ public class AutoCommitTest extends AbstractNewDbTest {
                 return null;
             }
         });
-        table.insert(7, 8);
-        table.lookup(null, 3).update(null, 4);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(7, 8);
+                table.lookup(null, 3).update(null, 4);
+                return null;
+            }
+        });
         success = true;
     }
 
     @Test
     public void updateWithRowIdAutoCommit() throws SqlJetException {
-        table.insertWithRowId(1, null, 1);
-        table.insertWithRowId(3, null, 3);
-        table.lookup(null, 1).updateWithRowId(0, null, 2);
-        table.lookup(null, 3).updateWithRowId(0, null, 4);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(1, null, 1);
+                table.insertWithRowId(3, null, 3);
+                table.lookup(null, 1).updateWithRowId(0, null, 2);
+                table.lookup(null, 3).updateWithRowId(0, null, 4);
+                return null;
+            }
+        });
         success = true;
     }
 
@@ -276,17 +296,27 @@ public class AutoCommitTest extends AbstractNewDbTest {
                 return null;
             }
         });
-        table.insertWithRowId(7, null, 8);
-        table.lookup(null, 3).updateWithRowId(0, null, 4);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertWithRowId(7, null, 8);
+                table.lookup(null, 3).updateWithRowId(0, null, 4);
+                return null;
+            }
+        });
         success = true;
     }
 
     @Test
     public void updateByFieldNamesAutoCommit() throws SqlJetException {
-        table.insertByFieldNames(map(A, 1, B, 1));
-        table.insertByFieldNames(map(A, 3, B, 3));
-        table.lookup(null, 1).updateByFieldNames(map(B, 2));
-        table.lookup(null, 3).updateByFieldNames(map(B, 4));
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(map(A, 1, B, 1));
+                table.insertByFieldNames(map(A, 3, B, 3));
+                table.lookup(null, 1).updateByFieldNames(map(B, 2));
+                table.lookup(null, 3).updateByFieldNames(map(B, 4));
+                return null;
+            }
+        });
         success = true;
     }
 
@@ -315,19 +345,29 @@ public class AutoCommitTest extends AbstractNewDbTest {
                 return null;
             }
         });
-        table.insertByFieldNames(map(A, 7, B, 8));
-        table.lookup(null, 3).updateByFieldNames(map(B, 4));
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insertByFieldNames(map(A, 7, B, 8));
+                table.lookup(null, 3).updateByFieldNames(map(B, 4));
+                return null;
+            }
+        });
         success = true;
     }
 
     @Test
     public void deleteAutoCommit() throws SqlJetException {
-        table.insert(1, 1);
-        table.insert(3, 3);
-        table.lookup(null, 1).delete();
-        table.lookup(null, 3).delete();
-        table.insert(1, 2);
-        table.insert(3, 4);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.insert(1, 1);
+                table.insert(3, 3);
+                table.lookup(null, 1).delete();
+                table.lookup(null, 3).delete();
+                table.insert(1, 2);
+                table.insert(3, 4);
+                return null;
+            }
+        });
         success = true;
     }
 
@@ -357,10 +397,15 @@ public class AutoCommitTest extends AbstractNewDbTest {
                 return null;
             }
         });
-        table.lookup(null, 3).delete();
-        table.insert(1, 2);
-        table.insert(3, 4);
-        success = true;
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                table.lookup(null, 3).delete();
+                table.insert(1, 2);
+                table.insert(3, 4);
+                success = true;
+                return null;
+            }
+        });
     }
 
     @Test
@@ -373,7 +418,12 @@ public class AutoCommitTest extends AbstractNewDbTest {
     public void createIndexAutocommit() throws SqlJetException {
         table.insert(1, 1);
         db.createIndex("create index idx on t(a,b)");
-        Assert.assertTrue(!db.getTable("t").lookup("idx", 1, 1).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(!db.getTable("t").lookup("idx", 1, 1).eof());
+                return null;
+            }
+        });
     }
 
     @Test

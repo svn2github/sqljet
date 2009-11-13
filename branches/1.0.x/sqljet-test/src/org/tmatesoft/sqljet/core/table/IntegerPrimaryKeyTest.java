@@ -72,13 +72,19 @@ public class IntegerPrimaryKeyTest {
     public void tearDown() throws Exception {
         try {
             if (success) {
-                final ISqlJetCursor c = t2 ? table2.open() : table.lookup(table.getPrimaryKeyIndexName(), rowId);
-                Assert.assertTrue(!c.eof());
-                Assert.assertEquals(rowId, c.getInteger(ID));
-                Assert.assertEquals(rowId, c.getInteger(ROWID));
-                Assert.assertEquals(rowId, c.getValue(ID));
-                Assert.assertEquals(rowId, c.getValue(ROWID));
-                Assert.assertEquals(rowId, c.getRowId());
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        final ISqlJetCursor c = t2 ? table2.open() : table
+                                .lookup(table.getPrimaryKeyIndexName(), rowId);
+                        Assert.assertTrue(!c.eof());
+                        Assert.assertEquals(rowId, c.getInteger(ID));
+                        Assert.assertEquals(rowId, c.getInteger(ROWID));
+                        Assert.assertEquals(rowId, c.getValue(ID));
+                        Assert.assertEquals(rowId, c.getValue(ROWID));
+                        Assert.assertEquals(rowId, c.getRowId());
+                        return null;
+                    }
+                });
             }
         } finally {
             try {
@@ -492,14 +498,24 @@ public class IntegerPrimaryKeyTest {
                 return null;
             }
         });
-        Assert.assertEquals(1L, table3.open().getValue(ID));
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertEquals(1L, table3.open().getValue(ID));
+                return null;
+            }
+        });
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 table3.insertWithRowId(0, 2L, null);
                 return null;
             }
         });
-        Assert.assertTrue(!table3.lookup(null, 2L).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(!table3.lookup(null, 2L).eof());
+                return null;
+            }
+        });
     }
 
 }

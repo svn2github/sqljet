@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
@@ -51,6 +52,7 @@ public class RowNumTest extends AbstractDataCopyTest {
         dbFile = copyFile(REP_CACHE_DB, true);
         db = SqlJetDb.open(dbFile, true);
         table = db.getTable(REP_CACHE_TABLE);
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
     }
 
     /**
@@ -60,7 +62,11 @@ public class RowNumTest extends AbstractDataCopyTest {
     public void tearDown() throws Exception {
         table = null;
         if (db != null) {
-            db.close();
+            try {
+                db.commit();
+            } finally {
+                db.close();
+            }
         }
         if (dbFile != null) {
             dbFile.delete();

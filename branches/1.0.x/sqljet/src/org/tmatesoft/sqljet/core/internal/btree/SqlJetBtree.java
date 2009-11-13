@@ -2262,6 +2262,21 @@ public class SqlJetBtree implements ISqlJetBtree {
 
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.ISqlJetBtree#closeAllCursors()
+     */
+    public void closeAllCursors() throws SqlJetException {
+        SqlJetBtreeCursor p;
+        enter();
+        try {
+            for (p = pBt.pCursor; p != null; p = p.pNext) {
+                p.closeCursor();
+            }
+        } finally {
+            leave();
+        }
+    }
+    
     /*
      * (non-Javadoc)
      * 

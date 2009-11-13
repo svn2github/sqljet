@@ -100,219 +100,290 @@ public class IndexScopeTest extends AbstractNewDbTest {
 
     @Test
     public void scope() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(2L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(4L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(2L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(4L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeFirst() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("b", new Object[] { 5 }, null);
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(5L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(6L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(7L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(8L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(9L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(10L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+
+                final ISqlJetCursor c = table.scope("b", new Object[] { 5 }, null);
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(5L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(6L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(7L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(8L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(9L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(10L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeLast() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("b", null, new Object[] { 5 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(1L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(4L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(5L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.scope("b", null, new Object[] { 5 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(1L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(4L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(5L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeNull() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("b", null, null);
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(1L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(4L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(5L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(6L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(7L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(8L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(9L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(10L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+
+                final ISqlJetCursor c = table.scope("b", null, null);
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(1L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(4L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(5L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(6L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(7L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(8L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(9L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(10L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeNear() throws SqlJetException {
-        final ISqlJetCursor c = table1.scope("b1", new Object[] { 4 }, new Object[] { 8 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(5L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(7L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table1.scope("b1", new Object[] { 4 }, new Object[] { 8 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(5L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(7L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeMulti1() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("ab", new Object[] { 2, 9 }, new Object[] { 9, 2 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(2L, c.getInteger("a"));
-        Assert.assertEquals(9L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("a"));
-        Assert.assertEquals(8L, c.getInteger("b"));
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.scope("ab", new Object[] { 2, 9 }, new Object[] { 9, 2 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(2L, c.getInteger("a"));
+                Assert.assertEquals(9L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("a"));
+                Assert.assertEquals(8L, c.getInteger("b"));
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopePrimary() throws SqlJetException {
-        final ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(2L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(4L, c.getInteger("a"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(2L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(4L, c.getInteger("a"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeRowId() throws SqlJetException {
-        final ISqlJetCursor c = table.scope(null, new Object[] { 2 }, new Object[] { 4 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(2L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(4L, c.getInteger("a"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.scope(null, new Object[] { 2 }, new Object[] { 4 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(2L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(4L, c.getInteger("a"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeRowIdNear() throws SqlJetException {
-        final ISqlJetCursor c = table3.scope(null, new Object[] { 4 }, new Object[] { 8 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(5L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(7L, c.getInteger("a"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table3.scope(null, new Object[] { 4 }, new Object[] { 8 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(5L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(7L, c.getInteger("a"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeDeleteInScope() throws SqlJetException {
-        final ISqlJetCursor c = table4.scope("b4", new Object[] { 7L }, new Object[] { 20L });
-        // should get two rows, one with 8, another with 10.
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(8L, c.getInteger("b"));
-        c.delete();
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(10L, c.getInteger("b"));
-        c.delete();
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table4.scope("b4", new Object[] { 7L }, new Object[] { 20L });
+                // should get two rows, one with 8, another with 10.
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(8L, c.getInteger("b"));
+                c.delete();
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(10L, c.getInteger("b"));
+                c.delete();
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeReverse() throws SqlJetException {
-        final ISqlJetCursor c = table.scope("b", new Object[] { 4 }, new Object[] { 2 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(4L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.scope("b", new Object[] { 4 }, new Object[] { 2 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(4L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopeReverse2() throws SqlJetException {
-        ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
-        c = c.reverse();
-
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(4L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("b"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("b"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                ISqlJetCursor c = table.scope("b", new Object[] { 2 }, new Object[] { 4 });
+                c = c.reverse();
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(4L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("b"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("b"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopePrimaryReverse() throws SqlJetException {
-        final ISqlJetCursor c = table2.scope(null, new Object[] { 4 }, new Object[] { 2 });
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(4L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("a"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table2.scope(null, new Object[] { 4 }, new Object[] { 2 });
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(4L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("a"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test
     public void scopePrimaryReverse2() throws SqlJetException {
-        ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
-        c = c.reverse();
-        Assert.assertTrue(!c.eof());
-        Assert.assertEquals(4L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(3L, c.getInteger("a"));
-        Assert.assertTrue(c.next());
-        Assert.assertEquals(2L, c.getInteger("a"));
-        Assert.assertTrue(!c.next());
-        Assert.assertTrue(c.eof());
-        c.close();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                ISqlJetCursor c = table2.scope(null, new Object[] { 2 }, new Object[] { 4 });
+                c = c.reverse();
+                Assert.assertTrue(!c.eof());
+                Assert.assertEquals(4L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(3L, c.getInteger("a"));
+                Assert.assertTrue(c.next());
+                Assert.assertEquals(2L, c.getInteger("a"));
+                Assert.assertTrue(!c.next());
+                Assert.assertTrue(c.eof());
+                c.close();
+                return null;
+            }
+        });
     }
 
     @Test(expected = SqlJetException.class)

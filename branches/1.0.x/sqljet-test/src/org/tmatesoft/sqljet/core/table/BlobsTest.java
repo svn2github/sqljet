@@ -44,17 +44,22 @@ public class BlobsTest extends AbstractNewDbTest {
             }
         });
 
-        final ISqlJetCursor c = t.open();
-        try {
-            if (!c.eof()) {
-                do {
-                    final byte[] b = c.getBlobAsArray(1);
-                    Assert.assertArrayEquals(blob, b);
-                } while (c.next());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                try {
+                    if (!c.eof()) {
+                        do {
+                            final byte[] b = c.getBlobAsArray(1);
+                            Assert.assertArrayEquals(blob, b);
+                        } while (c.next());
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
 
     }
 
@@ -90,26 +95,31 @@ public class BlobsTest extends AbstractNewDbTest {
             }
         });
 
-        final ISqlJetCursor c = t.open();
-        try {
-            if (!c.eof()) {
-                do {
-                    rnd.nextBytes(blob);
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                try {
+                    if (!c.eof()) {
+                        do {
+                            rnd.nextBytes(blob);
 
-                    try {
-                        c.update(rnd.nextInt(2048), blob);
-                    } catch (SqlJetException e) {
-                        if (!SqlJetErrorCode.CONSTRAINT.equals(e.getErrorCode())) {
-                            throw e;
-                        }
+                            try {
+                                c.update(rnd.nextInt(2048), blob);
+                            } catch (SqlJetException e) {
+                                if (!SqlJetErrorCode.CONSTRAINT.equals(e.getErrorCode())) {
+                                    throw e;
+                                }
+                            }
+
+                        } while (c.next());
                     }
-
-                } while (c.next());
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
 
     }
-    
+
 }

@@ -59,7 +59,7 @@ public class IndexOrderTest extends AbstractNewDbTest {
                 for (int i = 10; i > 0; i--) {
                     table1.insert(i, r.nextLong());
                 }
-                
+
                 return null;
             }
         });
@@ -68,152 +68,196 @@ public class IndexOrderTest extends AbstractNewDbTest {
 
     @Test
     public void defaultOrder() throws SqlJetException {
-        long l = Long.MAX_VALUE;
-        final ISqlJetCursor c = table.open();
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long b = c.getInteger("b");
-                Assert.assertTrue(l > b);
-                l = b;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MAX_VALUE;
+                final ISqlJetCursor c = table.open();
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long b = c.getInteger("b");
+                        Assert.assertTrue(l > b);
+                        l = b;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
 
     @Test
     public void order() throws SqlJetException {
-        long l = Long.MIN_VALUE;
-        final ISqlJetCursor c = table.order("b");
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long b = c.getInteger("b");
-                Assert.assertTrue(l < b);
-                l = b;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MIN_VALUE;
+                final ISqlJetCursor c = table.order("b");
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long b = c.getInteger("b");
+                        Assert.assertTrue(l < b);
+                        l = b;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
 
     @Test
     public void orderReverse() throws SqlJetException {
-        long l = Long.MAX_VALUE;
-        final ISqlJetCursor c = table.order("b").reverse();
-        int rowCount = 0;
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long b = c.getInteger("b");
-                Assert.assertTrue(l > b);
-                l = b;
-                rowCount++;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MAX_VALUE;
+                final ISqlJetCursor c = table.order("b").reverse();
+                int rowCount = 0;
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long b = c.getInteger("b");
+                        Assert.assertTrue(l > b);
+                        l = b;
+                        rowCount++;
+                    }
+                } finally {
+                    c.close();
+                }
+                Assert.assertTrue(c.eof());
+                Assert.assertTrue(rowCount == 10);
+                return null;
             }
-        } finally {
-            c.close();
-        }
-        Assert.assertTrue(c.eof());
-        Assert.assertTrue(rowCount == 10);
+        });
     }
 
     @Test
     public void orderReverseReverse() throws SqlJetException {
-        long l = Long.MIN_VALUE;
-        final ISqlJetCursor c = table.order("b").reverse().reverse();
-        int rowCount = 0;
-        try {
-            if (!c.eof()) {
-                do {
-                    final long b = c.getInteger("b");
-                    Assert.assertTrue(l < b);
-                    l = b;
-                    rowCount++;
-                } while (c.next());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MIN_VALUE;
+                final ISqlJetCursor c = table.order("b").reverse().reverse();
+                int rowCount = 0;
+                try {
+                    if (!c.eof()) {
+                        do {
+                            final long b = c.getInteger("b");
+                            Assert.assertTrue(l < b);
+                            l = b;
+                            rowCount++;
+                        } while (c.next());
+                    }
+                } finally {
+                    c.close();
+                }
+                Assert.assertTrue(c.eof());
+                Assert.assertTrue(rowCount == 10);
+                return null;
             }
-        } finally {
-            c.close();
-        }
-        Assert.assertTrue(c.eof());
-        Assert.assertTrue(rowCount == 10);
+        });
     }
 
     @Test
     public void orderReverseIPK() throws SqlJetException {
-        long l = Long.MAX_VALUE;
-        final ISqlJetCursor c = table.order(null).reverse();
-        int rowCount = 0;
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long a = c.getInteger("a");
-                Assert.assertTrue(l > a);
-                l = a;
-                rowCount++;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MAX_VALUE;
+                final ISqlJetCursor c = table.order(null).reverse();
+                int rowCount = 0;
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long a = c.getInteger("a");
+                        Assert.assertTrue(l > a);
+                        l = a;
+                        rowCount++;
+                    }
+                } finally {
+                    c.close();
+                }
+                Assert.assertTrue(c.eof());
+                Assert.assertTrue(rowCount == 10);
+                return null;
             }
-        } finally {
-            c.close();
-        }
-        Assert.assertTrue(c.eof());
-        Assert.assertTrue(rowCount == 10);
+        });
     }
 
-    
     @Test
     public void orderMulti() throws SqlJetException {
-        long l = Long.MIN_VALUE;
-        final ISqlJetCursor c = table.order("cb");
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long f = c.getInteger("c");
-                Assert.assertTrue(l < f);
-                l = f;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MIN_VALUE;
+                final ISqlJetCursor c = table.order("cb");
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long f = c.getInteger("c");
+                        Assert.assertTrue(l < f);
+                        l = f;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
 
     @Test
     public void orderDesc() throws SqlJetException {
-        long l = Long.MAX_VALUE;
-        final ISqlJetCursor c = table.order("cd");
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long f = c.getInteger("c");
-                Assert.assertTrue(l > f);
-                l = f;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MAX_VALUE;
+                final ISqlJetCursor c = table.order("cd");
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long f = c.getInteger("c");
+                        Assert.assertTrue(l > f);
+                        l = f;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
 
     @Test
     public void orderRowId() throws SqlJetException {
-        long l = Long.MIN_VALUE;
-        final ISqlJetCursor c = table.order(null);
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long a = c.getInteger("a");
-                Assert.assertTrue(l < a);
-                l = a;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MIN_VALUE;
+                final ISqlJetCursor c = table.order(null);
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long a = c.getInteger("a");
+                        Assert.assertTrue(l < a);
+                        l = a;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
-    
+
     @Test
     public void orderPrimary() throws SqlJetException {
-        long l = Long.MIN_VALUE;
-        final ISqlJetCursor c = table1.order(null);
-        try {
-            for (c.first(); !c.eof(); c.next()) {
-                final long a = c.getInteger("a");
-                Assert.assertTrue(l < a);
-                l = a;
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                long l = Long.MIN_VALUE;
+                final ISqlJetCursor c = table1.order(null);
+                try {
+                    for (c.first(); !c.eof(); c.next()) {
+                        final long a = c.getInteger("a");
+                        Assert.assertTrue(l < a);
+                        l = a;
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
             }
-        } finally {
-            c.close();
-        }
+        });
     }
-    
+
 }

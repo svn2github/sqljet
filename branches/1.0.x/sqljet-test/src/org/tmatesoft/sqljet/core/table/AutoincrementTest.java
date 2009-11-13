@@ -69,6 +69,11 @@ public class AutoincrementTest extends AbstractNewDbTest {
                 return null;
             }
         });
-        Assert.assertTrue(!table.lookup(null, 100).eof());
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Assert.assertTrue(!table.lookup(null, 100).eof());
+                return null;
+            }
+        });
     }
 }

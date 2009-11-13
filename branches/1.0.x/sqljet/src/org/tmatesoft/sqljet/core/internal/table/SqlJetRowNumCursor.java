@@ -37,8 +37,9 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     /**
      * @param table
      * @param db
+     * @throws SqlJetException 
      */
-    SqlJetRowNumCursor(ISqlJetBtreeTable table, SqlJetDb db) {
+    SqlJetRowNumCursor(ISqlJetBtreeTable table, SqlJetDb db) throws SqlJetException {
         super(table, db);
 
         rowsCount = -1;

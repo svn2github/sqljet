@@ -62,6 +62,15 @@ public class SqlJetTable implements ISqlJetTable {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Table not found: " + tableName);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#getDataBase()
+     */
+    public SqlJetDb getDataBase() {
+        return db;
+    }
+
     public String getPrimaryKeyIndexName() throws SqlJetException {
         final ISqlJetTableDef definition = getDefinition();
         return definition.isRowIdPrimaryKey() ? null : definition.getPrimaryKeyIndexName();

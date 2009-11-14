@@ -34,6 +34,8 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
  */
 public interface ISqlJetTable {
 
+    SqlJetDb getDataBase();
+    
     /**
      * @return the primaryKeyIndex
      */

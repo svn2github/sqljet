@@ -30,71 +30,86 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
+import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class DataTableModel implements TableModel {
-    
-    public static TableModel createInstance(ISqlJetTable table, long fromID, int pageSize, IProgress progress) throws SqlJetException {
+
+    public static TableModel createInstance(final ISqlJetTable table, final long fromID, final int pageSize,
+            final IProgress progress) throws SqlJetException {
         if (table == null) {
             return new DefaultTableModel();
         }
-        ArrayList<DataRow> data = new ArrayList<DataRow>(pageSize);
-        ISqlJetTableDef tableDef = table.getDefinition();
-        List<String> names = new ArrayList<String>();
-        for(ISqlJetColumnDef column : tableDef.getColumns()) {
+        final ArrayList<DataRow> data = new ArrayList<DataRow>(pageSize);
+        final ISqlJetTableDef tableDef = table.getDefinition();
+        final List<String> names = new ArrayList<String>();
+        for (ISqlJetColumnDef column : tableDef.getColumns()) {
             names.add(column.getName());
         }
-        String[] namesArray = (String[]) names.toArray(new String[names.size()]);
+        final String[] namesArray = (String[]) names.toArray(new String[names.size()]);
 
-        ISqlJetCursor cursor = table.open();//order(table.getPrimaryKeyIndexName());
-        try {
-            for(long i = 0; i < fromID && !cursor.eof(); i++) {
-                cursor.next();                
+        table.getDataBase().runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                ISqlJetCursor cursor = table.open();// order(table.getPrimaryKeyIndexName());
+                try {
+                    for (long i = 0; i < fromID && !cursor.eof(); i++) {
+                        cursor.next();
+                    }
+                    int count = 0;
+                    while (!cursor.eof() && count < pageSize) {
+                        data.add(DataRow.read(cursor, fromID + count, namesArray));
+                        progress.current(count);
+                        cursor.next();
+                        count++;
+                    }
+                } finally {
+                    cursor.close();
+                }
+                return null;
             }
-            int count = 0;
-            while(!cursor.eof() && count < pageSize) {
-                data.add(DataRow.read(cursor, fromID + count, namesArray));
-                progress.current(count);
-                cursor.next();
-                count++;
-            }
-        } finally {
-            cursor.close();
-        }
+        });
+
         return new DataTableModel(data, namesArray, fromID);
     }
-    
+
     private List<DataRow> myData;
     private String[] myNames;
     private long myIndex;
-    
+
     private DataTableModel(List<DataRow> data, String[] names, long fromIndex) {
         myData = data;
         myNames = names;
         myIndex = fromIndex;
     }
+
     public Class<?> getColumnClass(int columnIndex) {
         return Object.class;
     }
+
     public int getColumnCount() {
         return myNames.length + 1;
     }
+
     public String getColumnName(int columnIndex) {
         if (columnIndex == 0) {
             return "";
         }
         return myNames[columnIndex - 1];
     }
+
     public long getFirstIndex() {
         return myIndex;
     }
+
     public int getRowCount() {
         return myData.size();
     }
+
     public Object getValueAt(int rowIndex, int columnIndex) {
         columnIndex -= 1;
         if (columnIndex < 0) {
@@ -106,10 +121,13 @@ public class DataTableModel implements TableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
+
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     }
+
     public void addTableModelListener(TableModelListener l) {
     }
+
     public void removeTableModelListener(TableModelListener l) {
     }
 }

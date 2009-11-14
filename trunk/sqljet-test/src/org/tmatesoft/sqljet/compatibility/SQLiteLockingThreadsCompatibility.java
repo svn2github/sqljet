@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SQLiteLockingWinCompatibility extends AbstractNewDbTest {
+public class SQLiteLockingThreadsCompatibility extends AbstractNewDbTest {
 
     private static final String TABLE_NAME = "t";
 
@@ -79,7 +79,7 @@ public class SQLiteLockingWinCompatibility extends AbstractNewDbTest {
     @Test
     public void lockingSQLite() throws Exception {
         db.getTable(TABLE_NAME).insert(null, 1);
-        stat.execute(String.format("begin immediate;"));
+        stat.execute("begin immediate;");
         try {
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
@@ -91,7 +91,7 @@ public class SQLiteLockingWinCompatibility extends AbstractNewDbTest {
             Assert.assertEquals(SqlJetErrorCode.BUSY, e.getErrorCode());
             return;
         } finally {
-            stat.execute(String.format("end;", TABLE_NAME));
+            stat.execute("end;");
         }
         Assert.fail();
     }

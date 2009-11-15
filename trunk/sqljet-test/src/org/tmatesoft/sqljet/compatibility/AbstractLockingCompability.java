@@ -20,12 +20,10 @@ package org.tmatesoft.sqljet.compatibility;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import junit.framework.Assert;
 
-import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
@@ -36,14 +34,14 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SQLiteLockingProcessesCompability {
+public abstract class AbstractLockingCompability {
 
     private static final String PROPERTY_NAMESPACE = "sqljet.test.compability.";
     private static final String FILE_PROPERTY = PROPERTY_NAMESPACE + "file";
     private static final String FILE_NAME = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
-    private static final int TIMEOUT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "timeout", 3000);
+    private static final int TIMEOUT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "timeout", 1000);
 
-    private static void lockSQLite() throws Exception {
+    static void lockSQLite() throws Exception {
         Assert.assertNotNull(String.format("property '%s'  isn't specified", FILE_PROPERTY), FILE_NAME);
         Class.forName("org.sqlite.JDBC");
         final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE_NAME);
@@ -64,7 +62,7 @@ public class SQLiteLockingProcessesCompability {
         }
     }
 
-    private static void lockSQLJet() throws SqlJetException {
+    static void lockSQLJet() throws SqlJetException {
         Assert.assertNotNull(String.format("property '%s'  isn't specified", FILE_PROPERTY), FILE_NAME);
         final SqlJetDb db = SqlJetDb.open(new File(FILE_NAME), true);
         try {
@@ -82,47 +80,6 @@ public class SQLiteLockingProcessesCompability {
             if (db != null) {
                 db.close();
             }
-        }
-    }
-
-    public static class SuccessSQLite {
-        @Test
-        public void successSQLite() throws Exception {
-            lockSQLite();
-        }
-    }
-
-    public static class SuccessSQLJet {
-        @Test
-        public void successSQLJet() throws SqlJetException {
-            lockSQLJet();
-        }
-    }
-
-    public static class FailSQLite {
-        @Test(expected = SQLException.class)
-        public void failSQLite() throws Exception {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return;
-            }
-            lockSQLite();
-            Assert.fail();
-        }
-
-    }
-
-    public static class FailSQLJet {
-        @Test(expected = SqlJetException.class)
-        public void failSQLJet() throws SqlJetException {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return;
-            }
-            lockSQLJet();
-            Assert.fail();
         }
     }
 

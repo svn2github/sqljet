@@ -521,7 +521,7 @@ public class SqlParser</replacevalue>
 					<fileset dir="lib" includes="*.jar" />
 				</classpath>
 				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SQLiteLockingProcessesCompability$SuccessSQLite">
+				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SuccessSQLiteLockingCompability">
 				</test>
 			</junit>
 			<junit>
@@ -534,7 +534,7 @@ public class SqlParser</replacevalue>
 					<fileset dir="lib" includes="*.jar" />
 				</classpath>
 				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SQLiteLockingProcessesCompability$FailSQLJet">
+				<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLJetLockingCompability">
 				</test>
 			</junit>
 		</parallel>
@@ -550,7 +550,7 @@ public class SqlParser</replacevalue>
 					<fileset dir="lib" includes="*.jar" />
 				</classpath>
 				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SQLiteLockingProcessesCompability$SuccessSQLJet">
+				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability">
 				</test>
 			</junit>
 			<junit>
@@ -563,7 +563,7 @@ public class SqlParser</replacevalue>
 					<fileset dir="lib" includes="*.jar" />
 				</classpath>
 				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SQLiteLockingProcessesCompability$FailSQLite">
+				<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability">
 				</test>
 			</junit>
 		</parallel>

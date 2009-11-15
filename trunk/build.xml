@@ -553,19 +553,22 @@ public class SqlParser</replacevalue>
 				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability">
 				</test>
 			</junit>
-			<junit>
-				<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
-				<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
-				<classpath path="sqljet/bin" />
-				<classpath path="sqljet-test/bin" />
-				<classpath>
-					<fileset dir="sqljet-test/lib" includes="*.jar" excludes="sqlitejdbc-v056-pure.jar" />
-					<fileset dir="lib" includes="*.jar" />
-				</classpath>
-				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability">
-				</test>
-			</junit>
+			<sequential>
+				<sleep milliseconds="50" />
+				<junit>
+					<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+					<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
+					<classpath path="sqljet/bin" />
+					<classpath path="sqljet-test/bin" />
+					<classpath>
+						<fileset dir="sqljet-test/lib" includes="*.jar" excludes="sqlitejdbc-v056-pure.jar" />
+						<fileset dir="lib" includes="*.jar" />
+					</classpath>
+					<formatter type="plain" usefile="false" />
+					<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability">
+					</test>
+				</junit>
+			</sequential>
 		</parallel>
 
 	</target>

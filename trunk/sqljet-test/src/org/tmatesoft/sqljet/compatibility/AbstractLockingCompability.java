@@ -39,7 +39,7 @@ public abstract class AbstractLockingCompability {
     private static final String PROPERTY_NAMESPACE = "sqljet.test.compability.";
     private static final String FILE_PROPERTY = PROPERTY_NAMESPACE + "file";
     private static final String FILE_NAME = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
-    private static final int TIMEOUT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "timeout", 1000);
+    private static final int TIMEOUT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "timeout", 5000);
 
     static void lockSQLite() throws Exception {
         Assert.assertNotNull(String.format("property '%s'  isn't specified", FILE_PROPERTY), FILE_NAME);

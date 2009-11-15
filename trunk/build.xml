@@ -340,6 +340,8 @@ public class SqlParser</replacevalue>
 			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true" />
 			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
 		</junit>
+		<antcall target="compability">
+		</antcall>
 	</target>
 
 	<target name="benchmarks" depends="deploy,benchmarks-server">
@@ -505,7 +507,7 @@ public class SqlParser</replacevalue>
 		<echoproperties prefix="java.vm." />
 	</target>
 
-	<target name="compability" depends="deploy">
+	<target name="compability">
 
 		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true" createfile="true">
 		</tempfile>

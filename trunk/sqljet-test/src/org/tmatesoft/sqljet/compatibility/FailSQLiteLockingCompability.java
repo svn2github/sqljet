@@ -26,11 +26,6 @@ import org.junit.Test;
 public class FailSQLiteLockingCompability {
     @Test(expected = SQLException.class)
     public void failSQLite() throws Exception {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            return;
-        }
         AbstractLockingCompability.lockSQLite();
         Assert.fail();
     }

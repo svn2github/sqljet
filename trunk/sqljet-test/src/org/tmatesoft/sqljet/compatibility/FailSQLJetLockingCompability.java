@@ -25,11 +25,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 public class FailSQLJetLockingCompability {
     @Test(expected = SqlJetException.class)
     public void failSQLJet() throws SqlJetException {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            return;
-        }
         AbstractLockingCompability.lockSQLJet();
         Assert.fail();
     }

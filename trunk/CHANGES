@@ -18,7 +18,7 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
  
   * Fields size was stored in db schema as x.x (float numbers), fixed (-r637)
   * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649)
-  * Problems using case mismatching names of tables and indicies fixed (-r674, 679, 700)
+  * Problems using case mismatching names of tables and indices fixed (-r674, 679, 700)
   * Number of concurrency issues fixed.
 
 Version 1.0.0

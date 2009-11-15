@@ -11,13 +11,14 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * Affinity mode for column types (issue #75) (-r653)
   * New ISqlJetCursor methods to get row count, current row and go to row (issue #92) (-r652)
   * New ISqlJetCursor.setLimit(...) method (issue #92) (-r701)
+  * New insert and update methods with ON CONFLICT statement logic support (-r702).
   * Performance optimizations.
   
  Bugfixes:
  
   * Fields size was stored in db schema as x.x (float numbers), fixed (-r637)
   * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649)
-  * Problems using case mismatching names of tables and idicies fixed (-r674, 679, 700).
+  * Problems using case mismatching names of tables and indicies fixed (-r674, 679, 700).
   * Number of concurrency issues fixed.
 
 Version 1.0.0

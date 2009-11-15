@@ -575,7 +575,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
         }
 
-        final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFields(row) : null;
+        final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFieldsOr(onConflict, row) : null;
 
         class IndexKeys {
 
@@ -673,9 +673,21 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @return
      */
     public Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
+        return getAsNamedFieldsOr(SqlJetConflictAction.ABORT, values);
+    }
 
+    /**
+     * @param values
+     * @return
+     */
+    public Map<String, Object> getAsNamedFieldsOr(SqlJetConflictAction onConflict, Object... values)
+            throws SqlJetException {
         if (values == null) {
             return null;
+        }
+
+        if (onConflict == null) {
+            onConflict = SqlJetConflictAction.ABORT;
         }
 
         final int fieldsSize = values.length;
@@ -690,12 +702,20 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         int i = 0;
         for (final ISqlJetColumnDef column : columns) {
             if (null != column.getConstraints()) {
+                boolean notNull = false;
+                boolean defaultValue = false;
                 for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
                     if (constraint instanceof ISqlJetColumnNotNull) {
                         if (i >= fieldsSize || null == values[i]) {
-                            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName()
-                                    + " is NOT NULL");
+                            notNull = true;
                         }
+                    } else if (constraint instanceof ISqlJetColumnDefault) {
+                        defaultValue = true;
+                    }
+                }
+                if (notNull && !defaultValue) {
+                    if (onConflict != SqlJetConflictAction.IGNORE) {
+                        throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName() + " is NOT NULL");
                     }
                 }
             }

@@ -125,4 +125,23 @@ public class ConflictTest extends AbstractNewDbTest {
         });
     }
 
+    @Test
+    public void notNull() throws SqlJetException {
+        db.createTable("create table t1(a integer primary key, b integer not null default 0," + "c integer not null);");
+        final ISqlJetTable t1 = db.getTable("t1");
+        t1.insert(null, null, 0);
+        try {
+            t1.insert(null, null, null);
+            Assert.fail();
+        } catch (SqlJetException e) {
+        }
+        t1.insertOr(SqlJetConflictAction.IGNORE, null, null, null);
+        try {
+            t1.insertOr(SqlJetConflictAction.REPLACE, null, null, null);
+            Assert.fail();
+        } catch (SqlJetException e) {
+        }
+        t1.insertOr(SqlJetConflictAction.REPLACE, null, null, 0);
+    }
+
 }

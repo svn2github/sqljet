@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.compatibility;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -51,16 +52,28 @@ public abstract class AbstractLockingCompability {
         Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, SEMAPHORE_PROPERTY), SEMAPHORE);
     }
 
-    private static void notifySemaphore() throws Exception {
-        final File f = new File(SEMAPHORE);
-        if (!f.exists()) {
-            f.createNewFile();
+    protected static void resetSemaphore() throws Exception {
+        final File s = new File(SEMAPHORE);
+        if (s.exists()) {
+            final RandomAccessFile f = new RandomAccessFile(s, "rw");
+            try {
+                f.setLength(0);
+            } finally {
+                f.close();
+            }
         }
-        final OutputStream s = new FileOutputStream(f);
+    }
+
+    private static void notifySemaphore() throws Exception {
+        final File s = new File(SEMAPHORE);
+        if (!s.exists()) {
+            s.createNewFile();
+        }
+        final RandomAccessFile f = new RandomAccessFile(s, "rw");
         try {
-            s.write(0);
+            f.write(0);
         } finally {
-            s.close();
+            f.close();
         }
     }
 

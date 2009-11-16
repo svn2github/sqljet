@@ -509,8 +509,8 @@ public class SqlParser</replacevalue>
 		<echoproperties prefix="java.vm." />
 	</target>
 
-	<target name="compability" depends="deploy,compability-nodeploy"/>
-	
+	<target name="compability" depends="deploy,compability-nodeploy" />
+
 	<target name="compability-nodeploy">
 
 		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true" />
@@ -552,11 +552,8 @@ public class SqlParser</replacevalue>
 		</macrodef>
 
 		<macrodef name="notify-semaphore">
-			<attribute name="semaphore" default="${compability.semaphore}" />
-			<attribute name="create" default="true" />
-			<attribute name="value" default="0" />
 			<sequential>
-				<truncate file="@{semaphore}" create="@{create}" length="@{value}" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.SemaphoreResetLockingCompability" />
 			</sequential>
 		</macrodef>
 

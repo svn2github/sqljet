@@ -19,9 +19,9 @@ package org.tmatesoft.sqljet.compatibility;
 
 import org.junit.Test;
 
-public class SuccessSQLiteLockingCompability {
+public class CompabilityLockingSQLite {
     @Test
     public void successSQLite() throws Exception {
-        AbstractLockingCompability.lockSQLite();
+        CompabilityLockingAbstract.lockSQLite();
     }
 }

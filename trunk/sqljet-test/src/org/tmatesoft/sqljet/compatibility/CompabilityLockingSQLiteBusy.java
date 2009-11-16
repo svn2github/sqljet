@@ -1,5 +1,5 @@
 /**
- * FailSQLJet.java
+ * FailSQLite.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,15 +17,17 @@
  */
 package org.tmatesoft.sqljet.compatibility;
 
+import java.sql.SQLException;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.tmatesoft.sqljet.core.SqlJetException;
 
-public class FailSQLJetLockingCompability {
-    @Test(expected = SqlJetException.class)
-    public void failSQLJet() throws SqlJetException {
-        AbstractLockingCompability.lockSQLJet();
+public class CompabilityLockingSQLiteBusy {
+    @Test(expected = SQLException.class)
+    public void failSQLite() throws Exception {
+        CompabilityLockingAbstract.lockSQLite();
         Assert.fail();
     }
+
 }

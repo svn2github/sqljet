@@ -554,26 +554,26 @@ public class SqlParser</replacevalue>
 
 		<macrodef name="notify-semaphore">
 			<sequential>
-				<run-test name="org.tmatesoft.sqljet.compatibility.SemaphoreResetLockingCompability" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSemaphoreReset" />
 			</sequential>
 		</macrodef>
 
 		<notify-semaphore />
 		<parallel failonany="true" timeout="10000" threadCount="2">
-			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLiteLockingCompability" />
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLite" />
 			<sequential>
 				<wait-semaphore />
-				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLJetLockingCompability" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLJetBusy" />
 				<notify-semaphore />
 			</sequential>
 		</parallel>
 
 		<notify-semaphore />
 		<parallel failonany="true" timeout="10000" threadCount="2">
-			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability" />
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLJet" />
 			<sequential>
 				<wait-semaphore />
-				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLiteBusy" />
 				<notify-semaphore />
 			</sequential>
 		</parallel>

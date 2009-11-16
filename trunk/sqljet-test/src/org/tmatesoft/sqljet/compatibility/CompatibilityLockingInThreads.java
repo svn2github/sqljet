@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SQLiteLockingThreadsCompatibility extends AbstractNewDbTest {
+public class CompatibilityLockingInThreads extends AbstractNewDbTest {
 
     private static final String TABLE_NAME = "t";
 

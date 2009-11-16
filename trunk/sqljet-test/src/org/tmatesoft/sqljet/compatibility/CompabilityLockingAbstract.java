@@ -18,8 +18,6 @@
 package org.tmatesoft.sqljet.compatibility;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,7 +35,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public abstract class AbstractLockingCompability {
+public abstract class CompabilityLockingAbstract {
 
     private static final String PROPERTY_IS_NOT_SPECIFIED = "property '%s'  is not specified";
     private static final String PROPERTY_NAMESPACE = "sqljet.test.compability.";

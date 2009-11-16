@@ -1,5 +1,5 @@
 /**
- * SuccessSQLJet.java
+ * SuccessSQLite.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -18,11 +18,10 @@
 package org.tmatesoft.sqljet.compatibility;
 
 import org.junit.Test;
-import org.tmatesoft.sqljet.core.SqlJetException;
 
-public class SuccessSQLJetLockingCompability {
+public class CompabilityLockingSemaphoreReset {
     @Test
-    public void successSQLJet() throws SqlJetException {
-        AbstractLockingCompability.lockSQLJet();
+    public void semaphoreReset() throws Exception {
+        CompabilityLockingAbstract.resetSemaphore();
     }
 }

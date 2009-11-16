@@ -511,28 +511,14 @@ public class SqlParser</replacevalue>
 
 	<target name="compability">
 
-		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true">
-		</tempfile>
+		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true" />
 
-		<parallel failonany="true" timeout="10000" threadCount="2">
-			<junit>
-				<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
-				<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
-				<classpath path="sqljet/bin" />
-				<classpath path="sqljet-test/bin" />
-				<classpath>
-					<fileset dir="sqljet-test/lib" includes="*.jar" excludes="sqlitejdbc-v056-pure.jar" />
-					<fileset dir="lib" includes="*.jar" />
-				</classpath>
-				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SuccessSQLiteLockingCompability">
-				</test>
-			</junit>
+		<macrodef name="run-test">
+			<attribute name="logging" default="false" />
+			<attribute name="name" />
 			<sequential>
-				<sleep milliseconds="500" />
 				<junit>
-					<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
-					<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
+					<sysproperty key="SQLJET_TESTS_LOGGING" value="@{logging}" />
 					<classpath path="sqljet/bin" />
 					<classpath path="sqljet-test/bin" />
 					<classpath>
@@ -540,41 +526,25 @@ public class SqlParser</replacevalue>
 						<fileset dir="lib" includes="*.jar" />
 					</classpath>
 					<formatter type="plain" usefile="false" />
-					<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLJetLockingCompability">
-					</test>
+					<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
+					<test fork="true" name="@{name}" />
 				</junit>
+			</sequential>
+		</macrodef>
+
+		<parallel failonany="true" timeout="10000" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLiteLockingCompability" />
+			<sequential>
+				<sleep milliseconds="500" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLJetLockingCompability" />
 			</sequential>
 		</parallel>
 
 		<parallel failonany="true" timeout="10000" threadCount="2">
-			<junit>
-				<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
-				<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
-				<classpath path="sqljet/bin" />
-				<classpath path="sqljet-test/bin" />
-				<classpath>
-					<fileset dir="sqljet-test/lib" includes="*.jar" excludes="sqlitejdbc-v056-pure.jar" />
-					<fileset dir="lib" includes="*.jar" />
-				</classpath>
-				<formatter type="plain" usefile="false" />
-				<test fork="true" name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability">
-				</test>
-			</junit>
+			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability" />
 			<sequential>
 				<sleep milliseconds="500" />
-				<junit>
-					<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
-					<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
-					<classpath path="sqljet/bin" />
-					<classpath path="sqljet-test/bin" />
-					<classpath>
-						<fileset dir="sqljet-test/lib" includes="*.jar" excludes="sqlitejdbc-v056-pure.jar" />
-						<fileset dir="lib" includes="*.jar" />
-					</classpath>
-					<formatter type="plain" usefile="false" />
-					<test fork="true" name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability">
-					</test>
-				</junit>
+				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability" />
 			</sequential>
 		</parallel>
 

@@ -157,6 +157,7 @@ public class SqlParser</replacevalue>
 			<zipfileset dir="">
 				<include name="COPYING" />
 				<include name="README.txt" />
+				<include name="CHANGES" />
 			</zipfileset>
 		</zip>
 
@@ -233,6 +234,7 @@ public class SqlParser</replacevalue>
 			<zipfileset dir="" prefix="sqljet.${build.number}">
 				<include name="COPYING" />
 				<include name="README.txt" />
+				<include name="CHANGES" />
 			</zipfileset>
 		</zip>
 
@@ -281,14 +283,13 @@ public class SqlParser</replacevalue>
 
 		<jar destfile="build/maven-deploy/org.tmatesoft.sqljet-${build.number}/sqljet-${build.number}-sources.jar">
 			<fileset dir="">
+				<include name="COPYING" />
 				<include name="README.txt" />
+				<include name="CHANGES" />
 			</fileset>
 			<fileset dir="sqljet/src">
 				<exclude name=".svn" />
 				<exclude name=".svn/**" />
-			</fileset>
-			<fileset dir="">
-				<include name="COPYING" />
 			</fileset>
 			<fileset dir="build">
 				<include name="sqljet.build.properties" />

@@ -12,6 +12,9 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * New ISqlJetCursor methods to get row count, current row and go to row (issue #92) (-r652)
   * New ISqlJetCursor.setLimit(...) method (issue #92) (-r701)
   * New insert and update methods with ON CONFLICT statement logic support (-r702)
+  * New runtime prerequisite added: all cursors must be opened within active transaction (-r709)
+  * New method SqlJetDb.refreshSchema() (-r698)
+  * Busy handlers support added (-r688)
   * Performance optimizations.
   
  Bugfixes:
@@ -19,6 +22,7 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * Fields size was stored in db schema as x.x (float numbers), fixed (-r637)
   * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649)
   * Problems using case mismatching names of tables and indices fixed (-r674, 679, 700)
+  * Antiviruses block access to temporary created files, fixed (-r657)
   * Number of concurrency issues fixed.
 
 Version 1.0.0

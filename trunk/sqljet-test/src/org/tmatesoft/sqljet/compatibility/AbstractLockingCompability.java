@@ -18,6 +18,8 @@
 package org.tmatesoft.sqljet.compatibility;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -36,22 +38,52 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public abstract class AbstractLockingCompability {
 
+    private static final String PROPERTY_IS_NOT_SPECIFIED = "property '%s'  is not specified";
     private static final String PROPERTY_NAMESPACE = "sqljet.test.compability.";
     private static final String FILE_PROPERTY = PROPERTY_NAMESPACE + "file";
-    private static final String FILE_NAME = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
-    private static final int TIMEOUT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "timeout", 5000);
+    private static final String SEMAPHORE_PROPERTY = PROPERTY_NAMESPACE + "semaphore";
+    private static final String FILE = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
+    private static final String SEMAPHORE = SqlJetUtility.getSysProp(SEMAPHORE_PROPERTY, null);
+    private static final int MAXWAIT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "maxwait", 1000);
+
+    private static void checkProperties() {
+        Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, FILE_PROPERTY), FILE);
+        Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, SEMAPHORE_PROPERTY), SEMAPHORE);
+    }
+
+    private static void notifySemaphore() throws Exception {
+        final File f = new File(SEMAPHORE);
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        final OutputStream s = new FileOutputStream(f);
+        try {
+            s.write(0);
+        } finally {
+            s.close();
+        }
+    }
+
+    private static void waitSemaphore() throws Exception {
+        final File f = new File(SEMAPHORE);
+        for (int i = 0; i < MAXWAIT; i++) {
+            if (!f.exists() || f.length() == 0) {
+                return;
+            }
+            Thread.sleep(10);
+        }
+    }
 
     static void lockSQLite() throws Exception {
-        Assert.assertNotNull(String.format("property '%s'  isn't specified", FILE_PROPERTY), FILE_NAME);
+        checkProperties();
         Class.forName("org.sqlite.JDBC");
-        final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE_NAME);
+        final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
         try {
             final Statement stat = conn.createStatement();
             stat.execute("begin immediate;");
             try {
-                Thread.sleep(TIMEOUT);
-            } catch (InterruptedException e) {
-                return;
+                notifySemaphore();
+                waitSemaphore();
             } finally {
                 stat.execute("end;");
             }
@@ -63,14 +95,15 @@ public abstract class AbstractLockingCompability {
     }
 
     static void lockSQLJet() throws SqlJetException {
-        Assert.assertNotNull(String.format("property '%s'  isn't specified", FILE_PROPERTY), FILE_NAME);
-        final SqlJetDb db = SqlJetDb.open(new File(FILE_NAME), true);
+        checkProperties();
+        final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
         try {
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
                     try {
-                        Thread.sleep(TIMEOUT);
-                    } catch (InterruptedException e) {
+                        notifySemaphore();
+                        waitSemaphore();
+                    } catch (Exception e) {
                         return null;
                     }
                     return null;

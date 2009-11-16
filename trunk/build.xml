@@ -341,7 +341,7 @@ public class SqlParser</replacevalue>
 			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
 		</junit>
 
-		<antcall target="compability">
+		<antcall target="compability-nodeploy">
 		</antcall>
 
 	</target>
@@ -509,9 +509,12 @@ public class SqlParser</replacevalue>
 		<echoproperties prefix="java.vm." />
 	</target>
 
-	<target name="compability">
+	<target name="compability" depends="deploy,compability-nodeploy"/>
+	
+	<target name="compability-nodeploy">
 
 		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true" />
+		<tempfile prefix="sqljet" property="compability.semaphore" deleteonexit="true" />
 
 		<macrodef name="run-test">
 			<attribute name="logging" default="false" />
@@ -527,26 +530,58 @@ public class SqlParser</replacevalue>
 					</classpath>
 					<formatter type="plain" usefile="false" />
 					<sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
+					<sysproperty key="sqljet.test.compability.semaphore" value="${compability.semaphore}" />
 					<test fork="true" name="@{name}" />
 				</junit>
 			</sequential>
 		</macrodef>
 
+		<macrodef name="wait-semaphore">
+			<attribute name="semaphore" default="${compability.semaphore}" />
+			<attribute name="maxwait" default="500" />
+			<attribute name="checkevery" default="10" />
+			<attribute name="value" default="0" />
+			<sequential>
+				<waitfor maxwait="@{maxwait}" checkevery="@{checkevery}">
+					<and>
+						<available file="@{semaphore}" />
+						<length file="@{semaphore}" when="greater" length="@{value}" />
+					</and>
+				</waitfor>
+			</sequential>
+		</macrodef>
+
+		<macrodef name="notify-semaphore">
+			<attribute name="semaphore" default="${compability.semaphore}" />
+			<attribute name="create" default="true" />
+			<attribute name="value" default="0" />
+			<sequential>
+				<truncate file="@{semaphore}" create="@{create}" length="@{value}" />
+			</sequential>
+		</macrodef>
+
+		<notify-semaphore />
 		<parallel failonany="true" timeout="10000" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLiteLockingCompability" />
 			<sequential>
-				<sleep milliseconds="500" />
+				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLJetLockingCompability" />
+				<notify-semaphore />
 			</sequential>
 		</parallel>
 
+		<notify-semaphore />
 		<parallel failonany="true" timeout="10000" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.SuccessSQLJetLockingCompability" />
 			<sequential>
-				<sleep milliseconds="500" />
+				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.FailSQLiteLockingCompability" />
+				<notify-semaphore />
 			</sequential>
 		</parallel>
+
+		<delete file="${compability.file}" />
+		<delete file="${compability.semaphore}" />
 
 	</target>
 

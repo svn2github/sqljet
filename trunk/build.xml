@@ -559,7 +559,7 @@ public class SqlParser</replacevalue>
 		</macrodef>
 
 		<notify-semaphore />
-		<parallel failonany="true" timeout="10000" threadCount="2">
+		<parallel failonany="true" timeout="20000" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLite" />
 			<sequential>
 				<wait-semaphore />
@@ -569,7 +569,7 @@ public class SqlParser</replacevalue>
 		</parallel>
 
 		<notify-semaphore />
-		<parallel failonany="true" timeout="10000" threadCount="2">
+		<parallel failonany="true" timeout="20000" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSQLJet" />
 			<sequential>
 				<wait-semaphore />

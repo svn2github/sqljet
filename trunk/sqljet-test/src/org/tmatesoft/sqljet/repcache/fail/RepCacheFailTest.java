@@ -39,7 +39,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class RepCacheFail extends AbstractDataCopyTest {
+public class RepCacheFailTest extends AbstractDataCopyTest {
 
     public static final String DATA = "sqljet-test/db/rep-cache/fail/data.txt";
     public static final String DB = "sqljet-test/db/rep-cache/fail/rep-cache.db";
@@ -77,7 +77,7 @@ public class RepCacheFail extends AbstractDataCopyTest {
                 final Collection<Collection<Object>> block = new LinkedList<Collection<Object>>();
                 try {
                     c = db.getTable("rep_cache").open();
-                    System.out.println("total rows: " + c.getRowsCount());
+                    logger.info("total rows: " + c.getRowsCount());
                     long currentRev = 0;
                     while (!c.eof()) {
                         values.clear();
@@ -94,8 +94,8 @@ public class RepCacheFail extends AbstractDataCopyTest {
                                     return null;
                                 }
                             });
-                            System.out.println("copied: " + block.size() + " for " + currentRev);
-                            System.out.println("row is: " + c.getCurrentRowNum());
+                            logger.info("copied: " + block.size() + " for " + currentRev);
+                            logger.info("row is: " + c.getCurrentRowNum());
 
                             currentRev = rev;
                             block.clear();
@@ -115,7 +115,7 @@ public class RepCacheFail extends AbstractDataCopyTest {
                     }
                     try {
                         final Collection<Collection<Object>> more = readData(DATA);
-                        System.out.println("adding " + more.size() + " rows");
+                        logger.info("adding " + more.size() + " rows");
                         if (!more.isEmpty()) {
                             db2.runWriteTransaction(new ISqlJetTransaction() {
                                 public Object run(SqlJetDb db) throws SqlJetException {

@@ -1905,7 +1905,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 journalOpen = false;
                 if (rc == null && !tempFile) {
                     try {
-                        fileSystem.delete(journal, false);
+                        if (!fileSystem.delete(journal, true)) {
+                            rc = new SqlJetIOException(SqlJetIOErrorCode.IOERR_DELETE);
+                        }
                     } catch (SqlJetException e) {
                         rc = e;
                     }
@@ -1913,7 +1915,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             }
             pagesInJournal = null;
             pagesAlwaysRollback = null;
-            // sqlite3PcacheIterateDirty(pPager->pPCache, pager_set_pagehash);
             // pCache.iterate(setPageHash)
             pageCache.cleanAll();
             dirtyCache = false;

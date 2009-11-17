@@ -17,12 +17,7 @@
  */
 package org.tmatesoft.sqljet.repcache.fail;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -41,7 +36,6 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class RepCacheFailTest extends AbstractDataCopyTest {
 
-    public static final String DATA = "sqljet-test/db/rep-cache/fail/data.txt";
     public static final String DB = "sqljet-test/db/rep-cache/fail/rep-cache.db";
     public static final String TABLE = "rep_cache";
 
@@ -77,7 +71,6 @@ public class RepCacheFailTest extends AbstractDataCopyTest {
                 final Collection<Collection<Object>> block = new LinkedList<Collection<Object>>();
                 try {
                     c = db.getTable("rep_cache").open();
-                    logger.info("total rows: " + c.getRowsCount());
                     long currentRev = 0;
                     while (!c.eof()) {
                         values.clear();
@@ -94,8 +87,6 @@ public class RepCacheFailTest extends AbstractDataCopyTest {
                                     return null;
                                 }
                             });
-                            logger.info("copied: " + block.size() + " for " + currentRev);
-                            logger.info("row is: " + c.getCurrentRowNum());
 
                             currentRev = rev;
                             block.clear();
@@ -113,22 +104,6 @@ public class RepCacheFailTest extends AbstractDataCopyTest {
                             }
                         });
                     }
-                    try {
-                        final Collection<Collection<Object>> more = readData(DATA);
-                        logger.info("adding " + more.size() + " rows");
-                        if (!more.isEmpty()) {
-                            db2.runWriteTransaction(new ISqlJetTransaction() {
-                                public Object run(SqlJetDb db) throws SqlJetException {
-                                    for (Collection<Object> row : more) {
-                                        db2.getTable("rep_cache").insert(row.toArray());
-                                    }
-                                    return null;
-                                }
-                            });
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 } finally {
                     if (c != null) {
                         c.close();
@@ -139,32 +114,4 @@ public class RepCacheFailTest extends AbstractDataCopyTest {
         });
 
     }
-
-    private static Collection<Collection<Object>> readData(String path) throws IOException {
-        File data = new File(path);
-        InputStream is = new FileInputStream(data);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        Collection<Collection<Object>> result = new LinkedList<Collection<Object>>();
-        while (true) {
-            ArrayList<Object> values = new ArrayList<Object>();
-
-            String line = reader.readLine();
-            if (line == null) {
-                break;
-            }
-            // hash
-            values.add(reader.readLine().trim());
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            reader.readLine();
-
-            result.add(values);
-        }
-        is.close();
-        return result;
-
-    }
-
 }

@@ -1090,10 +1090,7 @@ public class SqlJetBtreeShared {
      */
     public void allocateTempSpace() {
         if (pTmpSpace == null) {
-            // Allocate double space and point to middle because of some mad
-            // address arithmetics (sergey.scherbina)
-            pTmpSpace = SqlJetUtility.allocatePtr(pageSize * 2);
-            SqlJetUtility.movePtr(pTmpSpace, pageSize);
+            pTmpSpace = SqlJetUtility.allocatePtr(pageSize);
         }
     }
 

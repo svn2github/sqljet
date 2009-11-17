@@ -37,6 +37,9 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
      */
     public static File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
         File to = File.createTempFile("copy", null);
+        return copyFile(from, to, deleteCopy);
+    }
+    public static File copyFile(File from, File to, boolean deleteCopy) throws IOException, FileNotFoundException {
         if (deleteCopy)
             to.deleteOnExit();
         RandomAccessFile in = new RandomAccessFile(from, "r");

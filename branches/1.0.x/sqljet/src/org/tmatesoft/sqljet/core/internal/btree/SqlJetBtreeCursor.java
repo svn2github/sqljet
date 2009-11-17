@@ -37,6 +37,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
+import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**
@@ -1364,8 +1365,11 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                         sz = pParent.fillInCell(pCell, null, info.nKey, null, 0, 0);
                         pTemp = null;
                     } else {
-                        // There is mad address ariphmetic which causes
-                        // allocation of double tmp space (sergey.scherbina)
+                        final int c = pCell.getBuffer().getSize() - pCell.getPointer();
+                        ISqlJetMemoryPointer p = SqlJetUtility.allocatePtr(c + 4);
+                        movePtr(p, 4);
+                        SqlJetUtility.memcpy(p, pCell, c);
+                        pCell = p;
                         movePtr(pCell, -4);
                         /*
                          * Obscure case for non-leaf-data trees: If the cell at
@@ -1909,7 +1913,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             pCur.info.nSize = 0;
             pCur.validNKey = false;
         }
-        
+
         if (pPage.nOverflow > 0) {
 
             try {

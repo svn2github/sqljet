@@ -447,7 +447,7 @@ public class SqlJetFile implements ISqlJetFile {
                  * already has a SHARED or RESERVED lock, then increment
                  * reference counts and return SQLITE_OK.
                  */
-                if (lockType == SqlJetLockType.SHARED
+                if (lockType == SqlJetLockType.SHARED && lockInfo.sharedLockCount > 0
                         && (lockInfo.lockType == SqlJetLockType.SHARED || lockInfo.lockType == SqlJetLockType.RESERVED)) {
                     this.lockType = SqlJetLockType.SHARED;
                     lockInfo.sharedLockCount++;

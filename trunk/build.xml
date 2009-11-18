@@ -611,7 +611,6 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 
-		<!--
 		<echo>Read lock SQLJet - Write lock SQLite</echo>
 		<notify-semaphore />
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
@@ -623,6 +622,19 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 
+		<echo>Write lock SQLite - Read lock SQLJet</echo>
+		<notify-semaphore />
+		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
+			<sequential>
+				<wait-semaphore />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJetBusy" />
+				<notify-semaphore />
+			</sequential>
+		</parallel>
+
+		<!--
+		
 		<echo>Write lock SQLJet - Read lock SQLite</echo>
 		<notify-semaphore />
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
@@ -644,19 +656,9 @@ public class SqlParser</replacevalue>
 				<notify-semaphore />
 			</sequential>
 		</parallel>
-		-->
-
-		<echo>Write lock SQLite - Read lock SQLJet</echo>
-		<notify-semaphore />
-		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
-			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
-			<sequential>
-				<wait-semaphore />
-				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJetBusy" />
-				<notify-semaphore />
-			</sequential>
-		</parallel>
-
+		
+		 -->
+		
 		<delete file="${compability.file}" />
 		<delete file="${compability.semaphore}" />
 

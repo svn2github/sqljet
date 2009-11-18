@@ -594,6 +594,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
 				<notify-semaphore />
@@ -605,6 +606,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
 				<notify-semaphore />
@@ -616,6 +618,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
 				<notify-semaphore />
@@ -627,6 +630,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJetBusy" />
 				<notify-semaphore />
@@ -640,6 +644,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLiteBusy" />
 				<notify-semaphore />
@@ -651,6 +656,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
 			<sequential>
+				<sleep milliseconds="100"/>
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
 				<notify-semaphore />

@@ -17,12 +17,7 @@
  */
 package org.tmatesoft.sqljet.repcache.fail;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -39,10 +34,10 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class RepCacheFail extends AbstractDataCopyTest {
+public class RepCacheFailStressT extends AbstractDataCopyTest {
 
-    public static final String DATA = "sqljet-test/db/rep-cache/fail/data.txt";
-    public static final String DB = "sqljet-test/db/rep-cache/fail/rep-cache.db";
+    public static final String DB_ARCHIVE = "sqljet-test/db/rep-cache/fail/rep-cache.zip";
+    public static final String DB_FILE_NAME = "rep-cache.db";
     public static final String TABLE = "rep_cache";
 
     @Test
@@ -50,11 +45,9 @@ public class RepCacheFail extends AbstractDataCopyTest {
 
         final File dbFile1 = File.createTempFile("repCacheFail", null);
         final File dbFile2 = File.createTempFile("repCacheFail", null);
-
-        dbFile1.deleteOnExit();
         dbFile2.deleteOnExit();
 
-        copyFile(new File(DB), dbFile1, true);
+        deflate(new File(DB_ARCHIVE), DB_FILE_NAME, dbFile1, true);
 
         final SqlJetDb db1 = SqlJetDb.open(dbFile1, false);
         final SqlJetDb db2 = SqlJetDb.open(dbFile2, true);
@@ -77,7 +70,6 @@ public class RepCacheFail extends AbstractDataCopyTest {
                 final Collection<Collection<Object>> block = new LinkedList<Collection<Object>>();
                 try {
                     c = db.getTable("rep_cache").open();
-                    System.out.println("total rows: " + c.getRowsCount());
                     long currentRev = 0;
                     while (!c.eof()) {
                         values.clear();
@@ -94,8 +86,6 @@ public class RepCacheFail extends AbstractDataCopyTest {
                                     return null;
                                 }
                             });
-                            System.out.println("copied: " + block.size() + " for " + currentRev);
-                            System.out.println("row is: " + c.getCurrentRowNum());
 
                             currentRev = rev;
                             block.clear();
@@ -113,22 +103,6 @@ public class RepCacheFail extends AbstractDataCopyTest {
                             }
                         });
                     }
-                    try {
-                        final Collection<Collection<Object>> more = readData(DATA);
-                        System.out.println("adding " + more.size() + " rows");
-                        if (!more.isEmpty()) {
-                            db2.runWriteTransaction(new ISqlJetTransaction() {
-                                public Object run(SqlJetDb db) throws SqlJetException {
-                                    for (Collection<Object> row : more) {
-                                        db2.getTable("rep_cache").insert(row.toArray());
-                                    }
-                                    return null;
-                                }
-                            });
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 } finally {
                     if (c != null) {
                         c.close();
@@ -139,32 +113,4 @@ public class RepCacheFail extends AbstractDataCopyTest {
         });
 
     }
-
-    private static Collection<Collection<Object>> readData(String path) throws IOException {
-        File data = new File(path);
-        InputStream is = new FileInputStream(data);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        Collection<Collection<Object>> result = new LinkedList<Collection<Object>>();
-        while (true) {
-            ArrayList<Object> values = new ArrayList<Object>();
-
-            String line = reader.readLine();
-            if (line == null) {
-                break;
-            }
-            // hash
-            values.add(reader.readLine().trim());
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            values.add(Integer.parseInt(reader.readLine().trim()));
-            reader.readLine();
-
-            result.add(values);
-        }
-        is.close();
-        return result;
-
-    }
-
 }

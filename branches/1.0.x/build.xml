@@ -286,7 +286,7 @@ public class SqlParser</replacevalue>
 		<echoproperties prefix="java.vm."/>		
 		<junit>
 			<jvmarg value="-ea"/>			
-			<jvmarg value="-Xmx128m"/>			
+			<jvmarg value="-server"/>
 			<formatter type="plain" usefile="false" />
 			<classpath path="sqljet/bin" />
             <classpath path="sqljet-test/bin" />
@@ -309,5 +309,33 @@ public class SqlParser</replacevalue>
 			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100"/>
 		</junit>
 	</target>
-	
+
+	<target name="test-stress" depends="deploy">
+		<echoproperties prefix="os." />
+		<echoproperties prefix="java.vm." />
+		<junit>
+			<jvmarg value="-ea" />
+			<jvmarg value="-server" />
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+				<fileset dir="sqljet-test/src">
+					<include name="**/*Stress*.java" />
+					<exclude name="**/*Abstract*.java" />
+					<exclude name="**/*Mock*.java" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_FILE_LOG" value="false"/>
+			<sysproperty key="SQLJET_FILE_PERFORMANCE_LOG" value="false"/>
+			<sysproperty key="SQLJET_PAGER_LOG" value="false"/>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true" />
+			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
+		</junit>
+	</target>
 </project>

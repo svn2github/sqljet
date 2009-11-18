@@ -372,10 +372,6 @@ public class SqlParser</replacevalue>
 			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true" />
 			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
 		</junit>
-
-		<antcall target="compability-nodeploy">
-		</antcall>
-
 	</target>
 
 	<target name="benchmarks" depends="deploy,benchmarks-server">

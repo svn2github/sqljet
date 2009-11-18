@@ -347,6 +347,37 @@ public class SqlParser</replacevalue>
 
 	</target>
 
+	<target name="test-stress" depends="deploy">
+		<echoproperties prefix="os." />
+		<echoproperties prefix="java.vm." />
+		<junit>
+			<jvmarg value="-ea" />
+			<jvmarg value="-server" />
+			<formatter type="plain" usefile="false" />
+			<classpath path="sqljet/bin" />
+			<classpath path="sqljet-test/bin" />
+			<classpath>
+				<fileset dir="sqljet-test/lib" includes="*.jar" />
+				<fileset dir="lib" includes="*.jar" />
+			</classpath>
+			<batchtest fork="yes" todir="sqljet-test/bin">
+				<fileset dir="sqljet-test/src">
+					<include name="**/*Stress*.java" />
+					<exclude name="**/*Abstract*.java" />
+					<exclude name="**/*Mock*.java" />
+					<exclude name="**/*sandbox*/**/**.*" />
+				</fileset>
+			</batchtest>
+			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+			<sysproperty key="SqlJetBtreeTableTest.DELETE_COPY" value="true" />
+			<sysproperty key="SqlJetBtreeTableTest.REPEATS_COUNT" value="100" />
+		</junit>
+
+		<antcall target="compability-nodeploy">
+		</antcall>
+
+	</target>
+
 	<target name="benchmarks" depends="deploy,benchmarks-server">
 		<junitreport todir="${benchmarks}">
 			<fileset dir="${benchmarks}">

@@ -17,12 +17,22 @@
  */
 package org.tmatesoft.sqljet.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author TMate Software Ltd.
@@ -54,10 +64,20 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
         RandomAccessFile in = new RandomAccessFile(from, "r");
         RandomAccessFile out = new RandomAccessFile(to, "rw");
         try {
-            out.getChannel().transferFrom(in.getChannel(), 0, in.length());
+            FileChannel fromCh = in.getChannel();
+            FileChannel toCh = out.getChannel();
+            long size = fromCh.size();
+            long toCopy = size;
+            while(toCopy > 0) {
+                toCopy -= toCh.transferFrom(fromCh, size - toCopy, toCopy);
+            }
         } finally {
-            in.close();
-            out.close();
+            try {
+                in.close();
+            } catch (IOException e) {}
+            try {
+                out.close();
+            } catch (IOException e) {}
         }
         return to;
     }
@@ -87,4 +107,83 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
         return true;
     }
 
+
+    public static void deflate(File archive, String entryName, File to, boolean deleteCopy) throws IOException {
+        ZipInputStream zis = null;
+        InputStream is = null;
+        
+        byte[] buffer = new byte[16*1024];
+        
+        ZipFile zipFile = null;
+        try {
+            is = new BufferedInputStream(new FileInputStream(archive));
+            zipFile = new ZipFile(archive);
+            zis = new ZipInputStream(is);
+            while(true) {
+                ZipEntry entry = zis.getNextEntry();
+                if (entry == null) {
+                    break;
+                }
+                System.out.println("entry " + entry.getName());
+                if (entry.isDirectory() || !entryName.equals(entry.getName())) {
+                    zis.closeEntry();
+                    continue;
+                }
+                InputStream fis = null;
+                OutputStream fos = null;
+                try {
+                    fis = new BufferedInputStream(zipFile.getInputStream(entry));
+                    fos = new BufferedOutputStream(new FileOutputStream(to));
+                    while(true) {
+                        int r = fis.read(buffer);
+                        if (r < 0) {
+                            break;
+                        } else if (r == 0) {
+                            continue;
+                        }
+                        fos.write(buffer, 0, r);
+                    }
+                } finally {
+                    if (fos != null) {
+                        try {
+                            fos.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+                if (deleteCopy) {
+                    to.deleteOnExit();
+                }
+                zis.closeEntry();
+                break;
+            }
+        } finally {
+            if (zis != null) {
+                try {
+                    zis.close();
+                } catch (IOException e) {
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            }
+            if (zipFile != null) {
+                try {
+                    zipFile.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+    
+    
 }

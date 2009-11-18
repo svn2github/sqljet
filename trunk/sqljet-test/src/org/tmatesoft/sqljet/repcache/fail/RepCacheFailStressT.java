@@ -34,9 +34,10 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class RepCacheFailTest extends AbstractDataCopyTest {
+public class RepCacheFailStressT extends AbstractDataCopyTest {
 
-    public static final String DB = "sqljet-test/db/rep-cache/fail/rep-cache.db";
+    public static final String DB_ARCHIVE = "sqljet-test/db/rep-cache/fail/rep-cache.zip";
+    public static final String DB_FILE_NAME = "rep-cache.db";
     public static final String TABLE = "rep_cache";
 
     @Test
@@ -44,11 +45,9 @@ public class RepCacheFailTest extends AbstractDataCopyTest {
 
         final File dbFile1 = File.createTempFile("repCacheFail", null);
         final File dbFile2 = File.createTempFile("repCacheFail", null);
-
-        dbFile1.deleteOnExit();
         dbFile2.deleteOnExit();
 
-        copyFile(new File(DB), dbFile1, true);
+        deflate(new File(DB_ARCHIVE), DB_FILE_NAME, dbFile1, true);
 
         final SqlJetDb db1 = SqlJetDb.open(dbFile1, false);
         final SqlJetDb db2 = SqlJetDb.open(dbFile2, true);

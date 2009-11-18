@@ -181,8 +181,8 @@ public class SqlParser</replacevalue>
 		<delete file="build/MANIFEST.MF" />
 
 		<mkdir dir="build/lib" />
-		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar">
-		</copy>
+		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar" />
+		<copy file="lib/ANTLR-LICENSE" tofile="build/lib/ANTLR-LICENSE" />
 		<copy todir="build">
 			<fileset dir="sqljet-examples/browser">
 				<include name="browser.jnlp" />

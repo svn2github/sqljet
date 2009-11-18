@@ -23,10 +23,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-public class CompabilityLockingSQLiteBusy {
+public class CompabilityLockingReadSQLiteBusy {
+    
     @Test(expected = SQLException.class)
-    public void failSQLite() throws Exception {
-        CompabilityLockingAbstract.lockSQLite();
+    public void readLockSQLiteBusy() throws Exception {
+        CompabilityLockingAbstract.readLockSQLite();
         Assert.fail();
     }
 

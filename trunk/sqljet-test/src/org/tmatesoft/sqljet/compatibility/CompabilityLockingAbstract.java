@@ -43,7 +43,7 @@ public abstract class CompabilityLockingAbstract {
     private static final String SEMAPHORE_PROPERTY = PROPERTY_NAMESPACE + "semaphore";
     private static final String FILE = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
     private static final String SEMAPHORE = SqlJetUtility.getSysProp(SEMAPHORE_PROPERTY, null);
-    private static final int MAXWAIT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "maxwait", 1000);
+    private static final int MAXWAIT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "maxwait", 2000);
 
     private static void checkProperties() {
         Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, FILE_PROPERTY), FILE);
@@ -85,13 +85,13 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    static void lockSQLite() throws Exception {
+    protected static void writeLockSQLite() throws Exception {
         checkProperties();
         Class.forName("org.sqlite.JDBC");
         final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
         try {
             final Statement stat = conn.createStatement();
-            stat.execute("begin immediate;");
+            stat.execute("begin exclusive;");
             try {
                 notifySemaphore();
                 waitSemaphore();
@@ -105,11 +105,54 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    static void lockSQLJet() throws SqlJetException {
+    protected static void readLockSQLite() throws Exception {
+        checkProperties();
+        Class.forName("org.sqlite.JDBC");
+        final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
+        try {
+            final Statement stat = conn.createStatement();
+            stat.execute("begin deferred;");
+            stat.execute("select * from sqlite_master;");
+            try {
+                notifySemaphore();
+                waitSemaphore();
+            } finally {
+                stat.execute("end;");
+            }
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    protected static void writeLockSQLJet() throws SqlJetException {
         checkProperties();
         final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
         try {
             db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    try {
+                        notifySemaphore();
+                        waitSemaphore();
+                    } catch (Exception e) {
+                        return null;
+                    }
+                    return null;
+                }
+            });
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
+    protected static void readLockSQLJet() throws SqlJetException {
+        checkProperties();
+        final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
+        try {
+            db.runReadTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
                     try {
                         notifySemaphore();

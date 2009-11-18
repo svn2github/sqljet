@@ -20,9 +20,11 @@ package org.tmatesoft.sqljet.compatibility;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
-public class CompabilityLockingSQLJet {
+public class CompabilityLockingWriteSQLJet {
+    
     @Test
-    public void successSQLJet() throws SqlJetException {
-        CompabilityLockingAbstract.lockSQLJet();
+    public void writeLockSQLJet() throws SqlJetException {
+        CompabilityLockingAbstract.writeLockSQLJet();
     }
+    
 }

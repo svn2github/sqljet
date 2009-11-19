@@ -25,7 +25,8 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
- * Cursor's interface.
+ * This class represents table cursor that may be used to browse over records in the table, 
+ * to modify or delete existing records.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -34,7 +35,7 @@ import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 public interface ISqlJetCursor {
 
     /**
-     * Close the cursor.
+     * Closes the cursor.
      * 
      * @throws SqlJetException
      */
@@ -43,22 +44,24 @@ public interface ISqlJetCursor {
     // Positioning
 
     /**
-     * Get rowid of the current record.
+     * Gets row Id of the current record.
      * 
+     * @return row Id of the current record.
      * @throws SqlJetException
      */
     long getRowId() throws SqlJetException;
 
     /**
-     * Go to the record with the specified rowid.
+     * Goes to the record with the specified row Id.
      * 
+     * @param rowId row Id
      * @return true if cursor was moved successfully.
      * @throws SqlJetException
      */
     boolean goTo(long rowId) throws SqlJetException;
 
     /**
-     * Check that the cursor is not positioned on the record.
+     * Tests whether this cursor is positioned behind the last record.
      * 
      * @return true if the cursor is not on a record and fields can't be read.
      * @throws SqlJetException
@@ -66,7 +69,7 @@ public interface ISqlJetCursor {
     boolean eof() throws SqlJetException;
 
     /**
-     * Go to the first record.
+     * Goes to the first record.
      * 
      * @return true if there is at least one record.
      * @throws SqlJetException
@@ -74,7 +77,7 @@ public interface ISqlJetCursor {
     boolean first() throws SqlJetException;
 
     /**
-     * Go to the last record.
+     * Goes to the last record.
      * 
      * @return true if there is at least one record.
      * @throws SqlJetException
@@ -82,7 +85,7 @@ public interface ISqlJetCursor {
     boolean last() throws SqlJetException;
 
     /**
-     * Go to the next record.
+     * Goes to the next record.
      * 
      * @return true if there is at least one record and end of cursor is not
      *         reached yet
@@ -91,7 +94,7 @@ public interface ISqlJetCursor {
     boolean next() throws SqlJetException;
 
     /**
-     * Go to the previous record.
+     * Goes to the previous record.
      * 
      * @return true if there is at least one record and begin of cursor is not
      *         reached yet
@@ -102,32 +105,32 @@ public interface ISqlJetCursor {
     // Record Access
 
     /**
-     * Get number of fields in the current record.
+     * Returns number of fields in the current record.
      * 
      * @throws SqlJetException
      */
     int getFieldsCount() throws SqlJetException;
 
     /**
-     * Get field type.
+     * Returns field type.
      * 
-     * @param field
-     *            number of field begin from zero
+     * @param field index of the field
      * @return type of field
      * @throws SqlJetException
      */
     SqlJetValueType getFieldType(int field) throws SqlJetException;
 
     /**
-     * Get field type.
+     * Returns field type.
      * 
+     * @param fieldName name of the field
      * @return type of field
      * @throws SqlJetException
      */
     SqlJetValueType getFieldType(String fieldName) throws SqlJetException;
 
     /**
-     * Check if field value is null.
+     * Tests field value for null.
      * 
      * @param field
      *            number of field begin from zero
@@ -137,7 +140,7 @@ public interface ISqlJetCursor {
     boolean isNull(int field) throws SqlJetException;
 
     /**
-     * Check if field value is null.
+     * Tests field value for null.
      * 
      * @return true if field value is null
      * @throws SqlJetException
@@ -145,97 +148,95 @@ public interface ISqlJetCursor {
     boolean isNull(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value as string.
+     * Returns specified field's value as String.
      * 
-     * @param field
-     *            number of field begin from zero
+     * @param field index of the field
      * @return field's value as string
      * @throws SqlJetException
      */
     String getString(int field) throws SqlJetException;
 
     /**
-     * Get field's value as string.
+     * Returns specified field's value as String.
      * 
+     * @param fieldName name of the field
      * @return field's value as string
      * @throws SqlJetException
      */
     String getString(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value as integer.
+     * Returns specified field's value as integer.
      * 
-     * @param field
-     *            number of field begin from zero
+     * @param field index of the field
      * @return field's value as integer
      * @throws SqlJetException
      */
     long getInteger(int field) throws SqlJetException;
 
     /**
-     * Get field's value as integer.
+     * Returns specified field's value as integer.
      * 
-     * @return field's value as integer
+     * @param fieldName name of the field
      * @throws SqlJetException
      */
     long getInteger(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value as real (float).
+     * Returns specified field's value as float.
      * 
-     * @param field
-     *            number of field begin from zero
+     * @param field index of the field
      * @return field's value as real
      * @throws SqlJetException
      */
     double getFloat(int field) throws SqlJetException;
 
     /**
-     * Get field's value as real (float).
+     * Returns specified field's value as float.
      * 
-     * @return field's value as real
+     * @param fieldName name of the field
      * @throws SqlJetException
      */
     double getFloat(String fieldName) throws SqlJetException;
 
     /**
-     * Get field as boolean.
+     * Returns specified field's value as boolean.
      * 
-     * @param field
-     * @return
+     * @param field index of the field
+     * @return field value
      * @throws SqlJetException
      */
     boolean getBoolean(int field) throws SqlJetException;
 
     /**
-     * Get field as boolean.
+     * Returns specified field's value as boolean.
      * 
-     * @param fieldName
-     * @return
+     * @param fieldName name of the field
+     * @return field value
      * @throws SqlJetException
      */
     boolean getBoolean(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value as BLOB.
+     * Returns specified field's value as BLOB.
      * 
-     * @param field
-     *            number of field begin from zero
+     * @param field index of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
     byte[] getBlobAsArray(int field) throws SqlJetException;
 
     /**
-     * Get field's value as BLOB.
-     * 
+     * Returns specified field's value as BLOB.
+     *
+     * @param fieldName name of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
     byte[] getBlobAsArray(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value as BLOB.
+     * Returns specified field's value as BLOB.
      * 
      * @param field
      *            number of field begin from zero
@@ -245,23 +246,26 @@ public interface ISqlJetCursor {
     InputStream getBlobAsStream(int field) throws SqlJetException;
 
     /**
-     * Get field's value as BLOB.
+     * Returns specified field's value as BLOB.
      * 
+     * @param name of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
     InputStream getBlobAsStream(String fieldName) throws SqlJetException;
 
     /**
-     * Get field's value.
-     * 
+     * Returns value of the field of the specified index in the current row.
+     *
+     * @param index of the field
      * @throws SqlJetException
      */
     Object getValue(int field) throws SqlJetException;
 
     /**
-     * Get field's value by name.
+     * Returns value of the field with the specified name in the current row.
      * 
+     * @param fieldName name of the field
      * @throws SqlJetException
      */
     Object getValue(String fieldName) throws SqlJetException;
@@ -269,7 +273,7 @@ public interface ISqlJetCursor {
     // Modification
 
     /**
-     * Update the current record.
+     * Updates the current record.
      * 
      * @param values
      *            New record values.
@@ -278,7 +282,7 @@ public interface ISqlJetCursor {
     void update(Object... values) throws SqlJetException;
 
     /**
-     * Update rowId and values in the current record.
+     * Updates rowId and values in the current record.
      * 
      * @param values
      *            New record values.
@@ -287,7 +291,7 @@ public interface ISqlJetCursor {
     long updateWithRowId(long rowId, Object... values) throws SqlJetException;
 
     /**
-     * Update the current record.
+     * Updates the current record.
      * 
      * @param values
      *            New record values mapped by field names.
@@ -296,7 +300,7 @@ public interface ISqlJetCursor {
     void updateByFieldNames(Map<String, Object> values) throws SqlJetException;
 
     /**
-     * Update the current record.
+     * Updates the current record.
      * 
      * Implements ON CONFLICT clause.
      * 
@@ -307,7 +311,7 @@ public interface ISqlJetCursor {
     void updateOr(SqlJetConflictAction onConflict, Object... values) throws SqlJetException;
 
     /**
-     * Update rowId and values in the current record.
+     * Updates rowId and values in the current record.
      * 
      * Implements ON CONFLICT clause.
      * 
@@ -318,7 +322,7 @@ public interface ISqlJetCursor {
     long updateWithRowIdOr(SqlJetConflictAction onConflict, long rowId, Object... values) throws SqlJetException;
 
     /**
-     * Update the current record.
+     * Updates the current record.
      * 
      * Implements ON CONFLICT clause.
      * 
@@ -329,7 +333,7 @@ public interface ISqlJetCursor {
     void updateByFieldNamesOr(SqlJetConflictAction onConflict, Map<String, Object> values) throws SqlJetException;
 
     /**
-     * Delete the current record.
+     * Deletes the current record.
      * 
      * @throws SqlJetException
      */
@@ -344,43 +348,44 @@ public interface ISqlJetCursor {
     ISqlJetCursor reverse() throws SqlJetException;
 
     /**
-     * Returns count of rows in cursor.
+     * Returns number of rows browsable by this cursor.
      * 
      * @return
      * @throws SqlJetException
      */
-    long getRowsCount() throws SqlJetException;
+    long getRowCount() throws SqlJetException;
 
     /**
-     * Returns number of current row.
+     * Returns index of the current row.
+     * Index is 1-based, first record has index of one.
      * 
      * @return
      * @throws SqlJetException
      */
-    long getCurrentRowNum() throws SqlJetException;
+    long getRowIndex() throws SqlJetException;
 
     /**
-     * Goes to passed rows number. Returns true if success.
+     * Goes to the row with the specified index. 
+     * Index is 1-based, first record has index of one.
      * 
      * @param rowIndex
-     * @return
+     * @return true if cursor has been set on the specified record.
      * @throws SqlJetException
      */
-    boolean goToRowNum(long rowIndex) throws SqlJetException;
+    boolean goToRow(long rowIndex) throws SqlJetException;
 
     /**
-     * Sets limit for cursor. If value is negative or zero it just ignored and
-     * cursor will not be limited.
+     * Sets limit for this cursor. Negative or zero value resets limit to infinity.
      * 
-     * @param limit
+     * @param limit limit to set or zero to drop the limit.
      * @throws SqlJetException
      */
     void setLimit(long limit) throws SqlJetException;
 
     /**
-     * Returns limit of cursor.
+     * Returns limit of this cursor.
      * 
-     * @return
+     * @return limit of this cursor or zero if limit has not been set. 
      */
     long getLimit();
 

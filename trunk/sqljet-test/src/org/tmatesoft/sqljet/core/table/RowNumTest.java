@@ -81,7 +81,7 @@ public class RowNumTest extends AbstractDataCopyTest {
     public void testRowCount() throws SqlJetException {
         final ISqlJetCursor c = table.open();
         try {
-            final long rowCount = c.getRowsCount();
+            final long rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
         } finally {
             c.close();
@@ -89,55 +89,55 @@ public class RowNumTest extends AbstractDataCopyTest {
     }
 
     @Test
-    public void testGoToRowNum() throws SqlJetException {
+    public void testgoToRow() throws SqlJetException {
         final ISqlJetCursor c = table.open();
         try {
-            final long rowCount = c.getRowsCount();
+            final long rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
-            Assert.assertTrue(c.goToRowNum(1));
-            Assert.assertEquals(1, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(2));
-            Assert.assertEquals(2, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(3));
-            Assert.assertEquals(3, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(123));
-            Assert.assertEquals(123, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(3));
-            Assert.assertEquals(3, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(2));
-            Assert.assertEquals(2, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(1));
-            Assert.assertEquals(1, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(123));
-            Assert.assertEquals(123, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(122));
-            Assert.assertEquals(122, c.getCurrentRowNum());
-            Assert.assertFalse(c.goToRowNum(Long.MAX_VALUE));
-            Assert.assertEquals(122, c.getCurrentRowNum());
+            Assert.assertTrue(c.goToRow(1));
+            Assert.assertEquals(1, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(2));
+            Assert.assertEquals(2, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(3));
+            Assert.assertEquals(3, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(123));
+            Assert.assertEquals(123, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(3));
+            Assert.assertEquals(3, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(2));
+            Assert.assertEquals(2, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(1));
+            Assert.assertEquals(1, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(123));
+            Assert.assertEquals(123, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(122));
+            Assert.assertEquals(122, c.getRowIndex());
+            Assert.assertFalse(c.goToRow(Long.MAX_VALUE));
+            Assert.assertEquals(122, c.getRowIndex());
         } finally {
             c.close();
         }
     }
 
     @Test
-    public void testGoToRowNumScope() throws SqlJetException {
+    public void testgoToRowScope() throws SqlJetException {
         final ISqlJetCursor c = table.scope(null, new Object[] { "bc6105f82f1a12e2442882209cf86fa48a968802" },
                 new Object[] { "bee8dcea971507d892819c4bd962285e07efc280" });
         try {
-            final long rowCount = c.getRowsCount();
+            final long rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
-            Assert.assertTrue(c.goToRowNum(1));
-            Assert.assertEquals(1, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(2));
-            Assert.assertEquals(2, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(3));
-            Assert.assertEquals(3, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(2));
-            Assert.assertEquals(2, c.getCurrentRowNum());
-            Assert.assertTrue(c.goToRowNum(1));
-            Assert.assertEquals(1, c.getCurrentRowNum());
-            Assert.assertFalse(c.goToRowNum(Long.MAX_VALUE));
-            Assert.assertEquals(1, c.getCurrentRowNum());
+            Assert.assertTrue(c.goToRow(1));
+            Assert.assertEquals(1, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(2));
+            Assert.assertEquals(2, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(3));
+            Assert.assertEquals(3, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(2));
+            Assert.assertEquals(2, c.getRowIndex());
+            Assert.assertTrue(c.goToRow(1));
+            Assert.assertEquals(1, c.getRowIndex());
+            Assert.assertFalse(c.goToRow(Long.MAX_VALUE));
+            Assert.assertEquals(1, c.getRowIndex());
         } finally {
             c.close();
         }
@@ -147,10 +147,10 @@ public class RowNumTest extends AbstractDataCopyTest {
     public void testDelete() throws SqlJetException {
         final ISqlJetCursor c = table.open();
         try {
-            final long rowCount = c.getRowsCount();
+            final long rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
             c.delete();
-            Assert.assertTrue(rowCount > c.getRowsCount());
+            Assert.assertTrue(rowCount > c.getRowCount());
         } finally {
             c.close();
         }
@@ -161,7 +161,7 @@ public class RowNumTest extends AbstractDataCopyTest {
         final long rowCount;
         final ISqlJetCursor c = table.open();
         try {
-            rowCount = c.getRowsCount();
+            rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
         } finally {
             c.close();
@@ -173,7 +173,7 @@ public class RowNumTest extends AbstractDataCopyTest {
                 SqlJetUtility.toUnsigned(random.nextInt(Integer.MAX_VALUE)));
         final ISqlJetCursor c1 = table.open();
         try {
-            Assert.assertTrue(rowCount < c1.getRowsCount());
+            Assert.assertTrue(rowCount < c1.getRowCount());
         } finally {
             c1.close();
         }
@@ -184,10 +184,10 @@ public class RowNumTest extends AbstractDataCopyTest {
         final ISqlJetCursor c = table.scope(null, new Object[] { "bc6105f82f1a12e2442882209cf86fa48a968802" },
                 new Object[] { "bee8dcea971507d892819c4bd962285e07efc280" });
         try {
-            final long rowCount = c.getRowsCount();
+            final long rowCount = c.getRowCount();
             Assert.assertTrue(rowCount > 0);
             c.delete();
-            Assert.assertTrue(rowCount > c.getRowsCount());
+            Assert.assertTrue(rowCount > c.getRowCount());
         } finally {
             c.close();
         }
@@ -197,22 +197,22 @@ public class RowNumTest extends AbstractDataCopyTest {
     public void testLimit() throws SqlJetException {
         final ISqlJetCursor c = table.open();
         try {
-            Assert.assertTrue(c.getRowsCount() > 10);
-            Assert.assertTrue(c.goToRowNum(11));
+            Assert.assertTrue(c.getRowCount() > 10);
+            Assert.assertTrue(c.goToRow(11));
             c.setLimit(10);
             for (c.first(); !c.eof(); c.next())
                 ;
-            Assert.assertTrue(c.getCurrentRowNum() <= 10);
+            Assert.assertTrue(c.getRowIndex() <= 10);
             c.first();
             c.last();
-            Assert.assertTrue(c.getCurrentRowNum() <= 10);
-            Assert.assertFalse(c.goToRowNum(11));
-            Assert.assertTrue(c.getRowsCount() == 10);
+            Assert.assertTrue(c.getRowIndex() <= 10);
+            Assert.assertFalse(c.goToRow(11));
+            Assert.assertTrue(c.getRowCount() == 10);
             c.setLimit(0);
-            Assert.assertTrue(c.getRowsCount() > 10);
-            Assert.assertTrue(c.goToRowNum(11));
+            Assert.assertTrue(c.getRowCount() > 10);
+            Assert.assertTrue(c.goToRow(11));
             c.last();
-            Assert.assertTrue(c.getCurrentRowNum() > 10);
+            Assert.assertTrue(c.getRowIndex() > 10);
         } finally {
             c.close();
         }

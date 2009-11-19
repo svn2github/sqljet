@@ -74,7 +74,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowCount()
      */
-    public long getRowsCount() throws SqlJetException {
+    public long getRowCount() throws SqlJetException {
 
         if (rowsCount < 0) {
             computeRows(false);
@@ -124,7 +124,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getCurrentRow()
      */
-    public long getCurrentRowNum() throws SqlJetException {
+    public long getRowIndex() throws SqlJetException {
 
         if (currentRowNum < 0 || (rowsCount < 0 && eof()) || currentRowId != getRowIdSafe()) {
             computeRows(true);
@@ -138,7 +138,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goToRow(long)
      */
-    public boolean goToRowNum(long rowNum) throws SqlJetException {
+    public boolean goToRow(long rowNum) throws SqlJetException {
 
         try {
 
@@ -269,7 +269,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
      */
     @Override
     public boolean last() throws SqlJetException {
-        if (limit > 0 && goToRowNum(limit)) {
+        if (limit > 0 && goToRow(limit)) {
             return true;
         } else {
             return lastRowNum(super.last());

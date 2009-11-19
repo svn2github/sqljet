@@ -21,11 +21,13 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 
 import junit.framework.Assert;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -50,7 +52,20 @@ public abstract class CompabilityLockingAbstract {
         Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, SEMAPHORE_PROPERTY), SEMAPHORE);
     }
 
-    protected static void resetSemaphore() throws Exception {
+    public static void setUpDb() throws Exception {
+        checkProperties();
+        final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
+        try {
+            db.createTable("create table if not exists t(a integer primary key, b integer)");
+            db.getTable("t").insert(null, 1);
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
+    public static void resetSemaphore() throws Exception {
         final File s = new File(SEMAPHORE);
         if (s.exists()) {
             final RandomAccessFile f = new RandomAccessFile(s, "rw");
@@ -62,7 +77,7 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    private static void notifySemaphore() throws Exception {
+    public static void notifySemaphore() throws Exception {
         final File s = new File(SEMAPHORE);
         if (!s.exists()) {
             s.createNewFile();
@@ -75,7 +90,7 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    private static void waitSemaphore() throws Exception {
+    public static void waitSemaphore() throws Exception {
         final File f = new File(SEMAPHORE);
         for (int i = 0; i < MAXWAIT; i++) {
             if (!f.exists() || f.length() == 0) {
@@ -85,7 +100,7 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    protected static void writeLockSQLite() throws Exception {
+    public static void writeLockSQLite() throws Exception {
         checkProperties();
         Class.forName("org.sqlite.JDBC");
         final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
@@ -105,18 +120,22 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    protected static void readLockSQLite() throws Exception {
+    public static void readLockSQLite() throws Exception {
         checkProperties();
         Class.forName("org.sqlite.JDBC");
         final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
         try {
             final Statement stat = conn.createStatement();
             stat.execute("begin deferred;");
-            stat.execute("select * from sqlite_master;");
+            final ResultSet rs = stat.executeQuery("select * from t;");
+            do {
+                final long b = rs.getLong("b");
+            } while (rs.next());
             try {
                 notifySemaphore();
                 waitSemaphore();
             } finally {
+                rs.close();
                 stat.execute("end;");
             }
         } finally {
@@ -126,11 +145,11 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    protected static void writeLockSQLJet() throws SqlJetException {
+    public static void writeLockSQLJet() throws SqlJetException {
         checkProperties();
         final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
         try {
-            db.runWriteTransaction(new ISqlJetTransaction() {
+            db.runTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
                     try {
                         notifySemaphore();
@@ -140,7 +159,7 @@ public abstract class CompabilityLockingAbstract {
                     }
                     return null;
                 }
-            });
+            }, SqlJetTransactionMode.EXCLUSIVE);
         } finally {
             if (db != null) {
                 db.close();
@@ -148,7 +167,7 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
-    protected static void readLockSQLJet() throws SqlJetException {
+    public static void readLockSQLJet() throws SqlJetException {
         checkProperties();
         final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
         try {

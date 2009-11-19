@@ -587,6 +587,8 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</macrodef>
 
+		<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSetUpDb" />
+
 		<!-- compability.tests -->
 
 		<echo>Write lock SQLite - Write lock SQLJet</echo>
@@ -637,8 +639,6 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 
-		<!--
-		
 		<echo>Write lock SQLJet - Read lock SQLite</echo>
 		<notify-semaphore />
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
@@ -663,7 +663,6 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 		
-		 -->
 		
 		<delete file="${compability.file}" />
 		<delete file="${compability.semaphore}" />

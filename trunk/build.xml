@@ -542,6 +542,7 @@ public class SqlParser</replacevalue>
 	<target name="compability-nodeploy">
 
 		<property name="compability.timeout" value="60000" />
+		<property name="compability.wait" value="500" />
 
 		<tempfile prefix="sqljet" property="compability.file" deleteonexit="true" />
 		<tempfile prefix="sqljet" property="compability.semaphore" deleteonexit="true" />
@@ -596,7 +597,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
 				<notify-semaphore />
@@ -608,7 +609,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
 				<notify-semaphore />
@@ -620,7 +621,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
 				<notify-semaphore />
@@ -632,7 +633,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJetBusy" />
 				<notify-semaphore />
@@ -644,7 +645,7 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLiteBusy" />
 				<notify-semaphore />
@@ -656,14 +657,33 @@ public class SqlParser</replacevalue>
 		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
 			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
 			<sequential>
-				<sleep milliseconds="100"/>
+				<sleep milliseconds="${compability.wait}" />
 				<wait-semaphore />
 				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
 				<notify-semaphore />
 			</sequential>
 		</parallel>
-		
-		
+
+		<echo>Read lock SQLite - Read lock SQLJet</echo>
+		<notify-semaphore />
+		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
+			<sequential>
+				<sleep milliseconds="${compability.wait}" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
+			</sequential>
+		</parallel>
+
+		<echo>Read lock SQLJet - Read lock SQLite</echo>
+		<notify-semaphore />
+		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
+			<sequential>
+				<sleep milliseconds="${compability.wait}" />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
+			</sequential>
+		</parallel>
+
 		<delete file="${compability.file}" />
 		<delete file="${compability.semaphore}" />
 

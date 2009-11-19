@@ -861,7 +861,7 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-ID: ID_START (ID_START|'0'..'9')*;
+ID: ID_START (ID_START|'0'..'9'|'$')*;
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
 STRING

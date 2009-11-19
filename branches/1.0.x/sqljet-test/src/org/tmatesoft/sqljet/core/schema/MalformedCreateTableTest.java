@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.lang.SqlJetParserException;
+import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -108,6 +110,22 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         final ISqlJetTableDef t = db.createTable(sql);
         final String sql2 = t.toSQL();
         Assert.assertEquals(sql, sql2);
+    }
+
+    @Test
+    public void dollarInName() throws Exception {
+        final String sql = "create table my$table(a$ integer primary key, b$ integer)";
+        final ISqlJetTableDef def = db.createTable(sql);
+        Assert.assertNotNull(def);
+        final ISqlJetTable t = db.getTable("my$table");
+        Assert.assertNotNull(t);
+    }
+
+    @Test(expected=SqlJetParserException.class)
+    public void dollarInNameFail() throws Exception {
+        final String sql = "create table $mytable($a integer primary key, $b integer)";
+        final ISqlJetTableDef def = db.createTable(sql);
+        Assert.fail();
     }
 
 }

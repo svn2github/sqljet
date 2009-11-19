@@ -124,7 +124,6 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
                 if (entry == null) {
                     break;
                 }
-                System.out.println("entry " + entry.getName());
                 if (entry.isDirectory() || !entryName.equals(entry.getName())) {
                     zis.closeEntry();
                     continue;

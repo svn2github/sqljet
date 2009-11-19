@@ -30,7 +30,6 @@ import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
@@ -53,6 +52,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
+import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 
 /**
  * @author TMate Software Ltd.

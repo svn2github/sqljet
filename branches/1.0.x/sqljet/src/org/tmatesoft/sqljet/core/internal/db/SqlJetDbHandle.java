@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
-import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
@@ -32,6 +31,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetEmptyMutex;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
+import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
 /**

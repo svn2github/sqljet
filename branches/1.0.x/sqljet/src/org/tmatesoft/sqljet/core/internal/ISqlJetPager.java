@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetIOException;
+import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 
 /**
  * The pages cache subsystem reads and writes a file a page at a time and

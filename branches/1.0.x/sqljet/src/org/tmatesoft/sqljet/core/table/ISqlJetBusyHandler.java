@@ -15,7 +15,7 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.internal;
+package org.tmatesoft.sqljet.core.table;
 
 /**
  * @author TMate Software Ltd.

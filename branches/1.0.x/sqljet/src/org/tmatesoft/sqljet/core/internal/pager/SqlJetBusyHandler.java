@@ -17,7 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.pager;
 
-import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
+import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 
 /**
  * @author TMate Software Ltd.

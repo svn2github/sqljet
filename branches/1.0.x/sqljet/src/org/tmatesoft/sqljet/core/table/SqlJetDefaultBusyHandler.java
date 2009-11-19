@@ -1,6 +1,5 @@
 package org.tmatesoft.sqljet.core.table;
 
-import org.tmatesoft.sqljet.core.internal.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**

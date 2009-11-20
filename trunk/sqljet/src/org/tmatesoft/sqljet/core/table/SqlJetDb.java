@@ -49,10 +49,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
-    /**
-     * 
-     */
     private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
+
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
             .of(SqlJetFileOpenPermission.READONLY);
@@ -88,7 +86,6 @@ public class SqlJetDb implements ISqlJetLimits {
         btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
                 writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
         open = true;
-        readSchema();
     }
 
     /**
@@ -224,6 +221,10 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public ISqlJetSchema getSchema() throws SqlJetException {
+        return getSchemaInternal();
+    }
+
+    private SqlJetSchema getSchemaInternal() throws SqlJetException {
         checkOpen();
         refreshSchema();
         return schema;
@@ -242,7 +243,7 @@ public class SqlJetDb implements ISqlJetLimits {
         refreshSchema();
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTable(db, schema, tableName, writable);
+                return new SqlJetTable(db, getSchemaInternal(), tableName, writable);
             }
         });
     }
@@ -392,6 +393,9 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public ISqlJetOptions getOptions() throws SqlJetException {
         checkOpen();
+        if (null == schema) {
+            readSchema();
+        }
         return dbHandle.getOptions();
     }
 
@@ -420,7 +424,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                return schema.createTable(sql);
+                return getSchemaInternal().createTable(sql);
             }
         });
     }
@@ -436,7 +440,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         return (ISqlJetIndexDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                return schema.createIndex(sql);
+                return getSchemaInternal().createIndex(sql);
             }
         });
     }
@@ -451,7 +455,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                schema.dropTable(tableName);
+                getSchemaInternal().dropTable(tableName);
                 return null;
             }
         });
@@ -467,7 +471,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                schema.dropIndex(indexName);
+                getSchemaInternal().dropIndex(indexName);
                 return null;
             }
         });
@@ -484,7 +488,7 @@ public class SqlJetDb implements ISqlJetLimits {
         checkOpen();
         return (ISqlJetTableDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                return schema.alterTable(sql);
+                return getSchemaInternal().alterTable(sql);
             }
         });
 
@@ -504,7 +508,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void refreshSchema() throws SqlJetException {
-        if (!getOptions().verifySchemaVersion(false)) {
+        if (null == schema || !getOptions().verifySchemaVersion(false)) {
             readSchema();
         }
     }

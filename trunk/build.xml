@@ -569,8 +569,8 @@ public class SqlParser</replacevalue>
 
 		<macrodef name="wait-semaphore">
 			<attribute name="semaphore" default="${compability.semaphore}" />
-			<attribute name="maxwait" default="500" />
-			<attribute name="checkevery" default="10" />
+			<attribute name="maxwait" default="5000" />
+			<attribute name="checkevery" default="100" />
 			<attribute name="value" default="0" />
 			<sequential>
 				<waitfor maxwait="@{maxwait}" checkevery="@{checkevery}">
@@ -684,6 +684,31 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 
+		<echo>Write lock SQLite - Open SQLJet</echo>
+		<notify-semaphore />
+		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
+			<sequential>
+				<sleep milliseconds="${compability.wait}" />
+				<wait-semaphore />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingOpenSQLJet" />
+				<notify-semaphore />
+			</sequential>
+		</parallel>
+
+		<echo>Write lock SQLJet - Open SQLite</echo>
+		<notify-semaphore />
+		<parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+			<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
+			<sequential>
+				<sleep milliseconds="${compability.wait}" />
+				<wait-semaphore />
+				<run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingOpenSQLite" />
+				<notify-semaphore />
+			</sequential>
+		</parallel>
+
+		
 		<delete file="${compability.file}" />
 		<delete file="${compability.semaphore}" />
 

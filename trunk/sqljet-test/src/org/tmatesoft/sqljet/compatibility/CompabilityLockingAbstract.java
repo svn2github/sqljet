@@ -189,4 +189,31 @@ public abstract class CompabilityLockingAbstract {
         }
     }
 
+    public static void openSQLite() throws Exception {
+        checkProperties();
+        Class.forName("org.sqlite.JDBC");
+        final Connection conn = DriverManager.getConnection("jdbc:sqlite:" + FILE);
+        try {
+            notifySemaphore();
+            waitSemaphore();
+        } finally {
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public static void openSQLJet() throws Exception {
+        checkProperties();
+        final SqlJetDb db = SqlJetDb.open(new File(FILE), true);
+        try {
+            notifySemaphore();
+            waitSemaphore();
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
 }

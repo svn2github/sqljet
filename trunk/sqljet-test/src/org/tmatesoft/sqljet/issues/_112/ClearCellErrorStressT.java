@@ -12,7 +12,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
-public class ClearCellError extends AbstractNewDbTest {
+public class ClearCellErrorStressT extends AbstractNewDbTest {
 
     private static final int INSERTS_COUNT = 10000;
 

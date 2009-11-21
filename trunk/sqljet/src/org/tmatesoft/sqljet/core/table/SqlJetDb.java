@@ -219,15 +219,9 @@ public class SqlJetDb implements ISqlJetLimits {
     /**
      * Do some actions with locking database's internal mutex. It is related
      * only with synchronization of access to one connection from multiple
-     * threads in shared cache mode. It used only internally by SQLJet itself
-     * and it doesn't recommended to use in your code. It is not related with
-     * transactions and locks of database file. For concurrent access to
-     * database from threads or processes use transactions.
-     * 
-     * <p>
-     * Note: shared mode access is not supported yet in SQLJet currently. Each
-     * tread should open own connection to the same database.
-     * </p>
+     * threads. It is not related with transactions and locks of database file.
+     * For concurrent access to database from threads or processes use
+     * transactions.
      * 
      * @param op
      * @return

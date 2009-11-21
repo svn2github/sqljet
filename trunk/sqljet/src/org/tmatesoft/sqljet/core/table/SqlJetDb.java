@@ -25,6 +25,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -168,18 +169,20 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public void close() throws SqlJetException {
         if (open) {
-            if (btree != null) {
-                runWithLock(new ISqlJetRunnableWithLock() {
-                    public Object runWithLock(SqlJetDb db) throws SqlJetException {
+            runWithLock(new ISqlJetRunnableWithLock() {
+                public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                    if (btree != null) {
                         btree.close();
-                        return null;
+                        btree = null;
+                        schema = null;
+                        open = false;
                     }
-                });
-                btree = null;
+                    return null;
+                }
+            });
+            if (!open) {
+                dbHandle = null;
             }
-            schema = null;
-            dbHandle = null;
-            open = false;
         }
     }
 
@@ -217,11 +220,11 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Do some actions with locking database's internal mutex. It is related
-     * only with synchronization of access to one connection from multiple
-     * threads. It is not related with transactions and locks of database file.
-     * For concurrent access to database from threads or processes use
-     * transactions.
+     * Do some actions with locking database's internal threads synchronization
+     * mutex. It is related only with synchronization of access to one
+     * connection from multiple threads. It is not related with transactions and
+     * locks of database file. For concurrent access to database from threads or
+     * processes use transactions.
      * 
      * @param op
      * @return
@@ -577,4 +580,16 @@ public class SqlJetDb implements ISqlJetLimits {
         return transaction;
     }
 
+    public SqlJetTransactionMode getTransactionMode() {
+        return transactionMode;
+    }
+
+    /**
+     * Get threading synchronization mutex.
+     * 
+     * @return
+     */
+    public ISqlJetMutex getMutex() {
+        return dbHandle.getMutex();
+    }
 }

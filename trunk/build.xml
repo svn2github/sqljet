@@ -552,6 +552,8 @@ public class SqlParser</replacevalue>
 			<attribute name="name" />
 			<sequential>
 				<junit>
+					<jvmarg value="-ea" />
+					<jvmarg value="-server" />
 					<sysproperty key="SQLJET_TESTS_LOGGING" value="@{logging}" />
 					<classpath path="sqljet/bin" />
 					<classpath path="sqljet-test/bin" />

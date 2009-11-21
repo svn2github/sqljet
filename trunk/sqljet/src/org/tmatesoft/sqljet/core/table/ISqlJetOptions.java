@@ -23,23 +23,43 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
 /**
+ * Database options.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
 public interface ISqlJetOptions {
 
+    /**
+     * Name of system property for default encoding.
+     */
     String SQLJET_DEFAULT_ENCODING_PROPERTY = "SQLJET_DEFAULT_ENCODING";
 
+    /**
+     * Default encoding.
+     */
     SqlJetEncoding SQLJET_DEFAULT_ENCODING = SqlJetUtility.getEnumSysProp(SQLJET_DEFAULT_ENCODING_PROPERTY,
             SqlJetEncoding.UTF8);
 
+    /**
+     * Name of system property for legacy file format support.
+     */
     String SQLJET_LEGACY_FILE_FORMAT_PROPERTY = "SQLJET_LEGACY_FILE_FORMAT";
 
+    /**
+     * Legacy file format support.
+     */
     boolean SQLJET_LEGACY_FILE_FORMAT = SqlJetUtility.getBoolSysProp(SQLJET_LEGACY_FILE_FORMAT_PROPERTY, true);
 
+    /**
+     * Name of system property for default file format.
+     */
     String SQLJET_DEFAULT_FILE_FORMAT_PROPERTY = "SQLJET_DEFAULT_FILE_FORMAT";
 
+    /**
+     * Default file format.
+     */
     int SQLJET_DEFAULT_FILE_FORMAT = SqlJetUtility.getIntSysProp(SQLJET_DEFAULT_FILE_FORMAT_PROPERTY,
             SQLJET_LEGACY_FILE_FORMAT ? ISqlJetLimits.SQLJET_MIN_FILE_FORMAT : ISqlJetLimits.SQLJET_MAX_FILE_FORMAT);
 

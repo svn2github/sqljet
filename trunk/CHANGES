@@ -15,7 +15,11 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * New runtime prerequisite added: all cursors must be opened within active transaction (-r709)
   * New method SqlJetDb.refreshSchema() (-r698)
   * Busy handlers support added (-r688)
-  * Performance optimizations.
+  * Database doesn't locked on open if it isn't required (-r771)
+  * Support of temporary and in memory databases enabled (-r784)
+  * Support of reopening closed databases (-785)
+  * Performance optimizations
+  * Javadoc updated.
   
  Bugfixes:
  

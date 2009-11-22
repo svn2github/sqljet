@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -66,6 +67,11 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
+    /**
+     * File name for in memory database.
+     */
+    public static final File IN_MEMORY = new File(ISqlJetPager.MEMORY_DB);
+
     private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
@@ -86,8 +92,17 @@ public class SqlJetDb implements ISqlJetLimits {
     private boolean open = false;
 
     /**
+     * <p>
      * Creates connection to database. Does not read the scheme so as not to
      * lock the database.
+     * </p>
+     * 
+     * <p>
+     * File could be null or have special value {@link #IN_MEMORY}. If file is
+     * null then will be created temporary file which will be deleted at close.
+     * If file is {@link #IN_MEMORY} then file doesn't created and instead
+     * database will placed in memory.
+     * </p>
      * 
      * @param file
      *            path to data base. If file not exists then it will be tried to
@@ -102,8 +117,10 @@ public class SqlJetDb implements ISqlJetLimits {
         dbHandle = new SqlJetDbHandle();
         dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
         btree = new SqlJetBtree();
-        btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
-                writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+        final Set<SqlJetBtreeFlags> flags = (writable ? WRITE_FLAGS : READ_FLAGS);
+        final Set<SqlJetFileOpenPermission> permissions = (writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+        final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
+        btree.open(file, dbHandle, flags, type, permissions);
         open = true;
     }
 
@@ -128,9 +145,18 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
+     * <p>
      * Opens connection to data base. It does not create any locking on
      * database. First lock will be created when be called any method which
      * requires real access to options or schema.
+     * <p>
+     * 
+     * <p>
+     * File could be null or have special value {@link #IN_MEMORY}. If file is
+     * null then will be created temporary file which will be deleted at close.
+     * If file is {@link #IN_MEMORY} then file doesn't created and instead
+     * database will placed in memory.
+     * </p>
      * 
      * @param file
      *            path to data base. If file not exists then it will be tried to

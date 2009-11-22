@@ -107,4 +107,48 @@ public class DbTest extends AbstractNewDbTest {
         });
     }
 
+    @Test
+    public void testTemporary() throws SqlJetException {
+        final SqlJetDb dbTmp = SqlJetDb.open(null, true);
+        Assert.assertNotNull(dbTmp);
+        dbTmp.createTable("create table t(a integer primary key, b integer)");
+        final ISqlJetTable table = dbTmp.getTable("t");
+        table.insert(null, 1);
+        dbTmp.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.open();
+                if (!c.eof()) {
+                    do {
+                        final long b = c.getInteger("b");
+                        Assert.assertEquals(1L, b);
+                    } while (c.next());
+                }
+                return null;
+            }
+        });
+        dbTmp.close();
+    }
+
+    @Test
+    public void testInMemory() throws SqlJetException {
+        final SqlJetDb dbMem = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        Assert.assertNotNull(dbMem);
+        dbMem.createTable("create table t(a integer primary key, b integer)");
+        final ISqlJetTable table = dbMem.getTable("t");
+        table.insert(null, 1);
+        dbMem.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.open();
+                if (!c.eof()) {
+                    do {
+                        final long b = c.getInteger("b");
+                        Assert.assertEquals(1L, b);
+                    } while (c.next());
+                }
+                return null;
+            }
+        });
+        dbMem.close();
+    }
+
 }

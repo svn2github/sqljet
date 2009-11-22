@@ -52,6 +52,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtreeCursor.CursorState;
 import org.tmatesoft.sqljet.core.internal.mutex.SqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.pager.SqlJetPager;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 
 /**
@@ -123,6 +124,13 @@ public class SqlJetBtree implements ISqlJetBtree {
     private void integrity() {
         assert (pBt.inTransaction != TransMode.NONE || pBt.nTransaction == 0);
         assert (pBt.inTransaction.compareTo(inTrans) >= 0);
+    }
+
+    /**
+     * @return the db
+     */
+    public ISqlJetDbHandle getDb() {
+        return db;
     }
 
     /**
@@ -1413,8 +1421,8 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#getSchema()
      */
-    public Object getSchema() {
-        return pBt.pSchema;
+    public SqlJetSchema getSchema() {
+        return (SqlJetSchema) pBt.pSchema;
     }
 
     /*
@@ -1422,7 +1430,7 @@ public class SqlJetBtree implements ISqlJetBtree {
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetBtree#setSchema(java.lang.Object)
      */
-    public void setSchema(Object schema) {
+    public void setSchema(SqlJetSchema schema) {
         pBt.pSchema = schema;
     }
 
@@ -2262,7 +2270,9 @@ public class SqlJetBtree implements ISqlJetBtree {
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetBtree#closeAllCursors()
      */
     public void closeAllCursors() throws SqlJetException {
@@ -2276,7 +2286,7 @@ public class SqlJetBtree implements ISqlJetBtree {
             leave();
         }
     }
-    
+
     /*
      * (non-Javadoc)
      * 

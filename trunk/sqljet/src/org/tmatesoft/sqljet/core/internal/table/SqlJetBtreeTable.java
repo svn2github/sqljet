@@ -22,7 +22,6 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtreeCursor;
-import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
@@ -39,7 +38,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
     protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
-    protected ISqlJetDbHandle db;
     protected ISqlJetBtree btree;
     protected int rootPage;
 
@@ -64,10 +62,9 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @param index
      * @throws SqlJetException
      */
-    public SqlJetBtreeTable(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
-            throws SqlJetException {
+    public SqlJetBtreeTable(ISqlJetBtree btree, int rootPage, boolean write, boolean index) throws SqlJetException {
 
-        init(db, btree, rootPage, write, index);
+        init(btree, rootPage, write, index);
 
     }
 
@@ -79,9 +76,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @param index
      * @throws SqlJetException
      */
-    private void init(ISqlJetDbHandle db, ISqlJetBtree btree, int rootPage, boolean write, boolean index)
-            throws SqlJetException {
-        this.db = db;
+    private void init(ISqlJetBtree btree, int rootPage, boolean write, boolean index) throws SqlJetException {
         this.btree = btree;
         this.rootPage = rootPage;
         this.write = write;
@@ -89,7 +84,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
         if (index) {
             this.keyInfo = new SqlJetKeyInfo();
-            this.keyInfo.setEnc(db.getOptions().getEncoding());
+            this.keyInfo.setEnc(btree.getDb().getOptions().getEncoding());
         }
 
         this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
@@ -220,7 +215,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         if (null == recordCache) {
             lock();
             try {
-                recordCache = new SqlJetBtreeRecord(cursor, index, db.getOptions().getFileFormat());
+                recordCache = new SqlJetBtreeRecord(cursor, index, btree.getDb().getOptions().getFileFormat());
             } finally {
                 unlock();
             }

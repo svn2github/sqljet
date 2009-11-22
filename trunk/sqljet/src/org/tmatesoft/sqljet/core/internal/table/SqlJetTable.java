@@ -24,9 +24,9 @@ import java.util.TreeSet;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
@@ -49,13 +49,13 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     private final SqlJetDb db;
-    private ISqlJetSchema schema;
+    private ISqlJetBtree btree;
     private String tableName;
     private boolean write;
 
-    public SqlJetTable(SqlJetDb db, ISqlJetSchema schema, String tableName, boolean write) throws SqlJetException {
+    public SqlJetTable(SqlJetDb db, ISqlJetBtree btree, String tableName, boolean write) throws SqlJetException {
         this.db = db;
-        this.schema = schema;
+        this.btree = btree;
         this.tableName = tableName;
         this.write = write;
         if (null == getDefinition())
@@ -77,7 +77,7 @@ public class SqlJetTable implements ISqlJetTable {
     }
 
     public ISqlJetTableDef getDefinition() throws SqlJetException {
-        return schema.getTable(tableName);
+        return btree.getSchema().getTable(tableName);
     };
 
     /*
@@ -87,7 +87,7 @@ public class SqlJetTable implements ISqlJetTable {
      * org.tmatesoft.sqljet.core.table.ISqlJetTable#getIndexes(java.lang.String)
      */
     public Set<ISqlJetIndexDef> getIndexesDefs() throws SqlJetException {
-        return schema.getIndexes(tableName);
+        return btree.getSchema().getIndexes(tableName);
     }
 
     /*
@@ -135,7 +135,7 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetCursor open() throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTableDataCursor(new SqlJetBtreeDataTable(schema, tableName, write), db);
+                return new SqlJetTableDataCursor(new SqlJetBtreeDataTable(btree, tableName, write), db);
             }
         });
     }
@@ -144,7 +144,7 @@ public class SqlJetTable implements ISqlJetTable {
         final Object[] k = SqlJetUtility.adjustNumberTypes(key);
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(btree, tableName, write);
                 checkIndexName(indexName, table);
                 return new SqlJetIndexScopeCursor(table, db, indexName, k, k);
             }
@@ -154,7 +154,7 @@ public class SqlJetTable implements ISqlJetTable {
     private Object runWriteTransaction(final ISqlJetTableRun op) throws SqlJetException {
         return db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                final ISqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                final ISqlJetBtreeDataTable table = new SqlJetBtreeDataTable(btree, tableName, write);
                 try {
                     return op.run(table);
                 } finally {
@@ -210,7 +210,7 @@ public class SqlJetTable implements ISqlJetTable {
     public ISqlJetCursor order(final String indexName) throws SqlJetException {
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(btree, tableName, write);
                 checkIndexName(indexName, table);
                 return new SqlJetIndexOrderCursor(table, db, indexName);
             }
@@ -229,7 +229,7 @@ public class SqlJetTable implements ISqlJetTable {
         final Object[] last = SqlJetUtility.adjustNumberTypes(lastKey);
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(schema, tableName, write);
+                final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(btree, tableName, write);
                 checkIndexName(indexName, table);
                 if (isNeedReverse(getIndexTable(indexName, table), first, last)) {
                     return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, last, first));

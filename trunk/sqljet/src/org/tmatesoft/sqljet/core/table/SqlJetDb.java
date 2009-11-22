@@ -79,7 +79,6 @@ public class SqlJetDb implements ISqlJetLimits {
     private final boolean writable;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
-    private SqlJetSchema schema;
 
     private boolean transaction;
     private SqlJetTransactionMode transactionMode;
@@ -119,7 +118,7 @@ public class SqlJetDb implements ISqlJetLimits {
                 btree.enter();
                 try {
                     dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
-                    schema = new SqlJetSchema(dbHandle, btree);
+                    btree.setSchema(new SqlJetSchema(dbHandle, btree));
                 } finally {
                     btree.leave();
                 }
@@ -174,7 +173,6 @@ public class SqlJetDb implements ISqlJetLimits {
                     if (btree != null) {
                         btree.close();
                         btree = null;
-                        schema = null;
                         open = false;
                     }
                     return null;
@@ -263,7 +261,7 @@ public class SqlJetDb implements ISqlJetLimits {
     private SqlJetSchema getSchemaInternal() throws SqlJetException {
         checkOpen();
         refreshSchema();
-        return schema;
+        return btree.getSchema();
     }
 
     /**
@@ -279,7 +277,7 @@ public class SqlJetDb implements ISqlJetLimits {
         refreshSchema();
         return (SqlJetTable) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                return new SqlJetTable(db, getSchemaInternal(), tableName, writable);
+                return new SqlJetTable(db, btree, tableName, writable);
             }
         });
     }
@@ -434,7 +432,7 @@ public class SqlJetDb implements ISqlJetLimits {
      */
     public ISqlJetOptions getOptions() throws SqlJetException {
         checkOpen();
-        if (null == schema) {
+        if (null == btree.getSchema()) {
             readSchema();
         }
         return dbHandle.getOptions();
@@ -566,7 +564,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * @throws SqlJetException
      */
     public void refreshSchema() throws SqlJetException {
-        if (null == schema || !getOptions().verifySchemaVersion(false)) {
+        if (null == btree.getSchema() || !getOptions().verifySchemaVersion(false)) {
             readSchema();
         }
     }

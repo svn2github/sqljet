@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 
 /**
  * A Btree handle
@@ -43,18 +44,18 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  */
 public interface ISqlJetBtree {
 
-    SqlJetAutoVacuumMode SQLJET_DEFAULT_AUTOVACUUM = 
-        SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_AUTOVACUUM", SqlJetAutoVacuumMode.NONE);
+    SqlJetAutoVacuumMode SQLJET_DEFAULT_AUTOVACUUM = SqlJetUtility.getEnumSysProp("SQLJET_DEFAULT_AUTOVACUUM",
+            SqlJetAutoVacuumMode.NONE);
 
     String SQLITE_FILE_HEADER = "SQLite format 3";
-    
+
     /*
-    ** The header string that appears at the beginning of every
-    ** SQLite database.
-    */
-    ISqlJetMemoryPointer zMagicHeader = SqlJetUtility.wrapPtr( SqlJetUtility.addZeroByteEnd(
-        SqlJetUtility.getBytes(SQLITE_FILE_HEADER)) );
-    
+     * * The header string that appears at the beginning of every* SQLite
+     * database.
+     */
+    ISqlJetMemoryPointer zMagicHeader = SqlJetUtility.wrapPtr(SqlJetUtility.addZeroByteEnd(SqlJetUtility
+            .getBytes(SQLITE_FILE_HEADER)));
+
     /**
      * Open a database file.
      * 
@@ -367,19 +368,19 @@ public interface ISqlJetBtree {
      * 
      * @return
      */
-    Object getSchema();
+    SqlJetSchema getSchema();
 
     /**
      * @param schema
      */
-    void setSchema(Object schema);
+    void setSchema(SqlJetSchema schema);
 
     /**
      * Return true if another user of the same shared btree as the argument
      * handle holds an exclusive lock on the sqlite_master table.
      * 
      * @return
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     boolean isSchemaLocked();
 
@@ -635,7 +636,7 @@ public interface ISqlJetBtree {
      * all of the subsequent Btrees that desire a lock.
      */
     void enter();
-    
+
     /**
      * Exit the recursive mutex on a Btree.
      */
@@ -645,6 +646,11 @@ public interface ISqlJetBtree {
      * @return
      */
     int getCacheSize();
-    
+
     void closeAllCursors() throws SqlJetException;
+
+    /**
+     * @return
+     */
+    ISqlJetDbHandle getDb();
 }

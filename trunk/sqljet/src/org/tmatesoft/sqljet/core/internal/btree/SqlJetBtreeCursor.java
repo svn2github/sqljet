@@ -37,7 +37,6 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.internal.SqlJetCloneable;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree.TransMode;
-import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 
 /**

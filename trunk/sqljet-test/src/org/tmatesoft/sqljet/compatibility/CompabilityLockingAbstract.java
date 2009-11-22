@@ -129,6 +129,7 @@ public abstract class CompabilityLockingAbstract {
             stat.execute("begin deferred;");
             final ResultSet rs = stat.executeQuery("select * from t;");
             do {
+                @SuppressWarnings("unused")
                 final long b = rs.getLong("b");
             } while (rs.next());
             try {

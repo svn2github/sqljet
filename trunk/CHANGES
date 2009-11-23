@@ -1,5 +1,17 @@
+Version ?.?.?
+(?? ??? ????, from /branches/?.?.?)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/?.0.?/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+ New features:
+
+  * Database doesn't locked on open if it isn't required (-r771)
+  * Support of temporary and in memory databases enabled (-r784)
+  * Support of reopening closed databases (-785)
+
 Version 1.0.1
-(?? ??? ????, from /branches/1.0.x)
+(20 Nov 2009, from /branches/1.0.x)
 
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.1/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
@@ -12,20 +24,13 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * New ISqlJetCursor methods to get row count, current row and go to row (issue #92) (-r652)
   * New ISqlJetCursor.setLimit(...) method (issue #92) (-r701)
   * New insert and update methods with ON CONFLICT statement logic support (-r702)
-  * New runtime prerequisite added: all cursors must be opened within active transaction (-r709)
-  * New method SqlJetDb.refreshSchema() (-r698)
-  * Busy handlers support added (-r688)
-  * Database doesn't locked on open if it isn't required (-r771)
-  * Support of temporary and in memory databases enabled (-r784)
-  * Support of reopening closed databases (-785)
-  * Performance optimizations
-  * Javadoc updated.
   
  Bugfixes:
  
   * Fields size was stored in db schema as x.x (float numbers), fixed (-r637)
   * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649)
   * Problems using case mismatching names of tables and indices fixed (-r674, 679, 700)
+  * Table and indices names with '$' was not supported, fixed (issue #116) (-r765) 
   * Antiviruses block access to temporary created files, fixed (-r657)
   * Number of concurrency issues fixed.
 

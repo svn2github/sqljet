@@ -1,5 +1,5 @@
-This is a README.txt file for SQLJet - 
-pure Java embedded database management engine with SQLite format support.
+This is a README.txt file for SQLJet built from 'trunk'.
+SQLJet is a pure Java (tm) embedded database management engine with SQLite format support.
 
 1. DESCRIPTION
 

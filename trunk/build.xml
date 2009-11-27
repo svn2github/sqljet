@@ -135,6 +135,14 @@ public class SqlParser</replacevalue>
 		</genkey>
 	</target>
 
+	<target name="javadoc" description="Build the javadocs for the source code.">
+		<javadoc destdir="build/javadocs" packagenames="org.tmatesoft.sqljet" sourcepath="sqljet/src">
+			<fileset dir="sqljet/src">
+				<include name="**/*.java" />
+			</fileset>
+		</javadoc>
+	</target>
+
 	<target name="deploy" depends="clean, compile, compile-examples, generate-key">
 		<mkdir dir="build" />
 		<!-- update svnkit.build.properties here -->
@@ -220,11 +228,25 @@ public class SqlParser</replacevalue>
 			</zipfileset>
 		</zip>
 
+		<javadoc destdir="build/javadocs" packagenames="org.tmatesoft.sqljet" sourcepath="sqljet/src">
+			<fileset dir="sqljet/src">
+				<include name="**/*.java" />
+				<exclude name="**/internal/**" />
+			</fileset>
+		</javadoc>
+
+		<zip destfile="build/sqljet.${build.number}.doc.zip">
+			<zipfileset dir="build/javadocs" prefix="javadocs">
+				<exclude name="**/.*" />
+				<exclude name=".*" />
+			</zipfileset>
+		</zip>
 
 		<zip destfile="build/sqljet.${build.number}.zip">
 			<zipfileset dir="build" prefix="sqljet.${build.number}">
 				<include name="sqljet.${build.number}.jar" />
 				<include name="sqljet.${build.number}.src.zip" />
+				<include name="sqljet.${build.number}.doc.zip" />
 				<include name="sqljet-browser.${build.number}.jar" />
 				<include name="sqljet-browser.${build.number}.src.zip" />
 			</zipfileset>
@@ -255,6 +277,13 @@ public class SqlParser</replacevalue>
 		<delete dir="build/lib" includeemptydirs="true">
 			<include name="**/**" />
 		</delete>
+		<delete file="build/sqljet.${build.number}.doc.zip">
+		</delete>
+		<!--
+		<delete dir="build/javadocs" includeemptydirs="true">
+			<include name="**/**" />
+		</delete>
+		-->
 	</target>
 
 	<target name="deploy-maven" depends="clean,compile">
@@ -710,7 +739,7 @@ public class SqlParser</replacevalue>
 			</sequential>
 		</parallel>
 
-		
+
 		<delete file="${compability.file}" />
 		<delete file="${compability.semaphore}" />
 

@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 
 /**
  * @author TMate Software Ltd.
@@ -38,7 +39,7 @@ public class DefaultValuesTest extends AbstractNewDbTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        db.getOptions().setFileFormat(SqlJetDb.SQLJET_MAX_FILE_FORMAT);
+        db.getOptions().setFileFormat(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 db.createTable("create table t(a integer primary key, b integer default 1)");

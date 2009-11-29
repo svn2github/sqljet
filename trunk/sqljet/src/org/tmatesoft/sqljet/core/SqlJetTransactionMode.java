@@ -1,5 +1,5 @@
 /**
- * ISqlJetMutex.java
+ * SqlJetTransactionMode.java
  * Copyright (C) 2009 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,16 +15,17 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.internal;
+package org.tmatesoft.sqljet.core;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetMutex {
-    void enter();
-    boolean attempt();
-    void leave();
-    boolean held();
+public enum SqlJetTransactionMode {
+
+    READ_ONLY,
+    WRITE,
+    EXCLUSIVE
+    
 }

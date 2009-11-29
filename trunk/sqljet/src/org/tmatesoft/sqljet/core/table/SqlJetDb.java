@@ -20,17 +20,16 @@ package org.tmatesoft.sqljet.core.table;
 import java.io.File;
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
-import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
-import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
-import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
@@ -65,7 +64,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
-public class SqlJetDb implements ISqlJetLimits {
+public class SqlJetDb {
 
     /**
      * File name for in memory database.

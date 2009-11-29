@@ -17,7 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.mutex;
 
-import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 
 /**
  * @author TMate Software Ltd.

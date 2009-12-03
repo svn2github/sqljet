@@ -144,8 +144,9 @@ public class SqlParser</replacevalue>
 			<pathelement path="lib/antlr-runtime-3.1.3.jar" />
 		</path>
 
-		<javadoc destdir="build/javadoc" packagenames="org.tmatesoft.sqljet" sourcepath="sqljet/src" classpathref="doc.classpath" failonerror="false">
-			
+		<javadoc destdir="build/javadoc" packagenames="org.tmatesoft.sqljet" sourcepath="sqljet/src" 
+			classpathref="doc.classpath" overview="sqljet/src/overview.html" failonerror="false">
+
 			<packageset dir="sqljet/src" defaultexcludes="yes">
 				<exclude name="**/tests/**" />
 				<exclude name="**/internal/**" />

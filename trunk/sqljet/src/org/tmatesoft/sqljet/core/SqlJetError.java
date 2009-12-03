@@ -18,40 +18,46 @@
 package org.tmatesoft.sqljet.core;
 
 /**
+ * SQLJet's runtime error.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetError extends Error {
 
     /**
      * 
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6895964570583712664L;
 
     /**
+     * Create error with message.
      * 
-     */
-    public SqlJetError() {
-    }
-
-    /**
      * @param message
+     *            message string
      */
     public SqlJetError(String message) {
         super(message);
     }
 
     /**
+     * Create error caused by some reason.
+     * 
      * @param cause
+     *            the reason of error.
      */
     public SqlJetError(Throwable cause) {
         super(cause);
     }
 
     /**
+     * Create error with message and caused by reason.
+     * 
      * @param message
+     *            the message string.
      * @param cause
+     *            the reason of error.
      */
     public SqlJetError(String message, Throwable cause) {
         super(message, cause);

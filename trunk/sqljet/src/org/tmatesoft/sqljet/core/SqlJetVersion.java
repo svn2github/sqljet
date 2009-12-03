@@ -22,11 +22,16 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
+ * SQLJet's version.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
 public class SqlJetVersion {
+    
+    private SqlJetVersion() {
+    }
 
     private static String PROPERTIES_PATH = "/sqljet.build.properties";
 
@@ -38,11 +43,16 @@ public class SqlJetVersion {
     private static final String VERSION_BUILD_PROPERTY = "sqljet.version.build";
 
     private static final String VERSION_MAJOR_DEFAULT = "1";
-    private static final String VERSION_MINOR_DEFAULT = "1";
-    private static final String VERSION_MICRO_DEFAULT = "0";
+    private static final String VERSION_MINOR_DEFAULT = "0";
+    private static final String VERSION_MICRO_DEFAULT = "1";
 
     private static final String VERSION_BUILD_DEFAULT = "0";
 
+    /**
+     * Get SQLJet version as stirng.
+     * 
+     * @return
+     */
     public static String getVersionString() {
         loadProperties();
         StringBuffer version = new StringBuffer();
@@ -61,6 +71,11 @@ public class SqlJetVersion {
         return version.toString();
     }
 
+    /**
+     * Get SQLJet's major version.
+     * 
+     * @return major version.
+     */
     public static int getMajorVersion() {
         loadProperties();
         try {
@@ -71,6 +86,11 @@ public class SqlJetVersion {
         return Integer.parseInt(VERSION_MAJOR_DEFAULT);
     }
 
+    /**
+     * Get SQLJet's minor version.
+     * 
+     * @return minor version.
+     */
     public static int getMinorVersion() {
         loadProperties();
         try {
@@ -81,6 +101,11 @@ public class SqlJetVersion {
         return Integer.parseInt(VERSION_MINOR_DEFAULT);
     }
 
+    /**
+     * Get SQLJet's micro version.
+     * 
+     * @return micro version.
+     */
     public static int getMicroVersion() {
         loadProperties();
         try {
@@ -91,6 +116,11 @@ public class SqlJetVersion {
         return Integer.parseInt(VERSION_MICRO_DEFAULT);
     }
 
+    /**
+     * Get SQLJet's build number.
+     * 
+     * @return build number.
+     */
     public static long getBuildNumber() {
         loadProperties();
         try {

@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Column's default value.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

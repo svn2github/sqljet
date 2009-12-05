@@ -14,11 +14,19 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Unary expression.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetUnaryExpression extends ISqlJetExpression {
 
+    /**
+     * Unary expression's operations.
+     * 
+     * @author TMate Software Ltd.
+     * @author Dmitry Stadnik (dtrace@seznam.cz)
+     */
     public enum Operation {
         PLUS, MINUS, NEGATE, NOT;
 

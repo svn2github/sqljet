@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Integer literal.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

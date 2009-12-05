@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * "ON CONFLICT" action.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

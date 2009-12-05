@@ -14,6 +14,8 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * "IN" expression.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

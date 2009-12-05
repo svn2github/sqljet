@@ -14,13 +14,23 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Blob literal.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetBlobLiteral extends ISqlJetLiteralValue {
 
     /**
+     * <p>
+     * Blob value as bytes array.
+     * </p>
+     * 
+     * <p>
      * IMPORTANT: Do not modify the returned array!
+     * </p>
+     * 
+     * @return blob value
      */
     public byte[] getValue();
 }

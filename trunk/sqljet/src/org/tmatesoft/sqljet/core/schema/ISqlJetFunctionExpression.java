@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.List;
 
 /**
+ * Function expression.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

@@ -22,18 +22,56 @@ import java.util.Set;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
+ * Database schema interface.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  */
 public interface ISqlJetSchema {
 
+    /**
+     * Get tables names.
+     * 
+     * @return tables names.
+     * @throws SqlJetException
+     */
     Set<String> getTableNames() throws SqlJetException;
 
+    /**
+     * Get table definition by name.
+     * 
+     * @param name
+     *            table name
+     * @return table definition
+     * @throws SqlJetException
+     */
     ISqlJetTableDef getTable(String name) throws SqlJetException;
 
+    /**
+     * Get indices names.
+     * 
+     * @return indices names.
+     * @throws SqlJetException
+     */
     Set<String> getIndexNames() throws SqlJetException;
 
+    /**
+     * Get index definition by name.
+     * 
+     * @param name
+     *            index name
+     * @return index definition
+     * @throws SqlJetException
+     */
     ISqlJetIndexDef getIndex(String name) throws SqlJetException;
 
+    /**
+     * Get indices related with table.
+     * 
+     * @param tableName
+     *            table name
+     * @return indices of table
+     * @throws SqlJetException
+     */
     Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
 }

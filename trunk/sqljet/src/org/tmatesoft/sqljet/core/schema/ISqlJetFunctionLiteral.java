@@ -14,11 +14,19 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Function literal.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetFunctionLiteral extends ISqlJetExpression {
 
+    /**
+     * Functions literal function.
+     * 
+     * @author TMate Software Ltd.
+     * @author Dmitry Stadnik (dtrace@seznam.cz)
+     */
     public enum Function {
         CURRENT_TIME, CURRENT_DATE, CURRENT_TIMESTAMP;
 

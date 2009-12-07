@@ -51,20 +51,25 @@ public class InventoryItemsResponder {
 		buffer.append("<h2>Inventory</h2>");
 		InventoryDB db = new InventoryDB();
 		try {
-			ISqlJetCursor cursor;
-			if (room >= 0 && shelf >= 0) {
-				cursor = db.getAllItemsInRoomOnShelf(room, shelf);
-			} else if (namesAsc != null) {
-				cursor = db.getAllItemsSortedByName(namesAsc);
-			} else {
-				cursor = db.getAllItems();
-			}
+			db.beginTransaction(false);
 			try {
-				printItems(db, buffer, cursor, namesAsc, room, shelf);
+				ISqlJetCursor cursor;
+				if (room >= 0 && shelf >= 0) {
+					cursor = db.getAllItemsInRoomOnShelf(room, shelf);
+				} else if (namesAsc != null) {
+					cursor = db.getAllItemsSortedByName(namesAsc);
+				} else {
+					cursor = db.getAllItems();
+				}
+				try {
+					printItems(db, buffer, cursor, namesAsc, room, shelf);
+				} finally {
+					cursor.close();
+				}
+				printShowUsers(db, buffer);
 			} finally {
-				cursor.close();
+				db.commit();
 			}
-			printShowUsers(db, buffer);
 		} finally {
 			db.close();
 		}

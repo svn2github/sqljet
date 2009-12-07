@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
@@ -43,6 +44,14 @@ public class InventoryDB {
 		db = null;
 	}
 
+	public void beginTransaction(boolean write) throws SqlJetException {
+		db.beginTransaction( write ? SqlJetTransactionMode.WRITE : SqlJetTransactionMode.READ_ONLY);
+	}
+	
+	public void commit() throws SqlJetException {
+		db.commit();
+	}
+	
 	public int getVersion() throws SqlJetException {
 		return db.getOptions().getUserVersion();
 	}
@@ -111,18 +120,23 @@ public class InventoryDB {
 		return db.getTable("items").order(asc ? "items_name" : "items_name_rev");
 	}
 
-	public InventoryItem getItem(long article) throws SqlJetException {
-		ISqlJetCursor cursor = db.getTable("items").open();
-		try {
-			if (cursor.goTo(article)) {
-				InventoryItem item = new InventoryItem();
-				item.read(cursor);
-				return item;
+	public InventoryItem getItem(final long article) throws SqlJetException {
+		return (InventoryItem) db.runReadTransaction(new ISqlJetTransaction() {
+			
+			public Object run(SqlJetDb db) throws SqlJetException {
+				ISqlJetCursor cursor = db.getTable("items").open();
+				try {
+					if (cursor.goTo(article)) {
+						InventoryItem item = new InventoryItem();
+						item.read(cursor);
+						return item;
+					}
+				} finally {
+					cursor.close();
+				}
+				return null;
 			}
-		} finally {
-			cursor.close();
-		}
-		return null;
+		});
 	}
 
 	public long addItem(final InventoryItem item) throws SqlJetException {
@@ -183,19 +197,24 @@ public class InventoryDB {
 		return db.getTable("users").open();
 	}
 
-	public InventoryUser getUser(String name) throws SqlJetException {
-		ISqlJetTable users = db.getTable("users");
-		ISqlJetCursor cursor = users.lookup(users.getPrimaryKeyIndexName(), name);
-		try {
-			if (!cursor.eof()) {
-				InventoryUser user = new InventoryUser();
-				user.read(cursor);
-				return user;
+	public InventoryUser getUser(final String name) throws SqlJetException {
+		return (InventoryUser) db.runReadTransaction(new ISqlJetTransaction() {
+			
+			public Object run(SqlJetDb db) throws SqlJetException {
+				ISqlJetTable users = db.getTable("users");
+				ISqlJetCursor cursor = users.lookup(users.getPrimaryKeyIndexName(), name);
+				try {
+					if (!cursor.eof()) {
+						InventoryUser user = new InventoryUser();
+						user.read(cursor);
+						return user;
+					}
+				} finally {
+					cursor.close();
+				}
+				return null;
 			}
-		} finally {
-			cursor.close();
-		}
-		return null;
+		});
 	}
 
 	public void addUser(final InventoryUser user) throws SqlJetException {

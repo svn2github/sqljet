@@ -29,11 +29,16 @@ public class InventoryUsersResponder {
 		buffer.append("<h2>Users</h2>");
 		InventoryDB db = new InventoryDB();
 		try {
-			ISqlJetCursor cursor = db.getAllUsers();
+			db.beginTransaction(false);
 			try {
-				printUsers(db, buffer, cursor);
+				ISqlJetCursor cursor = db.getAllUsers();
+				try {
+					printUsers(db, buffer, cursor);
+				} finally {
+					cursor.close();
+				}
 			} finally {
-				cursor.close();
+				db.commit();
 			}
 		} finally {
 			db.close();

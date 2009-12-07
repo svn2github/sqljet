@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -59,6 +60,14 @@ public class ExpensesDB {
 		db.close();
 		db = null;
 	}
+	
+	public static void beginReadTransaction() throws SqlJetException {
+		db.beginTransaction(SqlJetTransactionMode.READ_ONLY);		
+	}
+	
+	public static void commitTransaction() throws SqlJetException {
+		db.commit();
+	}	
 
 	public static ISqlJetCursor getAllPayments() throws SqlJetException {
 		return db.getTable("payments").order("payments_date");

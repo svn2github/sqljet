@@ -36,8 +36,6 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetKeyInfo;
  */
 public class SqlJetBtreeTable implements ISqlJetBtreeTable {
 
-    protected static String AUTOINDEX = "sqlite_autoindex_%s_%d";
-
     protected ISqlJetBtree btree;
     protected int rootPage;
 
@@ -519,14 +517,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         }
     }
 
-    /**
-     * @param i
-     * @return
-     */
-    public static String generateAutoIndexName(String tableName, int i) {
-        return String.format(AUTOINDEX, tableName, i);
-    }
-
     protected void clearRecordCache() {
         recordCache = null;
         valuesCache = null;
@@ -538,7 +528,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public long getKeySize() throws SqlJetException {
-        clearRecordCache();
+        clearRecordCache();// TODO is this call needed?
         return cursor.getKeySize();
     }
 

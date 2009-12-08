@@ -528,7 +528,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public long getKeySize() throws SqlJetException {
-        clearRecordCache();// TODO is this call needed?
         return cursor.getKeySize();
     }
 

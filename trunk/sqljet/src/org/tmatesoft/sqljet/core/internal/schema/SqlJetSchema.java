@@ -58,6 +58,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
+import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -65,7 +66,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public class SqlJetSchema implements ISqlJetSchema {
-    
+
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     private static final String CANT_DELETE_IMPLICIT_INDEX = "Can't delete implicit index \"%s\"";
@@ -90,6 +91,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             String.CASE_INSENSITIVE_ORDER);
     private final Map<String, ISqlJetIndexDef> indexDefs = new TreeMap<String, ISqlJetIndexDef>(
             String.CASE_INSENSITIVE_ORDER);
+    private Map<String, ISqlJetVirtualTableDef> virtualTableDefs = new TreeMap<String, ISqlJetVirtualTableDef>(
+            String.CASE_INSENSITIVE_ORDER);
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -100,7 +103,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private ISqlJetBtreeSchemaTable openSchemaTable(boolean write) throws SqlJetException {
         return new SqlJetBtreeSchemaTable(btree, write);
     }
-    
+
     private void init() throws SqlJetException {
         if (db.getOptions().getSchemaVersion() == 0)
             return;
@@ -180,6 +183,26 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
+    public Set<String> getVirtualTableNames() throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            final Set<String> s = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            s.addAll(virtualTableDefs.keySet());
+            return s;
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+    public ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return virtualTableDefs.get(name);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
     private void readShema(ISqlJetBtreeSchemaTable table) throws SqlJetException {
         for (table.first(); !table.eof(); table.next()) {
             final String type = table.getTypeField();
@@ -191,20 +214,26 @@ public class SqlJetSchema implements ISqlJetSchema {
                 continue;
             }
             final int page = table.getPageField();
-            if (0 == page) {
-                continue;
-            }
 
             if (TABLE_TYPE.equals(type)) {
                 String sql = table.getSqlField();
                 // System.err.println(sql);
                 final CommonTree ast = parseTable(sql);
-                final SqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
-                if (!name.equals(tableDef.getName())) {
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                if (!isCreateVirtualTable(ast)) {
+                    final SqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
+                    if (!name.equals(tableDef.getName())) {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                    }
+                    tableDef.setRowId(table.getRowId());
+                    tableDefs.put(name, tableDef);
+                } else {
+                    final SqlJetVirtualTableDef virtualTableDef = new SqlJetVirtualTableDef(ast, page);
+                    if (!name.equals(virtualTableDef.getTableName())) {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                    }
+                    virtualTableDef.setRowId(table.getRowId());
+                    virtualTableDefs.put(name, virtualTableDef);
                 }
-                tableDef.setRowId(table.getRowId());
-                tableDefs.put(name, tableDef);
             } else if (INDEX_TYPE.equals(type)) {
                 final String tableName = table.getTableField();
                 if (null == type) {
@@ -232,13 +261,28 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
+    /**
+     * @param ast
+     * @return
+     */
+    private boolean isCreateVirtualTable(CommonTree ast) {
+        final CommonTree optionsNode = (CommonTree) ast.getChild(0);
+        for (int i = 0; i < optionsNode.getChildCount(); i++) {
+            CommonTree optionNode = (CommonTree) optionsNode.getChild(i);
+            if ("virtual".equalsIgnoreCase(optionNode.getText())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private CommonTree parseTable(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
-            return (CommonTree) parser.create_table_stmt().getTree();
+            return (CommonTree) parser.schema_create_table_stmt().getTree();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -290,6 +334,10 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         final CommonTree ast = parseTable(sql);
 
+        if (isCreateVirtualTable(ast)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        }
+
         final SqlJetTableDef tableDef = new SqlJetTableDef(ast, 0);
         if (null == tableDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -309,7 +357,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable( true );
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
 
         try {
 
@@ -321,7 +369,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
                 final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
-                
+
                 addConstraints(schemaTable, tableDef);
 
                 tableDef.setPage(page);
@@ -352,7 +400,8 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @param tableDef
      * @throws SqlJetException
      */
-    private void addConstraints(ISqlJetBtreeSchemaTable schemaTable, final SqlJetTableDef tableDef) throws SqlJetException {
+    private void addConstraints(ISqlJetBtreeSchemaTable schemaTable, final SqlJetTableDef tableDef)
+            throws SqlJetException {
 
         final String tableName = tableDef.getName().trim();
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
@@ -490,7 +539,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                         + tableName + "\"");
         }
 
-        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable( true );
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
 
         try {
 
@@ -545,7 +594,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         dropTableIndexes(tableDef);
 
-        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable( true );
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
 
         try {
 
@@ -680,7 +729,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             try {
                 for (schemaTable.first(); !schemaTable.eof(); schemaTable.next()) {
                     final long pageField = schemaTable.getPageField();
-                    if (pageField == moved) {                        
+                    if (pageField == moved) {
                         final String nameField = schemaTable.getNameField();
                         schemaTable.updateRecord(schemaTable.getRowId(), schemaTable.getTypeField(), nameField,
                                 schemaTable.getTableField(), page, schemaTable.getSqlField());
@@ -812,12 +861,12 @@ public class SqlJetSchema implements ISqlJetSchema {
         final SqlJetTableDef alterDef = new SqlJetTableDef(newTableName, null, tableDef.isTemporary(), false, columns,
                 tableDef.getConstraints(), page, rowId);
 
-        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable( true );
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
         try {
             schemaTable.lock();
             try {
 
-                if ( !schemaTable.goToRow( rowId )) {
+                if (!schemaTable.goToRow(rowId)) {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
 
@@ -950,6 +999,61 @@ public class SqlJetSchema implements ISqlJetSchema {
             return alterTableSafe(alterTableDef);
         } finally {
             db.getMutex().leave();
+        }
+
+    }
+
+    public ISqlJetVirtualTableDef createVirtualTable(String sql, int page) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return createVirtualTableSafe(sql, page);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+    private ISqlJetVirtualTableDef createVirtualTableSafe(String sql, int page) throws SqlJetException {
+
+        final CommonTree ast = parseTable(sql);
+
+        if (!isCreateVirtualTable(ast)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        }
+
+        final SqlJetVirtualTableDef tableDef = new SqlJetVirtualTableDef(ast, 0);
+        if (null == tableDef.getTableName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String tableName = tableDef.getTableName().trim();
+        if ("".equals(tableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (virtualTableDefs.containsKey(tableName)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Virtual table \"" + tableName + "\" exists already");
+        }
+
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getOptions().changeSchemaVersion();
+
+                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
+
+                tableDef.setPage(page);
+                tableDef.setRowId(rowId);
+                virtualTableDefs.put(tableName, tableDef);
+                return tableDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
         }
 
     }

@@ -28,6 +28,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
+import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -40,6 +41,7 @@ import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
 /**
  * <p>
@@ -604,6 +606,23 @@ public class SqlJetDb {
     }
 
     /**
+     * Create virtual table from SQL clause.
+     * 
+     * @param sql
+     *            CREATE VIRTUAL TABLE ... sentence.
+     * @return definition of create virtual table.
+     * @throws SqlJetException
+     */
+    public ISqlJetVirtualTableDef createVirtualTable(final String sql) throws SqlJetException {
+        checkOpen();
+        return (ISqlJetVirtualTableDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return getSchemaInternal().createVirtualTable(sql, 0);
+            }
+        });
+    }
+
+    /**
      * Get busy handler.
      * 
      * @return the busy handler.
@@ -655,4 +674,5 @@ public class SqlJetDb {
     public ISqlJetMutex getMutex() {
         return dbHandle.getMutex();
     }
+
 }

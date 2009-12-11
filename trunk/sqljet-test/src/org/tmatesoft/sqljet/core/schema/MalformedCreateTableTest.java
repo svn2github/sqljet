@@ -102,6 +102,15 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertTrue(true);
 
     }
+    
+    @Test
+    public void nullTableFieldConstraintTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE TABLE world_countries (Name varchar(300) NULL, ID int NULL)";
+        db.createTable(sql1);
+        db.commit();
+        Assert.assertTrue(true);
+    }
 
     @Test
     public void fieldSize() throws Exception {

@@ -346,6 +346,7 @@ column_def: name=id_column_def type_name? column_constraint*
 column_constraint: (CONSTRAINT name=id)?
   ( column_constraint_pk
   | column_constraint_not_null
+  | column_constraint_null
   | column_constraint_unique
   | column_constraint_check
   | column_constraint_default
@@ -354,6 +355,7 @@ column_constraint: (CONSTRAINT name=id)?
 -> ^(COLUMN_CONSTRAINT
   column_constraint_pk?
   column_constraint_not_null?
+  column_constraint_null?
   column_constraint_unique?
   column_constraint_check?
   column_constraint_default?
@@ -364,6 +366,8 @@ column_constraint: (CONSTRAINT name=id)?
 column_constraint_pk: PRIMARY^ KEY! (ASC | DESC)? table_conflict_clause? (AUTOINCREMENT)?;
 
 column_constraint_not_null: NOT NULL table_conflict_clause? -> ^(NOT_NULL table_conflict_clause?);
+
+column_constraint_null: NULL table_conflict_clause? -> ^(IS_NULL table_conflict_clause?);
 
 column_constraint_unique: UNIQUE^ table_conflict_clause?;
 

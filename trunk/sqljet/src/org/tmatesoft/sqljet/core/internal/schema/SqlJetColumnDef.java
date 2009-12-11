@@ -60,6 +60,8 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
                 constraints.add(new SqlJetColumnCollate(this, constraintName, constraintNode));
             } else if ("references".equalsIgnoreCase(constraintType)) {
                 constraints.add(new SqlJetColumnForeignKey(constraintName, constraintNode));
+            } else if ("is_null".equalsIgnoreCase(constraintType)) {
+                constraints.add(new SqlJetColumnNull(this, constraintName, constraintNode));
             } else {
                 assert false;
             }

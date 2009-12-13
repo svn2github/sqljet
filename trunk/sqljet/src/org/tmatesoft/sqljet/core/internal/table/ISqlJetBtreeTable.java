@@ -213,4 +213,44 @@ public interface ISqlJetBtreeTable {
      */
     void delete() throws SqlJetException;
 
+    /**
+     * @param pKey
+     * @param nKey
+     * @param pData
+     * @param nData
+     * @param nZero
+     * @param bias
+     * @throws SqlJetException
+     */
+    void insert(ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData, int nZero, boolean bias)
+            throws SqlJetException;
+
+    /**
+     * @param pKey
+     * @param nKey
+     * @param bias
+     * @return
+     * @throws SqlJetException
+     */
+    int moveTo(ISqlJetMemoryPointer pKey, long nKey, boolean bias) throws SqlJetException;
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    long getKeySize() throws SqlJetException;
+
+    /**
+     * @param prev
+     * @return
+     * @throws SqlJetException
+     */
+    long newRowId(long prev) throws SqlJetException;
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    long newRowId() throws SqlJetException;
+
 }

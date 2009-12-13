@@ -75,10 +75,10 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private static final String SQLITE_SEQUENCE = "SQLITE_SEQUENCE";
 
-    private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = SqlJetUtility.of(
+    public static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_TABLE_FLAGS = SqlJetUtility.of(
             SqlJetBtreeTableCreateFlags.INTKEY, SqlJetBtreeTableCreateFlags.LEAFDATA);
 
-    private static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = SqlJetUtility
+    public static final Set<SqlJetBtreeTableCreateFlags> BTREE_CREATE_INDEX_FLAGS = SqlJetUtility
             .of(SqlJetBtreeTableCreateFlags.ZERODATA);
 
     private static final String TABLE_TYPE = "table";

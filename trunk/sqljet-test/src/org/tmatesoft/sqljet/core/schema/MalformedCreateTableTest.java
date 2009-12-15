@@ -102,7 +102,7 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertTrue(true);
 
     }
-    
+
     @Test
     public void nullTableFieldConstraintTest() throws Exception {
         db.beginTransaction(SqlJetTransactionMode.WRITE);
@@ -110,6 +110,33 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         db.createTable(sql1);
         db.commit();
         Assert.assertTrue(true);
+    }
+
+    @Test
+    public void fieldsSquareNamesTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE TABLE [dimensions_2] ( [id] int NOT NULL, [Dimension_Name] varchar(30) NULL,"
+                + "[Type_ID] int NOT NULL ) ";
+        db.createTable(sql1);
+        db.commit();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable("dimensions_2");
+        Assert.assertNotNull(table);
+    }
+
+    @Test
+    public void fieldsDoubleQuotesNamesTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE TABLE FUSION_MAP_COUNTRIES ( ID VARCHAR2(20) NOT NULL,"
+                + " \"SHORT_NAME\" VARCHAR2(20) NOT NULL," + "\"ISO_CODE\" VARCHAR2(10) NOT NULL,"
+                + "\"COUNTRY_NAME\" VARCHAR2(100) NOT NULL," + "\"MAP\" VARCHAR2(100) NOT NULL,"
+                + "\"DRILLDOWN\" VARCHAR2(100),"
+                + "CONSTRAINT \"PK_FUSION_MAP_COUNTRIES\" PRIMARY KEY (\"ID\", \"MAP\")" + ")";
+        db.createTable(sql1);
+        db.commit();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable("dimensions_2");
+        Assert.assertNotNull(table);
     }
 
     @Test

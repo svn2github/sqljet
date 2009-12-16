@@ -878,10 +878,10 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-fragment ID_PLAIN: ID_START (ID_START|'0'..'9'|'$')*;
-ID: ID_PLAIN | ('[' ID_PLAIN ']') | ('"' ID_PLAIN '"');
+fragment ID_CORE: ID_START (ID_START|'0'..'9'|'$')*;
+ID: ID_CORE | ('[' ID_CORE ']') | ('"' ID_CORE '"');
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
-ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
+ESCAPE_SEQ: '\\'  ('\''|'\\');
 STRING
 	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';
 INTEGER: ('0'..'9')+;

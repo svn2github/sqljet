@@ -52,10 +52,10 @@ public class SqlJetExpressionsTest extends SqlJetAbstractParserTest {
         assertParses("string_literal{'ab\\\\c'}", "'ab\\\\c'");
         assertParses("string_literal{'a\\\"bc'}", "'a\\\"bc'");
         assertParses("string_literal{'a\\'bc'}", "'a\\'bc'");
-        assertParses("string_literal{\"abc\"}", "\"abc\"");
-        assertParses("string_literal{\"ab\\\\c\"}", "\"ab\\\\c\"");
-        assertParses("string_literal{\"a\\\"bc\"}", "\"a\\\"bc\"");
-        assertParses("string_literal{\"a\\'bc\"}", "\"a\\'bc\"");
+        assertParses("string_literal{'abc'}", "'abc'");
+        assertParses("string_literal{'ab\\\\c'}", "'ab\\\\c'");
+        assertParses("string_literal{'a\\\"bc'}", "'a\\\"bc'");
+        assertParses("string_literal{'a\\'bc'}", "'a\\'bc'");
         assertParses("blob_literal{x'05f6a0'}", "x'05f6a0'");
         assertParses("null", "null");
         assertParses("function_literal{current_date}", "current_date");

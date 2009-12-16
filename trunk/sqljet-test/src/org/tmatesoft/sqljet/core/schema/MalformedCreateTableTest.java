@@ -135,7 +135,7 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         db.createTable(sql1);
         db.commit();
         Assert.assertTrue(true);
-        final ISqlJetTable table = db.getTable("dimensions_2");
+        final ISqlJetTable table = db.getTable("FUSION_MAP_COUNTRIES");
         Assert.assertNotNull(table);
     }
 

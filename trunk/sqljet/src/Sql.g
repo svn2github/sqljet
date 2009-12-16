@@ -878,13 +878,12 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-ID: ID_START (ID_START|'0'..'9'|'$')*;
+fragment ID_PLAIN: ID_START (ID_START|'0'..'9'|'$')*;
+ID: ID_PLAIN | ('[' ID_PLAIN ']') | ('"' ID_PLAIN '"');
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
 STRING
-	: '"' ( ESCAPE_SEQ | ~('\\'|'"') )* '"'
-	| '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\''
-	;
+	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT

@@ -457,7 +457,8 @@ drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_nam
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id: ID | keyword;
+id_core: ID | keyword;
+id: id_core | ('['! id_core ']'!);
 
 keyword: (
     ABORT
@@ -578,7 +579,8 @@ keyword: (
   | WHERE
   );
 
-id_column_def: ID | keyword_column_def;
+id_column_def_core: ID | keyword_column_def;
+id_column_def: id_column_def_core | ('['! id_column_def_core ']'!);
 
 keyword_column_def: (
     ABORT
@@ -879,7 +881,7 @@ WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
 fragment ID_CORE: ID_START (ID_START|'0'..'9'|'$')*;
-ID: ID_CORE | ('[' ID_CORE ']') | ('"' ID_CORE '"');
+ID: ID_CORE | ('"' ID_CORE '"');
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 ESCAPE_SEQ: '\\'  ('\''|'\\');
 STRING

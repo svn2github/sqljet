@@ -124,7 +124,7 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
     @Test(expected=SqlJetParserException.class)
     public void dollarInNameFail() throws Exception {
         final String sql = "create table $mytable($a integer primary key, $b integer)";
-        final ISqlJetTableDef def = db.createTable(sql);
+        db.createTable(sql);
         Assert.fail();
     }
 

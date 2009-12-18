@@ -34,7 +34,7 @@ public class SqlJetTableForeignKey extends SqlJetTableConstraint implements ISql
         super(name);
         assert "foreign".equalsIgnoreCase(ast.getText());
         CommonTree columnsNode = (CommonTree) ast.getChild(1);
-        assert "columns".equalsIgnoreCase(columnsNode.getText());
+        assert "columns".equalsIgnoreCase(columnsNode.getText()) || "references".equalsIgnoreCase(columnsNode.getText());
         List<String> columnNames = new ArrayList<String>();
         for (int i = 0; i < columnsNode.getChildCount(); i++) {
             columnNames.add(columnsNode.getChild(i).getText());

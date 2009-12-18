@@ -27,6 +27,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import org.tmatesoft.sqljet.browser.core.BrowserComponentManager;
 import org.tmatesoft.sqljet.browser.core.actions.AboutAction;
@@ -43,29 +44,34 @@ import org.tmatesoft.sqljet.browser.core.actions.RecentMenu;
 public class DBBrowser {
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                DBBrowserConfig.saveWindowSize("main", e.getWindow());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JFrame frame = new JFrame();
+                frame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        DBBrowserConfig.saveWindowSize("main", e.getWindow());
+                        
+                        e.getWindow().setVisible(false);
+                        e.getWindow().dispose();
+                        System.exit(0);
+                    }
+                });
+                frame.getContentPane().setLayout(new BorderLayout());
+
+                BrowserComponentManager manager = BrowserComponentManager.create(frame);
+                frame.setContentPane(manager.getComponent());
                 
-                e.getWindow().setVisible(false);
-                e.getWindow().dispose();
-                System.exit(0);
+                JMenuBar mainMenu = createMainMenu(manager);
+                frame.setJMenuBar(mainMenu);
+
+                manager.open(null);
+
+                DBBrowserConfig.loadWindowSize("main", frame);
+                frame.setVisible(true);
             }
         });
-        frame.getContentPane().setLayout(new BorderLayout());
-        BrowserComponentManager manager = BrowserComponentManager.create(frame);
-
-        frame.setContentPane(manager.getComponent());
-        
-        JMenuBar mainMenu = createMainMenu(manager);
-        frame.setJMenuBar(mainMenu);
-
-        manager.open(null);
-
-        DBBrowserConfig.loadWindowSize("main", frame);
-        frame.setVisible(true);
     }
 
     private static JMenuBar createMainMenu(BrowserComponentManager manager) {

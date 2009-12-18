@@ -865,13 +865,22 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-ID: ID_START (ID_START|'0'..'9'|'$')*;
+fragment ID_CORE: (ID_START|'0'..'9'|'$');
+fragment ID_PLAIN: ID_START (ID_CORE)*;
+
+fragment ID_QUOTED_CORE: (ID_CORE|' ');
+fragment ID_QUOTED_TEXT: ID_START (ID_QUOTED_CORE)*;
+fragment ID_QUOTED_DOUBLE: ('"' id=ID_QUOTED_TEXT '"') {setText($id.text);};
+fragment ID_QUOTED_SQUARE: ('[' id=ID_QUOTED_TEXT ']') {setText($id.text);};
+fragment ID_QUOTED: ID_QUOTED_DOUBLE | ID_QUOTED_SQUARE;
+
+ID: ID_PLAIN | ID_QUOTED;
+
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
-ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
+
+ESCAPE_SEQ: '\\'  ('\''|'\\');
 STRING
-	: '"' ( ESCAPE_SEQ | ~('\\'|'"') )* '"'
-	| '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\''
-	;
+	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT

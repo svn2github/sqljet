@@ -457,8 +457,7 @@ drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_nam
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id_core: ID | keyword;
-id: id_core | ('['! id_core ']'!);
+id: ID | keyword;
 
 keyword: (
     ABORT
@@ -579,8 +578,7 @@ keyword: (
   | WHERE
   );
 
-id_column_def_core: ID | keyword_column_def;
-id_column_def: id_column_def_core | ('['! id_column_def_core ']'!);
+id_column_def: ID | keyword_column_def;
 
 keyword_column_def: (
     ABORT
@@ -880,9 +878,19 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-fragment ID_CORE: ID_START (ID_START|'0'..'9'|'$')*;
-ID: ID_CORE | ('"' ID_CORE '"');
+fragment ID_CORE: (ID_START|'0'..'9'|'$');
+fragment ID_PLAIN: ID_START (ID_CORE)*;
+
+fragment ID_QUOTED_CORE: (ID_CORE|' ');
+fragment ID_QUOTED_TEXT: ID_START (ID_QUOTED_CORE)*;
+fragment ID_QUOTED_DOUBLE: ('"' id=ID_QUOTED_TEXT '"') {setText($id.text);};
+fragment ID_QUOTED_SQUARE: ('[' id=ID_QUOTED_TEXT ']') {setText($id.text);};
+fragment ID_QUOTED: ID_QUOTED_DOUBLE | ID_QUOTED_SQUARE;
+
+ID: ID_PLAIN | ID_QUOTED;
+
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
+
 ESCAPE_SEQ: '\\'  ('\''|'\\');
 STRING
 	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';

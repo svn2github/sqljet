@@ -125,6 +125,18 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void tableNameWithWhitespaceTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE TABLE \"name with whitespace\" ( \"id\" int NOT NULL, \"Dimension_Name\" varchar(30) NULL,"
+                + "\"Type_ID\" int NOT NULL ) ";
+        db.createTable(sql1);
+        db.commit();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable("name with whitespace");
+        Assert.assertNotNull(table);
+    }
+    
+    @Test
     public void fieldsDoubleQuotesNamesTest() throws Exception {
         db.beginTransaction(SqlJetTransactionMode.WRITE);
         String sql1 = "CREATE TABLE FUSION_MAP_COUNTRIES ( ID VARCHAR2(20) NOT NULL,"

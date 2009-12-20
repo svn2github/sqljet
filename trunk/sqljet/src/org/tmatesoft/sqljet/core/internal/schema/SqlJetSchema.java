@@ -29,8 +29,10 @@ import java.util.TreeSet;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
+import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
+import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -218,7 +220,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             if (TABLE_TYPE.equals(type)) {
                 String sql = table.getSqlField();
                 // System.err.println(sql);
-                final CommonTree ast = parseTable(sql);
+                final CommonTree ast = (CommonTree)parseTable(sql).getTree();
                 if (!isCreateVirtualTable(ast)) {
                     final SqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                     if (!name.equals(tableDef.getName())) {
@@ -276,13 +278,13 @@ public class SqlJetSchema implements ISqlJetSchema {
         return false;
     }
 
-    private CommonTree parseTable(String sql) throws SqlJetException {
+    private RuleReturnScope parseTable(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
-            return (CommonTree) parser.schema_create_table_stmt().getTree();
+            return parser.schema_create_table_stmt();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -332,7 +334,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private ISqlJetTableDef createTableSafe(String sql) throws SqlJetException {
 
-        final CommonTree ast = parseTable(sql);
+        final RuleReturnScope parseTable = parseTable(sql);
+        final CommonTree ast = (CommonTree)parseTable.getTree();
 
         if (isCreateVirtualTable(ast)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -356,6 +359,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+        
+        final String createTableSql = getCreateTableSql(parseTable);
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
 
@@ -368,7 +373,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 db.getOptions().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
-                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
+                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, createTableSql);
 
                 addConstraints(schemaTable, tableDef);
 
@@ -385,6 +390,19 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
 
+    }
+
+    /**
+     * @param parseTable
+     * @return
+     */
+    private String getCreateTableSql(RuleReturnScope parseTable) {
+        final CommonTree ast = (CommonTree)parseTable.getTree();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(1)).getToken();
+        final CharStream inputStream = nameToken.getInputStream();
+        final CommonToken stopToken =(CommonToken)parseTable.getStop();
+        final String s = inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
+        return String.format("CREATE TABLE %s", s);
     }
 
     /**
@@ -1014,7 +1032,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private ISqlJetVirtualTableDef createVirtualTableSafe(String sql, int page) throws SqlJetException {
 
-        final CommonTree ast = parseTable(sql);
+        final CommonTree ast = (CommonTree)parseTable(sql).getTree();
 
         if (!isCreateVirtualTable(ast)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);

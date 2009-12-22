@@ -135,7 +135,7 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         final ISqlJetTable table = db.getTable("name with whitespace");
         Assert.assertNotNull(table);
     }
-    
+
     @Test
     public void fieldsDoubleQuotesNamesTest() throws Exception {
         db.beginTransaction(SqlJetTransactionMode.WRITE);
@@ -192,16 +192,33 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
     @Test
     public void tableNameWithWhitespaceTest2() throws Exception {
         db.beginTransaction(SqlJetTransactionMode.WRITE);
-        String sql1 = "CREATE \n TABLE \"name with whitespace\" ( \"id\" int NOT NULL," +
-        		" \"Dimension Name\" varchar(30) NULL,"
-                + "\"Type ID\" int NOT NULL )  ; ";
+        String sql1 = "CREATE \n TABLE \"name with whitespace\" ( \"id\" int NOT NULL,"
+                + " \"Dimension Name\" varchar(30) NULL," + "\"Type ID\" int NOT NULL )  ; ";
         db.createTable(sql1);
         db.commit();
         db.close();
         db.open();
         Assert.assertTrue(true);
         final ISqlJetTable table = db.getTable("name with whitespace");
-        Assert.assertNotNull(table);        
+        Assert.assertNotNull(table);
+    }
+
+    @Test
+    public void indexNameWithWhitespaceTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE \n TABLE \"name with whitespace\" ( \"id\" int NOT NULL,"
+                + " \"Dimension Name\" varchar(30) NULL," + "\"Type ID\" int NOT NULL )  ; ";
+        db.createTable(sql1);
+        String sql2 = "CREATE \n INDEX \"name with whitespace 2\" on \"name with whitespace\" ( "
+                + " \"Dimension Name\")  ; ";
+        db.createIndex(sql2);
+        db.commit();
+        db.close();
+        db.open();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable("name with whitespace");
+        Assert.assertNotNull(table);
+        table.getIndexDef("name with whitespace 2");
     }
 
 }

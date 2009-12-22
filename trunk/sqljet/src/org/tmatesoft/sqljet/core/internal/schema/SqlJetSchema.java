@@ -31,6 +31,7 @@ import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonToken;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
@@ -220,7 +221,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             if (TABLE_TYPE.equals(type)) {
                 String sql = table.getSqlField();
                 // System.err.println(sql);
-                final CommonTree ast = (CommonTree)parseTable(sql).getTree();
+                final CommonTree ast = (CommonTree) parseTable(sql).getTree();
                 if (!isCreateVirtualTable(ast)) {
                     final SqlJetTableDef tableDef = new SqlJetTableDef(ast, page);
                     if (!name.equals(tableDef.getName())) {
@@ -244,7 +245,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final String sql = table.getSqlField();
                 if (null != sql) {
                     // System.err.println(sql);
-                    final CommonTree ast = parseIndex(sql);
+                    final CommonTree ast = (CommonTree) parseIndex(sql).getTree();
                     final SqlJetIndexDef indexDef = new SqlJetIndexDef(ast, page);
                     if (!name.equals(indexDef.getName())) {
                         throw new SqlJetException(SqlJetErrorCode.CORRUPT);
@@ -290,13 +291,13 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
-    private CommonTree parseIndex(String sql) throws SqlJetException {
+    private ParserRuleReturnScope parseIndex(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
-            return (CommonTree) parser.create_index_stmt().getTree();
+            return parser.create_index_stmt();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -335,7 +336,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private ISqlJetTableDef createTableSafe(String sql) throws SqlJetException {
 
         final RuleReturnScope parseTable = parseTable(sql);
-        final CommonTree ast = (CommonTree)parseTable.getTree();
+        final CommonTree ast = (CommonTree) parseTable.getTree();
 
         if (isCreateVirtualTable(ast)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -359,7 +360,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        
+
         final String createTableSql = getCreateTableSql(parseTable);
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
@@ -397,12 +398,23 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @return
      */
     private String getCreateTableSql(RuleReturnScope parseTable) {
-        final CommonTree ast = (CommonTree)parseTable.getTree();
+        return String.format("CREATE TABLE %s", getCoreSQL(parseTable));
+    }
+
+    /**
+     * @param parseIndex
+     * @return
+     */
+    private String getCreateIndexSql(RuleReturnScope parseIndex) {
+        return String.format("CREATE INDEX %s", getCoreSQL(parseIndex));
+    }
+
+    private String getCoreSQL(RuleReturnScope parsedSQL) {
+        final CommonTree ast = (CommonTree) parsedSQL.getTree();
         final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(1)).getToken();
         final CharStream inputStream = nameToken.getInputStream();
-        final CommonToken stopToken =(CommonToken)parseTable.getStop();
-        final String s = inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
-        return String.format("CREATE TABLE %s", s);
+        final CommonToken stopToken = (CommonToken) parsedSQL.getStop();
+        return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
     }
 
     /**
@@ -514,7 +526,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private ISqlJetIndexDef createIndexSafe(String sql) throws SqlJetException {
 
-        final CommonTree ast = parseIndex(sql);
+        final ParserRuleReturnScope parseIndex = parseIndex(sql);
+        final CommonTree ast = (CommonTree) parseIndex.getTree();
 
         final SqlJetIndexDef indexDef = new SqlJetIndexDef(ast, 0);
 
@@ -558,6 +571,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+        final String createIndexSQL = getCreateIndexSql(parseIndex);
 
         try {
 
@@ -569,7 +583,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
 
-                final long rowId = schemaTable.insertRecord(INDEX_TYPE, indexName, tableName, page, indexDef.toSQL());
+                final long rowId = schemaTable.insertRecord(INDEX_TYPE, indexName, tableName, page, createIndexSQL);
 
                 indexDef.setPage(page);
                 indexDef.setRowId(rowId);
@@ -1032,7 +1046,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private ISqlJetVirtualTableDef createVirtualTableSafe(String sql, int page) throws SqlJetException {
 
-        final CommonTree ast = (CommonTree)parseTable(sql).getTree();
+        final CommonTree ast = (CommonTree) parseTable(sql).getTree();
 
         if (!isCreateVirtualTable(ast)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);

@@ -409,6 +409,14 @@ public class SqlJetSchema implements ISqlJetSchema {
         return String.format("CREATE INDEX %s", getCoreSQL(parseIndex));
     }
 
+    /**
+     * @param parseTable
+     * @return
+     */
+    private String getCreateVirtualTableSql(RuleReturnScope parseTable) {
+        return String.format("CREATE VIRTUAL TABLE %s", getCoreSQL(parseTable));
+    }
+
     private String getCoreSQL(RuleReturnScope parsedSQL) {
         final CommonTree ast = (CommonTree) parsedSQL.getTree();
         final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(1)).getToken();
@@ -1046,7 +1054,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private ISqlJetVirtualTableDef createVirtualTableSafe(String sql, int page) throws SqlJetException {
 
-        final CommonTree ast = (CommonTree) parseTable(sql).getTree();
+        final RuleReturnScope parseTable = parseTable(sql);
+        final CommonTree ast = (CommonTree) parseTable.getTree();
 
         if (!isCreateVirtualTable(ast)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -1064,6 +1073,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+        final String createVirtualTableSQL = getCreateVirtualTableSql(parseTable);
 
         try {
 
@@ -1073,7 +1083,8 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 db.getOptions().changeSchemaVersion();
 
-                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, tableDef.toSQL());
+                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page,
+                        createVirtualTableSQL);
 
                 tableDef.setPage(page);
                 tableDef.setRowId(rowId);

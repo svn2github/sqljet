@@ -218,7 +218,8 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertTrue(true);
         final ISqlJetTable table = db.getTable("name with whitespace");
         Assert.assertNotNull(table);
-        table.getIndexDef("name with whitespace 2");
+        final ISqlJetIndexDef indexDef = table.getIndexDef("name with whitespace 2");
+        Assert.assertNotNull(indexDef);
     }
 
     @Test
@@ -234,6 +235,48 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         final ISqlJetSchema schema = db.getSchema();
         final ISqlJetVirtualTableDef virtualTable = schema.getVirtualTable("name with whitespace");
         Assert.assertNotNull(virtualTable);
+    }
+
+    @Test
+    public void alterTableAddColumnNameWithWhitespaceTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE \n TABLE \"name with whitespace\" ( \"id\" int NOT NULL,"
+                + " \"Dimension Name\" varchar(30) NULL," + "\"Type ID\" int NOT NULL )  ; ";
+        db.createTable(sql1);
+        String sql2 = "CREATE \n INDEX \"name with whitespace 2\" on \"name with whitespace\" ( "
+                + " \"Dimension Name\")  ; ";
+        db.createIndex(sql2);
+        db.commit();
+        db.alterTable("alter table \"name with whitespace\" add column \"column with space\"");
+        db.close();
+        db.open();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable("name with whitespace");
+        Assert.assertNotNull(table);
+        final ISqlJetIndexDef indexDef = table.getIndexDef("name with whitespace 2");
+        Assert.assertNotNull(indexDef);
+    }
+
+    @Test
+    public void alterTableRenameNameWithWhitespaceTest() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE \n TABLE \"name with whitespace\" ( \"id\" int NOT NULL,"
+                + " \"Dimension Name\" varchar(30) NULL," + "\"Type ID\" int NOT NULL )  ; ";
+        db.createTable(sql1);
+        String sql2 = "CREATE \n INDEX \"name with whitespace 2\" on \"name with whitespace\" ( "
+                + " \"Dimension Name\")  ; ";
+        db.createIndex(sql2);
+        db.commit();
+        db.alterTable("alter table \"name with whitespace\" rename to \"name with whitespace 3\"");
+        db.close();
+        db.open();
+        final ISqlJetTable table = db.getTable("name with whitespace 3");
+        Assert.assertNotNull(table);
+        Assert.assertTrue(true);
+        final ISqlJetTable table2 = db.getTable("name with whitespace 3");
+        Assert.assertNotNull(table2);
+        final ISqlJetIndexDef indexDef = table.getIndexDef("name with whitespace 2");
+        Assert.assertNotNull(indexDef);
     }
 
 }

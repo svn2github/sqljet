@@ -928,12 +928,14 @@ public class SqlJetSchema implements ISqlJetSchema {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
 
+                final String alteredSql = getTableAlteredSql(schemaTable.getSqlField(), alterTableDef);
+
                 db.getOptions().changeSchemaVersion();
 
-                schemaTable.insertRecord(TABLE_TYPE, newTableName, newTableName, page, alterDef.toSQL());
+                schemaTable.insertRecord(TABLE_TYPE, newTableName, newTableName, page, alteredSql);
 
                 if (renameTable && !tableName.equals(newTableName)) {
-                    renameTablesIndices(schemaTable, tableName, newTableName);
+                    renameTablesIndices(schemaTable, tableName, newTableName, getAlterTableName(alterTableDef));
                 }
 
                 tableDefs.remove(tableName);
@@ -951,13 +953,58 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     /**
+     * @param alterTableDef
+     * @return
+     */
+    private String getAlterTableName(SqlJetAlterTableDef alterTableDef) {
+        final ParserRuleReturnScope parsedSql = alterTableDef.getParsedSql();
+        final CommonTree ast = (CommonTree) parsedSql.getTree();
+        final CommonToken stopToken = (CommonToken) parsedSql.getStop();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount()-1)).getToken();
+        final CharStream inputStream = nameToken.getInputStream();
+        return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
+    }
+
+    /**
+     * @param sql
+     * @param alterTableDef
+     * @return
+     * @throws SqlJetException
+     */
+    private String getTableAlteredSql(String sql, SqlJetAlterTableDef alterTableDef) throws SqlJetException {
+
+        final RuleReturnScope parsedSQL = parseTable(sql);
+        final CommonTree ast = (CommonTree) parsedSQL.getTree();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(1)).getToken();
+        final CharStream inputStream = nameToken.getInputStream();
+        final CommonToken stopToken = (CommonToken) parsedSQL.getStop();
+
+        final StringBuilder b = new StringBuilder();
+
+        if (alterTableDef.getNewTableName() != null) {
+            b.append(inputStream.substring(0, nameToken.getStartIndex() - 1));
+            b.append(getAlterTableName(alterTableDef));
+            b.append(inputStream.substring(nameToken.getStopIndex() + 1, stopToken.getStopIndex()));
+        } else if (alterTableDef.getNewColumnDef() != null) {
+            b.append(inputStream.substring(0, stopToken.getStartIndex() - 1));
+            b.append(",").append(getAlterTableName(alterTableDef));
+            b.append(inputStream.substring(stopToken.getStartIndex(), stopToken.getStopIndex()));
+        } else {
+            throw new SqlJetException("Wrong ALTER TABLE statement");
+        }
+
+        return b.toString();
+    }
+
+    /**
      * @param schemaTable
      * @param newTableName
      * @param tableName
+     * @param string
      * @throws SqlJetException
      */
-    private void renameTablesIndices(final ISqlJetBtreeSchemaTable schemaTable, String tableName, String newTableName)
-            throws SqlJetException {
+    private void renameTablesIndices(final ISqlJetBtreeSchemaTable schemaTable, String tableName, String newTableName,
+            String alterTableName) throws SqlJetException {
 
         final Set<ISqlJetIndexDef> indexes = getIndexes(tableName);
         if (null == indexes || 0 == indexes.size()) {
@@ -998,15 +1045,18 @@ public class SqlJetSchema implements ISqlJetSchema {
                 indexDef.setTableName(newTableName);
 
                 String newIndexName = indexName;
+                String alteredIndexSql = null;
 
                 if (index.isImplicit()) {
                     newIndexName = generateAutoIndexName(tableName, ++i);
                     indexDef.setName(newIndexName);
                     indexDefs.remove(indexName);
                     indexDefs.put(newIndexName, indexDef);
+                } else {
+                    alteredIndexSql = getAlteredIndexSql(schemaTable.getSqlField(), alterTableName);
                 }
 
-                schemaTable.insertRecord(INDEX_TYPE, newIndexName, newTableName, page, indexDef.toSQL());
+                schemaTable.insertRecord(INDEX_TYPE, newIndexName, newTableName, page, alteredIndexSql);
 
             } else {
                 throw new SqlJetException(SqlJetErrorCode.INTERNAL);
@@ -1015,13 +1065,32 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
-    private CommonTree parseSqlStatement(String sql) throws SqlJetException {
+    /**
+     * @param sql
+     * @param alterTableName
+     * @return
+     * @throws SqlJetException
+     */
+    private String getAlteredIndexSql(String sql, String alterTableName) throws SqlJetException {
+        final RuleReturnScope parsedSQL = parseIndex(sql);
+        final CommonTree ast = (CommonTree) parsedSQL.getTree();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(2)).getToken();
+        final CharStream inputStream = nameToken.getInputStream();
+        final CommonToken stopToken = (CommonToken) parsedSQL.getStop();
+        final StringBuilder b = new StringBuilder();
+        b.append(inputStream.substring(0, nameToken.getStartIndex() - 1));
+        b.append(alterTableName);
+        b.append(inputStream.substring(nameToken.getStopIndex() + 1, stopToken.getStopIndex()));
+        return b.toString();
+    }
+
+    private ParserRuleReturnScope parseSqlStatement(String sql) throws SqlJetException {
         try {
             CharStream chars = new ANTLRStringStream(sql);
             SqlLexer lexer = new SqlLexer(chars);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
-            return (CommonTree) parser.sql_stmt_itself().getTree();
+            return parser.sql_stmt_itself();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }

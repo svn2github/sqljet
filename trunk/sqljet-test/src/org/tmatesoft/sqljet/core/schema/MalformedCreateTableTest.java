@@ -293,4 +293,18 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertNotNull(table);
     }
 
+    @Test
+    public void tableNameQuotedApostrophe() throws Exception {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        String sql1 = "CREATE \n TABLE ` [name with \" \n whitespace] ` ( ` id ` int NOT NULL,"
+                + " ` Dimension, Name ` varchar(30) NULL, ` Type; ID ` int NOT NULL )  ; ";
+        db.createTable(sql1);
+        db.commit();
+        db.close();
+        db.open();
+        Assert.assertTrue(true);
+        final ISqlJetTable table = db.getTable(" [name with \" \n whitespace] ");
+        Assert.assertNotNull(table);
+    }
+
 }

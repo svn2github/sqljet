@@ -731,6 +731,11 @@ QUESTION:      '?';
 COLON:         ':';
 AT:            '@';
 DOLLAR:        '$';
+QOUTE_DOUBLE:  '"';
+QUOTE_SINGLE:  '\'';
+APOSTROPHE:    '`';
+LPAREN_SQUARE: '[';
+RPAREN_SQUARE: ']';
 
 // http://www.antlr.org/wiki/pages/viewpage.action?pageId=1782
 fragment A:('a'|'A');
@@ -878,13 +883,14 @@ WHEN: W H E N;
 WHERE: W H E R E;
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-fragment ID_CORE: (ID_START|'0'..'9'|'$');
+fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);
 fragment ID_PLAIN: ID_START (ID_CORE)*;
 
-fragment ID_QUOTED_CORE: (ID_CORE|' ');
-fragment ID_QUOTED_TEXT: ID_START (ID_QUOTED_CORE)*;
-fragment ID_QUOTED_DOUBLE: ('"' id=ID_QUOTED_TEXT '"') {setText($id.text);};
-fragment ID_QUOTED_SQUARE: ('[' id=ID_QUOTED_TEXT ']') {setText($id.text);};
+fragment ID_QUOTED_CORE: ~(QOUTE_DOUBLE | LPAREN_SQUARE | RPAREN_SQUARE);
+fragment ID_QUOTED_CORE_DOUBLE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE)*;
+fragment ID_QUOTED_CORE_SQUARE: (ID_QUOTED_CORE | QOUTE_DOUBLE)*;
+fragment ID_QUOTED_DOUBLE: (QOUTE_DOUBLE id=ID_QUOTED_CORE_DOUBLE QOUTE_DOUBLE) {setText($id.text);};
+fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE id=ID_QUOTED_CORE_SQUARE RPAREN_SQUARE) {setText($id.text);};
 fragment ID_QUOTED: ID_QUOTED_DOUBLE | ID_QUOTED_SQUARE;
 
 ID: ID_PLAIN | ID_QUOTED;

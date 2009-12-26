@@ -50,7 +50,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
      * ()
      */
     public String getTypeField() throws SqlJetException {
-        return SqlJetUtility.trim(getString(TYPE_FIELD));
+        return getString(TYPE_FIELD);
     }
 
     /*
@@ -61,7 +61,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
      * ()
      */
     public String getNameField() throws SqlJetException {
-        return SqlJetUtility.trim(getString(NAME_FIELD));
+        return getString(NAME_FIELD);
     }
 
     /*
@@ -71,7 +71,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
      * getTableField()
      */
     public String getTableField() throws SqlJetException {
-        return SqlJetUtility.trim(getString(TABLE_FIELD));
+        return getString(TABLE_FIELD);
     }
 
     /*

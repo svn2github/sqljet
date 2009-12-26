@@ -345,7 +345,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final SqlJetTableDef tableDef = new SqlJetTableDef(ast, 0);
         if (null == tableDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String tableName = tableDef.getName().trim();
+        final String tableName = tableDef.getName();
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
@@ -441,7 +441,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private void addConstraints(ISqlJetBtreeSchemaTable schemaTable, final SqlJetTableDef tableDef)
             throws SqlJetException {
 
-        final String tableName = tableDef.getName().trim();
+        final String tableName = tableDef.getName();
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         int i = 0;
 
@@ -541,7 +541,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         if (null == indexDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String indexName = indexDef.getName().trim();
+        final String indexName = indexDef.getName();
         if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
@@ -555,7 +555,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         if (null == indexDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String tableName = indexDef.getTableName().trim();
+        final String tableName = indexDef.getTableName();
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
@@ -570,7 +570,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         for (final ISqlJetIndexedColumn column : columns) {
             if (null == column.getName())
                 throw new SqlJetException(SqlJetErrorCode.ERROR);
-            final String columnName = column.getName().trim();
+            final String columnName = column.getName();
             if ("".equals(columnName))
                 throw new SqlJetException(SqlJetErrorCode.ERROR);
             if (null == tableDef.getColumn(columnName))
@@ -625,7 +625,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private void dropTableSafe(String tableName) throws SqlJetException {
 
-        if (null == tableName || "".equals(tableName.trim()))
+        if (null == tableName || "".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Table name must be not empty");
 
         if (!tableDefs.containsKey(tableName))
@@ -675,13 +675,13 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     private void dropTableIndexes(SqlJetTableDef tableDef) throws SqlJetException {
-        final String tableName = tableDef.getName().trim();
+        final String tableName = tableDef.getName();
         final Iterator<Map.Entry<String, ISqlJetIndexDef>> iterator = indexDefs.entrySet().iterator();
         while (iterator.hasNext()) {
             final Map.Entry<String, ISqlJetIndexDef> indexDefEntry = iterator.next();
             final String indexName = indexDefEntry.getKey();
             final ISqlJetIndexDef indexDef = indexDefEntry.getValue();
-            if (indexDef.getTableName().trim().equals(tableName)) {
+            if (indexDef.getTableName().equals(tableName)) {
                 if (doDropIndex(indexName, true, false)) {
                     iterator.remove();
                 }
@@ -809,7 +809,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private void dropIndexSafe(String indexName) throws SqlJetException {
 
-        if (null == indexName || "".equals(indexName.trim()))
+        if (null == indexName || "".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Index name must be not empty");
 
         if (!indexDefs.containsKey(indexName))
@@ -844,11 +844,9 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Not defined any altering");
         }
 
-        tableName = tableName.trim();
         boolean renameTable = false;
         if (null != newTableName) {
             renameTable = true;
-            newTableName = newTableName.trim();
         } else {
             newTableName = tableName;
         }
@@ -866,7 +864,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null != newColumnDef) {
 
-            final String fieldName = newColumnDef.getName().trim();
+            final String fieldName = newColumnDef.getName();
             if (tableDef.getColumn(fieldName) != null) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, String.format(
                         "Field \"%s\" already exists in table \"%s\"", fieldName, tableName));
@@ -1133,7 +1131,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final SqlJetVirtualTableDef tableDef = new SqlJetVirtualTableDef(ast, 0);
         if (null == tableDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
-        final String tableName = tableDef.getTableName().trim();
+        final String tableName = tableDef.getTableName();
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 

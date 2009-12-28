@@ -63,6 +63,26 @@ public class DefaultValuesTest extends AbstractNewDbTest {
     }
 
     @Test
+    public void insertText() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.createTable("create table t2(a integer primary key, b text default 'abc def')");
+                return null;
+            }
+        });
+        final ISqlJetTable t2 = db.getTable("t2");
+        t2.insert();
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t2.open();
+                Assert.assertFalse(c.isNull("b"));
+                Assert.assertEquals("abc def", c.getString("b"));
+                return null;
+            }
+        });
+    }
+
+    @Test
     public void insertByNames() throws SqlJetException {
         final ISqlJetTable t = db.getTable("t");
         t.insertByFieldNames(new HashMap<String, Object>());

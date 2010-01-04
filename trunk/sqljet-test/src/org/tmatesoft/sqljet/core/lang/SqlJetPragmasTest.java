@@ -129,7 +129,7 @@ public class SqlJetPragmasTest extends TestCase {
         assertEquals(SqlJetEncoding.UTF8, options.getEncoding());
         assertEquals(SqlJetEncoding.UTF8, handler.pragma("pragma encoding;"));
 
-        handler.pragma("pragma encoding('UTF-16');");
+        handler.pragma("pragma encoding(\"UTF-16\");");
         assertEquals(SqlJetEncoding.UTF16, options.getEncoding());
         assertEquals(SqlJetEncoding.UTF16, handler.pragma("pragma encoding;"));
 

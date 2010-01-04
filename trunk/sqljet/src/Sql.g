@@ -901,9 +901,11 @@ ID: ID_PLAIN | ID_QUOTED;
 
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 
-ESCAPE_SEQ: '\\'  ('\''|'\\');
+ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
 STRING
-	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';
+  : '"' ( ESCAPE_SEQ | ~('\\'|'"') )* '"'
+  | '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\''
+  ;
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT

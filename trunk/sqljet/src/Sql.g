@@ -215,12 +215,12 @@ pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value 
 
 pragma_value
 	: signed_number -> ^(FLOAT_LITERAL signed_number)
-	| id -> ^(ID_LITERAL id)
+	| ID -> ^(ID_LITERAL ID)
 	| STRING -> ^(STRING_LITERAL STRING)
 	;
 
 // ATTACH
-attach_stmt: ATTACH (DATABASE)? filename=(STRING | id) AS database_name=id;
+attach_stmt: ATTACH (DATABASE)? filename=id AS database_name=id;
 
 // DETACH
 detach_stmt: DETACH (DATABASE)? database_name=id;
@@ -457,7 +457,7 @@ drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_nam
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id: ID | keyword;
+id: ID | STRING | keyword;
 
 keyword: (
     ABORT
@@ -578,7 +578,7 @@ keyword: (
   | WHERE
   );
 
-id_column_def: ID | keyword_column_def;
+id_column_def: ID | STRING | keyword_column_def;
 
 keyword_column_def: (
     ABORT
@@ -882,30 +882,27 @@ VIRTUAL: V I R T U A L;
 WHEN: W H E N;
 WHERE: W H E R E;
 
-fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);
-fragment ID_PLAIN: ID_START (ID_CORE)*;
-
-fragment ID_QUOTED_CORE: ~(QUOTE_SINGLE | QUOTE_DOUBLE | APOSTROPHE | LPAREN_SQUARE | RPAREN_SQUARE);
-fragment ID_QUOTED_CORE_SINGLE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE | APOSTROPHE | QUOTE_DOUBLE)*;
-fragment ID_QUOTED_CORE_DOUBLE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE | APOSTROPHE | QUOTE_SINGLE)*;
-fragment ID_QUOTED_CORE_SQUARE: (ID_QUOTED_CORE | QUOTE_DOUBLE | APOSTROPHE | QUOTE_SINGLE)*;
-fragment ID_QUOTED_CORE_APOSTROPHE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE | QUOTE_DOUBLE | QUOTE_SINGLE)*;
-fragment ID_QUOTED_SINGLE: (QUOTE_SINGLE id=ID_QUOTED_CORE_SINGLE QUOTE_SINGLE) {setText($id.text);};
-fragment ID_QUOTED_DOUBLE: (QUOTE_DOUBLE id=ID_QUOTED_CORE_DOUBLE QUOTE_DOUBLE) {setText($id.text);};
-fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE id=ID_QUOTED_CORE_SQUARE RPAREN_SQUARE) {setText($id.text);};
-fragment ID_QUOTED_APOSTROPHE: (APOSTROPHE id=ID_QUOTED_CORE_APOSTROPHE APOSTROPHE) {setText($id.text);};
-fragment ID_QUOTED: ID_QUOTED_SINGLE | ID_QUOTED_DOUBLE | ID_QUOTED_SQUARE | ID_QUOTED_APOSTROPHE;
-
-ID: ID_PLAIN | ID_QUOTED;
-
-//TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
-
 ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
 STRING
   : '"' ( ESCAPE_SEQ | ~('\\'|'"') )* '"'
   | '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\''
   ;
+
+fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
+fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);
+fragment ID_PLAIN: ID_START (ID_CORE)*;
+
+fragment ID_QUOTED_CORE: ~(APOSTROPHE | LPAREN_SQUARE | RPAREN_SQUARE);
+fragment ID_QUOTED_CORE_SQUARE: (ID_QUOTED_CORE | APOSTROPHE)*;
+fragment ID_QUOTED_CORE_APOSTROPHE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE)*;
+fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE id=ID_QUOTED_CORE_SQUARE RPAREN_SQUARE) {setText($id.text);};
+fragment ID_QUOTED_APOSTROPHE: (APOSTROPHE id=ID_QUOTED_CORE_APOSTROPHE APOSTROPHE) {setText($id.text);};
+fragment ID_QUOTED: ID_QUOTED_SQUARE | ID_QUOTED_APOSTROPHE;
+
+ID: ID_PLAIN | ID_QUOTED;
+
+//TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
+
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT

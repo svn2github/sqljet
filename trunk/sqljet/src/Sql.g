@@ -478,11 +478,12 @@ create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=i
 // DROP TRIGGER
 drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_name=id;
 
-id_or_string: str=(ID | STRING ) { $str.setText(unquoteId($str.text));};
+// identifiers core
+id_core: str=( ID | STRING ) { $str.setText(unquoteId($str.text));};
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id: keyword | id_or_string;
+id: id_core | keyword;
 
 keyword: (
     ABORT
@@ -603,7 +604,7 @@ keyword: (
   | WHERE
   );
 
-id_column_def: id_or_string | keyword_column_def;
+id_column_def: id_core | keyword_column_def;
 
 keyword_column_def: (
     ABORT

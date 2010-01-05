@@ -882,11 +882,14 @@ VIRTUAL: V I R T U A L;
 WHEN: W H E N;
 WHERE: W H E R E;
 
-ESCAPE_SEQ: '\\'  ('\"'|'\''|'\\');
-STRING
-  : '"' ( ESCAPE_SEQ | ~('\\'|'"') )* '"'
-  | '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\''
-  ;
+fragment STRING_ESCAPE_SINGLE: '\\' '\'';
+fragment STRING_ESCAPE_DOUBLE: '\\' '"';
+fragment STRING_CORE: ~(QUOTE_SINGLE | QUOTE_DOUBLE);
+fragment STRING_CORE_SINGLE: ( STRING_CORE | QUOTE_DOUBLE | STRING_ESCAPE_SINGLE )*;
+fragment STRING_CORE_DOUBLE: ( STRING_CORE | QUOTE_SINGLE | STRING_ESCAPE_DOUBLE )*;
+fragment STRING_SINGLE: ('\'' str=STRING_CORE_SINGLE '\'') {setText($str.text);};
+fragment STRING_DOUBLE: ('"' str=STRING_CORE_DOUBLE '"') {setText($str.text);};
+STRING: (STRING_SINGLE | STRING_DOUBLE);
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
 fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);

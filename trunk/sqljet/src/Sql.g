@@ -89,24 +89,25 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
     throw new SqlJetParserException(buffer.toString(), e);
 }
 
+// unquotes identifier
 private String unquoteId(String id) {
+  if(id==null) {
+    return null;
+  }
   int len = id.length();
+  if(len==0) {
+    return "";
+  }
   char first = id.charAt(0);
-  char last = id.charAt(len -1);
+  char last = id.charAt(len-1);
   switch(first) {
+    case '[' :
+      first = ']';
     case '\'' :
     case '"' :
     case '`' :
       if(first==last) {
         return id.substring(1,len-1);
-      } else {
-        return id;
-      }
-    case '[' :
-      if(']'==last) {
-        return id.substring(1,len-1);
-      } else {
-        return id;
       }
     default:
       return id;

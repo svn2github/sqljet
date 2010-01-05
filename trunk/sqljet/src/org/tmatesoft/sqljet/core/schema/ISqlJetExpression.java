@@ -20,5 +20,7 @@ package org.tmatesoft.sqljet.core.schema;
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetExpression {
+    
+    Object getValue();
 
 }

@@ -233,7 +233,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
                     if (constraint instanceof ISqlJetColumnDefault) {
                         final ISqlJetColumnDefault d = (ISqlJetColumnDefault) constraint;
-                        row[i] = d.getExpression().toString();
+                        row[i] = d.getExpression().getValue();
                     }
                 }
             }

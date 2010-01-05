@@ -70,4 +70,11 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
         }
         throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid expression");
     }
+    
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.schema.ISqlJetExpression#getValue()
+     */
+    public Object getValue() {
+        return toString();
+    }
 }

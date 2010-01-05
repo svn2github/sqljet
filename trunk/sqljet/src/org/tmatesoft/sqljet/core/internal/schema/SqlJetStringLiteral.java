@@ -39,8 +39,7 @@ public class SqlJetStringLiteral extends SqlJetExpression implements ISqlJetStri
     }
 
     public static String decode(String s) {
-        //return s.substring(1, s.length() - 1); // '...'
-        return s;
+        return s.substring(1, s.length() - 1); // '...'
     }
 
     public static String encode(String s) {

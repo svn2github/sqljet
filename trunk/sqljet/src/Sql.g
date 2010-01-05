@@ -89,6 +89,30 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
     throw new SqlJetParserException(buffer.toString(), e);
 }
 
+private String unquoteId(String id) {
+  int len = id.length();
+  char first = id.charAt(0);
+  char last = id.charAt(len -1);
+  switch(first) {
+    case '\'' :
+    case '"' :
+    case '`' :
+      if(first==last) {
+        return id.substring(1,len-1);
+      } else {
+        return id;
+      }
+    case '[' :
+      if(']'==last) {
+        return id.substring(1,len-1);
+      } else {
+        return id;
+      }
+    default:
+      return id;
+  }
+}
+
 }
 
 // Input is a list of statements.
@@ -454,10 +478,11 @@ create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=i
 // DROP TRIGGER
 drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_name=id;
 
+id_or_string: str=(ID | STRING ) { $str.setText(unquoteId($str.text));};
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id: ID | STRING | keyword;
+id: keyword | id_or_string;
 
 keyword: (
     ABORT
@@ -578,7 +603,7 @@ keyword: (
   | WHERE
   );
 
-id_column_def: ID | STRING | keyword_column_def;
+id_column_def: id_or_string | keyword_column_def;
 
 keyword_column_def: (
     ABORT
@@ -887,8 +912,8 @@ fragment STRING_ESCAPE_DOUBLE: '\\' '"';
 fragment STRING_CORE: ~(QUOTE_SINGLE | QUOTE_DOUBLE);
 fragment STRING_CORE_SINGLE: ( STRING_CORE | QUOTE_DOUBLE | STRING_ESCAPE_SINGLE )*;
 fragment STRING_CORE_DOUBLE: ( STRING_CORE | QUOTE_SINGLE | STRING_ESCAPE_DOUBLE )*;
-fragment STRING_SINGLE: ('\'' str=STRING_CORE_SINGLE '\'') {setText($str.text);};
-fragment STRING_DOUBLE: ('"' str=STRING_CORE_DOUBLE '"') {setText($str.text);};
+fragment STRING_SINGLE: ('\'' STRING_CORE_SINGLE '\'');
+fragment STRING_DOUBLE: ('"' STRING_CORE_DOUBLE '"');
 STRING: (STRING_SINGLE | STRING_DOUBLE);
 
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
@@ -898,8 +923,8 @@ fragment ID_PLAIN: ID_START (ID_CORE)*;
 fragment ID_QUOTED_CORE: ~(APOSTROPHE | LPAREN_SQUARE | RPAREN_SQUARE);
 fragment ID_QUOTED_CORE_SQUARE: (ID_QUOTED_CORE | APOSTROPHE)*;
 fragment ID_QUOTED_CORE_APOSTROPHE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE)*;
-fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE id=ID_QUOTED_CORE_SQUARE RPAREN_SQUARE) {setText($id.text);};
-fragment ID_QUOTED_APOSTROPHE: (APOSTROPHE id=ID_QUOTED_CORE_APOSTROPHE APOSTROPHE) {setText($id.text);};
+fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE ID_QUOTED_CORE_SQUARE RPAREN_SQUARE);
+fragment ID_QUOTED_APOSTROPHE: (APOSTROPHE ID_QUOTED_CORE_APOSTROPHE APOSTROPHE);
 fragment ID_QUOTED: ID_QUOTED_SQUARE | ID_QUOTED_APOSTROPHE;
 
 ID: ID_PLAIN | ID_QUOTED;

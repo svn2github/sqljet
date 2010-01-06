@@ -128,6 +128,8 @@ sql_stmt_core
   | drop_trigger_stmt
   ;
 
+schema_create_table_stmt: create_virtual_table_stmt | create_table_stmt;
+
 qualified_table_name: (database_name=id DOT)? table_name=id (INDEXED BY index_name=id | NOT INDEXED)?;
 
 expr: or_subexpr (OR^ or_subexpr)*;
@@ -328,7 +330,8 @@ table_conflict_clause: ON! CONFLICT^ (ROLLBACK | ABORT | FAIL | IGNORE | REPLACE
 // CREATE VIRTUAL TABLE
 // TODO: replace column defs by arbitrary text with balanced parens
 create_virtual_table_stmt: CREATE VIRTUAL TABLE (database_name=id DOT)? table_name=id
-  USING module_name=id (LPAREN column_def (COMMA column_def)* RPAREN)?;
+  USING module_name=id (LPAREN column_def (COMMA column_def)* RPAREN)?
+  -> ^(CREATE_TABLE ^(OPTIONS VIRTUAL) ^($table_name $database_name?) ^($module_name) ^(COLUMNS column_def+)?);
 
 // CREATE TABLE
 create_table_stmt: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? (database_name=id DOT)? table_name=id

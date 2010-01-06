@@ -74,4 +74,17 @@ public interface ISqlJetSchema {
      * @throws SqlJetException
      */
     Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    Set<String> getVirtualTableNames() throws SqlJetException;
+
+    /**
+     * @param name
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException;
 }

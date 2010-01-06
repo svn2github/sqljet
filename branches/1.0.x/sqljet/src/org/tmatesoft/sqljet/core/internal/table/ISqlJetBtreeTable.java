@@ -208,4 +208,9 @@ public interface ISqlJetBtreeTable {
      */
     void clear() throws SqlJetException;
 
+    /**
+     * @throws SqlJetException
+     */
+    void delete() throws SqlJetException;
+
 }

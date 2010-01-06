@@ -50,7 +50,7 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
     private ISqlJetBusyHandler busyHandler;
 
     public SqlJetDbHandle() {
-        if (config.isSharedCacheEnabled()) {
+        if (config.isSynchronizedThreading()) {
             mutex = new SqlJetMutex();
         }
     }

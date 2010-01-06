@@ -28,4 +28,9 @@ public interface ISqlJetConfig {
     boolean SECURE_DELETE = SqlJetUtility.getBoolSysProp("SQLJET_SECURE_DELETE", false);
     
     boolean isSharedCacheEnabled();
+
+    /**
+     * @return
+     */
+    boolean isSynchronizedThreading();
 }

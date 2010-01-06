@@ -136,6 +136,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         protected final File file;
         protected SqlJetDb db;
+        protected boolean own = false;
 
         public DbThread(final File file, final String threadName) {
             super(threadName);
@@ -145,12 +146,15 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         @Override
         protected void setUp() throws Exception {
             super.setUp();
-            this.db = SqlJetDb.open(file, true);
+            if (null == this.db) {
+                this.db = SqlJetDb.open(file, true);
+                own = true;
+            }
         }
 
         @Override
         protected void tearDown() throws Exception {
-            if (db != null) {
+            if (own && db != null) {
                 db.close();
             }
             super.tearDown();
@@ -186,12 +190,20 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            rwlock.writeLock().lock();
+            lockMutex();
             try {
                 table.insertOr(SqlJetConflictAction.REPLACE, 1, random.nextLong());
             } finally {
-                rwlock.writeLock().unlock();
+                unlockMutex();
             }
+        }
+
+        protected void lockMutex() {
+            rwlock.writeLock().lock();
+        }
+
+        protected void unlockMutex() {
+            rwlock.writeLock().unlock();
         }
 
     }
@@ -204,7 +216,7 @@ public class MultiThreadingTest extends AbstractNewDbTest {
 
         @Override
         protected void work() throws Exception {
-            rwlock.readLock().lock();
+            lockMutex();
             try {
                 db.runReadTransaction(new ISqlJetTransaction() {
                     public Object run(SqlJetDb db) throws SqlJetException {
@@ -221,9 +233,18 @@ public class MultiThreadingTest extends AbstractNewDbTest {
                     }
                 });
             } finally {
-                rwlock.readLock().unlock();
+                unlockMutex();
             }
         }
+
+        protected void lockMutex() {
+            rwlock.readLock().lock();
+        }
+
+        protected void unlockMutex() {
+            rwlock.readLock().unlock();
+        }
+
     }
 
     public static class LongReadThread extends TableThread {
@@ -287,6 +308,38 @@ public class MultiThreadingTest extends AbstractNewDbTest {
         }
     }
 
+    public static class WriteSynchronizedThread extends WriteThread {
+        public WriteSynchronizedThread(final SqlJetDb db, final File file, final String threadName,
+                final String tableName) {
+            super(file, threadName, tableName);
+            this.db = db;
+        }
+
+        @Override
+        protected void lockMutex() {
+        }
+
+        @Override
+        protected void unlockMutex() {
+        }
+    }
+
+    public static class ReadSynchronizedThread extends ReadThread {
+        public ReadSynchronizedThread(final SqlJetDb db, final File file, final String threadName,
+                final String tableName) {
+            super(file, threadName, tableName);
+            this.db = db;
+        }
+
+        @Override
+        protected void lockMutex() {
+        }
+
+        @Override
+        protected void unlockMutex() {
+        }
+    }
+
     @Test
     public void writers() throws Exception {
         WorkThread.exec(TIMEOUT, new WorkThread[] { new WriteThread(file, "writer1", TABLE_NAME),
@@ -328,6 +381,14 @@ public class MultiThreadingTest extends AbstractNewDbTest {
     public void longWriteLongReaders() throws Exception {
         WorkThread.exec(TIMEOUT, new WorkThread[] { new LongReadThread(file, "reader1", TABLE_NAME),
                 new LongWriteThread(file, "writer1", TABLE_NAME) });
+    }
+
+    @Test
+    public void synchronizedReadWrite() throws Exception {
+        WorkThread.exec(TIMEOUT, new WorkThread[] { new ReadSynchronizedThread(db, file, "reader1", TABLE_NAME),
+                new ReadSynchronizedThread(db, file, "reader2", TABLE_NAME),
+                new WriteSynchronizedThread(db, file, "writer1", TABLE_NAME),
+                new WriteSynchronizedThread(db, file, "writer2", TABLE_NAME) });
     }
 
 }

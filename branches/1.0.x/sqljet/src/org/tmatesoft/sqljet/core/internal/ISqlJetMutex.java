@@ -1,6 +1,6 @@
 /**
- * SqlJetTransactionMode.java
- * Copyright (C) 2009-2010 TMate Software Ltd
+ * ISqlJetMutex.java
+ * Copyright (C) 2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +15,14 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core;
+package org.tmatesoft.sqljet.core.internal;
 
 /**
- * Transaction mode.
- * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
+ * @deprecated added for compatibility, use public class org.tmatesoft.sqljet.core.ISqlJetMutex instead.
  */
-public enum SqlJetTransactionMode {
-
-    /**
-     * Read-only transaction.
-     */
-    READ_ONLY,
-
-    /**
-     * Write transaction.
-     */
-    WRITE,
-
-    /**
-     * Exclusive transaction.
-     */
-    EXCLUSIVE
+public interface ISqlJetMutex extends org.tmatesoft.sqljet.core.ISqlJetMutex {
 
 }

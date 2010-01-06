@@ -156,7 +156,7 @@ public class SqlParser</replacevalue>
 			<header>
 				<![CDATA[<a target="_top" href="http://sqljet.com/">SQLJet&nbsp;Home<a/>]]></header>
 			<bottom>
-				<![CDATA[Copyright &#169; 2008-2009 TMate Software Ltd. All Rights Reserved.]]>
+				<![CDATA[Copyright &#169; 2009-2010 TMate Software Ltd. All Rights Reserved.]]>
 			</bottom>
 
 		</javadoc>

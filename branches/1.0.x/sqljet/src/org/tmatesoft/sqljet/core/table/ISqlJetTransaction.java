@@ -20,6 +20,9 @@ package org.tmatesoft.sqljet.core.table;
 import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
+ * Interface for actions (closures) which will be performed atomically within
+ * transaction.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  * 

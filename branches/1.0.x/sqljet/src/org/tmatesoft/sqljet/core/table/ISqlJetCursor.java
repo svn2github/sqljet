@@ -25,8 +25,8 @@ import org.tmatesoft.sqljet.core.SqlJetValueType;
 import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 
 /**
- * This class represents table cursor that may be used to browse over records in the table, 
- * to modify or delete existing records.
+ * This class represents table cursor that may be used to browse over records in
+ * the table, to modify or delete existing records.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -54,7 +54,8 @@ public interface ISqlJetCursor {
     /**
      * Goes to the record with the specified row Id.
      * 
-     * @param rowId row Id
+     * @param rowId
+     *            row Id
      * @return true if cursor was moved successfully.
      * @throws SqlJetException
      */
@@ -114,7 +115,8 @@ public interface ISqlJetCursor {
     /**
      * Returns field type.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return type of field
      * @throws SqlJetException
      */
@@ -123,7 +125,8 @@ public interface ISqlJetCursor {
     /**
      * Returns field type.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @return type of field
      * @throws SqlJetException
      */
@@ -150,7 +153,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as String.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return field's value as string
      * @throws SqlJetException
      */
@@ -159,7 +163,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as String.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @return field's value as string
      * @throws SqlJetException
      */
@@ -168,7 +173,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as integer.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return field's value as integer
      * @throws SqlJetException
      */
@@ -177,7 +183,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as integer.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @throws SqlJetException
      */
     long getInteger(String fieldName) throws SqlJetException;
@@ -185,7 +192,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as float.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return field's value as real
      * @throws SqlJetException
      */
@@ -194,7 +202,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as float.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @throws SqlJetException
      */
     double getFloat(String fieldName) throws SqlJetException;
@@ -202,7 +211,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as boolean.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return field value
      * @throws SqlJetException
      */
@@ -211,7 +221,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as boolean.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @return field value
      * @throws SqlJetException
      */
@@ -220,7 +231,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as BLOB.
      * 
-     * @param field index of the field
+     * @param field
+     *            index of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
@@ -228,8 +240,9 @@ public interface ISqlJetCursor {
 
     /**
      * Returns specified field's value as BLOB.
-     *
-     * @param fieldName name of the field
+     * 
+     * @param fieldName
+     *            name of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
@@ -248,7 +261,8 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as BLOB.
      * 
-     * @param name of the field
+     * @param name
+     *            of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
@@ -256,8 +270,9 @@ public interface ISqlJetCursor {
 
     /**
      * Returns value of the field of the specified index in the current row.
-     *
-     * @param index of the field
+     * 
+     * @param index
+     *            of the field
      * @throws SqlJetException
      */
     Object getValue(int field) throws SqlJetException;
@@ -265,7 +280,8 @@ public interface ISqlJetCursor {
     /**
      * Returns value of the field with the specified name in the current row.
      * 
-     * @param fieldName name of the field
+     * @param fieldName
+     *            name of the field
      * @throws SqlJetException
      */
     Object getValue(String fieldName) throws SqlJetException;
@@ -302,8 +318,10 @@ public interface ISqlJetCursor {
     /**
      * Updates the current record.
      * 
-     * Implements ON CONFLICT clause.
+     * Implements ON CONFLICT clause. See {@link SqlJetConflictAction}.
      * 
+     * @param onConflict
+     *            {@link SqlJetConflictAction}.
      * @param values
      *            New record values.
      * @throws SqlJetException
@@ -313,8 +331,10 @@ public interface ISqlJetCursor {
     /**
      * Updates rowId and values in the current record.
      * 
-     * Implements ON CONFLICT clause.
+     * Implements ON CONFLICT clause. See {@link SqlJetConflictAction}.
      * 
+     * @param onConflict
+     *            {@link SqlJetConflictAction}.
      * @param values
      *            New record values.
      * @throws SqlJetException
@@ -324,8 +344,10 @@ public interface ISqlJetCursor {
     /**
      * Updates the current record.
      * 
-     * Implements ON CONFLICT clause.
+     * Implements ON CONFLICT clause. See {@link SqlJetConflictAction}.
      * 
+     * @param onConflict
+     *            {@link SqlJetConflictAction}.
      * @param values
      *            New record values mapped by field names.
      * @throws SqlJetException
@@ -356,8 +378,8 @@ public interface ISqlJetCursor {
     long getRowCount() throws SqlJetException;
 
     /**
-     * Returns index of the current row.
-     * Index is 1-based, first record has index of one.
+     * Returns index of the current row. Index is 1-based, first record has
+     * index of one.
      * 
      * @return
      * @throws SqlJetException
@@ -365,8 +387,8 @@ public interface ISqlJetCursor {
     long getRowIndex() throws SqlJetException;
 
     /**
-     * Goes to the row with the specified index. 
-     * Index is 1-based, first record has index of one.
+     * Goes to the row with the specified index. Index is 1-based, first record
+     * has index of one.
      * 
      * @param rowIndex
      * @return true if cursor has been set on the specified record.
@@ -375,9 +397,11 @@ public interface ISqlJetCursor {
     boolean goToRow(long rowIndex) throws SqlJetException;
 
     /**
-     * Sets limit for this cursor. Negative or zero value resets limit to infinity.
+     * Sets limit for this cursor. Negative or zero value resets limit to
+     * infinity.
      * 
-     * @param limit limit to set or zero to drop the limit.
+     * @param limit
+     *            limit to set or zero to drop the limit.
      * @throws SqlJetException
      */
     void setLimit(long limit) throws SqlJetException;
@@ -385,7 +409,7 @@ public interface ISqlJetCursor {
     /**
      * Returns limit of this cursor.
      * 
-     * @return limit of this cursor or zero if limit has not been set. 
+     * @return limit of this cursor or zero if limit has not been set.
      */
     long getLimit();
 

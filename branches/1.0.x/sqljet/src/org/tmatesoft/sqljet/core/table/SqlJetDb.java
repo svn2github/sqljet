@@ -41,7 +41,23 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
- * Connection to database.
+ * <p>
+ * Connection to database. This class currently is main entry point in SQLJet
+ * API.
+ * </p>
+ * 
+ * <p>
+ * It allows to perform next tasks:
+ * 
+ * <ul>
+ * <li>Open existed and create new SQLite database.</li>
+ * <li>Get and modify database's schema.</li>
+ * <li>Control transactions.</li>
+ * <li>Read, search and modify data in database.</li>
+ * <li>Get and set database's options.</li>
+ * </ul>
+ * 
+ * </p>
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
@@ -70,13 +86,16 @@ public class SqlJetDb implements ISqlJetLimits {
     private boolean open = false;
 
     /**
-     * Create connection to data base.
+     * Creates connection to database. Does not read the scheme so as not to
+     * lock the database.
      * 
      * @param file
-     *            path to data base
+     *            path to data base. If file not exists then it will be tried to
+     *            create.
      * @param writable
-     *            if true then allow data modification
+     *            if true then allow data modification.
      * @throws SqlJetException
+     *             if any trouble with access to file or database format.
      */
     protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
         this.writable = writable;
@@ -89,6 +108,8 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
+     * Reads database schema and options.
+     * 
      * @throws SqlJetException
      */
     private void readSchema() throws SqlJetException {
@@ -107,22 +128,26 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Open connection to data base.
+     * Opens connection to data base. It does not create any locking on
+     * database. First lock will be created when be called any method which
+     * requires real access to options or schema.
      * 
      * @param file
-     *            path to data base
-     * @param write
-     *            if true then allows data modification
+     *            path to data base. If file not exists then it will be tried to
+     *            create.
+     * @param writable
+     *            if true then allow data modification.
      * @throws SqlJetException
+     *             if any trouble with access to file or database format.
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
         return new SqlJetDb(file, write);
     }
 
     /**
-     * Is data base open.
+     * Checks is database open.
      * 
-     * @return the open
+     * @return true if database is open.
      */
     public boolean isOpen() {
         return open;
@@ -134,9 +159,12 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Close connection to data base.
+     * Close connection to database. It is safe to call this method if database
+     * connections is closed already.
      * 
      * @throws SqlJetException
+     *             it is possible to get exception if there is actvie
+     *             transaction and rollback did not success.
      */
     public void close() throws SqlJetException {
         if (open) {
@@ -156,9 +184,10 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Set cache size.
+     * Set cache size (in count of pages).
      * 
      * @param cacheSize
+     *            the count of pages which can hold cache.
      * @throws SqlJetException
      */
     public void setCacheSize(final int cacheSize) throws SqlJetException {
@@ -172,9 +201,9 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Get cache size.
+     * Get cache size (in count of pages).
      * 
-     * @return
+     * @return the count of pages which can hold cache.
      * @throws SqlJetException
      */
     public int getCacheSize() throws SqlJetException {
@@ -188,7 +217,11 @@ public class SqlJetDb implements ISqlJetLimits {
     }
 
     /**
-     * Do some actions with locking data base.
+     * Do some actions with locking database's internal mutex. It is related
+     * only with synchronization of access to one connection from multiple
+     * threads. It is not related with transactions and locks of database file.
+     * For concurrent access to database from threads or processes use
+     * transactions.
      * 
      * @param op
      * @return
@@ -217,7 +250,7 @@ public class SqlJetDb implements ISqlJetLimits {
     /**
      * Get database schema.
      * 
-     * @return
+     * @return database schema.
      * @throws SqlJetException
      */
     public ISqlJetSchema getSchema() throws SqlJetException {
@@ -252,6 +285,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Run modifications in write transaction.
      * 
      * @param op
+     *            transaction's body (closure).
      * @return
      * @throws SqlJetException
      */
@@ -268,6 +302,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Run read-only transaction.
      * 
      * @param op
+     *            transaction's body (closure).
      * @return
      * @throws SqlJetException
      */
@@ -280,7 +315,9 @@ public class SqlJetDb implements ISqlJetLimits {
      * Run transaction.
      * 
      * @param op
+     *            transaction's body (closure).
      * @param mode
+     *            transaction's mode.
      * @return
      * @throws SqlJetException
      */
@@ -319,6 +356,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Begin transaction.
      * 
      * @param mode
+     *            transaction's mode.
      * @throws SqlJetException
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
@@ -417,7 +455,8 @@ public class SqlJetDb implements ISqlJetLimits {
      * Create table from SQL clause.
      * 
      * @param sql
-     * @return
+     *            CREATE TABLE ... sentence.
+     * @return definition of create table.
      * @throws SqlJetException
      */
     public ISqlJetTableDef createTable(final String sql) throws SqlJetException {
@@ -433,7 +472,8 @@ public class SqlJetDb implements ISqlJetLimits {
      * Create index from SQL clause.
      * 
      * @param sql
-     * @return
+     *            CREATE INDEX ... sentence.
+     * @return definition of created index.
      * @throws SqlJetException
      */
     public ISqlJetIndexDef createIndex(final String sql) throws SqlJetException {
@@ -449,6 +489,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Drop table.
      * 
      * @param tableName
+     *            name of table.
      * @throws SqlJetException
      */
     public void dropTable(final String tableName) throws SqlJetException {
@@ -465,6 +506,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Drop index.
      * 
      * @param indexName
+     *            name of index.
      * @throws SqlJetException
      */
     public void dropIndex(final String indexName) throws SqlJetException {
@@ -481,6 +523,7 @@ public class SqlJetDb implements ISqlJetLimits {
      * Alters table.
      * 
      * @param sql
+     *            ALTER TABLE ... sentence.
      * @return
      * @throws SqlJetException
      */
@@ -494,10 +537,22 @@ public class SqlJetDb implements ISqlJetLimits {
 
     }
 
+    /**
+     * Get busy handler.
+     * 
+     * @return the busy handler.
+     */
     public ISqlJetBusyHandler getBusyHandler() {
         return dbHandle.getBusyHandler();
     }
 
+    /**
+     * Set busy handler. Busy handler treats situation when database is locked
+     * by other process or thread.
+     * 
+     * @param busyHandler
+     *            the busy handler.
+     */
     public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
         dbHandle.setBusyHandler(busyHandler);
     }

@@ -14,11 +14,19 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * "MATCH" expression.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetMatchExpression extends ISqlJetExpression {
 
+    /**
+     * "MATCH" expression's operation.
+     * 
+     * @author TMate Software Ltd.
+     * @author Dmitry Stadnik (dtrace@seznam.cz)
+     */
     public enum Operation {
         LIKE, GLOB, REGEXP, MATCH;
 

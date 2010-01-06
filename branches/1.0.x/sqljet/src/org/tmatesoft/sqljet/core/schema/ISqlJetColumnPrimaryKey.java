@@ -15,6 +15,8 @@ package org.tmatesoft.sqljet.core.schema;
 
 
 /**
+ * Column's primary key constraint.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

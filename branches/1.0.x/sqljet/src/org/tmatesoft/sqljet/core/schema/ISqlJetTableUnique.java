@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.List;
 
 /**
+ * Table's unique constraint.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

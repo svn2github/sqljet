@@ -16,6 +16,8 @@ package org.tmatesoft.sqljet.core.schema;
 import java.util.List;
 
 /**
+ * Column's type definition.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */

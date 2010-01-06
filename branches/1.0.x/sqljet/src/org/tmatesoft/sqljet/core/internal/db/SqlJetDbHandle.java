@@ -21,11 +21,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBackend;
 import org.tmatesoft.sqljet.core.internal.ISqlJetConfig;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
-import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;

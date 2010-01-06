@@ -14,11 +14,19 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * "RAISE" expression.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetRaiseExpression extends ISqlJetExpression {
 
+    /**
+     * "RAISE" expression's action.
+     * 
+     * @author TMate Software Ltd.
+     * @author Dmitry Stadnik (dtrace@seznam.cz)
+     */
     public enum Action {
         IGNORE, ROLLBACK, ABORT, FAIL;
 

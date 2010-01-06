@@ -18,14 +18,14 @@
 package org.tmatesoft.sqljet.core;
 
 /**
- * Fundamental Datatypes
+ * Fundamental Datatypes.
  * 
  * Every value in SQLJet has one of five fundamental datatypes:
  * 
  * <ul>
  * <li>64-bit signed integer
  * <li>64-bit IEEE floating point number
- * <li>string
+ * <li>String
  * <li>BLOB
  * <li>NULL
  * </ul>
@@ -38,10 +38,30 @@ package org.tmatesoft.sqljet.core;
  */
 public enum SqlJetValueType {
 
-    INTEGER,    // 1
-    FLOAT,      // 2
-    TEXT,       // 3
-    BLOB,       // 4
-    NULL        // 5
+    /**
+     * 64-bit signed integer
+     */
+    INTEGER, // 1
+
+    /**
+     * 64-bit IEEE floating point number
+     */
+    FLOAT, // 2
+
+    /**
+     * String value
+     */
+    TEXT, // 3
+
+    /**
+     * Blob value
+     */
+    BLOB, // 4
+
+    /**
+     * Null value
+     */
+    NULL
+    // 5
 
 }

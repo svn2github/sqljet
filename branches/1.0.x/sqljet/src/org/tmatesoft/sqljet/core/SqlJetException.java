@@ -29,8 +29,10 @@ public class SqlJetException extends Exception {
     private static final long serialVersionUID = -7132771040442635370L;
 
     private SqlJetErrorCode errorCode = SqlJetErrorCode.MISUSE;
-    
+
     /**
+     * Get error code.
+     * 
      * @return the errorCode
      */
     public SqlJetErrorCode getErrorCode() {
@@ -48,38 +50,85 @@ public class SqlJetException extends Exception {
     }
 
     /**
-     * Create SqlJet exception.
+     * Create SqlJet exception with given error code.
      * 
      * @param errorCode
+     *            the error code.
      * 
      */
     public SqlJetException(final SqlJetErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 
+    /**
+     * Create SqlJet exception with given error code and message.
+     * 
+     * @param errorCode
+     *            the error code.
+     * @param message
+     *            the message string.
+     */
     public SqlJetException(final SqlJetErrorCode errorCode, final String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
+    /**
+     * Create SqlJet exception with given error code and reason.
+     * 
+     * @param errorCode
+     *            the error code.
+     * @param cause
+     *            the reason.
+     */
     public SqlJetException(final SqlJetErrorCode errorCode, final Throwable cause) {
         super(cause);
         this.errorCode = errorCode;
     }
 
+    /**
+     * Create SqlJet exception with given error code and reason.
+     * 
+     * @param errorCode
+     * @param message
+     * @param cause
+     */
     public SqlJetException(final SqlJetErrorCode errorCode, final String message, final Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }
 
+    /**
+     * Create SqlJet exception with error code {@link SqlJetErrorCode#MISUSE}
+     * and given message.
+     * 
+     * @param message
+     *            the message string.
+     */
     public SqlJetException(final String message) {
         super(message);
     }
 
+    /**
+     * Create SqlJet exception with error code {@link SqlJetErrorCode#MISUSE}
+     * and given reason.
+     * 
+     * @param cause
+     *            the reason.
+     */
     public SqlJetException(final Throwable cause) {
         super(cause);
     }
 
+    /**
+     * Create SqlJet exception with error code {@link SqlJetErrorCode#MISUSE}
+     * and given message and reason.
+     * 
+     * @param message
+     *            the message string
+     * @param cause
+     *            the reason.
+     */
     public SqlJetException(final String message, final Throwable cause) {
         super(message, cause);
     }
@@ -91,7 +140,7 @@ public class SqlJetException extends Exception {
             if (this.errorCode != null) {
                 message = this.errorCode.name();
             }
-        }        
+        }
         return message;
     }
 

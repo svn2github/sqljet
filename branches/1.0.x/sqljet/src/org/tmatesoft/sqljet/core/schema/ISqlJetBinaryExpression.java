@@ -14,14 +14,136 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * <p>
+ * Binary expression.
+ * </p>
+ * 
+ * <p>
+ * Binary expression is compound expression which consists from two expressions
+ * combined by one operation {@link Operation}.
+ * </p>
+ * 
+ * <p>
+ * Format:
+ * </p>
+ * 
+ * <p>
+ * &lt;leftExpression&gt; &lt;operation&gt; &lt;rightExpression&gt;
+ * </p>
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetBinaryExpression extends ISqlJetExpression {
 
+    /**
+     * Operation which combine expressions in binary expression
+     * {@link ISqlJetBinaryExpression}.
+     * 
+     * @author TMate Software Ltd.
+     * @author Dmitry Stadnik (dtrace@seznam.cz)
+     * 
+     */
     public enum Operation {
-        OR, AND, EQUALS, NOT_EQUALS, LESS, LESS_OR_EQ, GREATER, GREATER_OR_EQ, SHIFT_LEFT, SHIFT_RIGHT, BIT_AND, BIT_OR, PLUS, MINUS, MULTIPLY, DIVIDE, MODULO, CONCATENATE;
 
+        /**
+         * Logical "or" : <code>OR</code>
+         */
+        OR,
+
+        /**
+         * Logical "and" : <code>AND</code>
+         */
+        AND,
+
+        /**
+         * Equals : <code>=</code> , <code>==</code>
+         */
+        EQUALS,
+
+        /**
+         * Not equals : <code>&lt;&gt;</code> , <code>!=</code>
+         */
+        NOT_EQUALS,
+
+        /**
+         * Less : <code>&lt;</code>
+         */
+        LESS,
+
+        /**
+         * Less or equals : <code>&lt;=</code>
+         */
+        LESS_OR_EQ,
+
+        /**
+         * Greater : <code>&gt;</code>
+         */
+        GREATER,
+
+        /**
+         * Greater or equals : <code>&gt;=</code>
+         */
+        GREATER_OR_EQ,
+
+        /**
+         * Bitwise left-shift : <code>&lt;&lt;</code>
+         */
+        SHIFT_LEFT,
+
+        /**
+         * Bitwise right-shift : <code>&gt;&gt;</code>
+         */
+        SHIFT_RIGHT,
+
+        /**
+         * Bitwise "and" : <code>&</code>
+         */
+        BIT_AND,
+
+        /**
+         * Bitwise "or" : <code>|</code>
+         */
+        BIT_OR,
+
+        /**
+         * Plus : <code>+</code>
+         */
+        PLUS,
+
+        /**
+         * Minus : <code>-</code>
+         */
+        MINUS,
+
+        /**
+         * Multiply : <code>*</code>
+         */
+        MULTIPLY,
+
+        /**
+         * Divide : <code>/</code>
+         */
+        DIVIDE,
+
+        /**
+         * Modulo (divide remainder) : <code>%</code>
+         */
+        MODULO,
+
+        /**
+         * Strings concatenation : <code>||</code>
+         */
+        CONCATENATE;
+
+        /**
+         * Decode operation from string.
+         * 
+         * @param s
+         *            string to decode
+         * @return decoded operation or null if string doesn't have known
+         *         operation.
+         */
         public static Operation decode(String s) {
             if ("or".equalsIgnoreCase(s)) {
                 return OR;
@@ -63,6 +185,11 @@ public interface ISqlJetBinaryExpression extends ISqlJetExpression {
             return null;
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Enum#toString()
+         */
         public String toString() {
             switch (this) {
             case OR:
@@ -106,9 +233,24 @@ public interface ISqlJetBinaryExpression extends ISqlJetExpression {
         }
     }
 
+    /**
+     * Operation.
+     * 
+     * @return operation
+     */
     public Operation getOperation();
 
+    /**
+     * Left expression.
+     * 
+     * @return left expression
+     */
     public ISqlJetExpression getLeftExpression();
 
+    /**
+     * Right expression.
+     * 
+     * @return right expression
+     */
     public ISqlJetExpression getRightExpression();
 }

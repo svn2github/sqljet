@@ -15,16 +15,41 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.internal;
+package org.tmatesoft.sqljet.core;
 
 /**
+ * Mutex interface. SQLJet may have different implementations of mutexes.
+ * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public interface ISqlJetMutex {
+
+    /**
+     * Locks mutex. If mutex is locked then this method waits while it will
+     * unlock.
+     */
     void enter();
+
+    /**
+     * Locks mutex if it is unlocked and return true. Otherwise just return
+     * false. This method doesn't wait.
+     * 
+     * @return true if this method locked mutex or false if mutex was already
+     *         locked by other thread.
+     */
     boolean attempt();
+
+    /**
+     * Unlocks mutex.
+     */
     void leave();
+
+    /**
+     * Check mutex locking status.
+     * 
+     * @return true if mutex is locked or false if mutex is unlocked.
+     */
     boolean held();
 }

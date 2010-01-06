@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal;
 import java.util.List;
 import java.util.Set;
 
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 

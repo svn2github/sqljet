@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 
 /**
  * @author TMate Software Ltd.
@@ -36,7 +37,7 @@ public class BooleanTest extends AbstractNewDbTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        db.getOptions().setFileFormat(SqlJetDb.SQLJET_MAX_FILE_FORMAT);
+        db.getOptions().setFileFormat(ISqlJetLimits.SQLJET_MAX_FILE_FORMAT);
         db.createTable("create table t(a integer primary key, b boolean)");
         db.createIndex("create index b on t(b)");
         final ISqlJetTable t = db.getTable("t");

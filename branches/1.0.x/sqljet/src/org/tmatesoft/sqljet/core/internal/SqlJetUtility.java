@@ -26,6 +26,7 @@ import java.util.EnumSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetError;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;

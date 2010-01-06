@@ -14,12 +14,24 @@
 package org.tmatesoft.sqljet.core.schema;
 
 /**
+ * Parameter binding.
+ * 
  * @author TMate Software Ltd.
  * @author Dmitry Stadnik (dtrace@seznam.cz)
  */
 public interface ISqlJetBindParameter extends ISqlJetExpression {
 
+    /**
+     * Parameter position.
+     * 
+     * @return position
+     */
     public Integer getPosition();
 
+    /**
+     * Parameter name.
+     * 
+     * @return name
+     */
     public String getName();
 }

@@ -27,8 +27,19 @@ package org.tmatesoft.sqljet.core;
  */
 public enum SqlJetEncoding {
 
+    /**
+     * UTF-8 encoding.
+     */
     UTF8("UTF-8"), // 1
+
+    /**
+     * UTF-16 little-endian.
+     */
     UTF16LE("UTF-16le"), // 2
+
+    /**
+     * UTF-16 big-endian.
+     */
     UTF16BE("UTF-16be"), // 3
 
     /** Use native byte order */
@@ -50,12 +61,22 @@ public enum SqlJetEncoding {
     }
 
     /**
-     * @return the charsetName
+     * Get charset name.
+     * 
+     * @return the charset name
      */
     public String getCharsetName() {
         return charsetName;
     }
 
+    /**
+     * Get charset constant from string with charset name.
+     * 
+     * @param s
+     *            string with charset name
+     * @return decoded charset constant or null if sring doesn't contains known
+     *         charser name
+     */
     public static SqlJetEncoding decode(String s) {
         if (UTF8.getCharsetName().equalsIgnoreCase(s)) {
             return UTF8;

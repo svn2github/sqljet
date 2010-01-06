@@ -23,12 +23,12 @@ import java.util.Set;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUnpackedRecordFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetBaseIndexDef;
-import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
@@ -52,18 +52,16 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @throws SqlJetException
      * 
      */
-    public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, boolean write) throws SqlJetException {
-        super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetBaseIndexDef) schema
-                .getIndex(indexName)).getPage(), write, true);
-        indexDef = schema.getIndex(indexName);
+    public SqlJetBtreeIndexTable(ISqlJetBtree btree, String indexName, boolean write) throws SqlJetException {
+        super(btree, ((SqlJetBaseIndexDef) btree.getSchema().getIndex(indexName)).getPage(), write, true);
+        indexDef = btree.getSchema().getIndex(indexName);
         adjustKeyInfo();
     }
 
-    public SqlJetBtreeIndexTable(ISqlJetSchema schema, String indexName, List<String> columns, boolean write)
+    public SqlJetBtreeIndexTable(ISqlJetBtree btree, String indexName, List<String> columns, boolean write)
             throws SqlJetException {
-        super(((SqlJetSchema) schema).getDb(), ((SqlJetSchema) schema).getBtree(), ((SqlJetBaseIndexDef) schema
-                .getIndex(indexName)).getPage(), write, true);
-        indexDef = schema.getIndex(indexName);
+        super(btree, ((SqlJetBaseIndexDef) btree.getSchema().getIndex(indexName)).getPage(), write, true);
+        indexDef = btree.getSchema().getIndex(indexName);
         this.columns = columns;
         adjustKeyInfo();
     }
@@ -98,7 +96,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * @throws SqlJetException
      */
     private long lookupSafe(boolean next, boolean near, boolean last, Object... values) throws SqlJetException {
-        ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), values);
+        final SqlJetEncoding encoding = btree.getDb().getOptions().getEncoding();
+        ISqlJetBtreeRecord key = SqlJetBtreeRecord.getRecord(encoding, values);
         final ISqlJetMemoryPointer k = key.getRawRecord();
         if (next) {
             if (!last) {
@@ -177,7 +176,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     }
 
     public int compareKeys(Object[] firstKey, Object[] lastKey) throws SqlJetException {
-        final SqlJetEncoding encoding = db.getOptions().getEncoding();
+        final SqlJetEncoding encoding = btree.getDb().getOptions().getEncoding();
         final ISqlJetMemoryPointer firstRec = SqlJetBtreeRecord.getRecord(encoding, firstKey).getRawRecord();
         final ISqlJetMemoryPointer lastRec = SqlJetBtreeRecord.getRecord(encoding, lastKey).getRawRecord();
         final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(firstRec.remaining(), firstRec);
@@ -195,8 +194,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public boolean checkKey(Object... key) throws SqlJetException {
         if (eof())
             return false;
-        final ISqlJetMemoryPointer keyRecord = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key)
-                .getRawRecord();
+        final ISqlJetMemoryPointer keyRecord = SqlJetBtreeRecord.getRecord(btree.getDb().getOptions().getEncoding(),
+                key).getRawRecord();
         return 0 == keyCompare(keyRecord, getRecord().getRawRecord());
     }
 
@@ -229,7 +228,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public void insert(long rowId, boolean append, Object... key) throws SqlJetException {
         lock();
         try {
-            final ISqlJetMemoryPointer zKey = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(),
+            final ISqlJetMemoryPointer zKey = SqlJetBtreeRecord.getRecord(btree.getDb().getOptions().getEncoding(),
                     SqlJetUtility.addArrays(key, new Object[] { rowId })).getRawRecord();
             cursor.insert(zKey, zKey.remaining(), SqlJetUtility.allocatePtr(0), 0, 0, append);
             clearRecordCache();
@@ -248,7 +247,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
     public boolean delete(long rowId, Object... key) throws SqlJetException {
         lock();
         try {
-            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key);
+            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(btree.getDb().getOptions().getEncoding(), key);
             final ISqlJetMemoryPointer k = rec.getRawRecord();
             if (cursorMoveTo(k, false) < 0) {
                 next();
@@ -295,7 +294,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         lock();
         try {
             btree.clearTable(rootPage, null);
-            final SqlJetBtreeDataTable dataTable = new SqlJetBtreeDataTable(schema, indexDef.getTableName(), false);
+            final SqlJetBtreeDataTable dataTable = new SqlJetBtreeDataTable(btree, indexDef.getTableName(), false);
             try {
                 for (dataTable.first(); !dataTable.eof(); dataTable.next()) {
                     final Object[] key = dataTable.getKeyForIndex(dataTable.getAsNamedFields(dataTable.getValues()),
@@ -321,8 +320,8 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         if (eof()) {
             return 1;
         }
-        final ISqlJetMemoryPointer keyRecord = SqlJetBtreeRecord.getRecord(db.getOptions().getEncoding(), key)
-                .getRawRecord();
+        final ISqlJetMemoryPointer keyRecord = SqlJetBtreeRecord.getRecord(btree.getDb().getOptions().getEncoding(),
+                key).getRawRecord();
         return keyCompare(keyRecord, getRecord().getRawRecord());
     }
 

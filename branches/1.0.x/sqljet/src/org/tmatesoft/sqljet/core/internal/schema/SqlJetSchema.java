@@ -106,7 +106,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private void init() throws SqlJetException {
         if (db.getOptions().getSchemaVersion() == 0)
             return;
-        final SqlJetBtreeTable table = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
+        final SqlJetBtreeTable table = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, false, false);
         try {
             table.lock();
             try {
@@ -312,7 +312,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -415,7 +415,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     public ISqlJetBtreeDataTable openSequenceTable() throws SqlJetException {
         if (tableDefs.containsKey(SQLITE_SEQUENCE)) {
-            return new SqlJetBtreeDataTable(this, SQLITE_SEQUENCE, true);
+            return new SqlJetBtreeDataTable(btree, SQLITE_SEQUENCE, true);
         } else {
             return null;
         }
@@ -493,7 +493,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                         + tableName + "\"");
         }
 
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -514,7 +514,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 indexDef.setRowId(rowId);
                 indexDefs.put(indexName, indexDef);
 
-                final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(this, indexDef.getName(), true);
+                final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(btree, indexDef.getName(), true);
                 try {
                     indexTable.reindex(this);
                 } finally {
@@ -551,7 +551,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         dropTableIndexes(tableDef);
 
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -629,7 +629,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             return false;
         }
 
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
 
         try {
 
@@ -684,7 +684,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     private void movePage(final int page, final int moved) throws SqlJetException {
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
         try {
             schemaTable.lock();
             try {
@@ -826,7 +826,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final SqlJetTableDef alterDef = new SqlJetTableDef(newTableName, null, tableDef.isTemporary(), false, columns,
                 tableDef.getConstraints(), page, rowId);
 
-        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(db, btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
+        final SqlJetBtreeTable schemaTable = new SqlJetBtreeTable(btree, ISqlJetDbHandle.MASTER_ROOT, true, false);
         try {
             schemaTable.lock();
             try {

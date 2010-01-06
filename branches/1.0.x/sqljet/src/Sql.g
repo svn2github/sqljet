@@ -74,9 +74,19 @@ protected Object recoverFromMismatchedToken(IntStream input, int ttype, BitSet f
 
 // Delegate error reporting to caller.
 public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
-    String hdr = getErrorHeader(e);
-    String msg = getErrorMessage(e, tokenNames);
-	throw new SqlJetParserException("[" + hdr + "] " + msg, e);
+    final StringBuilder buffer = new StringBuilder();
+    buffer.append("[").append(getErrorHeader(e)).append("] ");
+    buffer.append(getErrorMessage(e, tokenNames));
+    if(e.token!=null) {
+      final CharStream stream = e.token.getInputStream();
+      if(stream!=null) {
+        int size = stream.size();
+        if(size>0) {
+          buffer.append("\n").append(stream.substring(0, size-1));
+        }
+      }
+    }
+    throw new SqlJetParserException(buffer.toString(), e);
 }
 
 }

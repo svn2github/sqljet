@@ -8,7 +8,11 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
   * Database doesn't locked on open if it isn't required (-r771)
   * Support of temporary and in memory databases enabled (-r784)
-  * Support of reopening closed databases (-785)
+  * Support of reopening closed databases (-r785)
+  * SQL parser exception message now includes text of SQL (-r793)
+  * NULL column constraint added to the SQL grammar (-r805)
+  * Added support of virtual tables in schema (-r803)
+  * Supported quoted identifiers
 
 Version 1.0.1
 (20 Nov 2009, from /branches/1.0.x)

@@ -89,6 +89,31 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
     throw new SqlJetParserException(buffer.toString(), e);
 }
 
+// unquotes identifier
+private String unquoteId(String id) {
+  if(id==null) {
+    return null;
+  }
+  int len = id.length();
+  if(len==0) {
+    return "";
+  }
+  char first = id.charAt(0);
+  char last = id.charAt(len-1);
+  switch(first) {
+    case '[' :
+      first = ']';
+    case '\'' :
+    case '"' :
+    case '`' :
+      if(first==last) {
+        return id.substring(1,len-1);
+      }
+    default:
+      return id;
+  }
+}
+
 }
 
 // Input is a list of statements.
@@ -215,12 +240,12 @@ pragma_stmt: PRAGMA (database_name=id DOT)? pragma_name=id (EQUALS pragma_value 
 
 pragma_value
 	: signed_number -> ^(FLOAT_LITERAL signed_number)
-	| id -> ^(ID_LITERAL id)
+	| ID -> ^(ID_LITERAL ID)
 	| STRING -> ^(STRING_LITERAL STRING)
 	;
 
 // ATTACH
-attach_stmt: ATTACH (DATABASE)? filename=(STRING | id) AS database_name=id;
+attach_stmt: ATTACH (DATABASE)? filename=id AS database_name=id;
 
 // DETACH
 detach_stmt: DETACH (DATABASE)? database_name=id;
@@ -454,10 +479,12 @@ create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=i
 // DROP TRIGGER
 drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_name=id;
 
+// identifiers core
+id_core: str=( ID | STRING ) { $str.setText(unquoteId($str.text));};
 
 // Special rules that allow to use certain keywords as identifiers.
 
-id: ID | keyword;
+id: id_core | keyword;
 
 keyword: (
     ABORT
@@ -578,7 +605,7 @@ keyword: (
   | WHERE
   );
 
-id_column_def: ID | keyword_column_def;
+id_column_def: id_core | keyword_column_def;
 
 keyword_column_def: (
     ABORT
@@ -731,6 +758,11 @@ QUESTION:      '?';
 COLON:         ':';
 AT:            '@';
 DOLLAR:        '$';
+QUOTE_DOUBLE:  '"';
+QUOTE_SINGLE:  '\'';
+APOSTROPHE:    '`';
+LPAREN_SQUARE: '[';
+RPAREN_SQUARE: ']';
 
 // http://www.antlr.org/wiki/pages/viewpage.action?pageId=1782
 fragment A:('a'|'A');
@@ -877,23 +909,30 @@ VIRTUAL: V I R T U A L;
 WHEN: W H E N;
 WHERE: W H E R E;
 
+fragment STRING_ESCAPE_SINGLE: '\\' '\'';
+fragment STRING_ESCAPE_DOUBLE: '\\' '"';
+fragment STRING_CORE: ~(QUOTE_SINGLE | QUOTE_DOUBLE);
+fragment STRING_CORE_SINGLE: ( STRING_CORE | QUOTE_DOUBLE | STRING_ESCAPE_SINGLE )*;
+fragment STRING_CORE_DOUBLE: ( STRING_CORE | QUOTE_SINGLE | STRING_ESCAPE_DOUBLE )*;
+fragment STRING_SINGLE: ('\'' STRING_CORE_SINGLE '\'');
+fragment STRING_DOUBLE: ('"' STRING_CORE_DOUBLE '"');
+STRING: (STRING_SINGLE | STRING_DOUBLE);
+
 fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
-fragment ID_CORE: (ID_START|'0'..'9'|'$');
+fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);
 fragment ID_PLAIN: ID_START (ID_CORE)*;
 
-fragment ID_QUOTED_CORE: (ID_CORE|' ');
-fragment ID_QUOTED_TEXT: ID_START (ID_QUOTED_CORE)*;
-fragment ID_QUOTED_DOUBLE: ('"' id=ID_QUOTED_TEXT '"') {setText($id.text);};
-fragment ID_QUOTED_SQUARE: ('[' id=ID_QUOTED_TEXT ']') {setText($id.text);};
-fragment ID_QUOTED: ID_QUOTED_DOUBLE | ID_QUOTED_SQUARE;
+fragment ID_QUOTED_CORE: ~(APOSTROPHE | LPAREN_SQUARE | RPAREN_SQUARE);
+fragment ID_QUOTED_CORE_SQUARE: (ID_QUOTED_CORE | APOSTROPHE)*;
+fragment ID_QUOTED_CORE_APOSTROPHE: (ID_QUOTED_CORE | LPAREN_SQUARE | RPAREN_SQUARE)*;
+fragment ID_QUOTED_SQUARE: (LPAREN_SQUARE ID_QUOTED_CORE_SQUARE RPAREN_SQUARE);
+fragment ID_QUOTED_APOSTROPHE: (APOSTROPHE ID_QUOTED_CORE_APOSTROPHE APOSTROPHE);
+fragment ID_QUOTED: ID_QUOTED_SQUARE | ID_QUOTED_APOSTROPHE;
 
 ID: ID_PLAIN | ID_QUOTED;
 
 //TCL_ID: ID_START (ID_START|'0'..'9'|'::')* (LPAREN ( options {greedy=false;} : . )* RPAREN)?;
 
-ESCAPE_SEQ: '\\'  ('\''|'\\');
-STRING
-	: '\'' ( ESCAPE_SEQ | ~('\\'|'\'') )* '\'';
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT

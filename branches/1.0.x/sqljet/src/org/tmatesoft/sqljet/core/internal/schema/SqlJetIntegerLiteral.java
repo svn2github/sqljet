@@ -29,7 +29,7 @@ public class SqlJetIntegerLiteral extends SqlJetExpression implements ISqlJetInt
         value = Long.parseLong(ast.getChild(0).getText());
     }
 
-    public long getValue() {
+    public Long getValue() {
         return value;
     }
 

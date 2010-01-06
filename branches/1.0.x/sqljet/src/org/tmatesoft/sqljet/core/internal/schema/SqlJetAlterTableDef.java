@@ -17,6 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.schema;
 
+import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -34,12 +35,16 @@ public class SqlJetAlterTableDef {
     private final String tableName;
     private final String newTableName;
     private final ISqlJetColumnDef newColumnDef;
+    
+    private ParserRuleReturnScope parsedSql;
 
     /**
      * @param ast
      * @throws SqlJetException
      */
-    public SqlJetAlterTableDef(CommonTree ast) throws SqlJetException {
+    public SqlJetAlterTableDef(ParserRuleReturnScope parsedSql) throws SqlJetException {
+        this.parsedSql = parsedSql;
+        final CommonTree ast = (CommonTree)parsedSql.getTree();
         final int childCount = ast.getChildCount();
         if (childCount < 5) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
@@ -105,4 +110,11 @@ public class SqlJetAlterTableDef {
         return newColumnDef;
     }
 
+    /**
+     * @return the parsedSql
+     */
+    public ParserRuleReturnScope getParsedSql() {
+        return parsedSql;
+    }
+    
 }

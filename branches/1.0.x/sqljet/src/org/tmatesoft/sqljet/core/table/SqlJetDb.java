@@ -26,6 +26,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMutex;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -66,6 +67,11 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
  */
 public class SqlJetDb implements ISqlJetLimits {
 
+    /**
+     * File name for in memory database.
+     */
+    public static final File IN_MEMORY = new File(ISqlJetPager.MEMORY_DB);
+
     private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
@@ -85,63 +91,83 @@ public class SqlJetDb implements ISqlJetLimits {
 
     private boolean open = false;
 
+    private File file;
+
     /**
-     * Creates connection to database. Does not read the scheme so as not to
-     * lock the database.
+     * <p>
+     * Creates connection to database but not open it. Doesn't open database
+     * file until not called method {@link #open()}.
+     * </p>
+     * 
+     * <p>
+     * File could be null or have special value {@link #IN_MEMORY}. If file is
+     * null then will be created temporary file which will be deleted at close.
+     * If file is {@link #IN_MEMORY} then file doesn't created and instead
+     * database will placed in memory. If regular file is specified but doesn't
+     * exist then it will be tried to created.
+     * </p>
      * 
      * @param file
-     *            path to data base. If file not exists then it will be tried to
-     *            create.
+     *            path to data base. Could be null or {@link #IN_MEMORY}.
      * @param writable
-     *            if true then allow data modification.
+     *            if true then will allow data modification.
+     */
+    public SqlJetDb(final File file, final boolean writable) {
+        this.writable = writable;
+        this.file = file;
+    }
+
+    /**
+     * <p>
+     * Opens connection to database. It does not create any locking on database.
+     * First lock will be created when be called any method which requires real
+     * access to options or schema.
+     * </p>
+     * 
      * @throws SqlJetException
      *             if any trouble with access to file or database format.
      */
-    protected SqlJetDb(final File file, final boolean writable) throws SqlJetException {
-        this.writable = writable;
-        dbHandle = new SqlJetDbHandle();
-        dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
-        btree = new SqlJetBtree();
-        btree.open(file, dbHandle, writable ? WRITE_FLAGS : READ_FLAGS, SqlJetFileType.MAIN_DB,
-                writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
-        open = true;
+    public synchronized void open() throws SqlJetException {
+        if (!open) {
+            dbHandle = new SqlJetDbHandle();
+            dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
+            btree = new SqlJetBtree();
+            final Set<SqlJetBtreeFlags> flags = (writable ? WRITE_FLAGS : READ_FLAGS);
+            final Set<SqlJetFileOpenPermission> permissions = (writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+            final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
+            btree.open(file, dbHandle, flags, type, permissions);
+            open = true;
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database is open already");
+        }
     }
 
     /**
-     * Reads database schema and options.
-     * 
-     * @throws SqlJetException
-     */
-    private void readSchema() throws SqlJetException {
-        runWithLock(new ISqlJetRunnableWithLock() {
-            public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                btree.enter();
-                try {
-                    dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
-                    btree.setSchema(new SqlJetSchema(dbHandle, btree));
-                } finally {
-                    btree.leave();
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
+     * <p>
      * Opens connection to data base. It does not create any locking on
      * database. First lock will be created when be called any method which
      * requires real access to options or schema.
+     * <p>
+     * 
+     * <p>
+     * File could be null or have special value {@link #IN_MEMORY}. If file is
+     * null then will be created temporary file which will be deleted at close.
+     * If file is {@link #IN_MEMORY} then file doesn't created and instead
+     * database will placed in memory. If regular file is specified but doesn't
+     * exist then it will be tried to created.
+     * </p>
      * 
      * @param file
-     *            path to data base. If file not exists then it will be tried to
-     *            create.
+     *            path to data base. Could be null or {@link #IN_MEMORY}.
      * @param writable
      *            if true then allow data modification.
      * @throws SqlJetException
      *             if any trouble with access to file or database format.
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
-        return new SqlJetDb(file, write);
+        final SqlJetDb db = new SqlJetDb(file, write);
+        db.open();
+        return db;
     }
 
     /**
@@ -182,6 +208,26 @@ public class SqlJetDb implements ISqlJetLimits {
                 dbHandle = null;
             }
         }
+    }
+
+    /**
+     * Reads database schema and options.
+     * 
+     * @throws SqlJetException
+     */
+    private void readSchema() throws SqlJetException {
+        runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                btree.enter();
+                try {
+                    dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
+                    btree.setSchema(new SqlJetSchema(dbHandle, btree));
+                } finally {
+                    btree.leave();
+                }
+                return null;
+            }
+        });
     }
 
     /**
@@ -236,6 +282,10 @@ public class SqlJetDb implements ISqlJetLimits {
         } finally {
             dbHandle.getMutex().leave();
         }
+    }
+
+    public File getFile() {
+        return this.file;
     }
 
     /**

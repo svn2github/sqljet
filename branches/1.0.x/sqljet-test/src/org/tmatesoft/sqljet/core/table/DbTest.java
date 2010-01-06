@@ -107,4 +107,68 @@ public class DbTest extends AbstractNewDbTest {
         });
     }
 
+    /**
+     * @param dbTmp
+     * @throws SqlJetException
+     */
+    private void testDb(final SqlJetDb dbTmp) throws SqlJetException {
+        Assert.assertNotNull(dbTmp);
+        dbTmp.createTable("create table if not exists t(a integer primary key, b integer)");
+        final ISqlJetTable table = dbTmp.getTable("t");
+        table.insert(null, 1);
+        dbTmp.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = table.open();
+                if (!c.eof()) {
+                    do {
+                        final long b = c.getInteger("b");
+                        Assert.assertEquals(1L, b);
+                    } while (c.next());
+                }
+                return null;
+            }
+        });
+    }
+
+    @Test
+    public void testTemporary() throws SqlJetException {
+        final SqlJetDb dbTmp = SqlJetDb.open(null, true);
+        try {
+            testDb(dbTmp);
+        } finally {
+            dbTmp.close();
+        }
+    }
+
+    @Test
+    public void testInMemory() throws SqlJetException {
+        final SqlJetDb dbMem = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            testDb(dbMem);
+        } finally {
+            dbMem.close();
+        }
+    }
+
+    @Test
+    public void testReopen() throws SqlJetException {
+        final SqlJetDb db2 = new SqlJetDb(file, true);
+        Assert.assertFalse(db2.isOpen());
+        db2.open();
+        Assert.assertTrue(db2.isOpen());
+        try {
+            testDb(db2);
+        } finally {
+            db2.close();
+        }
+        Assert.assertFalse(db2.isOpen());
+        db2.open();
+        Assert.assertTrue(db2.isOpen());
+        try {
+            testDb(db2);
+        } finally {
+            db2.close();
+        }
+    }
+
 }

@@ -210,6 +210,22 @@ public class SqlJetDb implements ISqlJetLimits {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            if (open) {
+                close();
+            }
+        } finally {
+            super.finalize();
+        }
+    }
+
     /**
      * Reads database schema and options.
      * 

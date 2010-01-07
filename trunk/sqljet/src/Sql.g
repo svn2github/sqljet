@@ -748,6 +748,7 @@ MINUS:         '-';
 TILDA:         '~';
 ASTERISK:      '*';
 SLASH:         '/';
+BACKSLASH:     '\\';
 PERCENT:       '%';
 SEMI:          ';';
 DOT:           '.';
@@ -763,6 +764,7 @@ QUOTE_SINGLE:  '\'';
 APOSTROPHE:    '`';
 LPAREN_SQUARE: '[';
 RPAREN_SQUARE: ']';
+UNDERSCORE:    '_';
 
 // http://www.antlr.org/wiki/pages/viewpage.action?pageId=1782
 fragment A:('a'|'A');
@@ -909,16 +911,16 @@ VIRTUAL: V I R T U A L;
 WHEN: W H E N;
 WHERE: W H E R E;
 
-fragment STRING_ESCAPE_SINGLE: '\\' '\'';
-fragment STRING_ESCAPE_DOUBLE: '\\' '"';
+fragment STRING_ESCAPE_SINGLE: (BACKSLASH QUOTE_SINGLE);
+fragment STRING_ESCAPE_DOUBLE: (BACKSLASH QUOTE_DOUBLE);
 fragment STRING_CORE: ~(QUOTE_SINGLE | QUOTE_DOUBLE);
 fragment STRING_CORE_SINGLE: ( STRING_CORE | QUOTE_DOUBLE | STRING_ESCAPE_SINGLE )*;
 fragment STRING_CORE_DOUBLE: ( STRING_CORE | QUOTE_SINGLE | STRING_ESCAPE_DOUBLE )*;
-fragment STRING_SINGLE: ('\'' STRING_CORE_SINGLE '\'');
-fragment STRING_DOUBLE: ('"' STRING_CORE_DOUBLE '"');
+fragment STRING_SINGLE: (QUOTE_SINGLE STRING_CORE_SINGLE QUOTE_SINGLE);
+fragment STRING_DOUBLE: (QUOTE_DOUBLE STRING_CORE_DOUBLE QUOTE_DOUBLE);
 STRING: (STRING_SINGLE | STRING_DOUBLE);
 
-fragment ID_START: ('a'..'z'|'A'..'Z'|'_');
+fragment ID_START: ('a'..'z'|'A'..'Z'|UNDERSCORE);
 fragment ID_CORE: (ID_START|'0'..'9'|DOLLAR);
 fragment ID_PLAIN: ID_START (ID_CORE)*;
 
@@ -936,11 +938,11 @@ ID: ID_PLAIN | ID_QUOTED;
 INTEGER: ('0'..'9')+;
 fragment FLOAT_EXP : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 FLOAT
-    :   ('0'..'9')+ '.' ('0'..'9')* FLOAT_EXP?
-    |   '.' ('0'..'9')+ FLOAT_EXP?
+    :   ('0'..'9')+ DOT ('0'..'9')* FLOAT_EXP?
+    |   DOT ('0'..'9')+ FLOAT_EXP?
     |   ('0'..'9')+ FLOAT_EXP
     ;
-BLOB: ('x'|'X') '\'' ('0'..'9'|'a'..'f'|'A'..'F')+ '\'';
+BLOB: ('x'|'X') QUOTE_SINGLE ('0'..'9'|'a'..'f'|'A'..'F')+ QUOTE_SINGLE;
 
 fragment COMMENT: '/*' ( options {greedy=false;} : . )* '*/';
 fragment LINE_COMMENT: '--' ~('\n'|'\r')* ('\r'? '\n'|EOF);

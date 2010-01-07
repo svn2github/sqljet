@@ -13,6 +13,7 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * NULL column constraint added to the SQL grammar (-r805)
   * Added support of virtual tables in schema (-r803)
   * Supported quoted identifiers
+  * ANTLR's lexer errors are not out to stderr yet, its throw exceptions now (-r854)
 
 Version 1.0.1
 (20 Nov 2009, from /branches/1.0.x)

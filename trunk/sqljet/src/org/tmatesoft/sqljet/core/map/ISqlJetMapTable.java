@@ -29,20 +29,21 @@ public interface ISqlJetMapTable {
     /**
      * @param key
      * @param values
-     * @return
+     * @return data entry id
      * @throws SqlJetException
      */
     long put(long key, Object... values) throws SqlJetException;
 
     /**
      * @param key
-     * @return
+     * @return data stored with the key specified
      * @throws SqlJetException
      */
     Object[] get(long key) throws SqlJetException;
 
     /**
-     * @return
+     * @return cursor instance
+     *  
      * @throws SqlJetException
      */
     ISqlJetMapTableCursor getCursor() throws SqlJetException;

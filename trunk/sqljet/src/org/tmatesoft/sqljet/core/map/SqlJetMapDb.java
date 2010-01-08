@@ -67,8 +67,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     private volatile Map<String, SqlJetMapTableDef> mapTableDefs;
 
     /**
-     * @param file
-     * @param writable
+     * @param file database file.
+     * @param writable true if caller needs write access to the database.
      */
     public SqlJetMapDb(File file, boolean writable) {
         super(file, writable);
@@ -81,10 +81,9 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mode
-     * @param transaction
-     * @return
-     * @throws SqlJetException
+     * @param mode mode in which to run transaction.
+     * @param transaction transaction to run.
+     * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runTransaction(final SqlJetTransactionMode mode, final ISqlJetMapTransaction transaction)
             throws SqlJetException {
@@ -97,27 +96,24 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param transaction
-     * @return
-     * @throws SqlJetException
+     * @param transaction to run.
+     * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runWriteTransaction(final ISqlJetMapTransaction transaction) throws SqlJetException {
         return runTransaction(SqlJetTransactionMode.WRITE, transaction);
     }
 
     /**
-     * @param transaction
-     * @return
-     * @throws SqlJetException
+     * @param transaction transaction to run.
+     * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runReadTransaction(final ISqlJetMapTransaction transaction) throws SqlJetException {
         return runTransaction(SqlJetTransactionMode.READ_ONLY, transaction);
     }
 
     /**
-     * @param transaction
-     * @return
-     * @throws SqlJetException
+     * @param transaction transaction to run.
+     * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runSynchronized(final ISqlJetMapTransaction transaction) throws SqlJetException {
         return runSynchronized(new ISqlJetEngineSynchronized() {
@@ -172,8 +168,7 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @return
-     * @throws SqlJetException
+     * @return set of the map names stored in this database.
      */
     @SuppressWarnings("unchecked")
     public Set<String> getMapTableNames() throws SqlJetException {
@@ -187,9 +182,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mapTableName
-     * @return
-     * @throws SqlJetException
+     * @param mapTableName name of the map to get definition for.
+     * @return definition of the map with the specified name.
      */
     public ISqlJetMapTableDef getMapTableDef(final String mapTableName) throws SqlJetException {
         return (ISqlJetMapTableDef) runSynchronized(new ISqlJetMapTransaction() {
@@ -200,9 +194,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mapTableName
-     * @return
-     * @throws SqlJetException
+     * @param mapTableName name of the map to created.
+     * @return map that has been created.
      */
     public ISqlJetMapTableDef createMapTable(final String mapTableName) throws SqlJetException {
         if (getMapTableDefs().containsKey(mapTableName)) {
@@ -222,9 +215,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mapTableName
-     * @return
-     * @throws SqlJetException
+     * @param mapTableName name of the map to get.
+     * @return map table with the name specified.
      */
     public ISqlJetMapTable getMapTable(final String mapTableName) throws SqlJetException {
         checkOpen();

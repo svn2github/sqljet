@@ -89,9 +89,9 @@ public class SqlJetException extends Exception {
     /**
      * Create SqlJet exception with given error code and reason.
      * 
-     * @param errorCode
-     * @param message
-     * @param cause
+     * @param errorCode the error code.
+     * @param message the error message.
+     * @param cause exception that caused this exception.
      */
     public SqlJetException(final SqlJetErrorCode errorCode, final String message, final Throwable cause) {
         super(message, cause);

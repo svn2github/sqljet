@@ -36,6 +36,7 @@ import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDefaultBusyHandler;
 
 /**
@@ -72,7 +73,7 @@ public class SqlJetEngine {
     }
 
     /**
-     * @return
+     * @return database file this engine is created for.
      */
     public File getFile() {
         return this.file;
@@ -199,10 +200,9 @@ public class SqlJetEngine {
     }
 
     /**
-     * Get database options.
+     * Returns database options.
      * 
-     * @return
-     * @throws SqlJetException
+     * @return options of this database.
      */
     public ISqlJetOptions getOptions() throws SqlJetException {
         checkOpen();
@@ -213,9 +213,7 @@ public class SqlJetEngine {
     }
 
     /**
-     * Refresh database schema.
-     * 
-     * @throws SqlJetException
+     * Refreshes database schema.
      */
     public void refreshSchema() throws SqlJetException {
         if (null == btree.getSchema() || !getOptions().verifySchemaVersion(false)) {
@@ -250,21 +248,21 @@ public class SqlJetEngine {
     }
 
     /**
-     * Get threading synchronization mutex.
+     * Retruns threading synchronization mutex.
      * 
-     * @return
+     * @return Semaphore instance used to synchronize database access from multiple threads within the same process. 
      */
     public ISqlJetMutex getMutex() {
         return dbHandle.getMutex();
     }
 
+    
     /**
      * Set cache size (in count of pages).
      * 
      * @param cacheSize
      *            the count of pages which can hold cache.
-     * @throws SqlJetException
-     */
+     */    
     public void setCacheSize(final int cacheSize) throws SqlJetException {
         checkOpen();
         runSynchronized(new ISqlJetEngineSynchronized() {
@@ -279,7 +277,6 @@ public class SqlJetEngine {
      * Get cache size (in count of pages).
      * 
      * @return the count of pages which can hold cache.
-     * @throws SqlJetException
      */
     public int getCacheSize() throws SqlJetException {
         checkOpen();
@@ -292,9 +289,9 @@ public class SqlJetEngine {
     }
 
     /**
-     * Return true if a transaction is active.
+     * Returns true if a transaction is active.
      * 
-     * @return
+     * @return true if there is an active running transaction.
      */
     public boolean isInTransaction() {
         return transaction;
@@ -309,7 +306,6 @@ public class SqlJetEngine {
      * 
      * @param mode
      *            transaction's mode.
-     * @throws SqlJetException
      */
     public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
         checkOpen();
@@ -329,9 +325,8 @@ public class SqlJetEngine {
     }
 
     /**
-     * Commit transaction.
+     * Commits transaction.
      * 
-     * @throws SqlJetException
      */
     public void commit() throws SqlJetException {
         checkOpen();
@@ -351,9 +346,8 @@ public class SqlJetEngine {
     }
 
     /**
-     * Rollback transaction.
+     * Rolls back transaction.
      * 
-     * @throws SqlJetException
      */
     public void rollback() throws SqlJetException {
         checkOpen();
@@ -376,13 +370,11 @@ public class SqlJetEngine {
     }
 
     /**
-     * Run transaction.
+     * Runs transaction.
      * 
-     * @param op
-     *            transaction's body (closure).
-     * @param mode
-     *            transaction's mode.
-     * @return
+     * @param op transaction's body (closure).
+     * @param mode transaction's mode.
+     * @return result of {@link ISqlJetTransaction#run(org.tmatesoft.sqljet.core.table.SqlJetDb)} call.
      * @throws SqlJetException
      */
     protected Object runEngineTransaction(final ISqlJetEngineTransaction op, final SqlJetTransactionMode mode)

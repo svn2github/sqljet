@@ -59,11 +59,9 @@ public interface ISqlJetTable {
     ISqlJetTableDef getDefinition() throws SqlJetException;
 
     /**
-     * Get indexes of table.
+     * Returns definitions of indices used in this table.
      * 
-     * @param tableName
-     *            name of table
-     * @return definition of table.
+     * @return definitions of indices used in this table.
      * @throws SqlJetException
      */
     Set<ISqlJetIndexDef> getIndexesDefs() throws SqlJetException;
@@ -139,9 +137,9 @@ public interface ISqlJetTable {
      * ends all cursors will be closed.
      * </p>
      * 
-     * @param string
-     *            Name of index which defines ordering.If null then primary key
-     *            will be used.
+     * @param indexName name of index which defines ordering.If null then primary key
+     *                  will be used.
+     *                  
      * @return cursor sorted by index.
      * @throws SqlJetException
      */

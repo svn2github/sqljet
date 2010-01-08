@@ -32,20 +32,21 @@ public interface ISqlJetMapTableCursor {
     void close() throws SqlJetException;
 
     /**
-     * @return
+     * @return current key.
      * @throws SqlJetException
      */
     long getKey() throws SqlJetException;
 
     /**
-     * @return
+     * @return current date.
      * @throws SqlJetException
      */
     Object[] getValue() throws SqlJetException;
 
     /**
      * @param key
-     * @return
+     * @return true if cursor was set to the key specified.
+     * 
      * @throws SqlJetException
      */
     boolean goToKey(long key) throws SqlJetException;
@@ -53,7 +54,7 @@ public interface ISqlJetMapTableCursor {
     /**
      * @param key
      * @param values
-     * @return
+     * @return data entry id.
      * @throws SqlJetException
      */
     long put(long key, Object... values) throws SqlJetException;

@@ -49,9 +49,9 @@ public class SqlJetVersion {
     private static final String VERSION_BUILD_DEFAULT = "0";
 
     /**
-     * Get SQLJet version as stirng.
+     * Get SqlJet version as a String.
      * 
-     * @return
+     * @return SqlJet library version in form MAJOR.MINOT.MICRO.bBUILD_NUMBER
      */
     public static String getVersionString() {
         loadProperties();

@@ -261,8 +261,7 @@ public interface ISqlJetCursor {
     /**
      * Returns specified field's value as BLOB.
      * 
-     * @param name
-     *            of the field
+     * @param fieldName name of the field
      * @return field's value as BLOB
      * @throws SqlJetException
      */
@@ -271,8 +270,7 @@ public interface ISqlJetCursor {
     /**
      * Returns value of the field of the specified index in the current row.
      * 
-     * @param index
-     *            of the field
+     * @param field index of the field
      * @throws SqlJetException
      */
     Object getValue(int field) throws SqlJetException;
@@ -362,17 +360,17 @@ public interface ISqlJetCursor {
     void delete() throws SqlJetException;
 
     /**
-     * Returns cursor with reversed order.
+     * Returns cursor with the order reversed.
      * 
-     * @return
+     * @return cursor that will traverse the same rows as this one, but in reversed order. 
      * @throws SqlJetException
      */
     ISqlJetCursor reverse() throws SqlJetException;
 
     /**
-     * Returns number of rows browsable by this cursor.
+     * Returns number of rows accessible with this cursor.
      * 
-     * @return
+     * @return number of rows
      * @throws SqlJetException
      */
     long getRowCount() throws SqlJetException;
@@ -381,7 +379,8 @@ public interface ISqlJetCursor {
      * Returns index of the current row. Index is 1-based, first record has
      * index of one.
      * 
-     * @return
+     * @return 1-based index of the current row.
+     *  
      * @throws SqlJetException
      */
     long getRowIndex() throws SqlJetException;

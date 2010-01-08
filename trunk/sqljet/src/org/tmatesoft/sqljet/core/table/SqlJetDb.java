@@ -103,8 +103,8 @@ public class SqlJetDb extends SqlJetEngine {
      * 
      * @param file
      *            path to data base. Could be null or {@link #IN_MEMORY}.
-     * @param writable
-     *            if true then allow data modification.
+     * @param write
+     *            open for writing if true.
      * @throws SqlJetException
      *             if any trouble with access to file or database format.
      */
@@ -121,9 +121,10 @@ public class SqlJetDb extends SqlJetEngine {
      * locks of database file. For concurrent access to database from threads or
      * processes use transactions.
      * 
-     * @param op
-     * @return
-     * @throws SqlJetException
+     * @param op operation to run
+     * @return result of the {@link ISqlJetRunnableWithLock#runWithLock(SqlJetDb)} call.
+     *  
+     * @throws SqlJetException in case operation fails to run.
      */
     public Object runWithLock(final ISqlJetRunnableWithLock op) throws SqlJetException {
         return runSynchronized(new ISqlJetEngineSynchronized() {
@@ -137,7 +138,6 @@ public class SqlJetDb extends SqlJetEngine {
      * Get database schema.
      * 
      * @return database schema.
-     * @throws SqlJetException
      */
     public ISqlJetSchema getSchema() throws SqlJetException {
         return getSchemaInternal();
@@ -146,10 +146,8 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * Open table.
      * 
-     * @param tableName
-     *            table name
+     * @param tableName name of the table to open.
      * @return opened table
-     * @throws SqlJetException
      */
     public ISqlJetTable getTable(final String tableName) throws SqlJetException {
         checkOpen();
@@ -164,10 +162,8 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * Run modifications in write transaction.
      * 
-     * @param op
-     *            transaction's body (closure).
-     * @return
-     * @throws SqlJetException
+     * @param op transaction to run.
+     * @return result of the {@link ISqlJetTransaction#run(SqlJetDb)} call.
      */
     public Object runWriteTransaction(ISqlJetTransaction op) throws SqlJetException {
         checkOpen();
@@ -181,10 +177,8 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * Run read-only transaction.
      * 
-     * @param op
-     *            transaction's body (closure).
-     * @return
-     * @throws SqlJetException
+     * @param op transaction to run.
+     * @return result of the {@link ISqlJetTransaction#run(SqlJetDb)} call.
      */
     public Object runReadTransaction(ISqlJetTransaction op) throws SqlJetException {
         checkOpen();
@@ -198,8 +192,7 @@ public class SqlJetDb extends SqlJetEngine {
      *            transaction's body (closure).
      * @param mode
      *            transaction's mode.
-     * @return
-     * @throws SqlJetException
+     * @return result of the {@link ISqlJetTransaction#run(SqlJetDb)} call.
      */
     public Object runTransaction(final ISqlJetTransaction op, final SqlJetTransactionMode mode) throws SqlJetException {
         return runEngineTransaction(new ISqlJetEngineTransaction() {
@@ -229,7 +222,6 @@ public class SqlJetDb extends SqlJetEngine {
      * @param sql
      *            CREATE TABLE ... sentence.
      * @return definition of create table.
-     * @throws SqlJetException
      */
     public ISqlJetTableDef createTable(final String sql) throws SqlJetException {
         checkOpen();
@@ -246,7 +238,6 @@ public class SqlJetDb extends SqlJetEngine {
      * @param sql
      *            CREATE INDEX ... sentence.
      * @return definition of created index.
-     * @throws SqlJetException
      */
     public ISqlJetIndexDef createIndex(final String sql) throws SqlJetException {
         checkOpen();
@@ -260,9 +251,7 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * Drop table.
      * 
-     * @param tableName
-     *            name of table.
-     * @throws SqlJetException
+     * @param tableName name of table to drop.
      */
     public void dropTable(final String tableName) throws SqlJetException {
         checkOpen();
@@ -277,9 +266,7 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * Drop index.
      * 
-     * @param indexName
-     *            name of index.
-     * @throws SqlJetException
+     * @param indexName name of the index to drop.
      */
     public void dropIndex(final String indexName) throws SqlJetException {
         checkOpen();
@@ -296,8 +283,7 @@ public class SqlJetDb extends SqlJetEngine {
      * 
      * @param sql
      *            ALTER TABLE ... sentence.
-     * @return
-     * @throws SqlJetException
+     * @return altered table schema definition.
      */
     public ISqlJetTableDef alterTable(final String sql) throws SqlJetException {
         checkOpen();
@@ -315,7 +301,6 @@ public class SqlJetDb extends SqlJetEngine {
      * @param sql
      *            CREATE VIRTUAL TABLE ... sentence.
      * @return definition of create virtual table.
-     * @throws SqlJetException
      */
     public ISqlJetVirtualTableDef createVirtualTable(final String sql) throws SqlJetException {
         checkOpen();

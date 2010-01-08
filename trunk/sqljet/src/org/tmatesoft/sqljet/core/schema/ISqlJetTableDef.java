@@ -67,9 +67,12 @@ public interface ISqlJetTableDef {
     public boolean isAutoincremented();
 
     /**
-     * @return
+     * @return name of the primary key index.
      */
     String getPrimaryKeyIndexName();
-    
+
+    /**
+     * @return SQL representation of this table schema definition.
+     */
     String toSQL();
 }

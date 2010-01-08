@@ -169,8 +169,44 @@ public class SqlParser</replacevalue>
 		</zip>
 
 	</target>
+	
+	<target name="osgi">
+		<copy file="sqljet/osgi/MANIFEST.MF" tofile="build/osgi-manifest"></copy>
 
-	<target name="deploy" depends="clean, compile, compile-examples, generate-key, javadoc">
+		<replace file="build/osgi-manifest" token="%sqljet.version%" value="${build.number}"></replace>
+		<replace file="build/osgi-manifest" token="%antlr.version%" value="${antlr.version}"></replace>
+
+		<jar destfile="build/org.tmatesoft.sqljet_${build.number}.jar" manifest="build/osgi-manifest">
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="build">
+				<include name="sqljet.build.properties" />
+			</fileset>
+			<fileset dir="lib">
+				<include name="antlr-runtime-${antlr.version}.jar" />
+				<include name="ANTLR-LICENSE" />
+			</fileset>
+			<zipfileset dir="">
+				<include name="COPYING" />
+				<include name="README.txt" />
+				<include name="CHANGES" />
+			</zipfileset>
+		</jar>
+		
+		<delete file="build/osgi-manifest"/>
+	</target>
+
+	<target name="tarball">
+		<tar destfile="build/sqljet.${build.number}.tar.gz" compression="gzip">
+			<fileset dir="" >
+    			<include name="**/**"/>
+    			<exclude name="build"/>
+			</fileset>
+		</tar>
+	</target>
+
+	<target name="deploy" depends="clean, compile, compile-examples, generate-key, osgi, tarball, javadoc">
 		<mkdir dir="build" />
 		<!-- update svnkit.build.properties here -->
 		<antcall target="init-build.number" />
@@ -228,7 +264,10 @@ public class SqlParser</replacevalue>
 
 		<signjar alias="tmate" keystore="build/keystore" storepass="secret" lazy="true">
 			<path>
-				<fileset dir="build" includes="**/*.jar" />
+				<fileset dir="build">
+					<exclude name="org.tmatesoft.sqljet_${build.number}.jar"/>
+					<include name="**/*.jar"/>
+			 	</fileset>				
 			</path>
 		</signjar>
 

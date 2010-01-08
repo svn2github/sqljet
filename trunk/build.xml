@@ -205,14 +205,15 @@ public class SqlParser</replacevalue>
 		<tar destfile="build/sqljet.${build.number}.tar.gz" compression="gzip">
 			<fileset dir="" >
     			<include name="**/**"/>
-    			<exclude name="build"/>
-    			<exclude name="sqljet/bin"/>
-				<exclude name="sqljet-test/bin"/>
 				
-				<exclude name="sqljet-examples/simple/bin"/>
-				<exclude name="sqljet-examples/browser/bin"/>
-				<exclude name="sqljet-examples/inventory/bin"/>
-				<exclude name="sqljet-examples/expenses/bin"/>
+    			<exclude name="build/**"/>
+    			<exclude name="sqljet/bin/**"/>
+				<exclude name="sqljet-test/bin/**"/>
+				
+				<exclude name="sqljet-examples/simple/bin/**"/>
+				<exclude name="sqljet-examples/browser/bin/**"/>
+				<exclude name="sqljet-examples/inventory/bin/**"/>
+				<exclude name="sqljet-examples/expenses/bin/**"/>
 			</fileset>
 		</tar>
 	</target>

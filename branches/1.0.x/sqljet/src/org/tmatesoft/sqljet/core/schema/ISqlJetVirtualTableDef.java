@@ -71,8 +71,7 @@ public interface ISqlJetVirtualTableDef {
     void setRowId(long rowId);
 
     /**
-     * @param schemaStrict
-     * @return
+     * @return SQL representation of this virtual table schema definition.
      */
     String toSQL();
 

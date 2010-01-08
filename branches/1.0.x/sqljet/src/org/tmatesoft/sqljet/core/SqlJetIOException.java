@@ -40,7 +40,7 @@ public class SqlJetIOException extends SqlJetException {
     /**
      * Create extended exception for IOERR.
      * 
-     * @param ioErrorCode
+     * @param ioErrorCode error code.
      */
     public SqlJetIOException(final SqlJetIOErrorCode ioErrorCode) {
         super(SqlJetErrorCode.IOERR);

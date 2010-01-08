@@ -76,14 +76,16 @@ public interface ISqlJetSchema {
     Set<ISqlJetIndexDef> getIndexes(String tableName) throws SqlJetException;
 
     /**
-     * @return
+     * @return Set of virtual table names defined in this schema.
+     * 
      * @throws SqlJetException
      */
     Set<String> getVirtualTableNames() throws SqlJetException;
 
     /**
      * @param name
-     * @return
+     * @return definition of the virtual table <code>name</code>.
+     * 
      * @throws SqlJetException
      */
     ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException;

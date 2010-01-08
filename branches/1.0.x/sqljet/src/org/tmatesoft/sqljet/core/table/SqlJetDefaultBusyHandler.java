@@ -47,8 +47,8 @@ public class SqlJetDefaultBusyHandler implements ISqlJetBusyHandler {
     /**
      * Creates busy handler with custom parameters.
      * 
-     * @param retries
-     * @param sleep
+     * @param retries number of retries to perform
+     * @param sleep sleep time interval in milliseconds between retries to lock database.
      */
     public SqlJetDefaultBusyHandler(final int retries, final int sleep) {
         if (retries > 0) {
@@ -64,38 +64,36 @@ public class SqlJetDefaultBusyHandler implements ISqlJetBusyHandler {
     }
 
     /**
-     * Get count of retries to lock database.
+     * Returns number of attempts to make to lock database.
      * 
-     * @return count of retries.
+     * @return number of attempts.
      */
     public int getRetries() {
         return retries;
     }
 
     /**
-     * Get count of retries to lock database.
+     * Sets number of attempts to make to lock database.
      * 
-     * @param retries
-     *            count of retries.
+     * @param retries number of attempts.
      */
     public void setRetries(int retries) {
         this.retries = retries;
     }
 
     /**
-     * Get sleep time interval in milliseconds between retries to lock database.
+     * Returns sleep time interval in milliseconds between retries to lock database.
      * 
-     * @return sleep time in milliseconds.
+     * @return sleep interval time in milliseconds.
      */
     public int getSleep() {
         return sleep;
     }
 
     /**
-     * Set sleep time interval in milliseconds between retries to lock database.
+     * Sets sleep time interval in milliseconds between retries to lock database.
      * 
-     * @param sleep
-     *            sleep time in milliseconds.
+     * @param sleep interval time in milliseconds.
      */
     public void setSleep(int sleep) {
         this.sleep = sleep;
@@ -115,7 +113,7 @@ public class SqlJetDefaultBusyHandler implements ISqlJetBusyHandler {
     /**
      * Check is busy handler to cancel.
      * 
-     * @return
+     * @return true if lock attempts should be cancelled.
      */
     public boolean isCancel() {
         return cancel;

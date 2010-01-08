@@ -6,6 +6,7 @@
 	<property name="version.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}" />
 
 	<target name="init-build.number" if="build.vcs.number.1">
+		<mkdir dir="build" />
 		<copy file="sqljet.build.properties" tofile="build/sqljet.build.properties" />
 		<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
 	</target>
@@ -206,10 +207,8 @@ public class SqlParser</replacevalue>
 		</tar>
 	</target>
 
-	<target name="deploy" depends="clean, compile, compile-examples, generate-key, osgi, tarball, javadoc">
+	<target name="deploy" depends="clean, init-build.number, compile, compile-examples, generate-key, osgi, tarball, javadoc">
 		<mkdir dir="build" />
-		<!-- update svnkit.build.properties here -->
-		<antcall target="init-build.number" />
 
 		<jar destfile="build/sqljet.${build.number}.jar">
 			<fileset dir="sqljet/bin">

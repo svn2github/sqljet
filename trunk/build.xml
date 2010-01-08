@@ -61,7 +61,7 @@
 			<arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang" />
 			<arg value="sqljet/src/Sql.g" />
 			<classpath>
-				<pathelement location="tools/antlr-3.1.3.jar" />
+				<pathelement location="tools/antlr-${antlr.version}.jar" />
 				<pathelement path="${java.class.path}" />
 			</classpath>
 		</java>
@@ -141,7 +141,7 @@ public class SqlParser</replacevalue>
 		<mkdir dir="build/javadoc" />
 
 		<path id="doc.classpath">
-			<pathelement path="lib/antlr-runtime-3.1.3.jar" />
+			<pathelement path="lib/antlr-runtime-${antlr.version}.jar" />
 		</path>
 
 		<javadoc destdir="build/javadoc" packagenames="org.tmatesoft.sqljet" sourcepath="sqljet/src" 
@@ -200,7 +200,7 @@ public class SqlParser</replacevalue>
 		<manifest file="build/MANIFEST.MF">
 			<attribute name="Built-By" value="TMate Software" />
 			<attribute name="Main-Class" value="org.tmatesoft.sqljet.browser.DBBrowser" />
-			<attribute name="Class-Path" value="sqljet.${build.number}.jar" />
+			<attribute name="Class-Path" value="sqljet.${build.number}.jar antlr-runtime-${antlr.version}.jar" />
 			<attribute name="Implementation-Title" value="SQLJet Database Browser" />
 			<attribute name="Implementation-Version" value="${build.number}" />
 			<attribute name="Implementation-Vendor" value="TMate Software" />
@@ -216,7 +216,7 @@ public class SqlParser</replacevalue>
 		<delete file="build/MANIFEST.MF" />
 
 		<mkdir dir="build/lib" />
-		<copy file="lib/antlr-runtime-3.1.3.jar" tofile="build/lib/antlr-runtime-3.1.3-${build.number}.jar" />
+		<copy file="lib/antlr-runtime-${antlr.version}.jar" tofile="build/lib/antlr-runtime-${antlr.version}-${build.number}.jar" />
 		<copy file="lib/ANTLR-LICENSE" tofile="build/lib/ANTLR-LICENSE" />
 		<copy todir="build">
 			<fileset dir="sqljet-examples/browser">
@@ -259,6 +259,7 @@ public class SqlParser</replacevalue>
 			<zipfileset dir="build" prefix="sqljet.${build.number}">
 				<include name="sqljet.${build.number}.jar" />
 				<include name="sqljet.${build.number}.src.zip" />
+				<include name="sqljet.${build.number}.doc.zip" />
 				<include name="sqljet-browser.${build.number}.jar" />
 				<include name="sqljet-browser.${build.number}.src.zip" />
 			</zipfileset>
@@ -272,21 +273,19 @@ public class SqlParser</replacevalue>
 			</zipfileset>
 		</zip>
 
-		<delete file="build/sqljet.${build.number}.src.zip">
-		</delete>
-		<delete file="build/sqljet.${build.number}.jar">
-		</delete>
-		<delete file="build/sqljet-browser.${build.number}.src.zip">
-		</delete>
-		<delete file="build/sqljet-browser.${build.number}.jar">
-		</delete>
-		<delete file="build/sqljet.build.properties">
-		</delete>
-		<delete file="build/keystore">
-		</delete>
-		<delete file="build/browser.jnlp">
-		</delete>
+		<delete file="build/sqljet.${build.number}.src.zip"/>
+		<delete file="build/sqljet.${build.number}.doc.zip"/>
+		<delete file="build/sqljet.${build.number}.jar"/>
+		<delete file="build/sqljet-browser.${build.number}.src.zip"/>
+		<delete file="build/sqljet-browser.${build.number}.jar"/>
+		<delete file="build/sqljet.build.properties"/>
+		<delete file="build/keystore"/>
+		<delete file="build/browser.jnlp"/>
+		
 		<delete dir="build/lib" includeemptydirs="true">
+			<include name="**/**" />
+		</delete>
+		<delete dir="build/javadoc" includeemptydirs="true">
 			<include name="**/**" />
 		</delete>
 	</target>

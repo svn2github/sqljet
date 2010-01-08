@@ -1,19 +1,31 @@
 Version ?.?.?
 (?? ??? ????, from /branches/?.?.?)
 
-Repository: http://svn.sqljet.com/repos/sqljet/tags/?.0.?/
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
  New features:
+ 
+  * Busy handlers support added (-r768).
+  * Support of temporary and in memory databases added (-r842).
+  * Support of virtual tables in schema added (-r847).
+  
+ API changes: 
+ 
+  * New runtime prerequisite added: all cursors must be opened within active transaction (-r709).
+  * New method SqlJetDb.refreshSchema() added to the public API (-r698).
+  * SqlJetTransaction mode enum and ISqlJetMutex interface moved to the public API (-r858, -r852, -r845).
 
-  * Database doesn't locked on open if it isn't required (-r771)
-  * Support of temporary and in memory databases enabled (-r784)
-  * Support of reopening closed databases (-r785)
-  * SQL parser exception message now includes text of SQL (-r793)
-  * NULL column constraint added to the SQL grammar (-r805)
-  * Added support of virtual tables in schema (-r803)
-  * Supported quoted identifiers
-  * ANTLR's lexer errors are not out to stderr yet, its throw exceptions now (-r854)
+ Bugfixes:
+
+  * Database is locked only when it is actually needed, not on opening (-r773).
+  * Performance improvements (-r846).
+  * Schema: Quoted identifiers are properly processed now (-r819, -r848).
+  * Schema: NULL column constraint supported (-r818).
+  * Calling SqlJetDb.open(...) after SqlJetDb.close() didn't work, fixed (-r842).
+  * Javadoc updates (-r839, -r845).
+  * Better error message on schema parsing failure (-r844).
+  * Exception is thrown now on lexer error when parsing schema (-r854).
 
 Version 1.0.1
 (20 Nov 2009, from /branches/1.0.x)

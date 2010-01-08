@@ -15,15 +15,13 @@
  * the terms of a license other than GNU General Public License
  * contact TMate Software at support@sqljet.com
  */
-package org.tmatesoft.sqljet.core.internal;
+package org.tmatesoft.sqljet.core;
 
 /**
  * Transaction mode.
  * 
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
- * @deprecated use {@link org.tmatesoft.sqljet.core.SqlJetTransactionMode} class.
  * 
  */
 public enum SqlJetTransactionMode {
@@ -41,22 +39,6 @@ public enum SqlJetTransactionMode {
     /**
      * Exclusive transaction.
      */
-    EXCLUSIVE;
+    EXCLUSIVE
 
-    /**
-     * 
-     * @return non-deprecated equivalent of this enum value.
-     */
-    public org.tmatesoft.sqljet.core.SqlJetTransactionMode mode() {
-        switch (this) {
-        case WRITE:
-            return org.tmatesoft.sqljet.core.SqlJetTransactionMode.WRITE;
-        case READ_ONLY:
-            return org.tmatesoft.sqljet.core.SqlJetTransactionMode.READ_ONLY;
-        case EXCLUSIVE:
-        default:
-            return org.tmatesoft.sqljet.core.SqlJetTransactionMode.EXCLUSIVE;
-        }
-
-    }
 }

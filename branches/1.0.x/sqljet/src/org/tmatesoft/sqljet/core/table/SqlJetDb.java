@@ -23,13 +23,13 @@ import java.util.Set;
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
-import org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
@@ -420,6 +420,13 @@ public class SqlJetDb {
     }
 
     /**
+     * @deprecated use {@link #runTransaction(ISqlJetTransaction, SqlJetTransactionMode)} 
+     */
+    public Object runTransaction(final ISqlJetTransaction op, final org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode mode) throws SqlJetException {
+        return runTransaction(op, mode.mode());
+    }
+
+    /**
      * Begin transaction.
      * 
      * @param mode
@@ -441,6 +448,13 @@ public class SqlJetDb {
                 }
             }
         });
+    }
+
+    /**
+     * @deprecated use {{@link #beginTransaction(SqlJetTransactionMode)} instead.
+     */
+    public void beginTransaction(final org.tmatesoft.sqljet.core.internal.SqlJetTransactionMode mode) throws SqlJetException {
+        beginTransaction(mode.mode());
     }
 
     /**

@@ -6,6 +6,7 @@
 	<property name="version.number" value="${sqljet.version.major}.${sqljet.version.minor}.${sqljet.version.micro}" />
 
 	<target name="init-build.number" if="build.vcs.number.1">
+		<mkdir dir="build" />
 		<copy file="sqljet.build.properties" tofile="build/sqljet.build.properties" />
     	<replace file="build/sqljet.build.properties" token="local" value="${build.vcs.number.1}" />
 	</target>
@@ -26,19 +27,21 @@
                 <include name="**/**" />
             </fileset>
         </delete>
-
-        <delete verbose="false" includeemptydirs="true" failonerror="false">
-            <fileset dir="sqljet/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-test/bin">
-                <include name="**/**" />
-            </fileset>
-            <fileset dir="sqljet-examples/browser/bin">
-                <include name="**/**" />
-            </fileset>
-        </delete>
-    </target>
+		<delete verbose="false" includeemptydirs="true" failonerror="false">
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-test/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-examples/browser/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="sqljet-examples/simple/bin">
+				<include name="**/**" />
+			</fileset>
+		</delete>
+	</target>
     
     <target name="antlr">
         <java classname="org.antlr.Tool" fork="true" failonerror="true">
@@ -138,11 +141,52 @@ public class SqlParser</replacevalue>
 		</zip>
 
 	</target>
+	
+	<target name="osgi">
+		<copy file="sqljet/osgi/MANIFEST.MF" tofile="build/osgi-manifest"></copy>
 
-	<target name="deploy" depends="clean, compile, compile-examples, generate-key, javadoc">
-        <mkdir dir="build" />
-    	<!-- update svnkit.build.properties here -->
-    	<antcall target="init-build.number"/>
+		<replace file="build/osgi-manifest" token="%sqljet.version%" value="${build.number}"></replace>
+		<replace file="build/osgi-manifest" token="%antlr.version%" value="${antlr.version}"></replace>
+
+		<jar destfile="build/org.tmatesoft.sqljet_${build.number}.jar" manifest="build/osgi-manifest">
+			<fileset dir="sqljet/bin">
+				<include name="**/**" />
+			</fileset>
+			<fileset dir="build">
+				<include name="sqljet.build.properties" />
+			</fileset>
+			<fileset dir="lib">
+				<include name="antlr-runtime-${antlr.version}.jar" />
+				<include name="ANTLR-LICENSE" />
+			</fileset>
+			<zipfileset dir="">
+				<include name="COPYING" />
+				<include name="README.txt" />
+				<include name="CHANGES" />
+			</zipfileset>
+		</jar>
+		
+		<delete file="build/osgi-manifest"/>
+	</target>
+
+	<target name="tarball">
+		<tar destfile="build/sqljet.${build.number}.tar.gz" compression="gzip">
+			<fileset dir="" >
+    			<include name="**/**"/>
+				
+    			<exclude name="**/.svn"/>
+    			<exclude name="build/**"/>
+    			<exclude name="sqljet/bin/**"/>
+				<exclude name="sqljet-test/bin/**"/>
+				
+				<exclude name="sqljet-examples/simple/bin/**"/>
+				<exclude name="sqljet-examples/browser/bin/**"/>
+			</fileset>
+		</tar>
+	</target>
+
+	<target name="deploy" depends="clean, init-build.number, compile, compile-examples, generate-key, osgi, tarball, javadoc">
+		<mkdir dir="build" />
 
 		<jar destfile="build/sqljet.${build.number}.jar">
             <fileset dir="sqljet/bin">
@@ -193,16 +237,16 @@ public class SqlParser</replacevalue>
                 <include name="browser.jnlp"/>
             </fileset>
 		</copy>
-		<replace token="%version%" file="build/browser.jnlp" value="${build.number}"></replace>
-		
-		<signjar
-		    alias="tmate" keystore="build/keystore"
-		    storepass="secret"
-		    lazy="true"			
-		    >
-		  <path>
-		    <fileset dir="build" includes="**/*.jar" />
-		  </path>
+		<replace token="%version%" file="build/browser.jnlp" value="${build.number}">
+		</replace>
+
+		<signjar alias="tmate" keystore="build/keystore" storepass="secret" lazy="true">
+			<path>
+				<fileset dir="build">
+					<exclude name="org.tmatesoft.sqljet_${build.number}.jar"/>
+					<include name="**/*.jar"/>
+			 	</fileset>				
+			</path>
 		</signjar>
 		
 		<zip destfile="build/sqljet-browser.${build.number}.src.zip">

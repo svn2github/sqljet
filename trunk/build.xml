@@ -48,6 +48,9 @@
 			<fileset dir="sqljet-examples/inventory/bin">
 				<include name="**/**" />
 			</fileset>
+			<fileset dir="sqljet-examples/simple/bin">
+				<include name="**/**" />
+			</fileset>
 		</delete>
 
 		<mkdir dir="${benchmarks}" />
@@ -203,6 +206,13 @@ public class SqlParser</replacevalue>
 			<fileset dir="" >
     			<include name="**/**"/>
     			<exclude name="build"/>
+    			<exclude name="sqljet/bin"/>
+				<exclude name="sqljet-test/bin"/>
+				
+				<exclude name="sqljet-examples/simple/bin"/>
+				<exclude name="sqljet-examples/browser/bin"/>
+				<exclude name="sqljet-examples/inventory/bin"/>
+				<exclude name="sqljet-examples/expenses/bin"/>
 			</fileset>
 		</tar>
 	</target>

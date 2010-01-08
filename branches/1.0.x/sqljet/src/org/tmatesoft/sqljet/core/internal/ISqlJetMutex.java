@@ -1,6 +1,6 @@
 /**
  * ISqlJetMutex.java
- * Copyright (C) 2010 TMate Software Ltd
+ * Copyright (C) 2009-2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ package org.tmatesoft.sqljet.core.internal;
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
- * @deprecated added for compatibility, use public class org.tmatesoft.sqljet.core.ISqlJetMutex instead.
+ * @deprecated added for compatibility, use {@link org.tmatesoft.sqljet.core.ISqlJetMutex} instead.
  */
 public interface ISqlJetMutex extends org.tmatesoft.sqljet.core.ISqlJetMutex {
 

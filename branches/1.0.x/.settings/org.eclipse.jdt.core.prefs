@@ -1,4 +1,4 @@
-#Fri Oct 10 21:00:09 CEST 2008
+#Fri Jan 08 16:51:55 CET 2010
 eclipse.preferences.version=1
 org.eclipse.jdt.core.codeComplete.argumentPrefixes=
 org.eclipse.jdt.core.codeComplete.argumentSuffixes=
@@ -8,6 +8,8 @@ org.eclipse.jdt.core.codeComplete.localPrefixes=
 org.eclipse.jdt.core.codeComplete.localSuffixes=
 org.eclipse.jdt.core.codeComplete.staticFieldPrefixes=our
 org.eclipse.jdt.core.codeComplete.staticFieldSuffixes=
+org.eclipse.jdt.core.codeComplete.staticFinalFieldPrefixes=
+org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes=
 org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode=enabled
 org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.5
 org.eclipse.jdt.core.compiler.codegen.unusedLocal=preserve

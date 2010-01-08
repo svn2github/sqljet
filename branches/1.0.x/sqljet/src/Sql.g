@@ -116,6 +116,24 @@ private String unquoteId(String id) {
 
 }
 
+@lexer::members {
+
+public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+     final StringBuilder buffer = new StringBuilder();
+     buffer.append("[").append(getErrorHeader(e)).append("] ");
+     buffer.append(getErrorMessage(e, tokenNames));
+     if(e.input!=null && e.input instanceof CharStream) {
+        final CharStream stream = (CharStream) e.input;
+          int size = stream.size();
+          if(size>0) {
+             buffer.append("\n").append(stream.substring(0, size-1));
+          }
+       }
+     throw new SqlJetParserException(buffer.toString(), e);
+}
+
+}
+
 // Input is a list of statements.
 sql_stmt_list: sql_stmt (SEMI! (sql_stmt SEMI!)* )? EOF!;
 

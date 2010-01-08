@@ -183,6 +183,7 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         try {
             @SuppressWarnings("unused")
             final ISqlJetTableDef def = db.createTable(sql);
+            Assert.fail();
         } catch (SqlJetParserException e) {
             final String msg = e.getMessage();
             Assert.assertTrue(msg.contains(sql));

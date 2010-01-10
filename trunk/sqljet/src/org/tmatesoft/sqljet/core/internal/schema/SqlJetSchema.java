@@ -349,6 +349,10 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
+        if(isNameReserved(tableName)) {
+            throw new SqlJetException(String.format("Name '%s' is reserved to internal use", tableName));
+        }
+        
         if (tableDefs.containsKey(tableName)) {
             if (tableDef.isKeepExisting()) {
                 return tableDefs.get(tableName);
@@ -548,6 +552,10 @@ public class SqlJetSchema implements ISqlJetSchema {
         final String indexName = indexDef.getName();
         if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if(isNameReserved(indexName)) {
+            throw new SqlJetException(String.format("Name '%s' is reserved to internal use", indexName));
+        }
 
         if (indexDefs.containsKey(indexName)) {
             if (indexDef.isKeepExisting()) {
@@ -1176,4 +1184,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
+    public boolean isNameReserved(String name) {
+        return name.startsWith("sqlite_");
+    }
 }

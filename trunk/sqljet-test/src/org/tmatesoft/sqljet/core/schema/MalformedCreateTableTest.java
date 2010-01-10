@@ -352,4 +352,17 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.fail();
     }
 
+    @Test(expected=SqlJetException.class)
+    public void tableNameReserved() throws SqlJetException {
+        db.createTable("create table sqlite_master(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void indexNameReserved() throws SqlJetException {
+        db.createTable("create table t(b text)");
+        db.createIndex("create index sqlite_autoindex_t_1 on t(b)");
+        Assert.fail();
+    }
+
 }

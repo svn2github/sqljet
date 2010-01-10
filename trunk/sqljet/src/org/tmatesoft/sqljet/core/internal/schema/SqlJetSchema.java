@@ -70,9 +70,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
-    /**
-     * 
-     */
     private static final String NAME_RESERVED = "Name '%s' is reserved to internal use";
 
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
@@ -101,6 +98,32 @@ public class SqlJetSchema implements ISqlJetSchema {
             String.CASE_INSENSITIVE_ORDER);
     private Map<String, ISqlJetVirtualTableDef> virtualTableDefs = new TreeMap<String, ISqlJetVirtualTableDef>(
             String.CASE_INSENSITIVE_ORDER);
+
+    private enum SqlJetSchemaObjectType {
+
+        TABLE {
+            @Override
+            public Object getName() {
+                return "table";
+            }
+        },
+
+        INDEX {
+            @Override
+            public Object getName() {
+                return "index";
+            }
+        },
+
+        VIRTUAL_TABLE {
+            @Override
+            public Object getName() {
+                return "virtual table";
+            }
+        };
+
+        public abstract Object getName();
+    }
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -354,10 +377,10 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if(!internal) {
+        if (!internal) {
             checkNameReserved(tableName);
         }
-        
+
         if (tableDefs.containsKey(tableName)) {
             if (tableDef.isKeepExisting()) {
                 return tableDefs.get(tableName);
@@ -365,10 +388,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + tableName + "\" exists already");
             }
         }
-        
-        if(indexDefs.containsKey(tableName)){
-            throw new SqlJetException(String.format("Name conflict: index named '%s' exists already", tableName));            
-        }
+
+        checkNameConflict(SqlJetSchemaObjectType.TABLE, tableName);
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
@@ -567,10 +588,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
             }
         }
-        
-        if(tableDefs.containsKey(indexName)){
-            throw new SqlJetException(String.format("Name conflict: table named '%s' exists already", indexName));            
-        }
+
+        checkNameConflict(SqlJetSchemaObjectType.INDEX, indexName);
 
         if (null == indexDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -977,7 +996,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final ParserRuleReturnScope parsedSql = alterTableDef.getParsedSql();
         final CommonTree ast = (CommonTree) parsedSql.getTree();
         final CommonToken stopToken = (CommonToken) parsedSql.getStop();
-        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount()-1)).getToken();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount() - 1)).getToken();
         final CharStream inputStream = nameToken.getInputStream();
         return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
     }
@@ -1160,6 +1179,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Virtual table \"" + tableName + "\" exists already");
         }
 
+        checkNameConflict(SqlJetSchemaObjectType.VIRTUAL_TABLE, tableName);
+
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
         final String createVirtualTableSQL = getCreateVirtualTableSql(parseTable);
 
@@ -1194,7 +1215,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @throws SqlJetException
      */
     private void checkNameReserved(final String name) throws SqlJetException {
-        if(isNameReserved(name)) {
+        if (isNameReserved(name)) {
             throw new SqlJetException(String.format(NAME_RESERVED, name));
         }
     }
@@ -1207,5 +1228,35 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     public boolean isNameReserved(String name) {
         return name.startsWith("sqlite_");
+    }
+
+    /**
+     * @param tableName
+     * @throws SqlJetException
+     */
+    private void checkNameConflict(SqlJetSchemaObjectType objectType, final String tableName) throws SqlJetException {
+        if (isNameConflict(objectType, tableName)) {
+            throw new SqlJetException(String.format("Name conflict: %s named '%s' exists already",
+                    objectType.getName(), tableName));
+        }
+    }
+
+    private boolean isNameConflict(SqlJetSchemaObjectType objectType, String name) {
+        if (objectType != SqlJetSchemaObjectType.TABLE) {
+            if (tableDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        if (objectType != SqlJetSchemaObjectType.INDEX) {
+            if (indexDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        if (objectType != SqlJetSchemaObjectType.VIRTUAL_TABLE) {
+            if (virtualTableDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

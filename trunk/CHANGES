@@ -14,7 +14,7 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
  
   * New runtime prerequisite added: all cursors must be opened within active transaction (-r709).
   * New method SqlJetDb.refreshSchema() added to the public API (-r698).
-  * SqlJetTransaction mode enum and ISqlJetMutex interface moved to the public API (-r858, -r852, -r845).
+  * SqlJetTransactionMode enum and ISqlJetMutex interface moved to the public API (-r858, -r852, -r845).
 
  Bugfixes:
 
@@ -27,7 +27,6 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * Better error message on schema parsing failure (-r844).
   * Exception is thrown now on lexer error when parsing schema (-r854).
   * Detecting conflicts and reserved names  when create tables or indexes.
-  * 
 
 Version 1.0.1
 (20 Nov 2009, from /branches/1.0.x)

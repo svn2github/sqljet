@@ -70,6 +70,11 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
+    /**
+     * 
+     */
+    private static final String NAME_RESERVED = "Name '%s' is reserved to internal use";
+
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     private static final String CANT_DELETE_IMPLICIT_INDEX = "Can't delete implicit index \"%s\"";
@@ -333,10 +338,6 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
-    private ISqlJetTableDef createTableSafe(String sql) throws SqlJetException {
-        return createTableSafe(sql, false);
-    }
-
     private ISqlJetTableDef createTableSafe(String sql, boolean internal) throws SqlJetException {
 
         final RuleReturnScope parseTable = parseTable(sql);
@@ -353,8 +354,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if(!internal && isNameReserved(tableName)) {
-            throw new SqlJetException(String.format("Name '%s' is reserved to internal use", tableName));
+        if(!internal) {
+            checkNameReserved(tableName);
         }
         
         if (tableDefs.containsKey(tableName)) {
@@ -557,9 +558,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if(isNameReserved(indexName)) {
-            throw new SqlJetException(String.format("Name '%s' is reserved to internal use", indexName));
-        }
+        checkNameReserved(indexName);
 
         if (indexDefs.containsKey(indexName)) {
             if (indexDef.isKeepExisting()) {
@@ -1155,6 +1154,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
+        checkNameReserved(tableName);
+
         if (virtualTableDefs.containsKey(tableName)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Virtual table \"" + tableName + "\" exists already");
         }
@@ -1188,6 +1189,22 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
+    /**
+     * @param name
+     * @throws SqlJetException
+     */
+    private void checkNameReserved(final String name) throws SqlJetException {
+        if(isNameReserved(name)) {
+            throw new SqlJetException(String.format(NAME_RESERVED, name));
+        }
+    }
+
+    /**
+     * Returns true if name is reserved for internal use.
+     * 
+     * @param name
+     * @return true if name is reserved
+     */
     public boolean isNameReserved(String name) {
         return name.startsWith("sqlite_");
     }

@@ -364,5 +364,12 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         db.createIndex("create index sqlite_autoindex_t_1 on t(b)");
         Assert.fail();
     }
+    
+    @Test(expected=SqlJetException.class)
+    public void tableVirtualNameReserved() throws SqlJetException {
+        db.createTable("create virtual table sqlite_master using sqljetmap(a integer primary key, b text)");
+        Assert.fail();
+    }
+
 
 }

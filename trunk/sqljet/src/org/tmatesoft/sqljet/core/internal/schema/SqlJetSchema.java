@@ -327,13 +327,17 @@ public class SqlJetSchema implements ISqlJetSchema {
     public ISqlJetTableDef createTable(String sql) throws SqlJetException {
         db.getMutex().enter();
         try {
-            return createTableSafe(sql);
+            return createTableSafe(sql, false);
         } finally {
             db.getMutex().leave();
         }
     }
 
     private ISqlJetTableDef createTableSafe(String sql) throws SqlJetException {
+        return createTableSafe(sql, false);
+    }
+
+    private ISqlJetTableDef createTableSafe(String sql, boolean internal) throws SqlJetException {
 
         final RuleReturnScope parseTable = parseTable(sql);
         final CommonTree ast = (CommonTree) parseTable.getTree();
@@ -349,7 +353,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
-        if(isNameReserved(tableName)) {
+        if(!internal && isNameReserved(tableName)) {
             throw new SqlJetException(String.format("Name '%s' is reserved to internal use", tableName));
         }
         
@@ -502,7 +506,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     private void checkSequenceTable() throws SqlJetException {
         if (!tableDefs.containsKey(SQLITE_SEQUENCE)) {
-            createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
+            createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE, true);
         }
     }
 

@@ -356,6 +356,10 @@ public class SqlJetSchema implements ISqlJetSchema {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, "Table \"" + tableName + "\" exists already");
             }
         }
+        
+        if(indexDefs.containsKey(tableName)){
+            throw new SqlJetException(String.format("Name conflict: index named '%s' exists already", tableName));            
+        }
 
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
@@ -551,6 +555,10 @@ public class SqlJetSchema implements ISqlJetSchema {
             } else {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
             }
+        }
+        
+        if(tableDefs.containsKey(indexName)){
+            throw new SqlJetException(String.format("Name conflict: table named '%s' exists already", indexName));            
         }
 
         if (null == indexDef.getTableName())

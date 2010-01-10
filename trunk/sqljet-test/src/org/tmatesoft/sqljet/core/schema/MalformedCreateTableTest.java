@@ -322,4 +322,34 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertNotNull(table);
     }
 
+    @Test(expected=SqlJetException.class)
+    public void tableNameConflict() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createTable("create table t(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void indexNameConflict() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index i on t(b)");
+        db.createIndex("create index i on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void tableIndexNameConflict1() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index t on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected=SqlJetException.class)
+    public void tableIndexNameConflict2() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index i on t(b)");
+        db.createTable("create table i(a integer primary key, b text)");
+        Assert.fail();
+    }
+
 }

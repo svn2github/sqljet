@@ -578,8 +578,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if (columns != null && columns.size() != 0) {
                 for (ISqlJetColumnDef column : columns) {
                     final String name = column.getName();
-                    final int columnNumber = tableDef.getColumnNumber(name);
-                    if (row.length < columnNumber || null == row[columnNumber]) {
+                    final int index = column.getIndex();
+                    if (row.length < index || null == row[index]) {
                         if (SqlJetConflictAction.IGNORE != onConflict) {
                             throw new SqlJetException(String.format("Field '%s' must be not NULL", name));
                         }
@@ -679,15 +679,34 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     private Object getFieldByName(final Object[] fields, final String name) {
-        return fields[tableDef.getColumnNumber(name)];
+        final int columnNumber = tableDef.getColumnNumber(name);
+        if (columnNumber >= 0 && fields.length > columnNumber) {
+            return fields[columnNumber];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param fields
+     * @param column
+     * @return
+     */
+    private Object getColumnValue(Object[] fields, ISqlJetColumnDef column) {
+        final int columnIndex = column.getIndex();
+        if (columnIndex >= 0 && fields.length > columnIndex) {
+            return fields[columnIndex];
+        } else {
+            return null;
+        }
     }
 
     public Object[] getKeyForIndex(final Object[] fields, final ISqlJetIndexDef indexDef) {
         if (null == fields) {
             return null;
         } else if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
-            final String column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn().getName();
-            return new Object[] { getFieldByName(fields, column) };
+            final ISqlJetColumnDef column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn();
+            return new Object[] { getColumnValue(fields, column) };
         } else if (tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
             final List<String> columns = tableDef.getTableIndexConstraint(indexDef.getName()).getColumns();
             final int columnsCount = columns.size();

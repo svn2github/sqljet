@@ -33,6 +33,7 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
     private final String name;
     private final ISqlJetTypeDef type;
     private final List<ISqlJetColumnConstraint> constraints;
+    private int index;
 
     public SqlJetColumnDef(CommonTree ast) throws SqlJetException {
         name = ast.getText();
@@ -129,4 +130,19 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
         }
         return buffer.toString();
     }
+    
+    /**
+     * @return the index
+     */
+    public int getIndex() {
+        return index;
+    }
+    
+    /**
+     * @param index the index to set
+     */
+    public void setIndex(int index) {
+        this.index = index;
+    }
+    
 }

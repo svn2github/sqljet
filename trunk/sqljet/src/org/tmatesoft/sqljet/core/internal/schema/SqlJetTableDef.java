@@ -133,6 +133,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private void resolveConstraints() throws SqlJetException {
         int columnIndex = 0, autoindexNumber = 0;
         for (ISqlJetColumnDef column : columns) {
+            ((SqlJetColumnDef)column).setIndex(columnIndex);
             boolean notNull = false;
             for (ISqlJetColumnConstraint constraint : column.getConstraints()) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
@@ -239,12 +240,10 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     }
 
     public int getColumnNumber(String name) {
-        int i = 0;
         for (ISqlJetColumnDef column : getColumns()) {
             if (column.getName().equalsIgnoreCase(name)) {
-                return i;
+                return column.getIndex();
             }
-            i++;
         }
         return -1;
     }

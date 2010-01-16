@@ -32,4 +32,6 @@ public interface ISqlJetColumnDef {
     public boolean hasExactlyIntegerType();
 
     public List<ISqlJetColumnConstraint> getConstraints();
+
+    int getIndex();
 }

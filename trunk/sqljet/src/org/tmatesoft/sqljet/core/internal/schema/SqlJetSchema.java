@@ -290,6 +290,25 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
+        
+        bindIndexes();
+        
+    }
+
+    /**
+     * 
+     */
+    private void bindIndexes() {
+        for(ISqlJetIndexDef indexDef: indexDefs.values()) {
+            if(indexDef instanceof SqlJetIndexDef) {
+                SqlJetIndexDef i = (SqlJetIndexDef) indexDef;
+                final String tableName = i.getTableName();
+                final ISqlJetTableDef tableDef = tableDefs.get(tableName);
+                if(tableDef!=null){
+                    i.bindColumns(tableDef);
+                }
+            }
+        }
     }
 
     /**
@@ -633,6 +652,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 indexDef.setPage(page);
                 indexDef.setRowId(rowId);
+                indexDef.bindColumns(tableDef);
                 indexDefs.put(indexName, indexDef);
 
                 final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(btree, indexDef.getName(), true);

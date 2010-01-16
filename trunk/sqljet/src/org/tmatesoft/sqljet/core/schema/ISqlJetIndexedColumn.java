@@ -26,4 +26,7 @@ public interface ISqlJetIndexedColumn {
     public String getCollation();
 
     public SqlJetSortingOrder getSortingOrder();
+
+    ISqlJetColumnDef getTableColumn();
+
 }

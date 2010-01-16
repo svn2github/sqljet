@@ -722,7 +722,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final ISqlJetIndexedColumn column : indexedColumns) {
-                key[i++] = getFieldByName(fields, column.getName());
+                key[i++] = getColumnValue(fields, column.getTableColumn());
             }
             return key;
         }

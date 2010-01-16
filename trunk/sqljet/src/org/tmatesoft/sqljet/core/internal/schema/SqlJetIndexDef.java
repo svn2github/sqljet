@@ -18,7 +18,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 
 /**
  * @author TMate Software Ltd.
@@ -152,6 +154,16 @@ public class SqlJetIndexDef extends SqlJetBaseIndexDef {
     @Override
     public boolean isImplicit() {
         return false;
+    }
+
+    public void bindColumns(ISqlJetTableDef tableDef) {
+        for (final ISqlJetColumnDef tableColumn : tableDef.getColumns()) {
+            for (ISqlJetIndexedColumn column : columns) {
+                if (column.getName().equalsIgnoreCase(tableColumn.getName())) {
+                    ((SqlJetIndexedColumn) column).setTableColumn(tableColumn);
+                }
+            }
+        }
     }
 
 }

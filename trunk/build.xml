@@ -456,7 +456,10 @@ public class SqlParser</replacevalue>
 		</junit>
 	</target>
 
-	<target name="benchmarks" depends="deploy,benchmarks-server">
+	<target name="benchmarks" depends="deploy,benchmarks-nodeploy">
+	</target>
+
+	<target name="benchmarks-nodeploy" depends="benchmarks-server">
 		<junitreport todir="${benchmarks}">
 			<fileset dir="${benchmarks}">
 				<include name="TEST-*.xml" />
@@ -465,7 +468,7 @@ public class SqlParser</replacevalue>
 		</junitreport>
 	</target>
 
-	<target name="benchmarks-server" depends="deploy">
+	<target name="benchmarks-server">
 		<echoproperties prefix="os." />
 		<echoproperties prefix="java.vm." />
 
@@ -476,6 +479,7 @@ public class SqlParser</replacevalue>
 		</echo>
 		<junit>
 			<jvmarg value="-server" />
+			<jvmarg value="-da" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
 			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
 			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
@@ -503,6 +507,7 @@ public class SqlParser</replacevalue>
 		</echo>
 		<junit>
 			<jvmarg value="-server" />
+			<jvmarg value="-da" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
 			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
 			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />
@@ -530,6 +535,7 @@ public class SqlParser</replacevalue>
 		</echo>
 		<junit>
 			<jvmarg value="-server" />
+			<jvmarg value="-da" />
 			<sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
 			<sysproperty key="SqlJetBenchmark.TimeLog" value="false" />
 			<sysproperty key="SqlJetBenchmark.ScaleFactor" value="10" />

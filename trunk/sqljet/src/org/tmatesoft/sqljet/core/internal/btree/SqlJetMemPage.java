@@ -1009,14 +1009,16 @@ public class SqlJetMemPage extends SqlJetCloneable {
         cbrk = get2byte(data, hdr + 5);
         memcpy(temp, cbrk, data, cbrk, usableSize - cbrk);
         cbrk = usableSize;
+        final ISqlJetMemoryPointer pAddr = data.getBuffer().getPointer(0); /* The i-th cell pointer */
+        final ISqlJetMemoryPointer pTemp = temp.getBuffer().getPointer(0);
         for (i = 0; i < nCell; i++) {
-            ISqlJetMemoryPointer pAddr; /* The i-th cell pointer */
-            pAddr = pointer(data, cellOffset + i * 2);
+            pAddr.setPointer(cellOffset + i * 2);
             pc = get2byte(pAddr);
             if (pc >= usableSize) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
-            size = pPage.cellSizePtr(pointer(temp, pc));
+            pTemp.setPointer(pc);
+            size = pPage.cellSizePtr(pTemp);
             cbrk -= size;
             if (cbrk < cellOffset + 2 * nCell || pc + size > usableSize) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);

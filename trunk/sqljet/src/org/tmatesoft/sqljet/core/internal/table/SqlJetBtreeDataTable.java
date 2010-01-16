@@ -573,6 +573,21 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
         }
 
+        if (Action.DELETE != action && hasNull(row)) {
+            final List<ISqlJetColumnDef> columns = tableDef.getNotNullColumns();
+            if (columns != null && columns.size() != 0) {
+                for (ISqlJetColumnDef column : columns) {
+                    final String name = column.getName();
+                    final int columnNumber = tableDef.getColumnNumber(name);
+                    if (row.length < columnNumber || null == row[columnNumber]) {
+                        if (SqlJetConflictAction.IGNORE != onConflict) {
+                            throw new SqlJetException(String.format("Field '%s' must be not NULL", name));
+                        }
+                    }
+                }
+            }
+        }
+
         class IndexKeys {
 
             ISqlJetBtreeIndexTable indexTable;
@@ -666,20 +681,20 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private Object getFieldByName(final Object[] fields, final String name) {
         return fields[tableDef.getColumnNumber(name)];
     }
-    
+
     public Object[] getKeyForIndex(final Object[] fields, final ISqlJetIndexDef indexDef) {
         if (null == fields) {
             return null;
         } else if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
             final String column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn().getName();
-            return new Object[] { getFieldByName( fields, column ) };
+            return new Object[] { getFieldByName(fields, column) };
         } else if (tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
             final List<String> columns = tableDef.getTableIndexConstraint(indexDef.getName()).getColumns();
             final int columnsCount = columns.size();
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final String column : columns) {
-                key[i++] = getFieldByName( fields, column );
+                key[i++] = getFieldByName(fields, column);
             }
             return key;
         } else {
@@ -688,7 +703,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final ISqlJetIndexedColumn column : indexedColumns) {
-                key[i++] = getFieldByName( fields, column.getName());
+                key[i++] = getFieldByName(fields, column.getName());
             }
             return key;
         }

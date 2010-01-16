@@ -24,6 +24,7 @@ import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnPrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnUnique;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
@@ -63,6 +64,8 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     // index name -> table index constraint
     private final Map<String, SqlJetTableIndexConstraint> tableConstrainsIndexCache = new TreeMap<String, SqlJetTableIndexConstraint>(
             String.CASE_INSENSITIVE_ORDER);
+
+    private final List<ISqlJetColumnDef> notNullColumnsCache = new ArrayList<ISqlJetColumnDef>();
 
     SqlJetTableDef(String name, String databaseName, boolean temporary, boolean ifNotExists,
             List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) {
@@ -130,6 +133,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private void resolveConstraints() throws SqlJetException {
         int columnIndex = 0, autoindexNumber = 0;
         for (ISqlJetColumnDef column : columns) {
+            boolean notNull = false;
             for (ISqlJetColumnConstraint constraint : column.getConstraints()) {
                 if (constraint instanceof ISqlJetColumnPrimaryKey) {
                     SqlJetColumnPrimaryKey pk = (SqlJetColumnPrimaryKey) constraint;
@@ -147,7 +151,17 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                     SqlJetColumnUnique uc = (SqlJetColumnUnique) constraint;
                     uc.setIndexName(generateAutoIndexName(getName(), ++autoindexNumber));
                     columnConstraintsIndexCache.put(uc.getIndexName(), uc);
+                } else if (constraint instanceof ISqlJetColumnNotNull) {
+                    notNull = true;
+                } else if (constraint instanceof SqlJetColumnDefault) {
+                    if (notNull) {
+                        final SqlJetColumnDefault value = (SqlJetColumnDefault) constraint;
+                        notNull = null == value.getExpression().getValue();
+                    }
                 }
+            }
+            if (notNull) {
+                notNullColumnsCache.add(column);
             }
             columnIndex++;
         }
@@ -290,6 +304,13 @@ public class SqlJetTableDef implements ISqlJetTableDef {
 
     public SqlJetTableIndexConstraint getTableIndexConstraint(String indexName) {
         return tableConstrainsIndexCache.get(indexName);
+    }
+
+    /**
+     * @return the notNullColumnsCache
+     */
+    public List<ISqlJetColumnDef> getNotNullColumns() {
+        return notNullColumnsCache;
     }
 
     // Serialization

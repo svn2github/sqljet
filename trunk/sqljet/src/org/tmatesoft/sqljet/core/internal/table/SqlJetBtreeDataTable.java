@@ -20,7 +20,6 @@ package org.tmatesoft.sqljet.core.internal.table;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,7 +36,6 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDefault;
-import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
@@ -575,8 +573,6 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             }
         }
 
-        final Map<String, Object> fields = Action.DELETE != action ? getAsNamedFieldsOr(onConflict, row) : null;
-
         class IndexKeys {
 
             ISqlJetBtreeIndexTable indexTable;
@@ -594,9 +590,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
 
-            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(getAsNamedFields(currentRow),
-                    indexDef);
-            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(fields, indexDef);
+            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(currentRow, indexDef);
+            final Object[] key = Action.DELETE == action ? null : getKeyForIndex(row, indexDef);
             if (Action.UPDATE == action) {
                 if (currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
                     continue;
@@ -668,77 +663,23 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         return false;
     }
 
-    /**
-     * @param values
-     * @return
-     */
-    public Map<String, Object> getAsNamedFields(Object... values) throws SqlJetException {
-        return getAsNamedFieldsOr(SqlJetConflictAction.ABORT, values);
+    private Object getFieldByName(final Object[] fields, final String name) {
+        return fields[tableDef.getColumnNumber(name)];
     }
-
-    /**
-     * @param values
-     * @return
-     */
-    public Map<String, Object> getAsNamedFieldsOr(SqlJetConflictAction onConflict, Object... values)
-            throws SqlJetException {
-        if (values == null) {
-            return null;
-        }
-
-        if (onConflict == null) {
-            onConflict = SqlJetConflictAction.ABORT;
-        }
-
-        final int fieldsSize = values.length;
-        final List<ISqlJetColumnDef> columns = tableDef.getColumns();
-        final int columnsSize = columns.size();
-        if (fieldsSize > columnsSize) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Data values count is more than columns in table");
-        }
-
-        final Map<String, Object> namedFields = new HashMap<String, Object>();
-
-        int i = 0;
-        for (final ISqlJetColumnDef column : columns) {
-            if (null != column.getConstraints()) {
-                boolean notNull = false;
-                boolean defaultValue = false;
-                for (final ISqlJetColumnConstraint constraint : column.getConstraints()) {
-                    if (constraint instanceof ISqlJetColumnNotNull) {
-                        if (i >= fieldsSize || null == values[i]) {
-                            notNull = true;
-                        }
-                    } else if (constraint instanceof ISqlJetColumnDefault) {
-                        defaultValue = true;
-                    }
-                }
-                if (notNull && !defaultValue) {
-                    if (onConflict != SqlJetConflictAction.IGNORE) {
-                        throw new SqlJetException(SqlJetErrorCode.MISUSE, "Column " + column.getName() + " is NOT NULL");
-                    }
-                }
-            }
-            namedFields.put(column.getName(), (i < fieldsSize ? values[i] : null));
-            i++;
-        }
-
-        return namedFields;
-    }
-
-    public Object[] getKeyForIndex(final Map<String, Object> fields, final ISqlJetIndexDef indexDef) {
+    
+    public Object[] getKeyForIndex(final Object[] fields, final ISqlJetIndexDef indexDef) {
         if (null == fields) {
             return null;
         } else if (tableDef.getColumnIndexConstraint(indexDef.getName()) != null) {
             final String column = tableDef.getColumnIndexConstraint(indexDef.getName()).getColumn().getName();
-            return new Object[] { fields.get(column) };
+            return new Object[] { getFieldByName( fields, column ) };
         } else if (tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
             final List<String> columns = tableDef.getTableIndexConstraint(indexDef.getName()).getColumns();
             final int columnsCount = columns.size();
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final String column : columns) {
-                key[i++] = fields.get(column);
+                key[i++] = getFieldByName( fields, column );
             }
             return key;
         } else {
@@ -747,7 +688,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             final Object[] key = new Object[columnsCount];
             int i = 0;
             for (final ISqlJetIndexedColumn column : indexedColumns) {
-                key[i++] = fields.get(column.getName());
+                key[i++] = getFieldByName( fields, column.getName());
             }
             return key;
         }
@@ -757,7 +698,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (!isIndexExists(indexName))
             throw new SqlJetException(SqlJetErrorCode.MISUSE);
         if (null != indexName) {
-            return Arrays.equals(key, getKeyForIndex(getAsNamedFields(getValues()), indexesDefs.get(indexName)));
+            return Arrays.equals(key, getKeyForIndex(getValues(), indexesDefs.get(indexName)));
         } else {
             return getRowId() == getKeyForRowId(key);
         }

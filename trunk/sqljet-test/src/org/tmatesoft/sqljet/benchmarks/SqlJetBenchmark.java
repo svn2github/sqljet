@@ -102,16 +102,13 @@ public class SqlJetBenchmark extends AbstractBenchmark {
                     public Object run(SqlJetDb db) throws SqlJetException {
                         final ISqlJetCursor c = table.open();
                         try {
-                            final int fieldsCount = c.getFieldsCount();
-                            final Object[] values = new Object[fieldsCount];
+                            final Object[] values = new Object[5];
                             do {
-                                for (int field = 0; field < fieldsCount; field++) {
-                                    values[field] = c.getValue(field);
-                                }
-                                final Object revision = values[1];
-                                if (revision instanceof Long) {
-                                    values[1] = (Long) revision + 1;
-                                }
+                                values[0]=c.getString(0);
+                                values[1]=c.getInteger(1)+1;
+                                values[2]=c.getInteger(2);
+                                values[3]=c.getInteger(3);
+                                values[4]=c.getInteger(4);
                                 c.update(values);
                             } while (c.next());
                         } finally {

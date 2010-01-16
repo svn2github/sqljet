@@ -297,8 +297,7 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
             final SqlJetBtreeDataTable dataTable = new SqlJetBtreeDataTable(btree, indexDef.getTableName(), false);
             try {
                 for (dataTable.first(); !dataTable.eof(); dataTable.next()) {
-                    final Object[] key = dataTable.getKeyForIndex(dataTable.getAsNamedFields(dataTable.getValues()),
-                            indexDef);
+                    final Object[] key = dataTable.getKeyForIndex(dataTable.getValues(), indexDef);
                     insert(dataTable.getRowId(), true, key);
                 }
             } finally {

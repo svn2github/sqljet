@@ -18,11 +18,11 @@
 package org.tmatesoft.sqljet.core.internal.map;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
-import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable;
 import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.map.ISqlJetMapTableCursor;
@@ -33,69 +33,27 @@ import org.tmatesoft.sqljet.core.map.SqlJetMapDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetMapTableCursor implements ISqlJetMapTableCursor {
+public class SqlJetMapTableCursor extends SqlJetBtreeTable implements ISqlJetMapTableCursor {
 
-    /**
-     * 
-     */
     private static final String KEY_MUST_BE_MORE_THAN_ZERO = "Key must be more than zero: ";
 
-    /**
-     * 
-     */
     private final SqlJetMapDb mapDb;
-
-    /**
-     * 
-     */
-    private final ISqlJetBtree btree;
-    /**
-     * 
-     */
-    private final SqlJetMapTableDef mapTableDef;
-    /**
-     * 
-     */
-    private boolean writable;
-
-    /**
-     * 
-     */
-    private ISqlJetBtreeTable btreeTable;
 
     /**
      * @param mapDb
      * @param btree
      * @param mapTableDef
      * @param writable
+     * 
+     * @throws SqlJetException
      */
     public SqlJetMapTableCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapTableDef mapTableDef,
-            boolean writable) {
-        this.mapDb = mapDb;
-        this.btree = btree;
-        this.mapTableDef = mapTableDef;
-        this.writable = writable;
-    }
-
-    /**
-     * @return
-     * @throws SqlJetException
-     */
-    protected synchronized ISqlJetBtreeTable getBtreeTable() throws SqlJetException {
-        if (btreeTable == null) {
-            final int page = mapTableDef.getVirtualTableDef().getPage();
-            btreeTable = new SqlJetBtreeTable(btree, page, writable, false);
-        }
-        return btreeTable;
-    }
-
-    /**
-     * @throws SqlJetException
-     */
-    public synchronized void close() throws SqlJetException {
-        if (btreeTable != null) {
-            btreeTable.close();
-            btreeTable = null;
+            boolean writable) throws SqlJetException {
+        super(btree, mapTableDef.getVirtualTableDef().getPage(), writable, false);
+        if (mapDb.isInTransaction()) {
+            this.mapDb = mapDb;
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Cursor requires active transaction");
         }
     }
 
@@ -104,7 +62,7 @@ public class SqlJetMapTableCursor implements ISqlJetMapTableCursor {
      * @throws SqlJetException
      */
     public long getKey() throws SqlJetException {
-        return getBtreeTable().getKeySize();
+        return getKeySize();
     }
 
     /**
@@ -112,7 +70,7 @@ public class SqlJetMapTableCursor implements ISqlJetMapTableCursor {
      * @throws SqlJetException
      */
     public Object[] getValue() throws SqlJetException {
-        return getBtreeTable().getValues();
+        return getValues();
     }
 
     /**
@@ -122,12 +80,12 @@ public class SqlJetMapTableCursor implements ISqlJetMapTableCursor {
      */
     public boolean goToKey(long key) throws SqlJetException {
         if (key > 0) {
-            final int moveTo = getBtreeTable().moveTo(null, key, false);
-            if (moveTo < 0 && !getBtreeTable().next()) {
+            final int moveTo = moveTo(null, key, false);
+            if (moveTo < 0 && !next()) {
                 return false;
             }
             if (moveTo != 0) {
-                if (key != getBtreeTable().getKeySize()) {
+                if (key != getKeySize()) {
                     return false;
                 }
             }
@@ -148,12 +106,12 @@ public class SqlJetMapTableCursor implements ISqlJetMapTableCursor {
             final SqlJetEncoding encoding = mapDb.getOptions().getEncoding();
             ISqlJetBtreeRecord record = SqlJetBtreeRecord.getRecord(encoding, values);
             final ISqlJetMemoryPointer pData = record.getRawRecord();
-            key = key > 0 ? key : getBtreeTable().newRowId();
-            getBtreeTable().insert(null, key, pData, pData.remaining(), 0, true);
+            key = key > 0 ? key : newRowId();
+            insert(null, key, pData, pData.remaining(), 0, true);
             return key;
         } else {
             if (goToKey(key)) {
-                getBtreeTable().delete();
+                delete();
                 return key;
             } else {
                 return 0;

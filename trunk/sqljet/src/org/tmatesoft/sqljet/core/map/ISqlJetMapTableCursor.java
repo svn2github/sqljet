@@ -24,7 +24,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetMapTableCursor {
+public interface ISqlJetMapTableCursor extends ISqlJetMapIterator {
 
     /**
      * @throws SqlJetException

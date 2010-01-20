@@ -17,6 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.map;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.map.ISqlJetMapCursor;
@@ -44,12 +45,17 @@ public class SqlJetMapCursor implements ISqlJetMapCursor {
      * @param btree
      * @param mapTableDef
      * @param writable
+     * @throws SqlJetException 
      */
-    public SqlJetMapCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapTableDef mapTableDef, boolean writable) {
-        this.mapDb = mapDb;
-        this.btree = btree;
-        this.mapTableDef = mapTableDef;
-        this.writable = writable;
+    public SqlJetMapCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapTableDef mapTableDef, boolean writable) throws SqlJetException {
+        if (mapDb.isInTransaction()) {
+            this.mapDb = mapDb;
+            this.btree = btree;
+            this.mapTableDef = mapTableDef;
+            this.writable = writable;
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Cursor requires active transaction");
+        }
     }
 
     /**
@@ -122,6 +128,51 @@ public class SqlJetMapCursor implements ISqlJetMapCursor {
      */
     public void put(Object[] key, Object[] value) throws SqlJetException {
         getMapIndex().put(key, getMapTable().put(0, value));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapIterator#eof()
+     */
+    public boolean eof() throws SqlJetException {
+        return getMapIndex().eof();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapIterator#first()
+     */
+    public boolean first() throws SqlJetException {
+        return getMapIndex().first();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapIterator#last()
+     */
+    public boolean last() throws SqlJetException {
+        return getMapIndex().last();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapIterator#next()
+     */
+    public boolean next() throws SqlJetException {
+        return getMapIndex().next();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapIterator#previous()
+     */
+    public boolean previous() throws SqlJetException {
+        return getMapIndex().previous();
     }
 
 }

@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.map;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
@@ -52,8 +53,11 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
     public SqlJetMapIndexCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, ISqlJetIndexDef indexDef, boolean writable)
             throws SqlJetException {
         super(btree, indexDef.getPage(), writable, true);
-        this.mapDb = mapDb;
-        this.btree = btree;
+        if (mapDb.isInTransaction()) {
+            this.mapDb = mapDb;
+        } else {
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Cursor requires active transaction");
+        }
     }
 
     /**
@@ -78,7 +82,7 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
     public Long getValue() throws SqlJetException {
         final Object[] values = getValues();
         if (values != null && values.length > 1) {
-            final Object value = values[values.length-1];
+            final Object value = values[values.length - 1];
             if (value != null && value instanceof Long) {
                 return (Long) value;
             }

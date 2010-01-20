@@ -1,5 +1,5 @@
 /**
- * ISqlJetMapTableCursor.java
+ * ISqlJetMapIterator.java
  * Copyright (C) 2009-2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -24,39 +24,48 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetMapIndexCursor extends ISqlJetMapIterator {
+public interface ISqlJetMapIterator {
 
     /**
-     * @throws SqlJetException
-     */
-    void close() throws SqlJetException;
-
-    /**
-     * @return current key.
-     * @throws SqlJetException
-     */
-    Object[] getKey() throws SqlJetException;
-
-    /**
-     * @return current date.
-     * @throws SqlJetException
-     */
-    Long getValue() throws SqlJetException;
-
-    /**
-     * @param key
-     * @return true if cursor was set to the key specified.
+     * Tests whether this cursor is positioned behind the last record.
      * 
+     * @return true if the cursor is not on a record and fields can't be read.
      * @throws SqlJetException
      */
-    boolean goToKey(Object[] key) throws SqlJetException;
+    boolean eof() throws SqlJetException;
 
     /**
-     * @param key
-     * @param values
-     * @return data entry id.
+     * Goes to the first record.
+     * 
+     * @return true if there is at least one record.
      * @throws SqlJetException
      */
-    void put(Object[] key, Long value) throws SqlJetException;
+    boolean first() throws SqlJetException;
+
+    /**
+     * Goes to the last record.
+     * 
+     * @return true if there is at least one record.
+     * @throws SqlJetException
+     */
+    boolean last() throws SqlJetException;
+
+    /**
+     * Goes to the next record.
+     * 
+     * @return true if there is at least one record and end of cursor is not
+     *         reached yet
+     * @throws SqlJetException
+     */
+    boolean next() throws SqlJetException;
+
+    /**
+     * Goes to the previous record.
+     * 
+     * @return true if there is at least one record and begin of cursor is not
+     *         reached yet
+     * @throws SqlJetException
+     */
+    boolean previous() throws SqlJetException;
 
 }

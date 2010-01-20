@@ -157,4 +157,48 @@ public class SqlJetMapTest {
 
     }
 
+    @Test
+    public void testMapCursor() throws SqlJetException {
+
+        final SqlJetMapDb dbm = SqlJetMapDb.open(file, true);
+
+        try {
+
+            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
+            Assert.assertNotNull(map);
+
+            final Object[] hello = new Object[] { "Hello world!" };
+            final Object[] bye = new Object[] { "Good bye!" };
+
+            dbm.runWriteTransaction(new ISqlJetMapTransaction() {
+                public Object run(SqlJetMapDb mapDb) throws SqlJetException {
+                    map.put(hello, bye);
+                    map.put(bye, hello);
+                    return null;
+                }
+            });
+
+            dbm.runReadTransaction(new ISqlJetMapTransaction() {
+                public Object run(SqlJetMapDb mapDb) throws SqlJetException {
+                    final ISqlJetMapCursor cursor = map.getCursor();
+                    try {
+                        for (cursor.first(); !cursor.eof(); cursor.next()) {
+                            final Object[] key = cursor.getKey();
+                            final Object[] value = cursor.getValue();
+                            Assert.assertNotNull(key);
+                            Assert.assertNotNull(value);
+                        }
+                    } finally {
+                        cursor.close();
+                    }
+                    return null;
+                }
+            });
+
+        } finally {
+            dbm.close();
+        }
+
+    }
+
 }

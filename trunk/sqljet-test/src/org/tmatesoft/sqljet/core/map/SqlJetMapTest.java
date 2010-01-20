@@ -54,19 +54,21 @@ public class SqlJetMapTest {
     }
 
     @Test
-    public void testMap() throws SqlJetException {
+    public void testMapTable() throws SqlJetException {
 
         final SqlJetMapDb dbm = SqlJetMapDb.open(file, true);
 
         try {
 
-            final ISqlJetMapTable map = dbm.getMapTable(dbm.createMapTable("map1").getMapTableName());
+            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
             Assert.assertNotNull(map);
+            final ISqlJetMapTable mapTable = map.getMapTable();
+            Assert.assertNotNull(mapTable);
 
             final String hello = "Hello world!";
             final String bye = "Good bye!";
 
-            final Long[] keys = new Long[] { map.put(0, hello), map.put(0, bye) };
+            final Long[] keys = new Long[] { mapTable.put(0, hello), mapTable.put(0, bye) };
 
             Assert.assertNotNull(keys);
             Assert.assertTrue(keys.length == 2);
@@ -76,7 +78,7 @@ public class SqlJetMapTest {
             Assert.assertNotNull(keys[1] > 0);
 
             try {
-                final Object[] value = map.get(keys[0]);
+                final Object[] value = mapTable.get(keys[0]);
                 Assert.assertNotNull(value);
                 Assert.assertTrue(value.length > 0);
                 Assert.assertNotNull(value[0]);
@@ -86,7 +88,7 @@ public class SqlJetMapTest {
             }
 
             try {
-                final Object[] value = map.get(keys[1]);
+                final Object[] value = mapTable.get(keys[1]);
                 Assert.assertNotNull(value);
                 Assert.assertTrue(value.length > 0);
                 Assert.assertNotNull(value[0]);
@@ -95,11 +97,11 @@ public class SqlJetMapTest {
 
             }
 
-            map.put(keys[0], bye);
-            map.put(keys[1], hello);
+            mapTable.put(keys[0], bye);
+            mapTable.put(keys[1], hello);
 
             try {
-                final Object[] value = map.get(keys[0]);
+                final Object[] value = mapTable.get(keys[0]);
                 Assert.assertNotNull(value);
                 Assert.assertTrue(value.length > 0);
                 Assert.assertNotNull(value[0]);
@@ -110,7 +112,7 @@ public class SqlJetMapTest {
             }
 
             try {
-                final Object[] value = map.get(keys[1]);
+                final Object[] value = mapTable.get(keys[1]);
                 Assert.assertNotNull(value);
                 Assert.assertTrue(value.length > 0);
                 Assert.assertNotNull(value[0]);
@@ -124,4 +126,35 @@ public class SqlJetMapTest {
         }
 
     }
+
+    @Test
+    public void testMap() throws SqlJetException {
+
+        final SqlJetMapDb dbm = SqlJetMapDb.open(file, true);
+
+        try {
+
+            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
+            Assert.assertNotNull(map);
+
+            final Object[] hello = new Object[] { "Hello world!" };
+            final Object[] bye = new Object[] { "Good bye!" };
+
+            map.put(hello, bye);
+            map.put(bye, hello);
+
+            final Object[] bye1 = map.get(hello);
+            final Object[] hello1 = map.get(bye);
+
+            Assert.assertNotNull(hello1);
+            Assert.assertArrayEquals(hello, hello1);
+            Assert.assertNotNull(bye1);
+            Assert.assertArrayEquals(bye, bye);
+
+        } finally {
+            dbm.close();
+        }
+
+    }
+
 }

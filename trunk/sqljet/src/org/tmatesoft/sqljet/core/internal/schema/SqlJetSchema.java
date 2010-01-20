@@ -290,21 +290,21 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
-        
+
         bindIndexes();
-        
+
     }
 
     /**
      * 
      */
     private void bindIndexes() {
-        for(ISqlJetIndexDef indexDef: indexDefs.values()) {
-            if(indexDef instanceof SqlJetIndexDef) {
+        for (ISqlJetIndexDef indexDef : indexDefs.values()) {
+            if (indexDef instanceof SqlJetIndexDef) {
                 SqlJetIndexDef i = (SqlJetIndexDef) indexDef;
                 final String tableName = i.getTableName();
                 final ISqlJetTableDef tableDef = tableDefs.get(tableName);
-                if(tableDef!=null){
+                if (tableDef != null) {
                     i.bindColumns(tableDef);
                 }
             }
@@ -568,12 +568,13 @@ public class SqlJetSchema implements ISqlJetSchema {
      * 
      * @throws SqlJetException
      */
-    private void createAutoIndex(ISqlJetBtreeSchemaTable schemaTable, String tableName, String autoIndexName)
+    private ISqlJetIndexDef createAutoIndex(ISqlJetBtreeSchemaTable schemaTable, String tableName, String autoIndexName)
             throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
         final SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(autoIndexName, tableName, page);
         indexDef.setRowId(schemaTable.insertRecord(INDEX_TYPE, autoIndexName, tableName, page, null));
         indexDefs.put(autoIndexName, indexDef);
+        return indexDef;
     }
 
     public ISqlJetIndexDef createIndex(String sql) throws SqlJetException {
@@ -1279,4 +1280,65 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
         return false;
     }
+
+    public ISqlJetIndexDef createIndexForVirtualTable(final String virtualTableName, final String indexName)
+            throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return createIndexForVirtualTableSafe(virtualTableName, indexName);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+    /**
+     * @param virtualTableName
+     * @param indexName
+     * @return
+     * @throws SqlJetException 
+     */
+    private ISqlJetIndexDef createIndexForVirtualTableSafe(String virtualTableName, String indexName) throws SqlJetException {
+
+        if (null == virtualTableName || "".equals(virtualTableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        if (null == indexName || "".equals(indexName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        checkNameReserved(indexName);
+
+        if (indexDefs.containsKey(indexName)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
+        }
+
+        checkNameConflict(SqlJetSchemaObjectType.INDEX, indexName);
+
+        final ISqlJetVirtualTableDef tableDef = getVirtualTable(virtualTableName);
+        if (null == tableDef)
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getOptions().changeSchemaVersion();
+                
+                final ISqlJetIndexDef indexDef = createAutoIndex(schemaTable, tableDef.getTableName(), indexName);
+
+                indexDefs.put(indexName, indexDef);
+
+                return indexDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+    }
+
 }

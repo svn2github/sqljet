@@ -1,5 +1,5 @@
 /**
- * ISqlJetMapTableDef.java
+ * ISqlJetMapTable.java
  * Copyright (C) 2009-2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,29 +17,35 @@
  */
 package org.tmatesoft.sqljet.core.map;
 
-import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
-public interface ISqlJetMapTableDef {
+public interface ISqlJetMapIndex {
 
     /**
-     * @return the mapName
+     * @param key
+     * @param values
+     * @return data entry id
+     * @throws SqlJetException
      */
-    String getMapTableName();
+    void put(Object[] key, Long value) throws SqlJetException;
 
     /**
-     * @return the virtualTableDef
+     * @param key
+     * @return data stored with the key specified
+     * @throws SqlJetException
      */
-    ISqlJetVirtualTableDef getVirtualTableDef();
+    Long get(Object[] key) throws SqlJetException;
 
     /**
-     * @return
+     * @return cursor instance
+     *  
+     * @throws SqlJetException
      */
-    ISqlJetIndexDef getIndexDef();
+    ISqlJetMapIndexCursor getCursor() throws SqlJetException;
 
 }

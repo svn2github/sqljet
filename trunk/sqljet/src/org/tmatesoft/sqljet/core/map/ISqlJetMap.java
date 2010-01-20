@@ -1,5 +1,5 @@
 /**
- * ISqlJetMapTableDef.java
+ * ISqlJetMapTable.java
  * Copyright (C) 2009-2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,29 +17,47 @@
  */
 package org.tmatesoft.sqljet.core.map;
 
-import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
-public interface ISqlJetMapTableDef {
+public interface ISqlJetMap {
 
     /**
-     * @return the mapName
+     * @param key
+     * @param values
+     * 
+     * @throws SqlJetException
      */
-    String getMapTableName();
+    void put(Object[] key, Object[] value) throws SqlJetException;
 
     /**
-     * @return the virtualTableDef
+     * @param key
+     * @return data stored with the key specified
+     * @throws SqlJetException
      */
-    ISqlJetVirtualTableDef getVirtualTableDef();
+    Object[] get(Object[] key) throws SqlJetException;
+
+    /**
+     * @return cursor instance
+     *  
+     * @throws SqlJetException
+     */
+    ISqlJetMapCursor getCursor() throws SqlJetException;
 
     /**
      * @return
+     * @throws SqlJetException
      */
-    ISqlJetIndexDef getIndexDef();
+    ISqlJetMapTable getMapTable() throws SqlJetException;
+
+    /**
+     * @return
+     * @throws SqlJetException
+     */
+    ISqlJetMapIndex getMapIndex() throws SqlJetException;
 
 }

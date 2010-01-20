@@ -18,6 +18,7 @@
 package org.tmatesoft.sqljet.core.internal.map;
 
 import org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
 /**
@@ -29,26 +30,41 @@ public class SqlJetMapTableDef implements ISqlJetMapTableDef {
 
     private final String mapTableName;
     private final ISqlJetVirtualTableDef virtualTableDef;
+    private final ISqlJetIndexDef indexDef;
 
     /**
      * 
      */
-    public SqlJetMapTableDef(final String mapTableName, final ISqlJetVirtualTableDef virtualTableDef) {
+    public SqlJetMapTableDef(final String mapTableName, final ISqlJetVirtualTableDef virtualTableDef,
+            final ISqlJetIndexDef indexDef) {
         this.mapTableName = mapTableName;
         this.virtualTableDef = virtualTableDef;
+        this.indexDef = indexDef;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef#getMapTableName()
      */
     public String getMapTableName() {
         return mapTableName;
     }
 
-    /* (non-Javadoc)
-     * @see org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef#getVirtualTableDef()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef#getVirtualTableDef()
      */
     public ISqlJetVirtualTableDef getVirtualTableDef() {
         return virtualTableDef;
+    }
+
+    /**
+     * @return the indexes
+     */
+    public ISqlJetIndexDef getIndexDef() {
+        return indexDef;
     }
 }

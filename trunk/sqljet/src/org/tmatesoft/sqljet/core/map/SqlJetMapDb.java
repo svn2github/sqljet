@@ -23,12 +23,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
-import org.tmatesoft.sqljet.core.internal.map.SqlJetMapTable;
+import org.tmatesoft.sqljet.core.internal.map.SqlJetMap;
 import org.tmatesoft.sqljet.core.internal.map.SqlJetMapTableDef;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
 import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineTransaction;
@@ -67,8 +69,10 @@ public class SqlJetMapDb extends SqlJetEngine {
     private volatile Map<String, SqlJetMapTableDef> mapTableDefs;
 
     /**
-     * @param file database file.
-     * @param writable true if caller needs write access to the database.
+     * @param file
+     *            database file.
+     * @param writable
+     *            true if caller needs write access to the database.
      */
     public SqlJetMapDb(File file, boolean writable) {
         super(file, writable);
@@ -81,8 +85,10 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mode mode in which to run transaction.
-     * @param transaction transaction to run.
+     * @param mode
+     *            mode in which to run transaction.
+     * @param transaction
+     *            transaction to run.
      * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runTransaction(final SqlJetTransactionMode mode, final ISqlJetMapTransaction transaction)
@@ -96,7 +102,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param transaction to run.
+     * @param transaction
+     *            to run.
      * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runWriteTransaction(final ISqlJetMapTransaction transaction) throws SqlJetException {
@@ -104,7 +111,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param transaction transaction to run.
+     * @param transaction
+     *            transaction to run.
      * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runReadTransaction(final ISqlJetMapTransaction transaction) throws SqlJetException {
@@ -112,7 +120,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param transaction transaction to run.
+     * @param transaction
+     *            transaction to run.
      * @return result of {@link ISqlJetMapTransaction#run(SqlJetMapDb)} call.
      */
     public Object runSynchronized(final ISqlJetMapTransaction transaction) throws SqlJetException {
@@ -160,8 +169,14 @@ public class SqlJetMapDb extends SqlJetEngine {
             for (final String name : names) {
                 final ISqlJetVirtualTableDef vtable = schema.getVirtualTable(name);
                 if (MODULE_NAME.equalsIgnoreCase(vtable.getModuleName())) {
-                    final SqlJetMapTableDef mapTableDef = new SqlJetMapTableDef(name, vtable);
-                    getMapTableDefs().put(name, mapTableDef);
+                    final ISqlJetIndexDef indexDef = schema.getIndex(getMapIndexName(name));
+                    if (indexDef != null) {
+                        final SqlJetMapTableDef mapTableDef = new SqlJetMapTableDef(name, vtable, indexDef);
+                        getMapTableDefs().put(name, mapTableDef);
+                    } else {
+                        throw new SqlJetException(SqlJetErrorCode.CORRUPT, 
+                                String.format("Map '%s' does not have index",name));
+                    }
                 }
             }
         }
@@ -182,7 +197,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mapTableName name of the map to get definition for.
+     * @param mapTableName
+     *            name of the map to get definition for.
      * @return definition of the map with the specified name.
      */
     public ISqlJetMapTableDef getMapTableDef(final String mapTableName) throws SqlJetException {
@@ -194,7 +210,8 @@ public class SqlJetMapDb extends SqlJetEngine {
     }
 
     /**
-     * @param mapTableName name of the map to created.
+     * @param mapTableName
+     *            name of the map to created.
      * @return map that has been created.
      */
     public ISqlJetMapTableDef createMapTable(final String mapTableName) throws SqlJetException {
@@ -204,28 +221,41 @@ public class SqlJetMapDb extends SqlJetEngine {
             return (ISqlJetMapTableDef) runWriteTransaction(new ISqlJetMapTransaction() {
                 public Object run(SqlJetMapDb mapDb) throws SqlJetException {
                     final int page = btree.createTable(SqlJetSchema.BTREE_CREATE_TABLE_FLAGS);
+                    final SqlJetSchema schema = getSchemaInternal();
                     final String create = String.format("create virtual table %s using %s", mapTableName, MODULE_NAME);
-                    final ISqlJetVirtualTableDef vtable = getSchemaInternal().createVirtualTable(create, page);
-                    final SqlJetMapTableDef mapTableDef = new SqlJetMapTableDef(mapTableName, vtable);
+                    final ISqlJetVirtualTableDef vtable = schema.createVirtualTable(create, page);
+                    final String indexName = getMapIndexName(mapTableName);
+                    final ISqlJetIndexDef indexDef = schema.createIndexForVirtualTable(mapTableName, indexName);
+                    final SqlJetMapTableDef mapTableDef = new SqlJetMapTableDef(mapTableName, vtable, indexDef);
                     getMapTableDefs().put(mapTableName, mapTableDef);
                     return mapTableDef;
                 }
+
             });
         }
     }
 
     /**
-     * @param mapTableName name of the map to get.
+     * @param mapTableName
+     * @return
+     */
+    private String getMapIndexName(final String mapTableName) {
+        return String.format("%s_%s_%d", MODULE_NAME, mapTableName, 1);
+    }
+
+    /**
+     * @param mapTableName
+     *            name of the map to get.
      * @return map table with the name specified.
      */
-    public ISqlJetMapTable getMapTable(final String mapTableName) throws SqlJetException {
+    public ISqlJetMap getMap(final String mapTableName) throws SqlJetException {
         checkOpen();
-        return (SqlJetMapTable) runSynchronized(new ISqlJetMapTransaction() {
+        return (ISqlJetMap) runSynchronized(new ISqlJetMapTransaction() {
             public Object run(SqlJetMapDb mapDb) throws SqlJetException {
                 refreshSchema();
                 final SqlJetMapTableDef mapTableDef = getMapTableDefs().get(mapTableName);
                 if (mapTableDef != null) {
-                    return new SqlJetMapTable(mapDb, btree, mapTableDef, writable);
+                    return new SqlJetMap(mapDb, btree, mapTableDef, writable);
                 } else {
                     throw new SqlJetException(String.format(MAP_TABLE_DOES_NOT_EXIST, mapTableName));
                 }

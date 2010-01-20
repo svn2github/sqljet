@@ -1,5 +1,5 @@
 /**
- * ISqlJetMapTableDef.java
+ * ISqlJetMapTableCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -17,29 +17,46 @@
  */
 package org.tmatesoft.sqljet.core.map;
 
-import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
-import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
+import org.tmatesoft.sqljet.core.SqlJetException;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetMapTableDef {
+public interface ISqlJetMapIndexCursor {
 
     /**
-     * @return the mapName
+     * @throws SqlJetException
      */
-    String getMapTableName();
+    void close() throws SqlJetException;
 
     /**
-     * @return the virtualTableDef
+     * @return current key.
+     * @throws SqlJetException
      */
-    ISqlJetVirtualTableDef getVirtualTableDef();
+    Object[] getKey() throws SqlJetException;
 
     /**
-     * @return
+     * @return current date.
+     * @throws SqlJetException
      */
-    ISqlJetIndexDef getIndexDef();
+    Long getValue() throws SqlJetException;
+
+    /**
+     * @param key
+     * @return true if cursor was set to the key specified.
+     * 
+     * @throws SqlJetException
+     */
+    boolean goToKey(Object[] key) throws SqlJetException;
+
+    /**
+     * @param key
+     * @param values
+     * @return data entry id.
+     * @throws SqlJetException
+     */
+    void put(Object[] key, Long value) throws SqlJetException;
 
 }

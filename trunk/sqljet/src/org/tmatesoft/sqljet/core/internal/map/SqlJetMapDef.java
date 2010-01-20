@@ -17,7 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.internal.map;
 
-import org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef;
+import org.tmatesoft.sqljet.core.map.ISqlJetMapDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
@@ -26,18 +26,18 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public class SqlJetMapTableDef implements ISqlJetMapTableDef {
+public class SqlJetMapDef implements ISqlJetMapDef {
 
-    private final String mapTableName;
+    private final String mapName;
     private final ISqlJetVirtualTableDef virtualTableDef;
     private final ISqlJetIndexDef indexDef;
 
     /**
      * 
      */
-    public SqlJetMapTableDef(final String mapTableName, final ISqlJetVirtualTableDef virtualTableDef,
+    public SqlJetMapDef(final String mapName, final ISqlJetVirtualTableDef virtualTableDef,
             final ISqlJetIndexDef indexDef) {
-        this.mapTableName = mapTableName;
+        this.mapName = mapName;
         this.virtualTableDef = virtualTableDef;
         this.indexDef = indexDef;
     }
@@ -47,8 +47,8 @@ public class SqlJetMapTableDef implements ISqlJetMapTableDef {
      * 
      * @see org.tmatesoft.sqljet.core.map.ISqlJetMapTableDef#getMapTableName()
      */
-    public String getMapTableName() {
-        return mapTableName;
+    public String getMapName() {
+        return mapName;
     }
 
     /*

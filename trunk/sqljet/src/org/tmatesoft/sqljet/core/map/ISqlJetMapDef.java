@@ -25,12 +25,12 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public interface ISqlJetMapTableDef {
+public interface ISqlJetMapDef {
 
     /**
      * @return the mapName
      */
-    String getMapTableName();
+    String getMapName();
 
     /**
      * @return the virtualTableDef

@@ -38,7 +38,7 @@ public class SqlJetMap implements ISqlJetMap {
 
     private final SqlJetMapDb mapDb;
     private final ISqlJetBtree btree;
-    private final SqlJetMapTableDef mapTableDef;
+    private final SqlJetMapDef mapDef;
     private boolean writable;
     private ISqlJetMapTable mapTable;
     private ISqlJetMapIndex mapIndex;
@@ -46,14 +46,14 @@ public class SqlJetMap implements ISqlJetMap {
     /**
      * @param mapDb
      * @param btree
-     * @param mapTableDef
+     * @param mapDef
      * @param writable
      */
-    public SqlJetMap(final SqlJetMapDb mapDb, final ISqlJetBtree btree, final SqlJetMapTableDef mapTableDef,
+    public SqlJetMap(final SqlJetMapDb mapDb, final ISqlJetBtree btree, final SqlJetMapDef mapDef,
             boolean writable) {
         this.mapDb = mapDb;
         this.btree = btree;
-        this.mapTableDef = mapTableDef;
+        this.mapDef = mapDef;
         this.writable = writable;
     }
 
@@ -65,7 +65,7 @@ public class SqlJetMap implements ISqlJetMap {
     public ISqlJetMapCursor getCursor() throws SqlJetException {
         return (ISqlJetMapCursor) mapDb.runSynchronized(new ISqlJetEngineSynchronized() {
             public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                return new SqlJetMapCursor(mapDb, btree, mapTableDef, writable);
+                return new SqlJetMapCursor(mapDb, btree, mapDef, writable);
             }
         });
     }
@@ -118,14 +118,14 @@ public class SqlJetMap implements ISqlJetMap {
      */
     public synchronized ISqlJetMapTable getMapTable() throws SqlJetException {
         if (mapTable == null) {
-            mapTable = new SqlJetMapTable(mapDb, btree, mapTableDef, writable);
+            mapTable = new SqlJetMapTable(mapDb, btree, mapDef, writable);
         }
         return mapTable;
     }
 
     public synchronized ISqlJetMapIndex getMapIndex() throws SqlJetException {
         if (mapIndex == null) {
-            final ISqlJetIndexDef indexDef = mapTableDef.getIndexDef();
+            final ISqlJetIndexDef indexDef = mapDef.getIndexDef();
             mapIndex = new SqlJetMapIndex(mapDb, btree, indexDef, writable);
         }
         return mapIndex;

@@ -35,7 +35,7 @@ public class SqlJetMapCursor implements ISqlJetMapCursor {
 
     private final SqlJetMapDb mapDb;
     private final ISqlJetBtree btree;
-    private final SqlJetMapTableDef mapTableDef;
+    private final SqlJetMapDef mapDef;
     private boolean writable;
     private ISqlJetMapTableCursor mapTable;
     private ISqlJetMapIndexCursor mapIndex;
@@ -43,15 +43,15 @@ public class SqlJetMapCursor implements ISqlJetMapCursor {
     /**
      * @param mapDb
      * @param btree
-     * @param mapTableDef
+     * @param mapDef
      * @param writable
      * @throws SqlJetException 
      */
-    public SqlJetMapCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapTableDef mapTableDef, boolean writable) throws SqlJetException {
+    public SqlJetMapCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapDef mapDef, boolean writable) throws SqlJetException {
         if (mapDb.isInTransaction()) {
             this.mapDb = mapDb;
             this.btree = btree;
-            this.mapTableDef = mapTableDef;
+            this.mapDef = mapDef;
             this.writable = writable;
         } else {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Cursor requires active transaction");
@@ -64,14 +64,14 @@ public class SqlJetMapCursor implements ISqlJetMapCursor {
      */
     public synchronized ISqlJetMapTableCursor getMapTable() throws SqlJetException {
         if (mapTable == null) {
-            mapTable = new SqlJetMapTableCursor(mapDb, btree, mapTableDef, writable);
+            mapTable = new SqlJetMapTableCursor(mapDb, btree, mapDef, writable);
         }
         return mapTable;
     }
 
     public synchronized ISqlJetMapIndexCursor getMapIndex() throws SqlJetException {
         if (mapIndex == null) {
-            final ISqlJetIndexDef indexDef = mapTableDef.getIndexDef();
+            final ISqlJetIndexDef indexDef = mapDef.getIndexDef();
             mapIndex = new SqlJetMapIndexCursor(mapDb, btree, indexDef, writable);
         }
         return mapIndex;

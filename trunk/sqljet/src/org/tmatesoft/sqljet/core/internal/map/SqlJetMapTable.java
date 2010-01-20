@@ -23,6 +23,8 @@ import org.tmatesoft.sqljet.core.map.ISqlJetMapTable;
 import org.tmatesoft.sqljet.core.map.ISqlJetMapTableCursor;
 import org.tmatesoft.sqljet.core.map.ISqlJetMapTransaction;
 import org.tmatesoft.sqljet.core.map.SqlJetMapDb;
+import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
+import org.tmatesoft.sqljet.core.table.engine.SqlJetEngine;
 
 /**
  * @author TMate Software Ltd.
@@ -31,37 +33,21 @@ import org.tmatesoft.sqljet.core.map.SqlJetMapDb;
  */
 public class SqlJetMapTable implements ISqlJetMapTable {
 
-    /**
-     * 
-     */
     private final SqlJetMapDb mapDb;
-
-    /**
-     * 
-     */
     private final ISqlJetBtree btree;
-
-    /**
-     * 
-     */
-    private final SqlJetMapTableDef mapTableDef;
-
-    /**
-     * 
-     */
+    private final SqlJetMapDef mapDef;
     private boolean writable;
 
     /**
      * @param mapDb
      * @param btree
-     * @param mapTableDef
+     * @param mapDef
      * @param writable
      */
-    public SqlJetMapTable(final SqlJetMapDb mapDb, final ISqlJetBtree btree, final SqlJetMapTableDef mapTableDef,
-            boolean writable) {
+    public SqlJetMapTable(final SqlJetMapDb mapDb, final ISqlJetBtree btree, final SqlJetMapDef mapDef, boolean writable) {
         this.mapDb = mapDb;
         this.btree = btree;
-        this.mapTableDef = mapTableDef;
+        this.mapDef = mapDef;
         this.writable = writable;
     }
 
@@ -71,7 +57,11 @@ public class SqlJetMapTable implements ISqlJetMapTable {
      * @see org.tmatesoft.sqljet.core.map.ISqlJetMapTable#open()
      */
     public ISqlJetMapTableCursor getCursor() throws SqlJetException {
-        return new SqlJetMapTableCursor(mapDb, btree, mapTableDef, writable);
+        return (ISqlJetMapTableCursor) mapDb.runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
+                return new SqlJetMapTableCursor(mapDb, btree, mapDef, writable);
+            }
+        });
     }
 
     /*

@@ -60,7 +60,7 @@ public class SqlJetMapTest {
 
         try {
 
-            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
+            final ISqlJetMap map = dbm.getMap(dbm.createMap("map1").getMapName());
             Assert.assertNotNull(map);
             final ISqlJetMapTable mapTable = map.getMapTable();
             Assert.assertNotNull(mapTable);
@@ -134,7 +134,7 @@ public class SqlJetMapTest {
 
         try {
 
-            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
+            final ISqlJetMap map = dbm.getMap(dbm.createMap("map1").getMapName());
             Assert.assertNotNull(map);
 
             final Object[] hello = new Object[] { "Hello world!" };
@@ -164,7 +164,7 @@ public class SqlJetMapTest {
 
         try {
 
-            final ISqlJetMap map = dbm.getMap(dbm.createMapTable("map1").getMapTableName());
+            final ISqlJetMap map = dbm.getMap(dbm.createMap("map1").getMapName());
             Assert.assertNotNull(map);
 
             final Object[] hello = new Object[] { "Hello world!" };

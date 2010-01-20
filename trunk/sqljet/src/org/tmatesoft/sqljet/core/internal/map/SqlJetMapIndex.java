@@ -24,6 +24,8 @@ import org.tmatesoft.sqljet.core.map.ISqlJetMapIndexCursor;
 import org.tmatesoft.sqljet.core.map.ISqlJetMapTransaction;
 import org.tmatesoft.sqljet.core.map.SqlJetMapDb;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
+import org.tmatesoft.sqljet.core.table.engine.SqlJetEngine;
 
 /**
  * @author TMate Software Ltd.
@@ -56,7 +58,11 @@ public class SqlJetMapIndex implements ISqlJetMapIndex {
      * @see org.tmatesoft.sqljet.core.map.ISqlJetMapTable#open()
      */
     public ISqlJetMapIndexCursor getCursor() throws SqlJetException {
-        return new SqlJetMapIndexCursor(mapDb, btree, indexDef, writable);
+        return (ISqlJetMapIndexCursor) mapDb.runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
+                return new SqlJetMapIndexCursor(mapDb, btree, indexDef, writable);
+            }
+        });
     }
 
     /*

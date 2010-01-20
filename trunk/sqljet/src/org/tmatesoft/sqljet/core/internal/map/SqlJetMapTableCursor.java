@@ -42,14 +42,14 @@ public class SqlJetMapTableCursor extends SqlJetBtreeTable implements ISqlJetMap
     /**
      * @param mapDb
      * @param btree
-     * @param mapTableDef
+     * @param mapDef
      * @param writable
      * 
      * @throws SqlJetException
      */
-    public SqlJetMapTableCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapTableDef mapTableDef,
+    public SqlJetMapTableCursor(final SqlJetMapDb mapDb, ISqlJetBtree btree, SqlJetMapDef mapDef,
             boolean writable) throws SqlJetException {
-        super(btree, mapTableDef.getVirtualTableDef().getPage(), writable, false);
+        super(btree, mapDef.getVirtualTableDef().getPage(), writable, false);
         if (mapDb.isInTransaction()) {
             this.mapDb = mapDb;
         } else {

@@ -18,6 +18,8 @@
 package org.tmatesoft.sqljet.core.table.engine;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
@@ -48,13 +50,15 @@ public class SqlJetEngine {
 
     private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
-    private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
-    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
-            .of(SqlJetFileOpenPermission.READONLY);
-    private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READWRITE,
-            SqlJetBtreeFlags.CREATE);
-    private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = SqlJetUtility.of(
-            SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE);
+    private static final Set<SqlJetBtreeFlags> READ_FLAGS = Collections.unmodifiableSet(SqlJetUtility
+            .of(SqlJetBtreeFlags.READONLY));
+    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = Collections.unmodifiableSet(SqlJetUtility
+            .of(SqlJetFileOpenPermission.READONLY));
+    private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = Collections.unmodifiableSet(SqlJetUtility.of(
+            SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE));
+    private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = Collections.unmodifiableSet(SqlJetUtility
+            .of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
+
     protected final boolean writable;
     protected ISqlJetDbHandle dbHandle;
     protected ISqlJetBtree btree;
@@ -117,8 +121,9 @@ public class SqlJetEngine {
             dbHandle = new SqlJetDbHandle();
             dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
             btree = new SqlJetBtree();
-            final Set<SqlJetBtreeFlags> flags = (writable ? WRITE_FLAGS : READ_FLAGS);
-            final Set<SqlJetFileOpenPermission> permissions = (writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+            final Set<SqlJetBtreeFlags> flags = EnumSet.copyOf(writable ? WRITE_FLAGS : READ_FLAGS);
+            final Set<SqlJetFileOpenPermission> permissions = EnumSet.copyOf(writable ? WRITE_PREMISSIONS
+                    : READ_PERMISSIONS);
             final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
             btree.open(file, dbHandle, flags, type, permissions);
             open = true;
@@ -250,19 +255,19 @@ public class SqlJetEngine {
     /**
      * Retruns threading synchronization mutex.
      * 
-     * @return Semaphore instance used to synchronize database access from multiple threads within the same process. 
+     * @return Semaphore instance used to synchronize database access from
+     *         multiple threads within the same process.
      */
     public ISqlJetMutex getMutex() {
         return dbHandle.getMutex();
     }
 
-    
     /**
      * Set cache size (in count of pages).
      * 
      * @param cacheSize
      *            the count of pages which can hold cache.
-     */    
+     */
     public void setCacheSize(final int cacheSize) throws SqlJetException {
         checkOpen();
         runSynchronized(new ISqlJetEngineSynchronized() {
@@ -372,9 +377,13 @@ public class SqlJetEngine {
     /**
      * Runs transaction.
      * 
-     * @param op transaction's body (closure).
-     * @param mode transaction's mode.
-     * @return result of {@link ISqlJetTransaction#run(org.tmatesoft.sqljet.core.table.SqlJetDb)} call.
+     * @param op
+     *            transaction's body (closure).
+     * @param mode
+     *            transaction's mode.
+     * @return result of
+     *         {@link ISqlJetTransaction#run(org.tmatesoft.sqljet.core.table.SqlJetDb)}
+     *         call.
      * @throws SqlJetException
      */
     protected Object runEngineTransaction(final ISqlJetEngineTransaction op, final SqlJetTransactionMode mode)

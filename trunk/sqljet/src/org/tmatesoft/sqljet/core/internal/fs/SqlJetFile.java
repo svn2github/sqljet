@@ -23,6 +23,7 @@ import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -175,7 +176,7 @@ public class SqlJetFile implements ISqlJetFile {
         this.filePath = filePath;
         this.filePathResolved = filePath.getAbsolutePath();
         this.fileType = fileType;
-        this.permissions = permissions;
+        this.permissions = EnumSet.copyOf(permissions);
         this.noLock = noLock;
 
         this.fileLockManager = new SqlJetFileLockManager(this.filePathResolved, file.getChannel());

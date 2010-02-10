@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.security.SecureRandom;
+import java.util.EnumSet;
 import java.util.Set;
 
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -189,10 +190,11 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
 
             if (isReadWrite && !isExclusive) {
                 /* Failed to open the file for read/write access. Try read-only. */
-                permissions.remove(SqlJetFileOpenPermission.READWRITE);
-                permissions.remove(SqlJetFileOpenPermission.CREATE);
-                permissions.add(SqlJetFileOpenPermission.READONLY);
-                return open(filePath, type, permissions);
+                Set<SqlJetFileOpenPermission> ro = EnumSet.copyOf(permissions);
+                ro.remove(SqlJetFileOpenPermission.READWRITE);
+                ro.remove(SqlJetFileOpenPermission.CREATE);
+                ro.add(SqlJetFileOpenPermission.READONLY);
+                return open(filePath, type, ro);
             }
 
             throw new SqlJetException(SqlJetErrorCode.CANTOPEN);

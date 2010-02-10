@@ -19,6 +19,7 @@ package org.tmatesoft.sqljet.core.internal.pager;
 
 import java.io.File;
 import java.util.BitSet;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -367,7 +368,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
         this.fileSystem = fileSystem;
         this.type = type;
-        this.permissions = permissions;
+        this.permissions = EnumSet.copyOf(permissions);
 
         this.tempFile = false;
         this.memDb = false;

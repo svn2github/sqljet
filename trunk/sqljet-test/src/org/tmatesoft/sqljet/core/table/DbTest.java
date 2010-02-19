@@ -18,11 +18,16 @@
 package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
+import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 
@@ -144,6 +149,8 @@ public class DbTest extends AbstractNewDbTest {
     public void testInMemory() throws SqlJetException {
         final SqlJetDb dbMem = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
+            Assert.assertTrue(dbMem.isOpen());
+            Assert.assertTrue(dbMem.isWritable());
             testDb(dbMem);
         } finally {
             dbMem.close();
@@ -170,5 +177,51 @@ public class DbTest extends AbstractNewDbTest {
             db2.close();
         }
     }
+    
+    @Test 
+    public void testOpenRO() throws SqlJetException, FileNotFoundException, IOException {
+        Assert.assertTrue(db.isOpen());
+        Assert.assertTrue(db.isWritable());
+        // copy file and make it ro.
+        // TODO test fails when there is no schema in read only copy.
+        db.createTable("create table t(a integer primary key, b integer)");
+        db.close();
+        
+        File file2 = new File(file.getParentFile(), "readonly");
+        file2.deleteOnExit();        
+        AbstractDataCopyTest.copyFile(file, file2);
+        file2.setReadOnly();
+        
+        SqlJetDb db2 = new SqlJetDb(file2, true);
+        Assert.assertFalse(db2.isOpen());
+        db2.open();
+        Assert.assertTrue(db2.isOpen());
+        Assert.assertFalse(db2.isWritable());
+        try {
+            db2.beginTransaction(SqlJetTransactionMode.WRITE);
+            Assert.assertTrue("Readonly DB shouldn't allow WRITE transactions", false);
+        } catch (SqlJetException e) {
+            Assert.assertEquals(SqlJetErrorCode.READONLY, e.getErrorCode());
+        } finally {
+            // TODO
+            // probably db2.rollback() should work 
+            // and 'rollback' transaction that just have failed.
+        }
+        try {
+            db2.beginTransaction(SqlJetTransactionMode.EXCLUSIVE);
+            Assert.assertTrue("Readonly DB shouldn't allow EXCLUSIVE transactions", false);
+        } catch (SqlJetException e) {
+            Assert.assertEquals(SqlJetErrorCode.READONLY, e.getErrorCode());
+        } 
+        try {
+            db2.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        } catch (SqlJetException e) {
+            Assert.assertTrue(e.getMessage(), false);
+        } finally {
+            db2.rollback();
+        }
+        db2.close();
+    }
+    
 
 }

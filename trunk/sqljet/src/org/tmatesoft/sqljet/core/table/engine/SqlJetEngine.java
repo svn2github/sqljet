@@ -28,6 +28,8 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
@@ -59,7 +61,7 @@ public class SqlJetEngine {
     private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = Collections.unmodifiableSet(SqlJetUtility
             .of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
 
-    protected final boolean writable;
+    protected boolean writable;
     protected ISqlJetDbHandle dbHandle;
     protected ISqlJetBtree btree;
     protected boolean open = false;
@@ -126,6 +128,13 @@ public class SqlJetEngine {
                     : READ_PERMISSIONS);
             final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
             btree.open(file, dbHandle, flags, type, permissions);
+            
+            // force readonly.
+            ISqlJetFile file = btree.getPager().getFile();
+            if (file != null) {
+                Set<SqlJetFileOpenPermission> realPermissions = btree.getPager().getFile().getPermissions();
+                writable = realPermissions.contains(SqlJetFileOpenPermission.READWRITE);
+            }
             open = true;
         } else {
             throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database is open already");

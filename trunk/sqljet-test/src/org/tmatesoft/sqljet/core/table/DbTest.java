@@ -182,12 +182,11 @@ public class DbTest extends AbstractNewDbTest {
     public void testOpenRO() throws SqlJetException, FileNotFoundException, IOException {
         Assert.assertTrue(db.isOpen());
         Assert.assertTrue(db.isWritable());
-        // copy file and make it ro.
-        // TODO test fails when there is no schema in read only copy.
-        db.createTable("create table t(a integer primary key, b integer)");
         db.close();
 
-        File file2 = new File(file.getParentFile(), "readonly");
+        // copy file and make it ro.
+
+        File file2 = new File(file.getParentFile(), "readonly" + file.getName());
         file2.deleteOnExit();
         AbstractDataCopyTest.copyFile(file, file2);
         file2.setReadOnly();

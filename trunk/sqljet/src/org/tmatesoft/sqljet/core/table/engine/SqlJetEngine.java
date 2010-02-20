@@ -128,7 +128,7 @@ public class SqlJetEngine {
                     : READ_PERMISSIONS);
             final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
             btree.open(file, dbHandle, flags, type, permissions);
-            
+
             // force readonly.
             ISqlJetFile file = btree.getPager().getFile();
             if (file != null) {
@@ -367,17 +367,10 @@ public class SqlJetEngine {
         checkOpen();
         runSynchronized(new ISqlJetEngineSynchronized() {
             public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                if (transaction) {
-                    try {
-                        btree.closeAllCursors();
-                        btree.rollback();
-                    } finally {
-                        transaction = false;
-                        transactionMode = null;
-                    }
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
-                }
+                btree.closeAllCursors();
+                btree.rollback();
+                transaction = false;
+                transactionMode = null;
                 return null;
             }
         });

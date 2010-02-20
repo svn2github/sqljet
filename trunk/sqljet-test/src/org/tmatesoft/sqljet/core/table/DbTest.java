@@ -177,8 +177,8 @@ public class DbTest extends AbstractNewDbTest {
             db2.close();
         }
     }
-    
-    @Test 
+
+    @Test
     public void testOpenRO() throws SqlJetException, FileNotFoundException, IOException {
         Assert.assertTrue(db.isOpen());
         Assert.assertTrue(db.isWritable());
@@ -186,12 +186,12 @@ public class DbTest extends AbstractNewDbTest {
         // TODO test fails when there is no schema in read only copy.
         db.createTable("create table t(a integer primary key, b integer)");
         db.close();
-        
+
         File file2 = new File(file.getParentFile(), "readonly");
-        file2.deleteOnExit();        
+        file2.deleteOnExit();
         AbstractDataCopyTest.copyFile(file, file2);
         file2.setReadOnly();
-        
+
         SqlJetDb db2 = new SqlJetDb(file2, true);
         Assert.assertFalse(db2.isOpen());
         db2.open();
@@ -203,16 +203,16 @@ public class DbTest extends AbstractNewDbTest {
         } catch (SqlJetException e) {
             Assert.assertEquals(SqlJetErrorCode.READONLY, e.getErrorCode());
         } finally {
-            // TODO
-            // probably db2.rollback() should work 
-            // and 'rollback' transaction that just have failed.
+            db2.rollback();
         }
         try {
             db2.beginTransaction(SqlJetTransactionMode.EXCLUSIVE);
             Assert.assertTrue("Readonly DB shouldn't allow EXCLUSIVE transactions", false);
         } catch (SqlJetException e) {
             Assert.assertEquals(SqlJetErrorCode.READONLY, e.getErrorCode());
-        } 
+        } finally {
+            db2.rollback();
+        }
         try {
             db2.beginTransaction(SqlJetTransactionMode.READ_ONLY);
         } catch (SqlJetException e) {
@@ -222,6 +222,5 @@ public class DbTest extends AbstractNewDbTest {
         }
         db2.close();
     }
-    
 
 }

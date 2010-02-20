@@ -513,8 +513,9 @@ public class AutoCommitTest extends AbstractNewDbTest {
         db.commit();
     }
 
-    @Test(expected = SqlJetException.class)
-    public void rollbackFail() throws SqlJetException {
+    @Test
+    public void rollbackTwice() throws SqlJetException {
+        db.rollback();
         db.rollback();
     }
 

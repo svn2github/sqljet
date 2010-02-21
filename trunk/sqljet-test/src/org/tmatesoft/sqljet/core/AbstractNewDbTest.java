@@ -29,7 +29,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
+abstract public class AbstractNewDbTest extends AbstractDataCopyTest {
 
     protected File file;
     protected SqlJetDb db;
@@ -39,7 +39,7 @@ abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
      */
     @Before
     public void setUp() throws Exception {
-        file = File.createTempFile("test", null);
+        file = File.createTempFile(this.getClass().getSimpleName(), null);
         file.deleteOnExit();
         db = SqlJetDb.open(file, true);
     }

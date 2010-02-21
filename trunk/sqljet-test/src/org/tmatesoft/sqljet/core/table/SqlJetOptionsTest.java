@@ -90,7 +90,7 @@ public class SqlJetOptionsTest extends TestCase {
     @Test
     public void legacyFileFormatTrue() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(this.getClass().getSimpleName(), null);
         createFile.deleteOnExit();
 
         try {
@@ -114,7 +114,7 @@ public class SqlJetOptionsTest extends TestCase {
     @Test
     public void legacyFileFormatFalse() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(this.getClass().getSimpleName(), null);
         createFile.deleteOnExit();
 
         try {

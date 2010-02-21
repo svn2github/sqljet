@@ -45,8 +45,8 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public static File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
-        return copyFile(from, File.createTempFile("copy", null), deleteCopy);
+    public File copyFile(File from, boolean deleteCopy) throws IOException, FileNotFoundException {
+        return copyFile(from, File.createTempFile(this.getClass().getSimpleName(), null), deleteCopy);
     }
 
     public static File copyFile(File from, File to, boolean deleteCopy) throws IOException, FileNotFoundException {
@@ -68,16 +68,18 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
             FileChannel toCh = out.getChannel();
             long size = fromCh.size();
             long toCopy = size;
-            while(toCopy > 0) {
+            while (toCopy > 0) {
                 toCopy -= toCh.transferFrom(fromCh, size - toCopy, toCopy);
             }
         } finally {
             try {
                 in.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
             try {
                 out.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
         }
         return to;
     }
@@ -107,19 +109,18 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
         return true;
     }
 
-
     public static void deflate(File archive, String entryName, File to, boolean deleteCopy) throws IOException {
         ZipInputStream zis = null;
         InputStream is = null;
-        
-        byte[] buffer = new byte[16*1024];
-        
+
+        byte[] buffer = new byte[16 * 1024];
+
         ZipFile zipFile = null;
         try {
             is = new BufferedInputStream(new FileInputStream(archive));
             zipFile = new ZipFile(archive);
             zis = new ZipInputStream(is);
-            while(true) {
+            while (true) {
                 ZipEntry entry = zis.getNextEntry();
                 if (entry == null) {
                     break;
@@ -133,7 +134,7 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
                 try {
                     fis = new BufferedInputStream(zipFile.getInputStream(entry));
                     fos = new BufferedOutputStream(new FileOutputStream(to));
-                    while(true) {
+                    while (true) {
                         int r = fis.read(buffer);
                         if (r < 0) {
                             break;
@@ -183,6 +184,5 @@ public abstract class AbstractDataCopyTest extends SqlJetAbstractLoggedTest {
             }
         }
     }
-    
-    
+
 }

@@ -210,26 +210,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      */
     public boolean delete(File path, boolean sync) {
         assert (null != path);
-        if (path == null || !path.exists()) {
-            return false;
-        } else {
-            boolean delete = path.delete();
-            if (sync && !delete && path.exists()) {
-                for (int i = 0; i < 100; i++) {
-                    delete = path.delete();
-                    if (delete && !path.exists()) {
-                        break;
-                    } else {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                    }
-                }
-            }
-            return delete && !path.exists();
-        }
+        return SqlJetFileUtil.deleteFile(path);
     }
 
     /*

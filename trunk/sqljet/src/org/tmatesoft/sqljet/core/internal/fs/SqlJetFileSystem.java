@@ -210,7 +210,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
      */
     public boolean delete(File path, boolean sync) {
         assert (null != path);
-        return SqlJetFileUtil.deleteFile(path);
+        return SqlJetFileUtil.deleteFile(path, sync);
     }
 
     /*

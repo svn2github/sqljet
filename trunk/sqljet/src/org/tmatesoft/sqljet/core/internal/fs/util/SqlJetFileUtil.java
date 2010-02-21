@@ -34,11 +34,18 @@ public class SqlJetFileUtil {
     public static final SqlJetOsType OS = new SqlJetOsType();
 
     public static boolean deleteFile(File file) {
+        return deleteFile(file, false);
+    }
+
+    public static boolean deleteFile(File file, boolean sync) {
 
         if (file == null) {
             return true;
         }
-        if (!OS.isWindows() || file.isDirectory() || !file.exists()) {
+        if (OS.isWindows()) {
+            sync = true;
+        }
+        if (!sync || file.isDirectory() || !file.exists()) {
             return file.delete();
         }
         long sleep = 1;
@@ -52,6 +59,7 @@ public class SqlJetFileUtil {
             try {
                 Thread.sleep(sleep);
             } catch (InterruptedException e) {
+                return false;
             }
             if (sleep < 128) {
                 sleep = sleep * 2;
@@ -77,6 +85,7 @@ public class SqlJetFileUtil {
                     try {
                         Thread.sleep(sleep);
                     } catch (InterruptedException e1) {
+                        return null;
                     }
                 }
                 if (sleep < 128) {

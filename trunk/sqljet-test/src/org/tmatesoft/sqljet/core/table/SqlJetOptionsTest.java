@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -104,7 +105,7 @@ public class SqlJetOptionsTest extends TestCase {
             
         } finally {
 
-            createFile.delete();
+            SqlJetFileUtil.deleteFile(createFile);
 
         }
 
@@ -128,7 +129,7 @@ public class SqlJetOptionsTest extends TestCase {
             
         } finally {
 
-            createFile.delete();
+            SqlJetFileUtil.deleteFile(createFile);
 
         }
 

@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -54,7 +55,7 @@ abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
             }
         } finally {
             if (file != null) {
-                file.delete();
+                SqlJetFileUtil.deleteFile(file);
             }
         }
     }

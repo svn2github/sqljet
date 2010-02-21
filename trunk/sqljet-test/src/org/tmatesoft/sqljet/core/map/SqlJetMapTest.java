@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -49,7 +50,7 @@ public class SqlJetMapTest {
     @After
     public void tearDown() throws Exception {
         if (file != null) {
-            file.delete();
+            SqlJetFileUtil.deleteFile(file);
         }
     }
 

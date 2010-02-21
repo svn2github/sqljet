@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileAccesPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -162,18 +163,15 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
         path = File.createTempFile(TEST_FILE, null);
         if (null == path)
             throw cantCreate;
-        path.deleteOnExit();
     
         pathNew = File.createTempFile(TEST_FILE, null);
         if (null == pathNew)
             throw cantCreate;
-        pathNew.deleteOnExit();
-        pathNew.delete();
+        SqlJetFileUtil.deleteFile(pathNew);
         
         pathReadonly = File.createTempFile(TEST_FILE, null);
         if (null == pathReadonly)
             throw cantCreate;
-        pathReadonly.deleteOnExit();
         pathReadonly.setReadOnly();
         
     }
@@ -185,17 +183,20 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
     protected void cleanUpEnvironment() throws Exception {
         super.cleanUpEnvironment();
     
-        if (null != path)
-            path.delete();
-        path = null;
+        if (null != path) {
+            SqlJetFileUtil.deleteFile(path);
+            path = null;
+        }
     
-        if (null != pathNew)
-            pathNew.delete();
-        pathNew = null;
+        if (null != pathNew){
+            SqlJetFileUtil.deleteFile(pathNew);
+            pathNew = null;
+        }
     
-        if (null != pathReadonly)
-            pathReadonly.delete();
-        pathReadonly = null;
+        if (null != pathReadonly) {
+            SqlJetFileUtil.deleteFile(pathReadonly);
+            pathReadonly = null;
+        }
         
     }
 

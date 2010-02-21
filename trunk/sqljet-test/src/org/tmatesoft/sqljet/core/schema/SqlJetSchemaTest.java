@@ -32,6 +32,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -448,7 +449,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         Assert.assertTrue(checkDb.getOptions().isIncrementalVacuum());
         checkDb.close();
 
-        createFile.delete();
+        SqlJetFileUtil.deleteFile(createFile);
 
     }
 

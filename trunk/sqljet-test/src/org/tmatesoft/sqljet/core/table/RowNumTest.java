@@ -28,6 +28,7 @@ import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -81,7 +82,7 @@ public class RowNumTest extends AbstractDataCopyTest {
             }
         }
         if (dbFile != null) {
-            dbFile.delete();
+            SqlJetFileUtil.deleteFile(dbFile);
         }
     }
 

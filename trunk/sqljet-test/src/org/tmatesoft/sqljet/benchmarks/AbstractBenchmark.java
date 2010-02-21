@@ -27,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractDataCopyTest;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -74,7 +75,7 @@ public abstract class AbstractBenchmark extends AbstractDataCopyTest {
     @After
     public void tearDown() throws Exception {
         if (dbFile != null) {
-            dbFile.delete();
+            SqlJetFileUtil.deleteFile(dbFile);
         }
     }
 

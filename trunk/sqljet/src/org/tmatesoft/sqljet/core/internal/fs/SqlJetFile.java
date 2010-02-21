@@ -45,6 +45,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetLockType;
 import org.tmatesoft.sqljet.core.internal.SqlJetSyncFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -252,6 +253,13 @@ public class SqlJetFile implements ISqlJetFile {
                 file = null;
             }
 
+        }
+
+        if (filePath != null && permissions.contains(SqlJetFileOpenPermission.DELETEONCLOSE)) {
+            if (!SqlJetFileUtil.deleteFile(filePath)) {
+                throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_DELETE, String.format("Can't delete file '%s'",
+                        filePath.getPath()));
+            }
         }
 
         OSTRACE("CLOSE   %s\n", this.filePath);

@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileAccesPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * Default implementation of ISqlJetFileSystem.
@@ -157,8 +158,6 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
         }
 
-        // because Java can't lock read-only files we
-        // open always for write
         String mode = "rw";
         if (isReadonly && !isReadWrite && !isCreate && !isExclusive) {
             mode = "r";
@@ -168,38 +167,13 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             ro.remove(SqlJetFileOpenPermission.READWRITE);
             ro.remove(SqlJetFileOpenPermission.CREATE);
             ro.add(SqlJetFileOpenPermission.READONLY);
-            
+
             return open(filePath, type, ro);
         }
 
         RandomAccessFile file = null;
         try {
-            try {
-                file = new RandomAccessFile(filePath, mode);
-            } catch (IOException e) {
-                /*
-                 * As found, on windows some antiviruses often provisionally
-                 * block access to temporary created files. In this case just
-                 * wait some short time and retry.
-                 * 
-                 * TODO improve this solution likewise as in SVNFileUtil.
-                 * TODO only do this on Windows.
-                 */
-                for (int i = 0; i < 10; i++) {
-                    try {
-                        Thread.sleep(10);
-                        file = new RandomAccessFile(filePath, mode);
-                    } catch (InterruptedException e1) {
-                    } catch (FileNotFoundException e1) {
-                    }
-                    if (file != null) {
-                        break;
-                    }
-                }
-                if (file == null) {
-                    file = new RandomAccessFile(filePath, mode);
-                }
-            }
+            file = SqlJetFileUtil.openFile(filePath, mode);
         } catch (FileNotFoundException e) {
 
             if (isReadWrite && !isExclusive) {
@@ -212,11 +186,6 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             }
 
             throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
-        }
-
-        if (isDelete) {
-            // TODO force delete on db close, not on VM exit. 
-            filePath.deleteOnExit();
         }
 
         boolean noLock = SqlJetFileType.MAIN_DB != type;

@@ -138,6 +138,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             try {
                 filePath = path.getCanonicalFile();
             } catch (IOException e) {
+                // TODO may through exception for missing file.
                 throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
             }
         } else {
@@ -152,24 +153,37 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
             assert (null != filePath);
         }
 
-        if (!isReadWrite && !filePath.exists()) {
+        if (!isReadWrite && !(filePath.isFile() && filePath.canRead())) {
             throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
         }
 
-        final String mode = "rw"; // because Java can't lock read-only files we
+        // because Java can't lock read-only files we
         // open always for write
+        String mode = "rw";
+        if (isReadonly && !isReadWrite && !isCreate && !isExclusive) {
+            mode = "r";
+        } else if (isReadWrite && !isExclusive && filePath.isFile() && !filePath.canWrite() && filePath.canRead()) {
+            // force opening as read only.
+            Set<SqlJetFileOpenPermission> ro = EnumSet.copyOf(permissions);
+            ro.remove(SqlJetFileOpenPermission.READWRITE);
+            ro.remove(SqlJetFileOpenPermission.CREATE);
+            ro.add(SqlJetFileOpenPermission.READONLY);
+            
+            return open(filePath, type, ro);
+        }
 
         RandomAccessFile file = null;
         try {
             try {
                 file = new RandomAccessFile(filePath, mode);
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 /*
                  * As found, on windows some antiviruses often provisionally
                  * block access to temporary created files. In this case just
                  * wait some short time and retry.
                  * 
                  * TODO improve this solution likewise as in SVNFileUtil.
+                 * TODO only do this on Windows.
                  */
                 for (int i = 0; i < 10; i++) {
                     try {
@@ -201,6 +215,7 @@ public class SqlJetFileSystem implements ISqlJetFileSystem {
         }
 
         if (isDelete) {
+            // TODO force delete on db close, not on VM exit. 
             filePath.deleteOnExit();
         }
 

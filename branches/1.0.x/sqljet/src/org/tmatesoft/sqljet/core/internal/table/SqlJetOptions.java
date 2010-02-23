@@ -91,7 +91,15 @@ public class SqlJetOptions implements ISqlJetOptions {
         this.btree = btree;
         this.dbHandle = dbHandle;
         if (readSchemaCookie() == 0) {
-            initMeta();
+            try{
+                initMeta();
+            } catch(SqlJetException e) {
+                if(SqlJetErrorCode.READONLY!=e.getErrorCode()) {
+                    throw e;
+                }
+                // we can't init meta on read-only file ...
+                // but if you want, we could just don't worry.
+            }
         } else {
             readMeta();
         }

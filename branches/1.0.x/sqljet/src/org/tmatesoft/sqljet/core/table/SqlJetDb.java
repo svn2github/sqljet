@@ -488,17 +488,10 @@ public class SqlJetDb {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (transaction) {
-                    try {
-                        btree.closeAllCursors();
-                        btree.rollback();
-                    } finally {
-                        transaction = false;
-                        transactionMode = null;
-                    }
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
-                }
+                btree.closeAllCursors();
+                btree.rollback();
+                transaction = false;
+                transactionMode = null;
                 return null;
             }
         });

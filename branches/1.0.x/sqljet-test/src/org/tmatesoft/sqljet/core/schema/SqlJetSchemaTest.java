@@ -32,6 +32,7 @@ import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -302,7 +303,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void createDataBase() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -324,7 +325,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void changeEncoding() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -352,7 +353,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test(expected = SqlJetException.class)
     public void changeEncodingFail() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -380,7 +381,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void changePageCacheSize() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -415,7 +416,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void changeVacuum() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -448,14 +449,14 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
         Assert.assertTrue(checkDb.getOptions().isIncrementalVacuum());
         checkDb.close();
 
-        createFile.delete();
+        SqlJetFileUtil.deleteFile(createFile);
 
     }
 
     @Test
     public void changeSchemaVersion() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -477,7 +478,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void changeFileFormatMin() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 
@@ -494,7 +495,7 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
     @Test
     public void changeFileFormatMax() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(SCHEMA_TEST, null);
         if (DELETE_COPY)
             createFile.deleteOnExit();
 

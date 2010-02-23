@@ -45,24 +45,28 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test(expected = SqlJetException.class)
     public void testOpenFileNullPermNull() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, null, null);
+        f.close();
         Assert.fail("File shouldn't be opened without permissions");
     }
 
     @Test(expected = SqlJetException.class)
     public void testOpenFilePermNull() throws Exception {
         final ISqlJetFile f = fileSystem.open(path, null, null);
+        f.close();
         Assert.fail("File shouldn't be opened without permissions");
     }
 
     @Test(expected = SqlJetException.class)
     public void testOpenFileTypeNull() throws Exception {
         final ISqlJetFile f = fileSystem.open(path, null, PERM_TEMPORARY);
+        f.close();
         Assert.fail("File shouldn't be opened without permissions");
     }
     
     @Test
     public void testOpenFileNullTemporary() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_TEMPORARY);
+        f.close();
         Assert.assertNotNull("File should be opened without path if permissions include values:"
                 + " CREATE, READWRITE, DELETEONCLOSE", f);
     }
@@ -70,6 +74,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
     @Test(expected = AssertionError.class )
     public void testOpenFileNullReadonly() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_READONLY);
+        f.close();
         Assert.fail("File shouldn't be opened without path if permission is READONLY");
     }
 
@@ -78,6 +83,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(path);
         Assert.assertTrue(path.exists());
         final ISqlJetFile f = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_READONLY);
+        f.close();
         Assert.assertNotNull("File which exists should be opened with permission READONLY", f);
     }
 
@@ -86,6 +92,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_READONLY);
+        f.close();
         Assert.fail("File which doesn't exists shouldn't be opened with permission READONLY");
     }
     
@@ -93,12 +100,14 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
     public void testOpenReadonlyAndWrite() throws Exception {
         Assert.assertNotNull(path);
         final ISqlJetFile f = fileSystem.open(path, SqlJetFileType.MAIN_DB, PERM_READONLY_AND_WRITE);
+        f.close();
         Assert.fail("File shouldn't be opened with permissions READONLY and READWRITE");
     }
 
     @Test(expected = AssertionError.class)
     public void testOpenNullReadonlyAndWrite() throws Exception {
         final ISqlJetFile f = fileSystem.open(null, SqlJetFileType.TEMP_DB, PERM_READONLY_AND_WRITE);
+        f.close();
         Assert.fail("File shouldn't be opened with permissions READONLY and READWRITE");
     }
     
@@ -108,6 +117,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_CREATE_ONLY );
+        f.close();
         Assert.fail("File shouldn't be opened with permission CREATE only");
     }
 
@@ -116,6 +126,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_CREATE_READONLY );
+        f.close();
         Assert.fail("File shouldn't be opened with permissions CREATE and READONLY");
     }
 
@@ -124,6 +135,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_CREATE);
+        f.close();
         Assert.assertNotNull("File should be created with permission CREATE and READWRITE", f);
     }
 
@@ -132,6 +144,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_EXCLUSIVE_ONLY );
+        f.close();
         Assert.fail("File shouldn't be created with permission EXCLUSIVE only");
     }
 
@@ -140,6 +153,7 @@ public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
         Assert.assertNotNull(pathNew);
         Assert.assertFalse(pathNew.exists());
         final ISqlJetFile f = fileSystem.open(pathNew, SqlJetFileType.MAIN_DB, PERM_EXCLUSIVE_CREATE);
+        f.close();
         Assert.assertNotNull("File should be created with permission EXCLUSIVE, CREATE and READWRITE", f);
     }
 

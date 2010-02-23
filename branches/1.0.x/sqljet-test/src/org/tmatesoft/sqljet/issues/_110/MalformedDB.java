@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
@@ -11,7 +12,7 @@ public class MalformedDB {
 	public static void main(String[] args) {
 		try {
 			File dbFile = new File("./sqljet-test/db/test.db");
-			dbFile.delete();
+			SqlJetFileUtil.deleteFile(dbFile);
 			SqlJetDb db = SqlJetDb.open(dbFile, true);
 			db.getOptions().setAutovacuum(true);
 			db.runTransaction(new ISqlJetTransaction() {

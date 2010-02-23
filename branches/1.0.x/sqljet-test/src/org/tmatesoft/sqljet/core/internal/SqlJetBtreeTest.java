@@ -44,6 +44,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -75,8 +76,9 @@ public class SqlJetBtreeTest extends SqlJetAbstractLoggedTest {
      */
     @After
     public void tearDown() throws Exception {
-        if (testTempFile != null)
-            testTempFile.delete();
+        if (testTempFile != null) {
+            SqlJetFileUtil.deleteFile(testTempFile);
+        }
     }
 
     static class _OvflCell extends SqlJetCloneable {

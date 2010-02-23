@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -28,7 +29,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
+abstract public class AbstractNewDbTest extends AbstractDataCopyTest {
 
     protected File file;
     protected SqlJetDb db;
@@ -38,7 +39,7 @@ abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
      */
     @Before
     public void setUp() throws Exception {
-        file = File.createTempFile("test", null);
+        file = File.createTempFile(this.getClass().getSimpleName(), null);
         file.deleteOnExit();
         db = SqlJetDb.open(file, true);
     }
@@ -54,7 +55,7 @@ abstract public class AbstractNewDbTest extends SqlJetAbstractLoggedTest {
             }
         } finally {
             if (file != null) {
-                file.delete();
+                SqlJetFileUtil.deleteFile(file);
             }
         }
     }

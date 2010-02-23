@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 
 /**
  * @author TMate Software Ltd.
@@ -89,7 +90,7 @@ public class SqlJetOptionsTest extends TestCase {
     @Test
     public void legacyFileFormatTrue() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(this.getClass().getSimpleName(), null);
         createFile.deleteOnExit();
 
         try {
@@ -104,7 +105,7 @@ public class SqlJetOptionsTest extends TestCase {
             
         } finally {
 
-            createFile.delete();
+            SqlJetFileUtil.deleteFile(createFile);
 
         }
 
@@ -113,7 +114,7 @@ public class SqlJetOptionsTest extends TestCase {
     @Test
     public void legacyFileFormatFalse() throws SqlJetException, FileNotFoundException, IOException {
 
-        final File createFile = File.createTempFile("create", null);
+        final File createFile = File.createTempFile(this.getClass().getSimpleName(), null);
         createFile.deleteOnExit();
 
         try {
@@ -128,7 +129,7 @@ public class SqlJetOptionsTest extends TestCase {
             
         } finally {
 
-            createFile.delete();
+            SqlJetFileUtil.deleteFile(createFile);
 
         }
 

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetAbstractLoggedTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
@@ -51,7 +52,7 @@ public class ReadOnlyBugTest extends SqlJetAbstractLoggedTest {
     @After
     public void tearDown() throws Exception {
         if (file != null) {
-            file.delete();
+            SqlJetFileUtil.deleteFile(file);
         }
     }
 

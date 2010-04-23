@@ -509,4 +509,29 @@ public class SqlJetSchemaTest extends AbstractDataCopyTest {
 
     }
 
+    @Test(expected = SqlJetException.class)
+    public void createIndexUniqueFail() throws SqlJetException {
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTableDef createTable = db
+                        .createTable("create table test( id integer primary key, name text )");
+                logger.info(createTable.toString());
+                final ISqlJetIndexDef createIndex = db.createIndex("create unique index index_test_text on test(name)");
+                logger.info(createIndex.toString());
+                return null;
+            }
+        });
+        db.close();
+        db.open();
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetTable openTable = db.getTable("test");
+                openTable.insert(null, "test");
+                openTable.insert(null, "test");
+                return null;
+            }
+        });
+        Assert.assertFalse(false);
+    }
+
 }

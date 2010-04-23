@@ -463,6 +463,14 @@ public class SqlJetSchema implements ISqlJetSchema {
     }
 
     /**
+     * @param parseIndex
+     * @return
+     */
+    private String getCreateIndexUniqueSql(RuleReturnScope parseIndex) {
+        return String.format("CREATE UNIQUE INDEX %s", getCoreSQL(parseIndex));
+    }
+
+    /**
      * @param parseTable
      * @return
      */
@@ -637,7 +645,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
-        final String createIndexSQL = getCreateIndexSql(parseIndex);
+        final String createIndexSQL = indexDef.isUnique() ? getCreateIndexUniqueSql(parseIndex) : getCreateIndexSql(parseIndex);
 
         try {
 

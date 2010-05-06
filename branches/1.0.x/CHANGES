@@ -1,12 +1,23 @@
-Version 1.0.?
-(?? ??? ????, from /branches/1.0.x)
+Version 1.0.x
+(xx xxx xxxx, from /branches/1.0.x)
 
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
- New Features:
+ New features:
  API changes: 
  Bugfixes:
+
+Version 1.0.3
+(05 May 2010, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+ Bugfixes:
+ 
+  * Improved support of read only databases (-r907, -r909).
+  * UNIQUE index was not created (issue #124, -r912).
 
 Version 1.0.2
 (08 Jan 2010, from /branches/1.0.x)

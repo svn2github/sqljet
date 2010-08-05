@@ -1,7 +1,7 @@
 /**
  * SqlJetFunctionExpression.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -29,7 +29,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetFunctionExpression;
 public class SqlJetFunctionExpression extends SqlJetExpression implements ISqlJetFunctionExpression {
 
     private final String name;
-    private final boolean distinct, all;
+    private final boolean distinct;
+    private final boolean all;
     private final List<ISqlJetExpression> arguments;
 
     public SqlJetFunctionExpression(CommonTree ast) throws SqlJetException {
@@ -41,19 +42,21 @@ public class SqlJetFunctionExpression extends SqlJetExpression implements ISqlJe
             arguments = Collections.emptyList();
         } else {
             all = false;
-            int idx = 1;
-            CommonTree child = (CommonTree) ast.getChild(idx++);
-            if ("distinct".equalsIgnoreCase(child.getText())) {
+            List<ISqlJetExpression> arguments = new ArrayList<ISqlJetExpression>();
+            int i = 1;
+            CommonTree child = (CommonTree) ast.getChild(i);
+            if (child != null && "distinct".equalsIgnoreCase(child.getText())) {
                 distinct = true;
-                child = (CommonTree) ast.getChild(idx++);
+                i++;
             } else {
                 distinct = false;
             }
-            List<ISqlJetExpression> arguments = new ArrayList<ISqlJetExpression>();
-            while (idx < ast.getChildCount()) {
-                ISqlJetExpression argument = create(child);
-                arguments.add(argument);
-                child = (CommonTree) ast.getChild(idx++);
+            for (;i<ast.getChildCount();i++) {
+                child = (CommonTree) ast.getChild(i);
+                if (!"distinct".equalsIgnoreCase(child.getText())) {
+                    ISqlJetExpression argument = create(child);
+                    arguments.add(argument);
+                }
             }
             this.arguments = Collections.unmodifiableList(arguments);
         }
@@ -85,12 +88,12 @@ public class SqlJetFunctionExpression extends SqlJetExpression implements ISqlJe
         } else {
             if (areDistinctArguments()) {
                 buffer.append("DISTINCT ");
-                for (int idx = 0; idx < getArguments().size(); idx++) {
-                    if (idx > 0) {
-                        buffer.append(", ");
-                    }
-                    buffer.append(getArguments().get(idx));
+            }
+            for (int idx = 0; idx < getArguments().size(); idx++) {
+                if (idx > 0) {
+                    buffer.append(", ");
                 }
+                buffer.append(getArguments().get(idx));
             }
         }
         buffer.append(')');

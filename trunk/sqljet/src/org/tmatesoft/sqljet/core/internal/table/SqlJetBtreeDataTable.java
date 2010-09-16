@@ -1,7 +1,7 @@
 /**
  * SqlJetBtreeDataTable.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -46,7 +46,7 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtreeDataTable {
 
@@ -67,7 +67,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /**
      * Open data table by name.
-     * 
+     *
      * @throws SqlJetException
      */
     public SqlJetBtreeDataTable(ISqlJetBtree btree, String tableName, boolean write) throws SqlJetException {
@@ -93,9 +93,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /**
      * Open all indexes
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void openIndexes(ISqlJetSchema schema) throws SqlJetException {
         indexesDefs = new TreeMap<String, ISqlJetIndexDef>(String.CASE_INSENSITIVE_ORDER);
@@ -135,7 +135,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.btree.table.ISqlJetBtreeDataTable#
      * goToRow (int)
@@ -158,7 +158,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#getKey()
      */
@@ -173,7 +173,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#insert
      * (java.lang.Object[])
@@ -184,7 +184,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
      * insertWithRowId(java.lang.Long, java.lang.Object[])
      */
@@ -192,6 +192,21 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             final Object[] row = getValuesRow(values);
+            if(onConflict==SqlJetConflictAction.REPLACE){
+                final String pkIndex = getPrimaryKeyIndex();
+                if(pkIndex==null){
+                    final long rowIdForRow = getRowIdForRow(row, false);
+                    if(rowIdForRow>0) {
+                        rowId = rowIdForRow;
+                    }
+                } else {
+                    ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);
+                    Object[] keyForIndex = getKeyForIndex(values, indexDef);
+                    if(locate(pkIndex, false, keyForIndex)){
+                        rowId = getRowId();
+                    }
+                }
+            }
             if (rowId < 1) {
                 rowId = getRowIdForRow(row, true);
             }
@@ -274,7 +289,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#newRowId()
      */
     @Override
@@ -351,7 +366,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (long, java.lang.Object[])
@@ -373,7 +388,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#updateCurrent
      * (java.lang.Object[])
@@ -393,7 +408,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
      * updateWithRowId(long, long, java.lang.Object[])
      */
@@ -416,7 +431,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seeorg.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#
      * updateCurrentWithRowId(long, java.lang.Object[])
      */
@@ -475,7 +490,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#delete
      * (long)
@@ -493,7 +508,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#delete()
      */
@@ -788,7 +803,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (long, java.util.Map)
@@ -799,7 +814,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#update
      * (java.util.Map)
@@ -812,7 +827,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      * @param values
      * @return
      * @throws SqlJetException
-     * 
+     *
      * @throws SqlJetException
      */
     private Object[] unwrapValues(Map<String, Object> values) throws SqlJetException {
@@ -831,7 +846,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getInteger(int)
      */
@@ -846,7 +861,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getValue(int)
      */
@@ -861,7 +876,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeDataTable#isIndexExists
      * (java.lang.String)
@@ -903,7 +918,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#clear()
      */
     @Override
@@ -916,7 +931,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetBtreeTable#getValueMem
      * (int)

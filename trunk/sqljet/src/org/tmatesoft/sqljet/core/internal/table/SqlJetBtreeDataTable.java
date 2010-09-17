@@ -195,9 +195,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             if(onConflict==SqlJetConflictAction.REPLACE){
                 final String pkIndex = getPrimaryKeyIndex();
                 if(pkIndex==null){
-                    final long rowIdForRow = getRowIdForRow(row, false);
-                    if(rowIdForRow>0) {
-                        rowId = rowIdForRow;
+                    if(tableDef.isRowIdPrimaryKey()){
+                        final long rowIdForRow = getRowIdForRow(row, false);
+                        if(rowIdForRow>0) {
+                            rowId = rowIdForRow;
+                        }
                     }
                 } else {
                     ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);

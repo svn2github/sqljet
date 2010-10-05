@@ -72,6 +72,8 @@ public class IsNullTest extends AbstractNewDbTest {
               ISqlJetTable table = db.getTable("beans");
               ISqlJetCursor cur = table.lookup(table.getPrimaryKeyIndexName(),1);
               if (!cur.eof()) {
+                long v = cur.getInteger(0);
+                Assert.assertEquals(1, v);
                 boolean isNull = cur.isNull(0); // -> returns true
                 Assert.assertFalse(isNull);
               }

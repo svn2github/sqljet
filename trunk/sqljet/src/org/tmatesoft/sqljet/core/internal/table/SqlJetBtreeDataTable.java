@@ -192,19 +192,19 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             final Object[] row = getValuesRow(values);
-            if(onConflict==SqlJetConflictAction.REPLACE){
+            if (onConflict == SqlJetConflictAction.REPLACE) {
                 final String pkIndex = getPrimaryKeyIndex();
-                if(pkIndex==null){
-                    if(tableDef.isRowIdPrimaryKey()){
+                if (pkIndex == null) {
+                    if (tableDef.isRowIdPrimaryKey()) {
                         final long rowIdForRow = getRowIdForRow(row, false);
-                        if(rowIdForRow>0) {
+                        if (rowIdForRow > 0) {
                             rowId = rowIdForRow;
                         }
                     }
                 } else {
                     ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);
                     Object[] keyForIndex = getKeyForIndex(values, indexDef);
-                    if(locate(pkIndex, false, keyForIndex)){
+                    if (locate(pkIndex, false, keyForIndex)) {
                         rowId = getRowId();
                     }
                 }
@@ -965,6 +965,15 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     public ISqlJetBtreeIndexTable getIndex(String indexName) {
         return indexesTables.get(indexName);
+    }
+
+    @Override
+    public boolean isNull(int field) throws SqlJetException {
+        if (field == tableDef.getRowIdPrimaryKeyColumnIndex()) {
+            return eof();
+        } else {
+            return super.isNull(field);
+        }
     }
 
 }

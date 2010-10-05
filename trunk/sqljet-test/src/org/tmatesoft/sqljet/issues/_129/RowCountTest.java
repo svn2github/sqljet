@@ -34,11 +34,14 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class RowCountTest {
 
+    private static final String CREATE_TABLE_PRIMARY_KEY_IMPLICIT = "create table t(id integer primary key, value varchar);";
+    private static final String CREATE_TABLE_PRIMARY_KEY_EXPLICIT = "create table t(id integer, value varchar, primary key(id,value));";
+
     @Test
     public void testRowCount() throws Exception {
         final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
-            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_IMPLICIT);
             final ISqlJetTable t = db.getTable(def.getName());
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
@@ -61,10 +64,36 @@ public class RowCountTest {
     }
 
     @Test
+    public void testRowCount2() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_EXPLICIT);
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(1, "test1");
+                    t.insert(2, "test2");
+                    return null;
+                }
+            });
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.open();
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(2, rc);
+                    return null;
+                }
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
     public void testRowCountOrder() throws Exception {
         final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
-            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_IMPLICIT);
             final ISqlJetTable t = db.getTable(def.getName());
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
@@ -87,10 +116,36 @@ public class RowCountTest {
     }
 
     @Test
+    public void testRowCountOrder2() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_EXPLICIT);
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(1, "test1");
+                    t.insert(2, "test2");
+                    return null;
+                }
+            });
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.order(null);
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(2, rc);
+                    return null;
+                }
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
     public void testRowCountScope() throws Exception {
         final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
-            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_IMPLICIT);
             final ISqlJetTable t = db.getTable(def.getName());
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
@@ -113,10 +168,36 @@ public class RowCountTest {
     }
 
     @Test
+    public void testRowCountScope2() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_EXPLICIT);
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(1, "test1");
+                    t.insert(2, "test2");
+                    return null;
+                }
+            });
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.scope(null, null, null);
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(2, rc);
+                    return null;
+                }
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
     public void testRowCountLookup() throws Exception {
         final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
-            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_IMPLICIT);
             final ISqlJetTable t = db.getTable(def.getName());
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
@@ -139,10 +220,36 @@ public class RowCountTest {
     }
 
     @Test
+    public void testRowCountLookup3() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_EXPLICIT);
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(1, "test1");
+                    t.insert(2, "test2");
+                    return null;
+                }
+            });
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.lookup(null);
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(2, rc);
+                    return null;
+                }
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
     public void testRowCountLookup2() throws Exception {
         final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
         try {
-            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_IMPLICIT);
             final ISqlJetTable t = db.getTable(def.getName());
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {

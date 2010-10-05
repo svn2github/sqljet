@@ -234,9 +234,9 @@ public class RowCountTest {
             });
             db.runReadTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
-                    ISqlJetCursor pk = t.lookup(null);
+                    ISqlJetCursor pk = t.lookup(null,2);
                     long rc = pk.getRowCount();
-                    Assert.assertEquals(2, rc);
+                    Assert.assertEquals(1, rc);
                     return null;
                 }
             });
@@ -266,6 +266,33 @@ public class RowCountTest {
             } finally {
                 db.commit();
             }
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable(CREATE_TABLE_PRIMARY_KEY_EXPLICIT);
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(1, "test1");
+                    t.insert(2, "test2");
+                    return null;
+                }
+            });
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.lookup(null,2);
+                    pk.delete();
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(0, rc);
+                    return null;
+                }
+            });
         } finally {
             db.close();
         }

@@ -99,6 +99,29 @@ public class RowCountExampleTest
     }
   }
 
+  @Test
+  public void testDelete() throws SqlJetException
+  {
+    // open all the tables here so we aren't opening tables repeatedly in the loops.
+    ISqlJetTable groupTable = persistenceDb.getTable(GROUP_TABLE_NAME);
+    ISqlJetTable customerTable = persistenceDb.getTable(CUSTOMER_TABLE_NAME);
+    // begin a read transaction before reading data (this is required by SqlJet).
+    persistenceDb.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+    try
+    {
+      classLogger.log(Level.CONFIG, "Getting Group ID {0} to merge Customer ID {1}.", new Object[] {1, 1});
+      ISqlJetCursor foundRow = customerTable.lookup(customerTable.getPrimaryKeyIndexName(), 1);
+      if(foundRow != null && foundRow.first())
+      {
+        foundRow.delete();
+      }
+    }
+    finally
+    {
+      persistenceDb.commit();
+    }
+  }
+
   /**
    * Very simple hack method to turn a long into an int without allocating
    * objects or calling complex functions.  It's horribly inaccurate once

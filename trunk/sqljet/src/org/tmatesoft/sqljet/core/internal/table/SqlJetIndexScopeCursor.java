@@ -21,6 +21,8 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
+import org.tmatesoft.sqljet.core.table.engine.SqlJetEngine;
 
 /**
  * @author TMate Software Ltd.
@@ -233,8 +235,8 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      */
     @Override
     public long getRowId() throws SqlJetException {
-        return (Long) db.runReadTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
+        return (Long) db.runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
                 if (indexTable != null && !indexTable.eof()) {
                     return indexTable.getKeyRowId();
                 }

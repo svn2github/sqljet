@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.issues._129;
 import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
@@ -106,6 +107,58 @@ public class RowCountTest {
                     return null;
                 }
             });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
+    public void testRowCountLookup() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(null, "test1");
+                    t.insert(null, "test2");
+                    return null;
+                }
+            });
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    ISqlJetCursor pk = t.lookup(null);
+                    long rc = pk.getRowCount();
+                    Assert.assertEquals(2, rc);
+                    return null;
+                }
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    @Test
+    public void testRowCountLookup2() throws Exception {
+        final SqlJetDb db = SqlJetDb.open(SqlJetDb.IN_MEMORY, true);
+        try {
+            final ISqlJetTableDef def = db.createTable("create table t(id integer primary key, value varchar);");
+            final ISqlJetTable t = db.getTable(def.getName());
+            db.runWriteTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    t.insert(null, "test1");
+                    t.insert(null, "test2");
+                    return null;
+                }
+            });
+            db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+            try {
+                ISqlJetCursor pk = t.lookup(null);
+                long rc = pk.getRowCount();
+                Assert.assertEquals(2, rc);
+            } finally {
+                db.commit();
+            }
         } finally {
             db.close();
         }

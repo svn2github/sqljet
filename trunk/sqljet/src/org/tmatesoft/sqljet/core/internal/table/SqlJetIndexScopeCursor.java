@@ -217,7 +217,12 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      */
     @Override
     public void delete() throws SqlJetException {
-        super.delete();
+        db.runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
+                SqlJetIndexScopeCursor.super.delete();
+                return null;
+            }
+        });
         db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 if (!checkScope())

@@ -1,7 +1,7 @@
 /**
  * SqlJetIndexScopeCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -25,7 +25,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
@@ -56,7 +56,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#goTo(long)
      */
@@ -72,7 +72,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#first()
      */
@@ -101,7 +101,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#next()
      */
@@ -126,7 +126,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#eof()
      */
@@ -174,7 +174,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#last()
      */
@@ -209,7 +209,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#delete()
      */
@@ -227,16 +227,20 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.table.SqlJetTableDataCursor#getRowId()
      */
     @Override
     public long getRowId() throws SqlJetException {
-        if (indexTable != null && !indexTable.eof()) {
-            return indexTable.getKeyRowId();
-        }
-        return super.getRowId();
+        return (Long) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (indexTable != null && !indexTable.eof()) {
+                    return indexTable.getKeyRowId();
+                }
+                return SqlJetIndexScopeCursor.super.getRowId();
+            }
+        });
     }
 
 }

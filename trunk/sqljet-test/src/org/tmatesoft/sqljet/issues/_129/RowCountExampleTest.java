@@ -106,7 +106,7 @@ public class RowCountExampleTest
     ISqlJetTable groupTable = persistenceDb.getTable(GROUP_TABLE_NAME);
     ISqlJetTable customerTable = persistenceDb.getTable(CUSTOMER_TABLE_NAME);
     // begin a read transaction before reading data (this is required by SqlJet).
-    persistenceDb.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+    persistenceDb.beginTransaction(SqlJetTransactionMode.WRITE);
     try
     {
       classLogger.log(Level.CONFIG, "Getting Group ID {0} to merge Customer ID {1}.", new Object[] {1, 1});

@@ -207,7 +207,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
      * 
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
 

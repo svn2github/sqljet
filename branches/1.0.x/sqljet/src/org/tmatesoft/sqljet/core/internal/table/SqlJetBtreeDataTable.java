@@ -538,14 +538,20 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     }
 
     private boolean isRowIdExists(final long rowId) throws SqlJetException {
+        return isRowIdExists(rowId, true);
+    }
+
+    private boolean isRowIdExists(final long rowId, boolean keepPosition) throws SqlJetException {
         final long current = getRowId();
         if (rowId == current)
             return true;
         final boolean exists = goToRow(rowId);
-        if (current > 0) {
-            goToRow(current);
-        } else {
-            first();
+        if (keepPosition) {
+            if (current > 0) {
+                goToRow(current);
+            } else {
+                first();
+            }
         }
         return exists;
     }
@@ -573,7 +579,11 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         }
 
         if (Action.INSERT == action) {
-            existsRowId = isRowIdExists(rowId);
+            long oldRowId = getRowId();
+            existsRowId = isRowIdExists(rowId, false);
+            if (!existsRowId && oldRowId > 0) {
+                goToRow(oldRowId);
+            }
         } else if (Action.UPDATE == action) {
             if (currentRowId != rowId) {
                 existsRowId = isRowIdExists(rowId);
@@ -585,7 +595,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             case IGNORE:
                 return false;
             case REPLACE:
-                cursor.delete();
+                if (goToRow(rowId)) {
+                    cursor.delete();
+                }
                 break;
             default:
                 throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Record with given ROWID already exists");

@@ -126,6 +126,28 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
         });
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetIndexOrderCursor#previous()
+     */
+    @Override
+    public boolean previous() throws SqlJetException {
+        return (Boolean) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                if (firstKey == null) {
+                    return SqlJetIndexScopeCursor.super.previous();
+                } else if (indexTable == null) {
+                    SqlJetIndexScopeCursor.super.previous();
+                    return !eof();
+                } else {
+                    if (indexTable.previous() && !eof()) {
+                        return previousRowNum(goTo(indexTable.getKeyRowId()));
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
     /*
      * (non-Javadoc)
      *

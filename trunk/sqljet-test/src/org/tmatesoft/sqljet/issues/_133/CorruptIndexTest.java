@@ -17,6 +17,9 @@
  */
 package org.tmatesoft.sqljet.issues._133;
 
+import java.security.MessageDigest;
+import java.util.Random;
+
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -40,21 +43,33 @@ public class CorruptIndexTest extends AbstractNewDbTest {
 
     @Test
     public void testCorruptIndex() throws Exception {
+
         final ISqlJetTableDef createTable = db.createTable(TABLE_CREATE);
         db.createIndex(INDEX1_CREATE);
         db.createIndex(INDEX2_CREATE);
 
         final ISqlJetTable table = db.getTable(createTable.getName());
 
+        final Random r = new Random();
+        final MessageDigest md5 = MessageDigest.getInstance("MD5");
+        final byte[] b = new byte[255];
+
         for (int i = 0; i < COUNT; i++) {
-            table.insert(null, i, i, i, "test", i, i, i);
+            md5.reset();
+            r.nextBytes(b);
+            md5.update(b);
+            table.insert(null, r.nextLong(), r.nextLong(), r.nextLong(), md5.toString(), r.nextLong(), r.nextLong(),
+                    r.nextLong());
         }
 
         for (int i = 0; i < COUNT; i++) {
-            final int id = i;
             db.runWriteTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
-                    table.insert(null, id, id, id, "test", id, id, id);
+                    md5.reset();
+                    r.nextBytes(b);
+                    md5.update(b);
+                    table.insert(null, r.nextLong(), r.nextLong(), r.nextLong(), md5.toString(), r.nextLong(),
+                            r.nextLong(), r.nextLong());
                     return null;
                 }
             });
@@ -63,7 +78,11 @@ public class CorruptIndexTest extends AbstractNewDbTest {
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 for (int i = 0; i < COUNT; i++) {
-                    table.insert(null, i, i, i, "test", i, i, i);
+                    md5.reset();
+                    r.nextBytes(b);
+                    md5.update(b);
+                    table.insert(null, r.nextLong(), r.nextLong(), r.nextLong(), md5.toString(), r.nextLong(),
+                            r.nextLong(), r.nextLong());
                 }
                 return null;
             }

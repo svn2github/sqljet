@@ -1,7 +1,7 @@
 /**
  * SqlJetMemPage.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -45,18 +45,18 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
  * As each page of the file is loaded into memory, an instance of the following
  * structure is appended and initialized to zero. This structure stores
  * information about the page that is decoded from the raw file page.
- * 
+ *
  * The pParent field points back to the parent page. This allows us to walk up
  * the BTree from any leaf to the root. Care must be taken to unref() the parent
  * page pointer when this page is no longer referenced. The pageDestructor()
  * routine handles that chore.
- * 
+ *
  * Access to all fields of this structure is controlled by the mutex stored in
  * MemPage.pBt->mutex.
- * 
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetMemPage extends SqlJetCloneable {
 
@@ -140,7 +140,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * expression that is an argument to another macro (sqliteMallocRaw), it is
      * not possible to use conditional compilation. So, this macro is defined
      * instead.
-     * 
+     *
      * @return
      */
     private boolean ISAUTOVACUUM() {
@@ -150,10 +150,10 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * Decode the flags byte (the first byte of the header) for a page and
      * initialize fields of the MemPage structure accordingly.
-     * 
+     *
      * Only the following combinations are supported. Anything different
      * indicates a corrupt database files:
-     * 
+     *
      * <p>
      * PTF_ZERODATA
      * </p>
@@ -192,7 +192,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
     /**
      * Initialize the auxiliary information for a disk block.
-     * 
+     *
      * Return SQLITE_OK on success. If we see that the page does not contain a
      * well-formed database page, then return SQLITE_CORRUPT. Note that a return
      * of SQLITE_OK does not guarantee that the page is well-formed. It only
@@ -259,7 +259,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * Release a MemPage. This should be called once for each prior call to
      * sqlite3BtreeGetPage.
-     * 
+     *
      * @throws SqlJetException
      */
     public static void releasePage(SqlJetMemPage pPage) throws SqlJetException {
@@ -278,7 +278,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * Set the pointer-map entries for all children of page pPage. Also, if
      * pPage contains cells that point to overflow pages, set the pointer map
      * entries for the overflow pages as well.
-     * 
+     *
      * @throws SqlJetException
      */
     public void setChildPtrmaps() throws SqlJetException {
@@ -319,16 +319,16 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * overflow page, is a pointer to page iFrom. Modify this pointer so that it
      * points to iTo. Parameter eType describes the type of pointer to be
      * modified, as follows:
-     * 
+     *
      * PTRMAP_BTREE: pPage is a btree-page. The pointer points at a child page
      * of pPage.
-     * 
+     *
      * PTRMAP_OVERFLOW1: pPage is a btree-page. The pointer points at an
      * overflow page pointed to by one of the cells on pPage.
-     * 
+     *
      * PTRMAP_OVERFLOW2: pPage is an overflow-page. The pointer points at the
      * next overflow page in the list.
-     * 
+     *
      * @throws SqlJetExceptionRemove
      */
     public void modifyPagePointer(int iFrom, int iTo, short s) throws SqlJetException {
@@ -381,7 +381,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * Given a btree page and a cell index (0 means the first cell on the page,
      * 1 means the second cell, and so forth) return a pointer to the cell
      * content.
-     * 
+     *
      * This routine works only for pages that do not contain overflow cells.
      */
     public ISqlJetMemoryPointer findCell(int i) {
@@ -391,7 +391,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * If the cell pCell, part of page pPage contains a pointer to an overflow
      * page, insert an entry into the pointer-map for the overflow page.
-     * 
+     *
      * @throws SqlJetException
      */
     private void ptrmapPutOvflPtr(ISqlJetMemoryPointer pCell) throws SqlJetException {
@@ -409,7 +409,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * two versions of this function. sqlite3BtreeParseCell() takes a cell index
      * as the second argument and sqlite3BtreeParseCellPtr() takes a pointer to
      * the body of the cell as its second argument.
-     * 
+     *
      * @param pCell
      *            Pointer to the cell text.
      * @return
@@ -462,7 +462,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
              * overflow pages. The strategy is to minimize the amount of unused
              * space on overflow pages while keeping the amount of local storage
              * in between minLocal and maxLocal.
-             * 
+             *
              * Warning: changing the way overflow payload is distributed in any
              * way will result in an incompatible file format.
              */
@@ -498,7 +498,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * Set up a raw page so that it looks like a database page holding no
      * entries.
-     * 
+     *
      * @param sqlJetBtree
      * @param flags
      * @throws SqlJetException
@@ -638,8 +638,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
         while (nOvfl-- != 0) {
             SqlJetMemPage[] pOvfl = new SqlJetMemPage[1];
             if (ovflPgno[0] <2 || ovflPgno[0] > pBt.pPager.getPageCount()) {
-                /* 0 is not a legal page number and page 1 cannot be an 
-                 ** overflow page. Therefore if ovflPgno<2 or past the end of the 
+                /* 0 is not a legal page number and page 1 cannot be an
+                 ** overflow page. Therefore if ovflPgno<2 or past the end of the
                  ** file the database must be corrupt. */
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
@@ -671,9 +671,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * cell content is not freed or deallocated. It is assumed that the cell
      * content has been copied someplace else. This routine just removes the
      * reference to the cell from pPage.
-     * 
+     *
      * "sz" must be the number of bytes in the cell.
-     * 
+     *
      * @param idx
      * @param sz
      * @throws SqlJetException
@@ -791,19 +791,19 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * Insert a new cell on pPage at cell index "i". pCell points to the content
      * of the cell.
-     * 
+     *
      * If the cell content will fit on the page, then put it there. If it will
      * not fit, then make a copy of the cell content into pTemp if pTemp is not
      * null. Regardless of pTemp, allocate a new entry in pPage->aOvfl[] and
      * make it point to the cell content (either in pTemp or the original pCell)
      * and also record its index. Allocating a new entry in pPage->aCell[]
      * implies that pPage->nOverflow is incremented.
-     * 
+     *
      * If nSkip is non-zero, then do not copy the first nSkip bytes of the cell.
      * The caller will overwrite them after this function returns. If nSkip is
      * non-zero, then pCell may not point to an invalid memory location (but
      * pCell+nSkip is always valid).
-     * 
+     *
      * @param i
      *            New cell becomes the i-th cell of the page
      * @param pCell
@@ -814,7 +814,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      *            Temp storage space for pCell, if needed
      * @param nSkip
      *            Do not write the first nSkip bytes of the cell
-     * 
+     *
      * @throws SqlJetException
      */
     public void insertCell(int i, ISqlJetMemoryPointer pCell, int sz, ISqlJetMemoryPointer pTemp, byte nSkip)
@@ -892,19 +892,19 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
     /**
      * Allocate nByte bytes of space on a page.
-     * 
+     *
      * Return the index into pPage->aData[] of the first byte of the new
      * allocation. The caller guarantees that there is enough space. This
      * routine will never fail.
-     * 
+     *
      * If the page contains nBytes of free space but does not contain nBytes of
      * contiguous free space, then this routine automatically calls
      * defragementPage() to consolidate all free space before allocating the new
      * chunk.
-     * 
+     *
      * @param nByte
      * @return
-     * 
+     *
      * @throws SqlJetException
      */
     private int allocateSpace(int nByte) throws SqlJetException {
@@ -975,7 +975,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * Defragment the page given. All Cells are moved to the end of the page and
      * all free space is collected into one big FreeBlk that occurs in between
      * the header and cell pointer array and the cell content area.
-     * 
+     *
      * @throws SqlJetException
      */
     private void defragmentPage() throws SqlJetException {
@@ -984,7 +984,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
 
         int i; /* Loop counter */
         int pc; /* Address of a i-th cell */
-        int addr; /* Offset of first byte after cell pointer array */
         int hdr; /* Offset to the page header */
         int size; /* Size of a cell */
         int usableSize; /* Number of usable bytes on a page */
@@ -993,6 +992,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
         int nCell; /* Number of cells on the page */
         ISqlJetMemoryPointer data; /* The page data */
         ISqlJetMemoryPointer temp; /* Temp area for cell content */
+        int iCellFirst;            /* First allowable cell index */
+        int iCellLast;             /* Last possible cell index */
 
         assert (pPage.pDbPage.isWriteable());
         assert (pPage.pBt != null);
@@ -1009,33 +1010,32 @@ public class SqlJetMemPage extends SqlJetCloneable {
         cbrk = get2byte(data, hdr + 5);
         memcpy(temp, cbrk, data, cbrk, usableSize - cbrk);
         cbrk = usableSize;
-        final ISqlJetMemoryPointer pAddr = data.getBuffer().getPointer(0); /* The i-th cell pointer */
-        final ISqlJetMemoryPointer pTemp = temp.getBuffer().getPointer(0);
-        for (i = 0; i < nCell; i++) {
-            pAddr.setPointer(cellOffset + i * 2);
-            pc = get2byte(pAddr);
-            if (pc >= usableSize) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-            }
-            pTemp.setPointer(pc);
-            size = pPage.cellSizePtr(pTemp);
-            cbrk -= size;
-            if (cbrk < cellOffset + 2 * nCell || pc + size > usableSize) {
-                throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-            }
-            assert (cbrk + size <= usableSize && cbrk >= 0);
-            memcpy(data, cbrk, temp, pc, size);
-            put2byte(pAddr, cbrk);
+        iCellFirst = cellOffset + 2*nCell;
+        iCellLast = usableSize - 4;
+        for(i=0; i<nCell; i++){
+          final ISqlJetMemoryPointer pAddr = data.getBuffer().getPointer(cellOffset + i*2); /* The i-th cell pointer */
+          pc = get2byte(pAddr);
+          if( pc<iCellFirst || pc>iCellLast ){
+              throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+          }
+          assert( pc>=iCellFirst && pc<=iCellLast );
+          size = pPage.cellSizePtr(temp.getBuffer().getPointer(pc));
+          cbrk -= size;
+          if( cbrk<iCellFirst || pc+size>usableSize ){
+              throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+          }
+          assert( cbrk+size<=usableSize && cbrk>=iCellFirst );
+          memcpy(data, cbrk, temp, pc, size);
+          put2byte(pAddr, cbrk);
         }
-        assert (cbrk >= cellOffset + 2 * nCell);
+        assert( cbrk>=iCellFirst );
         put2byte(data, hdr + 5, cbrk);
         SqlJetUtility.putUnsignedByte(data, hdr + 1, (byte) 0);
         SqlJetUtility.putUnsignedByte(data, hdr + 2, (byte) 0);
         SqlJetUtility.putUnsignedByte(data, hdr + 7, (byte) 0);
-        addr = cellOffset + 2 * nCell;
-        memset(data, addr, (byte) 0, cbrk - addr);
+        memset(data, iCellFirst, (byte) 0, cbrk - iCellFirst);
         assert (pPage.pDbPage.isWriteable());
-        if (cbrk - addr != pPage.nFree) {
+        if (cbrk - iCellFirst != pPage.nFree) {
             throw new SqlJetException(SqlJetErrorCode.CORRUPT);
         }
     }
@@ -1043,7 +1043,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * This a more complex version of findCell() that works for pages that do
      * contain overflow cells. See insert
-     * 
+     *
      * @param iCell
      * @return
      */
@@ -1068,14 +1068,14 @@ public class SqlJetMemPage extends SqlJetCloneable {
     /**
      * Add a list of cells to a page. The page should be initially empty. The
      * cells are guaranteed to fit on the page.
-     * 
+     *
      * @param nCell
      *            The number of cells to add to this page
      * @param apCell
      *            Pointers to cell bodies
      * @param aSize
      *            Sizes of the cells
-     * 
+     *
      * @throws SqlJetException
      */
     public void assemblePage(int nCell, ISqlJetMemoryPointer[] apCell, int[] aSize) throws SqlJetException {
@@ -1130,7 +1130,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * that page number iChild is the left-child if the iIdx'th cell in page
      * pParent. Or, if iIdx is equal to the total number of cells in pParent,
      * that page number iChild is the right-child of the page.
-     * 
+     *
      * @param iIdx
      * @param iChild
      */
@@ -1149,11 +1149,11 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * that byte sequence into pCell[]. Overflow pages are allocated and filled
      * in as necessary. The calling procedure is responsible for making sure
      * sufficient space has been allocated for pCell[].
-     * 
+     *
      * Note that pCell does not necessary need to point to the pPage->aData
      * area. pCell might point to some temporary storage. The cell will be
      * constructed in this temporary area then copied into pPage->aData later.
-     * 
+     *
      * @param pCell
      *            Complete text of the cell
      * @param pKey
@@ -1166,9 +1166,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
      *            The data
      * @param nZero
      *            Extra zero bytes to append to pData
-     * 
+     *
      * @return cell size
-     * 
+     *
      * @throws SqlJetException
      */
     public int fillInCell(ISqlJetMemoryPointer pCell, ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData,
@@ -1331,9 +1331,9 @@ public class SqlJetMemPage extends SqlJetCloneable {
      * If the cell with index iCell on page pPage contains a pointer to an
      * overflow page, insert an entry into the pointer-map for the overflow
      * page.
-     * 
+     *
      * @param iCell
-     * 
+     *
      * @throws SqlJetException
      */
     public void ptrmapPutOvfl(int iCell) throws SqlJetException {

@@ -32,6 +32,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
+ * @author jhruby.web
  *
  */
 public class JetCurruptionStress {

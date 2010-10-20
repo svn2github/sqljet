@@ -34,7 +34,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class JetCurruptionTest {
+public class JetCurruptionStress {
 
     private File dbFile;
     private SqlJetDb db;

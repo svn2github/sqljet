@@ -926,7 +926,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (nByte >= 0); /* Minimum cell size is 4 */
         assert (pPage.nFree >= nByte);
         assert (pPage.nOverflow == 0);
-        pPage.nFree -= nByte;
         hdr = pPage.hdrOffset;
 
         nFrag = SqlJetUtility.getUnsignedByte(data, hdr + 7);
@@ -943,9 +942,11 @@ public class SqlJetMemPage extends SqlJetCloneable {
                     if (size < nByte + 4) {
                         memcpy(data, addr, data, pc, 2);
                         SqlJetUtility.putUnsignedByte(data, hdr + 7, (byte) (nFrag + x));
+                        pPage.nFree -= nByte;
                         return pc;
                     } else {
                         put2byte(data, pc + 2, x);
+                        pPage.nFree -= nByte;
                         return pc + x;
                     }
                 }
@@ -968,6 +969,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (cellOffset + 2 * nCell <= top);
         put2byte(data, hdr + 5, top);
         assert (pPage.pDbPage.isWriteable());
+        pPage.nFree -= nByte;
         return top;
     }
 

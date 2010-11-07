@@ -645,7 +645,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             indexKeys.add(new IndexKeys(indexTable, currentKey, key));
 
             // check unique indexes
-            if (!hasNull(row) && Action.DELETE != action) {
+            if (Action.DELETE != action && !hasNull(key)) {
                 if (indexDef.isUnique() || tableDef.getColumnIndexConstraint(indexDef.getName()) != null
                         || tableDef.getTableIndexConstraint(indexDef.getName()) != null) {
                     final long lookup = indexTable.lookup(false, key);

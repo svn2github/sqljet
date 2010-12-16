@@ -322,4 +322,81 @@ public class MalformedCreateTableTest extends AbstractNewDbTest {
         Assert.assertNotNull(table);
     }
 
+    @Test(expected = SqlJetException.class)
+    public void tableNameConflict() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createTable("create table t(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void indexNameConflict() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index i on t(b)");
+        db.createIndex("create index i on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void tableIndexNameConflict1() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index t on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void tableIndexNameConflict2() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createIndex("create index i on t(b)");
+        db.createTable("create table i(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void tableNameReserved() throws SqlJetException {
+        db.createTable("create table sqlite_master(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void indexNameReserved() throws SqlJetException {
+        db.createTable("create table t(b text)");
+        db.createIndex("create index sqlite_autoindex_t_1 on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void tableVirtualNameReserved() throws SqlJetException {
+        db.createTable("create virtual table sqlite_master using sqljetmap");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void virtualTableNameConflict() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b text)");
+        db.createVirtualTable("create virtual table t using sqljetmap");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void virtualTableNameConflict2() throws SqlJetException {
+        db.createVirtualTable("create virtual table t using sqljetmap");
+        db.createTable("create table t(a integer primary key, b text)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void virtualTableNameConflict3() throws SqlJetException {
+        db.createVirtualTable("create virtual table t using sqljetmap");
+        db.createIndex("create index t on t(b)");
+        Assert.fail();
+    }
+
+    @Test(expected = SqlJetException.class)
+    public void virtualTableNameConflict4() throws SqlJetException {
+        db.createIndex("create index t on t(b)");
+        db.createVirtualTable("create virtual table t using sqljetmap");
+        Assert.fail();
+    }
+
 }

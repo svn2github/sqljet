@@ -288,6 +288,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             }
         }
         bindIndexes();
+
     }
 
     /**
@@ -369,13 +370,13 @@ public class SqlJetSchema implements ISqlJetSchema {
     public ISqlJetTableDef createTable(String sql) throws SqlJetException {
         db.getMutex().enter();
         try {
-            return createTableSafe(sql);
+            return createTableSafe(sql, false);
         } finally {
             db.getMutex().leave();
         }
     }
 
-    private ISqlJetTableDef createTableSafe(String sql) throws SqlJetException {
+    private ISqlJetTableDef createTableSafe(String sql, boolean internal) throws SqlJetException {
 
         final RuleReturnScope parseTable = parseTable(sql);
         final CommonTree ast = (CommonTree) parseTable.getTree();
@@ -390,6 +391,10 @@ public class SqlJetSchema implements ISqlJetSchema {
         final String tableName = tableDef.getName();
         if ("".equals(tableName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (!internal) {
+            checkNameReserved(tableName);
+        }
 
         if (tableDefs.containsKey(tableName)) {
             if (tableDef.isKeepExisting()) {
@@ -565,7 +570,7 @@ public class SqlJetSchema implements ISqlJetSchema {
      */
     private void checkSequenceTable() throws SqlJetException {
         if (!tableDefs.containsKey(SQLITE_SEQUENCE)) {
-            createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE);
+            createTableSafe(CREATE_TABLE_SQLITE_SEQUENCE, true);
         }
     }
 
@@ -617,6 +622,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         if ("".equals(indexName))
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
+        checkNameReserved(indexName);
+
         if (indexDefs.containsKey(indexName)) {
             if (indexDef.isKeepExisting()) {
                 return indexDefs.get(indexName);
@@ -624,6 +631,8 @@ public class SqlJetSchema implements ISqlJetSchema {
                 throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
             }
         }
+
+        checkNameConflict(SqlJetSchemaObjectType.INDEX, indexName);
 
         if (null == indexDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -668,6 +677,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 indexDef.setPage(page);
                 indexDef.setRowId(rowId);
+                indexDef.bindColumns(tableDef);
                 indexDefs.put(indexName, indexDef);
 
                 final SqlJetBtreeIndexTable indexTable = new SqlJetBtreeIndexTable(btree, indexDef.getName(), true);
@@ -1031,7 +1041,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final ParserRuleReturnScope parsedSql = alterTableDef.getParsedSql();
         final CommonTree ast = (CommonTree) parsedSql.getTree();
         final CommonToken stopToken = (CommonToken) parsedSql.getStop();
-        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount()-1)).getToken();
+        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount() - 1)).getToken();
         final CharStream inputStream = nameToken.getInputStream();
         return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
     }
@@ -1213,6 +1223,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Virtual table \"" + tableName + "\" exists already");
         }
 
+        checkNameConflict(SqlJetSchemaObjectType.VIRTUAL_TABLE, tableName);
+
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
         final String createVirtualTableSQL = getCreateVirtualTableSql(parseTable);
 
@@ -1352,4 +1364,5 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
     }
+
 }

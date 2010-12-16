@@ -14,6 +14,7 @@
 package org.tmatesoft.sqljet.core.internal.schema;
 
 import org.antlr.runtime.tree.CommonTree;
+import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexedColumn;
 import org.tmatesoft.sqljet.core.schema.SqlJetSortingOrder;
 
@@ -26,6 +27,7 @@ public class SqlJetIndexedColumn implements ISqlJetIndexedColumn {
     private final String name;
     private final String collation;
     private final SqlJetSortingOrder sortingOrder;
+    private ISqlJetColumnDef tableColumn;
 
     public SqlJetIndexedColumn(CommonTree ast) {
         name = ast.getText();
@@ -73,4 +75,19 @@ public class SqlJetIndexedColumn implements ISqlJetIndexedColumn {
         }
         return buffer.toString();
     }
+
+    /**
+     * @param tableColumn the tableColumn to set
+     */
+    public void setTableColumn(ISqlJetColumnDef tableColumn) {
+        this.tableColumn = tableColumn;
+    }
+    
+    /**
+     * @return the tableColumn
+     */
+    public ISqlJetColumnDef getTableColumn() {
+        return tableColumn;
+    }
+    
 }

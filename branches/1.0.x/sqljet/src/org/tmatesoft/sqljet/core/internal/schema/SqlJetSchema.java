@@ -1,7 +1,7 @@
 /**
  * SqlJetSchema.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -70,6 +70,8 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
  */
 public class SqlJetSchema implements ISqlJetSchema {
 
+    private static final String NAME_RESERVED = "Name '%s' is reserved to internal use";
+
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     private static final String CANT_DELETE_IMPLICIT_INDEX = "Can't delete implicit index \"%s\"";
@@ -96,6 +98,32 @@ public class SqlJetSchema implements ISqlJetSchema {
             String.CASE_INSENSITIVE_ORDER);
     private Map<String, ISqlJetVirtualTableDef> virtualTableDefs = new TreeMap<String, ISqlJetVirtualTableDef>(
             String.CASE_INSENSITIVE_ORDER);
+
+    private enum SqlJetSchemaObjectType {
+
+        TABLE {
+            @Override
+            public Object getName() {
+                return "table";
+            }
+        },
+
+        INDEX {
+            @Override
+            public Object getName() {
+                return "index";
+            }
+        },
+
+        VIRTUAL_TABLE {
+            @Override
+            public Object getName() {
+                return "virtual table";
+            }
+        };
+
+        public abstract Object getName();
+    }
 
     public SqlJetSchema(ISqlJetDbHandle db, ISqlJetBtree btree) throws SqlJetException {
         this.db = db;
@@ -259,6 +287,23 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             }
         }
+        bindIndexes();
+    }
+
+    /**
+     *
+     */
+    private void bindIndexes() {
+        for (ISqlJetIndexDef indexDef : indexDefs.values()) {
+            if (indexDef instanceof SqlJetIndexDef) {
+                SqlJetIndexDef i = (SqlJetIndexDef) indexDef;
+                final String tableName = i.getTableName();
+                final ISqlJetTableDef tableDef = tableDefs.get(tableName);
+                if (tableDef != null) {
+                    i.bindColumns(tableDef);
+                }
+            }
+        }
     }
 
     /**
@@ -354,6 +399,9 @@ public class SqlJetSchema implements ISqlJetSchema {
             }
         }
 
+        checkNameConflict(SqlJetSchemaObjectType.TABLE, tableName);
+        checkFieldNamesRepeatsConflict(tableDef.getName(), tableDef.getColumns());
+
         final List<ISqlJetColumnDef> columns = tableDef.getColumns();
         if (null == columns || 0 == columns.size())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
@@ -388,6 +436,24 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
 
+    }
+
+    /**
+     * @param tableDef
+     * @throws SqlJetException
+     */
+    private void checkFieldNamesRepeatsConflict(String tableName, List<ISqlJetColumnDef> columns)
+            throws SqlJetException {
+        final Set<String> names = new HashSet<String>();
+        for (ISqlJetColumnDef columnDef : columns) {
+            final String name = columnDef.getName();
+            if (names.contains(name)) {
+                throw new SqlJetException(SqlJetErrorCode.ERROR, String.format(
+                        "Definition for table '%s' has conflict of repeating fields named '%s'", tableName, name));
+            } else {
+                names.add(name);
+            }
+        }
     }
 
     /**
@@ -517,15 +583,16 @@ public class SqlJetSchema implements ISqlJetSchema {
     /**
      * @param schemaTable
      * @param generateAutoIndexName
-     * 
+     *
      * @throws SqlJetException
      */
-    private void createAutoIndex(ISqlJetBtreeSchemaTable schemaTable, String tableName, String autoIndexName)
+    private SqlJetBaseIndexDef createAutoIndex(ISqlJetBtreeSchemaTable schemaTable, String tableName, String autoIndexName)
             throws SqlJetException {
         final int page = btree.createTable(BTREE_CREATE_INDEX_FLAGS);
         final SqlJetBaseIndexDef indexDef = new SqlJetBaseIndexDef(autoIndexName, tableName, page);
         indexDef.setRowId(schemaTable.insertRecord(INDEX_TYPE, autoIndexName, tableName, page, null));
         indexDefs.put(autoIndexName, indexDef);
+        return indexDef;
     }
 
     public ISqlJetIndexDef createIndex(String sql) throws SqlJetException {
@@ -584,7 +651,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
-        final String createIndexSQL = indexDef.isUnique() ? getCreateIndexUniqueSql(parseIndex) : getCreateIndexSql(parseIndex);
+        final String createIndexSQL = indexDef.isUnique() ? getCreateIndexUniqueSql(parseIndex)
+                : getCreateIndexSql(parseIndex);
 
         try {
 
@@ -857,8 +925,8 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
         if (renameTable && tableDefs.containsKey(newTableName)) {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, String
-                    .format("Table \"%s\" already exists", newTableName));
+            throw new SqlJetException(SqlJetErrorCode.MISUSE,
+                    String.format("Table \"%s\" already exists", newTableName));
         }
 
         final SqlJetTableDef tableDef = (SqlJetTableDef) tableDefs.get(tableName);
@@ -1134,8 +1202,12 @@ public class SqlJetSchema implements ISqlJetSchema {
         if (null == tableDef.getTableName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
         final String tableName = tableDef.getTableName();
-        if ("".equals(tableName))
+        if ("".equals(tableName)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR);
+        }
+
+        checkNameReserved(tableName);
+        checkFieldNamesRepeatsConflict(tableDef.getTableName(), tableDef.getModuleColumns());
 
         if (virtualTableDefs.containsKey(tableName)) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Virtual table \"" + tableName + "\" exists already");
@@ -1170,4 +1242,114 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
 
+    /**
+     * @param name
+     * @throws SqlJetException
+     */
+    private void checkNameReserved(final String name) throws SqlJetException {
+        if (isNameReserved(name)) {
+            throw new SqlJetException(String.format(NAME_RESERVED, name));
+        }
+    }
+
+    /**
+     * Returns true if name is reserved for internal use.
+     *
+     * @param name
+     * @return true if name is reserved
+     */
+    public boolean isNameReserved(String name) {
+        return name.startsWith("sqlite_");
+    }
+
+    /**
+     * @param tableName
+     * @throws SqlJetException
+     */
+    private void checkNameConflict(SqlJetSchemaObjectType objectType, final String tableName) throws SqlJetException {
+        if (isNameConflict(objectType, tableName)) {
+            throw new SqlJetException(String.format("Name conflict: %s named '%s' exists already",
+                    objectType.getName(), tableName));
+        }
+    }
+
+    private boolean isNameConflict(SqlJetSchemaObjectType objectType, String name) {
+        if (objectType != SqlJetSchemaObjectType.TABLE) {
+            if (tableDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        if (objectType != SqlJetSchemaObjectType.INDEX) {
+            if (indexDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        if (objectType != SqlJetSchemaObjectType.VIRTUAL_TABLE) {
+            if (virtualTableDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ISqlJetIndexDef createIndexForVirtualTable(final String virtualTableName, final String indexName)
+            throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return createIndexForVirtualTableSafe(virtualTableName, indexName);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+    /**
+     * @param virtualTableName
+     * @param indexName
+     * @return
+     * @throws SqlJetException
+     */
+    private ISqlJetIndexDef createIndexForVirtualTableSafe(String virtualTableName, String indexName)
+            throws SqlJetException {
+
+        if (null == virtualTableName || "".equals(virtualTableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        if (null == indexName || "".equals(indexName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        checkNameReserved(indexName);
+
+        if (indexDefs.containsKey(indexName)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Index \"" + indexName + "\" exists already");
+        }
+
+        checkNameConflict(SqlJetSchemaObjectType.INDEX, indexName);
+
+        final ISqlJetVirtualTableDef tableDef = getVirtualTable(virtualTableName);
+        if (null == tableDef)
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getOptions().changeSchemaVersion();
+
+                final ISqlJetIndexDef indexDef = createAutoIndex(schemaTable, tableDef.getTableName(), indexName);
+
+                indexDefs.put(indexName, indexDef);
+
+                return indexDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+    }
 }

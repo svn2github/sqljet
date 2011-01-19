@@ -31,7 +31,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
-public class CorruptionAterRollback extends AbstractNewDbTest {
+public class CorruptionAterRollbackTest extends AbstractNewDbTest {
 
     @Before
     public void setUp() throws Exception {

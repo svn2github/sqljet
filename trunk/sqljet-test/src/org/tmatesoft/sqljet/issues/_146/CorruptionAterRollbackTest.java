@@ -17,14 +17,12 @@
  */
 package org.tmatesoft.sqljet.issues._146;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.schema.SqlJetConflictAction;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
-import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.

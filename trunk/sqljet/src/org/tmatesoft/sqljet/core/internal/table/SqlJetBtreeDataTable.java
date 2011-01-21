@@ -193,21 +193,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         try {
             final Object[] row = getValuesRow(values);
             if (onConflict == SqlJetConflictAction.REPLACE) {
-                final String pkIndex = getPrimaryKeyIndex();
-                if (pkIndex == null) {
-                    if (tableDef.isRowIdPrimaryKey()) {
-                        final long rowIdForRow = getRowIdForRow(row, false);
-                        if (rowIdForRow > 0) {
-                            rowId = rowIdForRow;
-                        }
-                    }
-                } else {
-                    ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);
-                    Object[] keyForIndex = getKeyForIndex(values, indexDef);
-                    if (locate(pkIndex, false, keyForIndex)) {
-                        rowId = getRowId();
-                    }
-                }
+                rowId = getRowIdForReplace(rowId, values, row);
             }
             if (rowId < 1) {
                 rowId = getRowIdForRow(row, true);
@@ -217,6 +203,40 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         } finally {
             unlock();
         }
+    }
+
+    /**
+     * @param rowId
+     * @param values
+     * @param row
+     * @return
+     * @throws SqlJetException
+     */
+    private long getRowIdForReplace(long rowId, Object[] values, final Object[] row) throws SqlJetException {
+        final String pkIndex = getPrimaryKeyIndex();
+        if (pkIndex == null) {
+            if (tableDef.isRowIdPrimaryKey()) {
+                final long rowIdForRow = getRowIdForRow(row, false);
+                if (rowIdForRow > 0) {
+                    return rowIdForRow;
+                }
+            }
+        } else {
+            ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);
+            Object[] keyForIndex = getKeyForIndex(values, indexDef);
+            if (locate(pkIndex, false, keyForIndex)) {
+                return getRowId();
+            }
+        }
+        for(ISqlJetIndexDef indexDef : getIndexDefinitions().values()){
+            if(indexDef.isUnique()) {
+                Object[] keyForIndex = getKeyForIndex(values, indexDef);
+                if (locate(indexDef.getName(), false, keyForIndex)) {
+                    return getRowId();
+                }
+            }
+        }
+        return rowId;
     }
 
     /**

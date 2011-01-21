@@ -1,7 +1,7 @@
 /**
  * Pager.java
  * Copyright (C) 2008 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -55,14 +55,14 @@ import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
 
 /**
  * A open page cache is an instance of the following structure.
- * 
+ *
  * Pager.errCode may be set to SQLITE_IOERR, SQLITE_CORRUPT, or or SQLITE_FULL.
  * Once one of the first three errors occurs, it persists and is returned as the
  * result of every major pager API call. The SQLITE_FULL return code is slightly
  * different. It persists only until the next successful rollback is performed
  * on the pager cache. Also, SQLITE_FULL does not affect the sqlite3PagerGet()
  * and sqlite3PagerLookup() APIs, they may still be used successfully.
- * 
+ *
  * Managing the size of the database file in pages is a little complicated. The
  * variable Pager.dbSize contains the number of pages that the database image
  * currently contains. As the database image grows or shrinks this variable is
@@ -74,10 +74,10 @@ import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
  * number of pages in the database image when the current transaction was
  * opened. The contents of all three of these variables is only guaranteed to be
  * correct if the boolean Pager.dbSizeValid is true.
- * 
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCallback {
 
@@ -95,7 +95,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * The following two macros are used within the PAGERTRACEX() macros above
      * to print out file-descriptors.
-     * 
+     *
      * PAGERID() takes a pointer to a Pager struct as its argument. The
      * associated file-descriptor is returned. FILEHANDLEID() takes an
      * sqlite3_file struct as its argument.
@@ -121,7 +121,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * savepoint and statement transaction in the system. All such structures
      * are stored in the Pager.aSavepoint[] array, which is allocated and
      * resized using sqlite3Realloc().
-     * 
+     *
      * When a savepoint is created, the PagerSavepoint.iHdrOffset field is set
      * to 0. If a journal-header is written into the main journal while the
      * savepoint is active, then iHdrOffset is set to the byte offset
@@ -314,7 +314,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * in the journal to signify that the remainder of the journal file is
      * devoted to storing a master journal name - there are no more pages to
      * roll back. See comments for function writeMasterJournal() for details.
-     * 
+     *
      * @return
      */
     long PAGER_MJ_PGNO() {
@@ -329,7 +329,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * Return true if it is necessary to write page *pPg into the sub-journal. A
      * page needs to be written into the sub-journal if there exists one or more
      * open savepoints for which:
-     * 
+     *
      * * The page-number is less than or equal to PagerSavepoint.nOrig, and *
      * The bit corresponding to the page-number is not set in
      * PagerSavepoint.pInSavepoint.
@@ -356,7 +356,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#open(org.tmatesoft.sqljet.core
      * .ISqlJetFileSystem, java.lang.String,
@@ -399,7 +399,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * If the file was successfully opened for read/write access, choose
              * a default page size in case we have to create the database file.
              * The default page size is the maximum of:
-             * 
+             *
              * + SQLITE_DEFAULT_PAGE_SIZE, + The value returned by
              * sqlite3OsSectorSize() + The largest page size that can be written
              * atomically.
@@ -466,7 +466,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Set the sectorSize for the pager.
-     * 
+     *
      * The sector size is at least as big as the sector size reported by
      * {@link SqlJetFile#sectorSize()}.
      */
@@ -486,7 +486,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getDirectoryName()
      */
     public File getDirectoryName() {
@@ -495,7 +495,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileName()
      */
     public File getFileName() {
@@ -504,7 +504,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFileSystem()
      */
     public ISqlJetFileSystem getFileSystem() {
@@ -513,7 +513,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getFile()
      */
     public ISqlJetFile getFile() {
@@ -522,7 +522,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalName()
      */
     public File getJournalName() {
@@ -531,7 +531,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#isNoSync()
      */
     public boolean isNoSync() {
@@ -540,7 +540,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#isReadOnly()
      */
     public boolean isReadOnly() {
@@ -549,7 +549,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getLockingMode()
      */
     public SqlJetPagerLockingMode getLockingMode() {
@@ -558,7 +558,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#setLockingMode(org.tmatesoft.sqljet
      * .core.SqlJetPagerLockingMode)
@@ -569,7 +569,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalMode()
      */
     public SqlJetPagerJournalMode getJournalMode() {
@@ -578,7 +578,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#setJournalMode(org.tmatesoft.sqljet
      * .core.SqlJetPagerJournalMode)
@@ -589,7 +589,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getJournalSizeLimit()
      */
     public long getJournalSizeLimit() {
@@ -598,7 +598,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setJournalSizeLimit(long)
      */
     public void setJournalSizeLimit(final long limit) {
@@ -608,7 +608,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getSafetyLevel()
      */
     public SqlJetSafetyLevel getSafetyLevel() {
@@ -617,7 +617,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#setSafetyLevel(org.tmatesoft.sqljet
      * .core.SqlJetPagerSafetyLevel)
@@ -635,7 +635,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getTempSpace()
      */
     public ISqlJetMemoryPointer getTempSpace() {
@@ -644,7 +644,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#setBusyhandler(org.tmatesoft.sqljet
      * .core.ISqlJetBusyHandler)
@@ -655,7 +655,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#setReiniter(org.tmatesoft.sqljet
      * .core.ISqlJetPageDestructor)
@@ -666,7 +666,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setPagesize(int)
      */
     public int setPageSize(final int pageSize) throws SqlJetException {
@@ -693,7 +693,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getPagesize()
      */
     public int getPageSize() {
@@ -703,7 +703,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      ** Find a page in the hash table given its page number. Return a pointer to
      * the page or NULL if not found.
-     * 
+     *
      * @throws SqlJetException
      */
     ISqlJetPage lookup(int pageNumber) throws SqlJetException {
@@ -715,7 +715,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * to what it was when it was first opened. Any outstanding pages are
      * invalidated and subsequent attempts to access those pages will likely
      * result in a coredump.
-     * 
+     *
      */
     private void reset() {
         if (null != errCode)
@@ -727,7 +727,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setMaxPageCount(int)
      */
     public void setMaxPageCount(int maxPageCount) throws SqlJetException {
@@ -739,7 +739,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setMaxPageCount()
      */
     public int getMaxPageCount() {
@@ -748,7 +748,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#setCacheSize(int)
      */
     public void setCacheSize(int cacheSize) {
@@ -757,7 +757,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetPager#getCacheSize()
      */
     public int getCacheSize() {
@@ -766,7 +766,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#readFileHeader(int, byte[])
      */
     public void readFileHeader(final int count, final ISqlJetMemoryPointer buffer) throws SqlJetIOException {
@@ -783,7 +783,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#getPageCount()
      */
     public int getPageCount() throws SqlJetException {
@@ -830,18 +830,18 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * code. The first argument is a pointer to the pager structure, the second
      * the error-code about to be returned by a pager API function. The value
      * returned is a copy of the second argument to this function.
-     * 
+     *
      * If the second argument is SQLITE_IOERR, SQLITE_CORRUPT, or SQLITE_FULL
      * the error becomes persistent. Until the persisten error is cleared,
      * subsequent API calls on this Pager will immediately return the same error
      * code.
-     * 
+     *
      * A persistent error indicates that the contents of the pager-cache cannot
      * be trusted. This state can be cleared by completely discarding the
      * contents of the pager-cache. If a transaction was active when the
      * persistent error occured, then the rollback journal may need to be
      * replayed.
-     * 
+     *
      * @param e
      */
     private void error(final SqlJetException e) {
@@ -897,13 +897,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Unlock the database file.
-     * 
+     *
      * If the pager is currently in error state, discard the contents of the
      * cache and reset the Pager structure internal state. If there is an open
      * journal-file, then the next time a shared-lock is obtained on the pager
      * file (by this or any other process), it will be treated as a hot-journal
      * and rolled back.
-     * 
+     *
      */
     private void unlock() {
         if (SqlJetPagerLockingMode.EXCLUSIVE != lockingMode) {
@@ -956,7 +956,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#close()
      */
     public void close() throws SqlJetException {
@@ -999,7 +999,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#acquire(int, boolean)
      */
     public ISqlJetPage acquirePage(final int pageNumber, final boolean read) throws SqlJetException {
@@ -1089,7 +1089,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * zeros instead of being read from disk. But now we need the real data off
      * of disk. So make sure we have it. Read it in if we do not have it
      * already.
-     * 
+     *
      * @param page
      * @throws SqlJetIOException
      */
@@ -1103,7 +1103,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Return a 32-bit hash of the page data for pPage
-     * 
+     *
      * @param page
      * @return
      */
@@ -1137,7 +1137,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * If the reference count has reached zero, and the pager is not in the
      * middle of a write transaction or opened in exclusive mode, unlock it.
-     * 
+     *
      * @throws SqlJetException
      */
     void unlockIfUnused() throws SqlJetException {
@@ -1150,7 +1150,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * Execute a rollback if a transaction is active and unlock the database
      * file. If the pager has already entered the error state, do not attempt
      * the rollback.
-     * 
+     *
      * @throws SqlJetException
      */
     private void unlockAndRollback() throws SqlJetException {
@@ -1162,7 +1162,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Read the content of page pPg out of the database file.
-     * 
+     *
      * @param page
      * @param pageNumber
      * @throws SqlJetIOException
@@ -1186,11 +1186,11 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * This function is called to obtain the shared lock required before data
      * may be read from the pager cache. If the shared lock has already been
      * obtained, this function is a no-op.
-     * 
+     *
      * Immediately after obtaining the shared lock (if required), this function
      * checks for a hot-journal file. If one is found, an emergency rollback is
      * performed immediately.
-     * 
+     *
      * @throws SqlJetException
      */
     private void sharedLock() throws SqlJetException {
@@ -1258,7 +1258,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * process might open the database file, detect the RESERVED
                      * lock, and conclude that the database is safe to read
                      * while this process is still rolling it back.
-                     * 
+                     *
                      * Because the intermediate RESERVED lock is not requested,
                      * the second process will get to this point in the code and
                      * fail to obtain its own EXCLUSIVE lock on the database
@@ -1351,13 +1351,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * previous read or write transaction). Check to see if the
                      * database has been modified. If the database has changed,
                      * flush the cache.
-                     * 
+                     *
                      * Database changes is detected by looking at 15 bytes
                      * beginning at offset 24 into the file. The first 4 of
                      * these 16 bytes are a 32-bit counter that is incremented
                      * with each change. The other bytes change randomly with
                      * each file change when a codec is in use.
-                     * 
+                     *
                      * There is a vanishingly small chance that a change will
                      * not be detected. The chance of an undetected change is so
                      * small that it can be neglected.
@@ -1390,12 +1390,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     }
 
     /**
-     * 
+     *
      * Playback the journal and thus restore the database file to the state it
      * was in before we started making changes.
-     * 
+     *
      * The journal file format is as follows:
-     * 
+     *
      * (1) 8 byte prefix. A copy of aJournalMagic[]. (2) 4 byte big-endian
      * integer which is the number of valid page records in the journal. If this
      * value is 0xffffffff, then compute the number of page records from the
@@ -1411,10 +1411,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * there is no master journal. The master journal name is stored in UTF-8.
      * (9) Zero or more pages instances, each as follows: + 4 byte page number.
      * + pPager->pageSize bytes of data. + 4 byte checksum
-     * 
+     *
      * When we speak of the journal header, we mean the first 8 items above.
      * Each entry in the journal is an instance of the 9th item.
-     * 
+     *
      * Call the value from the second bullet "nRec". nRec is the number of valid
      * page entries in the journal. In most cases, you can compute the value of
      * nRec from the size of the journal file. But if a power failure occurred
@@ -1423,22 +1423,22 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * not yet made it safely to disk. In such a case, the value of nRec
      * computed from the file size would be too large. For that reason, we
      * always use the nRec value in the header.
-     * 
+     *
      * If the nRec value is 0xffffffff it means that nRec should be computed
      * from the file size. This value is used when the user selects the no-sync
      * option for the journal. A power failure could lead to corruption in this
      * case. But for things like temporary table (which will be deleted when the
      * power is restored) we don't care.
-     * 
+     *
      * If the file opened as the journal file is not a well-formed journal file
      * then all pages up to the first corrupted page are rolled back (or no
      * pages if the journal header is corrupted). The journal file is then
      * deleted and SQLITE_OK returned, just as if no corruption had been
      * encountered.
-     * 
+     *
      * If an I/O or malloc() error occurs, the journal-file is not deleted and
      * an error code is returned.
-     * 
+     *
      * @param isHot
      * @throws SqlJetException
      */
@@ -1519,7 +1519,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                  * then it means that this part of the journal was being filled
                  * but has not yet been synced to disk. Compute the number of
                  * pages based on the remaining size of the file.
-                 * 
+                 *
                  * The third term of the test was added to fix ticket #2565.
                  * When rolling back a hot journal, nRec==0 always means that
                  * the next chunk of the journal contains zero pages to be
@@ -1542,6 +1542,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                     dbSize = mxPg;
                 }
 
+                if(isHot) {
+                    reset();
+                }
+
                 /*
                  * Copy original pages out of the journal and back into the
                  * database file.
@@ -1549,7 +1553,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 for (u = 0; u < nRec; u++) {
 
                     try {
-                        playbackOnePage(true, journalOff, false, null);
+                        journalOff = playbackOnePage(true, journalOff, false, null);
                     } catch (SqlJetException e) {
                         if (e.getErrorCode() == SqlJetErrorCode.DONE) {
                             journalOff = szJ;
@@ -1616,10 +1620,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Playback savepoint pSavepoint. Or, if pSavepoint==NULL, then playback the
      * entire master journal file.
-     * 
+     *
      * The case pSavepoint==NULL occurs when a ROLLBACK TO command is invoked on
      * a SAVEPOINT that is a transaction savepoint.
-     * 
+     *
      * @throws SqlJetException
      */
     private void playbackSavepoint(PagerSavepoint pSavepoint) throws SqlJetException {
@@ -1662,7 +1666,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             journalOff = pSavepoint.iOffset;
             while (rc == null && journalOff < iHdrOff) {
                 try {
-                    playbackOnePage(true, journalOff, true, pDone);
+                    journalOff = playbackOnePage(true, journalOff, true, pDone);
                 } catch (SqlJetException e) {
                     rc = e;
                     assert (e.getErrorCode() != SqlJetErrorCode.DONE);
@@ -1742,16 +1746,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * file that referred to the master journal file has just been rolled back.
      * This routine checks if it is possible to delete the master journal file,
      * and does so if it is.
-     * 
+     *
      * Argument zMaster may point to Pager.pTmpSpace. So that buffer is not
      * available for use within this function.
-     * 
-     * 
+     *
+     *
      * The master journal file contains the names of all child journals. To tell
      * if a master journal can be deleted, check to each of the children. If all
      * children are either missing or do not refer to a different master
      * journal, then this master journal can be deleted.
-     * 
+     *
      * @param master
      * @throws SqlJetException
      */
@@ -1833,20 +1837,20 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * This routine ends a transaction. A transaction is ended by either a
      * COMMIT or a ROLLBACK.
-     * 
+     *
      * When this routine is called, the pager has the journal file open and a
      * RESERVED or EXCLUSIVE lock on the database. This routine will release the
      * database lock and acquires a SHARED lock in its place if that is the
      * appropriate thing to do. Release locks usually is appropriate, unless we
      * are in exclusive access mode or unless this is a COMMIT AND BEGIN or
      * ROLLBACK AND BEGIN operation.
-     * 
+     *
      * The journal file is either deleted or truncated.
-     * 
+     *
      * TODO: Consider keeping the journal file open for temporary databases.
      * This might give a performance improvement on windows where opening a file
      * is an expensive operation.
-     * 
+     *
      * @param hasMaster
      * @throws SqlJetException
      */
@@ -1957,7 +1961,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Write zeros over the header of the journal file. This has the effect of
      * invalidating the journal file and committing the transaction.
-     * 
+     *
      * @param doTruncate
      * @throws SqlJetException
      */
@@ -2030,16 +2034,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * from the sub-journal (if isMainJrnl==0) and playback that page. The page
      * begins at offset *pOffset into the file. The *pOffset value is increased
      * to the start of the next page in the journal.
-     * 
+     *
      * The isMainJrnl flag is true if this is the main rollback journal and
      * false for the statement journal. The main rollback journal uses checksums
      * - the statement journal does not.
-     * 
+     *
      * If pDone is not NULL, then it is a record of pages that have already been
      * played back. If the page at *pOffset has already been played back (if the
      * corresponding pDone bit is set) then skip the playback. Make sure the
      * pDone bit corresponding to the *pOffset page is set prior to returning.
-     * 
+     *
      * @param isMainJrnl
      *            true -> main journal. false -> sub-journal.
      * @param pOffset
@@ -2049,9 +2053,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @param pDone
      *            BitSet of pages already played back
      * @throws SqlJetException
-     * 
+     *
      */
-    private void playbackOnePage(boolean isMainJrnl, long pOffset, boolean isSavepnt, BitSet pDone)
+    private long playbackOnePage(boolean isMainJrnl, long pOffset, boolean isSavepnt, BitSet pDone)
             throws SqlJetException {
 
         ISqlJetPage pPg; /* An existing page in the cache */
@@ -2089,7 +2093,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             throw new SqlJetException(SqlJetErrorCode.DONE);
         }
         if (pgno > dbSize || SqlJetUtility.bitSetTest(pDone, pgno)) {
-            return;
+            return pOffset;
         }
         if (isMainJrnl) {
             cksum = read32bitsUnsigned(jfd, pOffset - 4);
@@ -2107,17 +2111,17 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * If the pager is in RESERVED state, then there must be a copy of this
          * page in the pager cache. In this case just update the pager cache,
          * not the database file. The page is left marked dirty in this case.
-         * 
+         *
          * An exception to the above rule: If the database is in no-sync mode
          * and a page is moved during an incremental vacuum then the page may
          * not be in the pager cache. Later: if a malloc() or IO error occurs
          * during a Movepage() call, then the page may not be in the cache
          * either. So the condition described in the above paragraph is not
          * assert()able.
-         * 
+         *
          * If in EXCLUSIVE state, then we update the pager cache if it exists
          * and the main file. The page is then marked not dirty.
-         * 
+         *
          * Ticket #1171: The statement journal might contain page content that
          * is different from the page content at the start of the transaction.
          * This occurs when a page is changed prior to the start of a statement
@@ -2131,7 +2135,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * locked. (2) we know that the original page content is fully synced in
          * the main journal either because the page is not in cache or else the
          * page is marked as needSync==0.
-         * 
+         *
          * 2008-04-14: When attempting to vacuum a corrupt database file, it is
          * possible to fail a statement on a database that does not yet exist.
          * Do not attempt to write if database file has never been opened.
@@ -2153,13 +2157,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              * problem. When the page is next fetched by the b-tree layer, it
              * will be read from the database file, which may or may not be
              * current.
-             * 
+             *
              * There are a couple of different ways this can happen. All are
              * quite obscure. When running in synchronous mode, this can only
              * happen if the page is on the free-list at the start of the
              * transaction, then populated, then moved using
              * sqlite3PagerMovepage().
-             * 
+             *
              * The solution is to add an in-memory page to the cache containing
              * the data just read from the sub-journal. Mark the page as dirty
              * and if the pager requires a journal-sync, then mark the page as
@@ -2192,7 +2196,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                  * transaction was first opened. In this case we can mark the
                  * page as clean, since there will be no need to write it out to
                  * the.
-                 * 
+                 *
                  * There is one exception to this rule. If the page is being
                  * rolled back as part of a savepoint (or statement) rollback
                  * from an unsynced portion of the main journal file, then it is
@@ -2220,15 +2224,16 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
             pageCache.release(pPg);
         }
+        return pOffset;
     }
 
     /**
      * Compute and return a checksum for the page of data.
-     * 
+     *
      * This is not a real checksum. It is really just the sum of the random
      * initial value and the page number. We experimented with a checksum of the
      * entire data, but that was found to be too slow.
-     * 
+     *
      * Note that the page number is stored at the beginning of data and the
      * checksum is stored at the end. This is important. If journal corruption
      * occurs due to a power failure, the most likely scenario is that one end
@@ -2236,12 +2241,12 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * the two ends of the journal record will be correct and the middle be
      * corrupt. Thus, this "checksum" scheme, though fast and simple, catches
      * the mostly likely kind of corruption.
-     * 
+     *
      * FIX ME: Consider adding every 200th (or so) byte of the data to the
      * checksum. That way if a single page spans 3 or more disk sectors and only
      * the middle sector is corrupt, we will still have a reasonable chance of
      * failing the checksum and thus detecting the problem.
-     * 
+     *
      * @param data
      * @return
      */
@@ -2259,19 +2264,19 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * When this is called the journal file for pager pPager must be open. The
      * master journal file name is read from the end of the file and written
      * into memory supplied by the caller.
-     * 
+     *
      * zMaster must point to a buffer of at least nMaster bytes allocated by the
      * caller. This should be sqlite3_vfs.mxPathname+1 (to ensure there is
      * enough space to write the master journal name). If the master journal
      * name in the journal is longer than nMaster bytes (including a
      * nul-terminator), then this is handled as if no master journal name were
      * present in the journal.
-     * 
+     *
      * If no master journal file name is present zMaster[0] is set to 0 and
      * SQLITE_OK returned.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private String readMasterJournal(final ISqlJetFile journal) throws SqlJetException {
         int len;
@@ -2343,13 +2348,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * file. The current location in the journal file is given by
      * pPager->journalOff. See comments above function writeJournalHdr() for a
      * description of the journal header format.
-     * 
+     *
      * If the header is read successfully,nRec is set to the number of page
      * records following this header and dbSize is set to the size of the
      * database before the transaction began, in pages. Also, pPager->cksumInit
      * is set to the value read from the journal header. SQLITE_OK is returned
      * in this case.
-     * 
+     *
      * If the journal header file appears to be corrupted, SQLITE_DONE is
      * returned and nRec and dbSize are undefined. If JOURNAL_HDR_SZ bytes
      * cannot be read from the journal file an error code is returned.
@@ -2427,13 +2432,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * Seek the journal file descriptor to the next sector boundary where a
      * journal header may be read or written. Pager.journalOff is updated with
      * the new seek offset.
-     * 
+     *
      * i.e for a sector size of 512:
-     * 
+     *
      * Input Offset Output Offset --------------------------------------- 0 0
      * 512 512 100 512 2000 2048
-     * 
-     * 
+     *
+     *
      */
     private long journalHdrOffset() {
         long offset = 0;
@@ -2454,13 +2459,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Return true if there is a hot journal on the given pager. A hot journal
      * is one that needs to be played back.
-     * 
+     *
      * If the current size of the database file is 0 but a journal file exists,
      * that is probably an old journal left over from a prior database with the
      * same name. Just delete the journal.
-     * 
+     *
      * Return false if unable to determine the status of the journal.
-     * 
+     *
      * This routine does not open the journal file to examine its content.
      * Hence, the journal might contain the name of a master journal file that
      * has been deleted, and hence not be hot. Or the header of the journal
@@ -2468,7 +2473,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * non-hot journal - if the journal file exists and is not empty this
      * routine assumes it is hot. The pager_playback() routine will discover
      * that the journal file is not really hot and will no-op.
-     * 
+     *
      * @return
      * @throws SqlJetException
      */
@@ -2495,10 +2500,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * Try to obtain a lock on a file. Invoke the busy callback if the lock is
      * currently not available. Repeat until the busy callback returns false or
      * until the lock succeeds.
-     * 
+     *
      * Return SQLITE_OK on success and an error code if we cannot obtain the
      * lock.
-     * 
+     *
      * @param lockType
      * @throws SqlJetIOException
      */
@@ -2526,7 +2531,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#get(int)
      */
     public ISqlJetPage getPage(int pageNumber) throws SqlJetException {
@@ -2535,7 +2540,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#lookup(int)
      */
     public ISqlJetPage lookupPage(int pageNumber) throws SqlJetException {
@@ -2548,7 +2553,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#truncate(int)
      */
     public void truncateImage(int pagesNumber) {
@@ -2559,7 +2564,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#imageSize()
      */
     public int imageSize() {
@@ -2570,7 +2575,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Truncate the main file of the given pager to the number of pages
      * indicated. Also truncate the cached representation of the file.
-     * 
+     *
      * It might might be the case that the file on disk is smaller than nPage.
      * This can happen, for example, if we are in the middle of a transaction
      * which has extended the file size and the new pages are still all held in
@@ -2578,7 +2583,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * system implementations can get confused if you try to truncate a file to
      * some size that is larger than it currently is, so detect this case and
      * write a single zero byte to the end of the new file instead.
-     * 
+     *
      * @param page
      * @throws SqlJetException
      */
@@ -2607,24 +2612,24 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * is synced and a power failure occurs, the unsynced journal data would be
      * lost and we would be unable to completely rollback the database changes.
      * Database corruption would occur.
-     * 
+     *
      * This routine also updates the nRec field in the header of the journal.
      * (See comments on the pager_playback() routine for additional
      * information.) If the sync mode is FULL, two syncs will occur. First the
      * whole journal is synced, then the nRec field is updated, then a second
      * sync occurs.
-     * 
+     *
      * For temporary databases, we do not care if we are able to rollback after
      * a power failure, so no sync occurs.
-     * 
+     *
      * If the IOCAP_SEQUENTIAL flag is set for the persistent media on which the
      * database is stored, then OsSync() is never called on the journal file. In
      * this case all that is required is to update the nRec field in the journal
      * header.
-     * 
+     *
      * This routine clears the needSync field of every page current held in
      * memory.
-     * 
+     *
      * @throws SqlJetIOException
      */
     private void syncJournal() throws SqlJetIOException {
@@ -2659,7 +2664,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * following recovery. It may roll back all of this
                      * connections data, then proceed to rolling back the old,
                      * out-of-date data that follows it. Database corruption.
-                     * 
+                     *
                      * To work around this, if the journal file does appear to
                      * contain a valid header following Pager.journalOff, then
                      * write a 0x00 byte to the start of it to prevent it from
@@ -2681,7 +2686,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                      * full-synchronous mode, sync the journal first. This
                      * ensures that all data has really hit the disk before nRec
                      * is updated to mark it as a candidate for rollback.
-                     * 
+                     *
                      * This is not required if the persistent media supports the
                      * SAFE_APPEND property. Because in this case it is not
                      * possible for garbage data to be appended to the file, the
@@ -2716,9 +2721,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      ** Add the page to the sub-journal. It is the callers responsibility to use
      * subjRequiresPage() to check that it is really required before calling
      * this function.
-     * 
+     *
      * @throws SqlJetIOException
-     * 
+     *
      */
     void subjournalPage(SqlJetPage pPg) throws SqlJetIOException {
         ISqlJetMemoryPointer pData = pPg.getData();
@@ -2737,7 +2742,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Write a 32-bit integer into the given file descriptor. Return SQLITE_OK
      * on success or an error code is something goes wrong.
-     * 
+     *
      * @throws SqlJetIOException
      */
     static void write32bits(ISqlJetFile fd, long offset, int val) throws SqlJetIOException {
@@ -2752,7 +2757,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#begin(boolean)
      */
     public void begin(boolean exclusive) throws SqlJetException {
@@ -2796,17 +2801,17 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * The journal file must be open when this routine is called. A journal
      * header (JOURNAL_HDR_SZ bytes) is written into the journal file at the
      * current location.
-     * 
+     *
      * The format for the journal header is as follows: - 8 bytes: Magic
      * identifying journal format. - 4 bytes: Number of records in journal, or
      * -1 no-sync mode is on. - 4 bytes: Random number used for page hash. - 4
      * bytes: Initial database page count. - 4 bytes: Sector size used by the
      * process that wrote this journal. - 4 bytes: Database page size.
-     * 
+     *
      * Followed by (JOURNAL_HDR_SZ - 28) bytes of unused space.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void writeJournalHdr() throws SqlJetException {
 
@@ -2843,17 +2848,17 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * After the records are added to the journal (and the journal synced,
          * if in full-sync mode), the zero is overwritten with the true number
          * of records (see syncJournal()).
-         * 
+         *
          * A faster alternative is to write 0xFFFFFFFF to the nRec field. When
          * reading the journal this value tells SQLite to assume that the rest
          * of the journal file contains valid page records. This assumption is
          * dangerous, as if a failure occured whilst writing to the journal file
          * it may contain some garbage data. There are two scenarios where this
          * risk can be ignored:
-         * 
+         *
          * When the pager is in no-sync mode. Corruption can follow a power
          * failure in this case anyway.
-         * 
+         *
          * When the SQLITE_IOCAP_SAFE_APPEND flag is set. This guarantees that
          * garbage data is never appended to the journal file.
          */
@@ -2912,7 +2917,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Write a 32-bit integer into a buffer in big-endian byte order.
-     * 
+     *
      * @param p
      * @param pos
      * @param v
@@ -2938,7 +2943,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * If the main journal file has already been opened, ensure that the
      * sub-journal file is open too. If the main journal is not open, this
      * function is a no-op.
-     * 
+     *
      * SQLITE_OK is returned if everything goes according to plan. An
      * SQLITE_IOERR_XXX error code is returned if the call to sqlite3OsOpen()
      * fails.
@@ -2956,7 +2961,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * Create a journal file for pPager. There should already be a RESERVED or
      * EXCLUSIVE lock on the database file when this routine is called.
-     * 
+     *
      * Return SQLITE_OK if everything. Return an error code and release the
      * write lock if anything goes wrong.
      */
@@ -3054,7 +3059,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPager#commitPhaseOne(java.lang.String,
      * int, boolean)
@@ -3167,7 +3172,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * page-cache to mark the pages as clean. It is the responsibility of the
      * caller to use PcacheCleanAll() or PcacheMakeClean() to mark the pages as
      * clean.
-     * 
+     *
      * @param pList
      * @throws SqlJetException
      */
@@ -3180,13 +3185,13 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * At this point there may be either a RESERVED or EXCLUSIVE lock on the
          * database file. If there is already an EXCLUSIVE lock, the following
          * calls to sqlite3OsLock() are no-ops.
-         * 
+         *
          * Moving the lock from RESERVED to EXCLUSIVE actually involves going
          * through an intermediate state PENDING. A PENDING lock prevents new
          * readers from attaching to the database but is unsufficient for us to
          * write. The idea of a PENDING lock is to prevent new readers from
          * coming in while we wait for existing readers to clear.
-         * 
+         *
          * While the pager is in the RESERVED state, the original database file
          * is unchanged and we can rollback without having to playback the
          * journal into the original database file. Once we transition to
@@ -3235,11 +3240,11 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /**
      * Open a temporary file.
-     * 
+     *
      * Write the file descriptor into *fd. Return SQLITE_OK on success or some
      * other error code if we fail. The OS will automatically delete the
      * temporary file when it is closed.
-     * 
+     *
      * @param fd2
      * @param type2
      * @param permissions2
@@ -3270,17 +3275,17 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * thing written to a journal file. If the pager is in full-sync mode, the
      * journal file descriptor is advanced to the next sector boundary before
      * anything is written. The format is:
-     * 
+     *
      * + 4 bytes: PAGER_MJ_PGNO. + N bytes: length of master journal name. + 4
      * bytes: N + 4 bytes: Master journal name checksum. + 8 bytes:
      * aJournalMagic[].
-     * 
+     *
      * The master journal page checksum is the sum of the bytes in the master
      * journal name.
-     * 
+     *
      * If zMaster is a NULL pointer (occurs for a single database transaction),
      * this call is a no-op.
-     * 
+     *
      * @param master
      * @throws SqlJetException
      */
@@ -3342,7 +3347,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * because the code to rollback a hot-journal file will not be able to
          * find the master-journal name to determine whether or not the journal
          * is hot.
-         * 
+         *
          * Easiest thing to do in this scenario is to truncate the journal file
          * to the required size.
          */
@@ -3355,7 +3360,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
     /**
      * This routine is called to increment the database file change-counter,
      * stored at byte 24 of the pager file.
-     * 
+     *
      * @param b
      * @throws SqlJetException
      */
@@ -3389,7 +3394,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#commitPhaseTwo()
      */
     public void commitPhaseTwo() throws SqlJetException {
@@ -3417,7 +3422,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#rollback()
      */
     public void rollback() throws SqlJetException {
@@ -3456,7 +3461,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#sync()
      */
     public void sync() throws SqlJetIOException {
@@ -3467,7 +3472,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetPager#refCount()
      */
     public int getRefCount() {
@@ -3476,7 +3481,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetPageDestructor#pageDestructor(org.tmatesoft
      * .sqljet.core.ISqlJetPage)
@@ -3574,10 +3579,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * it is SAVEPOINT_RELEASE, then release and destroy the savepoint with
      * index iSavepoint. If it is SAVEPOINT_ROLLBACK, then rollback all changes
      * that have occured since savepoint iSavepoint was created.
-     * 
+     *
      * In either case, all savepoints with an index greater than iSavepoint are
      * destroyed.
-     * 
+     *
      * If there are less than (iSavepoint+1) active savepoints when this
      * function is called it is a no-op.
      */

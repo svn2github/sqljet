@@ -17,17 +17,12 @@
  */
 package org.tmatesoft.sqljet.issues._148;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 
-import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
-import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 import org.tmatesoft.sqljet.core.table.SqlJetScope;
@@ -140,31 +135,13 @@ public class OpenScopeTest extends AbstractNewDbTest {
         assertNoIndexScope(new SqlJetScope((SqlJetScopeBound) null, (SqlJetScopeBound)null), 
                  new Long(1), new Long(2), new Long(3), new Long(4), new Long(5), new Long(6));
     }
-
+    
     private void assertIndexScope(SqlJetScope scope, Object... expectedKeysInScope) throws SqlJetException {
-        Collection<?> expected = Arrays.asList(expectedKeysInScope);
-        Object actualKeysInScope = queryScope(scope, "table", "names_idx");
-        Assert.assertEquals(expected, actualKeysInScope);
+        assertScope(scope, "table", "names_idx", expectedKeysInScope);
     }
 
     private void assertNoIndexScope(SqlJetScope scope, Object... expectedKeysInScope) throws SqlJetException {
-        Collection<?> expected = Arrays.asList(expectedKeysInScope);
-        Object actualKeysInScope = queryScope(scope, "noindex", null);
-        Assert.assertEquals(expected, actualKeysInScope);
-    }
-
-    private Object queryScope(final SqlJetScope scope, final String tableName, final String indexName) throws SqlJetException {
-        return db.runReadTransaction(new ISqlJetTransaction() {
-            public Object run(SqlJetDb db) throws SqlJetException {
-                Collection<Object> namesInScope = new ArrayList<Object>();  
-                ISqlJetCursor scopeCursor = db.getTable(tableName).scope(indexName, scope);
-                while(!scopeCursor.eof()) {
-                    namesInScope.add(scopeCursor.getValue(0));
-                    scopeCursor.next();
-                }
-                return namesInScope;
-            }
-        });
+        assertScope(scope, "noindex", null, expectedKeysInScope);
     }
 
 }

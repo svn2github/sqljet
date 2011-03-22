@@ -61,9 +61,9 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
     public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, SqlJetScope scope) throws SqlJetException {
         super(table, db, indexName);
         this.firstKey = SqlJetUtility.copyArray(scope.getLeftBound() != null ? scope.getLeftBound().getValue() : null);
-        this.firstKeyIncluded = scope.getLeftBound() != null ? scope.getLeftBound().isInclusive() : false;
+        this.firstKeyIncluded = scope.getLeftBound() != null ? scope.getLeftBound().isInclusive() : true;
         this.lastKey = SqlJetUtility.copyArray(scope.getRightBound() != null ? scope.getRightBound().getValue() : null);
-        this.lastKeyIncluded = scope.getRightBound() != null ? scope.getRightBound().isInclusive() : false;
+        this.lastKeyIncluded = scope.getRightBound() != null ? scope.getRightBound().isInclusive() : true;
         if (null == indexTable) {
             firstRowId = getRowIdFromKey(this.firstKey);
             lastRowId = getRowIdFromKey(this.lastKey);

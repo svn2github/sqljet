@@ -18,11 +18,19 @@
 package org.tmatesoft.sqljet.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
+import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.tmatesoft.sqljet.core.table.SqlJetScope;
 
 /**
  * @author TMate Software Ltd.
@@ -58,6 +66,26 @@ abstract public class AbstractNewDbTest extends AbstractDataCopyTest {
                 SqlJetFileUtil.deleteFile(file);
             }
         }
+    }
+
+    protected void assertScope(SqlJetScope scope, String tableName, String indexName, Object... expectedKeysInScope) throws SqlJetException {
+        Collection<?> expected = Arrays.asList(expectedKeysInScope);
+        Object actualKeysInScope = queryScope(scope, tableName, indexName);
+        Assert.assertEquals(expected, actualKeysInScope);
+    }
+
+    private Object queryScope(final SqlJetScope scope, final String tableName, final String indexName) throws SqlJetException {
+        return db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Collection<Object> namesInScope = new ArrayList<Object>();  
+                ISqlJetCursor scopeCursor = db.getTable(tableName).scope(indexName, scope);
+                while(!scopeCursor.eof()) {
+                    namesInScope.add(scopeCursor.getValue(0));
+                    scopeCursor.next();
+                }
+                return namesInScope;
+            }
+        });
     }
 
 }

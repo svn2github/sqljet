@@ -74,13 +74,13 @@ public class SqlJetScope {
         this(new SqlJetScopeBound(leftKey), new SqlJetScopeBound(rightKey));
     }
 
-    public SqlJetScope(SqlJetScopeBound leftBound, SqlJetScopeBound rightBound) {
-        myLeftBound = leftBound;
-        myRightBound = rightBound;
-    }
-
     public SqlJetScope(Object[] leftKey, boolean isLeftKeyIncluded, Object[] rightKey, boolean isRightKeyIncluded) {
         this(new SqlJetScopeBound(leftKey, isLeftKeyIncluded), new SqlJetScopeBound(rightKey, isRightKeyIncluded)); 
+    }
+
+    public SqlJetScope(SqlJetScopeBound leftBound, SqlJetScopeBound rightBound) {
+        myLeftBound = leftBound == null ? new SqlJetScopeBound(null, true) : leftBound;
+        myRightBound = rightBound == null ? new SqlJetScopeBound(null, true) : rightBound;
     }
 
     public SqlJetScopeBound getLeftBound() {

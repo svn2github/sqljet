@@ -177,6 +177,36 @@ public interface ISqlJetTable {
 
     /**
      * <p>
+     * Open cursor which restricts table to some scope of index values.
+     * </p>
+     * 
+     * <p>
+     * Scope is specified as pair of index keys. First key means start of scope
+     * and last key means end of scope. One of these keys (or even both) could
+     * be NULL. In this case scope is open from one side (or both sides). If
+     * first key is less of last key then cursor will be in reversed order. If
+     * indexName is NULL then primary key will be used.
+     * </p>
+     * 
+     * <p>
+     * Cursors can be opened only within active transaction. When transaction
+     * ends all cursors will be closed.
+     * </p>
+     * 
+     * @param indexName
+     *            Name of the searched index. If null then primary key will be
+     *            used.
+     * @param scope 
+     *          structure that contains both left and right bounds of the requested scope.
+
+     * @return cursor which have defined scope of rows.
+     * @throws SqlJetException
+     * @see {@link SqlJetScope}
+     */
+    ISqlJetCursor scope(String indexName, SqlJetScope scope) throws SqlJetException;
+
+    /**
+     * <p>
      * Add new record to the table with specified values.
      * </p>
      * 

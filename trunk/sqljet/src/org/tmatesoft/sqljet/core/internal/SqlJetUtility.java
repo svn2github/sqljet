@@ -34,6 +34,8 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
 import org.tmatesoft.sqljet.core.internal.memory.SqlJetByteBuffer;
 import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryManager;
+import org.tmatesoft.sqljet.core.table.SqlJetScope;
+import org.tmatesoft.sqljet.core.table.SqlJetScope.SqlJetScopeBound;
 
 /**
  * @author TMate Software Ltd.
@@ -984,6 +986,20 @@ public final class SqlJetUtility {
             key[i] = adjustNumberType(key[i]);
         }
         return key;
+    }
+
+    public static final SqlJetScope adjustScopeNumberTypes(SqlJetScope scope) {
+        if (null == scope)
+            return null;
+        SqlJetScopeBound leftBound = scope.getLeftBound();
+        SqlJetScopeBound rightBound = scope.getRightBound();
+        if (leftBound != null) {
+            leftBound = new SqlJetScopeBound(adjustNumberTypes(leftBound.getValue()), leftBound.isInclusive());
+        }
+        if (rightBound != null) {
+            rightBound = new SqlJetScopeBound(adjustNumberTypes(rightBound.getValue()), rightBound.isInclusive());
+        }
+        return new SqlJetScope(leftBound, rightBound);
     }
 
     public static final Object adjustNumberType(Object value) {

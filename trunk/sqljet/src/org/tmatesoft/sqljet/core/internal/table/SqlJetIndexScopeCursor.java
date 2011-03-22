@@ -21,6 +21,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.tmatesoft.sqljet.core.table.SqlJetScope;
 import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
 import org.tmatesoft.sqljet.core.table.engine.SqlJetEngine;
 
@@ -35,6 +36,8 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
     private Object[] lastKey;
     private long firstRowId;
     private long lastRowId;
+    private boolean firstKeyIncluded;
+    private boolean lastKeyIncluded;
 
     /**
      * @param table
@@ -44,16 +47,38 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
      * @param lastKey
      * @throws SqlJetException
      */
-    public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, Object[] firstKey,
-            Object[] lastKey) throws SqlJetException {
+    public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, Object[] firstKey, Object[] lastKey) throws SqlJetException {
+        this(table, db, indexName, new SqlJetScope(firstKey, lastKey));
+    }
+
+    /**
+     * @param table
+     * @param db
+     * @param indexName
+     * @param scope
+     * @throws SqlJetException
+     */
+    public SqlJetIndexScopeCursor(ISqlJetBtreeDataTable table, SqlJetDb db, String indexName, SqlJetScope scope) throws SqlJetException {
         super(table, db, indexName);
-        this.firstKey = SqlJetUtility.copyArray(firstKey);
-        this.lastKey = SqlJetUtility.copyArray(lastKey);
+        this.firstKey = SqlJetUtility.copyArray(scope.getLeftBound() != null ? scope.getLeftBound().getValue() : null);
+        this.firstKeyIncluded = scope.getLeftBound() != null ? scope.getLeftBound().isInclusive() : false;
+        this.lastKey = SqlJetUtility.copyArray(scope.getRightBound() != null ? scope.getRightBound().getValue() : null);
+        this.lastKeyIncluded = scope.getRightBound() != null ? scope.getRightBound().isInclusive() : false;
         if (null == indexTable) {
             firstRowId = getRowIdFromKey(this.firstKey);
             lastRowId = getRowIdFromKey(this.lastKey);
         }
         first();
+        
+        if (!firstKeyIncluded) {
+            if (indexTable != null && firstKey != null && indexTable.compareKey(firstKey) == 0) {
+                next();
+            } else if (indexTable == null) {
+                if (getRowId() == firstRowId) {
+                    next();
+                }
+            }
+        }
     }
 
     /*
@@ -91,7 +116,16 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                         return firstRowNum(goTo(firstRowId));
                     }
                 } else {
-                    final long lookup = indexTable.lookupNear(false, firstKey);
+                    long lookup = indexTable.lookupNear(false, firstKey);
+                    if (!firstKeyIncluded && lookup != 0) {
+                        if (indexTable.compareKey(firstKey) == 0) {
+                            if (indexTable.next()) { 
+                                lookup = indexTable.getKeyRowId();
+                            } else {
+                                lookup = 0;
+                            }
+                        }
+                    }
                     if (lookup != 0) {
                         return firstRowNum(goTo(lookup));
                     }
@@ -176,19 +210,33 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
             if (firstRowId != 0) {
                 if (firstRowId > rowId)
                     return false;
+                if (!firstKeyIncluded && firstRowId == rowId) {
+                    return false;
+                }
             }
             if (lastRowId != 0) {
                 if (lastRowId < rowId)
                     return false;
+                if (!lastKeyIncluded && lastRowId == rowId) {
+                    return false;
+                }
             }
         } else {
             if (firstKey != null) {
-                if (indexTable.compareKey(firstKey) < 0) {
+                int compareResult = indexTable.compareKey(firstKey);
+                if (compareResult < 0) {
+                    return false;
+                } 
+                if (!firstKeyIncluded && compareResult == 0) {
                     return false;
                 }
             }
             if (lastKey != null) {
-                if (indexTable.compareKey(lastKey) > 0) {
+                int compareResult = indexTable.compareKey(lastKey);
+                if (compareResult > 0) {
+                    return false;
+                } 
+                if (!lastKeyIncluded && compareResult == 0) {
                     return false;
                 }
             }
@@ -215,7 +263,16 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                         return lastRowNum(goTo(lastRowId));
                     }
                 } else {
-                    final long lookup = indexTable.lookupLastNear(lastKey);
+                    long lookup = indexTable.lookupLastNear(lastKey);
+                    if (lookup != 0 && !lastKeyIncluded) {
+                        if (indexTable.compareKey(lastKey) == 0) {
+                            if (indexTable.previous()) {
+                                lookup = indexTable.getKeyRowId();
+                            } else {
+                                lookup = 0;
+                            }
+                        }
+                    }
                     if (lookup != 0) {
                         return lastRowNum(goTo(lookup));
                     }

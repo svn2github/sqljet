@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetRunnableWithLock;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
+import org.tmatesoft.sqljet.core.table.SqlJetScope;
 
 /**
  * Implementation of {@link ISqlJetTable}.
@@ -217,24 +218,26 @@ public class SqlJetTable implements ISqlJetTable {
         });
     }
 
+    public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey) throws SqlJetException {
+        return scope(indexName, new SqlJetScope(firstKey, lastKey));
+    }
+
     /*
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.table.ISqlJetTable#scope(java.lang.String,
      * java.lang.Object[], java.lang.Object[])
      */
-    public ISqlJetCursor scope(final String indexName, final Object[] firstKey, final Object[] lastKey)
-            throws SqlJetException {
-        final Object[] first = SqlJetUtility.adjustNumberTypes(firstKey);
-        final Object[] last = SqlJetUtility.adjustNumberTypes(lastKey);
+    public ISqlJetCursor scope(final String indexName, SqlJetScope scope)  throws SqlJetException {
+        final SqlJetScope adjustedScope = SqlJetUtility.adjustScopeNumberTypes(scope);
         return (ISqlJetCursor) db.runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 final SqlJetBtreeDataTable table = new SqlJetBtreeDataTable(btree, tableName, write);
                 checkIndexName(indexName, table);
-                if (isNeedReverse(getIndexTable(indexName, table), first, last)) {
-                    return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, last, first));
+                if (isNeedReverse(getIndexTable(indexName, table), adjustedScope)) {
+                    return new SqlJetReverseOrderCursor(new SqlJetIndexScopeCursor(table, db, indexName, adjustedScope.reverse()));
                 } else {
-                    return new SqlJetIndexScopeCursor(table, db, indexName, first, last);
+                    return new SqlJetIndexScopeCursor(table, db, indexName, adjustedScope);
                 }
             }
         });
@@ -251,15 +254,16 @@ public class SqlJetTable implements ISqlJetTable {
 
     /**
      * @param indexName
-     * @param firstKey
-     * @param lastKey
+     * @param scope
      * @param reverse
      * @param table
      * @return
      * @throws SqlJetException
      */
-    private boolean isNeedReverse(final ISqlJetBtreeIndexTable indexTable, final Object[] firstKey,
-            final Object[] lastKey) throws SqlJetException {
+    private boolean isNeedReverse(final ISqlJetBtreeIndexTable indexTable, SqlJetScope scope) throws SqlJetException {
+        Object[] firstKey = scope.getLeftBound() != null ? scope.getLeftBound().getValue() : null;
+        Object[] lastKey = scope.getRightBound() != null ? scope.getRightBound().getValue() : null;
+        
         if (firstKey != null && lastKey != null && firstKey.length > 0 && lastKey.length > 0) {
             if (indexTable != null) {
                 return indexTable.compareKeys(firstKey, lastKey) < 0;

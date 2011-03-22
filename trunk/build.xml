@@ -75,7 +75,7 @@
 public class SqlLexer</replacevalue>
 		</replace>
 		<replace file="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java" token="public class SqlParser">
-			<replacevalue>@SuppressWarnings({"unused", "unchecked"})
+			<replacevalue>@SuppressWarnings({"unused", "unchecked", "rawtypes"})
 public class SqlParser</replacevalue>
 		</replace>
 

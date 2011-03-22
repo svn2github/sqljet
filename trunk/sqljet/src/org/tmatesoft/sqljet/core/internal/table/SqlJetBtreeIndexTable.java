@@ -139,15 +139,13 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
         if (!last) {
             return cursor.moveTo(pKey, nKey, false);
         } else {
-            SqlJetUnpackedRecord pIdxKey;
+            SqlJetUnpackedRecord pIdxKey = null;
             if (pKey != null) {
                 assert (nKey == (long) (int) nKey);
                 pIdxKey = keyInfo.recordUnpack((int) nKey, pKey);
-                pIdxKey.getFlags().add(SqlJetUnpackedRecordFlags.INCRKEY);
                 if (pIdxKey == null)
                     throw new SqlJetException(SqlJetErrorCode.NOMEM);
-            } else {
-                pIdxKey = null;
+                pIdxKey.getFlags().add(SqlJetUnpackedRecordFlags.INCRKEY);
             }
             try {
                 return cursor.moveToUnpacked(pIdxKey, nKey, false);

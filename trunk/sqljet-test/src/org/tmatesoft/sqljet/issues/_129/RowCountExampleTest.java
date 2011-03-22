@@ -79,7 +79,7 @@ public class RowCountExampleTest
   public void testRowCount() throws SqlJetException
   {
     // open all the tables here so we aren't opening tables repeatedly in the loops.
-    ISqlJetTable groupTable = persistenceDb.getTable(GROUP_TABLE_NAME);
+    persistenceDb.getTable(GROUP_TABLE_NAME);
     ISqlJetTable customerTable = persistenceDb.getTable(CUSTOMER_TABLE_NAME);
     // begin a read transaction before reading data (this is required by SqlJet).
     persistenceDb.beginTransaction(SqlJetTransactionMode.READ_ONLY);
@@ -103,7 +103,7 @@ public class RowCountExampleTest
   public void testDelete() throws SqlJetException
   {
     // open all the tables here so we aren't opening tables repeatedly in the loops.
-    ISqlJetTable groupTable = persistenceDb.getTable(GROUP_TABLE_NAME);
+    persistenceDb.getTable(GROUP_TABLE_NAME);
     ISqlJetTable customerTable = persistenceDb.getTable(CUSTOMER_TABLE_NAME);
     // begin a read transaction before reading data (this is required by SqlJet).
     persistenceDb.beginTransaction(SqlJetTransactionMode.WRITE);

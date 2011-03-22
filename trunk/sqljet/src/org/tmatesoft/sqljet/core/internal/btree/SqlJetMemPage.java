@@ -171,7 +171,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
         assert (hdrOffset == (pgno == 1 ? 100 : 0));
         assert (pBt.mutex.held());
         leaf = (flagByte >> 3) > 0;
-        assert (PTF_LEAF == 1 << 3);
         flagByte &= ~PTF_LEAF;
         childPtrSize = (byte) (4 - 4 * (leaf ? 1 : 0));
         if (flagByte == (PTF_LEAFDATA | PTF_INTKEY)) {

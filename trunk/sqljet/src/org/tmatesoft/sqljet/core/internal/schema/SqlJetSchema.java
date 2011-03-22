@@ -267,9 +267,6 @@ public class SqlJetSchema implements ISqlJetSchema {
                 }
             } else if (INDEX_TYPE.equals(type)) {
                 final String tableName = table.getTableField();
-                if (null == type) {
-                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
-                }
                 final String sql = table.getSqlField();
                 if (null != sql) {
                     // System.err.println(sql);
@@ -1184,9 +1181,6 @@ public class SqlJetSchema implements ISqlJetSchema {
     public ISqlJetTableDef alterTable(String sql) throws SqlJetException {
 
         final SqlJetAlterTableDef alterTableDef = new SqlJetAlterTableDef(parseSqlStatement(sql));
-        if (null == alterTableDef) {
-            throw new SqlJetException(SqlJetErrorCode.INTERNAL);
-        }
 
         db.getMutex().enter();
         try {

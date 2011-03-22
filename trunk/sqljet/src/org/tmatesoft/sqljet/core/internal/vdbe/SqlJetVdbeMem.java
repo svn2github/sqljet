@@ -170,7 +170,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             if (!(f2.contains(SqlJetVdbeMemFlags.Int) || f2.contains(SqlJetVdbeMemFlags.Real))) {
                 return -1;
             }
-            if (!f1.contains(SqlJetVdbeMemFlags.Int) && !f2.contains(SqlJetVdbeMemFlags.Int)) {
+            if (f1.contains(SqlJetVdbeMemFlags.Real) || f2.contains(SqlJetVdbeMemFlags.Real)) {
+                // one is real.
                 double r1, r2;
                 if (!f1.contains(SqlJetVdbeMemFlags.Real)) {
                     r1 = (double) pMem1.i;

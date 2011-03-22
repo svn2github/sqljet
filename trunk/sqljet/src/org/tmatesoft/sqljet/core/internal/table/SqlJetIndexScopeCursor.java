@@ -67,18 +67,14 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
         if (null == indexTable) {
             firstRowId = getRowIdFromKey(this.firstKey);
             lastRowId = getRowIdFromKey(this.lastKey);
-        }
-        first();
-        
-        if (!firstKeyIncluded) {
-            if (indexTable != null && firstKey != null && indexTable.compareKey(firstKey) == 0) {
-                next();
-            } else if (indexTable == null) {
-                if (getRowId() == firstRowId) {
-                    next();
-                }
+            if (!firstKeyIncluded && firstRowId > 0) {
+                firstRowId++;
+            }
+            if (!lastKeyIncluded && lastRowId > 0) {
+                lastRowId--;
             }
         }
+        first();
     }
 
     /*
@@ -210,16 +206,10 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
             if (firstRowId != 0) {
                 if (firstRowId > rowId)
                     return false;
-                if (!firstKeyIncluded && firstRowId == rowId) {
-                    return false;
-                }
             }
             if (lastRowId != 0) {
                 if (lastRowId < rowId)
                     return false;
-                if (!lastKeyIncluded && lastRowId == rowId) {
-                    return false;
-                }
             }
         } else {
             if (firstKey != null) {

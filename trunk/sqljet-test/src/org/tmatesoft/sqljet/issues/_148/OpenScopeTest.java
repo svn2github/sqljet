@@ -59,6 +59,19 @@ public class OpenScopeTest extends AbstractNewDbTest {
                 return null;
             }
         });
+
+        db.createTable("CREATE TABLE IF NOT EXISTS noindex (id INTEGER PRIMARY KEY)");
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                
+                db.getTable("noindex").insert(1);
+                db.getTable("noindex").insert(2);
+                db.getTable("noindex").insert(3);
+                db.getTable("noindex").insert(4);
+                db.getTable("noindex").insert(5);
+                return null;
+            }
+        });
     }
 
     @Test
@@ -74,36 +87,79 @@ public class OpenScopeTest extends AbstractNewDbTest {
         SqlJetScope unbounded = new SqlJetScope((SqlJetScopeBound) null, (SqlJetScopeBound) null);
         SqlJetScope unbounded2 = new SqlJetScope((Object[]) null, (Object[]) null);
         
-        assertScope(closedScope, "ABC", "ABCD", "ABCDEF", "XYZ");
-        assertScope(closedScope.reverse(), "XYZ", "ABCDEF", "ABCD", "ABC");
-        assertScope(openScope, "ABCD", "ABCDEF");
-        assertScope(openScope.reverse(), "ABCDEF", "ABCD");
-        assertScope(emptyOpenScope);
-        assertScope(emptyOpenScope.reverse());
-        assertScope(notMatchingClosedScope, "ABC", "ABCD", "ABCDEF");
-        assertScope(notMatchingOpenScope, "ABC", "ABCD", "ABCDEF");
-        assertScope(outOfBoundsClosedScope);
-        assertScope(outOfBoundsOpenScope);
+        assertIndexScope(closedScope, "ABC", "ABCD", "ABCDEF", "XYZ");
+        assertIndexScope(closedScope.reverse(), "XYZ", "ABCDEF", "ABCD", "ABC");
+        assertIndexScope(openScope, "ABCD", "ABCDEF");
+        assertIndexScope(openScope.reverse(), "ABCDEF", "ABCD");
+        assertIndexScope(emptyOpenScope);
+        assertIndexScope(emptyOpenScope.reverse());
+        assertIndexScope(notMatchingClosedScope, "ABC", "ABCD", "ABCDEF");
+        assertIndexScope(notMatchingOpenScope, "ABC", "ABCD", "ABCDEF");
+        assertIndexScope(outOfBoundsClosedScope);
+        assertIndexScope(outOfBoundsOpenScope);
 
-        assertScope(unbounded, "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
-        assertScope(unbounded.reverse(), "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
-        assertScope(unbounded2, "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
-        assertScope(unbounded2.reverse(), "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
+        assertIndexScope(unbounded, "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
+        assertIndexScope(unbounded.reverse(), "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
+        assertIndexScope(unbounded2, "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
+        assertIndexScope(unbounded2.reverse(), "A", "ABC", "ABCD", "ABCDEF", "XYZ", "XYZZ" );
     }
 
-    private void assertScope(SqlJetScope scope, String... expectedKeysInScope) throws SqlJetException {
-        Collection<String> expected = Arrays.asList(expectedKeysInScope);
-        Object actualKeysInScope = queryScope(scope);
+    @Test
+    public void testNoIndexScope() throws SqlJetException {
+        SqlJetScope closedScope = new SqlJetScope(new Object[] {2}, new Object[] {5});
+        SqlJetScope openScope = new SqlJetScope(new Object[] {2}, false, new Object[] {5}, false);
+        SqlJetScope emptyScope = new SqlJetScope(new Object[] {3}, false, new Object[] {4}, false);
+        
+        assertNoIndexScope(closedScope, new Long(2), new Long(3), new Long(4), new Long(5));
+        assertNoIndexScope(openScope, new Long(3), new Long(4));
+        assertNoIndexScope(emptyScope);
+
+        assertNoIndexScope(closedScope.reverse(), Long.valueOf(5),Long.valueOf(4),Long.valueOf(3), Long.valueOf(2));
+        assertNoIndexScope(openScope.reverse(), new Long(4), new Long(3));
+        assertNoIndexScope(emptyScope.reverse());
+        
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getTable("noindex").lookup(null, Long.valueOf(3)).delete();
+                return null;
+            }
+        });
+
+        assertNoIndexScope(openScope, new Long(4));
+        assertNoIndexScope(openScope.reverse(), new Long(4));
+
+        db.runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                db.getTable("noindex").insert(3);
+                db.getTable("noindex").insert(6);
+                return null;
+            }
+        });
+        assertNoIndexScope(openScope, new Long(3), new Long(4));
+        assertNoIndexScope(openScope.reverse(), new Long(4), new Long(3));
+        assertNoIndexScope(new SqlJetScope((SqlJetScopeBound) null, (SqlJetScopeBound)null), 
+                 new Long(1), new Long(2), new Long(3), new Long(4), new Long(5), new Long(6));
+    }
+
+    private void assertIndexScope(SqlJetScope scope, Object... expectedKeysInScope) throws SqlJetException {
+        Collection<?> expected = Arrays.asList(expectedKeysInScope);
+        Object actualKeysInScope = queryScope(scope, "table", "names_idx");
         Assert.assertEquals(expected, actualKeysInScope);
     }
 
-    private Object queryScope(final SqlJetScope scope) throws SqlJetException {
+    private void assertNoIndexScope(SqlJetScope scope, Object... expectedKeysInScope) throws SqlJetException {
+        Collection<?> expected = Arrays.asList(expectedKeysInScope);
+        Object actualKeysInScope = queryScope(scope, "noindex", null);
+        Assert.assertEquals(expected, actualKeysInScope);
+    }
+
+    private Object queryScope(final SqlJetScope scope, final String tableName, final String indexName) throws SqlJetException {
         return db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                Collection<String> namesInScope = new ArrayList<String>();  
-                ISqlJetCursor scopeCursor = db.getTable("table").scope("names_idx", scope);
+                Collection<Object> namesInScope = new ArrayList<Object>();  
+                ISqlJetCursor scopeCursor = db.getTable(tableName).scope(indexName, scope);
                 while(!scopeCursor.eof()) {
-                    namesInScope.add(scopeCursor.getString(0));
+                    namesInScope.add(scopeCursor.getValue(0));
                     scopeCursor.next();
                 }
                 return namesInScope;

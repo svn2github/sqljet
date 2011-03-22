@@ -92,8 +92,8 @@ public class SqlJetScope {
     }
 
     public SqlJetScope reverse() {
-        SqlJetScopeBound rightBound = getRightBound() != null ? new SqlJetScopeBound(getRightBound().getValue(), getRightBound().myIsInclusive) : null;
-        SqlJetScopeBound leftBound = getLeftBound() != null ? new SqlJetScopeBound(getLeftBound().getValue(), getLeftBound().myIsInclusive) : null;
+        SqlJetScopeBound rightBound = getRightBound() != null ? new SqlJetScopeBound(getRightBound().getValue(), getRightBound().isInclusive()) : null;
+        SqlJetScopeBound leftBound = getLeftBound() != null ? new SqlJetScopeBound(getLeftBound().getValue(), getLeftBound().isInclusive()) : null;
         return new SqlJetScope(rightBound, leftBound);
     }
     

@@ -79,9 +79,14 @@ abstract public class AbstractNewDbTest extends AbstractDataCopyTest {
             public Object run(SqlJetDb db) throws SqlJetException {
                 Collection<Object> namesInScope = new ArrayList<Object>();  
                 ISqlJetCursor scopeCursor = db.getTable(tableName).scope(indexName, scope);
-                while(!scopeCursor.eof()) {
-                    namesInScope.add(scopeCursor.getValue(0));
-                    scopeCursor.next();
+                Assert.assertNotNull(scopeCursor);
+                try {
+                    while(!scopeCursor.eof()) {
+                        namesInScope.add(scopeCursor.getValue(0));
+                        scopeCursor.next();
+                    }
+                } finally {
+                    scopeCursor.close();
                 }
                 return namesInScope;
             }

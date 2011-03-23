@@ -1,7 +1,7 @@
 /**
  * SqlJetMem.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -52,15 +52,15 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  * Each Mem struct may cache multiple representations (string, integer etc.) of
  * the same value. A value (and therefore Mem structure) has the following
  * properties:
- * 
+ *
  * Each value has a manifest type. The manifest type of the value stored in a
  * Mem struct is returned by the MemType(Mem*) macro. The type is one of
  * SQLITE_NULL, SQLITE_INTEGER, SQLITE_REAL, SQLITE_TEXT or SQLITE_BLOB.
- * 
- * 
+ *
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
@@ -117,7 +117,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#release()
      */
     public void release() {
@@ -170,7 +170,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
             if (!(f2.contains(SqlJetVdbeMemFlags.Int) || f2.contains(SqlJetVdbeMemFlags.Real))) {
                 return -1;
             }
-            if (!f1.contains(SqlJetVdbeMemFlags.Int) && !f2.contains(SqlJetVdbeMemFlags.Int)) {
+            if (f1.contains(SqlJetVdbeMemFlags.Real) || f2.contains(SqlJetVdbeMemFlags.Real)) {
+                // one is real.
                 double r1, r2;
                 if (!f1.contains(SqlJetVdbeMemFlags.Real)) {
                     r1 = (double) pMem1.i;
@@ -258,7 +259,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#shallowCopy(org.tmatesoft.sqljet
      * .core.internal.vdbe.SqlJetVdbeMemFlags)
@@ -278,7 +279,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#copy()
      */
     public ISqlJetVdbeMem copy() throws SqlJetException {
@@ -297,7 +298,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#move(org.tmatesoft.sqljet.core
      * .ISqlJetVdbeMem, org.tmatesoft.sqljet.core.ISqlJetVdbeMem)
@@ -313,7 +314,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#valueText(org.
      * tmatesoft.sqljet.core.SqlJetEncoding)
@@ -361,7 +362,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#stringify(org.tmatesoft.sqljet
      * .core.SqlJetEncoding)
@@ -405,7 +406,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#grow(int,
      * boolean)
      */
@@ -449,7 +450,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#nulTerminate()
      */
     public void nulTerminate() {
@@ -467,7 +468,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#changeEncoding(org.tmatesoft
      * .sqljet.core.SqlJetEncoding)
@@ -490,7 +491,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#translate(org.tmatesoft.sqljet
      * .core.SqlJetEncoding)
@@ -575,7 +576,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#expandBlob()
      */
     public void expandBlob() {
@@ -603,7 +604,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#fromBtree(org.
      * tmatesoft.sqljet.core.ISqlJetBtreeCursor, int, int, boolean)
@@ -656,7 +657,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#makeWriteable()
      */
@@ -677,7 +678,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#intValue()
      */
     public long intValue() {
@@ -709,7 +710,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setNull()
      */
     public void setNull() {
@@ -722,7 +723,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setStr(java.nio.ByteBuffer,
      * org.tmatesoft.sqljet.core.SqlJetEncoding)
      */
@@ -738,10 +739,10 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         }
 
         int nByte = z.remaining(); /* New value for pMem->n */
-        /* Maximum allowed string or blob size */        
-        int iLimit = ISqlJetLimits.SQLJET_MAX_LENGTH; 
-        /* New value for pMem->flags */        
-        flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class); 
+        /* Maximum allowed string or blob size */
+        int iLimit = ISqlJetLimits.SQLJET_MAX_LENGTH;
+        /* New value for pMem->flags */
+        flags = SqlJetUtility.noneOf(SqlJetVdbeMemFlags.class);
 
         flags.add(enc == null ? SqlJetVdbeMemFlags.Blob : SqlJetVdbeMemFlags.Str);
 
@@ -758,7 +759,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setInt64(long)
      */
     public void setInt64(long val) {
@@ -770,7 +771,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#realValue()
      */
     public double realValue() {
@@ -799,7 +800,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#integerAffinity()
      */
     public void integerAffinity() {
@@ -816,7 +817,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#integerify()
      */
     public void integerify() {
@@ -830,7 +831,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#realify()
      */
     public void realify() {
@@ -843,7 +844,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#numerify()
      */
     public void numerify() {
@@ -868,7 +869,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setTypeFlag(org.tmatesoft.sqljet
      * .core.internal.vdbe.SqlJetVdbeMemFlags)
@@ -885,7 +886,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setZeroBlob(int)
      */
     public void setZeroBlob(int n) {
@@ -902,7 +903,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setDouble(double)
      */
     public void setDouble(double val) {
@@ -919,7 +920,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setRowSet()
      */
     public void setRowSet() {
@@ -937,7 +938,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#isTooBig()
      */
     public boolean isTooBig() {
@@ -955,7 +956,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#sanity()
      */
     public void sanity() {
@@ -1003,7 +1004,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetVdbeMem#valueBytes(org.tmatesoft.sqljet
      * .core.SqlJetEncoding)
@@ -1022,7 +1023,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#handleBom()
      */
     public void handleBom() {
@@ -1055,7 +1056,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#getFlags()
      */
     public Set<SqlJetVdbeMemFlags> getFlags() {
@@ -1064,7 +1065,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem#isNull()
      */
     public boolean isNull() {
@@ -1075,7 +1076,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem#getType()
      */
     public SqlJetValueType getType() {
@@ -1084,7 +1085,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem#valueBlob()
      */
     public ISqlJetMemoryPointer valueBlob() throws SqlJetException {
@@ -1101,7 +1102,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
     /**
      * Processing is determine by the affinity parameter:
-     * 
+     *
      * <table>
      * <tr>
      * <td>
@@ -1133,7 +1134,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * <td></td>
      * <td>Convert value to a text representation.</td>
      * </tr>
-     * 
+     *
      * <tr>
      * <td>
      * <ul>
@@ -1147,12 +1148,12 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * <td>No-op. value is unchanged.</td>
      * </tr>
      * </table>
-     * 
+     *
      * @param affinity
      *            The affinity to be applied
      * @param enc
      *            Use this text encoding
-     * 
+     *
      * @throws SqlJetException
      */
     public void applyAffinity(SqlJetTypeAffinity affinity, SqlJetEncoding enc) throws SqlJetException {
@@ -1171,9 +1172,11 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         } else if (affinity != SqlJetTypeAffinity.NONE) {
             assert (affinity == SqlJetTypeAffinity.INTEGER || affinity == SqlJetTypeAffinity.REAL || affinity == SqlJetTypeAffinity.NUMERIC);
             applyNumericAffinity();
+            /*
             if (flags.contains(SqlJetVdbeMemFlags.Real)) {
                 applyIntegerAffinity();
             }
+            */
         }
     }
 
@@ -1182,7 +1185,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * without loss of information. In other words, if the string looks like a
      * number, convert it into a number. If it does not look like a number,
      * leave it alone.
-     * 
+     *
      * @throws SqlJetException
      */
     public void applyNumericAffinity() throws SqlJetException {

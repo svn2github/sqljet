@@ -207,7 +207,7 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
      * 
      * @throws Exception
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     protected void setUpInstances() throws Exception {
         super.setUpInstances();
 
@@ -230,10 +230,10 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
         EasyMock.expect(fileSystem.open(null, null, null)).andStubThrow(cantOpen);
 
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class),(SqlJetFileType)EasyMock.isNull(),
-                (Set)EasyMock.isNull())).andStubThrow(cantOpen);
+                (Set<SqlJetFileOpenPermission>)EasyMock.isNull())).andStubThrow(cantOpen);
         
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), EasyMock.isA(SqlJetFileType.class),
-                (Set)EasyMock.isNull())).andStubThrow(cantOpen);
+                (Set<SqlJetFileOpenPermission>)EasyMock.isNull())).andStubThrow(cantOpen);
 
         EasyMock.expect(fileSystem.open(EasyMock.isA(File.class), (SqlJetFileType)EasyMock.isNull(),
                 EasyMock.isA(Set.class))).andStubThrow(cantOpen);

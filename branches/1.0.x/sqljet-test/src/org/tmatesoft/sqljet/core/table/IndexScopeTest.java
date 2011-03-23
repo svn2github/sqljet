@@ -17,11 +17,15 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
+import org.tmatesoft.sqljet.core.table.SqlJetScope.SqlJetScopeBound;
 
 /**
  * @author TMate Software Ltd.
@@ -421,5 +425,31 @@ public class IndexScopeTest extends AbstractNewDbTest {
         table5.order(null);
         Assert.assertTrue(false);
     }
+    
+    @Test
+    public void testNoAssertionOnGetRowId() throws SqlJetException {
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                for(String tableName : db.getSchema().getTableNames()) {
+                    ISqlJetTable table = db.getTable(tableName);
+                    Set<ISqlJetIndexDef> indices = db.getSchema().getIndexes(tableName);
+                    if (indices != null) {
+                        for (ISqlJetIndexDef indexDef : indices) {
+                            SqlJetScope scope = new SqlJetScope((SqlJetScopeBound) null, null);
+                            ISqlJetCursor cursor = table.scope(indexDef.getName(), scope);
+                            Assert.assertNotNull(cursor);
+                            while(!cursor.eof()) {
+                                cursor.getRowId();
+                                cursor.next();
+                            }
+                            cursor.close();
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+    }
+
 
 }

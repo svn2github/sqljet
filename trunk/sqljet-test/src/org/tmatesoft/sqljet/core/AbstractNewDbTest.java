@@ -20,7 +20,7 @@ package org.tmatesoft.sqljet.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 import junit.framework.Assert;
 
@@ -69,26 +69,38 @@ abstract public class AbstractNewDbTest extends AbstractDataCopyTest {
     }
 
     protected void assertScope(SqlJetScope scope, String tableName, String indexName, Object... expectedKeysInScope) throws SqlJetException {
-        Collection<?> expected = Arrays.asList(expectedKeysInScope);
-        Object actualKeysInScope = queryScope(scope, tableName, indexName);
-        Assert.assertEquals(expected, actualKeysInScope);
+        assertScope(scope, tableName, indexName, false, expectedKeysInScope);
     }
 
-    private Object queryScope(final SqlJetScope scope, final String tableName, final String indexName) throws SqlJetException {
-        return db.runReadTransaction(new ISqlJetTransaction() {
+    protected void assertScope(SqlJetScope scope, String tableName, String indexName, boolean allFields, Object... expectedKeysInScope) throws SqlJetException {
+        List<?> expected = Arrays.asList(expectedKeysInScope);
+        List<?> actualValuesInScope = queryScope(scope, tableName, indexName, allFields);
+        Assert.assertTrue(Arrays.deepEquals(expected.toArray(), actualValuesInScope.toArray()));
+    }
+
+    private List<?> queryScope(final SqlJetScope scope, final String tableName, final String indexName, final boolean allFields) throws SqlJetException {
+        return (List<?>) db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                Collection<Object> namesInScope = new ArrayList<Object>();  
+                List<Object> valuesInScope = new ArrayList<Object>();  
                 ISqlJetCursor scopeCursor = db.getTable(tableName).scope(indexName, scope);
                 Assert.assertNotNull(scopeCursor);
                 try {
                     while(!scopeCursor.eof()) {
-                        namesInScope.add(scopeCursor.getValue(0));
+                        if (scopeCursor.getFieldsCount() == 1 || !allFields) {
+                            valuesInScope.add(scopeCursor.getValue(0));
+                        } else {
+                            Object[] values = new Object[scopeCursor.getFieldsCount()];
+                            for (int i = 0; i < values.length; i++) {
+                                values[i] = scopeCursor.getValue(i);
+                            }
+                            valuesInScope.add(values);
+                        }
                         scopeCursor.next();
                     }
                 } finally {
                     scopeCursor.close();
                 }
-                return namesInScope;
+                return valuesInScope;
             }
         });
     }

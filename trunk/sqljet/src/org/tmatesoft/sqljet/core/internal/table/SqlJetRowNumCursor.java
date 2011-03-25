@@ -86,8 +86,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     /**
      * @throws SqlJetException
      */
-    private void computeRows(boolean current) throws SqlJetException {
-
+    protected void computeRows(boolean current) throws SqlJetException {
         try {
 
             internalMove = true;

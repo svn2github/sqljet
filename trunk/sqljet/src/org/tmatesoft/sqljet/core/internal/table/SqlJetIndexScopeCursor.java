@@ -114,11 +114,12 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 } else {
                     long lookup = indexTable.lookupNear(false, firstKey);
                     if (!firstKeyIncluded && lookup != 0) {
-                        if (indexTable.compareKey(firstKey) == 0) {
-                            if (indexTable.next()) { 
+                        while (indexTable.compareKey(firstKey) == 0) {
+                            if (indexTable.next()) {
                                 lookup = indexTable.getKeyRowId();
                             } else {
                                 lookup = 0;
+                                break;
                             }
                         }
                     }
@@ -216,7 +217,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 int compareResult = indexTable.compareKey(firstKey);
                 if (compareResult < 0) {
                     return false;
-                } 
+                }
                 if (!firstKeyIncluded && compareResult == 0) {
                     return false;
                 }
@@ -225,7 +226,7 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 int compareResult = indexTable.compareKey(lastKey);
                 if (compareResult > 0) {
                     return false;
-                } 
+                }
                 if (!lastKeyIncluded && compareResult == 0) {
                     return false;
                 }
@@ -255,11 +256,12 @@ public class SqlJetIndexScopeCursor extends SqlJetIndexOrderCursor {
                 } else {
                     long lookup = indexTable.lookupLastNear(lastKey);
                     if (lookup != 0 && !lastKeyIncluded) {
-                        if (indexTable.compareKey(lastKey) == 0) {
+                        while (indexTable.compareKey(lastKey) == 0) {
                             if (indexTable.previous()) {
                                 lookup = indexTable.getKeyRowId();
                             } else {
                                 lookup = 0;
+                                break;
                             }
                         }
                     }

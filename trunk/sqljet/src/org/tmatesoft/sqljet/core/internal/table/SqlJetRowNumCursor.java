@@ -1,7 +1,7 @@
 /**
  * SqlJetRowNumCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -18,12 +18,13 @@
 package org.tmatesoft.sqljet.core.internal.table;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.table.ISqlJetTransaction;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
@@ -37,7 +38,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     /**
      * @param table
      * @param db
-     * @throws SqlJetException 
+     * @throws SqlJetException
      */
     SqlJetRowNumCursor(ISqlJetBtreeTable table, SqlJetDb db) throws SqlJetException {
         super(table, db);
@@ -71,7 +72,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowCount()
      */
     public long getRowCount() throws SqlJetException {
@@ -86,41 +87,47 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
     /**
      * @throws SqlJetException
      */
-    protected void computeRows(boolean current) throws SqlJetException {
-        try {
+    protected void computeRows(final boolean current) throws SqlJetException {
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                try {
 
-            internalMove = true;
+                    internalMove = true;
 
-            currentRowId = getRowIdSafe();
-            rowsCount = 0;
-            currentRowNum = -1;
+                    currentRowId = getRowIdSafe();
+                    rowsCount = 0;
+                    currentRowNum = -1;
 
-            for (first(); !eof(); next()) {
-                rowsCount++;
-                if (currentRowId == getRowIdSafe()) {
-                    currentRowNum = rowsCount;
-                    if (current) {
-                        break;
+                    for (first(); !eof(); next()) {
+                        rowsCount++;
+                        if (currentRowId == getRowIdSafe()) {
+                            currentRowNum = rowsCount;
+                            if (current) {
+                                break;
+                            }
+                        }
                     }
+
+                    if (currentRowNum < 0) {
+                        currentRowNum = rowsCount;
+                    }
+
+                    if (currentRowId > 0) {
+                        goTo(currentRowId);
+                    }
+
+                } finally {
+                    internalMove = false;
                 }
+                return null;
             }
+        });
 
-            if (currentRowNum < 0) {
-                currentRowNum = rowsCount;
-            }
-
-            if (currentRowId > 0) {
-                goTo(currentRowId);
-            }
-
-        } finally {
-            internalMove = false;
-        }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getCurrentRow()
      */
     public long getRowIndex() throws SqlJetException {
@@ -134,7 +141,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goToRow(long)
      */
     public boolean goToRow(long rowNum) throws SqlJetException {
@@ -222,7 +229,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#delete()
      */
     public void delete() throws SqlJetException {
@@ -233,7 +240,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#first()
      */
     @Override
@@ -243,7 +250,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#next()
      */
     @Override
@@ -253,7 +260,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#previous()
      */
     @Override
@@ -263,7 +270,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#last()
      */
     @Override
@@ -322,7 +329,7 @@ public abstract class SqlJetRowNumCursor extends SqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.table.SqlJetCursor#eof()
      */
     @Override

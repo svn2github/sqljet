@@ -1,7 +1,7 @@
 /**
  * SqlJetReverseOrderCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -28,7 +28,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
@@ -42,7 +42,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#close()
      */
     public void close() throws SqlJetException {
@@ -51,7 +51,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#delete()
      */
     public void delete() throws SqlJetException {
@@ -63,7 +63,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#eof()
      */
     public boolean eof() throws SqlJetException {
@@ -72,7 +72,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#first()
      */
     public boolean first() throws SqlJetException {
@@ -81,7 +81,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlobAsArray(int)
      */
     public byte[] getBlobAsArray(int field) throws SqlJetException {
@@ -90,7 +90,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlobAsArray(java.lang
      * .String)
@@ -101,7 +101,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlobAsStream(int)
      */
     public InputStream getBlobAsStream(int field) throws SqlJetException {
@@ -110,7 +110,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBlobAsStream(java.lang
      * .String)
@@ -121,7 +121,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBoolean(int)
      */
     public boolean getBoolean(int field) throws SqlJetException {
@@ -130,7 +130,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getBoolean(java.lang.String
      * )
@@ -141,7 +141,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldType(int)
      */
     public SqlJetValueType getFieldType(int field) throws SqlJetException {
@@ -150,7 +150,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldType(java.lang.
      * String)
@@ -161,7 +161,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFieldsCount()
      */
     public int getFieldsCount() throws SqlJetException {
@@ -170,7 +170,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFloat(int)
      */
     public double getFloat(int field) throws SqlJetException {
@@ -179,7 +179,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getFloat(java.lang.String)
      */
@@ -189,7 +189,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getInteger(int)
      */
     public long getInteger(int field) throws SqlJetException {
@@ -198,7 +198,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getInteger(java.lang.String
      * )
@@ -209,7 +209,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowId()
      */
     public long getRowId() throws SqlJetException {
@@ -218,7 +218,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getString(int)
      */
     public String getString(int field) throws SqlJetException {
@@ -227,7 +227,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getString(java.lang.String)
      */
@@ -237,7 +237,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getValue(int)
      */
     public Object getValue(int field) throws SqlJetException {
@@ -246,7 +246,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#getValue(java.lang.String)
      */
@@ -256,7 +256,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goTo(long)
      */
     public boolean goTo(long rowId) throws SqlJetException {
@@ -265,7 +265,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#isNull(int)
      */
     public boolean isNull(int field) throws SqlJetException {
@@ -274,7 +274,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#isNull(java.lang.String)
      */
@@ -284,7 +284,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#last()
      */
     public boolean last() throws SqlJetException {
@@ -293,7 +293,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#next()
      */
     public boolean next() throws SqlJetException {
@@ -302,7 +302,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#previous()
      */
     public boolean previous() throws SqlJetException {
@@ -311,7 +311,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#update(java.lang.Object[])
      */
@@ -321,7 +321,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#update(org.tmatesoft.sqljet
      * .core.schema.SqlJetConflictAction, java.lang.Object[])
@@ -332,7 +332,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateByFieldNames(java
      * .util.Map)
@@ -343,7 +343,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateByFieldNames(org.
      * tmatesoft.sqljet.core.schema.SqlJetConflictAction, java.util.Map)
@@ -354,7 +354,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateWithRowId(long,
      * java.lang.Object[])
      */
@@ -364,7 +364,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.table.ISqlJetCursor#updateWithRowId(org.tmatesoft
      * .sqljet.core.schema.SqlJetConflictAction, long, java.lang.Object[])
@@ -375,7 +375,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#reverse()
      */
 
@@ -385,7 +385,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getCurrentRow()
      */
     public long getRowIndex() throws SqlJetException {
@@ -394,7 +394,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowCount()
      */
     public long getRowCount() throws SqlJetException {
@@ -403,7 +403,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#goToRow(long)
      */
     public boolean goToRow(long rowIndex) throws SqlJetException {
@@ -412,7 +412,7 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getLimit()
      */
     public long getLimit() {
@@ -421,10 +421,17 @@ public class SqlJetReverseOrderCursor implements ISqlJetCursor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#setLimit(int)
      */
     public void setLimit(long limit) throws SqlJetException {
         cursor.setLimit(limit);
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowValues()
+     */
+    public Object[] getRowValues() throws SqlJetException {
+        return cursor.getRowValues();
     }
 }

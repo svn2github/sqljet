@@ -1,7 +1,7 @@
 /**
  * SqlJetTableDataCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -32,10 +32,10 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
 /**
  * Implementation of cursor which allow access to all table's rows.
- * 
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
 
@@ -236,6 +236,18 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
             }
         });
         super.delete();
+    }
+
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.table.ISqlJetCursor#getRowValues()
+     */
+    public Object[] getRowValues() throws SqlJetException {
+        return (Object[]) db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                Object[] values = getBtreeDataTable().getValues();
+                return values.clone();
+            }
+        });
     }
 
 }

@@ -18,7 +18,6 @@
 package org.tmatesoft.sqljet.issues._153;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;

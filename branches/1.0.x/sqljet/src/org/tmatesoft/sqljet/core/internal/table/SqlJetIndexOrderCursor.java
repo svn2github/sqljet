@@ -165,4 +165,33 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.tmatesoft.sqljet.core.internal.table.SqlJetRowNumCursor#computeRows(boolean)
+     */
+    @Override
+    protected void computeRows(boolean current) throws SqlJetException {
+        if (indexTable != null) {
+            db.runReadTransaction(new ISqlJetTransaction() {
+                public Object run(SqlJetDb db) throws SqlJetException {
+                    indexTable.pushState();
+                    return null;
+                }
+            });
+        } 
+        try {
+            super.computeRows(current);
+        } finally {
+            if (indexTable != null) {
+                db.runReadTransaction(new ISqlJetTransaction() {
+                    public Object run(SqlJetDb db) throws SqlJetException {
+                        indexTable.popState();
+                        return null;
+                    }
+                });
+            }
+        }
+    }
+    
+    
+
 }

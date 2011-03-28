@@ -15,6 +15,7 @@ package org.tmatesoft.sqljet.core.internal.table;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 import org.tmatesoft.sqljet.core.SqlJetEncoding;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -51,6 +52,8 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     private SqlJetBtreeRecord recordCache;
     private Object[] valueCache;
     private Object[] valuesCache;
+    
+    private Stack<State> states;
 
     /**
      * @param db
@@ -75,6 +78,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @throws SqlJetException
      */
     private void init(ISqlJetBtree btree, int rootPage, boolean write, boolean index) throws SqlJetException {
+        this.states = new Stack<State>();
         this.btree = btree;
         this.rootPage = rootPage;
         this.write = write;
@@ -88,6 +92,44 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
 
         first();
+    }
+    
+    private static class State {
+        
+        public State(SqlJetBtreeTable table) {
+            this.cursor = table.cursor;
+            this.keyInfo = table.keyInfo;
+        }
+        
+        public void restore(SqlJetBtreeTable table) {
+            table.cursor = this.cursor;
+            table.keyInfo = this.keyInfo;
+        }
+        
+        public ISqlJetBtreeCursor cursor;
+        public SqlJetKeyInfo keyInfo;
+    }
+    
+    private void initState() throws SqlJetException {
+        if (index) {
+            this.keyInfo = new SqlJetKeyInfo();
+            this.keyInfo.setEnc(btree.getDb().getOptions().getEncoding());
+        }
+        this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+    }
+    
+    public void pushState() throws SqlJetException {
+        states.push(new State(this));
+        initState();
+        first();
+    }
+
+    public void popState() throws SqlJetException {
+        if (states.isEmpty()) {
+            return;
+        }
+        states.pop().restore(this);
+        clearRecordCache();
     }
 
     /*

@@ -213,4 +213,19 @@ public interface ISqlJetBtreeTable {
      */
     void delete() throws SqlJetException;
 
+    /**
+     * Saves current state of this table and sets it
+     * to point to the first record.
+     * 
+     * @throws SqlJetException
+     */
+    void pushState() throws SqlJetException;
+    
+    /**
+     * Restores previously saved state if there any.
+     * 
+     * @throws SqlJetException
+     */
+    void popState() throws SqlJetException;
+
 }

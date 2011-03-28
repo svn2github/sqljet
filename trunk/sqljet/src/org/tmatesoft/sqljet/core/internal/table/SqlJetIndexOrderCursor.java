@@ -170,27 +170,21 @@ public class SqlJetIndexOrderCursor extends SqlJetTableDataCursor implements ISq
      */
     @Override
     protected void computeRows(boolean current) throws SqlJetException {
-        final Object[] indexRecord;
-        
         if (indexTable != null) {
-            indexRecord = (Object[]) db.runReadTransaction(new ISqlJetTransaction() {
+            db.runReadTransaction(new ISqlJetTransaction() {
                 public Object run(SqlJetDb db) throws SqlJetException {
-                    if (indexTable != null && !indexTable.eof()) {
-                        return indexTable.getValues();
-                    }
+                    indexTable.pushState();
                     return null;
                 }
             });
-        } else {
-            indexRecord = null;
-        }
+        } 
         try {
             super.computeRows(current);
         } finally {
-            if (indexTable != null && indexRecord != null) {
+            if (indexTable != null) {
                 db.runReadTransaction(new ISqlJetTransaction() {
                     public Object run(SqlJetDb db) throws SqlJetException {
-                        indexTable.lookup(false, indexRecord);
+                        indexTable.popState();
                         return null;
                     }
                 });

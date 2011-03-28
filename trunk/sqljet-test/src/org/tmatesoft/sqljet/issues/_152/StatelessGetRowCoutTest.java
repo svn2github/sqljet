@@ -39,6 +39,9 @@ public class StatelessGetRowCoutTest extends AbstractNewDbTest {
     public void setup() throws SqlJetException {
         db.createTable("CREATE TABLE IF NOT EXISTS table (name TEXT, count INTEGER)");
         db.createIndex("CREATE UNIQUE INDEX IF NOT EXISTS names_idx ON table(name)");
+
+        db.createTable("CREATE TABLE IF NOT EXISTS pairs (x INTEGER, y INTEGER)");
+        db.createIndex("CREATE INDEX IF NOT EXISTS pairs_idx ON pairs(x, y)");
         
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
@@ -49,6 +52,11 @@ public class StatelessGetRowCoutTest extends AbstractNewDbTest {
                 db.getTable("table").insert("ABCD", 1);
                 db.getTable("table").insert("ABCDEF", 1);
                 db.getTable("table").insert("A", 1);
+                
+                db.getTable("pairs").insert(1, 2);
+                db.getTable("pairs").insert(1, 2);
+                db.getTable("pairs").insert(1, 2);
+                db.getTable("pairs").insert(1, 2);
                 
                 return null;
             }
@@ -118,5 +126,27 @@ public class StatelessGetRowCoutTest extends AbstractNewDbTest {
                 return null;
             }
         });
+    }
+    
+    @Test
+    public void testRowCountIsStatelessWhenIndexIsNotUnique() throws SqlJetException {
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                SqlJetScope scope = new SqlJetScope(new Object[] {1, 2}, true, new Object[] {1, 2}, true);
+                ISqlJetCursor cursor = db.getTable("pairs").scope("pairs_idx", scope);
+        
+                Assert.assertTrue(!cursor.eof());
+                Assert.assertTrue(cursor.next());
+                Assert.assertTrue(cursor.next());
+                Assert.assertEquals(cursor.getRowCount(), 4);
+                Assert.assertTrue(cursor.next());
+                Assert.assertFalse(cursor.eof());
+                Assert.assertFalse(cursor.next());
+                Assert.assertTrue(cursor.eof());
+                
+                return null;
+            }
+        });
+        
     }
 }

@@ -245,4 +245,48 @@ public class DbTest extends AbstractNewDbTest {
         });
     }
 
+    @Test
+    public void testInsertRowIdLogic() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b integer, c text)");
+        final ISqlJetTable t = db.getTable("t");
+        t.insert(555, "a");
+        t.insert(777, "b");
+        t.insert(null, 888, "c");
+        t.insert(null, 999, "d");
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                try {
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(555), r[1]);
+                        Assert.assertEquals("a", r[2]);
+                    }
+                    c.next();
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(777), r[1]);
+                        Assert.assertEquals("b", r[2]);
+                    }
+                    c.next();
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(888), r[1]);
+                        Assert.assertEquals("c", r[2]);
+                    }
+                    c.next();
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(999), r[1]);
+                        Assert.assertEquals("d", r[2]);
+                    }
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
+    }
+
+
 }

@@ -253,6 +253,8 @@ public class DbTest extends AbstractNewDbTest {
         t.insert(777, "b");
         t.insert(null, 888, "c");
         t.insert(null, 999, "d");
+        t.insert(7, 111, "e");
+        t.insert(8, 222, "f");
         db.runReadTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetCursor c = t.open();
@@ -279,6 +281,20 @@ public class DbTest extends AbstractNewDbTest {
                         Object[] r = c.getRowValues();
                         Assert.assertEquals(new Long(999), r[1]);
                         Assert.assertEquals("d", r[2]);
+                    }
+                    c.next();
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(7), r[0]);
+                        Assert.assertEquals(new Long(111), r[1]);
+                        Assert.assertEquals("e", r[2]);
+                    }
+                    c.next();
+                    {
+                        Object[] r = c.getRowValues();
+                        Assert.assertEquals(new Long(8), r[0]);
+                        Assert.assertEquals(new Long(222), r[1]);
+                        Assert.assertEquals("f", r[2]);
                     }
                 } finally {
                     c.close();

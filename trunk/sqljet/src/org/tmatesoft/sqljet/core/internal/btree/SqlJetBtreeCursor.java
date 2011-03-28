@@ -634,7 +634,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * most one effective restoreCursorPosition() call after each
      * saveCursorPosition().
      */
-    private void restoreCursorPosition() throws SqlJetException {
+    public void restoreCursorPosition() throws SqlJetException {
         if (this.eState.compareTo(CursorState.REQUIRESEEK) < 0)
             return;
         assert (this.holdsMutex());

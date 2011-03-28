@@ -194,6 +194,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         lock();
         try {
             final Object[] row = getValuesRow(values);
+            adjustRowIdPosition(values, row);
             if (onConflict == SqlJetConflictAction.REPLACE) {
 				rowId = getRowIdForReplace(rowId, values, row);
             }
@@ -204,6 +205,19 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             return rowId;
         } finally {
             unlock();
+        }
+    }
+
+    private void adjustRowIdPosition(Object[] values, final Object[] row) {
+        if (row != null && row.length > 1 && tableDef.isRowIdPrimaryKey()) {
+            if (values == null || (values.length < row.length && row[values.length] == null)) {
+                final int primaryKeyColumnNumber = tableDef.getColumnNumber(tableDef.getRowIdPrimaryKeyColumnName());
+                if (primaryKeyColumnNumber >= 0 && primaryKeyColumnNumber < row.length && row[primaryKeyColumnNumber] != null) {
+                    System.arraycopy(row, primaryKeyColumnNumber, row, primaryKeyColumnNumber + 1, values.length
+                            - primaryKeyColumnNumber);
+                    row[primaryKeyColumnNumber] = null;
+                }
+            }
         }
     }
 

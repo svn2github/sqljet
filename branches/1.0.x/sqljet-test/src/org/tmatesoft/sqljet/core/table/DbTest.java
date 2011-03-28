@@ -1,7 +1,7 @@
 /**
  * DbTest.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -34,7 +34,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class DbTest extends AbstractNewDbTest {
 
@@ -220,6 +220,29 @@ public class DbTest extends AbstractNewDbTest {
             db2.rollback();
         }
         db2.close();
+    }
+
+    @Test
+    public void testRowValues() throws SqlJetException {
+        db.createTable("create table t(a integer primary key, b integer, c text)");
+        final ISqlJetTable t = db.getTable("t");
+        t.insertWithRowId(1, 555, "a");
+        t.insertWithRowId(2, 777, "b");
+        db.runReadTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                final ISqlJetCursor c = t.open();
+                try {
+                    Object[] r1 = c.getRowValues();
+                    Assert.assertArrayEquals(new Object[] { new Long(1), new Long(555), "a" }, r1);
+                    c.next();
+                    Object[] r2 = c.getRowValues();
+                    Assert.assertArrayEquals(new Object[] { new Long(2), new Long(777), "b" }, r2);
+                } finally {
+                    c.close();
+                }
+                return null;
+            }
+        });
     }
 
 }

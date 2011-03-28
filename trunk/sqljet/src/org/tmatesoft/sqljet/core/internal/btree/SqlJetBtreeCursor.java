@@ -1,7 +1,7 @@
 /**
  * SqlJetBtreeCursor.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -42,7 +42,7 @@ import org.tmatesoft.sqljet.core.internal.vdbe.SqlJetUnpackedRecord;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCursor {
 
@@ -127,34 +127,34 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /**
      * Potential values for BtCursor.eState.
-     * 
+     *
      * <ul>
-     * 
+     *
      * <li>
      * CURSOR_VALID: Cursor points to a valid entry. getPayload() etc. may be
      * called.</li>
-     * 
+     *
      * <li>
      * CURSOR_INVALID: Cursor does not point to a valid entry. This can happen
      * (for example) because the table is empty or because BtreeCursorFirst()
      * has not been called.</li>
-     * 
+     *
      * <li>
      * CURSOR_REQUIRESEEK: The table that this cursor was opened on still
      * exists, but has been modified since the cursor was last used. The cursor
      * position is saved in variables BtCursor.pKey and BtCursor.nKey. When a
      * cursor is in this state, restoreCursorPosition() can be called to attempt
      * to seek the cursor to the saved position.</li>
-     * 
+     *
      * <li>
      * CURSOR_FAULT: A unrecoverable error (an I/O error or a malloc failure)
      * has occurred on a different connection that shares the BtShared cache
      * with this cursor. The error has left the cache in an inconsistent state.
      * Do nothing else with this cursor. Any attempt to use the cursor should
      * return the error code stored in BtCursor.skip</li>
-     * 
+     *
      * </ul>
-     * 
+     *
      */
     static enum CursorState {
         INVALID, // 0
@@ -167,37 +167,37 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Create a new cursor for the BTree whose root is on the page iTable. The
      * act of acquiring a cursor gets a read lock on the database file.
-     * 
+     *
      * If wrFlag==0, then the cursor can only be used for reading. If wrFlag==1,
      * then the cursor can be used for reading or for writing if other
      * conditions for writing are also met. These are the conditions that must
      * be met in order for writing to be allowed:
-     * 
+     *
      * 1: The cursor must have been opened with wrFlag==1
-     * 
+     *
      * 2: Other database connections that share the same pager cache but which
      * are not in the READ_UNCOMMITTED state may not have cursors open with
      * wrFlag==0 on the same table. Otherwise the changes made by this write
      * cursor would be visible to the read cursors in the other database
      * connection.
-     * 
+     *
      * 3: The database must be writable (not on read-only media)
-     * 
+     *
      * 4: There must be an active transaction.
-     * 
+     *
      * No checking is done to make sure that page iTable really is the root page
      * of a b-tree. If it is not, then the cursor acquired will not work
      * correctly.
-     * 
+     *
      * It is assumed that the sqlite3BtreeCursorSize() bytes of memory pointed
      * to by pCur have been zeroed by the caller.
-     * 
-     * 
+     *
+     *
      * @param sqlJetBtree
      * @param table
      * @param wrFlag2
      * @param keyInfo
-     * 
+     *
      * @throws SqlJetException
      */
     public SqlJetBtreeCursor(SqlJetBtree btree, int table, boolean wrFlag, ISqlJetKeyInfo keyInfo)
@@ -271,7 +271,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#clearCursor()
      */
     public void clearCursor() {
@@ -282,7 +282,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#closeCursor()
      */
     public void closeCursor() throws SqlJetException {
@@ -307,7 +307,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                 invalidateOverflowCache();
                 /* sqlite3_free(pCur); */
             } finally {
-                pBtree.leave();
+                SqlJetBtree p = pBtree;
+                pBtree = null;
+                p.leave();
             }
         }
     }
@@ -322,7 +324,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveTo(byte[], long,
      * boolean)
      */
@@ -429,10 +431,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Make sure the BtCursor has a valid BtCursor.info structure. If it is not
      * already valid, call sqlite3BtreeParseCell() to fill it in.
-     * 
+     *
      * BtCursor.info is a cache of the information in the current cell. Using
      * this cache reduces the number of calls to sqlite3BtreeParseCell().
-     * 
+     *
      */
     private void getCellInfo() {
         if (this.info.nSize == 0) {
@@ -447,18 +449,18 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * skipKey==0 and it points to the beginning of data if skipKey==1. The
      * number of bytes of available key/data is written into *pAmt. If *pAmt==0,
      * then the value returned will not be a valid pointer.
-     * 
+     *
      * This routine is an optimization. It is common for the entire key and data
      * to fit on the local page and for there to be no overflow pages. When that
      * is so, this routine can be used to access the key and data without making
      * a copy. If the key and/or data spills onto overflow pages, then
      * accessPayload() must be used to reassembly the key/data and copy it into
      * a preallocated buffer.
-     * 
+     *
      * The pointer returned by this routine looks directly into the cached page
      * of the database. The data might change or move the next time any btree
      * routine is called.
-     * 
+     *
      * @param pAmt
      *            Write the number of available bytes here
      * @param skipKey
@@ -498,7 +500,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#moveToUnpacked(org.tmatesoft
      * .sqljet.core.ISqlJetUnpackedRecord, long, boolean)
@@ -647,7 +649,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cursorHasMoved()
      */
     public boolean cursorHasMoved() {
@@ -665,7 +667,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#delete()
      */
     public void delete() throws SqlJetException {
@@ -836,10 +838,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * The page that pCur currently points to has just been modified in some
      * way. This function figures out if this modification means the tree needs
      * to be balanced, and if so calls the appropriate balancing routine.
-     * 
+     *
      * Parameter isInsert is true if a new cell was just inserted into the page,
      * or false otherwise.
-     * 
+     *
      * @param i
      * @throws SqlJetException
      */
@@ -874,29 +876,29 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * its parent. If pPage has fewer than 2*NN siblings (something which can
      * only happen if pPage is the root page or a child of root) then all
      * available siblings participate in the balancing.
-     * 
+     *
      * The number of siblings of pPage might be increased or decreased by one or
      * two in an effort to keep pages nearly full but not over full. The root
      * page is special and is allowed to be nearly empty. If pPage is the root
      * page, then the depth of the tree might be increased or decreased by one,
      * as necessary, to keep the root page from being overfull or completely
      * empty.
-     * 
+     *
      * Note that when this routine is called, some of the Cells on pPage might
      * not actually be stored in pPage->aData[]. This can happen if the page is
      * overfull. Part of the job of this routine is to make sure all Cells for
      * pPage once again fit in pPage->aData[].
-     * 
+     *
      * In the course of balancing the siblings of pPage, the parent of pPage
      * might become overfull or underfull. If that happens, then this routine is
      * called recursively on the parent.
-     * 
+     *
      * If this routine fails for any reason, it might leave the database in a
      * corrupted state. So if this routine fails, the database should be rolled
      * back.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void balance_nonroot() throws SqlJetException {
 
@@ -1070,14 +1072,14 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * into the local apCell[] array. Make copies of the divider cells
              * into space obtained form aSpace1[] and remove the the divider
              * Cells* from pParent.
-             * 
+             *
              * If the siblings are on leaf pages, then the child pointers of the
              * divider cells are stripped from the cells before they are copied
              * into aSpace1[]. In this way, all cells in apCell[] are without
              * child pointers. If siblings are not leaves, then all cell in
              * apCell[] include child pointers. Either way, all cells in
              * apCell[] are alike.
-             * 
+             *
              * leafCorrection: 4 if pPage is a leaf. 0 if pPage is not a leaf.
              * leafData: 1 if pPage holds key+data and pParent holds only keys.
              */
@@ -1157,7 +1159,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * size of all cells on the i-th page and cntNew[] which is the
              * index in apCell[] of the cell that divides page i from page i+1.
              * cntNew[k] should equal nCell.
-             * 
+             *
              * Values computed by this block: <p> k: The total number of sibling
              * pages. </p> <p> szNew[i]: Spaced used on the i-th sibling page.
              * </p> <p> cntNew[i]: Index in apCell[] and szCell[] for the first
@@ -1188,7 +1190,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * full, while the right-most sibling might be nearly empty. This
              * block of code attempts to adjust the packing of siblings to get a
              * better balance.
-             * 
+             *
              * This adjustment is more than an optimization. The packing above
              * might be so out of balance as to be illegal. For example, the
              * right-most sibling might be completely empty. This adjustment is
@@ -1261,10 +1263,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * in the disk file in order so that a scan of the table is a linear
              * scan through the file. That in turn helps the operating system to
              * deliver pages from the disk more rapidly.
-             * 
+             *
              * An O(n^2) insertion sort algorithm is used, but since n is never
              * more than NB (a small constant), that should not be a problem.
-             * 
+             *
              * When NB==3, this one optimization makes the database about 25%
              * faster for large insertions and deletions.
              */
@@ -1378,7 +1380,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                          * bytes is the minimum size of any cell). But it is
                          * important to pass the correct size to insertCell(),
                          * so reparse the cell now.
-                         * 
+                         *
                          * Note that this can never happen in an SQLite data
                          * file, as all cells are at least 4 bytes. It only
                          * happens in b-trees used to evaluate "IN (SELECT ...)"
@@ -1478,17 +1480,17 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * This version of balance() handles the common special case where a new
      * entry is being inserted on the extreme right-end of the tree, in other
      * words, when the new entry will become the largest entry in the tree.
-     * 
+     *
      * Instead of trying balance the 3 right-most leaf pages, just add a new
      * page to the right-hand side and put the one new entry in that page. This
      * leaves the right side of the tree somewhat unbalanced. But odds are that
      * we will be inserting new entries at the end soon afterwards so the nearly
      * empty page will quickly fill up. On average.
-     * 
+     *
      * pPage is the leaf page which is the right-most page in the tree. pParent
      * is its parent. pPage must have a single overflow entry which is also the
      * right-most entry on the page.
-     * 
+     *
      * @throws SqlJetException
      */
     private void balance_quick() throws SqlJetException {
@@ -1596,9 +1598,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * This routine is called for the root page of a btree when the root page
      * contains no cells. This is an opportunity to make the tree shallower by
      * one level.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void balance_shallower() throws SqlJetException {
 
@@ -1686,14 +1688,14 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /**
      * The root page is overfull
-     * 
+     *
      * When this happens, Create a new child page and copy the contents of the
      * root into the child. Then make the root page an empty page with
      * rightChild pointing to the new child. Finally, call balance_internal() on
      * the new child to cause it to split.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void balance_deeper() throws SqlJetException {
 
@@ -1766,7 +1768,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Make a temporary cursor by filling in the fields of pTempCur. The
      * temporary cursor is not on the cursor list for the Btree.
-     * 
+     *
      * @return
      * @throws SqlJetException
      */
@@ -1791,7 +1793,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Delete a temporary cursor such as was made by the CreateTemporaryCursor()
      * function above.
-     * 
+     *
      * @throws SqlJetException
      */
     void releaseTempCursor() throws SqlJetException {
@@ -1805,7 +1807,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#insert(byte[], long,
      * byte[], int, int, boolean)
      */
@@ -1837,7 +1839,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
         /*
          * Save the positions of any other cursors open on this table.
-         * 
+         *
          * In some cases, the call to sqlite3BtreeMoveto() below is a no-op. For
          * example, when inserting data into a table with auto-generated integer
          * keys, the VDBE layer invokes sqlite3BtreeLast() to figure out the
@@ -1892,13 +1894,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
              * balance() to redistribute the cells within the tree. Since
              * balance() may move the cursor, zero the BtCursor.info.nSize and
              * BtCursor.validNKey variables.
-             * 
+             *
              * Previous versions of SQLite called moveToRoot() to move the
              * cursor back to the root page as balance() used to invalidate the
              * contents of BtCursor.apPage[] and BtCursor.aiIdx[]. Instead of
              * doing that, set the cursor state to "invalid". This makes common
              * insert operations slightly faster.
-             * 
+             *
              * There is a subtle but important optimization here too. When
              * inserting multiple records into an intkey b-tree using a single
              * cursor (as can happen while processing an
@@ -1935,7 +1937,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#first()
      */
     public boolean first() throws SqlJetException {
@@ -1956,10 +1958,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Move the cursor down to the left-most leaf entry beneath the entry to
      * which it is currently pointing.
-     * 
+     *
      * The left-most leaf is the one with the smallest key - the first in
      * ascending order.
-     * 
+     *
      * @throws SqlJetException
      */
     private void moveToLeftmost() throws SqlJetException {
@@ -1981,10 +1983,10 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * moveToLeftmost() and moveToRightmost(). moveToLeftmost() finds the
      * left-most entry beneath the *entry* whereas moveToRightmost() finds the
      * right-most entry beneath the *page*.
-     * 
+     *
      * The right-most entry is the one with the largest key - the last key in
      * ascending order.
-     * 
+     *
      * @throws SqlJetException
      */
     private void moveToRightmost() throws SqlJetException {
@@ -2005,7 +2007,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#last()
      */
     public boolean last() throws SqlJetException {
@@ -2033,7 +2035,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#next()
      */
     public boolean next() throws SqlJetException {
@@ -2088,13 +2090,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /**
      * Move the cursor up to the parent page.
-     * 
+     *
      * pCur->idx is set to the cell index that contains the pointer to the page
      * we are coming from. If we are coming from the right-most child page then
      * pCur->idx is set to one more than the largest cell index.
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void moveToParent() throws SqlJetException {
         final SqlJetBtreeCursor pCur = this;
@@ -2111,7 +2113,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#previous()
      */
     public boolean previous() throws SqlJetException {
@@ -2159,7 +2161,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#eof()
      */
     public boolean eof() {
@@ -2174,7 +2176,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#flags()
      */
     public short flags() throws SqlJetException {
@@ -2194,7 +2196,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getKeySize()
      */
     public long getKeySize() throws SqlJetException {
@@ -2212,7 +2214,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#key(int, int, byte[])
      */
     public void key(int offset, int amt, ISqlJetMemoryPointer buf) throws SqlJetException {
@@ -2233,32 +2235,32 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * entry that the pCur cursor is pointing to. If the eOp parameter is 0,
      * this is a read operation (data copied into buffer pBuf). If it is
      * non-zero, a write (data copied from buffer pBuf).
-     * 
+     *
      * A total of "amt" bytes are read or written beginning at "offset". Data is
      * read to or from the buffer pBuf.
-     * 
+     *
      * This routine does not make a distinction between key and data. It just
      * reads or writes bytes from the payload area. Data might appear on the
      * main page or be scattered out on multiple overflow pages.
-     * 
+     *
      * If the BtCursor.isIncrblobHandle flag is set, and the current cursor
      * entry uses one or more overflow pages, this function allocates space for
      * and lazily popluates the overflow page-list cache array
      * (BtCursor.aOverflow). Subsequent calls use this cache to make seeking to
      * the supplied offset more efficient.
-     * 
+     *
      * Once an overflow page-list cache has been allocated, it may be
      * invalidated if some other cursor writes to the same table, or if the
      * cursor is moved to a different row. Additionally, in auto-vacuum mode,
      * the following events may invalidate an overflow page-list cache.
-     * 
+     *
      * <ul>
      * <li>An incremental vacuum</li>
      * <li>A commit in auto_vacuum="full" mode</li>
      * <li>Creating a table (may require moving an overflow page)</li>
      * </ul>
-     * 
-     * 
+     *
+     *
      * @param offset
      *            Begin reading this far into payload
      * @param amt
@@ -2269,7 +2271,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      *            offset begins at data if this is true
      * @param eOp
      *            false to read. true to write
-     * 
+     *
      * @throws SqlJetException
      */
     private void accessPayload(int offset, int amt, ISqlJetMemoryPointer pBuf, int skipKey, boolean eOp)
@@ -2403,13 +2405,13 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /**
      * Copy data from a buffer to a page, or from a page to a buffer.
-     * 
+     *
      * pPayload is a pointer to data stored on database page pDbPage. If
      * argument eOp is false, then nByte bytes of data are copied from pPayload
      * to the buffer pointed at by pBuf. If eOp is true, then
      * sqlite3PagerWrite() is called on pDbPage and nByte bytes of data are
      * copied from the buffer pBuf to pPayload.
-     * 
+     *
      * @param pPayload
      *            Pointer to page data
      * @param pBuf
@@ -2420,7 +2422,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      *            false -> copy from page, true -> copy to page
      * @param pDbPage
      *            Page containing pPayload
-     * 
+     *
      * @throws SqlJetException
      */
     private void copyPayload(ISqlJetMemoryPointer pPayload, int payloadOffset, ISqlJetMemoryPointer pBuf,
@@ -2437,7 +2439,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getCursorDb()
      */
     public ISqlJetDbHandle getCursorDb() {
@@ -2447,7 +2449,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#keyFetch(int[])
      */
     public ISqlJetMemoryPointer keyFetch(int[] amt) {
@@ -2460,7 +2462,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#dataFetch(int[])
      */
     public ISqlJetMemoryPointer dataFetch(int[] amt) {
@@ -2473,7 +2475,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#getDataSize()
      */
     public int getDataSize() throws SqlJetException {
@@ -2491,7 +2493,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#data(int, int, byte[])
      */
     public void data(int offset, int amt, ISqlJetMemoryPointer buf) throws SqlJetException {
@@ -2510,7 +2512,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#putData(int, int,
      * byte[])
      */
@@ -2549,7 +2551,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#cacheOverflow()
      */
     public void cacheOverflow() {
@@ -2563,7 +2565,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     /**
      * Save the current cursor position in the variables BtCursor.nKey and
      * BtCursor.pKey. The cursor's state is set to CURSOR_REQUIRESEEK.
-     * 
+     *
      */
     public boolean saveCursorPosition() throws SqlJetException {
 
@@ -2606,20 +2608,24 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#enterCursor()
      */
     public void enterCursor() {
-        pBtree.enter();
+        if(pBtree!=null) {
+            pBtree.enter();
+        }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#leaveCursor()
      */
     public void leaveCursor() {
-        pBtree.leave();
+        if(pBtree!=null) {
+            pBtree.leave();
+        }
     }
 
 }

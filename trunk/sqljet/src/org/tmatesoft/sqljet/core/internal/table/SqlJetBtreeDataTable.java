@@ -146,7 +146,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             clearRecordCache();
             if (getRowId() == rowId)
                 return true;
-            final int moveTo = cursor.moveTo(null, rowId, false);
+            final int moveTo = getCursor().moveTo(null, rowId, false);
             if (moveTo < 0) {
                 next();
             }
@@ -165,7 +165,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     public long getRowId() throws SqlJetException {
         lock();
         try {
-            return cursor.getKeySize();
+            return getCursor().getKeySize();
         } finally {
             unlock();
         }
@@ -408,7 +408,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             row[primaryKeyColumnNumber] = rowId;
         }
         if (doActionWithIndexes(Action.INSERT, onConflict, rowId, row)) {
-            cursor.insert(null, rowId, pData, pData.remaining(), 0, true);
+            getCursor().insert(null, rowId, pData, pData.remaining(), 0, true);
             goToRow(rowId);
         }
     }
@@ -534,9 +534,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         if (doActionWithIndexes(Action.UPDATE, onConflict, newRowId, rowCompleted)) {
             final boolean changeRowId = newRowId != currentRowId;
             if (changeRowId) {
-                cursor.delete();
+                getCursor().delete();
             }
-            cursor.insert(null, newRowId, pData, pData.remaining(), 0, changeRowId);
+            getCursor().insert(null, newRowId, pData, pData.remaining(), 0, changeRowId);
             goToRow(newRowId);
         }
 
@@ -600,7 +600,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
     private void doDelete() throws SqlJetException {
         doActionWithIndexes(Action.DELETE, null, 0);
         final long rowId = getRowId();
-        cursor.delete();
+        getCursor().delete();
         goToRow(rowId);
     }
 
@@ -663,7 +663,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 return false;
             case REPLACE:
                 if (goToRow(rowId)) {
-                    cursor.delete();
+                    getCursor().delete();
                 }
                 break;
             default:

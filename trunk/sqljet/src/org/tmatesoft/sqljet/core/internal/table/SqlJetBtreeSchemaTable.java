@@ -141,7 +141,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
     public boolean goToRow(long rowId) throws SqlJetException {
         if (getRowId() == rowId)
             return true;
-        final int moveTo = cursor.moveTo(null, rowId, false);
+        final int moveTo = getCursor().moveTo(null, rowId, false);
         if (moveTo < 0) {
             next();
         }
@@ -156,7 +156,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
      * ()
      */
     public long getRowId() throws SqlJetException {
-        return cursor.getKeySize();
+        return getCursor().getKeySize();
     }
 
 }

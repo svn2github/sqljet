@@ -263,9 +263,10 @@ public interface ISqlJetBtreeTable {
     
     /**
      * Restores previously saved state if there any.
+     * @return 
      * 
      * @throws SqlJetException
      */
-    void popState() throws SqlJetException;
+    boolean popState() throws SqlJetException;
 
 }

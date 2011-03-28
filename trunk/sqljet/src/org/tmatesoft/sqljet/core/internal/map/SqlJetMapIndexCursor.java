@@ -119,8 +119,8 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
     }
 
     private int keyCompare(int keyLength, ISqlJetMemoryPointer key, ISqlJetMemoryPointer record) throws SqlJetException {
-        keyInfo.setNField(keyLength);
-        final SqlJetUnpackedRecord unpacked = keyInfo.recordUnpack(key.remaining(), key);
+        getKeyInfo().setNField(keyLength);
+        final SqlJetUnpackedRecord unpacked = getKeyInfo().recordUnpack(key.remaining(), key);
         final Set<SqlJetUnpackedRecordFlags> flags = unpacked.getFlags();
         flags.add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
         flags.add(SqlJetUnpackedRecordFlags.PREFIX_MATCH);
@@ -141,7 +141,7 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
                     final SqlJetEncoding encoding = mapDb.getOptions().getEncoding();
                     final ISqlJetMemoryPointer zKey = SqlJetBtreeRecord.getRecord(encoding,
                             SqlJetUtility.addArrays(key, new Object[] { value })).getRawRecord();
-                    cursor.insert(zKey, zKey.remaining(), SqlJetUtility.allocatePtr(0), 0, 0, true);
+                    getCursor().insert(zKey, zKey.remaining(), SqlJetUtility.allocatePtr(0), 0, 0, true);
                     clearRecordCache();
                 } finally {
                     unlock();

@@ -43,10 +43,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     protected boolean write;
     protected boolean index;
 
-    protected ISqlJetBtreeCursor cursor;
-
-    protected SqlJetKeyInfo keyInfo;
-
     private long priorNewRowid = 0;
 
     private SqlJetBtreeRecord recordCache;
@@ -54,6 +50,31 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     private Object[] valuesCache;
     
     private Stack<State> states;
+    
+    protected static class State {
+
+        private ISqlJetBtreeCursor cursor;
+        private SqlJetKeyInfo keyInfo;
+        
+        public State(ISqlJetBtreeCursor cursor, SqlJetKeyInfo keyInfo) {
+            this.cursor = cursor;
+            this.keyInfo = keyInfo;
+        }
+        
+        public ISqlJetBtreeCursor getCursor() {
+            return cursor;
+        }
+        
+        public SqlJetKeyInfo getKeyInfo() {
+            return keyInfo;
+        }
+        
+        public void close() throws SqlJetException {
+            if (cursor != null) {
+                cursor.closeCursor();
+            }
+        }
+    }
 
     /**
      * @param db
@@ -84,52 +105,42 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         this.write = write;
         this.index = index;
 
-        if (index) {
-            this.keyInfo = new SqlJetKeyInfo();
-            this.keyInfo.setEnc(btree.getDb().getOptions().getEncoding());
-        }
-
-        this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
-
+        pushState();
         first();
     }
     
-    private static class State {
-        
-        public State(SqlJetBtreeTable table) {
-            this.cursor = table.cursor;
-            this.keyInfo = table.keyInfo;
-        }
-        
-        public void restore(SqlJetBtreeTable table) {
-            table.cursor = this.cursor;
-            table.keyInfo = this.keyInfo;
-        }
-        
-        public ISqlJetBtreeCursor cursor;
-        public SqlJetKeyInfo keyInfo;
+    private State getCurrentState() {
+        assert !states.isEmpty();
+        return states.peek();
     }
     
-    private void initState() throws SqlJetException {
-        if (index) {
-            this.keyInfo = new SqlJetKeyInfo();
-            this.keyInfo.setEnc(btree.getDb().getOptions().getEncoding());
-        }
-        this.cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+    protected ISqlJetBtreeCursor getCursor() {
+        return getCurrentState().getCursor();
+    }
+    
+    protected SqlJetKeyInfo getKeyInfo() {
+        return getCurrentState().getKeyInfo();
     }
     
     public void pushState() throws SqlJetException {
-        states.push(new State(this));
-        initState();
-        first();
+        SqlJetKeyInfo keyInfo = null;
+        if (index) {
+            keyInfo = new SqlJetKeyInfo();
+            keyInfo.setEnc(btree.getDb().getOptions().getEncoding());
+        }
+        ISqlJetBtreeCursor cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
+        states.push(new State(cursor, keyInfo));
+        clearRecordCache();
     }
 
-    public void popState() throws SqlJetException {
-        if (states.isEmpty()) {
-            return;
+    public boolean popState() throws SqlJetException {
+        if (states.size() <= 1) {
+            return false;
         }
-        states.pop().restore(this);
+        State oldState = states.pop();
+        oldState.close();
         clearRecordCache();
+        return true;
     }
 
     /*
@@ -138,8 +149,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.internal.btree.ISqlJetBtreeTable#close()
      */
     public void close() throws SqlJetException {
+        while(popState()) {}
+
         clearRecordCache();
-        cursor.closeCursor();
+        getCurrentState().close();
     }
 
     /*
@@ -148,7 +161,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#unlock()
      */
     public void unlock() {
-        cursor.leaveCursor();
+        getCursor().leaveCursor();
     }
 
     /*
@@ -157,7 +170,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeTable#lock()
      */
     public void lock() throws SqlJetException {
-        cursor.enterCursor();
+        getCursor().enterCursor();
     }
 
     /*
@@ -167,18 +180,18 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public boolean eof() throws SqlJetException {
         hasMoved();
-        return cursor.eof();
+        return getCursor().eof();
     }
 
     /**
      * @throws SqlJetException
      */
     public boolean hasMoved() throws SqlJetException {
-        cursor.enterCursor();
+        getCursor().enterCursor();
         try {
-            return cursor.cursorHasMoved();
+            return getCursor().cursorHasMoved();
         } finally {
-            cursor.leaveCursor();
+            getCursor().leaveCursor();
         }
     }
 
@@ -191,7 +204,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         lock();
         try {
             clearRecordCache();
-            return !cursor.first();
+            return !getCursor().first();
         } finally {
             unlock();
         }
@@ -206,7 +219,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         lock();
         try {
             clearRecordCache();
-            return !cursor.last();
+            return !getCursor().last();
         } finally {
             unlock();
         }
@@ -222,7 +235,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         try {
             clearRecordCache();
             hasMoved();
-            return !cursor.next();
+            return !getCursor().next();
         } finally {
             unlock();
         }
@@ -238,7 +251,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         try {
             clearRecordCache();
             hasMoved();
-            return !cursor.previous();
+            return !getCursor().previous();
         } finally {
             unlock();
         }
@@ -255,7 +268,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         if (null == recordCache) {
             lock();
             try {
-                recordCache = new SqlJetBtreeRecord(cursor, index, btree.getDb().getOptions().getFileFormat());
+                recordCache = new SqlJetBtreeRecord(getCursor(), index, btree.getDb().getOptions().getFileFormat());
             } finally {
                 unlock();
             }
@@ -282,7 +295,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      * org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeTable#getEncoding()
      */
     public SqlJetEncoding getEncoding() throws SqlJetException {
-        return cursor.getCursorDb().getOptions().getEncoding();
+        return getCursor().getCursorDb().getOptions().getEncoding();
     }
 
     protected static boolean checkField(ISqlJetBtreeRecord record, int field) throws SqlJetException {
@@ -497,22 +510,22 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
             int res = 0;
             int cnt = 0;
 
-            if ((cursor.flags() & (SqlJetBtreeTableCreateFlags.INTKEY.getValue() | SqlJetBtreeTableCreateFlags.ZERODATA
+            if ((getCursor().flags() & (SqlJetBtreeTableCreateFlags.INTKEY.getValue() | SqlJetBtreeTableCreateFlags.ZERODATA
                     .getValue())) != SqlJetBtreeTableCreateFlags.INTKEY.getValue()) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);
             }
 
-            assert ((cursor.flags() & SqlJetBtreeTableCreateFlags.INTKEY.getValue()) != 0);
-            assert ((cursor.flags() & SqlJetBtreeTableCreateFlags.ZERODATA.getValue()) == 0);
+            assert ((getCursor().flags() & SqlJetBtreeTableCreateFlags.INTKEY.getValue()) != 0);
+            assert ((getCursor().flags() & SqlJetBtreeTableCreateFlags.ZERODATA.getValue()) == 0);
 
             long MAX_ROWID = 0x7fffffff;
 
-            final boolean last = cursor.last();
+            final boolean last = getCursor().last();
 
             if (last) {
                 v = 1;
             } else {
-                v = cursor.getKeySize();
+                v = getCursor().getKeySize();
                 if (v == MAX_ROWID) {
                     useRandomRowid = true;
                 } else {
@@ -544,7 +557,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
                         }
                         if (v == 0)
                             continue;
-                        res = cursor.moveToUnpacked(null, v, false);
+                        res = getCursor().moveToUnpacked(null, v, false);
                         cnt++;
                     } while (cnt < 100 && res == 0);
                     priorNewRowid = v;
@@ -570,12 +583,12 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     }
 
     public long getKeySize() throws SqlJetException {
-        return cursor.getKeySize();
+        return getCursor().getKeySize();
     }
 
     public int moveTo(ISqlJetMemoryPointer pKey, long nKey, boolean bias) throws SqlJetException {
         clearRecordCache();
-        return cursor.moveTo(pKey, nKey, bias);
+        return getCursor().moveTo(pKey, nKey, bias);
     }
 
     /**
@@ -590,7 +603,7 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
     public void insert(ISqlJetMemoryPointer pKey, long nKey, ISqlJetMemoryPointer pData, int nData, int nZero,
             boolean bias) throws SqlJetException {
         clearRecordCache();
-        cursor.insert(pKey, nKey, pData, nData, nZero, bias);
+        getCursor().insert(pKey, nKey, pData, nData, nZero, bias);
     }
 
     /**
@@ -599,6 +612,6 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
      */
     public void delete() throws SqlJetException {
         clearRecordCache();
-        cursor.delete();
+        getCursor().delete();
     }
 }

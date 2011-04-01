@@ -17,8 +17,6 @@
  */
 package org.tmatesoft.sqljet.issues._134;
 
-import java.util.logging.Logger;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;

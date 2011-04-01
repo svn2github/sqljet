@@ -63,7 +63,7 @@
 			<arg value="-report" />
 			<arg value="-fo" />
 			<arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang" />
-			<arg value="sqljet/src/Sql.g" />
+			<arg value="sqljet/src/org/tmatesoft/sqljet/core/internal/lang/Sql.g" />
 			<classpath>
 				<pathelement location="tools/antlr-${antlr.version}.jar" />
 				<pathelement path="${java.class.path}" />

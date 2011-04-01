@@ -1,26 +1,138 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
   <modelVersion>4.0.0</modelVersion>
+  
   <groupId>org.tmatesoft.sqljet</groupId>
   <artifactId>sqljet</artifactId>
   <packaging>jar</packaging>
-  <version>%sqljet.version%</version>
+  <version>1.1.0-SNAPSHOT</version>
   <name>SQLJet</name>
   <description>A pure Java library for managing SQLite databases</description>
   <url>http://sqljet.com/</url>
+  
   <licenses>
     <license>
       <url>http://sqljet.com/</url>
     </license>
   </licenses>
+  
+  <profiles>
+    <profile>
+      <id>jdk15</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <jdk>1.5</jdk>
+      </activation>
+      <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      </properties>
+    </profile>
+  </profiles>
+  
+  <build>
+  
+    <sourceDirectory>sqljet/src</sourceDirectory>
+    <testSourceDirectory>sqljet-test/src</testSourceDirectory>
+    <plugins>
+    
+      <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.8</version>
+        <configuration>
+          
+          <excludes>
+            <exclude>**/*Abstract*.java</exclude>
+            <exclude>**/*Abstract*.java</exclude>
+            <exclude>**/*Mock*.java</exclude>
+            <exclude>**/*sandbox*/**/**.*</exclude>
+          </excludes>
+          <includes>
+            <includes>**/*Test*.java</includes>
+          </includes>
+          <systemPropertyVariables>
+            <SQLJET_TESTS_LOGGING>false</SQLJET_TESTS_LOGGING>
+            <SqlJetBtreeTableTest.DELETE_COPY>true</SqlJetBtreeTableTest.DELETE_COPY>
+            <SqlJetBtreeTableTest.REPEATS_COUNT>100</SqlJetBtreeTableTest.REPEATS_COUNT>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr3-maven-plugin</artifactId>
+        <version>3.1.3-1</version>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>antlr</goal>
+                </goals>
+            </execution>
+        </executions>
+        <configuration>
+            <sourceDirectory>sqljet/src</sourceDirectory>
+            <outputDirectory>sqljet/src</outputDirectory>
+        </configuration>
+      </plugin>
+    
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+            <execution>
+            <id>attach-sources</id>
+            <goals>
+                <goal>jar</goal>
+            </goals>
+            </execution>
+        </executions>
+    </plugin>
+    
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+            <execution>
+            <id>attach-javadocs</id>
+            <goals>
+                <goal>jar</goal>
+            </goals>
+            </execution>
+        </executions>
+    </plugin>
+    </plugins>
+  </build>
+
   <distributionManagement>
     <downloadUrl>http://sqljet.com/</downloadUrl>
   </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr-runtime</artifactId>
-      <version>%antlr.version%</version>
-      <optional>false</optional>
+      <version>[3.1.3,3.2)</version>
     </dependency>
-  </dependencies>
+
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>2.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>[4.5,5.0)</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.7.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies> 
 </project>

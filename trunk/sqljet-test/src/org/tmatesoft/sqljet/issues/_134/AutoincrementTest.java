@@ -63,7 +63,6 @@ public class AutoincrementTest extends AbstractNewDbTest {
                     while (!open.eof()) {
                         long id = open.getInteger("id");
                         Assert.assertNotNull(id);
-                        Logger.global.info(String.format("%d\n", id));
                         open.next();
                     }
                 } finally {

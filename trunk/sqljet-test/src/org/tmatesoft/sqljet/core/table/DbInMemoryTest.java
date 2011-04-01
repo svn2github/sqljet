@@ -17,7 +17,7 @@
  */
 package org.tmatesoft.sqljet.core.table;
 
-import java.util.logging.Logger;
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -44,7 +44,8 @@ public class DbInMemoryTest {
                     final ISqlJetCursor c = t.open();
                     try {
                         while (!c.eof()) {
-                            Logger.global.info(String.format("#%d: \"%s\"", c.getInteger("a"), c.getString("b")));
+                            Assert.assertNotNull(c.getInteger("a"));
+                            Assert.assertNotNull(c.getString("b"));
                             c.next();
                         }
                     } finally {

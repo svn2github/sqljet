@@ -392,6 +392,10 @@ public abstract class SqlJetAbstractFileSystemMockTest extends SqlJetAbstractMoc
      */
     protected void cleanUpInstances() throws Exception {
         super.cleanUpInstances();
+        
+        if (fileSystemsManager != null && fileSystem != null) {
+            fileSystemsManager.unregister(fileSystem);
+        }
         fileSystemsManager = null;
         fileSystem = null;
     }

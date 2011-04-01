@@ -39,6 +39,7 @@
         <version>2.6</version>
         <configuration>
           <excludes>
+            <exclude>**/*$*</exclude>
             <exclude>**/*Abstract*.java</exclude>
             <exclude>**/*Abstract*.java</exclude>
             <exclude>**/*Mock*.java</exclude>
@@ -69,6 +70,7 @@
         <configuration>
           
           <excludes>
+            <exclude>**/*$*</exclude>
             <exclude>**/*Abstract*.java</exclude>
             <exclude>**/*Abstract*.java</exclude>
             <exclude>**/*Mock*.java</exclude>

@@ -4,12 +4,18 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"           
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
   http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
   <parent>
     <artifactId>parent</artifactId>
     <groupId>org.tmatesoft</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  
+   
+  <scm>
+    <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk</connection>
+    <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk</developerConnection>
+  </scm>
+
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>org.tmatesoft.sqljet</groupId>
@@ -90,8 +96,11 @@
     </profile>
   </profiles>
   
-  <build>
-  
+  <organization>
+  	<name>TMate Software</name>
+  </organization>
+
+  <build>  
     <sourceDirectory>sqljet/src</sourceDirectory>
     <testSourceDirectory>sqljet-test/src</testSourceDirectory>
     <plugins>

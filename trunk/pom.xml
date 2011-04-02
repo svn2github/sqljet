@@ -4,6 +4,12 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"           
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
   http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>parent</artifactId>
+    <groupId>org.tmatesoft</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>org.tmatesoft.sqljet</groupId>
@@ -20,13 +26,6 @@
     </license>
   </licenses>
 
-  <!-- move to parent pom -->
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <toolchain>1.5</toolchain>
-  </properties>
-
-  
   <profiles>
     <profile>
       <id>sqljet.tests</id>
@@ -96,45 +95,6 @@
     <sourceDirectory>sqljet/src</sourceDirectory>
     <testSourceDirectory>sqljet-test/src</testSourceDirectory>
     <plugins>
-    
-      <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-toolchains-plugin</artifactId>
-         <version>1.0</version>
-         <executions>
-           <execution>
-             <phase>validate</phase>
-             <goals>
-               <goal>toolchain</goal>
-             </goals>
-           </execution>
-         </executions>
-         <configuration>
-           <toolchains>
-             <jdk>
-               <version>${toolchain}</version>
-               <vendor>sun</vendor>
-             </jdk>
-           </toolchains>
-         </configuration>
-      </plugin>
-
-      <!--  move to parent pom -->    
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version>
-        <executions>
-            <execution>
-            <id>attach-sources</id>
-            <goals>
-                <goal>jar</goal>
-            </goals>
-            </execution>
-        </executions>
-      </plugin>
-    
-      <!--  move to parent pom -->    
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>

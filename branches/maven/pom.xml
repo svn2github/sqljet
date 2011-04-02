@@ -13,6 +13,7 @@
     <name>SQLJet Project</name>
     <version>1.1.0-SNAPSHOT</version>
 
+    <url>http://www.sqljet.com</url>
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven</developerConnection>

@@ -11,10 +11,75 @@
     <artifactId>sqljet-browser</artifactId>
     <packaging>jar</packaging>
 
+    <name>SQLJet Database Browser</name>
+    <description>SQLJet Database Browser</description>
+    <url>http://www.sqlet.com/browser</url>
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-browser</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-browser</developerConnection>
     </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>keytool-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>genkey</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keystore>${project.build.directory}/keystore</keystore>
+                    <dname>cn=www.sqljet.com, ou=None, L=Prague, o=TMate Software, c=CZ</dname>
+                    <keypass>sqljet</keypass>
+                    <storepass>secret</storepass>
+                    <alias>tmate</alias>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>webstart-maven-plugin</artifactId>
+                <version>1.0-alpha-2-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jnlp-single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <templateDirectory>src/main/jnlp</templateDirectory>
+                    <workingDirectory>${project.build.directory}/jnlp</workingDirectory>
+                    <jnlp>
+                        <inputTemplate>src/main/jnlp/browser.jnlp</inputTemplate>
+                        <outputFile>browser.jnlp</outputFile>
+                        <mainClass>org.tmatesoft.sqljet.browser.DBBrowser</mainClass>
+                    </jnlp>
+                    <sign>
+                        <keystore>${project.build.directory}/keystore</keystore>
+                        <keypass>sqljet</keypass>
+                        <storepass>secret</storepass>
+                        <storetype>jks</storetype>
+                        <alias>tmate</alias>
+                        <verify>true</verify>
+                    </sign>
+                    <pack200>true</pack200>
+                    <gzip>true</gzip>
+                    <outputJarVersions>true</outputJarVersions>
+                    <install>false</install>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

@@ -24,6 +24,7 @@
 
     <modules>
         <module>sqljet</module>
+        <module>sqljet-osgi</module>
         <module>sqljet-browser</module>
         <module>sqljet-example-simple</module>
         <module>sqljet-example-inventory</module>

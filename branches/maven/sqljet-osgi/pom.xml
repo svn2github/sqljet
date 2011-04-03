@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <parent>
+        <artifactId>project</artifactId>
+        <groupId>org.tmatesoft.sqljet</groupId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sqljet-osgi</artifactId>
+    <packaging>bundle</packaging>
+
+    <scm>
+        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-osgi</connection>
+        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-osgi</developerConnection>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.tmatesoft.sqljet</groupId>
+            <artifactId>sqljet</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+            <optional>false</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.4</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
+                        <Bundle-Name>sqljet</Bundle-Name>
+                        <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Embed-Dependency>slqjet;inline=true,antlr-runtime</Embed-Dependency>
+                        <Export-Package>${project.groupId}.core.*</Export-Package>
+                        <Private-Package>${project.groupId}.core.internal.*</Private-Package>
+                        <Bundle-RequiredExecutionEnvironment>J2SE-${toolchain}</Bundle-RequiredExecutionEnvironment>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

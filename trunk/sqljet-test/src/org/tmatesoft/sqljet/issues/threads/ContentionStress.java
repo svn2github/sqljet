@@ -187,8 +187,8 @@ public class ContentionStress extends AbstractNewDbTest {
         final Action readerAction = new Action("reader", SqlJetDb.open(file, false), SqlJetTransactionMode.READ_ONLY,
                 new Reader());
 
-        final Thread writerThread = new Thread(writerAction);
-        final Thread readerThread = new Thread(readerAction);
+        final Thread writerThread = new Thread(writerAction, "writer");
+        final Thread readerThread = new Thread(readerAction, "reader");
         writerThread.start();
         try {
             Thread.sleep(1000);

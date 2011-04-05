@@ -17,9 +17,8 @@
 
     <artifactId>sqljet</artifactId>
     <packaging>jar</packaging>
-    <name>SQLJet</name>
-    <description>A pure Java library for managing SQLite databases</description>
-    <url>http://sqljet.com/</url>
+    <name>SQLJet Library</name>
+    <description>SQLJet: Pure Java SQLite Library.</description>
 
     <licenses>
         <license>
@@ -136,7 +135,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr-runtime</artifactId>
-            <version>[3.1.3,3.2)</version>
+            <version>3.1.3</version>
         </dependency>
         
         <dependency>
@@ -161,7 +160,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>[4.5,5.0)</version>
+            <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

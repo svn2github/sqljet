@@ -61,7 +61,7 @@
                     <jnlp>
                         <inputTemplate>src/main/jnlp/browser.jnlp</inputTemplate>
                         <outputFile>browser.jnlp</outputFile>
-                        <mainClass>org.tmatesoft.sqljet.browser.DBBrowser</mainClass>
+                        <mainClass>${project.groupId}.browser.DBBrowser</mainClass>
                     </jnlp>
                     <sign>
                         <keystore>${project.build.directory}/keystore</keystore>

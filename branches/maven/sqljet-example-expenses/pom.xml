@@ -11,6 +11,7 @@
     <artifactId>sqljet-example-expenses</artifactId>
     <packaging>jar</packaging>
 
+    <name>SQLJet Example - Expenses</name>
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-example-expenses</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-example-expenses</developerConnection>

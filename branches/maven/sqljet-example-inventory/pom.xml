@@ -11,6 +11,7 @@
     <artifactId>sqljet-example-inventory</artifactId>
     <packaging>jar</packaging>
 
+    <name>SQLJet Example - Inventory</name>
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-example-inventory</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-example-inventory</developerConnection>

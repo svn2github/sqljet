@@ -11,6 +11,7 @@
     <artifactId>sqljet-osgi</artifactId>
     <packaging>bundle</packaging>
 
+    <name>SQLJet OSGI Bundle</name>
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-osgi</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-osgi</developerConnection>

@@ -23,9 +23,9 @@
 		<connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven</connection>
 		<developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven</developerConnection>
 	</scm>
-	
+
 	<properties>
-	   <ci.buildNumber>local</ci.buildNumber>
+		<ci.buildNumber>local</ci.buildNumber>
 	</properties>
 
 	<modules>
@@ -38,6 +38,7 @@
 	</modules>
 
 	<build>
+		<finalName>${project.artifactId}-${project.version}.${ci.buildNumber}</finalName>
 		<plugins>
 			<!-- parse project version -->
 			<plugin>

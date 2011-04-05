@@ -28,7 +28,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.groupId}_${project.version}.jar</finalName>
+        <finalName>${project.groupId}_${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>

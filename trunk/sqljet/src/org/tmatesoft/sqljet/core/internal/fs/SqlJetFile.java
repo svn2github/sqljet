@@ -1,7 +1,7 @@
 /**
  * SqlJetFile.java
  * Copyright (C) 2008 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -50,7 +50,7 @@ import org.tmatesoft.sqljet.core.internal.fs.util.SqlJetFileUtil;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetFile implements ISqlJetFile {
 
@@ -81,7 +81,7 @@ public class SqlJetFile implements ISqlJetFile {
     }
 
     /**
-     * 
+     *
      */
     private void TIMER_END() {
         if (SQLJET_LOG_FILES_PERFORMANCE)
@@ -89,7 +89,7 @@ public class SqlJetFile implements ISqlJetFile {
     }
 
     /**
-     * 
+     *
      */
     private void TIMER_START() {
         if (SQLJET_LOG_FILES_PERFORMANCE)
@@ -102,7 +102,7 @@ public class SqlJetFile implements ISqlJetFile {
      * @return
      */
     private String getpid() {
-        return pid;
+        return pid + "(thread:'"+Thread.currentThread().getName()+"')";
     }
 
     /**
@@ -189,7 +189,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#getFileType()
      */
     public SqlJetFileType getFileType() {
@@ -198,7 +198,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#getPermissions()
      */
     public synchronized Set<SqlJetFileOpenPermission> getPermissions() {
@@ -212,7 +212,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#close()
      */
     public synchronized void close() throws SqlJetException {
@@ -268,7 +268,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#read(byte[], int, long)
      */
     public synchronized int read(ISqlJetMemoryPointer buffer, int amount, long offset) throws SqlJetIOException {
@@ -290,7 +290,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#write(byte[], int, long)
      */
     public synchronized void write(ISqlJetMemoryPointer buffer, int amount, long offset) throws SqlJetIOException {
@@ -311,7 +311,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#truncate(long)
      */
     public synchronized void truncate(long size) throws SqlJetIOException {
@@ -326,7 +326,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sync(boolean, boolean)
      */
     public synchronized void sync(Set<SqlJetSyncFlags> syncFlags) throws SqlJetIOException {
@@ -342,7 +342,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#fileSize()
      */
     public synchronized long fileSize() throws SqlJetException {
@@ -356,7 +356,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#lockType()
      */
     public synchronized SqlJetLockType getLockType() {
@@ -365,7 +365,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetFile#lock(org.tmatesoft.sqljet.core.
      * SqlJetLockType)
@@ -383,19 +383,19 @@ public class SqlJetFile implements ISqlJetFile {
          * slightly in order to be compatible with windows systems
          * simultaneously accessing the same database file, in case that is ever
          * required.
-         * 
+         *
          * Symbols defined in os.h indentify the 'pending byte' and the
          * 'reserved byte', each single bytes at well known offsets, and the
          * 'shared byte range', a range of 510 bytes at a well known offset.
-         * 
+         *
          * To obtain a SHARED lock, a read-lock is obtained on the 'pending
          * byte'. If this is successful, a random byte from the 'shared byte
          * range' is read-locked and the lock on the 'pending byte' released.
-         * 
+         *
          * A process may only obtain a RESERVED lock after it has a SHARED lock.
          * A RESERVED lock is implemented by grabbing a write-lock on the
          * 'reserved byte'.
-         * 
+         *
          * A process may only obtain a PENDING lock after it has obtained a
          * SHARED lock. A PENDING lock is implemented by obtaining a write-lock
          * on the 'pending byte'. This ensures that no new SHARED locks can be
@@ -403,13 +403,13 @@ public class SqlJetFile implements ISqlJetFile {
          * does not have to obtain a RESERVED lock on the way to a PENDING lock.
          * This property is used by the algorithm for rolling back a journal
          * file after a crash.
-         * 
+         *
          * An EXCLUSIVE lock, obtained after a PENDING lock is held, is
          * implemented by obtaining a write-lock on the entire 'shared byte
          * range'. Since all other locks require a read-lock on one of the bytes
          * within this range, this ensures that no other locks are held on the
          * database.
-         * 
+         *
          * The reason a single byte cannot be used instead of the 'shared byte
          * range' is that some versions of windows do not support read-locks. By
          * locking a random byte from a range, concurrent SHARED locks may exist
@@ -569,7 +569,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.ISqlJetFile#unlock(org.tmatesoft.sqljet.core
      * .SqlJetLockType)
@@ -581,7 +581,7 @@ public class SqlJetFile implements ISqlJetFile {
         /*
          * Lower the locking level on file descriptor pFile to locktype.
          * locktype must be either NONE or SHARED.
-         * 
+         *
          * If the locking level of the file descriptor is already at or below
          * the requested locking level, this routine is a no-op.
          */
@@ -685,7 +685,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#checkReservedLock()
      */
     public synchronized boolean checkReservedLock() {
@@ -734,7 +734,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#sectorSize()
      */
     public int sectorSize() {
@@ -743,7 +743,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#deviceCharacteristics()
      */
     final static Set<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = SqlJetUtility
@@ -777,7 +777,7 @@ public class SqlJetFile implements ISqlJetFile {
     }
 
     /**
-     * 
+     *
      */
     private void releaseLockInfo() {
         synchronized (openFiles) {
@@ -802,7 +802,7 @@ public class SqlJetFile implements ISqlJetFile {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.ISqlJetFile#isMemJournal()
      */
     public boolean isMemJournal() {

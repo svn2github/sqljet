@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>sqljet-browser-jnlp</artifactId>
     <packaging>pom</packaging>
-    <name>SQLJet Browser JNLP Bundle</name>
+    <name>SQLJet Database Browser JNLP Bundle</name>
 
     <dependencies>
         <dependency>

@@ -1,12 +1,14 @@
 <project name="compatibility-tests" default="run">
 
-    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-        <classpath>
-            <pathelement path="${org.apache.ant:ant-junit:jar}" />
-        </classpath>
-    </taskdef>
+    <target name="taskdef">
+        <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath>
+                <pathelement path="${org.apache.ant:ant-junit:jar}" />
+            </classpath>
+        </taskdef>
+    </target>
 
-    <target name="run">
+    <target name="run" depends="taskdef">
 
         <property name="compability.timeout" value="60000" />
         <property name="compability.wait" value="500" />
@@ -19,7 +21,7 @@
             <attribute name="logging" default="false" />
             <attribute name="name" />
             <sequential>
-                <junit>
+                <junit haltonerror="true" haltonfailure="true">
                     <jvmarg value="-ea" />
                     <jvmarg value="-server" />
 

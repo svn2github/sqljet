@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <parent>
         <artifactId>project</artifactId>
@@ -21,56 +19,6 @@
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-browser</developerConnection>
     </scm>
 
-    <build>
-        <plugins>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>webstart-maven-plugin</artifactId>
-                <version>1.0-alpha-2-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jnlp-single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <templateDirectory>src/main/jnlp</templateDirectory>
-                    <workingDirectory>${project.build.directory}/jnlp</workingDirectory>
-                    <jnlp>
-                        <inputTemplate>src/main/jnlp/browser.jnlp</inputTemplate>
-                        <outputFile>browser.jnlp</outputFile>
-                        <mainClass>${project.groupId}.browser.DBBrowser</mainClass>
-                    </jnlp>
-                    <sign>
-                        <keystore>${project.build.directory}/keystore</keystore>
-                        <keypass>sqljet</keypass>
-                        <storepass>secret</storepass>
-                        <alias>tmate</alias>
-                        <validity>3650</validity>
-                        <dnameCn>TMate Software</dnameCn>
-                        <dnameO>TMate Software</dnameO>
-                        <dnameL>Prague</dnameL>
-                        <dnameC>CZ</dnameC>
-                        <verify>false</verify>
-                        <verify>false</verify>
-                        <keystoreConfig>
-                            <delete>true</delete>
-                            <gen>true</gen>
-                        </keystoreConfig>
-                    </sign>
-                    <pack200>true</pack200>
-                    <gzip>true</gzip>
-                    <outputJarVersions>true</outputJarVersions>
-                    <install>false</install>
-                    <verbose>false</verbose>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.tmatesoft.sqljet</groupId>
@@ -89,5 +37,23 @@
             <type>jar</type>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>${groupId}.browser.DBBrowser</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

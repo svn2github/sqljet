@@ -35,6 +35,7 @@
         <module>sqljet-example-simple</module>
         <module>sqljet-example-inventory</module>
         <module>sqljet-example-expenses</module>
+        <module>sqljet-browser-jnlp</module>
     </modules>
 
     <build>

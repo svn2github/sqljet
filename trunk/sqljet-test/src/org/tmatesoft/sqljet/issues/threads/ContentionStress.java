@@ -17,6 +17,7 @@
  */
 package org.tmatesoft.sqljet.issues.threads;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,14 +39,15 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class ContentionStress extends AbstractNewDbTest {
 
+    private static final AtomicBoolean exit = new AtomicBoolean(false);
+
     private static final String TABLE = "record";
 
     private static int BUSY_WAIT = 600;
     private static int BUSY_SLEEP = 50;
 
-    private static long BATCH = 300;
     private static long BETWEEN = 100;
-    private static long TOTAL = 5000;
+    private static long TOTAL = 100;
 
     private static final Logger logger = Logger.getLogger(ContentionStress.class.getName());
 
@@ -70,12 +72,14 @@ public class ContentionStress extends AbstractNewDbTest {
             logger.log(Level.INFO, name + " retry " + number);
             if (number > retries) {
                 busy = true;
+                exit.set(true);
                 return false;
             } else {
                 try {
                     Thread.sleep(sleep);
                 } catch (InterruptedException e) {
                     busy = true;
+                    exit.set(true);
                     return false;
                 }
                 return true;
@@ -106,23 +110,22 @@ public class ContentionStress extends AbstractNewDbTest {
 
         public void run() {
             try {
-                final long start = System.currentTimeMillis();
-                final long end = start + TOTAL;
-                long now;
-                while ((now = System.currentTimeMillis()) < end) {
+                long count=0;
+                while( count++ < TOTAL && !exit.get() ) {
+                    logger.log(Level.INFO, name + " ran for " + count);
                     try {
                         logger.log(Level.INFO, "doing " + name);
                         db.runTransaction(transaction, mode);
                         logger.log(Level.INFO, "done " + name);
                     } catch (SqlJetException e) {
                         logger.log(Level.INFO, name + " error", e);
+
                     }
                     try {
                         Thread.sleep(BETWEEN);
                     } catch (InterruptedException e) {
                     }
                 }
-                logger.log(Level.INFO, name + " ran for " + (now - start));
             } finally {
                 try {
                     db.close();
@@ -142,14 +145,11 @@ public class ContentionStress extends AbstractNewDbTest {
             final ISqlJetTable table = db.getTable(TABLE);
             int n_written = 0;
             batch++;
-            long start = System.currentTimeMillis();
-            long end = start + BATCH;
-            long now;
-            while ((now = System.currentTimeMillis()) < end) {
+            while (n_written<TOTAL && !exit.get()) {
                 table.insert(batch, ++id);
                 n_written++;
             }
-            logger.log(Level.INFO, "inserted " + n_written + " in " + (now - start));
+            logger.log(Level.INFO, "writer: inserted " + n_written);
             return null;
         }
     }
@@ -158,13 +158,10 @@ public class ContentionStress extends AbstractNewDbTest {
         public Object run(SqlJetDb db) throws SqlJetException {
             final ISqlJetTable table = db.getTable(TABLE);
             int n_read = 0;
-            long start = System.currentTimeMillis();
-            long end = start + BATCH;
-            long now;
             final ISqlJetCursor cursor = table.open();
             try {
                 boolean more = !cursor.eof();
-                while ((now = System.currentTimeMillis()) < end && more) {
+                while (n_read < TOTAL && more  && !exit.get()) {
                     n_read++;
                     cursor.getInteger(0);
                     more = cursor.next();
@@ -172,7 +169,7 @@ public class ContentionStress extends AbstractNewDbTest {
             } finally {
                 cursor.close();
             }
-            logger.log(Level.INFO, "scanned " + n_read + " in " + (now - start));
+            logger.log(Level.INFO, "reader: scanned " + n_read);
             return null;
         }
     }

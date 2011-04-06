@@ -50,6 +50,10 @@
                             <addClasspath>true</addClasspath>
                             <mainClass>${groupId}.browser.DBBrowser</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>sqljet-${project.version}.${ci.buildNumber}.jar</Class-Path>
+                        </manifestEntries>
+                        
                     </archive>
                 </configuration>
             </plugin>

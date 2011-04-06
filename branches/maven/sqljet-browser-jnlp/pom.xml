@@ -59,8 +59,8 @@
                     
                     <pack200>true</pack200>
                     <gzip>true</gzip>
-                    <outputJarVersions>true</outputJarVersions>
-                    <install>false</install>
+                    <outputJarVersions>false</outputJarVersions>
+                    <install>true</install>
                     <verbose>false</verbose>
                 </configuration>
             </plugin>

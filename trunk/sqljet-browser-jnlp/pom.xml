@@ -1,0 +1,74 @@
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <parent>
+        <artifactId>project</artifactId>
+        <groupId>org.tmatesoft.sqljet</groupId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sqljet-browser-jnlp</artifactId>
+    <packaging>pom</packaging>
+    <name>SQLJet Database Browser JNLP Bundle</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.tmatesoft.sqljet</groupId>
+            <artifactId>sqljet-browser</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+    
+    <properties>
+        <jnlpCodeBaseURL>http://www.sqljet.com/browser</jnlpCodeBaseURL>
+    </properties>
+
+    <scm>
+        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser-jnlp</connection>
+        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser-jnlp</developerConnection>
+    </scm>
+
+    <build>
+        <plugins>
+
+            <plugin>
+
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>webstart-maven-plugin</artifactId>
+                <version>1.0-alpha-2-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jnlp-single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <templateDirectory>src/main/jnlp</templateDirectory>
+                    <jnlp>
+                        <inputTemplate>src/main/jnlp/browser.jnlp</inputTemplate>
+                        <outputFile>browser.jnlp</outputFile>
+                        <mainClass>${project.groupId}.browser.DBBrowser</mainClass>
+                    </jnlp>
+
+                    <sign>
+                        <keystore>${project.basedir}/keystore</keystore>
+                        <keypass>${keystorePassword}</keypass>
+                        <storepass>${keystorePassword}</storepass>
+                        <alias>tmate</alias>
+                        <verify>true</verify>
+                    </sign>
+
+                    <pack200>true</pack200>
+                    <gzip>true</gzip>
+                    <outputJarVersions>false</outputJarVersions>
+                    <install>true</install>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

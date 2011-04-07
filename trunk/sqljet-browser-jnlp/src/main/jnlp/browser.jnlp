@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="$jnlpCodeBaseURL">
+<information>
+  <title>$project.name</title>
+  <vendor>$project.organization.name</vendor>
+  <homepage href="$jnlpCodeBaseURL"></homepage>
+  <description>$project.description</description>
+</information>
+<security>
+  <all-permissions/>
+</security>
+<offline-allowed />
+<resources>
+  <j2se version="$toolchain+"/>
+  <property name="jnlp.versionEnabled" value="true"/>
+  <property name="jnlp.packEnabled" value="true"/>
+  $dependencies
+</resources>
+<application-desc main-class="org.tmatesoft.sqljet.browser.DBBrowser" />
+</jnlp>

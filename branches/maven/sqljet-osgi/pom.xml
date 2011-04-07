@@ -41,7 +41,7 @@
                         <Bundle-Name>sqljet</Bundle-Name>
                         <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Embed-Dependency>slqjet;inline=true,antlr-runtime</Embed-Dependency>
+                        <Embed-Dependency>sqljet;inline=true,antlr-runtime</Embed-Dependency>
                         <Export-Package>${project.groupId}.core.*</Export-Package>
                         <Private-Package>${project.groupId}.core.internal.*</Private-Package>
                         <Bundle-RequiredExecutionEnvironment>J2SE-${toolchain}</Bundle-RequiredExecutionEnvironment>

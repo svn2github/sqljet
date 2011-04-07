@@ -8,28 +8,19 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <baseDirectory>sqljet</baseDirectory>
 
-    <moduleSets>
-        <moduleSet>
-            <useAllReactorProjects>true</useAllReactorProjects>
+    <fileSets>
+        <fileSet>
+            <directory>..</directory>
             <includes>
-                <include>org.tmatesoft.sqljet:project</include>
+                <include>README.txt</include>
+                <include>CHANGES</include>
+                <include>COPYING</include>
             </includes>
-            <sources>
-                <outputDirectoryMapping></outputDirectoryMapping>
-                <excludeSubModuleDirectories>true</excludeSubModuleDirectories>
-                <fileSets>
-                    <fileSet>
-                        <directory></directory>
-                        <includes>
-                            <include>README.txt</include>
-                            <include>CHANGES</include>
-                            <include>COPYING</include>
-                        </includes>
-                        <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>
-                    </fileSet>
-                </fileSets>
-            </sources>
-        </moduleSet>
+            <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>
+        </fileSet>
+    </fileSets>
+    
+    <moduleSets>
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
             <includes>
@@ -47,7 +38,9 @@
                         <useProjectArtifact>true</useProjectArtifact>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
                         <useProjectAttachments>false</useProjectAttachments>
-                        <excludes><exclude>org.tmatesoft.sqljet:*</exclude></excludes>
+                        <excludes>
+                            <exclude>org.tmatesoft.sqljet:*</exclude>
+                        </excludes>
                     </dependencySet>
                 </dependencySets>
                 <unpack>false</unpack>

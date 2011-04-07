@@ -18,17 +18,21 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+    
+    <properties>
+        <jnlpCodeBaseURL>http://www.sqljet.com/browser</jnlpCodeBaseURL>
+    </properties>
 
     <scm>
         <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-browser-jnlp</connection>
         <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/maven/sqljet-browser-jnlp</developerConnection>
     </scm>
-    
+
     <build>
         <plugins>
 
             <plugin>
-                
+
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>webstart-maven-plugin</artifactId>
                 <version>1.0-alpha-2-SNAPSHOT</version>
@@ -40,7 +44,7 @@
                         </goals>
                     </execution>
                 </executions>
-                
+
                 <configuration>
                     <templateDirectory>src/main/jnlp</templateDirectory>
                     <jnlp>
@@ -56,7 +60,7 @@
                         <alias>tmate</alias>
                         <verify>true</verify>
                     </sign>
-                    
+
                     <pack200>true</pack200>
                     <gzip>true</gzip>
                     <outputJarVersions>false</outputJarVersions>

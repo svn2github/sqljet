@@ -30,7 +30,7 @@
             <binaries>
                 <includeDependencies>true</includeDependencies>
                 <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>
-                <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
                 <dependencySets>
                     <dependencySet>
                         <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>
@@ -56,7 +56,7 @@
                 <attachmentClassifier>javadoc</attachmentClassifier>
                 <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>
                 <unpack>false</unpack>
-                <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
             </binaries>
         </moduleSet>
         <moduleSet>
@@ -70,7 +70,7 @@
                 <unpack>false</unpack>
                 <outputDirectory>sqljet-${project.version}.${ci.buildNumber}/examples</outputDirectory>
                 <includeDependencies>false</includeDependencies>
-                <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
             </binaries>
         </moduleSet>
         <moduleSet>
@@ -81,7 +81,7 @@
                 <include>org.tmatesoft.sqljet:sqljet-example-expenses</include>
             </includes>
             <binaries>
-                <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
                 <attachmentClassifier>sources</attachmentClassifier>
                 <unpack>false</unpack>
                 <outputDirectory>sqljet-${project.version}.${ci.buildNumber}/examples</outputDirectory>
@@ -95,7 +95,7 @@
                 <include>org.tmatesoft.sqljet:sqljet-browser</include>
             </includes>
             <binaries>
-                <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+                <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${ci.buildNumber}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
                 <attachmentClassifier>sources</attachmentClassifier>
                 <unpack>false</unpack>
                 <outputDirectory>sqljet-${project.version}.${ci.buildNumber}</outputDirectory>

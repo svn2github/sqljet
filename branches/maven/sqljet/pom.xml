@@ -107,6 +107,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <detectOfflineLinks>false</detectOfflineLinks>
                     <excludePackageNames>*.internal.*</excludePackageNames>
                 </configuration>
             </plugin>

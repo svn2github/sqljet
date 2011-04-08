@@ -20,8 +20,8 @@
     <url>http://www.sqljet.com</url>
     <inceptionYear>2009</inceptionYear>
     <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk</developerConnection>
+        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/branches/1.0.x</connection>
+        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/branches/1.0.x</developerConnection>
     </scm>
 
     <properties>

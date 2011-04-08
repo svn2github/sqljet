@@ -23,11 +23,6 @@
         <jnlpCodeBaseURL>http://www.sqljet.com/browser</jnlpCodeBaseURL>
     </properties>
 
-    <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser-jnlp</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser-jnlp</developerConnection>
-    </scm>
-
     <build>
         <plugins>
 

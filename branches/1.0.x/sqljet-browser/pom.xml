@@ -14,10 +14,6 @@
     <name>SQLJet Database Browser</name>
     <description>SQLJet Database Browser</description>
     <url>http://www.sqlet.com/browser</url>
-    <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-browser</developerConnection>
-    </scm>
 
     <dependencies>
         <dependency>

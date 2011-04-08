@@ -14,10 +14,6 @@
     <packaging>jar</packaging>
 
     <name>SQLJet Example - Simple</name>
-    <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-example-simple</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-example-simple</developerConnection>
-    </scm>
 
     <dependencies>
         <dependency>

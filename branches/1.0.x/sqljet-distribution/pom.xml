@@ -27,11 +27,6 @@
         </dependency>
     </dependencies>
 
-    <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-distribution</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-distribution</developerConnection>
-    </scm>
-
     <build>
         <plugins>
             <plugin>

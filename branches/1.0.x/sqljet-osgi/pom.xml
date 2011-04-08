@@ -12,10 +12,6 @@
     <packaging>bundle</packaging>
 
     <name>SQLJet OSGI Bundle</name>
-    <scm>
-        <connection>scm:svn:http://svn.sqljet.com/repos/sqljet/trunk/sqljet-osgi</connection>
-        <developerConnection>scm:svn:https://svn.sqljet.com/repos/sqljet/trunk/sqljet-osgi</developerConnection>
-    </scm>
 
     <dependencies>
         <dependency>

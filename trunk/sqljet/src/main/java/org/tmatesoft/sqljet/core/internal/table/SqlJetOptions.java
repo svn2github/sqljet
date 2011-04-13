@@ -1,7 +1,7 @@
 /**
  * SqlJetOptions.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -31,7 +31,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetOptions implements ISqlJetOptions {
 
@@ -107,9 +107,9 @@ public class SqlJetOptions implements ISqlJetOptions {
 
     /**
      * Get the database meta information.
-     * 
+     *
      * Meta values are as follows:
-     * 
+     *
      * <table border="1">
      * <tr>
      * <td>meta[1]</td>
@@ -140,9 +140,9 @@ public class SqlJetOptions implements ISqlJetOptions {
      * <td>Incremental-vacuum flag.</td>
      * </tr>
      * </table>
-     * 
+     *
      * @throws SqlJetException
-     * 
+     *
      */
     private void readMeta() throws SqlJetException {
         schemaCookie = readSchemaCookie();
@@ -153,7 +153,7 @@ public class SqlJetOptions implements ISqlJetOptions {
         pageCacheSize = readPageCacheSize();
         encoding = readEncoding();
     }
-    
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("ENCODING: " + encoding + "\n");
@@ -288,7 +288,12 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     private void initMeta() throws SqlJetException {
-        btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        final boolean inTrans = btree.isInTrans();
+        final SqlJetTransactionMode transMode = btree.getTransMode();
+        try{
+        if(!inTrans || transMode!=SqlJetTransactionMode.EXCLUSIVE) {
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        }
         try {
             schemaCookie = 1;
             writeSchemaCookie(schemaCookie);
@@ -304,6 +309,15 @@ public class SqlJetOptions implements ISqlJetOptions {
         } catch (SqlJetException e) {
             btree.rollback();
             throw e;
+        } } finally {
+            if(inTrans && transMode!=null){
+                if(!btree.isInTrans()) {
+                    btree.beginTrans(transMode);
+                } else if(btree.getTransMode()!=transMode) {
+                    btree.commit();
+                    btree.beginTrans(transMode);
+                }
+            }
         }
     }
 

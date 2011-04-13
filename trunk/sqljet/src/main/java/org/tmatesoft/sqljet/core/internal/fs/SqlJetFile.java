@@ -655,7 +655,7 @@ public class SqlJetFile implements ISqlJetFile {
                         }
                         locks.clear();
                         lockInfo.sharedLockCount = 0;
-                        this.lockType = SqlJetLockType.NONE;
+                        lockInfo.lockType = SqlJetLockType.NONE;
                     }
 
                     /*

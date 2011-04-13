@@ -1,7 +1,7 @@
 /**
  * SqlJetEngine.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -45,7 +45,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDefaultBusyHandler;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetEngine {
 
@@ -70,7 +70,7 @@ public class SqlJetEngine {
     private SqlJetTransactionMode transactionMode;
 
     /**
-     * 
+     *
      */
     public SqlJetEngine(final File file, final boolean writable) {
         this.writable = writable;
@@ -86,7 +86,7 @@ public class SqlJetEngine {
 
     /**
      * Check write access to data base.
-     * 
+     *
      * @return true if modification is allowed
      */
     public boolean isWritable() throws SqlJetException {
@@ -95,7 +95,7 @@ public class SqlJetEngine {
 
     /**
      * Checks is database open.
-     * 
+     *
      * @return true if database is open.
      */
     public boolean isOpen() {
@@ -113,7 +113,7 @@ public class SqlJetEngine {
      * First lock will be created when be called any method which requires real
      * access to options or schema.
      * </p>
-     * 
+     *
      * @throws SqlJetException
      *             if any trouble with access to file or database format.
      */
@@ -153,7 +153,7 @@ public class SqlJetEngine {
     /**
      * Close connection to database. It is safe to call this method if database
      * connections is closed already.
-     * 
+     *
      * @throws SqlJetException
      *             it is possible to get exception if there is actvie
      *             transaction and rollback did not success.
@@ -178,7 +178,7 @@ public class SqlJetEngine {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#finalize()
      */
     @Override
@@ -194,7 +194,7 @@ public class SqlJetEngine {
 
     /**
      * Reads database schema and options.
-     * 
+     *
      * @throws SqlJetException
      */
     protected void readSchema() throws SqlJetException {
@@ -214,7 +214,7 @@ public class SqlJetEngine {
 
     /**
      * Returns database options.
-     * 
+     *
      * @return options of this database.
      */
     public ISqlJetOptions getOptions() throws SqlJetException {
@@ -242,7 +242,7 @@ public class SqlJetEngine {
 
     /**
      * Get busy handler.
-     * 
+     *
      * @return the busy handler.
      */
     public ISqlJetBusyHandler getBusyHandler() {
@@ -252,7 +252,7 @@ public class SqlJetEngine {
     /**
      * Set busy handler. Busy handler treats situation when database is locked
      * by other process or thread.
-     * 
+     *
      * @param busyHandler
      *            the busy handler.
      */
@@ -262,7 +262,7 @@ public class SqlJetEngine {
 
     /**
      * Retruns threading synchronization mutex.
-     * 
+     *
      * @return Semaphore instance used to synchronize database access from
      *         multiple threads within the same process.
      */
@@ -272,7 +272,7 @@ public class SqlJetEngine {
 
     /**
      * Set cache size (in count of pages).
-     * 
+     *
      * @param cacheSize
      *            the count of pages which can hold cache.
      */
@@ -288,7 +288,7 @@ public class SqlJetEngine {
 
     /**
      * Get cache size (in count of pages).
-     * 
+     *
      * @return the count of pages which can hold cache.
      */
     public int getCacheSize() throws SqlJetException {
@@ -303,7 +303,7 @@ public class SqlJetEngine {
 
     /**
      * Returns true if a transaction is active.
-     * 
+     *
      * @return true if there is an active running transaction.
      */
     public boolean isInTransaction() {
@@ -316,7 +316,7 @@ public class SqlJetEngine {
 
     /**
      * Begin transaction.
-     * 
+     *
      * @param mode
      *            transaction's mode.
      */
@@ -324,11 +324,11 @@ public class SqlJetEngine {
         checkOpen();
         runSynchronized(new ISqlJetEngineSynchronized() {
             public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                refreshSchema();
                 if (transaction) {
                     throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
                 } else {
                     btree.beginTrans(mode);
+                    refreshSchema();
                     transaction = true;
                     transactionMode = mode;
                     return null;
@@ -339,7 +339,7 @@ public class SqlJetEngine {
 
     /**
      * Commits transaction.
-     * 
+     *
      */
     public void commit() throws SqlJetException {
         checkOpen();
@@ -360,7 +360,7 @@ public class SqlJetEngine {
 
     /**
      * Rolls back transaction.
-     * 
+     *
      */
     public void rollback() throws SqlJetException {
         checkOpen();
@@ -377,7 +377,7 @@ public class SqlJetEngine {
 
     /**
      * Runs transaction.
-     * 
+     *
      * @param op
      *            transaction's body (closure).
      * @param mode

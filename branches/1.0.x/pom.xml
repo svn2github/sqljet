@@ -25,7 +25,9 @@
     </scm>
 
     <properties>
-        <ci.buildNumber>local</ci.buildNumber>
+        <scm.revision>local</scm.revision>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+        <ci.buildNumber>r${scm.revision}-v${maven.build.timestamp}</ci.buildNumber>
     </properties>
 
     <modules>

@@ -12,6 +12,7 @@
     <packaging>bundle</packaging>
 
     <name>SQLJet OSGI Bundle</name>
+    <description>SQLJet OSGI Bundle</description>
 
     <dependencies>
         <dependency>
@@ -19,12 +20,15 @@
             <artifactId>sqljet</artifactId>
             <version>1.0.5-SNAPSHOT</version>
             <scope>compile</scope>
-            <optional>false</optional>
         </dependency>
     </dependencies>
+    
+    <properties>
+       <osgiVersion>${project.version}_${ci.buildNumber}</osgiVersion>
+    </properties>
 
     <build>
-        <finalName>${project.groupId}_${project.version}.${ci.buildNumber}</finalName>
+        <finalName>${project.groupId}_${osgiVersion}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -34,12 +38,14 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
-                        <Bundle-Name>sqljet</Bundle-Name>
+                        <Bundle-Version>${osgiVersion}</Bundle-Version>
+                        <Bundle-Name>SQLJet Library</Bundle-Name>
                         <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Dependency>sqljet;inline=true,antlr-runtime</Embed-Dependency>
-                        <Export-Package>${project.groupId}.core.*</Export-Package>
+                        <Export-Package>${project.groupId}.core;version="${osgiVersion}",${project.groupId}.core.schema.*;version="${osgiVersion}",${project.groupId}.core.table.*;version="${osgiVersion}</Export-Package>
                         <Private-Package>${project.groupId}.core.internal.*</Private-Package>
+                        <Import-Package>!org.antlr.*,!${project.groupId}.*,*</Import-Package>
                         <Bundle-RequiredExecutionEnvironment>J2SE-${toolchain}</Bundle-RequiredExecutionEnvironment>
                     </instructions>
                 </configuration>

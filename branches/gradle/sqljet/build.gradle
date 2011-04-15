@@ -1,0 +1,39 @@
+// antlr generation
+
+configurations { antlr3 }
+
+dependencies { antlr3 'org.antlr:antlr:3.1.3' }
+
+antlrSource = "src/main/antlr"
+antlrOutput = "src/main/java"
+
+task generateGrammarSource {
+	def grammars = fileTree(antlrSource).include("**/*.g")
+
+	ant.java(classname: 'org.antlr.Tool', fork: true, classpath: "${configurations.antlr3.asPath}") {
+		arg(line: "-o ${antlrOutput}/org/tmatesoft/sqljet/core/internal/lang")
+		arg(line: grammars.files.join(" "))
+	}
+}
+
+compileJava.dependsOn generateGrammarSource
+
+// tests
+
+testSystemProperties = [
+	'SQLJET_TESTS_LOGGING' : 'false',
+	'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
+	'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
+]
+
+test {
+	systemProperties = testSystemProperties
+	exclude '**/*Mock*', '**/*sandbox*/**/**.*'
+	include '**/*Test*'
+}
+
+task stressTest (type: Test) {
+	systemProperties = testSystemProperties
+	exclude '**/*Mock*', '**/*sandbox*/**/**.*'
+	include '**/*Stress*'
+}

@@ -126,6 +126,7 @@ public class SqlJetFile implements ISqlJetFile {
         private int sharedLockCount = 0;
         /** Number of pointers to this structure */
         private int numRef = 1;
+        private FileLock sharedLock = null;
     };
 
     /**
@@ -460,6 +461,7 @@ public class SqlJetFile implements ISqlJetFile {
                         && (lockInfo.lockType == SqlJetLockType.SHARED || lockInfo.lockType == SqlJetLockType.RESERVED)) {
                     this.lockType = SqlJetLockType.SHARED;
                     lockInfo.sharedLockCount++;
+                    locks.put(SqlJetLockType.SHARED, lockInfo.sharedLock);
                     openCount.numLock++;
                     return true;
                 }
@@ -478,6 +480,7 @@ public class SqlJetFile implements ISqlJetFile {
                         if (null != sharedLock) {
                             sharedLock.release();
                             locks.remove(SqlJetLockType.SHARED);
+                            lockInfo.sharedLock = null;
                         }
                     }
 
@@ -513,6 +516,7 @@ public class SqlJetFile implements ISqlJetFile {
                     this.lockType = SqlJetLockType.SHARED;
                     openCount.numLock++;
                     lockInfo.sharedLockCount = 1;
+                    lockInfo.sharedLock = sharedLock;
 
                 } else if (lockType == SqlJetLockType.EXCLUSIVE && lockInfo.sharedLockCount > 1) {
                     /*
@@ -619,6 +623,7 @@ public class SqlJetFile implements ISqlJetFile {
                             if (null == sharedLock)
                                 return false;
                             locks.put(SqlJetLockType.SHARED, sharedLock);
+                            lockInfo.sharedLock = sharedLock;
                         }
 
                     }

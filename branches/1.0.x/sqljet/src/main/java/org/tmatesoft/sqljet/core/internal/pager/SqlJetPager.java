@@ -2517,8 +2517,10 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             do {
                 lock = fd.lock(lockType);
                 if (!lock && null != busyHandler) {
-                    if (!busyHandler.call(n++))
+                    boolean wait = busyHandler.call(n++);
+                    if (!wait) {
                         break;
+                    }
                 }
             } while (lock != true);
             if (lock) {

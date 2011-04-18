@@ -1,1 +1,1 @@
-include 'sqljet', 'sqljet-browser'
+include 'sqljet', 'sqljet-browser', 'sqljet-example-simple'

@@ -1,39 +1,115 @@
+configurations {
+	antTests
+	antlr3
+	plainArchives
+	osgi
+}
 // antlr generation
-
-configurations { antlr3 }
 
 dependencies { antlr3 'org.antlr:antlr:3.1.3' }
 
 antlrSource = "src/main/antlr"
 antlrOutput = "src/main/java"
 
-task generateGrammarSource {
+task grammar {
 	def grammars = fileTree(antlrSource).include("**/*.g")
+
+	inputs.sourceDir(antlrSource)
+	outputs.files(
+			"$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/Sql.tokens",
+			"$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
+			"$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java")
 
 	ant.java(classname: 'org.antlr.Tool', fork: true, classpath: "${configurations.antlr3.asPath}") {
 		arg(line: "-o ${antlrOutput}/org/tmatesoft/sqljet/core/internal/lang")
 		arg(line: grammars.files.join(" "))
 	}
+
+	ant.replace(
+			file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
+			token : "public class SqlLexer extends Lexer {",
+			value :  "@SuppressWarnings(\"unused\") public class SqlLexer extends Lexer {")
+	ant.replace(
+			file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java",
+			token : "public class SqlParser extends Parser {",
+			value :  "@SuppressWarnings({\"unused\", \"rawtypes\", \"unchecked\"}) public class SqlParser extends Parser {")
 }
 
-compileJava.dependsOn generateGrammarSource
+compileJava.dependsOn grammar
+
+// add antlr to source jar
+
+sourcesJar { from 'src/main/antlr' }
+
+// javadoc
+javadoc { exclude 'org/tmatesoft/sqljet/core/internal/**' }
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	description="Builds Javadoc Jar"
+	from "$docsDir/javadoc"
+	classifier = 'javadoc'
+}
+
+// osgi and plain jars
+apply plugin: 'osgi'
+
+task plainJar(type: Jar) {
+	baseName = project.name
+	from sourceSets.main.classesDir
+}
+
+osgiClasspath = '.'
+configurations.compile.files.each {
+	osgiClasspath += ', ' + it.name
+}
+
+jar {
+	baseName = "$project.name-osgi"
+	from configurations.compile.files
+	manifest {
+		instruction 'Export-Package', "!org.tmatesoft.sqljet.core.internal.*;version=$version, org.tmatesoft.sqljet.core.*;version=$version"
+		instruction 'Import-Package', '!*'
+		instruction 'Bundle-Classpath', osgiClasspath
+		instruction 'Bundle-RequiredExecutionEnvironment', "J2SE-$targetCompatibility"
+	}
+}
+
+artifacts {
+	maven plainJar, sourcesJar, javadocJar, jar
+	osgi jar
+	plainArchives plainJar
+	sources sourcesJar
+	javadocs javadocJar
+}
 
 // tests
+dependencies { antTests 'org.apache.ant:ant-junit:1.8.2' }
 
 testSystemProperties = [
-	'SQLJET_TESTS_LOGGING' : 'false',
-	'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
-	'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
-]
+			'SQLJET_TESTS_LOGGING' : 'false',
+			'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
+			'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
+		]
 
 test {
 	systemProperties = testSystemProperties
 	exclude '**/*Mock*', '**/*sandbox*/**/**.*'
 	include '**/*Test*'
+
+	if (project.hasProperty('stressTests')) {
+		include '**/*Stress*'
+	}
 }
 
-task stressTest (type: Test) {
-	systemProperties = testSystemProperties
-	exclude '**/*Mock*', '**/*sandbox*/**/**.*'
-	include '**/*Stress*'
+if (project.hasProperty('stressTests')) {
+	test.doFirst {
+		ant.properties.antClasspath = configurations.antTests.asPath
+
+		ant.properties['test.classpath'] = configurations.testCompile.asPath
+		ant.properties['test.results'] = 'build/test-results'
+		ant.properties['project.build.outputDirectory'] = sourceSets.main.classesDir
+		ant.properties['project.build.testOutputDirectory'] = sourceSets.test.classesDir
+
+		ant.mkdir(dir: 'build/test-results')
+		ant.ant(antfile: 'src/test/ant/compatibility-tests.xml')
+	}
 }

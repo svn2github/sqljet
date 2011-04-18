@@ -1,14 +1,16 @@
 <project name="compatibility-tests" default="run">
-
     <target name="taskdef">
         <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
             <classpath>
-                <pathelement path="${org.apache.ant:ant-junit:jar}" />
+                <pathelement path="${antClasspath}" />
             </classpath>
         </taskdef>
     </target>
 
     <target name="run" depends="taskdef">
+            
+        <echo message="classes: ${project.build.outputDirectory}"/>
+        <echo message="test classes: ${project.build.testOutputDirectory}"/>
 
         <property name="compability.timeout" value="60000" />
         <property name="compability.wait" value="500" />
@@ -20,6 +22,7 @@
 
             <attribute name="logging" default="false" />
             <attribute name="name" />
+            
             <sequential>
                 <junit haltonerror="true" haltonfailure="true">
                     <jvmarg value="-ea" />
@@ -33,12 +36,10 @@
                     <classpath>
                         <pathelement path="${project.build.outputDirectory}" />
                         <pathelement path="${project.build.testOutputDirectory}" />
-                        <pathelement path="${org.apache.ant:ant-junit:jar}" />
-                        <pathelement path="${test_classpath}" />
+                        <pathelement path="${test.classpath}" />
                     </classpath>
-                    <formatter type="plain" usefile="false" />
-
-                    <test fork="true" name="@{name}" />
+                    <formatter usefile="true" type="xml" />
+                    <test todir="${test.results}" fork="true" name="@{name}" />
                 </junit>
             </sequential>
         </macrodef>

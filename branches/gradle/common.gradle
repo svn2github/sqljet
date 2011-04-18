@@ -1,0 +1,38 @@
+println 'running common script '
+
+def createVersion(String version, String bNumber, Date time) {
+	String[] parts = version.split("[\\.\\-]");
+	major = parts[0];
+	minor = parts[1];
+	micro = parts[2];
+	qualifier = parts[3];
+	if (time != null) {
+		buildNumber = bNumber + "_v" + new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+	} else {
+		buildNumber = bNumber
+	}
+	return ['major' : major, 'minor' : minor, 'micro' : micro, 'qualifier' : qualifier, 'buildNumber' : buildNumber]
+}
+
+def getVersion(File jarFile) {
+	ant.loadproperties(prefix: jarFile.getName() + '.') {
+		zipentry(zipfile: jarFile.getPath(), name : 'META-INF/MANIFEST.MF') {
+		}
+	}
+
+	def buildNumber = ant.properties[jarFile.getName() + '.Build-Number']
+	def buildVersion = ant.properties[jarFile.getName() + '.Build-Version']
+	if (buildNumber != null &&  buildVersion != null) {
+		return createVersion(buildVersion, buildNumber, null)
+	}
+	return null
+}
+
+def getFinalJarName(File jarFile) {
+	v = getVersion(jarFile)
+	if (v != null) {
+		version = "${v.major}.${v.minor}.${v.micro}-${v.qualifier}";
+		return jarFile.getName().replaceAll(version, version + '_' + v.buildNumber)
+	}
+	return jarFile.getName()
+}

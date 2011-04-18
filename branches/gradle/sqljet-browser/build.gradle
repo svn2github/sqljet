@@ -1,0 +1,68 @@
+browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+jnlpDirectory = 'build/jnlp'
+jnlpTemplate = 'src/main/jnlp/browser.jnlp'
+
+keystoreFile = 'src/main/jnlp/keystore'
+keystoreAlias = 'tmate'
+keystorePassword = 's3cr3t'
+
+artifacts {
+	maven jar, sourcesJar
+	sources sourcesJar
+	archives jar
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class' : browserMainClass
+	}
+}
+
+prepareFinalJars {
+	prepareFinalJars.jnlpDependencies = ''
+	prepareFinalJars.jarClasspath = ''
+	
+	exclude '**/sqljet-osgi*.jar'
+
+	eachFile {
+		if (it.getFile() == jar.archivePath) {
+			prepareFinalJars.jnlpDependencies += "<jar href=\"$it.name\" main=\"true\" />\n"
+		} else {
+			prepareFinalJars.jarClasspath += it.name + ' '
+			prepareFinalJars.jnlpDependencies += "<jar href=\"$it.name\" />\n"
+		}
+	}
+} << {
+	copy {
+		from zipTree(jar.archivePath)
+		include 'META-INF/MANIFEST.MF'
+		into prepareFinalJars.destinationDir
+	}
+	manifestPath = prepareFinalJars.destinationDir.path + '/META-INF/MANIFEST.MF'
+	jarPath = prepareFinalJars.destinationDir.path + '/' + getFinalJarName(jar.archivePath)
+		
+	ant.manifest(file: manifestPath, mode: 'update') {
+		attribute(name: 'Class-Path', value : prepareFinalJars.jarClasspath)
+	}
+	ant.jar(destfile: jarPath, manifest: manifestPath, update: true)
+}
+
+task jnlp (type: Copy, dependsOn: prepareFinalJars) {
+	from jnlpTemplate
+	into jnlpDirectory
+	filter {
+		return it.
+			replaceAll('@jnlpDependencies@', prepareFinalJars.jnlpDependencies).
+			replaceAll('@MainClass@', browserMainClass).
+			replaceAll('@JVM@', '1.5')
+	}
+} << {
+	file("$jnlpDirectory/browser").mkdirs()
+	ant.signjar(destDir: "$jnlpDirectory/browser", alias: keystoreAlias, keystore: keystoreFile, storepass: keystorePassword, keypass: keystorePassword) {
+		fileset(dir: prepareFinalJars.destinationDir) {
+			include(name: '**/*.jar')
+		}
+	}
+}
+	
+assemble.dependsOn jnlp

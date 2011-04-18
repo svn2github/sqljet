@@ -1,0 +1,60 @@
+import org.apache.ivy.core.module.descriptor.DependencyDescriptor;
+import org.apache.ivy.core.resolve.ResolveData;
+import org.apache.ivy.core.resolve.ResolvedModuleRevision;
+import org.gradle.api.artifacts.ResolverContainer;
+
+version = '1.0.0-SNAPSHOT'
+group = 'org.tmatesoft.gradle.test'
+
+class SnapshotAlwaysResolver extends org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver {
+
+    def static Set cachedModules = new HashSet()
+
+    def ResolvedModuleRevision findModuleInCache(DependencyDescriptor dd, ResolveData data) {
+        synchronized(cachedModules) {
+          println 'processing: ' + dd 
+          println 'cached: ' + cachedModules
+
+          def isSnapshot = dd != null && dd.dependencyRevisionId.getRevision().endsWith('-SNAPSHOT')
+
+          def savedTimeout = getSnapshotTimeout()
+          try {
+            if (isSnapshot) {
+              setSnapshotTimeout(cachedModules.add(dd.dependencyRevisionId) ? ALWAYS : NEVER)
+            }
+            return super.findModuleInCache(dd, data)
+          } finally {
+            setSnapshotTimeout(savedTimeout)
+          }
+        }
+    }
+}
+
+allprojects {
+
+apply plugin: 'java'
+
+repositories {
+   add(new SnapshotAlwaysResolver()) { 
+       name ='tmatesoft' 
+       root = mavenPublicRepositoryURL
+       usepoms = true
+       pattern = ResolverContainer.MAVEN_REPO_PATTERN
+       m2compatible = true
+       useMavenMetadata = true
+   }
+}
+
+dependencies {
+   compile group : 'org.tmatesoft.sqljet', name: 'sqljet', version: '1.1.0-SNAPSHOT'
+   testCompile group : 'org.tmatesoft.sqljet', name: 'sqljet', version: '1.1.0-SNAPSHOT'
+}
+
+assemble << {
+   copy {
+      from configurations.compile.files
+      into 'build/dependencies'
+   }
+}
+
+}

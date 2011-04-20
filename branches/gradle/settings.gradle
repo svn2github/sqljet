@@ -1,1 +1,2 @@
-include 'sqljet', 'sqljet-browser', 'sqljet-example-simple'
+rootProject.name = 'project'
+include 'sqljet', 'sqljet-browser'

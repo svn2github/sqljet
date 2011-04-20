@@ -1,55 +1,20 @@
-apply from : 'common.gradle'
-buildVersion = createVersion('1.1.0-SNAPSHOT', buildNumber, new Date())
-
 group = 'org.tmatesoft.sqljet'
-version = buildVersion.toString()
+version = '1.1.0-SNAPSHOT'
 
-if (!project.hasProperty('mavenDeployerName')) {
-	mavenDeployerName = ''
-	mavenDeployerPassword = ''
-	mavenSnapshotsRepositoryURL = ''
-	mavenReleasesRepositoryURL = ''
+buildscript {
+   repositories {
+      mavenRepo(urls: [mavenPublicRepositoryURL]) {
+           snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
+      }
+   }
+   dependencies {
+      classpath 'org.tmatesoft.build:build:0.9.0-SNAPSHOT'
+   }
 }
 
 allprojects {
-	project.buildVersion = rootProject.buildVersion
-	project.version = rootProject.version
-	project.group = rootProject.group
-
 	apply plugin : 'base'
-	apply plugin : 'maven'
-
-	configurations {
-		maven
-	}
-
-	repositories {
-		mavenLocal()
-		mavenRepo name : 'tmatesoft', urls : [mavenPublicRepositoryURL]
-	}
-
-	uploadMaven {
-		repositories {
-			mavenDeployer {
-				snapshotRepository(url: mavenSnapshotsRepositoryURL) {
-					authentication(userName: mavenDeployerName, password: mavenDeployerPassword)
-				}
-			}
-		}
-		uploadDescriptor = true
-	}
-
-	gradle
-
-	gradle.taskGraph.whenReady {
-		taskGraph ->
-		taskGraph.getAllTasks().findAll {
-			it instanceof org.gradle.api.tasks.bundling.Jar
-		}.each {
-			it.getManifest().getAttributes().put('Build-Version', project.buildVersion.toString())
-			it.getManifest().getAttributes().put('Build-Number', project.buildVersion.buildNumber)
-		}
-	}
+	apply plugin : 'build'
 }
 
 subprojects {
@@ -59,117 +24,38 @@ subprojects {
 	targetCompatibility = 1.5
 
 	configurations {
-		sources
-		javadocs
+	    sources
+	    javadocs
 	}
 
 	processResources {
-		expand (project.properties)
+	    expand (project.properties)
 	}
 
 	task sourcesJar(type: Jar) {
-		description = 'Builds Java Sources Jar'
-		from sourceSets.main.java.srcDirs
-		classifier = 'sources'
+	    description = 'Builds Java Sources Jar'
+	    from sourceSets.main.java.srcDirs
+	    classifier = 'sources'
 	}
 
 	artifacts {
-		sources sourcesJar
+	    sources sourcesJar
 	}
 }
 
 project(':sqljet') {
 	dependencies {
-		compile module('org.antlr:antlr-runtime:3.1.3') {
-			transitive = false
-		}
+        compile('org.antlr:antlr-runtime:3.1.3') {exclude group: 'org.antlr', module: 'stringtemplate' }
 
-		testCompile 'junit:junit:4.8.2'
-		testCompile 'org.easymock:easymock:2.4'
-		testCompile 'org.xerial:sqlite-jdbc:3.7.2'
+	testCompile 'junit:junit:4.8.2'
+	testCompile 'org.easymock:easymock:2.4'
+	testCompile 'org.xerial:sqlite-jdbc:3.7.2'
 	}
 }
 
 project(':sqljet-browser') {
 	dependencies {
-		compile project(':sqljet')
-		compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
-	}
-}
-
-project(':sqljet-example-simple') {
-	dependencies {
-		compile project(':sqljet')
-	}
-}
-/*
- project(':sqljet-example-inventory') {
- dependencies {
- compile project(':sqljet')
- }
- }
- project(':sqljet-example-expenses') {
- dependencies {
- compile project(':sqljet')
- }
- }
- */
-dependsOnChildren()
-
-configurations {
-	binaries
-	javadoc
-	examples
-	sources
-}
-
-dependencies {
-	binaries project(path: ':sqljet')
-	binaries project(path: ':sqljet-browser')
-	javadoc project(path: ':sqljet', configuration: 'javadocs')
-
-	examples project(path: ':sqljet-example-simple')
-	examples project(path: ':sqljet-example-simple', configuration: 'sources')
-
-	sources project(path : ':sqljet', configuration: 'sources')
-	sources project(path : ':sqljet-browser', configuration: 'sources')
-}
-
-
-task build << {
-	copy {
-		from configurations.sources.files
-		into 'build/distribution/sources'
-	}
-	copy {
-		from configurations.binaries.files
-		exclude '**/sqljet-osgi**'
-		into 'build/distribution'
-	}
-	copy {
-		from configurations.examples.files
-		into 'build/distribution/examples'
-	}
-	copy {
-		from configurations.javadoc.files
-		into 'build/distribution/javadoc'
-	}
-}
-
-/* shared code */
-apply from : 'common.gradle'
-
-subprojects {
-
-	task prepareFinalJars(type: Copy, dependsOn: 'jar') {
-		from configurations.compile.files
-		from jar.archivePath
-		into 'build/final-jars'
-
-		eachFile {
-			if (it.getFile().getName().endsWith('.jar')) {
-				it.setName(getFinalJarName(it.getFile()))
-			}
-		}
+	compile project(':sqljet')
+	compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
 	}
 }

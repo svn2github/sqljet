@@ -1,10 +1,9 @@
-configurations {
-	antTests
-	antlr3
-	plainArchives
-	osgi
-}
+runAllTests = project.hasProperty('stressTests')
+
 // antlr generation
+configurations {
+     antlr3
+}
 
 dependencies { antlr3 'org.antlr:antlr:3.1.3' }
 
@@ -14,7 +13,7 @@ antlrOutput = "src/main/java"
 task grammar {
 	def grammars = fileTree(antlrSource).include("**/*.g")
 
-	inputs.sourceDir(antlrSource)
+	inputs.files("$antlrSource/org/tmatesoft/sqljet/core/internal/lang/Sql.g")
 	outputs.files(
 			"$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/Sql.tokens",
 			"$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
@@ -38,69 +37,53 @@ task grammar {
 compileJava.dependsOn grammar
 
 // add antlr to source jar
-
-sourcesJar { from 'src/main/antlr' }
+sourcesJar { 
+  from 'src/main/antlr' 
+}
 
 // javadoc
-javadoc { exclude 'org/tmatesoft/sqljet/core/internal/**' }
+javadoc { 
+   exclude 'org/tmatesoft/sqljet/core/internal/**' 
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	description="Builds Javadoc Jar"
 	from "$docsDir/javadoc"
 	classifier = 'javadoc'
 }
 
-// osgi and plain jars
-apply plugin: 'osgi'
-
-task plainJar(type: Jar) {
-	baseName = project.name
-	from sourceSets.main.classesDir
-}
-
-osgiClasspath = '.'
-configurations.compile.files.each {
-	osgiClasspath += ', ' + it.name
-}
-
-jar {
-	baseName = "$project.name-osgi"
-	from configurations.compile.files
-	manifest {
-		instruction 'Export-Package', "!org.tmatesoft.sqljet.core.internal.*;version=$version, org.tmatesoft.sqljet.core.*;version=$version"
-		instruction 'Import-Package', '!*'
-		instruction 'Bundle-Classpath', osgiClasspath
-		instruction 'Bundle-RequiredExecutionEnvironment', "J2SE-$targetCompatibility"
-	}
-}
 
 artifacts {
-	maven plainJar, sourcesJar, javadocJar, jar
-	osgi jar
-	plainArchives plainJar
+	maven sourcesJar, javadocJar, jar
 	sources sourcesJar
 	javadocs javadocJar
 }
 
 // tests
-dependencies { antTests 'org.apache.ant:ant-junit:1.8.2' }
+configurations {
+     antTests
+}
+dependencies { 
+        antTests 'org.apache.ant:ant-junit:1.8.2' 
+}
 
 testSystemProperties = [
 			'SQLJET_TESTS_LOGGING' : 'false',
 			'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
 			'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
-		]
+]
 
 test {
 	systemProperties = testSystemProperties
 	exclude '**/*Mock*', '**/*sandbox*/**/**.*'
 	include '**/*Test*'
 
-	if (project.hasProperty('stressTests')) {
+	if (runAllTests) {
 		include '**/*Stress*'
 	}
 }
 
-if (project.hasProperty('stressTests')) {
+if (runAllTests) {
 	test.doFirst {
 		ant.properties.antClasspath = configurations.antTests.asPath
 

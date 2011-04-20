@@ -18,21 +18,17 @@ jar {
 	}
 }
 
-prepareFinalJars {
-	prepareFinalJars.jnlpDependencies = ''
-	prepareFinalJars.jarClasspath = ''
-	
-	exclude '**/sqljet-osgi*.jar'
-
+task copyJnlp(type: Copy, dependsOn: jar) {
+	copyJnlp.jnlpDependencies = ''
+	copyJnlp.jarClasspath = ''
+	into 'build/jars'
+        from configurations.compile.files         
 	eachFile {
-		if (it.getFile() == jar.archivePath) {
-			prepareFinalJars.jnlpDependencies += "<jar href=\"$it.name\" main=\"true\" />\n"
-		} else {
-			prepareFinalJars.jarClasspath += it.name + ' '
-			prepareFinalJars.jnlpDependencies += "<jar href=\"$it.name\" />\n"
-		}
+                println 'copying: ' + fullJarName(it.file)
 	}
-} << {
+} 
+/*
+<< {
 	copy {
 		from zipTree(jar.archivePath)
 		include 'META-INF/MANIFEST.MF'
@@ -60,9 +56,9 @@ task jnlp (type: Copy, dependsOn: prepareFinalJars) {
 	file("$jnlpDirectory/browser").mkdirs()
 	ant.signjar(destDir: "$jnlpDirectory/browser", alias: keystoreAlias, keystore: keystoreFile, storepass: keystorePassword, keypass: keystorePassword) {
 		fileset(dir: prepareFinalJars.destinationDir) {
-			include(name: '**/*.jar')
+			include(name: '**.jar')
 		}
 	}
 }
-	
-assemble.dependsOn jnlp
+*/	
+assemble.dependsOn copyJnlp

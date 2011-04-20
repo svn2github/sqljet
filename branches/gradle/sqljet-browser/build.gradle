@@ -1,64 +1,68 @@
 browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
 jnlpDirectory = 'build/jnlp'
 jnlpTemplate = 'src/main/jnlp/browser.jnlp'
-
 keystoreFile = 'src/main/jnlp/keystore'
 keystoreAlias = 'tmate'
-keystorePassword = 's3cr3t'
 
 artifacts {
-	maven jar, sourcesJar
-	sources sourcesJar
-	archives jar
+    maven jar, sourcesJar
+    sources sourcesJar
+    archives jar
 }
 
-jar {
-	manifest {
-		attributes 'Main-Class' : browserMainClass
-	}
+jar.dependsOn 'copyJnlpJars'
+build.dependsOn 'jnlpZip'
+
+def browserClasspath = []
+
+task copyJnlpJars(type: Sync, dependsOn: compileJava) {
+   from configurations.compile.files
+   eachFile fullJarNameExpander
+   eachFile {
+     browserClasspath.add it.name
+   }
+   into jnlpDirectory
 }
 
-task copyJnlp(type: Copy, dependsOn: jar) {
-	copyJnlp.jnlpDependencies = ''
-	copyJnlp.jarClasspath = ''
-	into 'build/jars'
-        from configurations.compile.files         
-	eachFile {
-                println 'copying: ' + fullJarName(it.file)
-	}
-} 
-/*
-<< {
-	copy {
-		from zipTree(jar.archivePath)
-		include 'META-INF/MANIFEST.MF'
-		into prepareFinalJars.destinationDir
-	}
-	manifestPath = prepareFinalJars.destinationDir.path + '/META-INF/MANIFEST.MF'
-	jarPath = prepareFinalJars.destinationDir.path + '/' + getFinalJarName(jar.archivePath)
-		
-	ant.manifest(file: manifestPath, mode: 'update') {
-		attribute(name: 'Class-Path', value : prepareFinalJars.jarClasspath)
-	}
-	ant.jar(destfile: jarPath, manifest: manifestPath, update: true)
-}
-
-task jnlp (type: Copy, dependsOn: prepareFinalJars) {
-	from jnlpTemplate
-	into jnlpDirectory
-	filter {
-		return it.
-			replaceAll('@jnlpDependencies@', prepareFinalJars.jnlpDependencies).
-			replaceAll('@MainClass@', browserMainClass).
-			replaceAll('@JVM@', '1.5')
-	}
+jar << {
+   jarClasspath = ''
+   browserClasspath.each {
+     jarClasspath += it + ' '
+   }
+   ant.jar(destfile: jar.archivePath, update:true) {
+      delegate.manifest { 
+         attribute(name: 'Main-Class', value: browserMainClass)
+         attribute(name: 'Class-Path', value: jarClasspath)
+      }
+   }
 } << {
-	file("$jnlpDirectory/browser").mkdirs()
-	ant.signjar(destDir: "$jnlpDirectory/browser", alias: keystoreAlias, keystore: keystoreFile, storepass: keystorePassword, keypass: keystorePassword) {
-		fileset(dir: prepareFinalJars.destinationDir) {
-			include(name: '**.jar')
-		}
-	}
+  copy { 
+      from jar.archivePath
+      into jnlpDirectory
+  }
+  browserClasspath.add jar.archivePath.name
+  copy {
+     from jnlpTemplate
+     into jnlpDirectory
+     filter {    
+        expandClasspath(it, browserClasspath)
+     }
+     expand(project.properties)
+  }
+} 
+
+task signJnlpJars(dependsOn: jar) << {
+  ant.signjar(alias: keystoreAlias, 
+              keystore: keystoreFile, 
+              storepass: keystorePassword, 
+              keypass: keystorePassword) {
+     fileset(dir: jnlpDirectory) {
+        include(name: '**/*.jar')
+     }
+  }
 }
-*/	
-assemble.dependsOn copyJnlp
+
+task jnlpZip(type: Zip, dependsOn: signJnlpJars) {
+   from 'build/jnlp'
+   baseName += '-jnlp'
+}

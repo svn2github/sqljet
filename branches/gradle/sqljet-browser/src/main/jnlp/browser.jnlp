@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" codebase="browser">
+<jnlp spec="1.0+" codebase="">
 <information>
   <title>SQLJet DB Browser</title>
   <vendor>TMate Software</vendor>
@@ -11,8 +11,8 @@
 </security>
 <offline-allowed />
 <resources>
-<j2se version="@JVM@+"/>
-@jnlpDependencies@
+  <j2se version="${targetCompatibility}+"/>
+  <jar href="${classpathEntry}" main="${jar.archivePath.name=='${classpathEntry}'}"/>
 </resources>
-<application-desc main-class="@MainClass@" />
+<application-desc main-class="${browserMainClass}" />
 </jnlp>

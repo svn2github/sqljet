@@ -1,2 +1,9 @@
 rootProject.name = 'project'
-include 'sqljet', 'sqljet-browser'
+
+include 'sqljet'
+include 'sqljet-browser'
+include 'sqljet-osgi'
+include 'sqljet-distribution'
+include 'sqljet-example-simple'
+include 'sqljet-example-inventory'
+include 'sqljet-example-expenses'

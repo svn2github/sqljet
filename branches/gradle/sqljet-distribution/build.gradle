@@ -1,0 +1,25 @@
+prepareDistribution << {
+   copy {
+      from configurations.binaries
+      into 'build/dist'
+   }
+   copy {
+      from configurations.sources
+      into 'build/dist/sources'
+   }
+   copy {
+      from configurations.javadocs
+      into 'build/dist/javadoc'
+   }
+   copy {
+      from configurations.examples.files.collect {
+         zipTree(it)
+      }
+      exclude 'META-INF/**'
+      into 'build/dist/examples/src'
+   }
+}
+
+task buildDistribution(type: Zip, dependsOn: prepareDistribution) {
+   from 'build/dist'
+}

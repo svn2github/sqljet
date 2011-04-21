@@ -63,6 +63,14 @@ task signJnlpJars(dependsOn: jar) << {
 }
 
 task jnlpZip(type: Zip, dependsOn: signJnlpJars) {
+   appendix = 'jnlp'
+
    from 'build/jnlp'
-   baseName += '-jnlp'
+   from rootProject.file('LICENSE.txt')
+
+   into("${project.name}-${project.version}")
+}
+
+artifacts {
+   jnlp jnlpZip
 }

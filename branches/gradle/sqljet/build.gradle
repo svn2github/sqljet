@@ -1,8 +1,12 @@
 runAllTests = project.hasProperty('stressTests')
 
 // antlr generation
-configurations {
-     antlr3
+configurations { 
+   antlr3
+}
+
+processResources << {
+   buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')   
 }
 
 dependencies { antlr3 'org.antlr:antlr:3.1.3' }

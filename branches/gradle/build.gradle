@@ -29,22 +29,28 @@ configure(javaProjects()) {
 
    sourceCompatibility = 1.5
    targetCompatibility = 1.5
+
    configurations {
       sources
       javadocs
-   }
+   } 
 
    task sourcesJar(type: Jar) {
        description = 'Builds Java Sources Jar'
        from sourceSets.main.java.srcDirs
        classifier = 'sources'
    }
+ 
+   jar {
+       metaInf { 
+           from rootProject.file('LICENSE.txt')
+       }
+   }
 
    artifacts {
        sources sourcesJar
    }
 }
-
 
 project(':sqljet') {
     dependencies {
@@ -57,12 +63,18 @@ project(':sqljet') {
     }
 }
 project(':sqljet-browser') {
+    configurations {
+       jnlp
+    }
     dependencies {
        compile project(':sqljet')
        compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
     }
 }
 project(':sqljet-osgi') {
+    configurations {
+       osgi
+    }
     dependencies {
        compile project(':sqljet')
     }
@@ -80,6 +92,7 @@ project(':sqljet-distribution') {
        sources
        javadocs
        examples
+       external
     }
 
     dependencies {
@@ -89,18 +102,21 @@ project(':sqljet-distribution') {
 
        binaries project(path: ':sqljet-browser', configuration: 'default')
        sources project(path: ':sqljet-browser', configuration: 'sources')
+
+       external project(path: ':sqljet-browser', configuration: 'jnlp')
+       external project(path: ':sqljet-osgi', configuration: 'osgi')
+
        exampleProjects().each {
            examples project(path: ':' + it.name, configuration: 'sources')
        }
-//       examples project(path: ':sqljet-example-inventory', configuration: 'sources')
-//       examples project(path: ':sqljet-example-expenses', configuration: 'sources')
     }
+    
+    task build(type: Zip)
 
-    task build(dependsOn: assemble) {}
-    task prepareDistribution() {}
-
-    javaProjects().each {
-       project.prepareDistribution.dependsOn(it.assemble)
-    }
+    build.dependsOn configurations.binaries
+    build.dependsOn configurations.javadocs
+    build.dependsOn configurations.sources
+    build.dependsOn configurations.examples
+    build.dependsOn configurations.external
 }
 

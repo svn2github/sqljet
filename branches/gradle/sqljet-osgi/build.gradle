@@ -5,8 +5,6 @@ bundleName = rootProject.group
 bundleVersion = buildVersion.major + '.' + buildVersion.minor + '.' + buildVersion.micro + '.' + buildVersion.qualifier
 bundleVendor = 'TMate Software'
 
-sourcesJar.enabled = false
-
 def inlinedArtifacts = []
 def allArtifacts = []
 

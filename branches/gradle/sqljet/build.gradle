@@ -68,7 +68,7 @@ configurations {
      antTests
 }
 dependencies { 
-        antTests 'org.apache.ant:ant-junit:1.8.2' 
+     antTests 'org.apache.ant:ant-junit:1.8.2' 
 }
 
 testSystemProperties = [

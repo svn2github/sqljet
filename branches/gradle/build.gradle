@@ -21,7 +21,12 @@ def exampleProjects() {
 
 allprojects {
    apply plugin : 'base'
+   apply plugin : 'maven'
    apply plugin : 'build'
+
+   configurations {
+      maven
+   }
 }
 
 configure(javaProjects()) {
@@ -78,6 +83,8 @@ project(':sqljet-osgi') {
     dependencies {
        compile project(':sqljet')
     }
+    sourcesJar.enabled = false
+    conf2ScopeMappings.mappings.remove(configurations.compile)
 }
 
 configure(exampleProjects()) {
@@ -120,3 +127,22 @@ project(':sqljet-distribution') {
     build.dependsOn configurations.external
 }
 
+subprojects {
+
+   task uploadMaven(type: Upload) {
+        configuration = configurations.maven
+        uploadDescriptor = true
+        repositories.mavenDeployer {
+            repository(url: mavenSnapshotsRepositoryURL) {
+               authentication(userName: mavenDeployerName, password: mavenDeployerPassword)
+            }
+            pom.project {
+              version = buildVersion.baseVersion
+              artifactId = project.name
+            }
+            pom.whenConfigured { p ->
+              p.dependencies.findAll { dep -> dep.groupId == rootProject.name }.each { it.version = buildVersion.baseVersion }
+            }
+        }
+    }
+}

@@ -8,7 +8,7 @@ buildscript {
       }
    }
    dependencies {
-      classpath 'org.tmatesoft.build:build:0.9.0-SNAPSHOT'
+      classpath 'org.tmatesoft.build:build:0.9.1-SNAPSHOT'
    }
 }
 
@@ -21,12 +21,7 @@ def exampleProjects() {
 
 allprojects {
    apply plugin : 'base'
-   apply plugin : 'maven'
    apply plugin : 'build'
-
-   configurations {
-      maven
-   }
 }
 
 configure(javaProjects()) {
@@ -125,24 +120,4 @@ project(':sqljet-distribution') {
     build.dependsOn configurations.sources
     build.dependsOn configurations.examples
     build.dependsOn configurations.external
-}
-
-subprojects {
-
-   task uploadMaven(type: Upload) {
-        configuration = configurations.maven
-        uploadDescriptor = true
-        repositories.mavenDeployer {
-            repository(url: mavenSnapshotsRepositoryURL) {
-               authentication(userName: mavenDeployerName, password: mavenDeployerPassword)
-            }
-            pom.project {
-              version = buildVersion.baseVersion
-              artifactId = project.name
-            }
-            pom.whenConfigured { p ->
-              p.dependencies.findAll { dep -> dep.groupId == rootProject.name }.each { it.version = buildVersion.baseVersion }
-            }
-        }
-    }
 }

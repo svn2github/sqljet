@@ -1,4 +1,4 @@
-rootProject.name = 'org.tmatesoft.sqljet'
+rootProject.name = 'project.test'
 
 include 'sqljet'
 include 'sqljet-browser'

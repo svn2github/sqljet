@@ -51,14 +51,23 @@ configure(javaProjects()) {
     artifacts { sources sourcesJar }
 }
 
-configure(javaProjects()) {
+configure(javaProjects() + rootProject) {
     apply plugin : 'eclipse'
+   
+    eclipseProject {
+        def nameTail = "-${buildVersion.major}.${buildVersion.minor}.${buildVersion.micro}"
+        def nameHead = project == rootProject ? '' : project.group + '.'
+        projectName = nameHead + project.name + nameTail
+    }
+}
+
+configure(javaProjects()) {
 
     def jreContainer = 'org.eclipse.jdt.launching.JRE_CONTAINER'
     if (target == '1.4' || target == '1.5') {
-        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-' + targetCompatibility
+        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-' + target
     } else if (target == '1.6' || target == '1.7') {
-        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-' + targetCompatibility
+        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-' + target
     }
 
     eclipseClasspath {

@@ -1,0 +1,48 @@
+def baseDirectoryName = "sqljet-$version"
+def baseArchiveName = 'sqljet'
+
+build {
+    baseName = baseArchiveName
+    classifier = 'all'
+
+    into(baseDirectoryName)
+    from configurations.binaries
+
+    from rootProject.files('LICENSE.txt', 'README.txt', 'CHANGES.txt')
+
+    into("src") {
+        from configurations.sources.collect { zipTree(it) }
+        exclude 'META-INF/**'
+    }
+    into("javadoc") { from configurations.javadocs }
+    configurations.examples.dependencies.each { exampleProject ->
+        into("examples/${exampleProject.name}/src") {
+            from configurations.examples.files(exampleProject).collect { zipTree(it) }
+            exclude 'META-INF/**'
+        }
+    }
+} << {
+    copy {
+        into 'build/distributions'
+        from configurations.external.files
+    }
+}
+
+task buildSources(type: Zip) {
+    baseName = baseArchiveName
+    classifier = 'src'
+
+    into(baseDirectoryName)
+
+    from rootProject.rootDir
+
+    exclude '.*'
+    exclude '**/.*'
+    exclude '**/.*/**'
+
+    exclude '**/build/**'
+    exclude '**/bin/**'
+    exclude '**/target/**'
+}
+
+build.dependsOn buildSources

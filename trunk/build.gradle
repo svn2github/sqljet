@@ -1,0 +1,138 @@
+group = 'org.tmatesoft.sqljet'
+version = '1.1.0-SNAPSHOT'
+target = '1.5'
+
+buildscript {
+    repositories {
+        mavenRepo(urls: [mavenPublicRepositoryURL]) {
+            snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
+        }
+    }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.2-SNAPSHOT' }
+}
+
+task wrapper(type: Wrapper) {}
+
+def javaProjects() {
+    return subprojects.findAll { it.name != 'sqljet-distribution' }
+}
+def exampleProjects() {
+    return javaProjects().findAll { it.name.startsWith('sqljet-example-') }
+}
+
+allprojects {
+    apply plugin : 'base'
+    apply plugin : 'build'
+}
+
+configure(javaProjects()) {
+    apply plugin : 'java'
+
+    sourceCompatibility = target
+    targetCompatibility = target
+
+    configurations {
+        sources
+        javadocs
+    }
+
+    task sourcesJar(type: Jar) {
+        description = 'Builds Java Sources Jar'
+        from sourceSets.main.java.srcDirs
+        classifier = 'sources'
+    }
+
+    jar {
+        metaInf {
+            from rootProject.file('LICENSE.txt')
+        }
+    }
+
+    artifacts { sources sourcesJar }
+}
+
+configure(javaProjects()) {
+    apply plugin : 'eclipse'
+
+    def jreContainer = 'org.eclipse.jdt.launching.JRE_CONTAINER'
+    if (target == '1.4' || target == '1.5') {
+        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-' + targetCompatibility
+    } else if (target == '1.6' || target == '1.7') {
+        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-' + targetCompatibility
+    }
+
+    eclipseClasspath {
+        variables = [ 'GRADLE_USER_HOME' : project.gradle.gradleUserHomeDir ]
+
+        defaultOutputDir = file('build/classes')
+        containers.clear()
+        containers.add(jreContainer)
+
+        whenConfigured { classpath ->
+            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/test/.*' }.each { it.output = 'build/test-classes' }
+            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/main/.*' }.each { it.output = 'build/classes' }
+        }
+    }
+}
+
+project(':sqljet') {
+    dependencies {
+        compile('org.antlr:antlr-runtime:3.1.3') {
+            exclude group: 'org.antlr', module: 'stringtemplate'
+        }
+        testCompile 'junit:junit:4.8.2'
+        testCompile 'org.easymock:easymock:2.4'
+        testCompile 'org.xerial:sqlite-jdbc:3.7.2'
+    }
+}
+project(':sqljet-browser') {
+    configurations { jnlp }
+    dependencies {
+        compile project(':sqljet')
+        compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
+    }
+}
+project(':sqljet-osgi') {
+    configurations { osgi }
+    dependencies { compile project(':sqljet') }
+    sourcesJar.enabled = false
+    conf2ScopeMappings.mappings.remove(configurations.compile)
+}
+
+configure(exampleProjects()) {
+    dependencies { compile project(':sqljet') }
+}
+
+project(':sqljet-distribution') {
+    configurations {
+        binaries
+        sources
+        javadocs
+        examples
+        external
+    }
+
+    dependencies {
+        binaries project(path: ':sqljet', configuration: 'default')
+        sources project(path: ':sqljet', configuration: 'sources')
+        javadocs project(path: ':sqljet', configuration : 'javadocs')
+
+        binaries project(path: ':sqljet-browser', configuration: 'default')
+        sources project(path: ':sqljet-browser', configuration: 'sources')
+
+        external project(path: ':sqljet-browser', configuration: 'jnlp')
+        external project(path: ':sqljet-osgi', configuration: 'osgi')
+
+        exampleProjects().each {
+            examples project(path: ':' + it.name, configuration: 'sources')
+        }
+    }
+
+    task build(type: Zip)
+
+    build.dependsOn configurations.binaries
+    build.dependsOn configurations.javadocs
+    build.dependsOn configurations.sources
+    build.dependsOn configurations.examples
+    build.dependsOn configurations.external
+}

@@ -1,12 +1,10 @@
-runAllTests = project.hasProperty('stressTests')
+runAllTests = !project.hasProperty('fast')
 
 // antlr generation
-configurations { 
-   antlr3
-}
+configurations {  antlr3 }
 
 processResources << {
-   buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')   
+	buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')
 }
 
 dependencies { antlr3 'org.antlr:antlr:3.1.3' }
@@ -41,14 +39,10 @@ task grammar {
 compileJava.dependsOn grammar
 
 // add antlr to source jar
-sourcesJar { 
-  from 'src/main/antlr' 
-}
+sourcesJar {  from 'src/main/antlr'  }
 
 // javadoc
-javadoc { 
-   exclude 'org/tmatesoft/sqljet/core/internal/**' 
-}
+javadoc {  exclude 'org/tmatesoft/sqljet/core/internal/**'  }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
 	description="Builds Javadoc Jar"
@@ -64,18 +58,14 @@ artifacts {
 }
 
 // tests
-configurations {
-     antTests
-}
-dependencies { 
-     antTests 'org.apache.ant:ant-junit:1.8.2' 
-}
+configurations { antTests }
+dependencies {  antTests 'org.apache.ant:ant-junit:1.8.2'  }
 
 testSystemProperties = [
 			'SQLJET_TESTS_LOGGING' : 'false',
 			'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
 			'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
-]
+		]
 
 test {
 	systemProperties = testSystemProperties

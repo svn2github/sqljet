@@ -2,122 +2,112 @@ group = 'org.tmatesoft.sqljet'
 version = '1.1.0-SNAPSHOT'
 
 buildscript {
-   repositories {
-      mavenRepo(urls: [mavenPublicRepositoryURL]) {
-           snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
-      }
-   }
-   dependencies {
-      classpath 'org.tmatesoft.build:build:0.9.1-SNAPSHOT'
-   }
+	repositories {
+		mavenRepo(urls: [mavenPublicRepositoryURL]) {
+			snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
+		}
+	}
+	dependencies { classpath 'org.tmatesoft.build:build:0.9.1-SNAPSHOT' }
 }
 
+task wrapper(type: Wrapper) {}
+
 def javaProjects() {
-   return subprojects.findAll { it.name != 'sqljet-distribution' }
+	return subprojects.findAll { it.name != 'sqljet-distribution' }
 }
 def exampleProjects() {
-   return javaProjects().findAll { it.name.startsWith('sqljet-example-') }
+	return javaProjects().findAll { it.name.startsWith('sqljet-example-') }
 }
 
 allprojects {
-   apply plugin : 'base'
-   apply plugin : 'build'
+	apply plugin : 'base'
+	apply plugin : 'build'
 }
 
 configure(javaProjects()) {
-   apply plugin : 'java'
+	apply plugin : 'java'
 
-   sourceCompatibility = 1.5
-   targetCompatibility = 1.5
+	sourceCompatibility = 1.5
+	targetCompatibility = 1.5
 
-   configurations {
-      sources
-      javadocs
-   } 
+	configurations {
+		sources
+		javadocs
+	}
 
-   task sourcesJar(type: Jar) {
-       description = 'Builds Java Sources Jar'
-       from sourceSets.main.java.srcDirs
-       classifier = 'sources'
-   }
- 
-   jar {
-       metaInf { 
-           from rootProject.file('LICENSE.txt')
-       }
-   }
+	task sourcesJar(type: Jar) {
+		description = 'Builds Java Sources Jar'
+		from sourceSets.main.java.srcDirs
+		classifier = 'sources'
+	}
 
-   artifacts {
-       sources sourcesJar
-   }
+	jar {
+		metaInf {
+			from rootProject.file('LICENSE.txt')
+		}
+	}
+
+	artifacts { sources sourcesJar }
 }
 
 project(':sqljet') {
-    dependencies {
-        compile('org.antlr:antlr-runtime:3.1.3') {
-              exclude group: 'org.antlr', module: 'stringtemplate' 
-        }
-        testCompile 'junit:junit:4.8.2'
-        testCompile 'org.easymock:easymock:2.4'
-        testCompile 'org.xerial:sqlite-jdbc:3.7.2'
-    }
+	dependencies {
+		compile('org.antlr:antlr-runtime:3.1.3') {
+			exclude group: 'org.antlr', module: 'stringtemplate'
+		}
+		testCompile 'junit:junit:4.8.2'
+		testCompile 'org.easymock:easymock:2.4'
+		testCompile 'org.xerial:sqlite-jdbc:3.7.2'
+	}
 }
 project(':sqljet-browser') {
-    configurations {
-       jnlp
-    }
-    dependencies {
-       compile project(':sqljet')
-       compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
-    }
+	configurations { jnlp }
+	dependencies {
+		compile project(':sqljet')
+		compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
+	}
 }
 project(':sqljet-osgi') {
-    configurations {
-       osgi
-    }
-    dependencies {
-       compile project(':sqljet')
-    }
-    sourcesJar.enabled = false
-    conf2ScopeMappings.mappings.remove(configurations.compile)
+	configurations { osgi }
+	dependencies { compile project(':sqljet') }
+	sourcesJar.enabled = false
+	conf2ScopeMappings.mappings.remove(configurations.compile)
 }
 
 configure(exampleProjects()) {
-    dependencies {
-       compile project(':sqljet')
-    }
+	dependencies { compile project(':sqljet') }
 }
 
 project(':sqljet-distribution') {
-    configurations {
-       binaries
-       sources
-       javadocs
-       examples
-       external
-    }
+	configurations {
+		binaries
+		sources
+		javadocs
+		examples
+		external
+	}
 
-    dependencies {
-       binaries project(path: ':sqljet', configuration: 'default')
-       sources project(path: ':sqljet', configuration: 'sources')
-       javadocs project(path: ':sqljet', configuration : 'javadocs')
+	dependencies {
+		binaries project(path: ':sqljet', configuration: 'default')
+		sources project(path: ':sqljet', configuration: 'sources')
+		javadocs project(path: ':sqljet', configuration : 'javadocs')
 
-       binaries project(path: ':sqljet-browser', configuration: 'default')
-       sources project(path: ':sqljet-browser', configuration: 'sources')
+		binaries project(path: ':sqljet-browser', configuration: 'default')
+		sources project(path: ':sqljet-browser', configuration: 'sources')
 
-       external project(path: ':sqljet-browser', configuration: 'jnlp')
-       external project(path: ':sqljet-osgi', configuration: 'osgi')
+		external project(path: ':sqljet-browser', configuration: 'jnlp')
+		external project(path: ':sqljet-osgi', configuration: 'osgi')
 
-       exampleProjects().each {
-           examples project(path: ':' + it.name, configuration: 'sources')
-       }
-    }
-    
-    task build(type: Zip)
+		exampleProjects().each {
+			examples project(path: ':' + it.name, configuration: 'sources')
+		}
+	}
 
-    build.dependsOn configurations.binaries
-    build.dependsOn configurations.javadocs
-    build.dependsOn configurations.sources
-    build.dependsOn configurations.examples
-    build.dependsOn configurations.external
+	task build(type: Zip)
+
+	build.dependsOn configurations.binaries
+	build.dependsOn configurations.javadocs
+	build.dependsOn configurations.sources
+	build.dependsOn configurations.examples
+	build.dependsOn configurations.external
 }

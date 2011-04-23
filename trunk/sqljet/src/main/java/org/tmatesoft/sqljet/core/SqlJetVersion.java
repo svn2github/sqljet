@@ -40,18 +40,20 @@ public class SqlJetVersion {
     private static final String VERSION_MAJOR_PROPERTY = "sqljet.version.major";
     private static final String VERSION_MINOR_PROPERTY = "sqljet.version.minor";
     private static final String VERSION_MICRO_PROPERTY = "sqljet.version.micro";
+    private static final String VERSION_QUALIFIER_PROPERTY = "sqljet.version.qualifier";
     private static final String VERSION_BUILD_PROPERTY = "sqljet.version.build";
 
     private static final String VERSION_MAJOR_DEFAULT = "1";
     private static final String VERSION_MINOR_DEFAULT = "1";
     private static final String VERSION_MICRO_DEFAULT = "0";
+    private static final String VERSION_QUALIFIER_DEFAULT = "SNAPSHOT";
 
     private static final String VERSION_BUILD_DEFAULT = "0";
 
     /**
      * Get SqlJet version as a String.
      * 
-     * @return SqlJet library version in form MAJOR.MINOT.MICRO.bBUILD_NUMBER
+     * @return SqlJet library version in form MAJOR.MINOT.MICRO-QUALIFIER_BUILD_NUMBER
      */
     public static String getVersionString() {
         loadProperties();
@@ -61,13 +63,14 @@ public class SqlJetVersion {
         version.append(getMinorVersion());
         version.append('.');
         version.append(getMicroVersion());
-        version.append('.');
-        version.append('b');
-        if (getBuildNumber() > 0) {
-            version.append(getBuildNumber());
-        } else {
-            version.append("Local");
-        }
+        if (getVersionQualifier() != null) {
+            version.append('.');
+            version.append(getVersionQualifier());
+        }        
+        if (getBuildNumberString() != null) {
+            version.append('_');
+            version.append(getBuildNumberString());
+        } 
         return version.toString();
     }
 
@@ -117,6 +120,16 @@ public class SqlJetVersion {
     }
 
     /**
+     * Get SQLJet's version qualifier.
+     * 
+     * @return version qualifier.
+     */
+    public static String getVersionQualifier() {
+        loadProperties();
+        return ourProperties.getProperty(VERSION_QUALIFIER_PROPERTY, VERSION_QUALIFIER_DEFAULT);
+    }
+
+    /**
      * Get SQLJet's build number.
      * 
      * @return build number.
@@ -129,6 +142,16 @@ public class SqlJetVersion {
             //
         }
         return 0;
+    }
+
+    /**
+     * Get SQLJet's build number as String.
+     * 
+     * @return build number string.
+     */
+    public static String getBuildNumberString() {
+        loadProperties();
+        return ourProperties.getProperty(VERSION_BUILD_PROPERTY, VERSION_BUILD_DEFAULT);
     }
 
     private static void loadProperties() {

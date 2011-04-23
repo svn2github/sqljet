@@ -1,33 +1,6 @@
 def baseDirectoryName = "sqljet-$version"
 def baseArchiveName = 'sqljet'
 
-build {
-    baseName = baseArchiveName
-    classifier = 'all'
-
-    into(baseDirectoryName)
-    from configurations.binaries
-
-    from rootProject.files('LICENSE.txt', 'README.txt', 'CHANGES.txt')
-
-    into("src") {
-        from configurations.sources.collect { zipTree(it) }
-        exclude 'META-INF/**'
-    }
-    into("javadoc") { from configurations.javadocs }
-    configurations.examples.dependencies.each { exampleProject ->
-        into("examples/${exampleProject.name}/src") {
-            from configurations.examples.files(exampleProject).collect { zipTree(it) }
-            exclude 'META-INF/**'
-        }
-    }
-} << {
-    copy {
-        into 'build/distributions'
-        from configurations.external.files
-    }
-}
-
 task buildSources(type: Zip) {
     baseName = baseArchiveName
     classifier = 'src'
@@ -43,6 +16,58 @@ task buildSources(type: Zip) {
     exclude '**/build/**'
     exclude '**/bin/**'
     exclude '**/target/**'
+}
+
+build {
+    baseName = baseArchiveName
+    classifier = 'all'
+
+    into(baseDirectoryName)
+    from configurations.binaries
+
+    from rootProject.files('LICENSE.txt', 'README.txt', 'CHANGES.txt')
+
+    into("src") {
+        from configurations.sources.collect { zipTree(it) }
+        exclude 'META-INF/**'
+    }
+    into("javadoc") { from configurations.javadocs }
+
+    configurations.examples.dependencies.each { exampleProject ->
+        into("examples/${exampleProject.name}/src") {
+            from configurations.examples.files(exampleProject).collect { zipTree(it) }
+            exclude 'META-INF/**'
+        }
+    }
+} << {
+    copy {
+        into 'build/distributions'
+        from configurations.osgi.files
+    }
+}
+
+buildSite << {
+   copy {
+        def osgi_jar_file = configurations.osgi.files.asList()[0]
+        def jnlp_zip_file = configurations.jnlp.files.asList()[0]
+
+        into 'build/site'
+        from('src/main/site/index.html') {
+           expand(version : buildVersion.baseVersion, 
+                  distribution_all_zip : build.archivePath.name,
+                  distribution_src_zip : buildSources.archivePath.name,
+                  distribution_osgi_jar : osgi_jar_file.name,
+                  mavenPublicRepositoryURL : mavenPublicRepositoryURL
+                 )
+        }
+        from('src/main/site') {
+           exclude 'index.html'
+        }
+        from zipTree(jnlp_zip_file)
+        into('files') { 
+           from 'build/distributions'
+        } 
+   }
 }
 
 build.dependsOn buildSources

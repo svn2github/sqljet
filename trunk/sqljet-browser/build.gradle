@@ -11,7 +11,7 @@ artifacts {
 }
 
 jar.dependsOn 'copyJnlpJars'
-build.dependsOn 'jnlpZip'
+build.dependsOn 'jar'
 
 def browserClasspath = []
 
@@ -60,7 +60,7 @@ task jnlpZip(type: Zip, dependsOn: signJnlpJars) {
     from 'build/jnlp'
     from rootProject.file('LICENSE.txt')
 
-    into("${project.name}-${project.version}")
+    into('browser')
 }
 
 artifacts { jnlp jnlpZip }

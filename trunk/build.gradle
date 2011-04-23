@@ -118,7 +118,8 @@ project(':sqljet-distribution') {
         sources
         javadocs
         examples
-        external
+        jnlp
+        osgi
     }
 
     dependencies {
@@ -129,8 +130,8 @@ project(':sqljet-distribution') {
         binaries project(path: ':sqljet-browser', configuration: 'default')
         sources project(path: ':sqljet-browser', configuration: 'sources')
 
-        external project(path: ':sqljet-browser', configuration: 'jnlp')
-        external project(path: ':sqljet-osgi', configuration: 'osgi')
+        jnlp project(path: ':sqljet-browser', configuration: 'jnlp')
+        osgi project(path: ':sqljet-osgi', configuration: 'osgi')
 
         exampleProjects().each {
             examples project(path: ':' + it.name, configuration: 'sources')
@@ -138,10 +139,13 @@ project(':sqljet-distribution') {
     }
 
     task build(type: Zip)
+    task buildSite(dependsOn: build)
 
     build.dependsOn configurations.binaries
     build.dependsOn configurations.javadocs
     build.dependsOn configurations.sources
     build.dependsOn configurations.examples
-    build.dependsOn configurations.external
+    build.dependsOn configurations.osgi
+
+    buildSite.dependsOn configurations.jnlp
 }

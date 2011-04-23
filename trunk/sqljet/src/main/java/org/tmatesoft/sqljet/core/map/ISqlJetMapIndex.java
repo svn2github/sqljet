@@ -28,8 +28,7 @@ public interface ISqlJetMapIndex {
 
     /**
      * @param key
-     * @param values
-     * @return data entry id
+     * @param value
      * @throws SqlJetException
      */
     void put(Object[] key, Long value) throws SqlJetException;

@@ -38,7 +38,7 @@ public interface ISqlJetMapDef {
     ISqlJetVirtualTableDef getVirtualTableDef();
 
     /**
-     * @return
+     * @return the indexDef
      */
     ISqlJetIndexDef getIndexDef();
 

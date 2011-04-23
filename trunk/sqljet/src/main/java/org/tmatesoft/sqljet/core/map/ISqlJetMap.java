@@ -28,7 +28,7 @@ public interface ISqlJetMap {
 
     /**
      * @param key
-     * @param values
+     * @param value
      * 
      * @throws SqlJetException
      */
@@ -49,13 +49,11 @@ public interface ISqlJetMap {
     ISqlJetMapCursor getCursor() throws SqlJetException;
 
     /**
-     * @return
      * @throws SqlJetException
      */
     ISqlJetMapTable getMapTable() throws SqlJetException;
 
     /**
-     * @return
      * @throws SqlJetException
      */
     ISqlJetMapIndex getMapIndex() throws SqlJetException;

@@ -37,9 +37,5 @@ public interface ISqlJetIndexDef {
 
     public boolean isImplicit();
 
-    /**
-     * @return
-     */
     int getPage();
-
 }

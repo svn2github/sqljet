@@ -53,20 +53,17 @@ public interface ISqlJetMapCursor extends ISqlJetMapIterator {
 
     /**
      * @param key
-     * @param values
-     * @return data entry id.
+     * @param value
      * @throws SqlJetException
      */
     void put(Object[] key, Object[] value) throws SqlJetException;
 
     /**
-     * @return
      * @throws SqlJetException
      */
     ISqlJetMapTableCursor getMapTable() throws SqlJetException;
 
     /**
-     * @return
      * @throws SqlJetException
      */
     ISqlJetMapIndexCursor getMapIndex() throws SqlJetException;

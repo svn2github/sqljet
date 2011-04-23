@@ -1,8 +1,4 @@
 browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
-jnlpDirectory = 'build/jnlp'
-jnlpTemplate = 'src/main/jnlp/browser.jnlp'
-keystoreFile = 'src/main/jnlp/keystore'
-keystoreAlias = 'tmate'
 
 artifacts {
     maven jar, sourcesJar
@@ -10,58 +6,8 @@ artifacts {
     archives jar
 }
 
-jar.dependsOn 'copyJnlpJars'
-build.dependsOn 'jar'
-
-def browserClasspath = []
-
-task copyJnlpJars(type: Sync, dependsOn: compileJava) {
-    from configurations.compile.files
-    eachFile fullJarNameExpander
-    eachFile { browserClasspath.add it.name }
-    into jnlpDirectory
-}
-
-jar << {
-    jarClasspath = ''
-    browserClasspath.each { jarClasspath += it + ' ' }
-    ant.jar(destfile: jar.archivePath, update:true) {
-        delegate.manifest {
-            attribute(name: 'Main-Class', value: browserMainClass)
-            attribute(name: 'Class-Path', value: jarClasspath)
-        }
-    }
-} << {
-    copy {
-        from jar.archivePath
-        into jnlpDirectory
-    }
-    browserClasspath.add jar.archivePath.name
-    copy {
-        from jnlpTemplate
-        into jnlpDirectory
-        filter {     expandClasspath(it, browserClasspath) }
-        expand(project.properties)
+jar {
+    manifest {
+        attributes 'Main-Class' : browserMainClass
     }
 }
-
-task signJnlpJars(dependsOn: jar) << {
-    ant.signjar(alias: keystoreAlias,
-            keystore: keystoreFile,
-            storepass: keystorePassword,
-            keypass: keystorePassword) {
-                fileset(dir: jnlpDirectory) { include(name: '**/*.jar') }
-            }
-}
-
-task jnlpZip(type: Zip, dependsOn: signJnlpJars) {
-    appendix = 'jnlp'
-
-    from 'build/jnlp'
-    from rootProject.file('LICENSE.txt')
-    from rootProject.file('LICENSE-ANTLR.txt')
-
-    into('browser')
-}
-
-artifacts { jnlp jnlpZip }

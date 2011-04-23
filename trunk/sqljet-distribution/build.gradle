@@ -1,6 +1,12 @@
 def baseDirectoryName = "sqljet-$version"
 def baseArchiveName = 'sqljet'
 
+url = 'http://sqljet.com'
+browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+jnlpTemplate = 'src/main/jnlp/browser.jnlp'
+keystoreFile = 'src/main/jnlp/keystore'
+keystoreAlias = 'tmate'
+
 task buildSources(type: Zip) {
     baseName = baseArchiveName
     classifier = 'src'
@@ -17,6 +23,8 @@ task buildSources(type: Zip) {
     exclude '**/bin/**'
     exclude '**/target/**'
 }
+
+build.dependsOn buildSources
 
 build {
     baseName = baseArchiveName
@@ -49,10 +57,10 @@ build {
 buildSite << {
     copy {
         def osgi_jar_file = configurations.osgi.files.asList()[0]
-        def jnlp_zip_file = configurations.jnlp.files.asList()[0]
 
         into 'build/site'
-        from('src/main/site/index.html') {
+        from('src/main/site') {
+            include '**/*.html'
             expand(version : buildVersion.baseVersion,
                     distribution_all_zip : build.archivePath.name,
                     distribution_src_zip : buildSources.archivePath.name,
@@ -60,10 +68,36 @@ buildSite << {
                     mavenPublicRepositoryURL : mavenPublicRepositoryURL
                     )
         }
-        from('src/main/site') { exclude 'index.html' }
-        from zipTree(jnlp_zip_file)
-        into('files') {  from 'build/distributions' }
-    }
-}
+        from('src/main/site') { 
+            exclude '**/*.html' 
+        }
+        from rootProject.file('LICENSE.txt')
+        
+        into('files') {  
+            from build.destinationDir 
+        }
 
-build.dependsOn buildSources
+        def browserClasspath = []
+        into('browser') {
+            from configurations.binaries.files
+            eachFile fullJarNameExpander
+            eachFile { 
+                browserClasspath.add it.name 
+            }
+        }
+        
+        into('browser') {    
+            from file(jnlpTemplate)
+            filter { 
+                expandClasspath(it, browserClasspath) 
+            }
+            expand(project.properties)
+        }
+    }
+    ant.signjar(alias: keystoreAlias,
+        keystore: keystoreFile,
+        storepass: keystorePassword,
+        keypass: keystorePassword) {
+            fileset(dir: 'build/site/browser') { include(name: '**/*.jar') }
+        }
+}

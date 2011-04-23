@@ -119,7 +119,6 @@ project(':sqljet-distribution') {
         sources
         javadocs
         examples
-        jnlp
         osgi
     }
 
@@ -131,7 +130,6 @@ project(':sqljet-distribution') {
         binaries project(path: ':sqljet-browser', configuration: 'default')
         sources project(path: ':sqljet-browser', configuration: 'sources')
 
-        jnlp project(path: ':sqljet-browser', configuration: 'jnlp')
         osgi project(path: ':sqljet-osgi', configuration: 'osgi')
 
         exampleProjects().each {
@@ -148,5 +146,6 @@ project(':sqljet-distribution') {
     build.dependsOn configurations.examples
     build.dependsOn configurations.osgi
 
-    buildSite.dependsOn configurations.jnlp
+    buildSite.dependsOn configurations.osgi
+    buildSite.dependsOn configurations.binaries
 }

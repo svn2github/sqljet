@@ -25,7 +25,7 @@ build {
     into(baseDirectoryName)
     from configurations.binaries
 
-    from rootProject.files('LICENSE.txt', 'README.txt', 'CHANGES.txt')
+    from rootProject.files('LICENSE.txt', 'README.txt', 'CHANGES.txt', 'LICENSE-ANTLR.txt')
 
     into("src") {
         from configurations.sources.collect { zipTree(it) }
@@ -47,27 +47,23 @@ build {
 }
 
 buildSite << {
-   copy {
+    copy {
         def osgi_jar_file = configurations.osgi.files.asList()[0]
         def jnlp_zip_file = configurations.jnlp.files.asList()[0]
 
         into 'build/site'
         from('src/main/site/index.html') {
-           expand(version : buildVersion.baseVersion, 
-                  distribution_all_zip : build.archivePath.name,
-                  distribution_src_zip : buildSources.archivePath.name,
-                  distribution_osgi_jar : osgi_jar_file.name,
-                  mavenPublicRepositoryURL : mavenPublicRepositoryURL
-                 )
+            expand(version : buildVersion.baseVersion,
+                    distribution_all_zip : build.archivePath.name,
+                    distribution_src_zip : buildSources.archivePath.name,
+                    distribution_osgi_jar : osgi_jar_file.name,
+                    mavenPublicRepositoryURL : mavenPublicRepositoryURL
+                    )
         }
-        from('src/main/site') {
-           exclude 'index.html'
-        }
+        from('src/main/site') { exclude 'index.html' }
         from zipTree(jnlp_zip_file)
-        into('files') { 
-           from 'build/distributions'
-        } 
-   }
+        into('files') {  from 'build/distributions' }
+    }
 }
 
 build.dependsOn buildSources

@@ -53,7 +53,7 @@ configure(javaProjects()) {
 
 configure(javaProjects() + rootProject) {
     apply plugin : 'eclipse'
-   
+
     eclipseProject {
         def nameTail = "-${buildVersion.major}.${buildVersion.minor}.${buildVersion.micro}"
         def nameHead = project == rootProject ? '' : project.group + '.'

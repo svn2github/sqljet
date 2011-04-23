@@ -59,6 +59,7 @@ task jnlpZip(type: Zip, dependsOn: signJnlpJars) {
 
     from 'build/jnlp'
     from rootProject.file('LICENSE.txt')
+    from rootProject.file('LICENSE-ANTLR.txt')
 
     into('browser')
 }

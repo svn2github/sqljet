@@ -74,13 +74,13 @@ configure(javaProjects()) {
     eclipseClasspath {
         variables = [ 'GRADLE_USER_HOME' : project.gradle.gradleUserHomeDir ]
 
-        defaultOutputDir = file('build/classes')
+        defaultOutputDir = file('build/eclipse-classes')
         containers.clear()
         containers.add(jreContainer)
 
         whenConfigured { classpath ->
-            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/test/.*' }.each { it.output = 'build/test-classes' }
-            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/main/.*' }.each { it.output = 'build/classes' }
+            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/test/.*' }.each { it.output = 'build/eclipse-test-classes' }
+            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/main/.*' }.each { it.output = 'build/eclipse-classes' }
         }
     }
 }

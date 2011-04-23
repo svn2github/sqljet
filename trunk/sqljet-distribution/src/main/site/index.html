@@ -36,23 +36,23 @@
          </ul>
 
           <h2><span class="orange">Download</span> SQLJet</h2>
-          <p>Option 0: Download SQLJet v${version}:&nbsp;(version ${version} <a href="http://svn.sqljet.com/repos/sqljet/tags/${version}/CHANGES.txt">changelog</a>)</p>
+          <p>Option 0: Download SQLJet v${project.buildVersion.baseVersion}:&nbsp;(version ${project.buildVersion.baseVersion} <a href="http://svn.sqljet.com/repos/sqljet/tags/${project.buildVersion.baseVersion}/CHANGES.txt">changelog</a>)</p>
           <ul>
           <li>Library jar, source code, javadoc and browser sample application:<br/><a href="files/${distribution_all_zip}">${distribution_all_zip}</a></li>
           <li>Source tar ball, run "gradlew build" to build:<br/><a href="files/${distribution_src_zip}">${distribution_src_zip}</a></li>
           <li>OSGi bundle, to use, e.g. in Eclipse:<br/><a href="files/${distribution_osgi_jar}">${distribution_osgi_jar}</a></li>
-          <li>From maven repository:<br/><a href="${mavenPublicRepositoryURL}">${mavenPublicRepositoryURL}</a><br/><br/><pre>
+          <li>From maven repository:<br/><a href="${project.mavenPublicRepositoryURL}">${project.mavenPublicRepositoryURL}</a><br/><br/><pre>
 &lt;repositories&gt;
   &lt;repository&gt;
     &lt;id&gt;tmate&lt;/id&gt;
-    &lt;url&gt;${mavenPublicRepositoryURL}&lt;/url&gt;
+    &lt;url&gt;${project.mavenPublicRepositoryURL}&lt;/url&gt;
   &lt;/repository&gt;
 &lt;/repositories&gt;
 ...
 &lt;dependency&gt;
   &lt;groupId&gt;org.tmatesoft.sqljet&lt;/groupId&gt;
   &lt;artifactId&gt;sqljet&lt;/artifactId&gt;
-  &lt;version&gt;${version}&lt;/version&gt;
+  &lt;version&gt;${project.buildVersion.baseVersion}&lt;/version&gt;
 &lt;/dependency&gt;</pre></li>
           </ul>
           <p>Option 1: SQLJet nightly builds are available at our <a href="http://teamcity.tmatesoft.com/">build server</a>. Click "Login as Guest" if prompted to log in.</p>

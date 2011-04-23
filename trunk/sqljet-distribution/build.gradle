@@ -1,8 +1,11 @@
 def baseDirectoryName = "sqljet-$version"
 def baseArchiveName = 'sqljet'
 
-url = 'http://sqljet.com'
+host = 'sqljet.com'
+url = 'http://' + host
+
 browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+
 jnlpTemplate = 'src/main/jnlp/browser.jnlp'
 keystoreFile = 'src/main/jnlp/keystore'
 keystoreAlias = 'tmate'
@@ -61,11 +64,10 @@ buildSite << {
         into 'build/site'
         from('src/main/site') {
             include '**/*.html'
-            expand(version : buildVersion.baseVersion,
+            expand(project : project,
                     distribution_all_zip : build.archivePath.name,
                     distribution_src_zip : buildSources.archivePath.name,
-                    distribution_osgi_jar : osgi_jar_file.name,
-                    mavenPublicRepositoryURL : mavenPublicRepositoryURL
+                    distribution_osgi_jar : osgi_jar_file.name
                     )
         }
         from('src/main/site') { 
@@ -101,3 +103,48 @@ buildSite << {
             fileset(dir: 'build/site/browser') { include(name: '**/*.jar') }
         }
 }
+
+task siteTar(type: Tar, dependsOn: buildSite) {
+    baseName = 'sqljet-site'
+
+    from 'build/site'
+    into 'sqljet-site-' + buildVersion.baseVersion
+}
+
+configurations {
+    sshAntTask
+}
+
+dependencies {
+    sshAntTask 'org.apache.ant:ant-jsch:1.8.2'
+}
+
+task uploadSite(dependsOn: siteTar) << {
+    ant.taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp',
+                classpath: configurations.sshAntTask.asPath)
+    ant.taskdef(name: 'sshexec', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.SSHExec',
+                classpath: configurations.sshAntTask.asPath)
+
+    def sshFullHost = "$sshUser.$sshHost"
+    def sshUrl = "$sshUser@$sshFullHost:/home/$sshUser/$host/"
+ 
+    ant.sshexec(host: sshFullHost, 
+            username: sshUser, 
+            trust: 'true', 
+            verbose: 'true', 
+            password: sshPassword,
+            failonerror: 'false',
+            command: "rm /home/$sshUser/$host/${siteTar.archiveName} ; " + 
+                     "rm -rf /home/$sshUser/$host/sqljet-site-${buildVersion.baseVersion}")
+
+    ant.scp(file: siteTar.archivePath, 
+            todir: sshUrl,
+            verbose: 'true', 
+            trust: 'true',
+            password: sshPassword)
+
+    ant.sshexec(host: sshFullHost, username: sshUser, trust: 'true', verbose: 'true', password: sshPassword,
+            command: "tar -xf /home/$sshUser/$host/${siteTar.archiveName} -C /home/$sshUser/$host && " +
+                     "rm /home/$sshUser/$host/${siteTar.archiveName}")
+}
+uploadSite.onlyIf { project.release == true }

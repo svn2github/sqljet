@@ -46,7 +46,6 @@ public class SqlJetVersion {
     private static final String VERSION_MAJOR_DEFAULT = "1";
     private static final String VERSION_MINOR_DEFAULT = "1";
     private static final String VERSION_MICRO_DEFAULT = "0";
-    private static final String VERSION_QUALIFIER_DEFAULT = "SNAPSHOT";
 
     private static final String VERSION_BUILD_DEFAULT = "0";
 
@@ -126,7 +125,7 @@ public class SqlJetVersion {
      */
     public static String getVersionQualifier() {
         loadProperties();
-        return ourProperties.getProperty(VERSION_QUALIFIER_PROPERTY, VERSION_QUALIFIER_DEFAULT);
+        return ourProperties.getProperty(VERSION_QUALIFIER_PROPERTY, null);
     }
 
     /**

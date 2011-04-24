@@ -201,7 +201,6 @@ public interface ISqlJetTable {
 
      * @return cursor which have defined scope of rows.
      * @throws SqlJetException
-     * @see {@link SqlJetScope}
      */
     ISqlJetCursor scope(String indexName, SqlJetScope scope) throws SqlJetException;
 

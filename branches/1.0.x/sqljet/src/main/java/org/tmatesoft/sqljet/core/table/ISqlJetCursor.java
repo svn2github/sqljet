@@ -287,7 +287,7 @@ public interface ISqlJetCursor {
     /**
      * Returns all field values of current row.
      *
-     * @return
+     * @return field values array
      * @throws SqlJetException
      */
     Object[] getRowValues() throws SqlJetException;

@@ -40,6 +40,9 @@ jar {
         return inlinedArtifacts.contains(it.file)
     }
     eachFile fullJarNameExpander
+    metaInf {
+        from rootProject.file('LICENSE-ANTLR.txt')
+    }
     manifest {
         attributes 'Bundle-SymbolicName': bundleName,
                 'Bundle-Version': bundleVersion,

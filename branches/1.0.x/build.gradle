@@ -1,6 +1,7 @@
 group = 'org.tmatesoft.sqljet'
-version = '1.0.5-SNAPSHOT'
+version = '1.0.5'
 target = '1.5'
+release = false
 
 buildscript {
     repositories {
@@ -8,7 +9,7 @@ buildscript {
             snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
         }
     }
-    dependencies { classpath 'org.tmatesoft.build:build:0.9.2-SNAPSHOT' }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.3-SNAPSHOT' }
 }
 
 task wrapper(type: Wrapper) {}
@@ -51,9 +52,9 @@ configure(javaProjects()) {
     artifacts { sources sourcesJar }
 }
 
-configure(javaProjects() + rootProject) {
+configure(javaProjects()) {
     apply plugin : 'eclipse'
-   
+
     eclipseProject {
         def nameTail = "-${buildVersion.major}.${buildVersion.minor}.${buildVersion.micro}"
         def nameHead = project == rootProject ? '' : project.group + '.'
@@ -118,7 +119,7 @@ project(':sqljet-distribution') {
         sources
         javadocs
         examples
-        external
+        osgi
     }
 
     dependencies {
@@ -129,8 +130,7 @@ project(':sqljet-distribution') {
         binaries project(path: ':sqljet-browser', configuration: 'default')
         sources project(path: ':sqljet-browser', configuration: 'sources')
 
-        external project(path: ':sqljet-browser', configuration: 'jnlp')
-        external project(path: ':sqljet-osgi', configuration: 'osgi')
+        osgi project(path: ':sqljet-osgi', configuration: 'osgi')
 
         exampleProjects().each {
             examples project(path: ':' + it.name, configuration: 'sources')
@@ -138,10 +138,14 @@ project(':sqljet-distribution') {
     }
 
     task build(type: Zip)
+    task buildSite(dependsOn: build)
 
     build.dependsOn configurations.binaries
     build.dependsOn configurations.javadocs
     build.dependsOn configurations.sources
     build.dependsOn configurations.examples
-    build.dependsOn configurations.external
+    build.dependsOn configurations.osgi
+
+    buildSite.dependsOn configurations.osgi
+    buildSite.dependsOn configurations.binaries
 }

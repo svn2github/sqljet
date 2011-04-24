@@ -3,6 +3,7 @@ def baseArchiveName = 'sqljet'
 
 host = 'sqljet.com'
 url = 'http://' + host
+thisYear = new java.text.SimpleDateFormat('yyyy').format(new Date())
 
 browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
 

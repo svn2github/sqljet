@@ -1,12 +1,36 @@
-Version 1.0.x
-(xx xxx xxxx, from /branches/1.0.x)
+Version 1.0.?
+(?? ??? ????, from /branches/1.0.x)
 
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
- New features:
- API changes: 
- Bugfixes:
+Version 1.0.5
+(24 Apr 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.5/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+API changes:
+
+  * Added ISqlJetCursor.getRowValues() to get values for all row columns at once.
+  * SqlJetScope introduced, allows to define open and closed bounds when creating a scope cursor.
+    (see issues #148 and #149)
+   
+Bugfixes:
+
+  * Fixed issue with update not working properly with partial data to update (-r1005).
+  * Possible deadlock on concurrent read and write access to the same DB from the same process (-r1067)
+  * ScopeCursor.getRowCount() call did not preserve cursor state (issue #152, -r998) 
+  * Values of type real were not properly casted to int and back (issue #151, -r985)
+  * Unique index issues (issue #147, -r981).
+  * DB corruption after rollback (issue #146, -r980).
+  * Fixed issue with implicit rowIds not being properly generated on insert operation.
+  
+Misc:
+
+  * SQLJet build modified to use Gradle; build artifacts are stored in Maven repository. 
+    Maven repository URL: http://maven.tmatesoft.com/content/groups/public/
+    Continuous Intergration Server: http://teamcity.tmatesoft.com/ 
 
 Version 1.0.4
 (16 Dec 2010, from /branches/1.0.x)

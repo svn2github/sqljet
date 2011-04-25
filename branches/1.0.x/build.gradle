@@ -52,6 +52,11 @@ configure(javaProjects()) {
     artifacts { sources sourcesJar }
 }
 
+configure(javaProjects() + rootProject) {
+    apply plugin : 'idea'
+}
+
+
 configure(javaProjects()) {
     apply plugin : 'eclipse'
 

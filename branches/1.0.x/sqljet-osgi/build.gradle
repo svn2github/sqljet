@@ -2,7 +2,7 @@ apply plugin: 'osgi'
 
 bundleClasspath = []
 bundleName = rootProject.group
-bundleVersion = buildVersion.major + '.' + buildVersion.minor + '.' + buildVersion.micro + '.' + buildVersion.qualifier
+bundleVersion = buildVersion.getBaseOSGIVersion()
 bundleVendor = 'TMate Software'
 
 def inlinedArtifacts = []
@@ -19,7 +19,8 @@ classes << {
             inlinedArtifacts.add it
             copy {
                 from zipTree(jar.file[0])
-                into 'build/classes/main'
+                into sourceSets.main.classesDir
+                exclude 'META-INF/**'
             }
         }
     }
@@ -47,7 +48,7 @@ jar {
         attributes 'Bundle-SymbolicName': bundleName,
                 'Bundle-Version': bundleVersion,
                 'Bundle-Vendor': bundleVendor,
-                'Bundle-RequiredExecutionEnvironment' : targetCompatibility
+                'Bundle-RequiredExecutionEnvironment' : 'J2SE-' + targetCompatibility
 
         instruction 'Export-Package', '!org.tmatesoft.sqljet.core.internal.*',
                 'org.tmatesoft.sqljet.core.*;version=' + bundleVersion

@@ -1,7 +1,7 @@
 /**
  * SqlJetUtility.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -40,7 +40,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetScope.SqlJetScopeBound;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public final class SqlJetUtility {
 
@@ -96,7 +96,7 @@ public final class SqlJetUtility {
     }
 
     /**
-     * 
+     *
      * @param buf
      * @return
      */
@@ -106,7 +106,7 @@ public final class SqlJetUtility {
 
     /**
      * Implements address arithmetic on byte buffer.
-     * 
+     *
      * @param p
      * @param pos
      * @return
@@ -294,7 +294,7 @@ public final class SqlJetUtility {
      * @param dest
      * @param srcPos
      * @param length
-     * 
+     *
      * @throws SqlJetException
      */
     private static final void memcpy(SqlJetCloneable[] src, int srcPos, SqlJetCloneable[] dest, int dstPos, int length)
@@ -363,7 +363,7 @@ public final class SqlJetUtility {
      * Check to see if the i-th bit is set. Return true or false. If p is NULL
      * (if the bitmap has not been created) or if i is out of range, then return
      * false.
-     * 
+     *
      * @param bitSet
      * @param index
      * @return
@@ -467,10 +467,10 @@ public final class SqlJetUtility {
 
     /**
      * The variable-length integer encoding is as follows:
-     * 
+     *
      * KEY: A = 0xxxxxxx 7 bits of data and one flag bit B = 1xxxxxxx 7 bits of
      * data and one flag bit C = xxxxxxxx 8 bits of data
-     * 
+     *
      * 7 bits - A 14 bits - BA 21 bits - BBA 28 bits - BBBA 35 bits - BBBBA 42
      * bits - BBBBBA 49 bits - BBBBBBA 56 bits - BBBBBBBA 64 bits - BBBBBBBBC
      */
@@ -479,7 +479,7 @@ public final class SqlJetUtility {
      * Write a 64-bit variable-length integer to memory starting at p[0]. The
      * length of data write will be between 1 and 9 bytes. The number of bytes
      * written is returned.
-     * 
+     *
      * A variable-length integer consists of the lower 7 bits of each byte for
      * all bytes that have the 8th bit set and one byte with the 8th bit clear.
      * Except, if we get to the 9th byte, it stores the full 8 bits and is the
@@ -565,7 +565,7 @@ public final class SqlJetUtility {
      * version, getVarint32, is provided which inlines the single-byte case. All
      * code should use the MACRO version as this function assumes the
      * single-byte case has already been handled.
-     * 
+     *
      * @throws SqlJetExceptionRemove
      */
     public static byte getVarint32(ISqlJetMemoryPointer p, int[] v) {
@@ -677,7 +677,7 @@ public final class SqlJetUtility {
     /**
      * Compute a string length that is limited to what can be stored in lower 30
      * bits of a 32-bit signed integer.
-     * 
+     *
      * @param z
      * @return
      */
@@ -691,7 +691,7 @@ public final class SqlJetUtility {
 
     /**
      * Get unsigned byte from byte buffer
-     * 
+     *
      * @param byteBuffer
      * @param index
      * @return
@@ -702,7 +702,7 @@ public final class SqlJetUtility {
 
     /**
      * Put unsigned byte to byte buffer
-     * 
+     *
      * @param byteBuffer
      * @param index
      * @param value
@@ -715,7 +715,7 @@ public final class SqlJetUtility {
 
     /**
      * Convert byte buffer to string.
-     * 
+     *
      * @param buf
      * @return
      */
@@ -729,7 +729,7 @@ public final class SqlJetUtility {
 
     /**
      * Convert byte buffer to string.
-     * 
+     *
      * @param buf
      * @return
      * @throws SqlJetException
@@ -743,7 +743,13 @@ public final class SqlJetUtility {
             byte[] bytes = new byte[buf.remaining()];
             buf.getBytes(bytes);
             try {
-                return new String(bytes, enc.getCharsetName());
+                final String s = new String(bytes, enc.getCharsetName());
+                for(int i=0;i<s.length();i++){
+                	if(s.charAt(i)=='\0'){
+                		return s.substring(0, i);
+                	}
+                }
+				return s;
             } catch (UnsupportedEncodingException e) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Unknown charset " + enc.name());
             }
@@ -752,7 +758,7 @@ public final class SqlJetUtility {
 
     /**
      * Get {@link ByteBuffer} from {@link String}.
-     * 
+     *
      * @param s
      * @param enc
      * @return
@@ -768,7 +774,7 @@ public final class SqlJetUtility {
 
     /**
      * Translate {@link ByteBuffer} from one charset to other charset.
-     * 
+     *
      * @param buf
      * @param from
      * @param to
@@ -923,7 +929,7 @@ public final class SqlJetUtility {
 
     /**
      * Returns absolute value of argument
-     * 
+     *
      * @param i
      * @return
      */
@@ -1064,15 +1070,15 @@ public final class SqlJetUtility {
      * Return TRUE if z is a pure numeric string. Return FALSE and leave realnum
      * unchanged if the string contains any character which is not part of a
      * number.
-     * 
+     *
      * If the string is pure numeric, set realnum to TRUE if the string contains
      * the '.' character or an "E+000" style exponentiation suffix. Otherwise
      * set realnum to FALSE. Note that just becaue realnum is false does not
      * mean that the number can be successfully converted into an integer - it
      * might be too big.
-     * 
+     *
      * An empty string is considered non-numeric.
-     * 
+     *
      * @param s
      * @param realnum
      * @return

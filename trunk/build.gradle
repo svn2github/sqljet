@@ -9,7 +9,7 @@ buildscript {
             snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
         }
     }
-    dependencies { classpath 'org.tmatesoft.build:build:0.9.3-SNAPSHOT' }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.7-SNAPSHOT' }
 }
 
 task wrapper(type: Wrapper) {}
@@ -54,40 +54,7 @@ configure(javaProjects()) {
 
 configure(javaProjects() + rootProject) {
     apply plugin : 'idea'
-}
-
-
-configure(javaProjects()) {
     apply plugin : 'eclipse'
-
-    eclipseProject {
-        def nameTail = "-${buildVersion.major}.${buildVersion.minor}.${buildVersion.micro}"
-        def nameHead = project == rootProject ? '' : project.group + '.'
-        projectName = nameHead + project.name + nameTail
-    }
-}
-
-configure(javaProjects()) {
-
-    def jreContainer = 'org.eclipse.jdt.launching.JRE_CONTAINER'
-    if (target == '1.4' || target == '1.5') {
-        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-' + target
-    } else if (target == '1.6' || target == '1.7') {
-        jreContainer += '/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-' + target
-    }
-
-    eclipseClasspath {
-        variables = [ 'GRADLE_USER_HOME' : project.gradle.gradleUserHomeDir ]
-
-        defaultOutputDir = file('build/eclipse-classes')
-        containers.clear()
-        containers.add(jreContainer)
-
-        whenConfigured { classpath ->
-            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/test/.*' }.each { it.output = 'build/eclipse-test-classes' }
-            classpath.entries.findAll { it.kind == 'src' && it.path ==~ 'src/main/.*' }.each { it.output = 'build/eclipse-classes' }
-        }
-    }
 }
 
 project(':sqljet') {

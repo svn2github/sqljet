@@ -2,7 +2,7 @@ apply plugin: 'osgi'
 
 bundleClasspath = []
 bundleName = rootProject.group
-bundleVersion = buildVersion.getBaseOSGIVersion()
+bundleVersion = buildVersion.getFullOSGIVersion()
 bundleVendor = 'TMate Software'
 
 def inlinedArtifacts = []

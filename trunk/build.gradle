@@ -5,7 +5,7 @@ release = false
 
 buildscript {
     repositories {
-        mavenRepo(urls: [mavenPublicRepositoryURL]) {
+        mavenRepo(urls: [buildPluginRepositoryURL]) {
             snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
         }
     }

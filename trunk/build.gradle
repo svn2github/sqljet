@@ -4,6 +4,7 @@ target = '1.5'
 release = false
 
 buildscript {
+    apply from: 'build.defaults.gradle'
     repositories {
         mavenRepo(urls: [buildPluginRepositoryURL]) {
             snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS

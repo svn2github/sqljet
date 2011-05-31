@@ -476,12 +476,13 @@ public class SqlJetFile implements ISqlJetFile {
                         || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
 
                     if (lockType != SqlJetLockType.SHARED) {
-                        final FileLock sharedLock = locks.get(SqlJetLockType.SHARED);
-                        if (null != sharedLock) {
-                            sharedLock.release();
-                            locks.remove(SqlJetLockType.SHARED);
-                            lockInfo.sharedLock = null;
-                        }
+						if (lockInfo.sharedLockCount <= 1) {
+	                        final FileLock sharedLock = locks.remove(SqlJetLockType.SHARED);
+	                        if(null != sharedLock) {
+	                        	sharedLock.release();
+	                        	lockInfo.sharedLock = null;
+	                        }
+						}
                     }
 
                     if (!locks.containsKey(SqlJetLockType.PENDING)) {

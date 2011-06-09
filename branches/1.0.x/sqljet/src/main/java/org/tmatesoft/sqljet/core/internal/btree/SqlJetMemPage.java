@@ -598,7 +598,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
                 pDbPage.write();
                 put4byte(aData, pTrunk.pgno);
                 put4byte(aData, 4, 0);
-                put4byte(aData, 32, pgno);
+                put4byte(pPage1.aData, 32, pgno);
                 TRACE("FREE-PAGE: %d new trunk page replacing %d\n", this.pgno, pTrunk.pgno);
             } else if (k < 0) {
                 throw new SqlJetException(SqlJetErrorCode.CORRUPT);

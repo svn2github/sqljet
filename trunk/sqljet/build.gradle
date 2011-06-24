@@ -1,4 +1,14 @@
 runAllTests = !project.hasProperty('fast')
+sourceSets {
+    test {
+        java {
+            srcDir 'src/test/stress'
+            srcDir 'src/test/benchmark'
+            srcDir 'src/test/compatibility'
+            srcDir 'src/test/java'
+        }
+    }
+}
 
 // antlr generation
 configurations {  antlr3 }
@@ -78,6 +88,7 @@ test {
 }
 
 if (runAllTests) {
+  
     test.doFirst {
         ant.properties.antClasspath = configurations.antTests.asPath
 

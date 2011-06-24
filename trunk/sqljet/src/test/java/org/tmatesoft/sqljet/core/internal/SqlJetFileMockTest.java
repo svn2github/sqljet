@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -29,6 +30,7 @@ import org.junit.Test;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
+@Ignore
 public class SqlJetFileMockTest extends SqlJetAbstractFileSystemMockTest {
 
     protected ISqlJetFile file;

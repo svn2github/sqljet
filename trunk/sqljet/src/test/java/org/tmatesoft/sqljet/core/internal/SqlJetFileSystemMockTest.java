@@ -19,6 +19,7 @@ package org.tmatesoft.sqljet.core.internal;
 
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
@@ -31,6 +32,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
  * 
  */
 @SuppressWarnings("unused")
+@Ignore
 public class SqlJetFileSystemMockTest extends SqlJetAbstractFileSystemMockTest {
 
     @Test

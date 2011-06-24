@@ -296,7 +296,7 @@ public class SqlJetDb extends SqlJetEngine {
     }
 
     /**
-     * Create virtual table from SQL clause.
+     * Creates virtual table from SQL clause.
      * 
      * @param sql
      *            CREATE VIRTUAL TABLE ... sentence.
@@ -307,6 +307,24 @@ public class SqlJetDb extends SqlJetEngine {
         return (ISqlJetVirtualTableDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 return getSchemaInternal().createVirtualTable(sql, 0);
+            }
+        });
+    }
+    
+    /**
+     * Creates view from SQL clause.
+     * 
+     * @param name 
+     *            view name
+     * @param sql
+     *            CREATE VIEW X AS SELECT ... sentence.
+     * @return definition of the view being created.
+     */
+    public ISqlJetVirtualTableDef createView(final String name, final String sql) throws SqlJetException {
+        checkOpen();
+        return (ISqlJetVirtualTableDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return getSchemaInternal().createView(name, sql);
             }
         });
     }

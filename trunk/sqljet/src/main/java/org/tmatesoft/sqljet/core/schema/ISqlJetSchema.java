@@ -89,4 +89,21 @@ public interface ISqlJetSchema {
      * @throws SqlJetException
      */
     ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException;
+
+    /**
+     * Get view definition by name.
+     * 
+     * @param name
+     *            view name
+     * @return view definition
+     * @throws SqlJetException
+     */
+    ISqlJetViewDef getView(String name) throws SqlJetException;
+
+    /**
+     * @return Set of view names defined in this schema.
+     * 
+     * @throws SqlJetException
+     */
+    Set<String> getViewNames() throws SqlJetException;
 }

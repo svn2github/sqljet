@@ -61,6 +61,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
+import org.tmatesoft.sqljet.core.schema.ISqlJetViewDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
 /**
@@ -88,6 +89,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private static final String TABLE_TYPE = "table";
     private static final String INDEX_TYPE = "index";
+    private static final String VIEW_TYPE = "view";
 
     private final ISqlJetDbHandle db;
     private final ISqlJetBtree btree;
@@ -97,6 +99,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private final Map<String, ISqlJetIndexDef> indexDefs = new TreeMap<String, ISqlJetIndexDef>(
             String.CASE_INSENSITIVE_ORDER);
     private Map<String, ISqlJetVirtualTableDef> virtualTableDefs = new TreeMap<String, ISqlJetVirtualTableDef>(
+            String.CASE_INSENSITIVE_ORDER);
+    private Map<String, ISqlJetViewDef> viewDefs = new TreeMap<String, ISqlJetViewDef>(
             String.CASE_INSENSITIVE_ORDER);
 
     private enum SqlJetSchemaObjectType {
@@ -120,7 +124,15 @@ public class SqlJetSchema implements ISqlJetSchema {
             public Object getName() {
                 return "virtual table";
             }
+        },
+        
+        VIEW {
+            @Override
+            public Object getName() {
+                return "view";
+            }
         };
+
 
         public abstract Object getName();
     }
@@ -225,6 +237,25 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
+    public ISqlJetViewDef getView(String name) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return viewDefs.get(name);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+    public Set<String> getViewNames() throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            final Set<String> s = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            s.addAll(viewDefs.keySet());
+            return s;
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
     public ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -285,6 +316,10 @@ public class SqlJetSchema implements ISqlJetSchema {
                     indexDef.setRowId(table.getRowId());
                     indexDefs.put(name, indexDef);
                 }
+            } else if (VIEW_TYPE.equals(type)) {
+                final String viewName = table.getTableField();
+                final String sql = table.getSqlField();
+                viewDefs.put(viewName, new SqlJetViewDef(viewName, sql));
             }
         }
 
@@ -1253,6 +1288,48 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
     }
+    
+    public ISqlJetViewDef createView(String name, String sql) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return createViewSafe(name, sql);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+
+    private ISqlJetViewDef createViewSafe(String name, String sql) throws SqlJetException {
+        final SqlJetViewDef viewDef = new SqlJetViewDef(name, sql);
+        if (null == viewDef.getName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String viewName = viewDef.getName();
+        if ("".equals(viewName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (viewDefs.containsKey(viewName)) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "View \"" + viewName + "\" exists already");
+        }
+        checkNameConflict(SqlJetSchemaObjectType.VIEW, viewName);
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+            schemaTable.lock();
+            try {
+                db.getOptions().changeSchemaVersion();
+
+                schemaTable.insertRecord(VIEW_TYPE, viewName, viewName, 0, sql);
+                viewDefs.put(viewName, viewDef);
+                return viewDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+    }
 
     /**
      * @param name
@@ -1298,6 +1375,11 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
         if (objectType != SqlJetSchemaObjectType.VIRTUAL_TABLE) {
             if (virtualTableDefs.containsKey(name)) {
+                return true;
+            }
+        }
+        if (objectType != SqlJetSchemaObjectType.VIEW) {
+            if (viewDefs.containsKey(name)) {
                 return true;
             }
         }
@@ -1364,5 +1446,4 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
     }
-
 }

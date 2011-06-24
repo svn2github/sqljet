@@ -671,169 +671,114 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
      * @see org.tmatesoft.sqljet.core.ISqlJetBtreeCursor#delete()
      */
     public void delete() throws SqlJetException {
+    	  SqlJetBtreeCursor pCur = this;
+    	  SqlJetBtree p = pCur.pBtree;
+    	  SqlJetBtreeShared pBt = p.pBt;
+    	  SqlJetException rc;
+    	  /* Page to delete cell from */
+    	  SqlJetMemPage pPage;
+    	  /* Pointer to cell to delete */
+    	  ISqlJetMemoryPointer pCell;
+    	  /* Index of cell to delete */
+    	  int iCellIdx;
+    	  /* Depth of node containing pCell */ 
+    	  int iCellDepth;
+    	  
+          assert (pCur.holdsMutex());
+          assert (pBt.inTransaction == TransMode.WRITE);
+          assert (!pBt.readOnly);
+          assert (pCur.wrFlag);
 
-        SqlJetBtreeCursor pCur = this;
+    	  //assert( hasSharedCacheTableLock(p, pCur->pgnoRoot, pCur->pKeyInfo!=0, 2) );
+    	  //assert( !hasReadConflicts(p, pCur->pgnoRoot) );
 
-        SqlJetMemPage pPage = pCur.apPage[pCur.iPage];
-        int idx;
-        ISqlJetMemoryPointer pCell;
-        int pgnoChild = 0;
-        SqlJetBtree p = pCur.pBtree;
-        SqlJetBtreeShared pBt = p.pBt;
+    	  if( pCur.aiIdx[pCur.iPage]>=pCur.apPage[pCur.iPage].nCell
+    	   || pCur.eState!= CursorState.VALID
+    	  ){
+    		  /* Something has gone awry. */
+    		  throw new SqlJetException(SqlJetErrorCode.ERROR);
+    	  }
 
-        assert (pCur.holdsMutex());
-        assert (pPage.isInit);
-        assert (pBt.inTransaction == TransMode.WRITE);
-        assert (!pBt.readOnly);
+    	  /* If this is a delete operation to remove a row from a table b-tree,
+    	   invalidate any incrblob cursors open on the row being deleted.  */
+    	  //if( pCur.pKeyInfo==null ){
+    	  //    p.invalidateIncrblobCursors(pCur.info.nKey, 0);
+    	  //}
 
-        if (pCur.eState == CursorState.FAULT) {
-            throw new SqlJetException(pCur.error);
-        }
-        if (pCur.aiIdx[pCur.iPage] >= pPage.nCell) {
-            /* The cursor is not pointing to anything */
-            throw new SqlJetException(SqlJetErrorCode.ERROR);
-        }
-        assert (pCur.wrFlag);
-        if (pCur.pBtree.checkReadLocks(pCur.pgnoRoot, pCur, pCur.info.nKey)) {
-            /* The table pCur points to has a read lock */
-            throw new SqlJetException(SqlJetErrorCode.LOCKED);
-        }
+    	  iCellDepth = pCur.iPage;
+    	  iCellIdx = pCur.aiIdx[iCellDepth];
+    	  pPage = pCur.apPage[iCellDepth];
+    	  pCell = pPage.findCell(iCellIdx);
 
-        /*
-         * Restore the current cursor position (a no-op if the cursor is not in*
-         * CURSOR_REQUIRESEEK state) and save the positions of any other cursors
-         * * open on the same table. Then call sqlite3PagerWrite() on the page*
-         * that the entry will be deleted from.
-         */
-        pCur.restoreCursorPosition();
-        pBt.saveAllCursors(pCur.pgnoRoot, pCur);
-        pPage.pDbPage.write();
+    	  /* If the page containing the entry to delete is not a leaf page, move
+    	   the cursor to the largest entry in the tree that is smaller than
+    	   the entry being deleted. This cell will replace the cell being deleted
+    	   from the internal node. The 'previous' entry is used for this instead
+    	   of the 'next' entry, as the previous entry is always a part of the
+    	   sub-tree headed by the child page of the cell being deleted. This makes
+    	   balancing the tree following the delete operation easier.  */
+    	  if( !pPage.leaf ){
+    		  pCur.previous();
+    	  }
 
-        /*
-         * Locate the cell within its page and leave pCell pointing to the*
-         * data. The clearCell() call frees any overflow pages associated with
-         * the* cell. The cell itself is still intact.
-         */
-        idx = pCur.aiIdx[pCur.iPage];
-        pCell = pPage.findCell(idx);
-        if (!pPage.leaf) {
-            pgnoChild = get4byte(pCell);
-        }
-        pPage.clearCell(pCell);
+    	  /* Save the positions of any other cursors open on this table before
+    	  ** making any modifications. Make the page containing the entry to be 
+    	  ** deleted writable. Then free any overflow pages associated with the 
+    	  ** entry and finally remove the cell itself from within the page.  
+    	  */
+    	  pBt.saveAllCursors(pCur.pgnoRoot, pCur);
+    	  pPage.pDbPage.write();
+    	  pPage.clearCell(pCell);
+    	  pPage.dropCell(iCellIdx, pPage.cellSizePtr(pCell));
 
-        if (!pPage.leaf) {
-            /*
-             * * The entry we are about to delete is not a leaf so if we do not
-             * do something we will leave a hole on an internal page. We have to
-             * fill the hole by moving in a cell from a leaf. The next Cell
-             * after the one to be deleted is guaranteed to exist and to be a
-             * leaf so we can use it.
-             */
-            SqlJetBtreeCursor leafCur;
-            SqlJetMemPage pLeafPage = null;
+    	  /* If the cell deleted was not located on a leaf page, then the cursor
+    	   is currently pointing to the largest entry in the sub-tree headed
+    	   by the child-page of the cell that was just deleted from an internal
+    	   node. The cell from the leaf node needs to be moved to the internal
+    	   node to replace the deleted cell.  */
+    	  if( !pPage.leaf ){
+    		  SqlJetMemPage pLeaf = pCur.apPage[pCur.iPage];
+    		  int nCell;
+    		  int n = pCur.apPage[iCellDepth+1].pgno;
 
-            ISqlJetMemoryPointer pNext;
-            @SuppressWarnings("unused")
-            boolean notUsed;
-            ISqlJetMemoryPointer tempCell = null;
-            assert (!pPage.intKey);
-            leafCur = pCur.getTempCursor();
-            notUsed = leafCur.next();
-            assert (leafCur.aiIdx[leafCur.iPage] == 0);
-            pLeafPage = leafCur.apPage[leafCur.iPage];
-            pLeafPage.pDbPage.write();
+    		  pCell = pLeaf.findCell(pLeaf.nCell-1);
+    		  nCell = pLeaf.cellSizePtr(pCell);
+    		  assert(pBt.MX_CELL_SIZE()>=nCell);
+    		  
+    		  pBt.allocateTempSpace();
+    		  ISqlJetMemoryPointer pTmp = pBt.pTmpSpace;
+    		  
+    		  pLeaf.pDbPage.write();
+    		  pPage.insertCell(iCellIdx, pCell.getMoved(-4), nCell+4, pTmp, n);
+              put4byte(pPage.findOverflowCell(iCellIdx), n);
+    		  pLeaf.dropCell(pLeaf.nCell-1, nCell);
+    	  }
 
-            try {
-
-                boolean leafCursorInvalid = false;
-                int szNext;
-                TRACE("DELETE: table=%d delete internal from %d replace from leaf %d\n", pCur.pgnoRoot, pPage.pgno,
-                        pLeafPage.pgno);
-                pPage.dropCell(idx, pPage.cellSizePtr(pCell));
-                pNext = pLeafPage.findCell(0);
-                szNext = pLeafPage.cellSizePtr(pNext);
-                assert (pBt.MX_CELL_SIZE() >= szNext + 4);
-                pBt.allocateTempSpace();
-                tempCell = pBt.pTmpSpace;
-                pPage.insertCell(idx, pointer(pNext, -4), szNext + 4, tempCell, (byte) 0);
-
-                /*
-                 * The "if" statement in the next code block is critical. The
-                 * slightest error in that statement would allow SQLite to
-                 * operate* correctly most of the time but produce very rare
-                 * failures. To guard against this, the following macros help to
-                 * verify that the "if" statement is well tested.
-                 */
-
-                if ((pPage.nOverflow > 0 || (pPage.nFree > pBt.usableSize * 2 / 3))
-                        && (pLeafPage.nFree + 2 + szNext > pBt.usableSize * 2 / 3)) {
-                    /*
-                     * This branch is taken if the internal node is now either
-                     * overflowing or underfull and the leaf node will be
-                     * underfull after the just cell copied to the internal node
-                     * is deleted from it. This is a special case because the
-                     * call to balance() to correct the internal node may change
-                     * the tree structure and invalidate the contents of the
-                     * leafCur.apPage[] and leafCur.aiIdx[] arrays, which will
-                     * be used by the balance() required to correct the
-                     * underfull leaf node. The formula used in the expression
-                     * above are based on facets of the SQLite file-format that
-                     * do not change over time.
-                     */
-                    leafCursorInvalid = true;
-                }
-
-                assert (pPage.pDbPage.isWriteable());
-                put4byte(pPage.findOverflowCell(idx), pgnoChild);
-                pCur.balance(false);
-
-                if (leafCursorInvalid) {
-                    /*
-                     * The leaf-node is now underfull and so the tree needs to
-                     * be* rebalanced. However, the balance() operation on the
-                     * internal* node above may have modified the structure of
-                     * the B-Tree and* so the current contents of
-                     * leafCur.apPage[] and leafCur.aiIdx[]* may not be
-                     * trusted.** It is not possible to copy the ancestry from
-                     * pCur, as the same* balance() call has invalidated the
-                     * pCur->apPage[] and aiIdx[]* arrays.** The call to
-                     * saveCursorPosition() below internally saves the* key that
-                     * leafCur is currently pointing to. Currently, there* are
-                     * two copies of that key in the tree - one here on the
-                     * leaf* page and one on some internal node in the tree. The
-                     * copy on* the leaf node is always the next key in
-                     * tree-order after the* copy on the internal node. So, the
-                     * call to sqlite3BtreeNext()* calls restoreCursorPosition()
-                     * to point the cursor to the copy* stored on the internal
-                     * node, then advances to the next entry,* which happens to
-                     * be the copy of the key on the internal node.* Net effect:
-                     * leafCur is pointing back to the duplicate cell* that
-                     * needs to be removed, and the leafCur.apPage[] and*
-                     * leafCur.aiIdx[] arrays are correct.
-                     */
-                    leafCur.saveCursorPosition();
-                    notUsed = leafCur.next();
-                    pLeafPage = leafCur.apPage[leafCur.iPage];
-                    assert (leafCur.aiIdx[leafCur.iPage] == 0);
-                }
-
-                pLeafPage.pDbPage.write();
-                pLeafPage.dropCell(0, szNext);
-                leafCur.balance(false);
-                assert (leafCursorInvalid || !leafCur.pagesShuffled || !pCur.pagesShuffled);
-
-            } finally {
-                leafCur.releaseTempCursor();
-            }
-
-        } else {
-            TRACE("DELETE: table=%d delete from leaf %d\n", pCur.pgnoRoot, pPage.pgno);
-            pPage.dropCell(idx, pPage.cellSizePtr(pCell));
-            pCur.balance(false);
-        }
-        pCur.moveToRoot();
+    	  /* Balance the tree. If the entry deleted was located on a leaf page,
+    	   then the cursor still points to that page. In this case the first
+    	   call to balance() repairs the tree, and the if(...) condition is
+    	   never true.
+    	  
+    	   Otherwise, if the entry deleted was on an internal node page, then
+    	   pCur is pointing to the leaf page from which a cell was removed to
+    	   replace the cell deleted from the internal node. This is slightly
+    	   tricky as the leaf node may be underfull, and the internal node may
+    	   be either under or overfull. In this case run the balancing algorithm
+    	   on the leaf node first. If the balance proceeds far enough up the
+    	   tree that we can be sure that any problem in the internal node has
+    	   been corrected, so be it. Otherwise, after balancing the leaf node,
+    	   walk the cursor up the tree to the internal node and balance it as 
+    	   well.  */
+    	  pCur.balance(false);
+    	  if(  pCur.iPage>iCellDepth ){
+    	    while( pCur.iPage>iCellDepth ){
+    	    	SqlJetMemPage.releasePage(pCur.apPage[pCur.iPage--]);
+    	    }
+    	    pCur.balance(false);
+    	  }
+    	  pCur.moveToRoot();
     }
-
+    
     /**
      * The page that pCur currently points to has just been modified in some
      * way. This function figures out if this modification means the tree needs
@@ -1394,7 +1339,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
                     iSpace2 += sz;
                     assert (sz <= pBt.pageSize / 4);
                     assert (iSpace2 <= pBt.pageSize);
-                    pParent.insertCell(nxDiv, pCell, sz, pTemp, (byte) 4);
+                    pParent.insertCell(nxDiv, pCell, sz, pTemp, pNew.pgno);
                     assert (pParent.pDbPage.isWriteable());
                     put4byte(pParent.findOverflowCell(nxDiv), pNew.pgno);
 
@@ -1546,7 +1491,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             parentSize = pParent.fillInCell(parentCell, null, info.nKey, null, 0, 0);
             assert (parentSize < 64);
             assert (pParent.pDbPage.isWriteable());
-            pParent.insertCell(parentIdx, parentCell, parentSize, null, (byte) 4);
+            pParent.insertCell(parentIdx, parentCell, parentSize, null, pPage.pgno);
             put4byte(pParent.findOverflowCell(parentIdx), pPage.pgno);
             put4byte(pParent.aData, pParent.hdrOffset + 8, pgnoNew[0]);
 
@@ -1884,7 +1829,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         }
 
         try {
-            pPage.insertCell(idx, newCell, szNew, null, (byte) 0);
+            pPage.insertCell(idx, newCell, szNew, null, 0);
 
             assert (pPage.nCell > 0 || pPage.nOverflow > 0);
 

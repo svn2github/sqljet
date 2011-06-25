@@ -27,12 +27,6 @@ public interface ISqlJetViewDef {
     public String getName();
     
     /**
-     * 
-     * @return SELECT part of the SQL statement of this view
-     */
-    public String getSelectStatement();
-    
-    /**
      * @return SQL used to define this view.
      */
     public String toSQL();

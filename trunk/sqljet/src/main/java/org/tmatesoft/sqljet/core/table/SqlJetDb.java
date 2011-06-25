@@ -28,6 +28,7 @@ import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetViewDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineSynchronized;
 import org.tmatesoft.sqljet.core.table.engine.ISqlJetEngineTransaction;
@@ -279,6 +280,21 @@ public class SqlJetDb extends SqlJetEngine {
     }
 
     /**
+     * Drop view.
+     * 
+     * @param viewName name of the view to drop.
+     */
+    public void dropView(final String viewName) throws SqlJetException {
+        checkOpen();
+        runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                getSchemaInternal().dropView(viewName);
+                return null;
+            }
+        });
+    }
+
+    /**
      * Alters table.
      * 
      * @param sql
@@ -320,9 +336,9 @@ public class SqlJetDb extends SqlJetEngine {
      *            CREATE VIEW X AS SELECT ... sentence.
      * @return definition of the view being created.
      */
-    public ISqlJetVirtualTableDef createView(final String name, final String sql) throws SqlJetException {
+    public ISqlJetViewDef createView(final String name, final String sql) throws SqlJetException {
         checkOpen();
-        return (ISqlJetVirtualTableDef) runWriteTransaction(new ISqlJetTransaction() {
+        return (ISqlJetViewDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 return getSchemaInternal().createView(name, sql);
             }

@@ -200,7 +200,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         return String.format(AUTOINDEX, tableName, i);
     }
 
-    private boolean hasOption(CommonTree optionsNode, String name) {
+    static boolean hasOption(CommonTree optionsNode, String name) {
         for (int i = 0; i < optionsNode.getChildCount(); i++) {
             CommonTree optionNode = (CommonTree) optionsNode.getChild(i);
             if (name.equalsIgnoreCase(optionNode.getText())) {

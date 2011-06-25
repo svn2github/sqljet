@@ -319,7 +319,10 @@ public class SqlJetSchema implements ISqlJetSchema {
             } else if (VIEW_TYPE.equals(type)) {
                 final String viewName = table.getTableField();
                 final String sql = table.getSqlField();
-                viewDefs.put(viewName, new SqlJetViewDef(viewName, sql));
+                final CommonTree ast = (CommonTree) parseView(sql).getTree();
+                final SqlJetViewDef viewDef = new SqlJetViewDef(sql, ast);
+                viewDef.setRowId(table.getRowId());
+                viewDefs.put(viewName, viewDef);
             }
         }
 
@@ -365,6 +368,18 @@ public class SqlJetSchema implements ISqlJetSchema {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
             return parser.schema_create_table_stmt();
+        } catch (RecognitionException re) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
+        }
+    }
+
+    private RuleReturnScope parseView(String sql) throws SqlJetException {
+        try {
+            CharStream chars = new ANTLRStringStream(sql);
+            SqlLexer lexer = new SqlLexer(chars);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            SqlParser parser = new SqlParser(tokens);
+            return parser.create_view_stmt();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -1292,15 +1307,18 @@ public class SqlJetSchema implements ISqlJetSchema {
     public ISqlJetViewDef createView(String name, String sql) throws SqlJetException {
         db.getMutex().enter();
         try {
-            return createViewSafe(name, sql);
+            return createViewSafe(sql);
         } finally {
             db.getMutex().leave();
         }
     }
 
 
-    private ISqlJetViewDef createViewSafe(String name, String sql) throws SqlJetException {
-        final SqlJetViewDef viewDef = new SqlJetViewDef(name, sql);
+    private ISqlJetViewDef createViewSafe(String sql) throws SqlJetException {
+        final RuleReturnScope parseView = parseView(sql);
+        final CommonTree ast = (CommonTree) parseView.getTree();
+
+        final SqlJetViewDef viewDef = new SqlJetViewDef(sql, ast);
         if (null == viewDef.getName())
             throw new SqlJetException(SqlJetErrorCode.ERROR);
         final String viewName = viewDef.getName();
@@ -1308,6 +1326,9 @@ public class SqlJetSchema implements ISqlJetSchema {
             throw new SqlJetException(SqlJetErrorCode.ERROR);
 
         if (viewDefs.containsKey(viewName)) {
+            if (viewDef.isKeepExisting()) {
+                return viewDefs.get(viewName);
+            }
             throw new SqlJetException(SqlJetErrorCode.ERROR, "View \"" + viewName + "\" exists already");
         }
         checkNameConflict(SqlJetSchemaObjectType.VIEW, viewName);
@@ -1318,7 +1339,8 @@ public class SqlJetSchema implements ISqlJetSchema {
             try {
                 db.getOptions().changeSchemaVersion();
 
-                schemaTable.insertRecord(VIEW_TYPE, viewName, viewName, 0, sql);
+                long rowId = schemaTable.insertRecord(VIEW_TYPE, viewName, viewName, 0, sql);
+                viewDef.setRowId(rowId);
                 viewDefs.put(viewName, viewDef);
                 return viewDef;
 
@@ -1446,4 +1468,50 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
     }
+
+    public void dropView(String viewName) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            dropViewSafe(viewName);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+    
+    private void dropViewSafe(String viewName) throws SqlJetException {
+
+        if (null == viewName || "".equals(viewName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "View name must be not empty");
+
+        if (!viewDefs.containsKey(viewName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "View not found: " + viewName);
+        final SqlJetViewDef viewDef = (SqlJetViewDef) viewDefs.get(viewName);
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getOptions().changeSchemaVersion();
+
+                if (!schemaTable.goToRow(viewDef.getRowId()) || !VIEW_TYPE.equals(schemaTable.getTypeField()))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                final String n = schemaTable.getNameField();
+                if (null == n || !viewName.equals(n))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                schemaTable.delete();
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+        viewDefs.remove(viewName);
+
+    }
+
 }

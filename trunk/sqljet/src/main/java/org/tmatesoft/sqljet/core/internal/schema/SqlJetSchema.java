@@ -1304,7 +1304,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     }
     
-    public ISqlJetViewDef createView(String name, String sql) throws SqlJetException {
+    public ISqlJetViewDef createView(String sql) throws SqlJetException {
         db.getMutex().enter();
         try {
             return createViewSafe(sql);
@@ -1317,6 +1317,11 @@ public class SqlJetSchema implements ISqlJetSchema {
     private ISqlJetViewDef createViewSafe(String sql) throws SqlJetException {
         final RuleReturnScope parseView = parseView(sql);
         final CommonTree ast = (CommonTree) parseView.getTree();
+        
+        sql = sql.trim();
+        if (sql.endsWith(";")) {
+            sql = sql.substring(0, sql.length() - 1);
+        }
 
         final SqlJetViewDef viewDef = new SqlJetViewDef(sql, ast);
         if (null == viewDef.getName())

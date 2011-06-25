@@ -336,11 +336,11 @@ public class SqlJetDb extends SqlJetEngine {
      *            CREATE VIEW X AS SELECT ... sentence.
      * @return definition of the view being created.
      */
-    public ISqlJetViewDef createView(final String name, final String sql) throws SqlJetException {
+    public ISqlJetViewDef createView(final String sql) throws SqlJetException {
         checkOpen();
         return (ISqlJetViewDef) runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                return getSchemaInternal().createView(name, sql);
+                return getSchemaInternal().createView(sql);
             }
         });
     }

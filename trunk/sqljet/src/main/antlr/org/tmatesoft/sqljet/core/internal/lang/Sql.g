@@ -37,6 +37,7 @@ tokens {
 	CONSTRAINTS; // groups all constraints
 	CREATE_INDEX;
 	CREATE_TABLE;
+    CREATE_VIEW;
 	DROP_INDEX;
 	DROP_TABLE;
 	FLOAT_LITERAL;
@@ -52,6 +53,7 @@ tokens {
 	ORDERING; // root for ordering_term
 	SELECT_CORE; // root for simple select statement, part of a compound select
 	STRING_LITERAL;
+	STATEMENT;
 	TABLE_CONSTRAINT; // root for table constraint
 	TYPE; // root for type_name
 	TYPE_PARAMS; // root for numbers in type_name
@@ -186,7 +188,8 @@ cond_expr
   | NOT? IN LPAREN expr (COMMA expr)* RPAREN -> ^(IN_VALUES NOT? ^(IN expr+))
   | NOT? IN (database_name=id DOT)? table_name=id -> ^(IN_TABLE NOT? ^(IN ^($table_name $database_name?)))
 // query is not supported for now
-//  | NOT? IN^ LPAREN! select_stmt? RPAREN!
+  | NOT? IN^ LPAREN! select_stmt? RPAREN!
+  | NOT? EQUALS^ LPAREN! select_stmt? RPAREN!
   | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL | NOT NULL -> NOT_NULL | IS NOT NULL -> NOT_NULL)
   | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN NOT? ^(AND $e1 $e2))
   | ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)+ /* order of the eq subexpressions is reversed! */
@@ -471,7 +474,9 @@ drop_table_stmt: DROP TABLE (IF EXISTS)? (database_name=id DOT)? table_name=id
 alter_table_stmt: ALTER TABLE (database_name=id DOT)? table_name=id (RENAME TO new_table_name=id | ADD (COLUMN)? column_def);
 
 // CREATE VIEW
-create_view_stmt: CREATE TEMPORARY? VIEW (IF NOT EXISTS)? (database_name=id DOT)? view_name=id AS select_stmt;
+create_view_stmt: CREATE TEMPORARY? VIEW (IF NOT EXISTS)? (database_name=id DOT)? view_name=id AS t=select_stmt
+-> ^(CREATE_VIEW ^(OPTIONS TEMPORARY? EXISTS?) ^($view_name $database_name?) ^(STATEMENT $t));
+
 
 // DROP VIEW
 drop_view_stmt: DROP VIEW (IF EXISTS)? (database_name=id DOT)? view_name=id;

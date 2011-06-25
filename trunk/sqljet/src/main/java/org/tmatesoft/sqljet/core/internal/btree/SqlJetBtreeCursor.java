@@ -674,7 +674,7 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     	  SqlJetBtreeCursor pCur = this;
     	  SqlJetBtree p = pCur.pBtree;
     	  SqlJetBtreeShared pBt = p.pBt;
-    	  SqlJetException rc;
+//    	  SqlJetException rc;
     	  /* Page to delete cell from */
     	  SqlJetMemPage pPage;
     	  /* Pointer to cell to delete */
@@ -1707,34 +1707,8 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
         pCur.apPage[1] = pChild;
         pCur.aiIdx[0] = 0;
         pCur.balance_nonroot();
-
     }
-
-    /**
-     * Make a temporary cursor by filling in the fields of pTempCur. The
-     * temporary cursor is not on the cursor list for the Btree.
-     *
-     * @return
-     * @throws SqlJetException
-     */
-    private SqlJetBtreeCursor getTempCursor() throws SqlJetException {
-        SqlJetBtreeCursor pCur = this;
-        assert (cursorHoldsMutex(pCur));
-        SqlJetBtreeCursor pTempCur;
-        try {
-            pTempCur = (SqlJetBtreeCursor) this.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new SqlJetException(SqlJetErrorCode.INTERNAL);
-        }
-        pTempCur.pNext = null;
-        pTempCur.pPrev = null;
-        for (int i = 0; i <= pTempCur.iPage; i++) {
-            pTempCur.apPage[i].pDbPage.ref();
-        }
-        assert (pTempCur.pKey == null);
-        return pTempCur;
-    }
-
+    
     /**
      * Delete a temporary cursor such as was made by the CreateTemporaryCursor()
      * function above.

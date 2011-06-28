@@ -61,6 +61,7 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTablePrimaryKey;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTriggerDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetViewDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
@@ -90,6 +91,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private static final String TABLE_TYPE = "table";
     private static final String INDEX_TYPE = "index";
     private static final String VIEW_TYPE = "view";
+    private static final String TRIGGER_TYPE = "trigger";
 
     private final ISqlJetDbHandle db;
     private final ISqlJetBtree btree;
@@ -101,6 +103,8 @@ public class SqlJetSchema implements ISqlJetSchema {
     private Map<String, ISqlJetVirtualTableDef> virtualTableDefs = new TreeMap<String, ISqlJetVirtualTableDef>(
             String.CASE_INSENSITIVE_ORDER);
     private Map<String, ISqlJetViewDef> viewDefs = new TreeMap<String, ISqlJetViewDef>(
+            String.CASE_INSENSITIVE_ORDER);
+    private Map<String, ISqlJetTriggerDef> triggerDefs = new TreeMap<String, ISqlJetTriggerDef>(
             String.CASE_INSENSITIVE_ORDER);
 
     private enum SqlJetSchemaObjectType {
@@ -130,6 +134,13 @@ public class SqlJetSchema implements ISqlJetSchema {
             @Override
             public Object getName() {
                 return "view";
+            }
+        },
+
+        TRIGGER {
+            @Override
+            public Object getName() {
+                return "trigger";
             }
         };
 
@@ -237,6 +248,15 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
+    public ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return virtualTableDefs.get(name);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
     public ISqlJetViewDef getView(String name) throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -245,6 +265,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             db.getMutex().leave();
         }
     }
+    
     public Set<String> getViewNames() throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -256,10 +277,21 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
     }
 
-    public ISqlJetVirtualTableDef getVirtualTable(String name) throws SqlJetException {
+    public ISqlJetTriggerDef getTrigger(String name) throws SqlJetException {
         db.getMutex().enter();
         try {
-            return virtualTableDefs.get(name);
+            return triggerDefs.get(name);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+    
+    public Set<String> getTriggerNames() throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            final Set<String> s = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            s.addAll(triggerDefs.keySet());
+            return s;
         } finally {
             db.getMutex().leave();
         }
@@ -323,6 +355,14 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final SqlJetViewDef viewDef = new SqlJetViewDef(sql, ast);
                 viewDef.setRowId(table.getRowId());
                 viewDefs.put(viewName, viewDef);
+            } else if (TRIGGER_TYPE.equals(type)) {
+                final String triggerName = table.getNameField();
+                final String sql = table.getSqlField();
+                
+                final CommonTree ast = (CommonTree) parseTrigger(sql).getTree();
+                final SqlJetTriggerDef triggerDef = new SqlJetTriggerDef(sql, ast);
+                triggerDef.setRowId(table.getRowId());
+                triggerDefs.put(triggerName, triggerDef);
             }
         }
 
@@ -380,6 +420,18 @@ public class SqlJetSchema implements ISqlJetSchema {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             SqlParser parser = new SqlParser(tokens);
             return parser.create_view_stmt();
+        } catch (RecognitionException re) {
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
+        }
+    }
+
+    private RuleReturnScope parseTrigger(String sql) throws SqlJetException {
+        try {
+            CharStream chars = new ANTLRStringStream(sql);
+            SqlLexer lexer = new SqlLexer(chars);
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            SqlParser parser = new SqlParser(tokens);
+            return parser.create_trigger_stmt();
         } catch (RecognitionException re) {
             throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid sql statement: " + sql);
         }
@@ -1410,6 +1462,11 @@ public class SqlJetSchema implements ISqlJetSchema {
                 return true;
             }
         }
+        if (objectType != SqlJetSchemaObjectType.TRIGGER) {
+            if (triggerDefs.containsKey(name)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -1517,6 +1574,107 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
         viewDefs.remove(viewName);
 
+    }
+
+    public void dropTrigger(String triggerName) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            dropTriggerSafe(triggerName);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+    
+    private void dropTriggerSafe(String triggerName) throws SqlJetException {
+
+        if (null == triggerName || "".equals(triggerName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Trigger name must be not empty");
+
+        if (!triggerDefs.containsKey(triggerName))
+            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Trigger not found: " + triggerName);
+        final SqlJetTriggerDef triggerDef = (SqlJetTriggerDef) triggerDefs.get(triggerName);
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+
+            schemaTable.lock();
+
+            try {
+
+                db.getOptions().changeSchemaVersion();
+
+                if (!schemaTable.goToRow(triggerDef.getRowId()) || !TRIGGER_TYPE.equals(schemaTable.getTypeField()))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                final String n = schemaTable.getNameField();
+                if (null == n || !triggerName.equals(n))
+                    throw new SqlJetException(SqlJetErrorCode.CORRUPT);
+                schemaTable.delete();
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
+        triggerDefs.remove(triggerName);
+
+    }
+
+    public ISqlJetTriggerDef createTrigger(String sql) throws SqlJetException {
+        db.getMutex().enter();
+        try {
+            return createTriggerSafe(sql);
+        } finally {
+            db.getMutex().leave();
+        }
+    }
+
+    private ISqlJetTriggerDef createTriggerSafe(String sql) throws SqlJetException {
+        final RuleReturnScope parseView = parseTrigger(sql);
+        final CommonTree ast = (CommonTree) parseView.getTree();
+        
+        sql = sql.trim();
+        if (sql.endsWith(";")) {
+            sql = sql.substring(0, sql.length() - 1);
+        }
+
+        final SqlJetTriggerDef triggerDef = new SqlJetTriggerDef(sql, ast);
+        if (null == triggerDef.getName())
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String triggerName = triggerDef.getName();
+        if ("".equals(triggerName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+        final String tableName = triggerDef.getTableName();
+        if ("".equals(tableName))
+            throw new SqlJetException(SqlJetErrorCode.ERROR);
+
+        if (triggerDefs.containsKey(triggerName)) {
+            if (triggerDef.isKeepExisting()) {
+                return triggerDefs.get(triggerName);
+            }
+            throw new SqlJetException(SqlJetErrorCode.ERROR, "Trigger \"" + triggerName + "\" already exists");
+        }
+        checkNameConflict(SqlJetSchemaObjectType.TRIGGER, triggerName);
+        final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
+
+        try {
+            schemaTable.lock();
+            try {
+                db.getOptions().changeSchemaVersion();
+
+                long rowId = schemaTable.insertRecord(TRIGGER_TYPE, triggerName, tableName, 0, sql);
+                triggerDef.setRowId(rowId);
+                triggerDefs.put(triggerName, triggerDef);
+                return triggerDef;
+
+            } finally {
+                schemaTable.unlock();
+            }
+
+        } finally {
+            schemaTable.close();
+        }
     }
 
 }

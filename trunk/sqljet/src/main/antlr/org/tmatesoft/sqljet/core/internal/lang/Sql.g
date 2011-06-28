@@ -38,6 +38,7 @@ tokens {
 	CREATE_INDEX;
 	CREATE_TABLE;
     CREATE_VIEW;
+    CREATE_TRIGGER;
 	DROP_INDEX;
 	DROP_TABLE;
 	FLOAT_LITERAL;
@@ -48,6 +49,7 @@ tokens {
 	IN_TABLE;
 	INTEGER_LITERAL;
 	IS_NULL;
+    IS_NOT;
 	NOT_NULL;
 	OPTIONS;
 	ORDERING; // root for ordering_term
@@ -187,10 +189,10 @@ cond_expr
   : NOT? match_op match_expr=eq_subexpr (ESCAPE escape_expr=eq_subexpr)? -> ^(match_op $match_expr NOT? ^(ESCAPE $escape_expr)?)
   | NOT? IN LPAREN expr (COMMA expr)* RPAREN -> ^(IN_VALUES NOT? ^(IN expr+))
   | NOT? IN (database_name=id DOT)? table_name=id -> ^(IN_TABLE NOT? ^(IN ^($table_name $database_name?)))
-// query is not supported for now
   | NOT? IN^ LPAREN! select_stmt? RPAREN!
   | NOT? EQUALS^ LPAREN! select_stmt? RPAREN!
   | (ISNULL -> IS_NULL | NOTNULL -> NOT_NULL | IS NULL -> IS_NULL | NOT NULL -> NOT_NULL | IS NOT NULL -> NOT_NULL)
+  | IS NOT^ eq_subexpr
   | NOT? BETWEEN e1=eq_subexpr AND e2=eq_subexpr -> ^(BETWEEN NOT? ^(AND $e1 $e2))
   | ((EQUALS | EQUALS2 | NOT_EQUALS | NOT_EQUALS2)^ eq_subexpr)+ /* order of the eq subexpressions is reversed! */
   ;
@@ -497,7 +499,8 @@ drop_index_stmt: DROP INDEX (IF EXISTS)? (database_name=id DOT)? index_name=id
 create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=id DOT)? trigger_name=id
   (BEFORE | AFTER | INSTEAD OF)? (DELETE | INSERT | UPDATE (OF column_names+=id (COMMA column_names+=id)*)?)
   ON table_name=id (FOR EACH ROW)? (WHEN expr)?
-  BEGIN ((update_stmt | insert_stmt | delete_stmt | select_stmt) SEMI)+ END;
+  BEGIN ((update_stmt | insert_stmt | delete_stmt | select_stmt) SEMI)+ END
+-> ^(CREATE_TRIGGER ^(OPTIONS TEMPORARY?) ^($trigger_name $table_name $database_name?));
 
 // DROP TRIGGER
 drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_name=id;

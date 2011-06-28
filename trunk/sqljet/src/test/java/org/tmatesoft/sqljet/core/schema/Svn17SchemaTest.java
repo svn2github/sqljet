@@ -42,7 +42,6 @@ public class Svn17SchemaTest extends AbstractNewDbTest {
         "CREATE TABLE NODES (wc_id INTEGER NOT NULL REFERENCES WCROOT (id), local_relpath TEXT NOT NULL, op_depth INTEGER NOT NULL, parent_relpath TEXT, repos_id INTEGER REFERENCES REPOSITORY (id), repos_path TEXT, revision INTEGER, presence TEXT NOT NULL, moved_here INTEGER, moved_to TEXT, kind TEXT NOT NULL, properties BLOB, depth TEXT, checksum TEXT REFERENCES PRISTINE (checksum), symlink_target TEXT, changed_revision INTEGER, changed_date INTEGER, changed_author TEXT, translated_size INTEGER, last_mod_time INTEGER, dav_cache BLOB, file_external TEXT, PRIMARY KEY (wc_id, local_relpath, op_depth));",
         "CREATE TABLE PRISTINE (checksum TEXT NOT NULL PRIMARY KEY, compression INTEGER, size INTEGER NOT NULL, refcount INTEGER NOT NULL, md5_checksum TEXT NOT NULL);",
         "CREATE TABLE REPOSITORY (id INTEGER PRIMARY KEY AUTOINCREMENT, root TEXT UNIQUE NOT NULL, uuid TEXT NOT NULL);",
-//        "CREATE TABLE sqlite_sequence (name, seq);",
         "CREATE TABLE WC_LOCK (wc_id INTEGER NOT NULL REFERENCES WCROOT (id), local_dir_relpath TEXT NOT NULL, locked_levels INTEGER NOT NULL DEFAULT (-1), PRIMARY KEY (wc_id, local_dir_relpath));",
         "CREATE TABLE WCROOT (id INTEGER PRIMARY KEY AUTOINCREMENT, local_abspath TEXT UNIQUE);",
         "CREATE TABLE WORK_QUEUE (id INTEGER PRIMARY KEY AUTOINCREMENT, work BLOB NOT NULL);",
@@ -66,12 +65,19 @@ public class Svn17SchemaTest extends AbstractNewDbTest {
         "CREATE VIEW NODES_CURRENT AS SELECT * FROM nodes AS n WHERE op_depth = (SELECT MAX(op_depth) FROM nodes AS n2 WHERE n2.wc_id = n.wc_id AND n2.local_relpath = n.local_relpath);"
     };
     
+    private static final String[] svn17WcTriggers =
+    {
+        "CREATE TRIGGER nodes_insert_trigger AFTER INSERT ON nodes WHEN NEW.checksum IS NOT NULL BEGIN UPDATE pristine SET refcount = refcount + 1 WHERE checksum = NEW.checksum; END;",
+        "CREATE TRIGGER nodes_delete_trigger AFTER DELETE ON nodes WHEN OLD.checksum IS NOT NULL BEGIN UPDATE pristine SET refcount = refcount - 1 WHERE checksum = OLD.checksum; END;",
+        "CREATE TRIGGER nodes_update_checksum_trigger AFTER UPDATE OF checksum ON nodes WHEN NEW.checksum IS NOT OLD.checksum BEGIN UPDATE pristine SET refcount = refcount + 1 WHERE checksum = NEW.checksum; UPDATE pristine SET refcount = refcount - 1 WHERE checksum = OLD.checksum; END;",
+    };
 
     @Test
     public void createSVN17WcDb() throws SqlJetException {
         Set<String> tableNames = new HashSet<String>();
         Set<String> indexNames = new HashSet<String>();
         Set<String> viewNames = new HashSet<String>();
+        Set<String> triggerNames = new HashSet<String>();
         
         for (String sql : svn17WcTables) {
             ISqlJetTableDef tableDef = db.createTable(sql);
@@ -85,6 +91,10 @@ public class Svn17SchemaTest extends AbstractNewDbTest {
             ISqlJetViewDef viewDef = db.createView(sql);
             viewNames.add(viewDef.getName());
         }
+        for (String sql : svn17WcTriggers) {
+            ISqlJetTriggerDef triggerDef = db.createTrigger(sql);
+            triggerNames.add(triggerDef.getName());
+        }
         
         db.close();
         
@@ -92,12 +102,15 @@ public class Svn17SchemaTest extends AbstractNewDbTest {
         ISqlJetSchema schema = db.getSchema();
         
         for(String tableName : schema.getTableNames()) {
-            if (!"sqlite_sequence".equals(tableName)) {
+            if (!tableName.startsWith("sqlite_")) {
                 Assert.assertTrue("No table '" + tableName + "'", tableNames.remove(tableName));
             }
         }
         for(String viewName : schema.getViewNames()) {
             Assert.assertTrue(viewNames.remove(viewName));
+        }
+        for(String triggerName : schema.getTriggerNames()) {
+            Assert.assertTrue(triggerNames.remove(triggerName));
         }
         for(String indexName : schema.getIndexNames()) {
             ISqlJetIndexDef indexDef = schema.getIndex(indexName);

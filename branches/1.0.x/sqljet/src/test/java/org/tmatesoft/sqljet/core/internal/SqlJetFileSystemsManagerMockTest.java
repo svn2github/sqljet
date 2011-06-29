@@ -18,6 +18,7 @@
 package org.tmatesoft.sqljet.core.internal;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
@@ -27,6 +28,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  *
  */
+@Ignore
 public class SqlJetFileSystemsManagerMockTest extends SqlJetAbstractFileSystemMockTest {
 
     @Test

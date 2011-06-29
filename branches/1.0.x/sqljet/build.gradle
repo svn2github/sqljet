@@ -1,4 +1,12 @@
 runAllTests = !project.hasProperty('fast')
+sourceSets {
+    test {
+        java {
+            srcDir 'src/test/stress'
+            srcDir 'src/test/java'
+        }
+    }
+}
 
 // antlr generation
 configurations {  antlr3 }

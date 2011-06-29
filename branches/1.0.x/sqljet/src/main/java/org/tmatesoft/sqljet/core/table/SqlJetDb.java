@@ -41,6 +41,7 @@ import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
 import org.tmatesoft.sqljet.core.schema.ISqlJetIndexDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetSchema;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTableDef;
+import org.tmatesoft.sqljet.core.schema.ISqlJetTriggerDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetViewDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetVirtualTableDef;
 
@@ -602,6 +603,21 @@ public class SqlJetDb {
             }
         });
     }
+    
+    /**
+     * Drop trigger.
+     * 
+     * @param triggerName name of the trigger to drop.
+     */
+    public void dropTrigger(final String triggerName) throws SqlJetException {
+        checkOpen();
+        runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                getSchemaInternal().dropTrigger(triggerName);
+                return null;
+            }
+        });
+    }
 
     /**
      * Alters table.
@@ -639,8 +655,6 @@ public class SqlJetDb {
     /**
      * Creates view from SQL clause.
      * 
-     * @param name 
-     *            view name
      * @param sql
      *            CREATE VIEW X AS SELECT ... sentence.
      * @return definition of the view being created.
@@ -654,6 +668,23 @@ public class SqlJetDb {
         });
     }
 
+    
+    /**
+     * Creates trigger from SQL clause.
+     * 
+     * @param sql
+     *            CREATE TRIGGER ... sentence.
+     * @return definition of the trigger being created.
+     */
+    public ISqlJetTriggerDef createTrigger(final String sql) throws SqlJetException {
+        checkOpen();
+        return (ISqlJetTriggerDef) runWriteTransaction(new ISqlJetTransaction() {
+            public Object run(SqlJetDb db) throws SqlJetException {
+                return getSchemaInternal().createTrigger(sql);
+            }
+        });
+    }
+    
     /**
      * Get busy handler.
      * 

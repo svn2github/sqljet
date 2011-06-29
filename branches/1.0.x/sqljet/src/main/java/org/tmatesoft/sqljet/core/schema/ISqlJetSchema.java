@@ -106,4 +106,21 @@ public interface ISqlJetSchema {
      * @throws SqlJetException
      */
     Set<String> getViewNames() throws SqlJetException;
+
+    /**
+     * Get trigger definition by name.
+     * 
+     * @param name
+     *            trigger name
+     * @return trigger definition
+     * @throws SqlJetException
+     */
+    ISqlJetTriggerDef getTrigger(String name) throws SqlJetException;
+
+    /**
+     * @return Set of trigger names defined in this schema.
+     * 
+     * @throws SqlJetException
+     */
+    Set<String> getTriggerNames() throws SqlJetException;
 }

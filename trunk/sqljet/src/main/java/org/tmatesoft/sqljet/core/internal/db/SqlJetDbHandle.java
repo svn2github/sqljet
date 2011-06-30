@@ -55,7 +55,12 @@ public class SqlJetDbHandle implements ISqlJetDbHandle {
         }
     }
 
-    /*
+    public SqlJetDbHandle(ISqlJetFileSystem fs) {
+    	this();
+		this.fileSystem = fs;
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see org.tmatesoft.sqljet.core.ISqlJetDb#getBackends()

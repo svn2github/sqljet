@@ -22,6 +22,7 @@ import java.io.File;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
 import org.tmatesoft.sqljet.core.internal.ISqlJetPager;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetPragmasHandler;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetTable;
@@ -88,6 +89,14 @@ public class SqlJetDb extends SqlJetEngine {
         super(file, writable);
     }
 
+    public SqlJetDb(final File file, final boolean writable, final ISqlJetFileSystem fs) {
+        super(file, writable, fs);
+    }
+
+    public SqlJetDb(final File file, final boolean writable, final String fsName) throws SqlJetException {
+        super(file, writable, fsName);
+    }
+
     /**
      * <p>
      * Opens connection to data base. It does not create any locking on
@@ -112,6 +121,32 @@ public class SqlJetDb extends SqlJetEngine {
      */
     public static SqlJetDb open(File file, boolean write) throws SqlJetException {
         final SqlJetDb db = new SqlJetDb(file, write);
+        db.open();
+        return db;
+    }
+
+    /**
+     * @param file
+     * @param write
+     * @param fs
+     * @return
+     * @throws SqlJetException
+     */
+    public static SqlJetDb open(File file, boolean write, final ISqlJetFileSystem fs) throws SqlJetException {
+        final SqlJetDb db = new SqlJetDb(file, write, fs);
+        db.open();
+        return db;
+    }
+
+    /**
+     * @param file
+     * @param write
+     * @param fsName
+     * @return
+     * @throws SqlJetException
+     */
+    public static SqlJetDb open(File file, boolean write, final String fsName) throws SqlJetException {
+        final SqlJetDb db = new SqlJetDb(file, write, fsName);
         db.open();
         return db;
     }

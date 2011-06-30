@@ -29,12 +29,15 @@ import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.ISqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.ISqlJetDbHandle;
 import org.tmatesoft.sqljet.core.internal.ISqlJetFile;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystem;
+import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
+import org.tmatesoft.sqljet.core.internal.fs.SqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.schema.SqlJetSchema;
 import org.tmatesoft.sqljet.core.internal.table.SqlJetOptions;
 import org.tmatesoft.sqljet.core.table.ISqlJetBusyHandler;
@@ -45,378 +48,453 @@ import org.tmatesoft.sqljet.core.table.SqlJetDefaultBusyHandler;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- *
+ * 
  */
 public class SqlJetEngine {
 
-    private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
+	private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
-    private static final Set<SqlJetBtreeFlags> READ_FLAGS = Collections.unmodifiableSet(SqlJetUtility
-            .of(SqlJetBtreeFlags.READONLY));
-    private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = Collections.unmodifiableSet(SqlJetUtility
-            .of(SqlJetFileOpenPermission.READONLY));
-    private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = Collections.unmodifiableSet(SqlJetUtility.of(
-            SqlJetBtreeFlags.READWRITE, SqlJetBtreeFlags.CREATE));
-    private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = Collections.unmodifiableSet(SqlJetUtility
-            .of(SqlJetFileOpenPermission.READWRITE, SqlJetFileOpenPermission.CREATE));
+	private static final Set<SqlJetBtreeFlags> READ_FLAGS = Collections
+			.unmodifiableSet(SqlJetUtility.of(SqlJetBtreeFlags.READONLY));
+	private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = Collections
+			.unmodifiableSet(SqlJetUtility
+					.of(SqlJetFileOpenPermission.READONLY));
+	private static final Set<SqlJetBtreeFlags> WRITE_FLAGS = Collections
+			.unmodifiableSet(SqlJetUtility.of(SqlJetBtreeFlags.READWRITE,
+					SqlJetBtreeFlags.CREATE));
+	private static final Set<SqlJetFileOpenPermission> WRITE_PREMISSIONS = Collections
+			.unmodifiableSet(SqlJetUtility.of(
+					SqlJetFileOpenPermission.READWRITE,
+					SqlJetFileOpenPermission.CREATE));
 
-    protected boolean writable;
-    protected ISqlJetDbHandle dbHandle;
-    protected ISqlJetBtree btree;
-    protected boolean open = false;
-    protected File file;
+	protected static final ISqlJetFileSystemsManager FILE_SYSTEM_MANAGER = SqlJetFileSystemsManager.getManager();
+	
+	protected ISqlJetFileSystem fileSystem = FILE_SYSTEM_MANAGER.find(null);
+	
+	protected boolean writable;
+	protected ISqlJetDbHandle dbHandle;
+	protected ISqlJetBtree btree;
+	protected boolean open = false;
+	protected File file;
 
-    private boolean transaction;
-    private SqlJetTransactionMode transactionMode;
+	private boolean transaction;
+	private SqlJetTransactionMode transactionMode;
 
-    /**
+	/**
      *
      */
-    public SqlJetEngine(final File file, final boolean writable) {
-        this.writable = writable;
-        this.file = file;
-    }
+	public SqlJetEngine(final File file, final boolean writable) {
+		this.writable = writable;
+		this.file = file;
+	}
 
-    /**
-     * @return database file this engine is created for.
-     */
-    public File getFile() {
-        return this.file;
-    }
+	/**
+	 * @param file
+	 * @param writable
+	 * @param fs
+	 */
+	public SqlJetEngine(final File file, final boolean writable, final ISqlJetFileSystem fs) {
+		this.writable = writable;
+		this.file = file;
+		this.fileSystem = fs;
+	}
 
-    /**
-     * Check write access to data base.
-     *
-     * @return true if modification is allowed
-     */
-    public boolean isWritable() throws SqlJetException {
-        return writable;
-    }
+	/**
+	 * @param file
+	 * @param writable
+	 * @param fsName
+	 * @throws SqlJetException
+	 */
+	public SqlJetEngine(final File file, final boolean writable, final String fsName) throws SqlJetException {
+		this.writable = writable;
+		this.file = file;
+		this.fileSystem = FILE_SYSTEM_MANAGER.find(fsName);
+		if(this.fileSystem == null) {
+			throw new SqlJetException(String.format("File system '%s' not found", fsName));
+		}
+	}
 
-    /**
-     * Checks is database open.
-     *
-     * @return true if database is open.
-     */
-    public boolean isOpen() {
-        return open;
-    }
+	 /**
+	 * @param fs
+	 * @param isDefault
+	 * @throws SqlJetException
+	 */
+	public void registerFileSystem(final ISqlJetFileSystem fs, final boolean isDefault) throws SqlJetException {
+		 FILE_SYSTEM_MANAGER.register(fs, isDefault);
+	 }
+	
+	 /**
+	 * @param fs
+	 * @throws SqlJetException
+	 */
+	public void unregisterFileSystem(final ISqlJetFileSystem fs) throws SqlJetException {
+		 FILE_SYSTEM_MANAGER.unregister(fs);
+	 }
+	 
+	/**
+	 * @return database file this engine is created for.
+	 */
+	public File getFile() {
+		return this.file;
+	}
 
-    protected void checkOpen() throws SqlJetException {
-        if (!isOpen())
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database closed");
-    }
+	/**
+	 * Check write access to data base.
+	 * 
+	 * @return true if modification is allowed
+	 */
+	public boolean isWritable() throws SqlJetException {
+		return writable;
+	}
+	
+	public ISqlJetFileSystem getFileSystem() {
+		return fileSystem;
+	}
 
-    /**
-     * <p>
-     * Opens connection to database. It does not create any locking on database.
-     * First lock will be created when be called any method which requires real
-     * access to options or schema.
-     * </p>
-     *
-     * @throws SqlJetException
-     *             if any trouble with access to file or database format.
-     */
-    public synchronized void open() throws SqlJetException {
-        if (!open) {
-            dbHandle = new SqlJetDbHandle();
-            dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
-            btree = new SqlJetBtree();
-            final Set<SqlJetBtreeFlags> flags = EnumSet.copyOf(writable ? WRITE_FLAGS : READ_FLAGS);
-            final Set<SqlJetFileOpenPermission> permissions = EnumSet.copyOf(writable ? WRITE_PREMISSIONS
-                    : READ_PERMISSIONS);
-            final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB : SqlJetFileType.TEMP_DB);
-            btree.open(file, dbHandle, flags, type, permissions);
+	/**
+	 * Checks is database open.
+	 * 
+	 * @return true if database is open.
+	 */
+	public boolean isOpen() {
+		return open;
+	}
 
-            // force readonly.
-            ISqlJetFile file = btree.getPager().getFile();
-            if (file != null) {
-                Set<SqlJetFileOpenPermission> realPermissions = btree.getPager().getFile().getPermissions();
-                writable = realPermissions.contains(SqlJetFileOpenPermission.READWRITE);
-            }
-            open = true;
-        } else {
-            throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database is open already");
-        }
-    }
+	protected void checkOpen() throws SqlJetException {
+		if (!isOpen())
+			throw new SqlJetException(SqlJetErrorCode.MISUSE, "Database closed");
+	}
 
-    public Object runSynchronized(ISqlJetEngineSynchronized op) throws SqlJetException {
-        checkOpen();
-        dbHandle.getMutex().enter();
-        try {
-            return op.runSynchronized(this);
-        } finally {
-            dbHandle.getMutex().leave();
-        }
-    }
+	/**
+	 * <p>
+	 * Opens connection to database. It does not create any locking on database.
+	 * First lock will be created when be called any method which requires real
+	 * access to options or schema.
+	 * </p>
+	 * 
+	 * @throws SqlJetException
+	 *             if any trouble with access to file or database format.
+	 */
+	public synchronized void open() throws SqlJetException {
+		if (!open) {
+			dbHandle = new SqlJetDbHandle(fileSystem);
+			dbHandle.setBusyHandler(new SqlJetDefaultBusyHandler());
+			btree = new SqlJetBtree();
+			final Set<SqlJetBtreeFlags> flags = EnumSet
+					.copyOf(writable ? WRITE_FLAGS : READ_FLAGS);
+			final Set<SqlJetFileOpenPermission> permissions = EnumSet
+					.copyOf(writable ? WRITE_PREMISSIONS : READ_PERMISSIONS);
+			final SqlJetFileType type = (file != null ? SqlJetFileType.MAIN_DB
+					: SqlJetFileType.TEMP_DB);
+			btree.open(file, dbHandle, flags, type, permissions);
 
-    /**
-     * Close connection to database. It is safe to call this method if database
-     * connections is closed already.
-     *
-     * @throws SqlJetException
-     *             it is possible to get exception if there is actvie
-     *             transaction and rollback did not success.
-     */
-    public void close() throws SqlJetException {
-        if (open) {
-            runSynchronized(new ISqlJetEngineSynchronized() {
-                public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                    if (btree != null) {
-                        btree.close();
-                        btree = null;
-                        open = false;
-                    }
-                    return null;
-                }
-            });
-            if (!open) {
-                dbHandle = null;
-            }
-        }
-    }
+			// force readonly.
+			ISqlJetFile file = btree.getPager().getFile();
+			if (file != null) {
+				Set<SqlJetFileOpenPermission> realPermissions = btree
+						.getPager().getFile().getPermissions();
+				writable = realPermissions
+						.contains(SqlJetFileOpenPermission.READWRITE);
+			}
+			open = true;
+		} else {
+			throw new SqlJetException(SqlJetErrorCode.MISUSE,
+					"Database is open already");
+		}
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#finalize()
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            if (open) {
-                close();
-            }
-        } finally {
-            super.finalize();
-        }
-    }
+	public Object runSynchronized(ISqlJetEngineSynchronized op)
+			throws SqlJetException {
+		checkOpen();
+		dbHandle.getMutex().enter();
+		try {
+			return op.runSynchronized(this);
+		} finally {
+			dbHandle.getMutex().leave();
+		}
+	}
 
-    /**
-     * Reads database schema and options.
-     *
-     * @throws SqlJetException
-     */
-    protected void readSchema() throws SqlJetException {
-        runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                btree.enter();
-                try {
-                    dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
-                    btree.setSchema(new SqlJetSchema(dbHandle, btree));
-                } finally {
-                    btree.leave();
-                }
-                return null;
-            }
-        });
-    }
+	/**
+	 * Close connection to database. It is safe to call this method if database
+	 * connections is closed already.
+	 * 
+	 * @throws SqlJetException
+	 *             it is possible to get exception if there is actvie
+	 *             transaction and rollback did not success.
+	 */
+	public void close() throws SqlJetException {
+		if (open) {
+			runSynchronized(new ISqlJetEngineSynchronized() {
+				public Object runSynchronized(SqlJetEngine engine)
+						throws SqlJetException {
+					if (btree != null) {
+						btree.close();
+						btree = null;
+						open = false;
+					}
+					return null;
+				}
+			});
+			if (!open) {
+				dbHandle = null;
+			}
+		}
+	}
 
-    /**
-     * Returns database options.
-     *
-     * @return options of this database.
-     */
-    public ISqlJetOptions getOptions() throws SqlJetException {
-        checkOpen();
-        if (null == btree.getSchema()) {
-            readSchema();
-        }
-        return dbHandle.getOptions();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#finalize()
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		try {
+			if (open) {
+				close();
+			}
+		} finally {
+			super.finalize();
+		}
+	}
 
-    /**
-     * Refreshes database schema.
-     */
-    public void refreshSchema() throws SqlJetException {
-        if (null == btree.getSchema() || !getOptions().verifySchemaVersion(false)) {
-            readSchema();
-        }
-    }
+	/**
+	 * Reads database schema and options.
+	 * 
+	 * @throws SqlJetException
+	 */
+	protected void readSchema() throws SqlJetException {
+		runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				btree.enter();
+				try {
+					dbHandle.setOptions(new SqlJetOptions(btree, dbHandle));
+					btree.setSchema(new SqlJetSchema(dbHandle, btree));
+				} finally {
+					btree.leave();
+				}
+				return null;
+			}
+		});
+	}
 
-    protected SqlJetSchema getSchemaInternal() throws SqlJetException {
-        checkOpen();
-        refreshSchema();
-        return btree.getSchema();
-    }
+	/**
+	 * Returns database options.
+	 * 
+	 * @return options of this database.
+	 */
+	public ISqlJetOptions getOptions() throws SqlJetException {
+		checkOpen();
+		if (null == btree.getSchema()) {
+			readSchema();
+		}
+		return dbHandle.getOptions();
+	}
 
-    /**
-     * Get busy handler.
-     *
-     * @return the busy handler.
-     */
-    public ISqlJetBusyHandler getBusyHandler() {
-        return dbHandle.getBusyHandler();
-    }
+	/**
+	 * Refreshes database schema.
+	 */
+	public void refreshSchema() throws SqlJetException {
+		if (null == btree.getSchema()
+				|| !getOptions().verifySchemaVersion(false)) {
+			readSchema();
+		}
+	}
 
-    /**
-     * Set busy handler. Busy handler treats situation when database is locked
-     * by other process or thread.
-     *
-     * @param busyHandler
-     *            the busy handler.
-     */
-    public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
-        dbHandle.setBusyHandler(busyHandler);
-    }
+	protected SqlJetSchema getSchemaInternal() throws SqlJetException {
+		checkOpen();
+		refreshSchema();
+		return btree.getSchema();
+	}
 
-    /**
-     * Retruns threading synchronization mutex.
-     *
-     * @return Semaphore instance used to synchronize database access from
-     *         multiple threads within the same process.
-     */
-    public ISqlJetMutex getMutex() {
-        return dbHandle.getMutex();
-    }
+	/**
+	 * Get busy handler.
+	 * 
+	 * @return the busy handler.
+	 */
+	public ISqlJetBusyHandler getBusyHandler() {
+		return dbHandle.getBusyHandler();
+	}
 
-    /**
-     * Set cache size (in count of pages).
-     *
-     * @param cacheSize
-     *            the count of pages which can hold cache.
-     */
-    public void setCacheSize(final int cacheSize) throws SqlJetException {
-        checkOpen();
-        runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                btree.setCacheSize(cacheSize);
-                return null;
-            }
-        });
-    }
+	/**
+	 * Set busy handler. Busy handler treats situation when database is locked
+	 * by other process or thread.
+	 * 
+	 * @param busyHandler
+	 *            the busy handler.
+	 */
+	public void setBusyHandler(ISqlJetBusyHandler busyHandler) {
+		dbHandle.setBusyHandler(busyHandler);
+	}
 
-    /**
-     * Get cache size (in count of pages).
-     *
-     * @return the count of pages which can hold cache.
-     */
-    public int getCacheSize() throws SqlJetException {
-        checkOpen();
-        refreshSchema();
-        return (Integer) runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                return btree.getCacheSize();
-            }
-        });
-    }
+	/**
+	 * Retruns threading synchronization mutex.
+	 * 
+	 * @return Semaphore instance used to synchronize database access from
+	 *         multiple threads within the same process.
+	 */
+	public ISqlJetMutex getMutex() {
+		return dbHandle.getMutex();
+	}
 
-    /**
-     * Returns true if a transaction is active.
-     *
-     * @return true if there is an active running transaction.
-     */
-    public boolean isInTransaction() {
-        return transaction;
-    }
+	/**
+	 * Set cache size (in count of pages).
+	 * 
+	 * @param cacheSize
+	 *            the count of pages which can hold cache.
+	 */
+	public void setCacheSize(final int cacheSize) throws SqlJetException {
+		checkOpen();
+		runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				btree.setCacheSize(cacheSize);
+				return null;
+			}
+		});
+	}
 
-    public SqlJetTransactionMode getTransactionMode() {
-        return transactionMode;
-    }
+	/**
+	 * Get cache size (in count of pages).
+	 * 
+	 * @return the count of pages which can hold cache.
+	 */
+	public int getCacheSize() throws SqlJetException {
+		checkOpen();
+		refreshSchema();
+		return (Integer) runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				return btree.getCacheSize();
+			}
+		});
+	}
 
-    /**
-     * Begin transaction.
-     *
-     * @param mode
-     *            transaction's mode.
-     */
-    public void beginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
-        checkOpen();
-        runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                if (transaction) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
-                } else {
-                    btree.beginTrans(mode);
-                    refreshSchema();
-                    transaction = true;
-                    transactionMode = mode;
-                    return null;
-                }
-            }
-        });
-    }
+	/**
+	 * Returns true if a transaction is active.
+	 * 
+	 * @return true if there is an active running transaction.
+	 */
+	public boolean isInTransaction() {
+		return transaction;
+	}
 
-    /**
-     * Commits transaction.
-     *
-     */
-    public void commit() throws SqlJetException {
-        checkOpen();
-        runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                if (transaction) {
-                    btree.closeAllCursors();
-                    btree.commit();
-                    transaction = false;
-                    transactionMode = null;
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
-                }
-                return null;
-            }
-        });
-    }
+	public SqlJetTransactionMode getTransactionMode() {
+		return transactionMode;
+	}
 
-    /**
-     * Rolls back transaction.
-     *
-     */
-    public void rollback() throws SqlJetException {
-        checkOpen();
-        runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                btree.closeAllCursors();
-                btree.rollback();
-                transaction = false;
-                transactionMode = null;
-                return null;
-            }
-        });
-    }
+	/**
+	 * Begin transaction.
+	 * 
+	 * @param mode
+	 *            transaction's mode.
+	 */
+	public void beginTransaction(final SqlJetTransactionMode mode)
+			throws SqlJetException {
+		checkOpen();
+		runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				if (transaction) {
+					throw new SqlJetException(SqlJetErrorCode.MISUSE,
+							TRANSACTION_ALREADY_STARTED);
+				} else {
+					btree.beginTrans(mode);
+					refreshSchema();
+					transaction = true;
+					transactionMode = mode;
+					return null;
+				}
+			}
+		});
+	}
 
-    /**
-     * Runs transaction.
-     *
-     * @param op
-     *            transaction's body (closure).
-     * @param mode
-     *            transaction's mode.
-     * @return result of
-     *         {@link ISqlJetTransaction#run(org.tmatesoft.sqljet.core.table.SqlJetDb)}
-     *         call.
-     * @throws SqlJetException
-     */
-    protected Object runEngineTransaction(final ISqlJetEngineTransaction op, final SqlJetTransactionMode mode)
-            throws SqlJetException {
-        checkOpen();
-        return runSynchronized(new ISqlJetEngineSynchronized() {
-            public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
-                if (transaction) {
-                    if (mode != transactionMode && transactionMode == SqlJetTransactionMode.READ_ONLY) {
-                        throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
-                    } else {
-                        return op.run(SqlJetEngine.this);
-                    }
-                } else {
-                    beginTransaction(mode);
-                    boolean success = false;
-                    try {
-                        final Object result = op.run(SqlJetEngine.this);
-                        btree.commit();
-                        success = true;
-                        return result;
-                    } finally {
-                        if (!success) {
-                            btree.rollback();
-                        }
-                        transaction = false;
-                        transactionMode = null;
-                    }
-                }
-            }
+	/**
+	 * Commits transaction.
+	 * 
+	 */
+	public void commit() throws SqlJetException {
+		checkOpen();
+		runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				if (transaction) {
+					btree.closeAllCursors();
+					btree.commit();
+					transaction = false;
+					transactionMode = null;
+				} else {
+					throw new SqlJetException(SqlJetErrorCode.MISUSE,
+							"Transaction wasn't started");
+				}
+				return null;
+			}
+		});
+	}
 
-        });
-    }
+	/**
+	 * Rolls back transaction.
+	 * 
+	 */
+	public void rollback() throws SqlJetException {
+		checkOpen();
+		runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				btree.closeAllCursors();
+				btree.rollback();
+				transaction = false;
+				transactionMode = null;
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Runs transaction.
+	 * 
+	 * @param op
+	 *            transaction's body (closure).
+	 * @param mode
+	 *            transaction's mode.
+	 * @return result of
+	 *         {@link ISqlJetTransaction#run(org.tmatesoft.sqljet.core.table.SqlJetDb)}
+	 *         call.
+	 * @throws SqlJetException
+	 */
+	protected Object runEngineTransaction(final ISqlJetEngineTransaction op,
+			final SqlJetTransactionMode mode) throws SqlJetException {
+		checkOpen();
+		return runSynchronized(new ISqlJetEngineSynchronized() {
+			public Object runSynchronized(SqlJetEngine engine)
+					throws SqlJetException {
+				if (transaction) {
+					if (mode != transactionMode
+							&& transactionMode == SqlJetTransactionMode.READ_ONLY) {
+						throw new SqlJetException(SqlJetErrorCode.MISUSE,
+								TRANSACTION_ALREADY_STARTED);
+					} else {
+						return op.run(SqlJetEngine.this);
+					}
+				} else {
+					beginTransaction(mode);
+					boolean success = false;
+					try {
+						final Object result = op.run(SqlJetEngine.this);
+						btree.commit();
+						success = true;
+						return result;
+					} finally {
+						if (!success) {
+							btree.rollback();
+						}
+						transaction = false;
+						transactionMode = null;
+					}
+				}
+			}
+
+		});
+	}
 
 }

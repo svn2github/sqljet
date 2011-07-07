@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author TMate Software Ltd.
@@ -40,25 +41,39 @@ public class SqlJetFileLockManager {
         this.fileChannel = fileChannel;
     }
 
-    private static final Map<String, List<SqlJetFileLock>> locks = new HashMap<String, List<SqlJetFileLock>>();
+    private static final Map<String, List<SqlJetFileLock>> locks = new ConcurrentHashMap<String, List<SqlJetFileLock>>();
 
     private interface ILockCreator {
         FileLock createLock(long position, long size, boolean shared) throws IOException;
     }
 
-    private synchronized FileLock createLock(long position, long size, boolean shared, ILockCreator lockCreator)
-            throws IOException {
-        final SqlJetFileLock lock = getLock(position, size);
-        if (lock != null) {
-            if (shared) {
-                lock.addLock();
-                return lock;
-            } else {
-                return null;
-            }
-        } else {
-            return addLock(lockCreator.createLock(position, size, shared));
+    private ILockCreator tryLockCreator = new ILockCreator() {
+        public FileLock createLock(long position, long size, boolean shared) throws IOException {
+            return fileChannel.tryLock(position, size, shared);
         }
+    };
+
+    private ILockCreator lockCreator = new ILockCreator() {
+        public FileLock createLock(long position, long size, boolean shared) throws IOException {
+            return fileChannel.lock(position, size, shared);
+        }
+    };
+
+    private FileLock createLock(long position, long size, boolean shared, ILockCreator lockCreator)
+            throws IOException {
+		synchronized (locks) {
+			final SqlJetFileLock lock = getLock(position, size);
+			if (lock != null) {
+				if (shared) {
+					lock.addLock();
+					return lock;
+				} else {
+					return null;
+				}
+			} else {
+				return addLock(lockCreator.createLock(position, size, shared));
+			}
+		}
     }
 
     /**
@@ -69,20 +84,12 @@ public class SqlJetFileLockManager {
      * @return
      * @throws IOException
      */
-    public synchronized FileLock tryLock(long position, long size, boolean shared) throws IOException {
-        return createLock(position, size, shared, new ILockCreator() {
-            public FileLock createLock(long position, long size, boolean shared) throws IOException {
-                return fileChannel.tryLock(position, size, shared);
-            }
-        });
+    public FileLock tryLock(long position, long size, boolean shared) throws IOException {
+		return createLock(position, size, shared, tryLockCreator);
     }
 
-    public synchronized FileLock lock(long position, long size, boolean shared) throws IOException {
-        return createLock(position, size, shared, new ILockCreator() {
-            public FileLock createLock(long position, long size, boolean shared) throws IOException {
-                return fileChannel.lock(position, size, shared);
-            }
-        });
+    public FileLock lock(long position, long size, boolean shared) throws IOException {
+		return createLock(position, size, shared, lockCreator);
     }
 
     private SqlJetFileLock getLock(long position, long size) {
@@ -113,13 +120,15 @@ public class SqlJetFileLockManager {
         }
     }
 
-    public synchronized void deleteLock(SqlJetFileLock lock) {
-        if (locks.containsKey(filePath)) {
-            final List<SqlJetFileLock> list = locks.get(filePath);
-            list.remove(lock);
-            if (list.size() == 0) {
-                locks.remove(filePath);
-            }
-        }
+    public void deleteLock(SqlJetFileLock lock) {
+		synchronized (locks) {
+			if (locks.containsKey(filePath)) {
+				final List<SqlJetFileLock> list = locks.get(filePath);
+				list.remove(lock);
+				if (list.size() == 0) {
+					locks.remove(filePath);
+				}
+			}
+		}
     }
 }

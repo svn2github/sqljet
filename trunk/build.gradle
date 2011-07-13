@@ -75,6 +75,15 @@ project(':sqljet-browser') {
         compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
     }
 }
+project(':sqljet-vfs') {
+    dependencies {
+        compile project(':sqljet')
+        compile 'commons-vfs:commons-vfs:1.0'
+
+        testCompile 'junit:junit:4.8.2'
+    }
+}
+
 project(':sqljet-osgi') {
     configurations { osgi }
     dependencies { compile project(':sqljet') }

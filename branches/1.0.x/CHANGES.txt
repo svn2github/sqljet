@@ -4,6 +4,24 @@ Version 1.0.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.0.6
+(13 Jul 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.6/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+API changes:
+
+  * Added API methods to create and drop schema records for VIEW and TRIGGER objects.
+  * SqlJetScope introduced, allows to define open and closed bounds when creating a scope cursor.
+    (see issues #148 and #149)
+   
+Bugfixes:
+
+  * String of wrong length was read back from DB (issues #154, -r1110).
+  * Possible DB corruption on massive update followed by remove fixed (issue#156, -r1120).
+  * Several DB locking issues fixed (-r1116, -r1140).
+
 Version 1.0.5
 (24 Apr 2011, from /branches/1.0.x)
 

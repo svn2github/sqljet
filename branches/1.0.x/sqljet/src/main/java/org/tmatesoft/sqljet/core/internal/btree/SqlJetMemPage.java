@@ -816,10 +816,8 @@ public class SqlJetMemPage extends SqlJetCloneable {
      *
      * @throws SqlJetException
      */
-    public void insertCell(int i, ISqlJetMemoryPointer pCell, int sz, ISqlJetMemoryPointer pTemp, int iChild)
+    public void insertCell(int i, ISqlJetMemoryPointer pCell, int sz, ISqlJetMemoryPointer pTemp, byte nSkip)
             throws SqlJetException {
-    	
-    	int nSkip = (iChild>0 ? 4 : 0);
 
         final SqlJetMemPage pPage = this;
 
@@ -841,9 +839,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
             if (pTemp != null) {
                 memcpy(pTemp, nSkip, pCell, nSkip, sz - nSkip);
                 pCell = pTemp;
-            }
-            if( iChild>0 ) {
-                put4byte(pCell, iChild);
             }
             j = pPage.nOverflow++;
             // assert( j<(int)(sizeof(pPage.aOvfl)/sizeof(pPage.aOvfl[0])) );
@@ -873,9 +868,6 @@ public class SqlJetMemPage extends SqlJetCloneable {
             pPage.nCell++;
             pPage.nFree -= 2;
             memcpy(data, idx + nSkip, pCell, nSkip, sz - nSkip);
-            if( iChild>0 ) {
-                put4byte(pCell, iChild);
-            }
             for (j = end - 2; j > ins; j -= 2) {
                 SqlJetUtility.putUnsignedByte(data, j, SqlJetUtility.getUnsignedByte(data, j - 2));
                 SqlJetUtility.putUnsignedByte(data, j + 1, SqlJetUtility.getUnsignedByte(data, j - 1));

@@ -402,8 +402,4 @@ public interface ISqlJetMemoryPointer {
      */
     void limit(int n);
     
-    ISqlJetMemoryPointer getIdentic();
-
-    ISqlJetMemoryPointer getMoved(int count);
-
 }

@@ -225,13 +225,13 @@ public class SqlJetEngine {
 	public void close() throws SqlJetException {
 		if (open) {
 			runSynchronized(new ISqlJetEngineSynchronized() {
-				public Object runSynchronized(SqlJetEngine engine)
-						throws SqlJetException {
+				public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
 					if (btree != null) {
 						btree.close();
 						btree = null;
 						open = false;
 					}
+					closeResources();
 					return null;
 				}
 			});
@@ -239,6 +239,9 @@ public class SqlJetEngine {
 				dbHandle = null;
 			}
 		}
+	}
+	
+	protected void closeResources() throws SqlJetException {
 	}
 
 	/*

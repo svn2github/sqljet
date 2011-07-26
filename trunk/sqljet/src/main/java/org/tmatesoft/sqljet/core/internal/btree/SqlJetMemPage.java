@@ -874,7 +874,7 @@ public class SqlJetMemPage extends SqlJetCloneable {
             pPage.nFree -= 2;
             memcpy(data, idx + nSkip, pCell, nSkip, sz - nSkip);
             if( iChild>0 ) {
-                put4byte(pCell, iChild);
+                put4byte(data, idx, iChild);
             }
             for (j = end - 2; j > ins; j -= 2) {
                 SqlJetUtility.putUnsignedByte(data, j, SqlJetUtility.getUnsignedByte(data, j - 2));

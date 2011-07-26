@@ -750,7 +750,6 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
     		  
     		  pLeaf.pDbPage.write();
     		  pPage.insertCell(iCellIdx, pCell.getMoved(-4), nCell+4, pTmp, n);
-              put4byte(pPage.findOverflowCell(iCellIdx), n);
     		  pLeaf.dropCell(pLeaf.nCell-1, nCell);
     	  }
 

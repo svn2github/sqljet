@@ -23,6 +23,7 @@ import java.util.TreeMap;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -502,14 +503,38 @@ public class AutoCommitTest extends AbstractNewDbTest {
         Assert.assertNotNull(db.getTable("t1"));
     }
 
+    @Ignore // Fixed (see beginReadMany/beginWriteMany)
     @Test(expected = SqlJetException.class)
     public void beginTransactionFail() throws SqlJetException {
         db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
         db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
     }
 
+    @Ignore // Fixed (see commitTwice)
     @Test(expected = SqlJetException.class)
     public void commitFail() throws SqlJetException {
+        db.commit();
+    }
+
+    @Test
+    public void beginReadMany() throws SqlJetException {
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+    }
+
+    @Test
+    public void beginWriteMany() throws SqlJetException {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+    }
+
+    @Test
+    public void commitTwice() throws SqlJetException {
+        db.commit();
         db.commit();
     }
 

@@ -67,10 +67,11 @@ public class SqlJetEngine {
 					SqlJetFileOpenPermission.READWRITE,
 					SqlJetFileOpenPermission.CREATE));
 
-	protected static final ISqlJetFileSystemsManager FILE_SYSTEM_MANAGER = SqlJetFileSystemsManager.getManager();
-	
+	protected static final ISqlJetFileSystemsManager FILE_SYSTEM_MANAGER = SqlJetFileSystemsManager
+			.getManager();
+
 	protected ISqlJetFileSystem fileSystem = FILE_SYSTEM_MANAGER.find(null);
-	
+
 	protected boolean writable;
 	protected ISqlJetDbHandle dbHandle;
 	protected ISqlJetBtree btree;
@@ -93,7 +94,8 @@ public class SqlJetEngine {
 	 * @param writable
 	 * @param fs
 	 */
-	public SqlJetEngine(final File file, final boolean writable, final ISqlJetFileSystem fs) {
+	public SqlJetEngine(final File file, final boolean writable,
+			final ISqlJetFileSystem fs) {
 		this.writable = writable;
 		this.file = file;
 		this.fileSystem = fs;
@@ -105,32 +107,36 @@ public class SqlJetEngine {
 	 * @param fsName
 	 * @throws SqlJetException
 	 */
-	public SqlJetEngine(final File file, final boolean writable, final String fsName) throws SqlJetException {
+	public SqlJetEngine(final File file, final boolean writable,
+			final String fsName) throws SqlJetException {
 		this.writable = writable;
 		this.file = file;
 		this.fileSystem = FILE_SYSTEM_MANAGER.find(fsName);
-		if(this.fileSystem == null) {
-			throw new SqlJetException(String.format("File system '%s' not found", fsName));
+		if (this.fileSystem == null) {
+			throw new SqlJetException(String.format(
+					"File system '%s' not found", fsName));
 		}
 	}
 
-	 /**
+	/**
 	 * @param fs
 	 * @param isDefault
 	 * @throws SqlJetException
 	 */
-	public void registerFileSystem(final ISqlJetFileSystem fs, final boolean isDefault) throws SqlJetException {
-		 FILE_SYSTEM_MANAGER.register(fs, isDefault);
-	 }
-	
-	 /**
+	public void registerFileSystem(final ISqlJetFileSystem fs,
+			final boolean isDefault) throws SqlJetException {
+		FILE_SYSTEM_MANAGER.register(fs, isDefault);
+	}
+
+	/**
 	 * @param fs
 	 * @throws SqlJetException
 	 */
-	public void unregisterFileSystem(final ISqlJetFileSystem fs) throws SqlJetException {
-		 FILE_SYSTEM_MANAGER.unregister(fs);
-	 }
-	 
+	public void unregisterFileSystem(final ISqlJetFileSystem fs)
+			throws SqlJetException {
+		FILE_SYSTEM_MANAGER.unregister(fs);
+	}
+
 	/**
 	 * @return database file this engine is created for.
 	 */
@@ -146,7 +152,7 @@ public class SqlJetEngine {
 	public boolean isWritable() throws SqlJetException {
 		return writable;
 	}
-	
+
 	public ISqlJetFileSystem getFileSystem() {
 		return fileSystem;
 	}
@@ -225,7 +231,8 @@ public class SqlJetEngine {
 	public void close() throws SqlJetException {
 		if (open) {
 			runSynchronized(new ISqlJetEngineSynchronized() {
-				public Object runSynchronized(SqlJetEngine engine) throws SqlJetException {
+				public Object runSynchronized(SqlJetEngine engine)
+						throws SqlJetException {
 					if (btree != null) {
 						btree.close();
 						btree = null;
@@ -240,7 +247,7 @@ public class SqlJetEngine {
 			}
 		}
 	}
-	
+
 	protected void closeResources() throws SqlJetException {
 	}
 
@@ -398,16 +405,13 @@ public class SqlJetEngine {
 		runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				if (transaction) {
-					throw new SqlJetException(SqlJetErrorCode.MISUSE,
-							TRANSACTION_ALREADY_STARTED);
-				} else {
+				if (!transaction) {
 					btree.beginTrans(mode);
 					refreshSchema();
 					transaction = true;
 					transactionMode = mode;
-					return null;
 				}
+				return null;
 			}
 		});
 	}
@@ -426,9 +430,6 @@ public class SqlJetEngine {
 					btree.commit();
 					transaction = false;
 					transactionMode = null;
-				} else {
-					throw new SqlJetException(SqlJetErrorCode.MISUSE,
-							"Transaction wasn't started");
 				}
 				return null;
 			}
@@ -471,14 +472,8 @@ public class SqlJetEngine {
 		return runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				if (transaction) {
-					if (mode != transactionMode
-							&& transactionMode == SqlJetTransactionMode.READ_ONLY) {
-						throw new SqlJetException(SqlJetErrorCode.MISUSE,
-								TRANSACTION_ALREADY_STARTED);
-					} else {
-						return op.run(SqlJetEngine.this);
-					}
+				if (transaction && (transactionMode == mode || mode==SqlJetTransactionMode.READ_ONLY)) {
+					return op.run(SqlJetEngine.this);
 				} else {
 					beginTransaction(mode);
 					boolean success = false;
@@ -496,7 +491,6 @@ public class SqlJetEngine {
 					}
 				}
 			}
-
 		});
 	}
 

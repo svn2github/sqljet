@@ -484,12 +484,12 @@ public class SqlJetEngine {
 					boolean success = false;
 					try {
 						final Object result = op.run(SqlJetEngine.this);
-						btree.commit();
+						commit();
 						success = true;
 						return result;
 					} finally {
 						if (!success) {
-							btree.rollback();
+							rollback();
 						}
 						transaction = false;
 						transactionMode = null;

@@ -18,6 +18,7 @@ public class TransactionsTest extends AbstractNewDbTest {
 
 							public Object run(SqlJetDb db)
 									throws SqlJetException {
+								doWrite(db);
 								return true;
 							}
 						});
@@ -52,6 +53,7 @@ public class TransactionsTest extends AbstractNewDbTest {
 
 							public Object run(SqlJetDb db)
 									throws SqlJetException {
+								doWrite(db);
 								return true;
 							}
 						});
@@ -69,11 +71,21 @@ public class TransactionsTest extends AbstractNewDbTest {
 
 							public Object run(SqlJetDb db)
 									throws SqlJetException {
+								doWrite(db);
 								return true;
 							}
 						});
 					}
 				}));
+	}
+
+	private void doWrite(SqlJetDb db) throws SqlJetException {
+		ISqlJetTable t = db
+				.getTable(db
+						.createTable(
+								"create table t(a integer primary key, b text);")
+						.getName());
+		t.insert("test");
 	}
 
 }

@@ -405,11 +405,8 @@ public class SqlJetEngine {
 		runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				if (!transaction) {
-					btree.beginTrans(mode);
-					refreshSchema();
-					transaction = true;
-					transactionMode = mode;
+				if (!isTransactionStarted(mode)) {
+					doBeginTransaction(mode);
 				}
 				return null;
 			}
@@ -425,11 +422,8 @@ public class SqlJetEngine {
 		runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				if (transaction) {
-					btree.closeAllCursors();
-					btree.commit();
-					transaction = false;
-					transactionMode = null;
+				if (isInTransaction()) {
+					doCommitTransaction();
 				}
 				return null;
 			}
@@ -445,10 +439,7 @@ public class SqlJetEngine {
 		runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				btree.closeAllCursors();
-				btree.rollback();
-				transaction = false;
-				transactionMode = null;
+				doRollbackTransaction();
 				return null;
 			}
 		});
@@ -472,19 +463,19 @@ public class SqlJetEngine {
 		return runSynchronized(new ISqlJetEngineSynchronized() {
 			public Object runSynchronized(SqlJetEngine engine)
 					throws SqlJetException {
-				if (transaction && (transactionMode == mode || mode==SqlJetTransactionMode.READ_ONLY)) {
+				if (isTransactionStarted(mode)) {
 					return op.run(SqlJetEngine.this);
 				} else {
-					beginTransaction(mode);
+					doBeginTransaction(mode);
 					boolean success = false;
 					try {
 						final Object result = op.run(SqlJetEngine.this);
-						commit();
+						doCommitTransaction();
 						success = true;
 						return result;
 					} finally {
 						if (!success) {
-							rollback();
+							doRollbackTransaction();
 						}
 						transaction = false;
 						transactionMode = null;
@@ -492,6 +483,33 @@ public class SqlJetEngine {
 				}
 			}
 		});
+	}
+
+	private boolean isTransactionStarted(final SqlJetTransactionMode mode) {
+		return transaction
+				&& (transactionMode == mode || mode == SqlJetTransactionMode.READ_ONLY);
+	}
+
+	private void doBeginTransaction(final SqlJetTransactionMode mode)
+			throws SqlJetException {
+		btree.beginTrans(mode);
+		refreshSchema();
+		transaction = true;
+		transactionMode = mode;
+	}
+
+	private void doCommitTransaction() throws SqlJetException {
+		btree.closeAllCursors();
+		btree.commit();
+		transaction = false;
+		transactionMode = null;
+	}
+
+	private void doRollbackTransaction() throws SqlJetException {
+		btree.closeAllCursors();
+		btree.rollback();
+		transaction = false;
+		transactionMode = null;
 	}
 
 }

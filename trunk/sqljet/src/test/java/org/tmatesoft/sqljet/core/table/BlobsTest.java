@@ -13,6 +13,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 public class BlobsTest extends AbstractNewDbTest {
 
     private static final String T_DDL = "CREATE TABLE t (x int, image blob, PRIMARY KEY (x))";
+    private static final String T_DDL_2 = "CREATE TABLE t (x int, image blob, t text, PRIMARY KEY (x))";
 
     @Test
     public void readBlob() throws Exception {
@@ -71,7 +72,7 @@ public class BlobsTest extends AbstractNewDbTest {
         db.getOptions().setAutovacuum(true);
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
-                db.createTable(T_DDL);
+                db.createTable(T_DDL_2);
                 return true;
             }
         });
@@ -79,12 +80,13 @@ public class BlobsTest extends AbstractNewDbTest {
         final SecureRandom rnd = new SecureRandom();
         final ISqlJetTable t = db.getTable("t");
         final byte[] blob = "text".getBytes();
+        final String text = "text";
 
         db.runWriteTransaction(new ISqlJetTransaction() {
             public Object run(SqlJetDb db) throws SqlJetException {
                 try {
                     for(int i = 0; i < 10000; i++) {
-                        t.insert(rnd.nextInt(2048), blob);
+                        t.insert(rnd.nextInt(2048), blob, text);
                     }
                 } catch (SqlJetException e) {
                     if (!SqlJetErrorCode.CONSTRAINT.equals(e.getErrorCode())) {
@@ -130,8 +132,10 @@ public class BlobsTest extends AbstractNewDbTest {
                         do {
                             byte[] b = c.getBlobAsArray("image");
                             long xValue = c.getInteger("x");
+                            String tValue = c.getString("t");
                             Assert.assertArrayEquals(b, blob);
                             Assert.assertTrue(xValue >= 1024);
+                            Assert.assertEquals(text, tValue);
                         } while (c.next());
                     }
                 } finally {

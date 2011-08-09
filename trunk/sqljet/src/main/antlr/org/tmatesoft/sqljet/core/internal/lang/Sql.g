@@ -1,7 +1,7 @@
 /*
  * Sql.g
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -152,7 +152,7 @@ sql_stmt_core
   | analyze_stmt
   | reindex_stmt
   | vacuum_stmt
-  
+
   | select_stmt
   | insert_stmt
   | update_stmt
@@ -162,7 +162,7 @@ sql_stmt_core
   | rollback_stmt
   | savepoint_stmt
   | release_stmt
-  
+
   | create_virtual_table_stmt
   | create_table_stmt
   | drop_table_stmt
@@ -383,7 +383,7 @@ create_virtual_table_stmt: CREATE VIRTUAL TABLE (database_name=id DOT)? table_na
 
 // CREATE TABLE
 create_table_stmt: CREATE TEMPORARY? TABLE (IF NOT EXISTS)? (database_name=id DOT)? table_name=id
-  ( LPAREN column_def (COMMA column_def)* (COMMA table_constraint)* RPAREN
+  ( LPAREN column_def (COMMA column_def)* (COMMA? table_constraint)* RPAREN
   | AS select_stmt)
 -> ^(CREATE_TABLE ^(OPTIONS TEMPORARY? EXISTS?) ^($table_name $database_name?)
   ^(COLUMNS column_def+)? ^(CONSTRAINTS table_constraint*)? select_stmt?);

@@ -409,12 +409,12 @@ public class SqlJetDb {
                     boolean success = false;
                     try {
                         final Object result = op.run(SqlJetDb.this);
-                        btree.commit();
+                        commit();
                         success = true;
                         return result;
                     } finally {
                         if (!success) {
-                            btree.rollback();
+                            rollback();
                         }
                         transaction = false;
                         transactionMode = null;

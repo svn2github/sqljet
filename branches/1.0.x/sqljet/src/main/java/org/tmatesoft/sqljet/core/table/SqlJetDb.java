@@ -19,6 +19,7 @@ package org.tmatesoft.sqljet.core.table;
 
 import java.io.File;
 import java.util.Set;
+import java.io.IOException;
 
 import org.tmatesoft.sqljet.core.ISqlJetMutex;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
@@ -74,7 +75,7 @@ public class SqlJetDb {
      * File name for in memory database.
      */
     public static final File IN_MEMORY = new File(ISqlJetPager.MEMORY_DB);
-
+    
     private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
@@ -88,6 +89,8 @@ public class SqlJetDb {
     private boolean writable;
     private ISqlJetDbHandle dbHandle;
     private ISqlJetBtree btree;
+    
+    private SqlJetDb temporaryDb;
 
     private boolean transaction;
     private SqlJetTransactionMode transactionMode;
@@ -205,6 +208,7 @@ public class SqlJetDb {
         if (open) {
             runWithLock(new ISqlJetRunnableWithLock() {
                 public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                    closeTemporaryDatabase();
                     if (btree != null) {
                         btree.close();
                         btree = null;
@@ -736,6 +740,56 @@ public class SqlJetDb {
      */
     public ISqlJetMutex getMutex() {
         return dbHandle.getMutex();
+    }
+    
+    /**
+     * Opens temporary on-disk database which life span is less or equal to that
+     * of this object. Temporary database is closed and deleted as soon as 
+     * this database connection is closed.
+     * 
+     * Temporary file is used to store temporary database.
+     * 
+     * Subsequent calls to this method will return the same temporary database
+     * In case previously create temporary database is closed by the user, 
+     * then another one is created by this method. 
+     * 
+     * @return temporary database being created or existing temporary database.
+     * @throws SqlJetException
+     */
+    public SqlJetDb getTemporaryDatabase() throws SqlJetException {
+        checkOpen();        
+        return (SqlJetDb) runWithLock(new ISqlJetRunnableWithLock() {
+            public Object runWithLock(SqlJetDb db) throws SqlJetException {
+                if (temporaryDb == null || !temporaryDb.isOpen()) {
+                    closeTemporaryDatabase();
+                    
+                    File tmpDbFile = null;
+                    try {
+                        tmpDbFile = dbHandle.getFileSystem().getTempFile();
+                    } catch (IOException e) {
+                        throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
+                    }
+                    if (tmpDbFile == null) {
+                        throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
+                    }
+                    temporaryDb = SqlJetDb.open(tmpDbFile, true);
+                }
+                return temporaryDb;
+            }
+        });
+    }
+
+    private void closeTemporaryDatabase() throws SqlJetException {
+        checkOpen();
+        
+        if (temporaryDb != null) {
+            temporaryDb.close();
+            File tmpDbFile = temporaryDb.getFile();
+            if (tmpDbFile != null) {
+                dbHandle.getFileSystem().delete(tmpDbFile, true);
+            }
+        }
+        temporaryDb = null;
     }
 
 }

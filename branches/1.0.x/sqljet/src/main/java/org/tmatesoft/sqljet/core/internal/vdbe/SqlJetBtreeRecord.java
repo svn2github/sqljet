@@ -32,6 +32,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetLimits;
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.ISqlJetVdbeMem;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+import org.tmatesoft.sqljet.core.internal.memory.SqlJetMemoryPointer;
 import org.tmatesoft.sqljet.core.internal.table.ISqlJetBtreeRecord;
 import org.tmatesoft.sqljet.core.table.ISqlJetOptions;
 
@@ -118,6 +119,9 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
                 mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
             } else if ("byte[]".equalsIgnoreCase(value.getClass().getCanonicalName())) {
                 mem.setStr(SqlJetUtility.wrapPtr((byte[]) value), encoding);
+                mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
+            } else if (value instanceof SqlJetMemoryPointer) {
+                mem.setStr((SqlJetMemoryPointer) value, encoding);
                 mem.setTypeFlag(SqlJetVdbeMemFlags.Blob);
             } else {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Bad value #" + i + " " + value.toString());

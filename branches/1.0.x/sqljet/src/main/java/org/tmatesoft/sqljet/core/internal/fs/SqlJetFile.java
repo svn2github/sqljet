@@ -20,7 +20,6 @@ package org.tmatesoft.sqljet.core.internal.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.management.ManagementFactory;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -96,13 +95,11 @@ public class SqlJetFile implements ISqlJetFile {
             timer_start = System.nanoTime();
     }
 
-    private static String pid = ManagementFactory.getRuntimeMXBean().getName();
-
     /**
      * @return
      */
     private String getpid() {
-        return pid + "(thread:'"+Thread.currentThread().getName()+"')";
+        return "thread ['"+Thread.currentThread().getName()+"]";
     }
 
     /**

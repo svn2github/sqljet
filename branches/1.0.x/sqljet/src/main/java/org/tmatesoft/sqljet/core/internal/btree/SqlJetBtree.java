@@ -111,6 +111,8 @@ public class SqlJetBtree implements ISqlJetBtree {
     /** Back pointer of the same list */
     SqlJetBtree pPrev;
 
+    private SqlJetTransactionMode transMode;
+
     /**
      * A list of BtShared objects that are eligible for participation in shared
      * cache.
@@ -915,7 +917,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                     pBt.pExclusive = this;
                 }
             }
-
+            transMode = mode;
         } catch (SqlJetException e) {
             rc = e;
         } finally {
@@ -1055,6 +1057,7 @@ public class SqlJetBtree implements ISqlJetBtree {
         try {
             commitPhaseOne(null);
             commitPhaseTwo();
+            transMode = null;
         } finally {
             leave();
         }
@@ -1128,7 +1131,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 integrity();
 
             }
-
+            transMode = null;
         } finally {
             leave();
         }
@@ -2296,6 +2299,10 @@ public class SqlJetBtree implements ISqlJetBtree {
     public String integrityCheck(int[] root, int root2, int mxErr, int[] err) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public SqlJetTransactionMode getTransMode() {
+        return transMode;
     }
 
 }

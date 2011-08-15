@@ -75,8 +75,6 @@ public class SqlJetDb {
      * File name for in memory database.
      */
     public static final File IN_MEMORY = new File(ISqlJetPager.MEMORY_DB);
-    
-    private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
 
     private static final Set<SqlJetBtreeFlags> READ_FLAGS = SqlJetUtility.of(SqlJetBtreeFlags.READONLY);
     private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = SqlJetUtility
@@ -398,30 +396,25 @@ public class SqlJetDb {
         checkOpen();
         return runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (transaction) {
-                    if (mode != transactionMode && transactionMode == SqlJetTransactionMode.READ_ONLY) {
-                        throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
-                    } else {
-                        return op.run(SqlJetDb.this);
-                    }
+                if (isTransactionStarted(mode)) {
+                    return op.run(SqlJetDb.this);
                 } else {
-                    beginTransaction(mode);
+                    doBeginTransaction(mode);
                     boolean success = false;
                     try {
                         final Object result = op.run(SqlJetDb.this);
-                        commit();
+                        doCommitTransaction();
                         success = true;
                         return result;
                     } finally {
                         if (!success) {
-                            rollback();
+                            doRollbackTransaction();
                         }
                         transaction = false;
                         transactionMode = null;
                     }
                 }
             }
-
         });
     }
 
@@ -443,15 +436,10 @@ public class SqlJetDb {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                refreshSchema();
-                if (transaction) {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, TRANSACTION_ALREADY_STARTED);
-                } else {
-                    btree.beginTrans(mode);
-                    transaction = true;
-                    transactionMode = mode;
-                    return null;
+                if (!isTransactionStarted(mode)) {
+                    doBeginTransaction(mode);
                 }
+                return null;
             }
         });
     }
@@ -472,13 +460,8 @@ public class SqlJetDb {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                if (transaction) {
-                    btree.closeAllCursors();
-                    btree.commit();
-                    transaction = false;
-                    transactionMode = null;
-                } else {
-                    throw new SqlJetException(SqlJetErrorCode.MISUSE, "Transaction wasn't started");
+                if (isInTransaction()) {
+                    doCommitTransaction();
                 }
                 return null;
             }
@@ -494,10 +477,7 @@ public class SqlJetDb {
         checkOpen();
         runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
-                btree.closeAllCursors();
-                btree.rollback();
-                transaction = false;
-                transactionMode = null;
+                doRollbackTransaction();
                 return null;
             }
         });
@@ -777,6 +757,32 @@ public class SqlJetDb {
                 return temporaryDb;
             }
         });
+    }
+
+	private boolean isTransactionStarted(final SqlJetTransactionMode mode) {
+		return transaction
+				&& (transactionMode == mode || mode == SqlJetTransactionMode.READ_ONLY);
+	}
+	
+    private void doBeginTransaction(final SqlJetTransactionMode mode) throws SqlJetException {
+        btree.beginTrans(mode);
+        refreshSchema();
+        transaction = true;
+        transactionMode = mode;
+    }
+
+    private void doCommitTransaction() throws SqlJetException {
+        btree.closeAllCursors();
+        btree.commit();
+        transaction = false;
+        transactionMode = null;
+    }
+
+    private void doRollbackTransaction() throws SqlJetException {
+        btree.closeAllCursors();
+        btree.rollback();
+        transaction = false;
+        transactionMode = null;
     }
 
     private void closeTemporaryDatabase() throws SqlJetException {

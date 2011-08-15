@@ -288,7 +288,12 @@ public class SqlJetOptions implements ISqlJetOptions {
     }
 
     private void initMeta() throws SqlJetException {
-        btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        final boolean inTrans = btree.isInTrans();
+        final SqlJetTransactionMode transMode = btree.getTransMode();
+        try{
+        if(!inTrans || transMode!=SqlJetTransactionMode.EXCLUSIVE) {
+            btree.beginTrans(SqlJetTransactionMode.EXCLUSIVE);
+        }
         try {
             schemaCookie = 1;
             writeSchemaCookie(schemaCookie);
@@ -304,6 +309,15 @@ public class SqlJetOptions implements ISqlJetOptions {
         } catch (SqlJetException e) {
             btree.rollback();
             throw e;
+        } } finally {
+            if(inTrans && transMode!=null){
+                if(!btree.isInTrans()) {
+                    btree.beginTrans(transMode);
+                } else if(btree.getTransMode() != transMode) {
+                    btree.commit();
+                    btree.beginTrans(transMode);
+                }
+            }
         }
     }
 

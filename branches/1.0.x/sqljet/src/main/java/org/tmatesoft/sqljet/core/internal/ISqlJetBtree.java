@@ -654,4 +654,6 @@ public interface ISqlJetBtree {
      * @return
      */
     ISqlJetDbHandle getDb();
+
+    SqlJetTransactionMode getTransMode();
 }

@@ -4,6 +4,17 @@ Version 1.0.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.0.7
+(19 Jul 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.7/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Possible DB corruption issue introduced in 1.0.6 fixed (-r1144).
+
+
 Version 1.0.6
 (13 Jul 2011, from /branches/1.0.x)
 

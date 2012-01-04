@@ -1143,10 +1143,27 @@ public class SqlJetSchema implements ISqlJetSchema {
     private String getAlterTableName(SqlJetAlterTableDef alterTableDef) {
         final ParserRuleReturnScope parsedSql = alterTableDef.getParsedSql();
         final CommonTree ast = (CommonTree) parsedSql.getTree();
-        final CommonToken stopToken = (CommonToken) parsedSql.getStop();
-        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(ast.getChildCount() - 1)).getToken();
+
+        final CommonTree nameNode = (CommonTree) ast.getChild(ast.getChildCount() - 1);
+        final CommonToken nameToken = (CommonToken) nameNode.getToken();
+        final CommonToken stopToken = findRightmostChild(nameNode);
+        
         final CharStream inputStream = nameToken.getInputStream();
         return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
+    }
+    
+    private CommonToken findRightmostChild(CommonTree ast) {
+        if (ast.getChildCount() > 0) {
+            for(int i = ast.getChildCount() - 1; i >= 0; i--) {
+                CommonTree tokenNode = (CommonTree) ast.getChild(i);
+                CommonToken token = findRightmostChild(tokenNode);
+                if (token != null && token.getStopIndex() != token.getStartIndex() && token.getStopIndex() > 0) {
+                    return findRightmostChild(tokenNode);
+                }
+            }
+            // no child fits, return token of the node.
+        }
+        return (CommonToken) ast.getToken();
     }
 
     /**

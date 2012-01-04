@@ -17,7 +17,9 @@ processResources << {
     buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')
 }
 
-dependencies { antlr3 'org.antlr:antlr:3.1.3' }
+dependencies { 
+    antlr3 'org.antlr:antlr:3.4'
+}
 
 antlrSource = "src/main/antlr"
 antlrOutput = "src/main/java"
@@ -35,7 +37,7 @@ task grammar {
         arg(line: "-o ${antlrOutput}/org/tmatesoft/sqljet/core/internal/lang")
         arg(line: grammars.files.join(" "))
     }
-
+/*
     ant.replace(
             file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
             token : "public class SqlLexer extends Lexer {",
@@ -44,6 +46,7 @@ task grammar {
             file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java",
             token : "public class SqlParser extends Parser {",
             value :  "@SuppressWarnings({\"unused\", \"rawtypes\", \"unchecked\"}) public class SqlParser extends Parser {")
+            */
 }
 
 compileJava.dependsOn grammar

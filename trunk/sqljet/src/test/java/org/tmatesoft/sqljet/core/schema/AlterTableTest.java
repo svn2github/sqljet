@@ -57,7 +57,7 @@ public class AlterTableTest extends AbstractNewDbTest {
             Assert.assertNotNull(db2);
         } finally {
             if (db2 != null) {
-                db.close();
+                db2.close();
             }
         }
     }

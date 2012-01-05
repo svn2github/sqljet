@@ -165,7 +165,7 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
     }
-    /*
+    
     public void testAutomaticFloatConversion() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
 
@@ -193,7 +193,7 @@ public class SqlJetIndexTest extends TestCase {
             }
         });
     }
-
+    /*
     public void testReadUsingColumnPK() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
 

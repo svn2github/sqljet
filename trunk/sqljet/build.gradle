@@ -82,7 +82,7 @@ testSystemProperties = [
 
 test {
     systemProperties = testSystemProperties
-    exclude '**/*Mock*', '**/*sandbox*/**/**.*', '**/SqlJetIndexTest*'
+    exclude '**/*Mock*', '**/*sandbox*/**/**.*'
     include '**/*Test*'
 
     if (runAllTests) {

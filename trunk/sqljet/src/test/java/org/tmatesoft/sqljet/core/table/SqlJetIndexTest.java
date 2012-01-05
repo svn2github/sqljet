@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 import org.tmatesoft.sqljet.core.SqlJetException;
 
@@ -165,6 +166,7 @@ public class SqlJetIndexTest extends TestCase {
         });
     }
 
+    @Ignore
     public void testAutomaticFloatConversion() throws Exception {
         db.runWriteTransaction(new ISqlJetTransaction() {
 

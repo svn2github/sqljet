@@ -1,7 +1,7 @@
 /**
  * SqlJetBtShared.java
  * Copyright (C) 2009-2010 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -36,22 +36,22 @@ import org.tmatesoft.sqljet.core.internal.mutex.SqlJetEmptyMutex;
 
 /**
  * An instance of this object represents a single database file.
- * 
+ *
  * A single database file can be in use as the same time by two or more database
  * connections. When two or more connections are sharing the same database file,
  * each connection has it own private Btree object for the file and each of
  * those Btrees points to this one BtShared object. BtShared.nRef is the number
  * of connections currently sharing this database file.
- * 
+ *
  * Fields in this structure are accessed under the BtShared.mutex mutex, except
  * for nRef and pNext which are accessed under the global
  * SQLITE_MUTEX_STATIC_MASTER mutex. The pPager field may not be modified once
  * it is initially set as long as nRef>0. The pSchema field may be set once
  * under BtShared.mutex and thereafter is unchanged as long as nRef>0.
- * 
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetBtreeShared {
 
@@ -137,7 +137,7 @@ public class SqlJetBtreeShared {
      * The database page the PENDING_BYTE occupies. This page is never used.
      * TODO: This macro is very similary to PAGER_MJ_PGNO() in pager.c. They
      * should possibly be consolidated (presumably in pager.h).
-     * 
+     *
      * If disk I/O is omitted (meaning that the database is stored purely in
      * memory) then there is no pending byte.
      */
@@ -168,15 +168,15 @@ public class SqlJetBtreeShared {
      * page. The first argument to each is the number of usable bytes on each
      * page of the database (often 1024). The second is the page number to look
      * up in the pointer map.
-     * 
+     *
      * PTRMAP_PAGENO returns the database page number of the pointer-map page
      * that stores the required pointer. PTRMAP_PTROFFSET returns the offset of
      * the requested map entry.
-     * 
+     *
      * If the pgno argument passed to PTRMAP_PAGENO is a pointer-map page, then
      * pgno is returned. So (pgno==PTRMAP_PAGENO(pgsz, pgno)) can be used to
      * test if pgno is a pointer-map page. PTRMAP_ISPAGE implements this test.
-     * 
+     *
      */
     public int PTRMAP_PAGENO(int pgno) {
         return ptrmapPageno(pgno);
@@ -204,7 +204,7 @@ public class SqlJetBtreeShared {
     /**
      * Return the size of the database file in pages. If there is any kind of
      * error, return ((unsigned int)-1).
-     * 
+     *
      * @throws SqlJetException
      */
     int getPageCount() throws SqlJetException {
@@ -232,7 +232,7 @@ public class SqlJetBtreeShared {
 
     /**
      * Write an entry into the pointer map.
-     * 
+     *
      * This routine updates the pointer map entry for page number 'key' so that
      * it maps to type 'eType' and parent page number 'pgno'. An error code is
      * returned if something goes wrong, otherwise SQLITE_OK.
@@ -271,7 +271,7 @@ public class SqlJetBtreeShared {
 
     /**
      * Read an entry from the pointer map.
-     * 
+     *
      * This routine retrieves the pointer map entry for page 'key', writing the
      * type and parent page number to *pEType and *pPgno respectively. An error
      * code is returned if something goes wrong, otherwise SQLITE_OK.
@@ -319,13 +319,13 @@ public class SqlJetBtreeShared {
     /**
      * Get a page from the pager. Initialize the MemPage.pBt and MemPage.aData
      * elements if needed.
-     * 
+     *
      * If the noContent flag is set, it means that we do not care about the
      * content of the page at this time. So do not go to the disk to fetch the
      * content. Just fill in the content with zeros for now. If in the future we
      * call sqlite3PagerWrite() on this page, that means we have started to be
      * concerned about content and the disk read should occur at that point.
-     * 
+     *
      * @param pgno
      *            Number of the page to fetch
      * @param noContent
@@ -342,25 +342,25 @@ public class SqlJetBtreeShared {
 
     /**
      * Allocate a new page from the database file.
-     * 
+     *
      * The new page is marked as dirty. (In other words, sqlite3PagerWrite() has
      * already been called on the new page.) The new page has also been
      * referenced and the calling routine is responsible for calling
      * sqlite3PagerUnref() on the new page when it is done.
-     * 
+     *
      * SQLITE_OK is returned on success. Any other return value indicates an
      * error. *ppPage and *pPgno are undefined in the event of an error. Do not
      * invoke sqlite3PagerUnref() on *ppPage if an error is returned.
-     * 
+     *
      * If the "nearby" parameter is not 0, then a (feeble) effort is made to
      * locate a page close to the page number "nearby". This can be used in an
      * attempt to keep related pages close to each other in the database file,
      * which in turn can make database access faster.
-     * 
+     *
      * If the "exact" parameter is not 0, and the page-number nearby exists
      * anywhere on the free-list, then it is guarenteed to be returned. This is
      * only used by auto-vacuum databases when allocating a new table.
-     * 
+     *
      * @throws SqlJetException
      */
     public SqlJetMemPage allocatePage(int[] pPgno, int nearby, boolean exact) throws SqlJetException {
@@ -593,7 +593,7 @@ public class SqlJetBtreeShared {
     /**
      * Move the open database page pDbPage to location iFreePage in the
      * database. The pDbPage reference remains valid.
-     * 
+     *
      * @param pDbPage
      *            Open page to move
      * @param s
@@ -625,7 +625,7 @@ public class SqlJetBtreeShared {
          * If pDbPage was a btree-page, then it may have child pages and/or
          * cells that point to overflow pages. The pointer map entries for all
          * these pages need to be changed.
-         * 
+         *
          * If pDbPage is an overflow page, then the first 4 bytes may store a
          * pointer to a subsequent overflow page. If this is the case, then the
          * pointer map needs to be updated for the subsequent overflow page.
@@ -665,15 +665,15 @@ public class SqlJetBtreeShared {
      * Perform a single step of an incremental-vacuum. If successful, return
      * SQLITE_OK. If there is no work to do (and therefore no point in calling
      * this function again), return SQLITE_DONE.
-     * 
+     *
      * More specificly, this function attempts to re-organize the database so
      * that the last page of the file currently in use is no longer in use.
-     * 
+     *
      * If the nFin parameter is non-zero, the implementation assumes that the
      * caller will keep calling incrVacuumStep() until it returns SQLITE_DONE or
      * an error, and that nFin is the number of pages the database file will
      * contain after this process is complete.
-     * 
+     *
      * @throws SqlJetException
      */
     public void incrVacuumStep(int nFin, int iLastPg) throws SqlJetException {
@@ -720,7 +720,7 @@ public class SqlJetBtreeShared {
                 /*
                  * If nFin is zero, this loop runs exactly once and page pLastPg
                  * is swapped with the first free page pulled off the free list.
-                 * 
+                 *
                  * On the other hand, if nFin is greater than zero, then keep
                  * looping until a free-page located within the first nFin pages
                  * of the file is found.
@@ -758,12 +758,12 @@ public class SqlJetBtreeShared {
     /**
      * This routine is called prior to sqlite3PagerCommit when a transaction is
      * commited for an auto-vacuum database.
-     * 
+     *
      * If SQLITE_OK is returned, then *pnTrunc is set to the number of pages the
      * database file should be truncated to during the commit process. i.e. the
      * database has been reorganized so that only the first *pnTrunc pages are
      * in use.
-     * 
+     *
      */
     public void autoVacuumCommit() throws SqlJetException {
 
@@ -829,11 +829,11 @@ public class SqlJetBtreeShared {
      * transaction but there is a read lock on the database, then this routine
      * unrefs the first page of the database file which has the effect of
      * releasing the read lock.
-     * 
+     *
      * If there are any outstanding cursors, this routine is a no-op.
-     * 
+     *
      * If there is a transaction in progress, this routine is a no-op.
-     * 
+     *
      * @throws SqlJetException
      */
     public void unlockBtreeIfUnused() throws SqlJetException {
@@ -852,7 +852,7 @@ public class SqlJetBtreeShared {
      * Save the positions of all cursors except pExcept open on the table with
      * root-page iRoot. Usually, this is called just before cursor pExcept is
      * used to modify the table (BtreeDelete() or BtreeInsert()).
-     * 
+     *
      * @param i
      * @param j
      * @throws SqlJetException
@@ -873,12 +873,12 @@ public class SqlJetBtreeShared {
     /**
      * Return the number of write-cursors open on this handle. This is for use
      * in assert() expressions, so it is only compiled if NDEBUG is not defined.
-     * 
+     *
      * For the purposes of this routine, a write-cursor is any cursor that is
      * capable of writing to the databse. That means the cursor was originally
      * opened for writing and the cursor has not be disabled by having its state
      * changed to CURSOR_FAULT.
-     * 
+     *
      * @return
      */
     public int countWriteCursors() {
@@ -894,13 +894,13 @@ public class SqlJetBtreeShared {
     /**
      * Erase the given database page and all its children. Return the page to
      * the freelist.
-     * 
+     *
      * @param pgno
      * @param freePageFlag
      *            Page number to clear
      * @param pnChange
      *            Deallocate page if true
-     * 
+     *
      * @throws SqlJetException
      */
     public void clearDatabasePage(int pgno, boolean freePageFlag, int[] pnChange) throws SqlJetException {
@@ -947,7 +947,7 @@ public class SqlJetBtreeShared {
      * Get a page from the pager and initialize it. This routine* is just a
      * convenience wrapper around separate calls to* sqlite3BtreeGetPage() and
      * sqlite3BtreeInitPage().
-     * 
+     *
      * @param pgno
      *            Number of the page to get
      * @return
@@ -998,25 +998,25 @@ public class SqlJetBtreeShared {
      * ovfl), this function finds the page number of the next page in the linked
      * list of overflow pages. If possible, it uses the auto-vacuum pointer-map
      * data instead of reading the content of page ovfl to do so.
-     * 
+     *
      * If an error occurs an SQLite error code is returned. Otherwise:
-     * 
+     *
      * Unless pPgnoNext is NULL, the page number of the next overflow page in
      * the linked list is written to *pPgnoNext. If page ovfl is the last page
      * in its linked list, *pPgnoNext is set to zero.
-     * 
+     *
      * If ppPage is not NULL, *ppPage is set to the MemPage* handle for page
      * ovfl. The underlying pager page may have been requested with the
      * noContent flag set, so the page data accessable via this handle may not
      * be trusted.
-     * 
+     *
      * @param ovfl
      *            Overflow page
      * @param ppPage
      *            OUT: MemPage handle
      * @param pPgnoNext
      *            OUT: Next overflow page number
-     * 
+     *
      * @throws SqlJetException
      */
     public void getOverflowPage(int ovfl, SqlJetMemPage[] ppPage, int[] pPgnoNext) throws SqlJetException {
@@ -1086,12 +1086,30 @@ public class SqlJetBtreeShared {
     /**
      * Make sure pBt->pTmpSpace points to an allocation of MX_CELL_SIZE(pBt)
      * bytes.
-     * 
+     *
      */
     public void allocateTempSpace() {
         if (pTmpSpace == null) {
             pTmpSpace = SqlJetUtility.allocatePtr(pageSize);
         }
     }
+
+    /**
+    * If the cell pCell, part of page pPage contains a pointer
+    * to an overflow page, insert an entry into the pointer-map
+    * for the overflow page.
+    *
+    * @throws SqlJetException
+    */
+	public void ptrmapPutOvflPtr(SqlJetMemPage pPage, ISqlJetMemoryPointer pCell) throws SqlJetException {
+		  SqlJetBtreeCellInfo info;
+		  assert( pCell!=null );
+		  info = pPage.parseCellPtr(pCell);
+		  assert( (info.nData+(pPage.intKey?0:info.nKey))==info.nPayload );
+		  if( info.iOverflow>0 ){
+		    int ovfl = SqlJetUtility.get4byte(pCell.getMoved(info.iOverflow));
+		    pPage.pBt.ptrmapPut(ovfl, PTRMAP_OVERFLOW1, pPage.pgno);
+		  }
+	}
 
 }

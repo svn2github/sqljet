@@ -1124,5 +1124,21 @@ public final class SqlJetUtility {
     public static ISqlJetMemoryPointer fromByteBuffer(ByteBuffer b) {
         return new SqlJetByteBuffer(b).getPointer(0);
     }
+    
+    public static ISqlJetMemoryPointer getMoved(ISqlJetMemoryPointer preceding, ISqlJetMemoryPointer ptr, int offset) {
+        if (ptr.getPointer() + offset >= 0) {
+            return ptr.getMoved(offset);
+        }
+        
+        assert(preceding != null);
+        
+        int getFromPreceding = -(ptr.getPointer() + offset);
+        int ptrLength = ptr.getLimit() - ptr.getPointer();
+        int precedingLength = preceding.getLimit() - preceding.getPointer();
+        ISqlJetMemoryPointer newPtr = SqlJetUtility.allocatePtr(ptrLength + getFromPreceding);
+        newPtr.copyFrom(0, preceding, precedingLength - getFromPreceding, getFromPreceding);
+        newPtr.copyFrom(getFromPreceding, ptr, 0, ptrLength);
+        return newPtr;
+    }
 
 }

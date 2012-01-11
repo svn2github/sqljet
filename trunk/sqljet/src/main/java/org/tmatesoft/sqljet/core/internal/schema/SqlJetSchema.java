@@ -527,9 +527,12 @@ public class SqlJetSchema implements ISqlJetSchema {
                 db.getOptions().changeSchemaVersion();
 
                 final int page = btree.createTable(BTREE_CREATE_TABLE_FLAGS);
-                final long rowId = schemaTable.insertRecord(TABLE_TYPE, tableName, tableName, page, createTableSql);
-
+                final long rowId = schemaTable.newRowId();
+                schemaTable.insert(null, rowId, null, 0, 0, false);
                 addConstraints(schemaTable, tableDef);
+                
+                schemaTable.updateRecord(rowId, TABLE_TYPE, tableName, tableName, page, createTableSql);
+
 
                 tableDef.setPage(page);
                 tableDef.setRowId(rowId);

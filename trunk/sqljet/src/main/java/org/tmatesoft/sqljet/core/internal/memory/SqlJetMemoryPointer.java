@@ -683,6 +683,9 @@ public final class SqlJetMemoryPointer implements ISqlJetMemoryPointer {
     final public void limit(int n) {
         this.limit = n;
     }
+    final public int getLimit() {
+        return this.limit;
+    }
     
     final public ISqlJetMemoryPointer getIdentic() {
     	return new SqlJetMemoryPointer(buffer, pointer);

@@ -52,8 +52,6 @@ import org.tmatesoft.sqljet.core.table.SqlJetDefaultBusyHandler;
  */
 public class SqlJetEngine {
 
-	private static final String TRANSACTION_ALREADY_STARTED = "Transaction already started";
-
 	private static final Set<SqlJetBtreeFlags> READ_FLAGS = Collections
 			.unmodifiableSet(SqlJetUtility.of(SqlJetBtreeFlags.READONLY));
 	private static final Set<SqlJetFileOpenPermission> READ_PERMISSIONS = Collections

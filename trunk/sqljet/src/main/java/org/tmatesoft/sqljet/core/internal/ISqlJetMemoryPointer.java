@@ -401,6 +401,8 @@ public interface ISqlJetMemoryPointer {
      * @param n
      */
     void limit(int n);
+
+    int getLimit();
     
     ISqlJetMemoryPointer getIdentic();
 

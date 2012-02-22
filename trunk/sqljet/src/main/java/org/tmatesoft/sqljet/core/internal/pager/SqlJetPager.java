@@ -461,6 +461,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         if (memDb) {
             journalMode = SqlJetPagerJournalMode.MEMORY;
         }
+        setSafetyLevel(SqlJetSafetyLevel.NORMAL);
 
     }
 

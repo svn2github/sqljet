@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
 import org.tmatesoft.sqljet.core.internal.db.SqlJetDbHandle;
@@ -377,6 +378,39 @@ public class SqlJetEngine {
 			}
 		});
 	}
+
+	/**
+     * Set safety level
+     * 
+     * @param safetyLevel
+     *            
+     */
+    public void setSafetyLevel(final SqlJetSafetyLevel safetyLevel) throws SqlJetException {
+        checkOpen();
+        runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine)
+                    throws SqlJetException {
+                btree.setSafetyLevel(safetyLevel);
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Get safety level
+     * 
+     * @return the safety level set.
+     */
+    public SqlJetSafetyLevel getSafetyLevel() throws SqlJetException {
+        checkOpen();
+        refreshSchema();
+        return (SqlJetSafetyLevel) runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine)
+                    throws SqlJetException {
+                return btree.getSafetyLevel();
+            }
+        });
+    }
 
 	/**
 	 * Returns true if a transaction is active.

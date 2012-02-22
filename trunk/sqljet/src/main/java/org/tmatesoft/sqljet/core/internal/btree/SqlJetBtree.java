@@ -560,6 +560,16 @@ public class SqlJetBtree implements ISqlJetBtree {
             leave();
         }
     }
+    
+    public SqlJetSafetyLevel getSafetyLevel() {
+        assert (db.getMutex().held());
+        enter();
+        try {
+            return pBt.pPager.getSafetyLevel();
+        } finally {
+            leave();
+        }
+    }
 
     /*
      * (non-Javadoc)

@@ -117,6 +117,8 @@ public interface ISqlJetBtree {
      */
     void setSafetyLevel(SqlJetSafetyLevel level);
 
+    SqlJetSafetyLevel getSafetyLevel();
+
     /**
      * Return TRUE if the given btree is set to safety level 1. In other words,
      * return TRUE if no sync() occurs on the disk files.
@@ -661,4 +663,5 @@ public interface ISqlJetBtree {
      * @return
      */
     ISqlJetDbHandle getDb();
+
 }

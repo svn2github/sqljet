@@ -1905,6 +1905,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
             } else {
                 assert (journalMode == SqlJetPagerJournalMode.DELETE);
                 try {
+                    jfd.truncate(0);
+                } catch (SqlJetIOException e) {}
+                try {
                     jfd.close();
                 } catch (SqlJetException e) {
                 }

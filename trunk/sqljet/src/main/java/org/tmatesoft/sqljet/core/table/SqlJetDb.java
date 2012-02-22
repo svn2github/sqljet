@@ -413,6 +413,16 @@ public class SqlJetDb extends SqlJetEngine {
             }
         });
     }
+
+    /**
+     * @see #getTemporaryDatabase(boolean)
+     * 
+     * @return
+     * @throws SqlJetException
+     */
+    public SqlJetDb getTemporaryDatabase() throws SqlJetException {
+        return getTemporaryDatabase(false);
+    }
     
     /**
      * Opens temporary on-disk database which life span is less or equal to that
@@ -425,29 +435,25 @@ public class SqlJetDb extends SqlJetEngine {
      * In case previously create temporary database is closed by the user, 
      * then another one is created by this method. 
      * 
+     * @param inMemory when true open temporary database in memory. 
+     * 
      * @return temporary database being created or existing temporary database.
      * @throws SqlJetException
      */
-    public SqlJetDb getTemporaryDatabase() throws SqlJetException {
+    public SqlJetDb getTemporaryDatabase(final boolean inMemory) throws SqlJetException {
         checkOpen();        
         return (SqlJetDb) runWithLock(new ISqlJetRunnableWithLock() {
             public Object runWithLock(SqlJetDb db) throws SqlJetException {
                 if (temporaryDb == null || !temporaryDb.isOpen()) {
                     closeTemporaryDatabase();
-                    
-                    File tmpDbFile = null;
-                    try {
-                        tmpDbFile = getFileSystem().getTempFile();
-                    } catch (IOException e) {
-                        throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
+                    final File tmpDbFile = getTemporaryDatabaseFile(inMemory);
+                    if (tmpDbFile != null) {
+                        temporaryDb = SqlJetDb.open(tmpDbFile, true);
                     }
-                    if (tmpDbFile == null) {
-                        throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
-                    }
-                    temporaryDb = SqlJetDb.open(tmpDbFile, true);
                 }
                 return temporaryDb;
             }
+
         });
     }
     
@@ -460,10 +466,26 @@ public class SqlJetDb extends SqlJetEngine {
         if (temporaryDb != null) {
             temporaryDb.close();
             File tmpDbFile = temporaryDb.getFile();
-            if (tmpDbFile != null) {
+            if (tmpDbFile != null && !IN_MEMORY.equals(tmpDbFile)) {
                 getFileSystem().delete(tmpDbFile, false);
             }
         }
         temporaryDb = null;
+    }
+
+    private File getTemporaryDatabaseFile(boolean inMemory) throws SqlJetException {
+        if (inMemory) {
+            return IN_MEMORY;
+        }
+        File tmpDbFile = null;
+        try {
+            tmpDbFile = getFileSystem().getTempFile();
+        } catch (IOException e) {
+            throw new SqlJetException(SqlJetErrorCode.CANTOPEN, e);
+        }
+        if (tmpDbFile == null) {
+            throw new SqlJetException(SqlJetErrorCode.CANTOPEN);
+        }
+        return tmpDbFile;
     }
 }

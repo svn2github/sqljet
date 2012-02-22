@@ -46,6 +46,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetBtreeTableCreateFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetDbFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.SqlJetSavepointOperation;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
@@ -566,6 +567,26 @@ public class SqlJetBtree implements ISqlJetBtree {
         enter();
         try {
             return pBt.pPager.getSafetyLevel();
+        } finally {
+            leave();
+        }
+    }
+
+    public void setJournalMode(SqlJetPagerJournalMode mode) {
+        assert (db.getMutex().held());
+        enter();
+        try {
+            pBt.pPager.setJournalMode(mode);
+        } finally {
+            leave();
+        }
+    }
+    
+    public SqlJetPagerJournalMode getJournalMode() {
+        assert (db.getMutex().held());
+        enter();
+        try {
+            return pBt.pPager.getJournalMode();
         } finally {
             leave();
         }
@@ -2319,8 +2340,6 @@ public class SqlJetBtree implements ISqlJetBtree {
      * int, int[])
      */
     public String integrityCheck(int[] root, int root2, int mxErr, int[] err) {
-        // TODO Auto-generated method stub
         return null;
     }
-
 }

@@ -34,6 +34,7 @@ import org.tmatesoft.sqljet.core.internal.ISqlJetFileSystemsManager;
 import org.tmatesoft.sqljet.core.internal.SqlJetBtreeFlags;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileOpenPermission;
 import org.tmatesoft.sqljet.core.internal.SqlJetFileType;
+import org.tmatesoft.sqljet.core.internal.SqlJetPagerJournalMode;
 import org.tmatesoft.sqljet.core.internal.SqlJetSafetyLevel;
 import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 import org.tmatesoft.sqljet.core.internal.btree.SqlJetBtree;
@@ -397,6 +398,23 @@ public class SqlJetEngine {
     }
 
     /**
+     * Set journal mode
+     * 
+     * @param safetyLevel
+     *            
+     */
+    public void setJournalMode(final SqlJetPagerJournalMode journalMode) throws SqlJetException {
+        checkOpen();
+        runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine)
+                    throws SqlJetException {
+                btree.setJournalMode(journalMode);
+                return null;
+            }
+        });
+    }
+
+    /**
      * Get safety level
      * 
      * @return the safety level set.
@@ -408,6 +426,22 @@ public class SqlJetEngine {
             public Object runSynchronized(SqlJetEngine engine)
                     throws SqlJetException {
                 return btree.getSafetyLevel();
+            }
+        });
+    }
+
+    /**
+     * Get jounrnal mode
+     * 
+     * @return the safety level set.
+     */
+    public SqlJetPagerJournalMode getJournalMode() throws SqlJetException {
+        checkOpen();
+        refreshSchema();
+        return (SqlJetPagerJournalMode) runSynchronized(new ISqlJetEngineSynchronized() {
+            public Object runSynchronized(SqlJetEngine engine)
+                    throws SqlJetException {
+                return btree.getJournalMode();
             }
         });
     }

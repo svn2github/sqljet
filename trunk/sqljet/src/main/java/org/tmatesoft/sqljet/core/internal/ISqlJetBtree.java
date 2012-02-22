@@ -119,6 +119,10 @@ public interface ISqlJetBtree {
 
     SqlJetSafetyLevel getSafetyLevel();
 
+    void setJournalMode(SqlJetPagerJournalMode mode);
+
+    SqlJetPagerJournalMode getJournalMode();
+
     /**
      * Return TRUE if the given btree is set to safety level 1. In other words,
      * return TRUE if no sync() occurs on the disk files.

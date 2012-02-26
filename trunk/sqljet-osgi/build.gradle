@@ -50,8 +50,7 @@ jar {
                 'Bundle-Vendor': bundleVendor,
                 'Bundle-RequiredExecutionEnvironment' : 'J2SE-' + targetCompatibility
 
-        instruction 'Export-Package', '!org.tmatesoft.sqljet.core.internal.*',
-                'org.tmatesoft.sqljet.core.*;version=' + bundleVersion
+        instruction 'Export-Package', '*;version=' + bundleVersion
         instruction 'Import-Package', '!*'
     }
 } << {

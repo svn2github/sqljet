@@ -611,8 +611,7 @@ public class SqlJetFile implements ISqlJetFile {
 
                         final FileLock exclusiveLock = locks.get(SqlJetLockType.EXCLUSIVE);
                         if (null != exclusiveLock) {
-                            if (exclusiveLock.isValid())
-                                exclusiveLock.release();
+                            exclusiveLock.release();
                             locks.remove(SqlJetLockType.EXCLUSIVE);
                         }
 
@@ -628,15 +627,13 @@ public class SqlJetFile implements ISqlJetFile {
 
                     final FileLock reservedLock = locks.get(SqlJetLockType.RESERVED);
                     if (null != reservedLock) {
-                        if (reservedLock.isValid())
-                            reservedLock.release();
+                        reservedLock.release();
                         locks.remove(SqlJetLockType.RESERVED);
                     }
 
                     final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
                     if (null != pendingLock) {
-                        if (pendingLock.isValid())
-                            pendingLock.release();
+                        pendingLock.release();
                         locks.remove(SqlJetLockType.PENDING);
                     }
 
@@ -653,8 +650,7 @@ public class SqlJetFile implements ISqlJetFile {
                     if (lockInfo.sharedLockCount == 0) {
                         lockInfo.sharedLockCount = 1;
                         for (final FileLock l : locks.values()) {
-                            if (l.isValid())
-                                l.release();
+                            l.release();
                         }
                         locks.clear();
                         lockInfo.sharedLockCount = 0;

@@ -1,0 +1,23 @@
+browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+
+artifacts {
+    maven jar, sourcesJar
+    sources sourcesJar
+    archives jar
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class' : browserMainClass
+    }
+} << {
+    String jarClasspath = ''
+    configurations.compile.files.each {
+        jarClasspath += fullJarName(it) + ' '
+    }
+    ant.jar(destfile: jar.archivePath, update: true) {
+        delegate.manifest {
+            attribute(name: 'Class-Path', value: jarClasspath.trim())
+        }
+    }
+}

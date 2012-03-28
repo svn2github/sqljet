@@ -1,7 +1,13 @@
-Version 1.1.0
+Version 1.1.?
 (?? ??? ????, from /branches/1.1.x)
 
-Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.x/
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Version 1.1.0
+(28 Mar 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.0/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
 API Changes:

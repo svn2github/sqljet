@@ -1,0 +1,137 @@
+group = 'org.tmatesoft.sqljet'
+version = '1.1.0'
+target = '1.5'
+release = false
+
+buildscript {
+    apply from: 'build.defaults.gradle'
+    repositories {
+        mavenRepo(urls: [buildPluginRepositoryURL]) {
+            snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
+        }
+    }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.7-SNAPSHOT' }
+}
+
+task wrapper(type: Wrapper) {}
+
+def javaProjects() {
+    return subprojects.findAll { it.name != 'sqljet-distribution' }
+}
+def exampleProjects() {
+    return javaProjects().findAll { it.name.startsWith('sqljet-example-') }
+}
+
+allprojects {
+    apply plugin : 'base'
+    apply plugin : 'build'
+}
+
+configure(javaProjects()) {
+    apply plugin : 'java'
+
+    sourceCompatibility = target
+    targetCompatibility = target
+
+    configurations {
+        sources
+        javadocs
+    }
+
+    task sourcesJar(type: Jar) {
+        description = 'Builds Java Sources Jar'
+        from sourceSets.main.java.srcDirs
+        classifier = 'sources'
+    }
+
+    jar {
+        metaInf {
+            from rootProject.file('LICENSE.txt')
+        }
+    }
+
+    artifacts { sources sourcesJar }
+}
+
+configure(javaProjects() + rootProject) {
+    apply plugin : 'idea'
+    apply plugin : 'eclipse'
+}
+
+project(':sqljet') {
+    dependencies {
+        
+        compile('org.antlr:antlr-runtime:3.4') {
+            exclude group: 'org.antlr', module: 'ST4'
+            exclude group: 'org.antlr', module: 'stringtemplate'
+            exclude group: 'antlr', module: 'antlr'
+        }
+        
+        testCompile 'junit:junit:4.8.2'
+        testCompile 'org.easymock:easymock:2.4'
+        testCompile 'org.xerial:sqlite-jdbc:3.7.2'
+    }
+}
+project(':sqljet-browser') {
+    configurations { jnlp }
+    dependencies {
+        compile project(':sqljet')
+        compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
+    }
+}
+project(':sqljet-vfs') {
+    dependencies {
+        compile project(':sqljet')
+        compile 'commons-vfs:commons-vfs:1.0'
+
+        testCompile 'junit:junit:4.8.2'
+    }
+}
+
+project(':sqljet-osgi') {
+    configurations { osgi }
+    dependencies { compile project(':sqljet') }
+    sourcesJar.enabled = false
+    conf2ScopeMappings.mappings.remove(configurations.compile)
+}
+
+configure(exampleProjects()) {
+    dependencies { compile project(':sqljet') }
+}
+
+project(':sqljet-distribution') {
+    configurations {
+        binaries
+        sources
+        javadocs
+        examples
+        osgi
+    }
+
+    dependencies {
+        binaries project(path: ':sqljet', configuration: 'default')
+        sources project(path: ':sqljet', configuration: 'sources')
+        javadocs project(path: ':sqljet', configuration : 'javadocs')
+
+        binaries project(path: ':sqljet-browser', configuration: 'default')
+        sources project(path: ':sqljet-browser', configuration: 'sources')
+
+        osgi project(path: ':sqljet-osgi', configuration: 'osgi')
+
+        exampleProjects().each {
+            examples project(path: ':' + it.name, configuration: 'sources')
+        }
+    }
+
+    task build(type: Zip)
+    task buildSite(dependsOn: build)
+
+    build.dependsOn configurations.binaries
+    build.dependsOn configurations.javadocs
+    build.dependsOn configurations.sources
+    build.dependsOn configurations.examples
+    build.dependsOn configurations.osgi
+
+    buildSite.dependsOn configurations.osgi
+    buildSite.dependsOn configurations.binaries
+}

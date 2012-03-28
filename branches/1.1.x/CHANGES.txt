@@ -1,7 +1,124 @@
-Version ?.?.?
-(?? ??? ????, from /branches/?.?.?)
+Version 1.1.0
+(?? ??? ????, from /branches/1.1.x)
 
-Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.x/
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.x/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+API Changes:
+
+  * SqlJetDb class now extends abstract SqlJetEngine class.
+  * Temporary databases support added.
+  * API to control db journal and synchronization modes added. 
+  * API to create and drop VIEW records in schema added.
+  * API to provide custom file system implementation added.
+
+New Features:
+
+  * Android compatibility improvements (issue #157).
+  * Support for TRIGGER records in schema (-r1132).
+  
+Bugfixes:
+
+  * Potential NPEs fixed (issue #155, #163).
+  * Database corruption issue fixed (issue #156).
+  * Schema parsing issues fixed (issue #160).
+  * Internal file locks were not released in certain cases (issue #166).
+  
+Misc:
+
+  * Performance improvements.
+  * ANTLR 3.4 is used.
+  * JDK 1.6 or newer is now required for build (not for the runtime).
+  
+VVersion 1.0.7
+(19 Jul 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.7/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Possible DB corruption issue introduced in 1.0.6 fixed (-r1144).
+
+
+Version 1.0.6
+(13 Jul 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.6/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+API changes:
+
+  * Added API methods to create and drop schema records for VIEW and TRIGGER objects.
+  * SqlJetScope introduced, allows to define open and closed bounds when creating a scope cursor.
+    (see issues #148 and #149)
+   
+Bugfixes:
+
+  * String of wrong length was read back from DB (issues #154, -r1110).
+  * Possible DB corruption on massive update followed by remove fixed (issue#156, -r1120).
+  * Several DB locking issues fixed (-r1116, -r1140).
+
+Version 1.0.5
+(24 Apr 2011, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.5/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+API changes:
+
+  * Added ISqlJetCursor.getRowValues() to get values for all row columns at once.
+  * SqlJetScope introduced, allows to define open and closed bounds when creating a scope cursor.
+    (see issues #148 and #149)
+   
+Bugfixes:
+
+  * Fixed issue with update not working properly with partial data to update (-r1005).
+  * Possible deadlock on concurrent read and write access to the same DB from the same process (-r1067)
+  * ScopeCursor.getRowCount() call did not preserve cursor state (issue #152, -r998) 
+  * Values of type real were not properly casted to int and back (issue #151, -r985)
+  * Unique index issues (issue #147, -r981).
+  * DB corruption after rollback (issue #146, -r980).
+  * Fixed issue with implicit rowIds not being properly generated on insert operation.
+  
+Misc:
+
+  * SQLJet build modified to use Gradle; build artifacts are stored in Maven repository. 
+    Maven repository URL: http://maven.tmatesoft.com/content/groups/public/
+    Continuous Intergration Server: http://teamcity.tmatesoft.com/ 
+
+Version 1.0.4
+(16 Dec 2010, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.4/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Conflicting table, columns and index names should be detected early (issue #143, -r958,959). 
+  * Insert of specific data led to database corruption (issue #133, -r957).
+  * SqlJetTabe.scope(...) and reverse() methods didn't work properly (issue #132, -r945).
+  * InsertOr and delete in the same transaction might corrupt database (issue #131, -r944).
+  * ISqlJetCursor::isNull(int field) returned wrong value (issue #130, -r942).
+  * ISqlJet.getRowCount() assertion failed (issue #129, -r941).
+  * SqlJetTable.insertOr(...) didn't work in certain cases (issue #128, -r937).
+  * Support for 'CHECK(LENGTH(name))' style conditions (-r918).
+
+Version 1.0.3
+(05 May 2010, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.3/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+ Bugfixes:
+ 
+  * Improved support of read only databases (-r907, -r909).
+  * UNIQUE index was not created (issue #124, -r912).
+
+Version 1.0.2
+(08 Jan 2010, from /branches/1.0.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.0.2/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
  New features:
@@ -9,12 +126,13 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * Busy handlers support added (-r768).
   * Support of temporary and in memory databases added (-r842).
   * Support of virtual tables in schema added (-r847).
+  * SqlJet OSGi bundle and source tarball available from the web site (-r876). 
   
  API changes: 
  
   * New runtime prerequisite added: all cursors must be opened within active transaction (-r709).
   * New method SqlJetDb.refreshSchema() added to the public API (-r698).
-  * SqlJetTransactionMode enum and ISqlJetMutex interface moved to the public API (-r858, -r852, -r845).
+  * SqlJetTransaction mode enum and ISqlJetMutex interface moved to the public API (-r858, -r852, -r845).
 
  Bugfixes:
 
@@ -26,8 +144,7 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
   * Javadoc updates (-r839, -r845).
   * Better error message on schema parsing failure (-r844).
   * Exception is thrown now on lexer error when parsing schema (-r854).
-  * Detecting conflicts and reserved names  when create tables or indexes.
-
+  
 Version 1.0.1
 (20 Nov 2009, from /branches/1.0.x)
 
@@ -36,20 +153,20 @@ Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
  New features:
  
-  * DB schema: IF NOT EXISTS statement support added (-r631, -r648)
-  * DB schema: ALTER statement support and corresponding API methods added (-r677)
-  * Affinity mode for column types (issue #75) (-r653)
-  * New ISqlJetCursor methods to get row count, current row and go to row (issue #92) (-r652)
-  * New ISqlJetCursor.setLimit(...) method (issue #92) (-r701)
-  * New insert and update methods with ON CONFLICT statement logic support (-r702)
+  * DB schema: IF NOT EXISTS statement support added (-r631, -r648).
+  * DB schema: ALTER statement support and corresponding API methods added (-r677).
+  * Affinity mode for column types (issue #75) (-r653).
+  * New ISqlJetCursor methods to get row count, current row and go to row (issue #92) (-r652).
+  * New ISqlJetCursor.setLimit(...) method (issue #92) (-r701).
+  * New insert and update methods with ON CONFLICT statement logic support (-r702).
   
  Bugfixes:
  
-  * Fields size was stored in db schema as x.x (float numbers), fixed (-r637)
-  * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649)
-  * Problems using case mismatching names of tables and indices fixed (-r674, 679, 700)
-  * Table and indices names with '$' was not supported, fixed (issue #116) (-r765) 
-  * Antiviruses block access to temporary created files, fixed (-r657)
+  * Fields size was stored in db schema as x.x (float numbers), fixed (-r637).
+  * NPE in SqlJetMemPage.clearCell fixed (issue #112) (-r649).
+  * Problems using case mismatching names of tables and indices fixed (-r674, 679, 700).
+  * Table and indices names with '$' was not supported, fixed (issue #116) (-r765). 
+  * Antiviruses block access to temporary created files, fixed (-r657).
   * Number of concurrency issues fixed.
 
 Version 1.0.0

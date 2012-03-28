@@ -1,0 +1,106 @@
+runAllTests = !project.hasProperty('fast')
+sourceSets {
+    test {
+        java {
+            srcDir 'src/test/stress'
+            srcDir 'src/test/benchmark'
+            srcDir 'src/test/compatibility'
+            srcDir 'src/test/java'
+        }
+    }
+}
+
+// antlr generation
+configurations {  antlr3 }
+
+processResources << {
+    buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')
+}
+
+dependencies { 
+    antlr3 'org.antlr:antlr:3.4'
+}
+
+antlrSource = "src/main/antlr"
+antlrOutput = "src/main/java"
+
+task grammar {
+    def grammars = fileTree(antlrSource).include("**/*.g")
+
+    inputs.files("$antlrSource/org/tmatesoft/sqljet/core/internal/lang/Sql.g")
+    outputs.files(
+            "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/Sql.tokens",
+            "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
+            "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java")
+
+    ant.java(classname: 'org.antlr.Tool', fork: true, classpath: "${configurations.antlr3.asPath}") {
+        arg(line: "-o ${antlrOutput}/org/tmatesoft/sqljet/core/internal/lang")
+        arg(line: grammars.files.join(" "))
+    }
+/*
+    ant.replace(
+            file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
+            token : "public class SqlLexer extends Lexer {",
+            value :  "@SuppressWarnings(\"unused\") public class SqlLexer extends Lexer {")
+    ant.replace(
+            file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java",
+            token : "public class SqlParser extends Parser {",
+            value :  "@SuppressWarnings({\"unused\", \"rawtypes\", \"unchecked\"}) public class SqlParser extends Parser {")
+            */
+}
+
+compileJava.dependsOn grammar
+
+// add antlr to source jar
+sourcesJar {  from 'src/main/antlr'  }
+
+// javadoc
+javadoc {  exclude 'org/tmatesoft/sqljet/core/internal/**'  }
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    description="Builds Javadoc Jar"
+    from "$docsDir/javadoc"
+    classifier = 'javadoc'
+}
+
+
+artifacts {
+    maven sourcesJar, javadocJar, jar
+    sources sourcesJar
+    javadocs javadocJar
+}
+
+// tests
+configurations { antTests }
+dependencies {  antTests 'org.apache.ant:ant-junit:1.8.2'  }
+
+testSystemProperties = [
+            'SQLJET_TESTS_LOGGING' : 'false',
+            'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
+            'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'
+        ]
+
+test {
+    systemProperties = testSystemProperties
+    exclude '**/*Mock*', '**/*sandbox*/**/**.*'
+    include '**/*Test*'
+
+    if (runAllTests) {
+        include '**/*Stress*'
+    }
+}
+
+if (runAllTests) {
+  
+    test.doFirst {
+        ant.properties.antClasspath = configurations.antTests.asPath
+
+        ant.properties['test.classpath'] = configurations.testCompile.asPath
+        ant.properties['test.results'] = 'build/test-results'
+        ant.properties['project.build.outputDirectory'] = sourceSets.main.classesDir
+        ant.properties['project.build.testOutputDirectory'] = sourceSets.test.classesDir
+
+        ant.mkdir(dir: 'build/test-results')
+        ant.ant(antfile: 'src/test/ant/compatibility-tests.xml')
+    }
+}

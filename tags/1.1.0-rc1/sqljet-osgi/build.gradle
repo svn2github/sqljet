@@ -1,0 +1,64 @@
+apply plugin: 'osgi'
+
+bundleClasspath = []
+bundleName = rootProject.group
+bundleVersion = buildVersion.getFullOSGIVersion()
+bundleVendor = 'TMate Software'
+
+def inlinedArtifacts = []
+def allArtifacts = []
+
+artifacts {
+    maven jar
+    osgi jar
+}
+
+classes << {
+    configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.moduleArtifacts.each { jar ->
+        jar.file.each {
+            inlinedArtifacts.add it
+            copy {
+                from zipTree(jar.file[0])
+                into sourceSets.main.classesDir
+                exclude 'META-INF/**'
+            }
+        }
+    }
+    configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.allModuleArtifacts.each { jar ->
+        jar.file.each { allArtifacts.add it }
+    }
+    allArtifacts -= inlinedArtifacts
+    jar.bundleClasspath = []
+    allArtifacts.each {
+        jar.bundleClasspath += it.name
+    }
+}
+
+jar {
+    baseName = bundleName
+    from allArtifacts
+    exclude {
+        return inlinedArtifacts.contains(it.file)
+    }
+    eachFile fullJarNameExpander
+    metaInf {
+        from rootProject.file('LICENSE-ANTLR.txt')
+    }
+    manifest {
+        attributes 'Bundle-SymbolicName': bundleName,
+                'Bundle-Version': bundleVersion,
+                'Bundle-Vendor': bundleVendor,
+                'Bundle-RequiredExecutionEnvironment' : 'J2SE-' + targetCompatibility
+
+        instruction 'Export-Package', '*;version=' + bundleVersion
+        instruction 'Import-Package', '!*'
+    }
+} << {
+    def classpathValue = '.'
+    jar.bundleClasspath.each { classpathValue += ", $it" }
+    ant.jar(destfile: jar.archivePath, update:true) {
+        delegate.manifest {
+            attribute(name: 'Bundle-ClassPath', value: classpathValue)
+        }
+    }
+}

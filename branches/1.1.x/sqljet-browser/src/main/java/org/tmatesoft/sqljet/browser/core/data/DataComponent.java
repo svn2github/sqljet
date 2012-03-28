@@ -86,14 +86,16 @@ public class DataComponent implements IBrowserComponent, ItemListener, ActionLis
             try {
                 db = SqlJetDb.open(dbFile, true);
                 myTableNamesCombo.setModel(new DefaultComboBoxModel(db.getSchema().getTableNames().toArray()));
-                myTableNamesCombo.setEnabled(true);
+                myTableNamesCombo.setEnabled(myTableNamesCombo.getModel().getSize() > 0);
             } finally {
                 if (db != null) {
                     db.close();
                 }
             }
         }
-        myTableNamesCombo.setSelectedIndex(0);
+        if (myTableNamesCombo.isEnabled()) {
+            myTableNamesCombo.setSelectedIndex(0);
+        }
         itemStateChanged(null);
     }
 

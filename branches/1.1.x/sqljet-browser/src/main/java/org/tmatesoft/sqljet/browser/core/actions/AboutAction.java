@@ -41,7 +41,7 @@ public class AboutAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent e) {
         String message = "<html><body><p>SQLJet is a pure Java implementation of SQLite DBMS."
-            + "<br>&copy; 2009, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>";
+            + "<br>&copy; 2009-2012, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>";
         
         JOptionPane.showMessageDialog(myManager.getOwner(), message, "About SQLJet", JOptionPane.PLAIN_MESSAGE, null);
     }

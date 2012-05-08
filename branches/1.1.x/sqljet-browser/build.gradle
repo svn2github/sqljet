@@ -1,4 +1,4 @@
-browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+project.ext.browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
 
 artifacts {
     maven jar, sourcesJar

@@ -1,15 +1,17 @@
 def baseDirectoryName = "sqljet-$version"
 def baseArchiveName = 'sqljet'
 
-host = 'sqljet.com'
-url = 'http://' + host
-thisYear = new java.text.SimpleDateFormat('yyyy').format(new Date())
+project.ext {
+    host = 'sqljet.com'
+   url = 'http://' + host
+   thisYear = new java.text.SimpleDateFormat('yyyy').format(new Date())
 
-browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
+   browserMainClass = 'org.tmatesoft.sqljet.browser.DBBrowser'
 
-jnlpTemplate = 'src/main/jnlp/browser.jnlp'
-keystoreFile = 'src/main/jnlp/keystore'
-keystoreAlias = 'tmate'
+   jnlpTemplate = 'src/main/jnlp/browser.jnlp'
+   keystoreFile = 'src/main/jnlp/keystore'
+   keystoreAlias = 'tmate'
+}
 
 task buildSources(type: Zip) {
     baseName = baseArchiveName

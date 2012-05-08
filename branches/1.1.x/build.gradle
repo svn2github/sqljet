@@ -1,16 +1,27 @@
 group = 'org.tmatesoft.sqljet'
-version = '1.1.0'
-target = '1.5'
-release = false
+version = '1.1.1'
+
+project.ext {
+    target = '1.5'
+    release = false
+}
+
+apply from: 'build.pom.gradle'
 
 buildscript {
     apply from: 'build.defaults.gradle'
-    repositories {
-        mavenRepo(urls: [buildPluginRepositoryURL]) {
-            snapshotTimeout = org.gradle.api.internal.artifacts.ivyservice.GradleIBiblioResolver.ALWAYS
+    configurations.all {
+        resolutionStrategy {
+            cacheChangingModulesFor 0, 'seconds'
+            cacheDynamicVersionsFor 0, 'seconds'
         }
     }
-    dependencies { classpath 'org.tmatesoft.build:build:0.9.7-SNAPSHOT' }
+    repositories {
+        maven {
+           url project.ext.buildPluginRepositoryURL
+        }
+    }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.9-SNAPSHOT' }
 }
 
 task wrapper(type: Wrapper) {}
@@ -29,6 +40,7 @@ allprojects {
 
 configure(javaProjects()) {
     apply plugin : 'java'
+    apply plugin : 'signing'
 
     sourceCompatibility = target
     targetCompatibility = target
@@ -91,7 +103,7 @@ project(':sqljet-vfs') {
 project(':sqljet-osgi') {
     configurations { osgi }
     dependencies { compile project(':sqljet') }
-    sourcesJar.enabled = false
+//    sourcesJar.enabled = false
     conf2ScopeMappings.mappings.remove(configurations.compile)
 }
 

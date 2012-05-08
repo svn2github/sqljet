@@ -1,9 +1,11 @@
 apply plugin: 'osgi'
 
-bundleClasspath = []
-bundleName = rootProject.group
-bundleVersion = buildVersion.getFullOSGIVersion()
-bundleVendor = 'TMate Software'
+project.ext {
+    bundleClasspath = []
+    bundleName = rootProject.group
+    bundleVersion = buildVersion.getFullOSGIVersion()
+    bundleVendor = 'TMate Software'
+}
 
 def inlinedArtifacts = []
 def allArtifacts = []
@@ -19,7 +21,7 @@ classes << {
             inlinedArtifacts.add it
             copy {
                 from zipTree(jar.file[0])
-                into sourceSets.main.classesDir
+                into sourceSets.main.output.classesDir
                 exclude 'META-INF/**'
             }
         }
@@ -28,9 +30,9 @@ classes << {
         jar.file.each { allArtifacts.add it }
     }
     allArtifacts -= inlinedArtifacts
-    jar.bundleClasspath = []
+    jar.ext.bundleClasspath = []
     allArtifacts.each {
-        jar.bundleClasspath += it.name
+        jar.ext.bundleClasspath += it.name
     }
 }
 
@@ -55,7 +57,7 @@ jar {
     }
 } << {
     def classpathValue = '.'
-    jar.bundleClasspath.each { classpathValue += ", $it" }
+    jar.ext.bundleClasspath.each { classpathValue += ", $it" }
     ant.jar(destfile: jar.archivePath, update:true) {
         delegate.manifest {
             attribute(name: 'Bundle-ClassPath', value: classpathValue)

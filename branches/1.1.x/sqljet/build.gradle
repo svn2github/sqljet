@@ -1,4 +1,6 @@
-runAllTests = !project.hasProperty('fast')
+
+project.ext.runAllTests = !project.hasProperty('fast')
+
 sourceSets {
     test {
         java {
@@ -21,8 +23,10 @@ dependencies {
     antlr3 'org.antlr:antlr:3.4'
 }
 
-antlrSource = "src/main/antlr"
-antlrOutput = "src/main/java"
+project.ext {
+   antlrSource = "src/main/antlr"
+   antlrOutput = "src/main/java"
+}
 
 task grammar {
     def grammars = fileTree(antlrSource).include("**/*.g")
@@ -37,16 +41,6 @@ task grammar {
         arg(line: "-o ${antlrOutput}/org/tmatesoft/sqljet/core/internal/lang")
         arg(line: grammars.files.join(" "))
     }
-/*
-    ant.replace(
-            file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlLexer.java",
-            token : "public class SqlLexer extends Lexer {",
-            value :  "@SuppressWarnings(\"unused\") public class SqlLexer extends Lexer {")
-    ant.replace(
-            file : "$antlrOutput/org/tmatesoft/sqljet/core/internal/lang/SqlParser.java",
-            token : "public class SqlParser extends Parser {",
-            value :  "@SuppressWarnings({\"unused\", \"rawtypes\", \"unchecked\"}) public class SqlParser extends Parser {")
-            */
 }
 
 compileJava.dependsOn grammar
@@ -74,7 +68,7 @@ artifacts {
 configurations { antTests }
 dependencies {  antTests 'org.apache.ant:ant-junit:1.8.2'  }
 
-testSystemProperties = [
+project.ext.testSystemProperties = [
             'SQLJET_TESTS_LOGGING' : 'false',
             'SqlJetBtreeTableTest.DELETE_COPY' : 'true',
             'SqlJetBtreeTableTest.REPEATS_COUNT' : '100'

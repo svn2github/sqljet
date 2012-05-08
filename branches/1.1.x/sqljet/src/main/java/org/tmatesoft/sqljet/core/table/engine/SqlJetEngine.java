@@ -400,7 +400,7 @@ public class SqlJetEngine {
     /**
      * Set journal mode
      * 
-     * @param safetyLevel
+     * @param journalMode
      *            
      */
     public void setJournalMode(final SqlJetPagerJournalMode journalMode) throws SqlJetException {

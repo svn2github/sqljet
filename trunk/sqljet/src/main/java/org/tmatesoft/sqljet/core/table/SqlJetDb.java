@@ -132,7 +132,7 @@ public class SqlJetDb extends SqlJetEngine {
      * @param file
      * @param write
      * @param fs
-     * @return
+     * @return SqlJetDb object for opened database
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write, final ISqlJetFileSystem fs) throws SqlJetException {
@@ -145,7 +145,7 @@ public class SqlJetDb extends SqlJetEngine {
      * @param file
      * @param write
      * @param fsName
-     * @return
+     * @return SqlJetDb object for opened database
      * @throws SqlJetException
      */
     public static SqlJetDb open(File file, boolean write, final String fsName) throws SqlJetException {
@@ -417,7 +417,7 @@ public class SqlJetDb extends SqlJetEngine {
     /**
      * @see #getTemporaryDatabase(boolean)
      * 
-     * @return
+     * @return SqlJetDb object for temporary database
      * @throws SqlJetException
      */
     public SqlJetDb getTemporaryDatabase() throws SqlJetException {

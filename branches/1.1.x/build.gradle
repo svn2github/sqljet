@@ -21,7 +21,7 @@ buildscript {
            url project.ext.buildPluginRepositoryURL
         }
     }
-    dependencies { classpath 'org.tmatesoft.build:build:0.9.9-SNAPSHOT' }
+    dependencies { classpath 'org.tmatesoft.build:build:0.9.9' }
 }
 
 task wrapper(type: Wrapper) {}

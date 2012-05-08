@@ -91,8 +91,8 @@ if (runAllTests) {
 
         ant.properties['test.classpath'] = configurations.testCompile.asPath
         ant.properties['test.results'] = 'build/test-results'
-        ant.properties['project.build.outputDirectory'] = sourceSets.main.classesDir
-        ant.properties['project.build.testOutputDirectory'] = sourceSets.test.classesDir
+        ant.properties['project.build.outputDirectory'] = sourceSets.main.output.classesDir
+        ant.properties['project.build.testOutputDirectory'] = sourceSets.test.output.classesDir
 
         ant.mkdir(dir: 'build/test-results')
         ant.ant(antfile: 'src/test/ant/compatibility-tests.xml')

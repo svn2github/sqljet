@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>SQLJet&nbsp;::&nbsp;Pure Java SQLite</title>
+  <meta name="keywords" content="SQLite,Java,API,Library,Development,SQL,BTree,Relational,Embedded"/>
+  <meta name="description" content="Pure Java version of SQLite DBMS. Open Source, provided by TMate Software"/>
+  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="google-site-verification" content="LVVpVVJIADqWcjIXvS6J9edRRsl-OCtFp7FrEM7fBmc" />
+</head>
+
+<body>
+<div id="centerColumn">
+  <div id="leftFade"></div>
+  <div id="rightFade"></div>
+  <div id="space"><p></p></div>
+  <div id="content">
+         <h2><span class="orange">What is</span> SQLJet</h2>
+
+         <p>SQLJet is an independent pure Java implementation of a popular <a href="http://sqlite.org/">SQLite</a> database management system.
+          SQLJet is a software library that provides API that enables Java application to
+          read and modify SQLite databases.</p>
+
+         <p>SQLJet does not support SQL queries; there is an API to work with the database on a lower level.</p>
+         <p>SQLJet Mailing List: <a href="mailto:users-subscribe@sqljet.com">subscribe</a> or <a href="http://n2.nabble.com/SQLJet-Users-f3425546.html">browse</a>.</p>
+         <p>SQLJet API <a href="tutorial.html">Tutorial</a>.</p>
+         <p>SQLJet Sample Application: <a href="browser/browser.jnlp">SQLite Database Browser</a> (click to launch).</p>
+
+         <h2>SQLJet <span class="orange">Major Features</span></h2>
+         <ul>
+           <li>Fine-grained API to create, read and modify SQLite databases.</li>
+           <li>Database format is fully compatible with SQLite 3.6.</li>
+           <li>No native binaries are needed.</li>
+           <li>Current version only supports SQL in schema.</li>
+         </ul>
+
+          <h2><span class="orange">Download</span> SQLJet</h2>
+          <p>Option 0: Download SQLJet v${project.buildVersion.baseVersion}:&nbsp;(version ${project.buildVersion.baseVersion} <a href="http://svn.sqljet.com/repos/sqljet/tags/${project.buildVersion.baseVersion}/CHANGES.txt">changelog</a>)</p>
+          <ul>
+          <li>Library jar, source code, javadoc and browser sample application:<br/><a href="files/${distribution_all_zip}">${distribution_all_zip}</a></li>
+          <li>Source tar ball, run "gradlew build" to build:<br/><a href="files/${distribution_src_zip}">${distribution_src_zip}</a></li>
+          <li>OSGi bundle, to use, e.g. in Eclipse:<br/><a href="files/${distribution_osgi_jar}">${distribution_osgi_jar}</a></li>
+          <li>From maven repository:<br/><a href="${project.mavenPublicRepositoryURL}">${project.mavenPublicRepositoryURL}</a><br/><br/><pre>
+&lt;repositories&gt;
+  &lt;repository&gt;
+    &lt;id&gt;tmate&lt;/id&gt;
+    &lt;url&gt;${project.mavenPublicRepositoryURL}&lt;/url&gt;
+  &lt;/repository&gt;
+&lt;/repositories&gt;
+...
+&lt;dependency&gt;
+  &lt;groupId&gt;org.tmatesoft.sqljet&lt;/groupId&gt;
+  &lt;artifactId&gt;sqljet&lt;/artifactId&gt;
+  &lt;version&gt;${project.buildVersion.baseVersion}&lt;/version&gt;
+&lt;/dependency&gt;</pre></li>
+          </ul>
+          <p>Option 1: SQLJet nightly builds are available at our <a href="http://teamcity.tmatesoft.com/">build server</a>. Click "Login as Guest" if prompted to log in.</p>
+          <p>Option 2: Checkout from Subversion repository:</p>
+<pre>\$ svn co http://svn.sqljet.com/repos/sqljet/branches/1.0.x/ sqljet
+\$ cd sqljet
+\$ gradle build</pre>
+
+          <h2>SQLJet is <span class="orange">Open Source</span></h2>
+
+          <p>SQLJet is Open Source and can be freely used in Open Source applications under the terms GNU General Public License (GPL). 
+          We also provide commercial licensing option for closed source applications or so called Dual Licensing. For more information
+          on licensing please contact us at <a href="mailto:support@sqljet.com">support@sqljet.com</a>.</p>
+
+          <h2>See Also</h2>
+          <ul>
+          <li><a href="http://teamcity.tmatesoft.com/">SQLJet Nightly Builds</a> (Click "Login as Guest" if prompted to log in).</li>
+          <li><a href="http://code.google.com/p/sqljet/issues/">SQLJet Issues Tracker</a></li>
+          <li><a href="http://svn.sqljet.com/repos/sqljet/">SQLJet Subversion Repository</a></li>
+          <li><a href="http://sqlite.org/">SQLite Home Page</a></li>
+          </ul>
+      <p></p>
+  <div id="footer">
+    <div id="copyright">Copyright &copy; 2004-${project.thisYear}, TMate Software</div>
+    <div id="java">Java&trade; and all Java-based marks are a trademark or registered trademark of
+      Sun Microsystems, Inc. in the United States and other countries.<br/>
+      TMate Software and the website sqljet.com are independent of Sun Microsystems,
+      Inc. and have no relationship, formal or informal.
+      </div>
+    <div id="java">SQLite&trade; is a registered trademark of Hipp, Wyrick & Company, Inc.
+      in the United States and other countries.<br/>
+      TMate Software and the website sqljet.com are independent of Hipp, Wyrick & Company, Inc. 
+      and have no relationship, formal or informal.
+      </div>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-10187081-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

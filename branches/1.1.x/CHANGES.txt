@@ -4,6 +4,17 @@ Version 1.1.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.1.1
+(08 May 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.1/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Misc:
+
+  * Build procedure modified to use Gradle 1.0-rc3;
+    maven binaries are signed now. 
+
 Version 1.1.0
 (28 Mar 2012, from /branches/1.1.x)
 

@@ -16,7 +16,7 @@ sourceSets {
 configurations {  antlr3 }
 
 processResources << {
-    buildVersion.toFile(file('build/classes/main/sqljet.build.properties'), 'sqljet.')
+    buildVersion.toFile(file('build/resources/main/sqljet.build.properties'), 'sqljet.')
 }
 
 dependencies { 

@@ -1,8 +1,18 @@
-Version 1.1.?
+Version ?.?.?
 (?? ??? ????, from /branches/1.1.x)
 
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Version 1.1.2
+(23 May 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.2/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Library jar file contained duplicated entry (sqljet.build.properties), fixed.
 
 Version 1.1.1
 (08 May 2012, from /branches/1.1.x)

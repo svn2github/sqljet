@@ -1,0 +1,10 @@
+rootProject.name = 'org.tmatesoft.sqljet'
+
+include 'sqljet'
+include 'sqljet-browser'
+include 'sqljet-vfs'
+include 'sqljet-osgi'
+include 'sqljet-distribution'
+include 'sqljet-example-simple'
+include 'sqljet-example-inventory'
+include 'sqljet-example-expenses'

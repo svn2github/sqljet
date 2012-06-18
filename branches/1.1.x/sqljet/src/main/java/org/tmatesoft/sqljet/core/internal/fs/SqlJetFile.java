@@ -472,6 +472,14 @@ public class SqlJetFile implements ISqlJetFile {
                 if (lockType == SqlJetLockType.SHARED
                         || (lockType == SqlJetLockType.EXCLUSIVE && this.lockType.compareTo(SqlJetLockType.PENDING) < 0)) {
 
+                    if (!locks.containsKey(SqlJetLockType.PENDING)) {
+                        final FileLock pendingLock = fileLockManager.tryLock(PENDING_BYTE, 1,
+                                lockType == SqlJetLockType.SHARED);
+                        if (null == pendingLock)
+                            return false;
+                        locks.put(SqlJetLockType.PENDING, pendingLock);
+                    }
+
                     if (lockType != SqlJetLockType.SHARED) {
 						if (lockInfo.sharedLockCount <= 1) {
 	                        final FileLock sharedLock = locks.remove(SqlJetLockType.SHARED);
@@ -480,14 +488,6 @@ public class SqlJetFile implements ISqlJetFile {
 	                        	lockInfo.sharedLock = null;
 	                        }
 						}
-                    }
-
-                    if (!locks.containsKey(SqlJetLockType.PENDING)) {
-                        final FileLock pendingLock = fileLockManager.tryLock(PENDING_BYTE, 1,
-                                lockType == SqlJetLockType.SHARED);
-                        if (null == pendingLock)
-                            return false;
-                        locks.put(SqlJetLockType.PENDING, pendingLock);
                     }
                 }
 

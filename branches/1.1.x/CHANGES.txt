@@ -4,6 +4,16 @@ Version ?.?.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.1.3
+(29 June 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.3/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Potential NPE on concurrent database file locking, fixed.
+
 Version 1.1.2
 (23 May 2012, from /branches/1.1.x)
 

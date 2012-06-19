@@ -45,7 +45,7 @@ public class SqlJetVersion {
 
     private static final String VERSION_MAJOR_DEFAULT = "1";
     private static final String VERSION_MINOR_DEFAULT = "1";
-    private static final String VERSION_MICRO_DEFAULT = "3";
+    private static final String VERSION_MICRO_DEFAULT = "4";
 
     private static final String VERSION_BUILD_DEFAULT = "0";
 

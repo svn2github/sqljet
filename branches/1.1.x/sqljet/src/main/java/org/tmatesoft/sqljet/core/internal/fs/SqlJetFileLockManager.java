@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.fs;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,13 @@ public class SqlJetFileLockManager {
 					return null;
 				}
 			} else {
-				return addLock(lockCreator.createLock(position, size, shared));
+                final FileLock fileLock;
+                try {
+                    fileLock = lockCreator.createLock(position, size, shared);
+                } catch (OverlappingFileLockException e) {
+                    return null;
+                }
+                return addLock(fileLock);
 			}
 		}
     }

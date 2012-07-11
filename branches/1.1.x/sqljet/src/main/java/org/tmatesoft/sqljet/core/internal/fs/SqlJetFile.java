@@ -499,7 +499,6 @@ public class SqlJetFile implements ISqlJetFile {
 
                     /* Now get the read-lock */
                     final FileLock sharedLock = fileLockManager.tryLock(SHARED_FIRST, SHARED_SIZE, true);
-                    locks.put(SqlJetLockType.SHARED, sharedLock);
 
                     /* Drop the temporary PENDING lock */
                     final FileLock pendingLock = locks.get(SqlJetLockType.PENDING);
@@ -508,8 +507,11 @@ public class SqlJetFile implements ISqlJetFile {
                         locks.remove(SqlJetLockType.PENDING);
                     }
 
-                    if (null == sharedLock)
+                    if (null == sharedLock) {
                         return false;
+                    }
+
+                    locks.put(SqlJetLockType.SHARED, sharedLock);
 
                     this.lockType = SqlJetLockType.SHARED;
                     openCount.numLock++;

@@ -17,6 +17,9 @@
  */
 package org.tmatesoft.sqljet.core.internal.fs;
 
+import org.tmatesoft.sqljet.core.SqlJetLogDefinitions;
+import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
+
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * @author TMate Software Ltd.
@@ -35,6 +39,7 @@ public class SqlJetFileLockManager {
 
     private String filePath;
     private FileChannel fileChannel;
+    private static Logger filesLogger = Logger.getLogger(SqlJetLogDefinitions.SQLJET_LOG_FILES);
 
     public SqlJetFileLockManager(String filePath, FileChannel fileChannel) {
         this.filePath = filePath;
@@ -75,6 +80,9 @@ public class SqlJetFileLockManager {
                 try {
                     fileLock = lockCreator.createLock(position, size, shared);
                 } catch (OverlappingFileLockException e) {
+                    SqlJetUtility.log(filesLogger, "Cannot lock (%d, %d, %s) of %s: the range overlaps with already existing lock;" +
+                            "this may be cause by loading %s class from several class loaders",
+                            position, size, shared, filePath, getClass().getSimpleName());
                     return null;
                 }
                 return addLock(fileLock);

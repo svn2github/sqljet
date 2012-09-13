@@ -1300,6 +1300,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                                     jfd.close();
                                     throw e;
                                 }
+                                journalOpen = true;
                             }
 
                         } else {
@@ -1314,7 +1315,6 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                             endTransaction(false);
                         }
 
-                        journalOpen = true;
                         journalStarted = false;
                         journalOff = 0;
                         setMaster = false;

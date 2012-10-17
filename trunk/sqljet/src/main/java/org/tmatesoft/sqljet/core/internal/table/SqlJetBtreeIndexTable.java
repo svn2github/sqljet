@@ -202,17 +202,19 @@ public class SqlJetBtreeIndexTable extends SqlJetBtreeTable implements ISqlJetBt
      * 
      * @throws SqlJetException
      */
-    private void adjustKeyInfo() throws SqlJetException {
+    protected void adjustKeyInfo() throws SqlJetException {
         if (null == getKeyInfo())
             throw new SqlJetException(SqlJetErrorCode.INTERNAL);
-        if (null != columns) {
-            getKeyInfo().setNField(columns.size());
-        } else if (null != indexDef.getColumns()) {
-            getKeyInfo().setNField(indexDef.getColumns().size());
-            int i = 0;
-            for (final ISqlJetIndexedColumn column : indexDef.getColumns()) {
-                getKeyInfo().setSortOrder(i++, column.getSortingOrder() == SqlJetSortingOrder.DESC);
-            }
+        if(indexDef!=null) {
+        	if (null != columns) {
+        		getKeyInfo().setNField(columns.size());
+        	} else if (null != indexDef.getColumns()) {
+        		getKeyInfo().setNField(indexDef.getColumns().size());
+        		int i = 0;
+        		for (final ISqlJetIndexedColumn column : indexDef.getColumns()) {
+        			getKeyInfo().setSortOrder(i++, column.getSortingOrder() == SqlJetSortingOrder.DESC);
+        		}
+        	}
         }
     }
 

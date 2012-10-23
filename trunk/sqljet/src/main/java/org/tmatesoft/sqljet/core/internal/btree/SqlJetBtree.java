@@ -914,6 +914,8 @@ public class SqlJetBtree implements ISqlJetBtree {
 
             int nBusy = 0;
             do {
+                rc = null;
+                
                 try {
 
                     if (pBt.pPage1 == null) {

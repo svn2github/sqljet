@@ -131,6 +131,10 @@ public class SqlJetBtreeTable implements ISqlJetBtreeTable {
         ISqlJetBtreeCursor cursor = btree.getCursor(rootPage, write, index ? keyInfo : null);
         states.push(new State(cursor, keyInfo));
         clearRecordCache();
+        adjustKeyInfo();
+    }
+    
+    protected void adjustKeyInfo() throws SqlJetException {
     }
 
     public boolean popState() throws SqlJetException {

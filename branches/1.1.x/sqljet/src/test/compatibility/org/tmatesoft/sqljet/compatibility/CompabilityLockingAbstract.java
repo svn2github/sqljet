@@ -45,7 +45,7 @@ public abstract class CompabilityLockingAbstract {
     private static final String SEMAPHORE_PROPERTY = PROPERTY_NAMESPACE + "semaphore";
     private static final String FILE = SqlJetUtility.getSysProp(FILE_PROPERTY, null);
     private static final String SEMAPHORE = SqlJetUtility.getSysProp(SEMAPHORE_PROPERTY, null);
-    private static final int MAXWAIT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "maxwait", 1000);
+    private static final int MAXWAIT = SqlJetUtility.getIntSysProp(PROPERTY_NAMESPACE + "maxwait", 2500);
 
     private static void checkProperties() {
         Assert.assertNotNull(String.format(PROPERTY_IS_NOT_SPECIFIED, FILE_PROPERTY), FILE);

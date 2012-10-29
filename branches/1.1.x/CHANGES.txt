@@ -4,6 +4,12 @@ Version ?.?.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.1.5
+(29 Oct 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.5/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
 Bugfixes:
 
   * Wrong result of getRowCount() call in certain cases (issue #169).

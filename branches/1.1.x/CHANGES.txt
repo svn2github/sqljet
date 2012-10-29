@@ -4,6 +4,25 @@ Version ?.?.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Bugfixes:
+
+  * Wrong result of getRowCount() call in certain cases (issue #169).
+  * BUSY condition on transaction start was not cleared and 
+    then transaction might not be started properly (in case BUSY
+    condition was encountered) (-r1234).
+
+Version 1.1.4
+(17 July 2012, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.4/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Unchecked file locking exception on using SqlJet library loaded 
+    by different class loaders to access the same database fixed 
+    (replaced by checked exception) (-r1223, r1224).
+
 Version 1.1.3
 (29 June 2012, from /branches/1.1.x)
 

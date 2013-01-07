@@ -1,0 +1,192 @@
+<project name="compatibility-tests" default="run">
+    <target name="taskdef">
+        <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath>
+                <pathelement path="${antClasspath}" />
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="run" depends="taskdef">
+            
+        <echo message="classes: ${project.build.outputDirectory}"/>
+        <echo message="test classes: ${project.build.testOutputDirectory}"/>
+
+        <property name="compability.timeout" value="60000" />
+        <property name="compability.wait" value="500" />
+
+        <tempfile prefix="sqljet" property="compability.file" deleteonexit="true" />
+        <tempfile prefix="sqljet" property="compability.semaphore" deleteonexit="true" />
+
+        <macrodef name="run-test">
+
+            <attribute name="logging" default="false" />
+            <attribute name="name" />
+            
+            <sequential>
+                <junit haltonerror="true" haltonfailure="true">
+                    <jvmarg value="-ea" />
+                    <jvmarg value="-server" />
+
+                    <sysproperty key="SQLJET_TESTS_LOGGING" value="false" />
+                    <sysproperty key="sqlite.purejava" value="false" />
+                    <sysproperty key="sqljet.test.compability.file" value="${compability.file}" />
+                    <sysproperty key="sqljet.test.compability.semaphore" value="${compability.semaphore}" />
+
+                    <classpath>
+                        <pathelement path="${project.build.outputDirectory}" />
+                        <pathelement path="${project.build.testOutputDirectory}" />
+                        <pathelement path="${test.classpath}" />
+                    </classpath>
+                    <formatter usefile="true" type="xml" />
+                    <test todir="${test.results}" fork="true" name="@{name}" />
+                </junit>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="wait-semaphore">
+            <attribute name="semaphore" default="${compability.semaphore}" />
+            <attribute name="maxwait" default="5000" />
+            <attribute name="checkevery" default="100" />
+            <attribute name="value" default="0" />
+            <sequential>
+                <waitfor maxwait="@{maxwait}" checkevery="@{checkevery}">
+                    <and>
+                        <available file="@{semaphore}" />
+                        <length file="@{semaphore}" when="greater" length="@{value}" />
+                    </and>
+                </waitfor>
+            </sequential>
+        </macrodef>
+
+        <macrodef name="notify-semaphore">
+            <sequential>
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSemaphoreReset" />
+            </sequential>
+        </macrodef>
+
+        <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingSetUpDb" />
+
+        <!-- compability.tests -->
+
+        <echo>Write lock SQLite - Write lock SQLJet</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Write lock SQLJet - Write lock SQLite</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Read lock SQLJet - Write lock SQLite</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLiteBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Write lock SQLite - Read lock SQLJet</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJetBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Write lock SQLJet - Read lock SQLite</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLiteBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Read lock SQLite - Write lock SQLJet</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJetBusy" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Read lock SQLite - Read lock SQLJet</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
+            </sequential>
+        </parallel>
+
+        <echo>Read lock SQLJet - Read lock SQLite</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLJet" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingReadSQLite" />
+            </sequential>
+        </parallel>
+
+        <echo>Write lock SQLite - Open SQLJet</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLite" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingOpenSQLJet" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+        <echo>Write lock SQLJet - Open SQLite</echo>
+        <notify-semaphore />
+        <parallel failonany="true" timeout="${compability.timeout}" threadCount="2">
+            <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingWriteSQLJet" />
+            <sequential>
+                <sleep milliseconds="${compability.wait}" />
+                <wait-semaphore />
+                <run-test name="org.tmatesoft.sqljet.compatibility.CompabilityLockingOpenSQLite" />
+                <notify-semaphore />
+            </sequential>
+        </parallel>
+
+
+        <delete file="${compability.file}" />
+        <delete file="${compability.semaphore}" />
+    </target>
+</project>

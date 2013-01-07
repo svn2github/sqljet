@@ -4,6 +4,17 @@ Version ?.?.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.1.6
+(07 Jan 2013, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.6/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Double values with decimal points were not properly processed
+    and might cause SqlJet to crash (issue #171).
+
 Version 1.1.5
 (29 Oct 2012, from /branches/1.1.x)
 

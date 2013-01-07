@@ -1094,8 +1094,8 @@ public final class SqlJetUtility {
         return true;
     }
 
-    static private final Pattern NUMBER_PATTER = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-    static private final Pattern REAL_PATTERN = Pattern.compile("[\\.eE]+");
+    static private final Pattern NUMBER_PATTER = Pattern.compile("[-+]?(([0-9]+)|([0-9]*\\.))[0-9]+([eE][-+]?[0-9]+)?");
+    static private final Pattern REAL_PATTERN = Pattern.compile("[-+]?[0-9]*\\.[0-9]+([eE][-+]?[0-9]+)?");
 
     /**
      * @param r

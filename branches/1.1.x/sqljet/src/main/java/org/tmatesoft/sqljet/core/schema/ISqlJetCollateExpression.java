@@ -1,6 +1,6 @@
 /**
  * ISqlJetCollateExpression.java
- * Copyright (C) 2009-2010 TMate Software Ltd
+ * Copyright (C) 2009-2013 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

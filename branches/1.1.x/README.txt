@@ -1,4 +1,4 @@
-This is a README.txt file for SQLJet (c) 2009-2012 TMate Software.
+This is a README.txt file for SQLJet (c) 2009-2013 TMate Software.
 
 SQLJet is a pure Java (tm) embedded database management engine with SQLite format support.
 

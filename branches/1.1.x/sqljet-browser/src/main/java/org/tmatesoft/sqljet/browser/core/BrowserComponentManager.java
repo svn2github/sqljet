@@ -1,6 +1,6 @@
 /**
  * BrowserComponentManager.java
- * Copyright (C) 2009-2010 TMate Software Ltd
+ * Copyright (C) 2009-2013 TMate Software Ltd
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ public class BrowserComponentManager implements ChangeListener, IProgress {
         final JLabel status = new JLabel(
                 "<html><body><p>Powered by SQLJet v"
                         + SqlJetVersion.getVersionString()
-                        + "<br>&copy; 2009-2010, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>");
+                        + "<br>&copy; 2009-2013, TMate Software, <a href=\"http://sqljet.com/\">http://sqljet.com/</a></p></body></html>");
         status.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         status.addMouseListener(new MouseAdapter() {
 

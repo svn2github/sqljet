@@ -222,8 +222,7 @@ atom_expr
   | name=ID LPAREN (DISTINCT? args+=expr (COMMA args+=expr)* | ASTERISK)? RPAREN -> ^(FUNCTION_EXPRESSION $name DISTINCT? $args* ASTERISK?)
   | LPAREN! expr RPAREN!
   | CAST^ LPAREN! expr AS! type_name RPAREN!
-// query is not supported for now
-//  | (/* {ambiguous; parsed as unary expr} (NOT)? */ EXISTS)? LPAREN select_stmt RPAREN
+  | ((NOT)? EXISTS)? LPAREN select_stmt RPAREN
   | CASE (case_expr=expr)? when_expr+ (ELSE else_expr=expr)? END -> ^(CASE $case_expr? when_expr+ $else_expr?)
   | raise_function
   ;

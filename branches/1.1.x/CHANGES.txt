@@ -4,6 +4,17 @@ Version ?.?.?
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.?/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
+Version 1.1.7
+(04 Mar 2013, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.7/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Custom functions call in schema should not prevent db from 
+    being opened (issue #172).
+
 Version 1.1.6
 (07 Jan 2013, from /branches/1.1.x)
 

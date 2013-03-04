@@ -54,7 +54,7 @@ public interface ISqlJetFile {
     ** a random byte is selected for a shared lock.  The pool of bytes for
     ** shared locks begins at SHARED_FIRST. 
     **
-    ** Locking in windows is manditory.  For this reason, we cannot store
+    ** Locking in windows is mandatory.  For this reason, we cannot store
     ** actual data in the bytes used for locking.  The pager never allocates
     ** the pages involved in locking therefore.  SHARED_SIZE is selected so
     ** that all locks will fit on a single page even at the minimum page size.

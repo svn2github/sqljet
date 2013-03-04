@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="${url}/browser">
+<information>
+  <title>SQLJet DB Browser</title>
+  <vendor>TMate Software</vendor>
+  <homepage href="${url}/"></homepage>
+  <description>SQLJet DB Browser: Pure Java SQLite Database Browser</description>
+</information>
+<security>
+  <all-permissions/>
+</security>
+<offline-allowed />
+<resources>
+  <j2se version="${target}+"/>
+  <jar href="${classpathEntry}" main="${'${classpathEntry}'.startsWith('sqljet-browser')}"/>
+</resources>
+<application-desc main-class="${browserMainClass}" />
+</jnlp>

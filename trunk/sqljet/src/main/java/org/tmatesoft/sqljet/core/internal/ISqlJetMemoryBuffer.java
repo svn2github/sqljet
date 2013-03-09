@@ -1,7 +1,7 @@
 /**
  * ISqlJetMemory.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -19,20 +19,21 @@ package org.tmatesoft.sqljet.core.internal;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 
 /**
  * Represents SQLJet's operations with memory.
- * 
+ *
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public interface ISqlJetMemoryBuffer {
 
     /**
      * Allocate chunk of memory. If memory already has allocated then fries
      * current chunk and allocates new.
-     * 
+     *
      * @param size
      *            size of chunk in bytes
      */
@@ -45,30 +46,30 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Returns true if memory is allocated.
-     * 
+     *
      * @return
      */
     boolean isAllocated();
 
     /**
      * Returns pointer in memory chunk at passed offset.
-     * 
+     *
      * @param pointer
-     * 
+     *
      * @return
      */
     ISqlJetMemoryPointer getPointer(int pointer);
 
     /**
      * Size of allocated memory chunk.
-     * 
+     *
      * @return
      */
     int getSize();
 
     /**
      * Read byte at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -76,7 +77,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write byte at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -84,7 +85,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read short at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -92,7 +93,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write short at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -100,7 +101,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read int at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -108,7 +109,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write int at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -116,7 +117,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read long at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -124,7 +125,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write long at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -132,7 +133,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read unsigned byte at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -140,7 +141,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write unsigned byte at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -148,7 +149,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read unsigned short at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -156,7 +157,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write unsigned short at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -164,7 +165,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Read unsigned int at pointer.
-     * 
+     *
      * @param pointer
      * @return
      */
@@ -172,7 +173,7 @@ public interface ISqlJetMemoryBuffer {
 
     /**
      * Write unsigned int at pointer.
-     * 
+     *
      * @param pointer
      * @param value
      */
@@ -181,7 +182,7 @@ public interface ISqlJetMemoryBuffer {
     /**
      * Read from file into memory chunk at pointer. Method isn't synchronized on
      * file.
-     * 
+     *
      * @param pointer
      * @param file
      * @param position
@@ -191,10 +192,12 @@ public interface ISqlJetMemoryBuffer {
      */
     int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
 
+    int readFromFile(int pointer, FileChannel channel, long position, int count) throws IOException;
+
     /**
      * Write from memory chunk at pointer to file. Method isn't synchronized on
      * file.
-     * 
+     *
      * @param pointer
      * @param file
      * @param position
@@ -203,6 +206,7 @@ public interface ISqlJetMemoryBuffer {
      * @throws IOException
      */
     int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
+    int writeToFile(int pointer, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * @param dstPos

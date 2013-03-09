@@ -20,6 +20,7 @@ package org.tmatesoft.sqljet.core.internal.fs;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -178,7 +179,8 @@ public class SqlJetFile implements ISqlJetFile {
         this.permissions = EnumSet.copyOf(permissions);
         this.noLock = noLock;
 
-        this.fileLockManager = new SqlJetFileLockManager(this.filePathResolved, file.getChannel());
+        this.channel = file.getChannel();
+		this.fileLockManager = new SqlJetFileLockManager(this.filePathResolved, channel);
 
         findLockInfo();
 
@@ -251,6 +253,14 @@ public class SqlJetFile implements ISqlJetFile {
                 file = null;
             }
 
+            try {
+                channel.close();
+            } catch (IOException e) {
+                throw new SqlJetException(SqlJetErrorCode.IOERR, e);
+            } finally {
+                channel = null;
+            }
+
         }
 
         if (filePath != null && permissions.contains(SqlJetFileOpenPermission.DELETEONCLOSE)) {
@@ -274,10 +284,10 @@ public class SqlJetFile implements ISqlJetFile {
         assert (offset >= 0);
         assert (buffer != null);
         assert (buffer.remaining() >= amount);
-        assert (file != null);
+        assert (channel != null);
         try {
             TIMER_START();
-            final int read = buffer.readFromFile(file, offset, amount);
+            final int read = buffer.readFromFile(channel, offset, amount);
             TIMER_END();
             OSTRACE("READ %s %5d %7d %d\n", this.filePath, read, offset, TIMER_ELAPSED());
             return read < 0 ? 0 : read;
@@ -296,10 +306,10 @@ public class SqlJetFile implements ISqlJetFile {
         assert (offset >= 0);
         assert (buffer != null);
         assert (buffer.remaining() >= amount);
-        assert (file != null);
+        assert (channel != null);
         try {
             TIMER_START();
-            final int write = buffer.writeToFile(file, offset, amount);
+            final int write = buffer.writeToFile(channel, offset, amount);
             TIMER_END();
             OSTRACE("WRITE %s %5d %7d %d\n", this.filePath, write, offset, TIMER_ELAPSED());
         } catch (IOException e) {
@@ -332,7 +342,7 @@ public class SqlJetFile implements ISqlJetFile {
         try {
             OSTRACE("SYNC    %s\n", this.filePath);
             boolean syncMetaData = syncFlags != null && syncFlags.contains(SqlJetSyncFlags.NORMAL);
-            file.getChannel().force(syncMetaData);
+            channel.force(syncMetaData);
         } catch (IOException e) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_FSYNC, e);
         }
@@ -346,7 +356,7 @@ public class SqlJetFile implements ISqlJetFile {
     public synchronized long fileSize() throws SqlJetException {
         assert (file != null);
         try {
-            return file.getChannel().size();
+            return channel.size();
         } catch (IOException e) {
             throw new SqlJetException(SqlJetErrorCode.IOERR, e);
         }
@@ -747,6 +757,8 @@ public class SqlJetFile implements ISqlJetFile {
      */
     final static Set<SqlJetDeviceCharacteristics> noDeviceCharacteristircs = SqlJetUtility
             .noneOf(SqlJetDeviceCharacteristics.class);
+
+	private FileChannel channel;
 
     public Set<SqlJetDeviceCharacteristics> deviceCharacteristics() {
         return noDeviceCharacteristircs;

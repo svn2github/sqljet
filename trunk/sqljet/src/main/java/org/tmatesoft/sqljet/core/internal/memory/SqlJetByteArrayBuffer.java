@@ -1,7 +1,7 @@
 /**
  * SqlJetByteArrayBuffer.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -19,6 +19,8 @@ package org.tmatesoft.sqljet.core.internal.memory;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 import org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer;
@@ -29,7 +31,7 @@ import org.tmatesoft.sqljet.core.internal.SqlJetUtility;
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
@@ -37,7 +39,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #allocate(int)
@@ -50,7 +52,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #free()
@@ -63,7 +65,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #isAllocated()
@@ -74,7 +76,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getSize()
@@ -87,7 +89,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getPointer(int)
@@ -102,7 +104,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getByte(int)
@@ -117,7 +119,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getInt(int)
@@ -132,7 +134,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getLong(int)
@@ -147,7 +149,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getShort(int)
@@ -162,7 +164,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getUnsignedByte(int)
@@ -177,7 +179,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getUnsignedInt(int)
@@ -192,7 +194,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #getUnsignedShort(int)
@@ -207,7 +209,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setByte(int, byte)
@@ -222,7 +224,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setInt(int, int)
@@ -237,7 +239,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setLong(int, long)
@@ -252,7 +254,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setShort(int, short)
@@ -267,7 +269,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedByte(int, int)
@@ -282,7 +284,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedInt(int, long)
@@ -297,7 +299,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #setUnsignedShort(int, int)
@@ -312,7 +314,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #read(int, java.io.RandomAccessFile, long, int)
@@ -330,9 +332,23 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
         return file.read(buffer, pointer, count);
     }
 
+    public int readFromFile(final int pointer, final FileChannel channel, final long position, final int count)
+            throws IOException {
+        assert (buffer != null);
+        assert (pointer >= 0);
+        assert (pointer < buffer.length);
+        assert (channel != null);
+        assert (position >= 0);
+        assert (count > 0);
+
+        ByteBuffer b = ByteBuffer.wrap(buffer);
+        b.limit(pointer + count).position(pointer);
+        return channel.read(b, position);
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #write(int, java.io.RandomAccessFile, long, int)
@@ -351,9 +367,23 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
         return count;
     }
 
+    public int writeToFile(final int pointer, final FileChannel channel, final long position, final int count)
+            throws IOException {
+        assert (buffer != null);
+        assert (pointer >= 0);
+        assert (pointer < buffer.length);
+        assert (channel != null);
+        assert (position >= 0);
+        assert (count > 0);
+
+        final ByteBuffer b = ByteBuffer.wrap(buffer);
+        b.limit(pointer + count).position(pointer);
+        return channel.write(b, position);
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#asArray()
      */
     public byte[] asArray() {
@@ -362,7 +392,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#copyFrom(int,
      * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer, int, int)
      */
@@ -379,7 +409,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#fill(int,
      * int, byte)
      */
@@ -389,7 +419,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#getBytes(int,
      * byte[], int, int)
      */
@@ -399,7 +429,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#putBytes(int,
      * byte[], int, int)
      */
@@ -409,7 +439,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer#compareTo(int,
      * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryBuffer, int)

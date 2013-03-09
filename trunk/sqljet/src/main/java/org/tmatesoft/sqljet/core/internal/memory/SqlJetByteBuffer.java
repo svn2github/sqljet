@@ -324,26 +324,11 @@ public class SqlJetByteBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer#readFromFile
      * (int, java.io.RandomAccessFile, long, int)
      */
-    public int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException {
+    public int readFromFile(int pointer, RandomAccessFile file, final FileChannel channel, long position, int count) throws IOException {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer < buffer.capacity());
         assert (file != null);
-        assert (position >= 0);
-        assert (count > 0);
-
-        buffer.limit(pointer + count).position(pointer);
-        try {
-            return file.getChannel().read(buffer, position);
-        } finally {
-            buffer.clear();
-        }
-    }
-
-    public int readFromFile(int pointer, FileChannel channel, long position, int count) throws IOException {
-        assert (buffer != null);
-        assert (pointer >= 0);
-        assert (pointer < buffer.capacity());
         assert (channel != null);
         assert (position >= 0);
         assert (count > 0);
@@ -363,26 +348,11 @@ public class SqlJetByteBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.memory.ISqlJetMemoryBuffer#writeToFile
      * (int, java.io.RandomAccessFile, long, int)
      */
-    public int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException {
+    public int writeToFile(int pointer, RandomAccessFile file, final FileChannel channel, long position, int count) throws IOException {
         assert (buffer != null);
         assert (pointer >= 0);
         assert (pointer < buffer.capacity());
         assert (file != null);
-        assert (position >= 0);
-        assert (count > 0);
-
-        buffer.limit(pointer + count).position(pointer);
-        try {
-            return file.getChannel().write(buffer, position);
-        } finally {
-            buffer.clear();
-        }
-    }
-
-    public int writeToFile(int pointer, FileChannel channel, long position, int count) throws IOException {
-        assert (buffer != null);
-        assert (pointer >= 0);
-        assert (pointer < buffer.capacity());
         assert (channel != null);
         assert (position >= 0);
         assert (count > 0);

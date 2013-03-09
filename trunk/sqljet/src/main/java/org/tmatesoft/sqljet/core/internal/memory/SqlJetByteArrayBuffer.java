@@ -319,7 +319,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #read(int, java.io.RandomAccessFile, long, int)
      */
-    public int readFromFile(final int pointer, final RandomAccessFile file, final long position, final int count)
+    public int readFromFile(final int pointer, final RandomAccessFile file, final FileChannel channel, final long position, final int count)
             throws IOException {
         assert (buffer != null);
         assert (pointer >= 0);
@@ -332,20 +332,6 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
         return file.read(buffer, pointer, count);
     }
 
-    public int readFromFile(final int pointer, final FileChannel channel, final long position, final int count)
-            throws IOException {
-        assert (buffer != null);
-        assert (pointer >= 0);
-        assert (pointer < buffer.length);
-        assert (channel != null);
-        assert (position >= 0);
-        assert (count > 0);
-
-        ByteBuffer b = ByteBuffer.wrap(buffer);
-        b.limit(pointer + count).position(pointer);
-        return channel.read(b, position);
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -353,7 +339,7 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryBuffer
      * #write(int, java.io.RandomAccessFile, long, int)
      */
-    public int writeToFile(final int pointer, final RandomAccessFile file, final long position, final int count)
+    public int writeToFile(final int pointer, final RandomAccessFile file, final FileChannel channel, final long position, final int count)
             throws IOException {
         assert (buffer != null);
         assert (pointer >= 0);
@@ -365,20 +351,6 @@ public class SqlJetByteArrayBuffer implements ISqlJetMemoryBuffer {
         file.seek(position);
         file.write(buffer, pointer, count);
         return count;
-    }
-
-    public int writeToFile(final int pointer, final FileChannel channel, final long position, final int count)
-            throws IOException {
-        assert (buffer != null);
-        assert (pointer >= 0);
-        assert (pointer < buffer.length);
-        assert (channel != null);
-        assert (position >= 0);
-        assert (count > 0);
-
-        final ByteBuffer b = ByteBuffer.wrap(buffer);
-        b.limit(pointer + count).position(pointer);
-        return channel.write(b, position);
     }
 
     /*

@@ -315,33 +315,16 @@ public final class SqlJetMemoryPointer implements ISqlJetMemoryPointer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryPointer
      * #read(java.io.RandomAccessFile, long, int)
      */
-    final public int readFromFile(RandomAccessFile file, long position, int count) throws IOException {
+    final public int readFromFile(RandomAccessFile file, FileChannel channel, long position, int count) throws IOException {
         assert (buffer != null);
         assert (buffer.isAllocated());
         assert (file != null);
-        assert (position >= 0);
-        assert (count > 0);
-        assert (pointer + count <= buffer.getSize());
-
-        return buffer.readFromFile(pointer, file, position, count);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryPointer
-     * #read(java.io.RandomAccessFile, long, int)
-     */
-    final public int readFromFile(FileChannel channel, long position, int count) throws IOException {
-        assert (buffer != null);
-        assert (buffer.isAllocated());
         assert (channel != null);
         assert (position >= 0);
         assert (count > 0);
         assert (pointer + count <= buffer.getSize());
 
-        return buffer.readFromFile(pointer, channel, position, count);
+        return buffer.readFromFile(pointer, file, channel, position, count);
     }
 
     /*
@@ -351,24 +334,15 @@ public final class SqlJetMemoryPointer implements ISqlJetMemoryPointer {
      * org.tmatesoft.sqljet.core.sandbox.internal.memory.ISqlJetMemoryPointer
      * #write(java.io.RandomAccessFile, long, int)
      */
-    final public int writeToFile(RandomAccessFile file, long position, int count) throws IOException {
+    final public int writeToFile(RandomAccessFile file, FileChannel channel, long position, int count) throws IOException {
         assert (buffer != null);
         assert (file != null);
-        assert (position >= 0);
-        assert (count > 0);
-        assert (pointer + count <= buffer.getSize());
-
-        return buffer.writeToFile(pointer, file, position, count);
-    }
-
-    final public int writeToFile(FileChannel channel, long position, int count) throws IOException {
-        assert (buffer != null);
         assert (channel != null);
         assert (position >= 0);
         assert (count > 0);
         assert (pointer + count <= buffer.getSize());
 
-        return buffer.writeToFile(pointer, channel, position, count);
+        return buffer.writeToFile(pointer, file, channel, position, count);
     }
 
     /**
@@ -530,8 +504,8 @@ public final class SqlJetMemoryPointer implements ISqlJetMemoryPointer {
      * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer#readFromFile(int,
      * java.io.RandomAccessFile, long, int)
      */
-    final public int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException {
-        return buffer.readFromFile(getAbsolute(pointer), file, position, count);
+    final public int readFromFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException {
+        return buffer.readFromFile(getAbsolute(pointer), file, channel, position, count);
     }
 
     /*
@@ -541,8 +515,8 @@ public final class SqlJetMemoryPointer implements ISqlJetMemoryPointer {
      * org.tmatesoft.sqljet.core.internal.ISqlJetMemoryPointer#writeToFile(int,
      * java.io.RandomAccessFile, long, int)
      */
-    final public int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException {
-        return buffer.writeToFile(getAbsolute(pointer), file, position, count);
+    final public int writeToFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException {
+        return buffer.writeToFile(getAbsolute(pointer), file, channel, position, count);
     }
 
     /*

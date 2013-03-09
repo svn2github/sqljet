@@ -190,9 +190,7 @@ public interface ISqlJetMemoryBuffer {
      * @return
      * @throws IOException
      */
-    int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
-
-    int readFromFile(int pointer, FileChannel channel, long position, int count) throws IOException;
+    int readFromFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * Write from memory chunk at pointer to file. Method isn't synchronized on
@@ -205,8 +203,7 @@ public interface ISqlJetMemoryBuffer {
      * @return
      * @throws IOException
      */
-    int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
-    int writeToFile(int pointer, FileChannel channel, long position, int count) throws IOException;
+    int writeToFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * @param dstPos

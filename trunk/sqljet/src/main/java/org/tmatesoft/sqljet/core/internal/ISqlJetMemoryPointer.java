@@ -171,9 +171,7 @@ public interface ISqlJetMemoryPointer {
      * @return
      * @throws IOException
      */
-    int readFromFile(RandomAccessFile file, long position, int count) throws IOException;
-
-    int readFromFile(FileChannel channel, long position, int count) throws IOException;
+    int readFromFile(RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * Write to file at current address.
@@ -184,8 +182,7 @@ public interface ISqlJetMemoryPointer {
      * @return
      * @throws IOException
      */
-    int writeToFile(RandomAccessFile file, long position, int count) throws IOException;
-    int writeToFile(FileChannel channel, long position, int count) throws IOException;
+    int writeToFile(RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * Read byte at pointer.
@@ -310,7 +307,7 @@ public interface ISqlJetMemoryPointer {
      * @return
      * @throws IOException
      */
-    int readFromFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
+    int readFromFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * Write from memory chunk at pointer to file. Method isn't synchronized on
@@ -323,7 +320,7 @@ public interface ISqlJetMemoryPointer {
      * @return
      * @throws IOException
      */
-    int writeToFile(int pointer, RandomAccessFile file, long position, int count) throws IOException;
+    int writeToFile(int pointer, RandomAccessFile file, FileChannel channel, long position, int count) throws IOException;
 
     /**
      * @return

@@ -1,7 +1,7 @@
 /**
  * SqlJetPragmasHandler.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -167,6 +167,12 @@ public class SqlJetPragmasHandler {
 
     private Object readPragmaValue(Tree node) {
         String type = node.getText().toLowerCase();
+        if(type.equals("true")||type.equals("false")) {
+        	return Boolean.parseBoolean(type);
+        }
+        if(node.getChild(0)==null) {
+        	return null;
+        }
         String value = node.getChild(0).getText();
         if ("float_literal".equals(type)) {
             return Double.valueOf(value);
@@ -179,7 +185,9 @@ public class SqlJetPragmasHandler {
     }
 
     protected boolean toBooleanValue(Object value) throws SqlJetException {
-        if (value instanceof Number) {
+        if (value instanceof Boolean) {
+        	return ((Boolean) value).booleanValue();
+        } else if (value instanceof Number) {
             int i = ((Number) value).intValue();
             if (i == 0) {
                 return false;

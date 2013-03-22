@@ -238,6 +238,7 @@ literal_value
   | CURRENT_TIME -> ^(FUNCTION_LITERAL CURRENT_TIME)
   | CURRENT_DATE -> ^(FUNCTION_LITERAL CURRENT_DATE)
   | CURRENT_TIMESTAMP -> ^(FUNCTION_LITERAL CURRENT_TIMESTAMP)
+  | bool
   ;
 
 bind_parameter
@@ -264,6 +265,7 @@ pragma_value
 	: signed_number -> ^(FLOAT_LITERAL signed_number)
 	| ID -> ^(ID_LITERAL ID)
 	| STRING -> ^(STRING_LITERAL STRING)
+	| bool
 	;
 
 // ATTACH
@@ -428,7 +430,7 @@ numeric_literal_value
 signed_default_number: (PLUS | MINUS)^ numeric_literal_value;
 
 // Expand signed_number to avoid collisions with literal_value
-column_constraint_default: DEFAULT^ (signed_default_number | literal_value | LPAREN! expr RPAREN!);
+column_constraint_default: DEFAULT^ (signed_default_number | literal_value | LPAREN! expr RPAREN! );
 
 column_constraint_collate: COLLATE^ collation_name=id; // collation_name: (BINARY|NOCASE|RTRIM)
 
@@ -935,6 +937,10 @@ VIEW: V I E W;
 VIRTUAL: V I R T U A L;
 WHEN: W H E N;
 WHERE: W H E R E;
+TRUE: T R U E;
+FALSE: F A L S E;
+
+bool: (TRUE|FALSE);
 
 fragment STRING_ESCAPE_SINGLE: (BACKSLASH QUOTE_SINGLE);
 fragment STRING_ESCAPE_DOUBLE: (BACKSLASH QUOTE_DOUBLE);

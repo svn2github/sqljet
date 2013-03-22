@@ -1,7 +1,7 @@
 /**
  * SqlJetExpression.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -67,10 +67,12 @@ public abstract class SqlJetExpression implements ISqlJetExpression {
             return new SqlJetUnaryExpression(ast);
         } else if ("collate".equals(op)) {
             return new SqlJetCollateExpression(ast);
+        } else if("true".equals(op)||"false".equals(op)) {
+        	return new SqlJetBoolLiteral(ast);
         }
         throw new SqlJetException(SqlJetErrorCode.ERROR, "Invalid expression");
     }
-    
+
     /* (non-Javadoc)
      * @see org.tmatesoft.sqljet.core.schema.ISqlJetExpression#getValue()
      */

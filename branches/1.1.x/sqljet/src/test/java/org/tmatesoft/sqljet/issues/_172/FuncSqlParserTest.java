@@ -1,7 +1,5 @@
 package org.tmatesoft.sqljet.issues._172;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 

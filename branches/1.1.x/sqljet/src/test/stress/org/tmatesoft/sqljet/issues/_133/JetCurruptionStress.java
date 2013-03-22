@@ -58,12 +58,13 @@ public class JetCurruptionStress {
 
     @Test
     public void testLoadManyData() throws Exception {
-        ISqlJetTable table = db.getTable("places");
+        final ISqlJetTable table = db.getTable("places");
+        BufferedReader reader = null;
         try {
             db.beginTransaction(SqlJetTransactionMode.WRITE);
-            File errTxt = new File("src/test/data/issues/133/err.txt");
-            FileInputStream input = new FileInputStream(errTxt);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input, "utf-8"));
+            final File errTxt = new File("src/test/data/issues/133/err.txt");
+            final FileInputStream input = new FileInputStream(errTxt);
+            reader = new BufferedReader(new InputStreamReader(input, "utf-8"));
 
             int counter = 0;
             while (true) {
@@ -84,6 +85,9 @@ public class JetCurruptionStress {
             }
 
         } finally {
+            if (reader != null) {
+                reader.close();
+            }
             db.commit();
         }
     }

@@ -33,10 +33,7 @@ import org.tmatesoft.sqljet.core.table.SqlJetDb;
  */
 public class Svn18SchemaTest extends AbstractNewDbTest {
     
-    
-
     private static final String[] svn18WcTables =
-
     {
         "CREATE TABLE REPOSITORY ( id INTEGER PRIMARY KEY AUTOINCREMENT, root  TEXT UNIQUE NOT NULL, uuid  TEXT NOT NULL );", 
         
@@ -100,6 +97,32 @@ public class Svn18SchemaTest extends AbstractNewDbTest {
         "CREATE TRIGGER nodes_update_checksum_trigger AFTER UPDATE OF checksum ON nodes WHEN NEW.checksum IS NOT OLD.checksum BEGIN UPDATE pristine SET refcount = refcount + 1 WHERE checksum = NEW.checksum; UPDATE pristine SET refcount = refcount - 1 WHERE checksum = OLD.checksum; END;",
     };
 
+    private static final String NODES_TABLE_17 = "CREATE TABLE NODES ( " +
+        "wc_id INTEGER NOT NULL REFERENCES WCROOT (id), " +
+        "local_relpath TEXT NOT NULL, " +
+        "op_depth INTEGER NOT NULL, " +
+        "parent_relpath TEXT, " +
+        "repos_id INTEGER REFERENCES REPOSITORY (id), " +
+        "repos_path TEXT, " +
+        "revision INTEGER, " +
+        "presence TEXT NOT NULL, " +
+        "moved_here INTEGER, " +
+        "moved_to TEXT, " +
+        "kind TEXT NOT NULL, " +
+        "properties  BLOB, " +
+        "depth TEXT, " +
+        "checksum  TEXT REFERENCES PRISTINE (checksum), " +
+        "symlink_target TEXT, " +
+        "changed_revision INTEGER, " +
+        "changed_date INTEGER, " +
+        "changed_author TEXT, " +
+        "translated_size INTEGER, " +
+        "last_mod_time INTEGER, " +
+        "dav_cache BLOB, " +
+        "file_external INTEGER, " +
+        "PRIMARY KEY (wc_id, local_relpath, op_depth) );"; 
+
+
     @Test
     public void createSVN18WcDb() throws SqlJetException {
         Set<String> tableNames = new HashSet<String>();
@@ -149,5 +172,16 @@ public class Svn18SchemaTest extends AbstractNewDbTest {
         Assert.assertTrue(tableNames.isEmpty());
         Assert.assertTrue(indexNames.isEmpty());
         Assert.assertTrue(viewNames.isEmpty());
+    }
+    
+    @Test
+    public void testUpgradeSvn17ToSvn18() throws SqlJetException {
+      db.createTable(NODES_TABLE_17);
+      db.alterTable("ALTER TABLE NODES ADD COLUMN inherited_props BLOB;");
+      db.close();
+
+      db = SqlJetDb.open(file, true);
+      db.refreshSchema();
+      db.close();
     }
 }

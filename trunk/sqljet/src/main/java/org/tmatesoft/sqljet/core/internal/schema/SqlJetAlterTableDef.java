@@ -1,7 +1,7 @@
 /**
  * SqlJetAlterTableDef.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -21,12 +21,13 @@ import org.antlr.runtime.ParserRuleReturnScope;
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 
 /**
  * @author TMate Software Ltd.
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
- * 
+ *
  */
 public class SqlJetAlterTableDef {
 
@@ -34,8 +35,10 @@ public class SqlJetAlterTableDef {
 
     private final String tableName;
     private final String newTableName;
+    private final String tableQuotedName;
+    private final String newTableQuotedName;
     private final ISqlJetColumnDef newColumnDef;
-    
+
     private ParserRuleReturnScope parsedSql;
 
     /**
@@ -56,11 +59,13 @@ public class SqlJetAlterTableDef {
         }
         final CommonTree tableNameNode = (CommonTree) ast.getChild(2);
         tableName = tableNameNode.getText();
+        tableQuotedName = SqlParser.quotedId(tableNameNode);
         final CommonTree actionNode = (CommonTree) ast.getChild(3);
         final String action = actionNode.getText();
         final CommonTree child = (CommonTree) ast.getChild(4);
         if ("add".equalsIgnoreCase(action)) {
             newTableName = null;
+            newTableQuotedName = null;
             final CommonTree newColumnNode;
             if ("column".equalsIgnoreCase(child.getText())) {
                 if (childCount != 6) {
@@ -82,8 +87,10 @@ public class SqlJetAlterTableDef {
             }
             final CommonTree newTableNode = (CommonTree) ast.getChild(5);
             newTableName = newTableNode.getText();
+            newTableQuotedName = SqlParser.quotedId(newTableNode);
         } else {
             newTableName = null;
+            newTableQuotedName = null;
             newColumnDef = null;
             throw new SqlJetException(SqlJetErrorCode.MISUSE, INVALID_ALTER_TABLE_STATEMENT);
         }
@@ -103,6 +110,14 @@ public class SqlJetAlterTableDef {
         return newTableName;
     }
 
+    public String getTableQuotedName() {
+		return tableQuotedName;
+	}
+
+    public String getNewTableQuotedName() {
+		return newTableQuotedName;
+	}
+
     /**
      * @return
      */
@@ -116,5 +131,5 @@ public class SqlJetAlterTableDef {
     public ParserRuleReturnScope getParsedSql() {
         return parsedSql;
     }
-    
+
 }

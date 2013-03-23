@@ -1,7 +1,7 @@
 /**
  * SqlJetColumnDef.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetTypeDef;
@@ -31,12 +32,14 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
 public class SqlJetColumnDef implements ISqlJetColumnDef {
 
     private final String name;
+    private final String quotedName;
     private final ISqlJetTypeDef type;
     private final List<ISqlJetColumnConstraint> constraints;
     private int index;
 
     public SqlJetColumnDef(CommonTree ast) throws SqlJetException {
         name = ast.getText();
+        quotedName = SqlParser.quotedId(ast);
         CommonTree constraintsNode = (CommonTree) ast.getChild(0);
         assert "constraints".equalsIgnoreCase(constraintsNode.getText());
         List<ISqlJetColumnConstraint> constraints = new ArrayList<ISqlJetColumnConstraint>();
@@ -81,6 +84,10 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
         return name;
     }
 
+    public String getQuotedName() {
+    	return quotedName;
+    }
+
     public ISqlJetTypeDef getType() {
         return type;
     }
@@ -119,7 +126,7 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append(getName());
+        buffer.append(getQuotedName());
         if (getType() != null) {
             buffer.append(' ');
             buffer.append(getType());
@@ -130,19 +137,19 @@ public class SqlJetColumnDef implements ISqlJetColumnDef {
         }
         return buffer.toString();
     }
-    
+
     /**
      * @return the index
      */
     public int getIndex() {
         return index;
     }
-    
+
     /**
      * @param index the index to set
      */
     public void setIndex(int index) {
         this.index = index;
     }
-    
+
 }

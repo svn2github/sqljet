@@ -1,7 +1,7 @@
 /**
  * SqlJetTableDef.java
  * Copyright (C) 2009-2013 TMate Software Ltd
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import org.antlr.runtime.tree.CommonTree;
 import org.tmatesoft.sqljet.core.SqlJetErrorCode;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.internal.lang.SqlParser;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnConstraint;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnDef;
 import org.tmatesoft.sqljet.core.schema.ISqlJetColumnNotNull;
@@ -41,6 +42,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
 
     private final String name;
+    private final String quotedName;
     private final String databaseName;
     private final boolean temporary;
     private final boolean ifNotExists;
@@ -69,7 +71,8 @@ public class SqlJetTableDef implements ISqlJetTableDef {
 
     SqlJetTableDef(String name, String databaseName, boolean temporary, boolean ifNotExists,
             List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) {
-        this.name = name;
+        this.name = SqlParser.unquoteId(name);
+        this.quotedName = name;
         this.databaseName = databaseName;
         this.temporary = temporary;
         this.ifNotExists = ifNotExists;
@@ -86,6 +89,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
 
         CommonTree nameNode = (CommonTree) ast.getChild(1);
         name = nameNode.getText();
+        quotedName = SqlParser.quotedId(nameNode);
         databaseName = nameNode.getChildCount() > 0 ? nameNode.getChild(0).getText() : null;
 
         List<ISqlJetColumnDef> columns = new ArrayList<ISqlJetColumnDef>();
@@ -212,6 +216,10 @@ public class SqlJetTableDef implements ISqlJetTableDef {
 
     public String getName() {
         return name;
+    }
+
+    public String getQuotedName() {
+    	return quotedName;
     }
 
     public String getDatabaseName() {
@@ -345,7 +353,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
                 buffer.append('.');
             }
         }
-        buffer.append(getName());
+        buffer.append(getQuotedName());
         buffer.append(" (");
         List<ISqlJetColumnDef> columns = getColumns();
         for (int i = 0; i < columns.size(); i++) {

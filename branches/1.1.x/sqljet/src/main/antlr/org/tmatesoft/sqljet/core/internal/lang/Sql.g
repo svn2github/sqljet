@@ -93,8 +93,8 @@ public void displayRecognitionError(String[] tokenNames, RecognitionException e)
     throw new SqlJetParserException(buffer.toString(), e);
 }
 
-// unquotes identifier
-private String unquoteId(String id) {
+    // unquotes identifier
+public static String unquoteId(String id) {
   if(id==null) {
     return null;
   }
@@ -116,6 +116,23 @@ private String unquoteId(String id) {
     default:
       return id;
   }
+}
+
+
+public static String quotedId(final CommonTree ast) {
+  if(ast instanceof QuotedId) {
+    return ((QuotedId)ast).quotedId();
+  }
+  return ast.getText();
+}
+
+public static class QuotedId extends CommonTree {
+    public QuotedId(Token t) { token=t;}
+    public QuotedId(QuotedId node) { super(node); }
+    public Tree dupNode() { return new QuotedId(this); }
+    public String toString() { return token.getText();}
+    public String getText() { return unquoteId(super.getText()); }
+    public String quotedId() { return super.getText(); }
 }
 
 }
@@ -507,7 +524,7 @@ create_trigger_stmt: CREATE TEMPORARY? TRIGGER (IF NOT EXISTS)? (database_name=i
 drop_trigger_stmt: DROP TRIGGER (IF EXISTS)? (database_name=id DOT)? trigger_name=id;
 
 // identifiers core
-id_core: str=( ID | STRING ) { $str.setText(unquoteId($str.text));};
+id_core: str=( ID<QuotedId> | STRING<QuotedId> );
 
 // Special rules that allow to use certain keywords as identifiers.
 

@@ -72,7 +72,7 @@ public class SqlJetTableDataCursor extends SqlJetRowNumCursor {
 
     private int getFieldSafe(String fieldName) throws SqlJetException {
         final ISqlJetBtreeDataTable table = getBtreeDataTable();
-        if (table.eof()) {
+        if (eof()) {
             throw new SqlJetException(SqlJetErrorCode.MISUSE,
                     "Table is empty or the current record doesn't point to a data row");
         }

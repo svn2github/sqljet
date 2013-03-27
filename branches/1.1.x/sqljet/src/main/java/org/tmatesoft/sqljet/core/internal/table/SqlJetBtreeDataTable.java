@@ -663,6 +663,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                 return false;
             case REPLACE:
                 if (goToRow(rowId)) {
+                    currentRowId = getRowId();
+                    currentRow = getValues();
                     getCursor().delete();
                 }
                 break;
@@ -703,7 +705,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         for (final ISqlJetIndexDef indexDef : indexesDefs.values()) {
 
-            final Object[] currentKey = Action.INSERT == action ? null : getKeyForIndex(currentRow, indexDef);
+            final Object[] currentKey = Action.INSERT == action && SqlJetConflictAction.REPLACE!=onConflict ? 
+            		null : getKeyForIndex(currentRow, indexDef);
             final Object[] key = Action.DELETE == action ? null : getKeyForIndex(row, indexDef);
             if (Action.UPDATE == action) {
                 if (currentRowId == rowId && Arrays.deepEquals(currentKey, key)) {
@@ -749,7 +752,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
         // modify indexes
         for (final IndexKeys i : indexKeys) {
-            if (Action.INSERT != action) {
+            if ((Action.INSERT != action || SqlJetConflictAction.REPLACE==onConflict) && currentRowId >0) {
                 i.indexTable.delete(currentRowId, i.currentKey);
             }
             if (Action.DELETE != action) {

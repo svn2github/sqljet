@@ -129,7 +129,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 return "virtual table";
             }
         },
-        
+
         VIEW {
             @Override
             public Object getName() {
@@ -265,7 +265,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             db.getMutex().leave();
         }
     }
-    
+
     public Set<String> getViewNames() throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -285,7 +285,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             db.getMutex().leave();
         }
     }
-    
+
     public Set<String> getTriggerNames() throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -358,7 +358,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             } else if (TRIGGER_TYPE.equals(type)) {
                 final String triggerName = table.getNameField();
                 final String sql = table.getSqlField();
-                
+
                 final CommonTree ast = (CommonTree) parseTrigger(sql).getTree();
                 final SqlJetTriggerDef triggerDef = new SqlJetTriggerDef(sql, ast);
                 triggerDef.setRowId(table.getRowId());
@@ -530,7 +530,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                 final long rowId = schemaTable.newRowId();
                 schemaTable.insert(null, rowId, null, 0, 0, false);
                 addConstraints(schemaTable, tableDef);
-                
+
                 schemaTable.updateRecord(rowId, TABLE_TYPE, tableName, tableName, page, createTableSql);
 
 
@@ -1022,7 +1022,9 @@ public class SqlJetSchema implements ISqlJetSchema {
 
         assert (null != alterTableDef);
         String tableName = alterTableDef.getTableName();
+        String tableQuotedName = alterTableDef.getTableQuotedName();
         String newTableName = alterTableDef.getNewTableName();
+        String newTableQuotedName = alterTableDef.getNewTableQuotedName();
         ISqlJetColumnDef newColumnDef = alterTableDef.getNewColumnDef();
 
         if (null == tableName) {
@@ -1038,6 +1040,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             renameTable = true;
         } else {
             newTableName = tableName;
+            newTableQuotedName = tableQuotedName;
         }
 
         if (renameTable && tableDefs.containsKey(newTableName)) {
@@ -1085,7 +1088,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         final int page = tableDef.getPage();
         final long rowId = tableDef.getRowId();
 
-        final SqlJetTableDef alterDef = new SqlJetTableDef(newTableName, null, tableDef.isTemporary(), false, columns,
+        final SqlJetTableDef alterDef = new SqlJetTableDef(newTableQuotedName, null, tableDef.isTemporary(), false, columns,
                 tableDef.getConstraints(), page, rowId);
 
         final ISqlJetBtreeSchemaTable schemaTable = openSchemaTable(true);
@@ -1115,14 +1118,15 @@ public class SqlJetSchema implements ISqlJetSchema {
                     throw new SqlJetException(SqlJetErrorCode.CORRUPT);
                 }
 
-                final String alteredSql = getTableAlteredSql(schemaTable.getSqlField(), alterTableDef);
+                //final String alteredSql = getTableAlteredSql(schemaTable.getSqlField(), alterTableDef);
+                final String alteredSql = alterDef.toSQL();
 
                 db.getOptions().changeSchemaVersion();
 
                 schemaTable.insertRecord(TABLE_TYPE, newTableName, newTableName, page, alteredSql);
 
                 if (renameTable && !tableName.equals(newTableName)) {
-                    renameTablesIndices(schemaTable, tableName, newTableName, getAlterTableName(alterTableDef));
+                    renameTablesIndices(schemaTable, tableName, newTableName, newTableQuotedName);
                 }
 
                 tableDefs.remove(tableName);
@@ -1137,67 +1141,6 @@ public class SqlJetSchema implements ISqlJetSchema {
             schemaTable.close();
         }
 
-    }
-
-    /**
-     * @param alterTableDef
-     * @return
-     */
-    private String getAlterTableName(SqlJetAlterTableDef alterTableDef) {
-        final ParserRuleReturnScope parsedSql = alterTableDef.getParsedSql();
-        final CommonTree ast = (CommonTree) parsedSql.getTree();
-
-        final CommonTree nameNode = (CommonTree) ast.getChild(ast.getChildCount() - 1);
-        final CommonToken nameToken = (CommonToken) nameNode.getToken();
-        final CommonToken stopToken = findRightmostChild(nameNode);
-        
-        final CharStream inputStream = nameToken.getInputStream();
-        return inputStream.substring(nameToken.getStartIndex(), stopToken.getStopIndex());
-    }
-    
-    private CommonToken findRightmostChild(CommonTree ast) {
-        if (ast.getChildCount() > 0) {
-            for(int i = ast.getChildCount() - 1; i >= 0; i--) {
-                CommonTree tokenNode = (CommonTree) ast.getChild(i);
-                CommonToken token = findRightmostChild(tokenNode);
-                if (token != null && token.getStopIndex() != token.getStartIndex() && token.getStopIndex() > 0) {
-                    return findRightmostChild(tokenNode);
-                }
-            }
-            // no child fits, return token of the node.
-        }
-        return (CommonToken) ast.getToken();
-    }
-
-    /**
-     * @param sql
-     * @param alterTableDef
-     * @return
-     * @throws SqlJetException
-     */
-    private String getTableAlteredSql(String sql, SqlJetAlterTableDef alterTableDef) throws SqlJetException {
-
-        final RuleReturnScope parsedSQL = parseTable(sql);
-        final CommonTree ast = (CommonTree) parsedSQL.getTree();
-        final CommonToken nameToken = (CommonToken) ((CommonTree) ast.getChild(1)).getToken();
-        final CharStream inputStream = nameToken.getInputStream();
-        final CommonToken stopToken = (CommonToken) parsedSQL.getStop();
-
-        final StringBuilder b = new StringBuilder();
-
-        if (alterTableDef.getNewTableName() != null) {
-            b.append(inputStream.substring(0, nameToken.getStartIndex() - 1));
-            b.append(getAlterTableName(alterTableDef));
-            b.append(inputStream.substring(nameToken.getStopIndex() + 1, stopToken.getStopIndex()));
-        } else if (alterTableDef.getNewColumnDef() != null) {
-            b.append(inputStream.substring(0, stopToken.getStartIndex() - 1));
-            b.append(",").append(getAlterTableName(alterTableDef));
-            b.append(inputStream.substring(stopToken.getStartIndex(), stopToken.getStopIndex()));
-        } else {
-            throw new SqlJetException("Wrong ALTER TABLE statement");
-        }
-
-        return b.toString();
     }
 
     /**
@@ -1375,7 +1318,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         }
 
     }
-    
+
     public ISqlJetViewDef createView(String sql) throws SqlJetException {
         db.getMutex().enter();
         try {
@@ -1389,7 +1332,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private ISqlJetViewDef createViewSafe(String sql) throws SqlJetException {
         final RuleReturnScope parseView = parseView(sql);
         final CommonTree ast = (CommonTree) parseView.getTree();
-        
+
         sql = sql.trim();
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1);
@@ -1559,7 +1502,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             db.getMutex().leave();
         }
     }
-    
+
     private void dropViewSafe(String viewName) throws SqlJetException {
 
         if (null == viewName || "".equals(viewName))
@@ -1604,7 +1547,7 @@ public class SqlJetSchema implements ISqlJetSchema {
             db.getMutex().leave();
         }
     }
-    
+
     private void dropTriggerSafe(String triggerName) throws SqlJetException {
 
         if (null == triggerName || "".equals(triggerName))
@@ -1653,7 +1596,7 @@ public class SqlJetSchema implements ISqlJetSchema {
     private ISqlJetTriggerDef createTriggerSafe(String sql) throws SqlJetException {
         final RuleReturnScope parseView = parseTrigger(sql);
         final CommonTree ast = (CommonTree) parseView.getTree();
-        
+
         sql = sql.trim();
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1);

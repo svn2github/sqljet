@@ -87,7 +87,7 @@ public class UnqiueIndexTest extends AbstractNewDbTest {
                 }
                 final ISqlJetCursor all = db.getTable("NODES").open();
                 try {
-                    Assert.assertEquals(2, all.getRowCount());
+                    Assert.assertEquals(1, all.getRowCount());
                 } finally {
                     all.close();
                 }

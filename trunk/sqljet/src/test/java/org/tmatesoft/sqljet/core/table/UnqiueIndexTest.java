@@ -113,13 +113,13 @@ public class UnqiueIndexTest extends AbstractNewDbTest {
             public Object run(SqlJetDb db) throws SqlJetException {
                 final ISqlJetCursor all = db.getTable("NODES").open();
                 try {
-                    Assert.assertEquals(3, all.getRowCount());
+                    Assert.assertEquals(2, all.getRowCount());
                 } finally {
                     all.close();
                 }
                 final ISqlJetCursor twoRows = db.getTable("NODES").lookup(null, new Object[] {1, "A/B/E"});
                 try {
-                    Assert.assertEquals(2, twoRows.getRowCount());
+                    Assert.assertEquals(1, twoRows.getRowCount());
                 } finally {
                     twoRows.close();
                 }
@@ -138,6 +138,7 @@ public class UnqiueIndexTest extends AbstractNewDbTest {
 
     private void createTables() throws SqlJetException {
         for (String sql : schemaWithUniqueIndex) {
+        	System.out.println(sql);
             if (sql.startsWith("CREATE TABLE")) {
                 db.createTable(sql);
             } else if (sql.startsWith("CREATE INDEX") || sql.startsWith("CREATE UNIQUE INDEX")) {
@@ -175,6 +176,7 @@ public class UnqiueIndexTest extends AbstractNewDbTest {
         values.put("dav_cache", null);
         values.put("file_external", null);
         values.put("inherited_props", null);
+        System.out.println(values);
         return values;
 
     }

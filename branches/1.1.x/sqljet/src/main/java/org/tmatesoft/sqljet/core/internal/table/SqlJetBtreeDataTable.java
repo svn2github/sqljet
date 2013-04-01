@@ -238,19 +238,24 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
         } else {
             ISqlJetIndexDef indexDef = getIndexDefinitions().get(pkIndex);
             Object[] keyForIndex = getKeyForIndex(values, indexDef);
-            if (locate(pkIndex, false, keyForIndex)) {
+            if (isNotUnique(pkIndex, false, keyForIndex)) {
                 return getRowId();
             }
         }
         for(ISqlJetIndexDef indexDef : getIndexDefinitions().values()){
             if(indexDef.isUnique()) {
                 Object[] keyForIndex = getKeyForIndex(values, indexDef);
-                if (locate(indexDef.getName(), false, keyForIndex)) {
+                if (isNotUnique(indexDef.getName(), false, keyForIndex)) {
                     return getRowId();
                 }
             }
         }
         return rowId;
+    }
+    
+    private boolean isNotUnique(String indexName, boolean next, Object... key) throws SqlJetException {
+    	if(hasNull(key)) return false; 
+    	else return locate(indexName, next, key);
     }
 
     /**
@@ -728,6 +733,9 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                                 return false;
                             case REPLACE:
                                 indexTable.delete(lookup, key);
+                                if(isRowIdExists(lookup)) {
+                                	delete(lookup);
+                                }
                                 break;
                             default:
                                 throw new SqlJetException(SqlJetErrorCode.CONSTRAINT, "Insert fails: unique index "

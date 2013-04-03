@@ -733,7 +733,7 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
                                 return false;
                             case REPLACE:
                                 indexTable.delete(lookup, key);
-                                if(isRowIdExists(lookup)) {
+                                if(lookup != currentRowId && isRowIdExists(lookup)) {
                                 	delete(lookup);
                                 }
                                 break;

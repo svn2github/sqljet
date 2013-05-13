@@ -1,6 +1,7 @@
 package org.tmatesoft.sqljet.issues._174;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
@@ -9,6 +10,7 @@ import org.tmatesoft.sqljet.core.table.ISqlJetCursor;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
 
+@Ignore
 public class NullPKTest extends AbstractNewDbTest {
 
 	@Test

@@ -2,13 +2,11 @@ package org.tmatesoft.sqljet.issues._177;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 
-@Ignore
 public class LargerThan2GbTest extends AbstractNewDbTest {
     
     @Test

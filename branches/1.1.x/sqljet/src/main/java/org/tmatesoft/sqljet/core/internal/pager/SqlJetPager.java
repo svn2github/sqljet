@@ -1174,7 +1174,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
         if (null == fd) {
             throw new SqlJetIOException(SqlJetIOErrorCode.IOERR_SHORT_READ);
         }
-        long offset = (pageNumber - 1) * pageSize;
+        final long offset = ((long) (pageNumber - 1)) * pageSize;
         final ISqlJetMemoryPointer data = page.getData();
         fd.read(data, pageSize, offset);
         if (1 == pageNumber) {
@@ -3222,8 +3222,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
              */
             if (page.getPageNumber() <= dbSize && !page.getFlags().contains(SqlJetPageFlags.DONT_WRITE)) {
 
-                long offset = (page.getPageNumber() - 1) * pageSize;
-
+                final long offset = ((long) (page.getPageNumber() - 1)) * pageSize;
                 PAGERTRACE("STORE %s page %d hash(%08x)\n", PAGERID(), pList.getPageNumber(), pageHash(pList));
 
                 ISqlJetMemoryPointer pData = page.getData();

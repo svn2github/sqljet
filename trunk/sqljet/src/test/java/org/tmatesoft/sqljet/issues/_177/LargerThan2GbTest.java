@@ -8,6 +8,15 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 
 public class LargerThan2GbTest extends AbstractNewDbTest {
+	
+	@Test
+	public void testIntOverflow() {
+		final long i1 = 2*Integer.MAX_VALUE;
+		final long i2 = 2*(long)Integer.MAX_VALUE;
+		final long i3 = 2*((long)Integer.MAX_VALUE);
+		Assert.assertTrue( i1 != i2 );
+		Assert.assertTrue( i2 == i3 );
+	}
     
     @Test
     public void testLargeDb() {

@@ -1722,9 +1722,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
          * pDone) will be skipped. Out-of-range pages are also skipped.
          */
         if (pSavepoint != null) {
-            long offset = pSavepoint.iSubRec * (4 + pageSize);
+            final long offset = pSavepoint.iSubRec * ((long)(4 + pageSize));
             for (ii = pSavepoint.iSubRec; rc == null && ii < stmtNRec; ii++) {
-                assert (offset == ii * (4 + pageSize));
+                assert (offset == ii * ((long)(4 + pageSize)));
                 try {
                     playbackOnePage(false, offset, true, pDone);
                 } catch (SqlJetException e) {
@@ -2149,7 +2149,7 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
                 (isMainJrnl ? "main-journal" : "sub-journal"));
         if (state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0
                 && (pPg == null || !pPg.getFlags().contains(SqlJetPageFlags.NEED_SYNC)) && null != fd) {
-            long ofst = (pgno - 1) * pageSize;
+            final long ofst = (pgno - 1) * ((long)pageSize);
             fd.write(aData, pageSize, ofst);
             if (pgno > dbFileSize) {
                 dbFileSize = pgno;
@@ -2595,9 +2595,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      */
     private void doTruncate(int pageNumber) throws SqlJetException {
         if (state.compareTo(SqlJetPagerState.EXCLUSIVE) >= 0 && null != fd) {
-            long currentSize, newSize;
+            final long currentSize, newSize;
             currentSize = fd.fileSize();
-            newSize = pageSize * pageNumber;
+            newSize = ((long)pageSize) * pageNumber;
             if (currentSize != newSize) {
                 if (currentSize > newSize) {
                     fd.truncate(newSize);
@@ -2731,9 +2731,9 @@ public class SqlJetPager implements ISqlJetPager, ISqlJetLimits, ISqlJetPageCall
      * @throws SqlJetIOException
      *
      */
-    void subjournalPage(SqlJetPage pPg) throws SqlJetIOException {
-        ISqlJetMemoryPointer pData = pPg.getData();
-        long offset = stmtNRec * (4 + pageSize);
+    void subjournalPage(final SqlJetPage pPg) throws SqlJetIOException {
+        final ISqlJetMemoryPointer pData = pPg.getData();
+        final long offset = stmtNRec * (long)(4 + pageSize);
 
         PAGERTRACE("STMT-JOURNAL %s page %d\n", PAGERID(), pPg.pgno);
 

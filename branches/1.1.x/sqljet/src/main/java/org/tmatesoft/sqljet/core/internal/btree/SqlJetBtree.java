@@ -1807,7 +1807,7 @@ public class SqlJetBtree implements ISqlJetBtree {
                 pToPage = pBtTo.pPager.getPage(i);
                 pToPage.write();
 
-                for (iOff = (i - 1) * nToPageSize; iOff < i * nToPageSize; iOff += nFromPageSize) {
+                for (iOff = (i - 1) * (long)nToPageSize; iOff < i * (long)nToPageSize; iOff += nFromPageSize) {
                     ISqlJetPage pFromPage = null;
                     int iFrom = (int) (iOff / nFromPageSize) + 1;
 

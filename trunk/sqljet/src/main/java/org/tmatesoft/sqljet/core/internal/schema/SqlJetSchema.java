@@ -1203,7 +1203,7 @@ public class SqlJetSchema implements ISqlJetSchema {
                     alteredIndexSql = getAlteredIndexSql(schemaTable.getSqlField(), alterTableName);
                 }
 
-                schemaTable.insertRecord(INDEX_TYPE, newIndexName, newTableName, page, alteredIndexSql);
+                schemaTable.updateRecord(rowId, INDEX_TYPE, newIndexName, newTableName, page, alteredIndexSql);
 
             } else {
                 throw new SqlJetException(SqlJetErrorCode.INTERNAL);

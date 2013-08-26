@@ -154,7 +154,7 @@ public class SqlJetSchema implements ISqlJetSchema {
         init();
     }
 
-    private ISqlJetBtreeSchemaTable openSchemaTable(boolean write) throws SqlJetException {
+    ISqlJetBtreeSchemaTable openSchemaTable(boolean write) throws SqlJetException {
         return new SqlJetBtreeSchemaTable(btree, write);
     }
 
@@ -1123,7 +1123,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
                 db.getOptions().changeSchemaVersion();
 
-                schemaTable.insertRecord(TABLE_TYPE, newTableName, newTableName, page, alteredSql);
+                schemaTable.updateRecord(rowId, TABLE_TYPE, newTableName, newTableName, page, alteredSql);
 
                 if (renameTable && !tableName.equals(newTableName)) {
                     renameTablesIndices(schemaTable, tableName, newTableName, newTableQuotedName);

@@ -70,7 +70,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     private final List<ISqlJetColumnDef> notNullColumnsCache = new ArrayList<ISqlJetColumnDef>();
 
     SqlJetTableDef(String name, String databaseName, boolean temporary, boolean ifNotExists,
-            List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) {
+            List<ISqlJetColumnDef> columns, List<ISqlJetTableConstraint> constraints, int page, long rowid) throws SqlJetException {
         this.name = SqlParser.unquoteId(name);
         this.quotedName = name;
         this.databaseName = databaseName;
@@ -80,6 +80,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
         this.constraints = Collections.unmodifiableList(constraints);
         this.page = page;
         this.rowId = rowid;
+        resolveConstraints();
     }
 
     public SqlJetTableDef(CommonTree ast, int page) throws SqlJetException {

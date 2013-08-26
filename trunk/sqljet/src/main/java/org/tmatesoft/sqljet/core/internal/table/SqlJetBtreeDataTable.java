@@ -277,7 +277,8 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
 
     private Object[] getValuesRowForUpdate(Object... values) throws SqlJetException {
         final Object[] row = new Object[tableDef.getColumns().size()];
-        System.arraycopy(getValues(), 0, row, 0, row.length);
+        final Object[] existingValues = getValues();
+        System.arraycopy(existingValues, 0, row, 0, Math.min(existingValues.length, row.length));
         if (null != values && values.length != 0) {
             if (values.length > row.length) {
                 throw new SqlJetException(SqlJetErrorCode.MISUSE, "Values count is more than columns in table");
@@ -554,10 +555,12 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
      */
     private Object[] completeRow(Object[] row, Object[] currentRow) {
         if(row.length == currentRow.length) return row;
-        Object[] completeRow = new Object[currentRow.length];
+        final Object[] completeRow;
         if(row.length > currentRow.length) {
-            System.arraycopy(row, 0, completeRow, 0, currentRow.length);
+            completeRow = new Object[row.length];
+            System.arraycopy(row, 0, completeRow, 0, row.length);
         } else {
+            completeRow = new Object[currentRow.length];
             System.arraycopy(row, 0, completeRow, 0, row.length);
             System.arraycopy(currentRow, row.length, completeRow, row.length, currentRow.length - row.length);
         }

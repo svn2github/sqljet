@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.tmatesoft.sqljet.core.AbstractNewDbTest;
 import org.tmatesoft.sqljet.core.SqlJetException;
+import org.tmatesoft.sqljet.core.SqlJetTransactionMode;
 import org.tmatesoft.sqljet.core.internal.lang.SqlJetParserException;
 import org.tmatesoft.sqljet.core.table.ISqlJetTable;
 import org.tmatesoft.sqljet.core.table.SqlJetDb;
@@ -188,6 +189,31 @@ public class AlterTableTest extends AbstractNewDbTest {
     public void renameTable2() throws SqlJetException {
         db.alterTable("alter table t rename to t2;");
         Assert.assertTrue(false);
+    }
+
+    @Test
+    public void addFieldAndModify() throws SqlJetException {
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        try {
+            db.getTable("t2").insert(1L);
+        } finally {
+            db.commit();
+        }
+        db.beginTransaction(SqlJetTransactionMode.WRITE);
+        try {
+            db.alterTable("alter table t2 add column b blob;");
+            db.getTable("t2").open().update(1L, "blob".getBytes());
+        } finally {
+            db.commit();
+        }
+
+        db.beginTransaction(SqlJetTransactionMode.READ_ONLY);
+        try {
+            final byte[] blob = (byte[]) db.getTable("t2").open().getBlobAsArray("b");
+            Assert.assertArrayEquals("blob".getBytes(), blob);
+        } finally {
+            db.commit();
+        }
     }
 
 }

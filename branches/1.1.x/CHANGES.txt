@@ -1,3 +1,24 @@
+Version 1.1.9
+(xx xxx xxxx, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.9/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+Version 1.1.8
+(06 Sep 2013, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.8/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+  * Scheme modification operations (adding table or index) might
+    result in duplicate records in scheme, fixed.
+  * Table scheme altering (adding column) might result in NPE
+    on attempt to update existing records later, fixed.
+
 Version 1.1.7
 (04 Mar 2013, from /branches/1.1.x)
 

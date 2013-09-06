@@ -1,0 +1,7 @@
+AddHandler server-parsed .html
+AddType application/octet-stream .jar
+AddType application/x-java-jnlp-file .jnlp
+Options -Indexes
+ErrorDocument 404 /redirect.php
+ErrorDocument 403 /redirect.php
+php_flag register_globals on

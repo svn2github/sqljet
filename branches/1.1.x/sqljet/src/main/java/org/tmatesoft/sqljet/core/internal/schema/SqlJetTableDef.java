@@ -202,7 +202,7 @@ public class SqlJetTableDef implements ISqlJetTableDef {
     }
 
     private static String generateAutoIndexName(String tableName, int i) {
-        return String.format(AUTOINDEX, tableName, i);
+        return SqlJetSchema.generateAutoIndexName(tableName, i);
     }
 
     static boolean hasOption(CommonTree optionsNode, String name) {

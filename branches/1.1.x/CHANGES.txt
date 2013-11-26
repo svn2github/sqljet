@@ -1,11 +1,21 @@
-Version 1.1.9
+Version 1.1.10
 (xx xxx xxxx, from /branches/1.1.x)
+
+Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.10/
+Issues Tracker: http://code.google.com/p/sqljet/issues/list
+
+Bugfixes:
+
+Version 1.1.9
+(26 Nov 2013, from /branches/1.1.x)
 
 Repository: http://svn.sqljet.com/repos/sqljet/tags/1.1.9/
 Issues Tracker: http://code.google.com/p/sqljet/issues/list
 
 Bugfixes:
 
+  * Automatically generated index names should not be local dependent.
+   
 Version 1.1.8
 (06 Sep 2013, from /branches/1.1.x)
 

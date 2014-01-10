@@ -101,6 +101,7 @@ public class SqlJetBtreeSchemaTable extends SqlJetBtreeTable implements ISqlJetB
                 pageField, sqlField);
         final ISqlJetMemoryPointer pData = record.getRawRecord();
         insert(null, rowId, pData, pData.remaining(), 0, false);
+        record.release();
     }
 
     /*

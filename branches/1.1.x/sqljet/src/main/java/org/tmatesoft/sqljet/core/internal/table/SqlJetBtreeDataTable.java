@@ -89,8 +89,10 @@ public class SqlJetBtreeDataTable extends SqlJetBtreeTable implements ISqlJetBtr
             sequenceTable.close();
         }
         super.close();
-        defaults.release();
-        defaults = null;
+        if (defaults != null) {
+            defaults.release();
+            defaults = null;
+        }
     }
 
     /**

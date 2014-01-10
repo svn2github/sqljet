@@ -74,7 +74,7 @@ public class SqlJetSchema implements ISqlJetSchema {
 
     private static final String NAME_RESERVED = "Name '%s' is reserved to internal use";
 
-    private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
+    private static String AUTOINDEX_PREFIX = "sqlite_autoindex_";
 
     private static final String CANT_DELETE_IMPLICIT_INDEX = "Can't delete implicit index \"%s\"";
 
@@ -611,8 +611,8 @@ public class SqlJetSchema implements ISqlJetSchema {
      * @param i
      * @return
      */
-    private String generateAutoIndexName(String tableName, int i) {
-        return String.format(AUTOINDEX, tableName, i);
+    static String generateAutoIndexName(String tableName, int i) {
+        return AUTOINDEX_PREFIX + tableName + "_" + Integer.toString(i);
     }
 
     /**

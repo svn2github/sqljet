@@ -98,7 +98,9 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
     public boolean goToKey(Object[] key) throws SqlJetException {
         if (key != null && key.length > 0) {
             final SqlJetEncoding encoding = mapDb.getOptions().getEncoding();
-            final ISqlJetMemoryPointer pKey = SqlJetBtreeRecord.getRecord(encoding, key).getRawRecord();
+            final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(encoding, key);
+            final ISqlJetMemoryPointer pKey = rec.getRawRecord();
+            rec.release();
             final int moveTo = moveTo(pKey, pKey.remaining(), false);
             if (moveTo < 0 && !next()) {
                 return false;
@@ -124,7 +126,11 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
         final Set<SqlJetUnpackedRecordFlags> flags = unpacked.getFlags();
         flags.add(SqlJetUnpackedRecordFlags.IGNORE_ROWID);
         flags.add(SqlJetUnpackedRecordFlags.PREFIX_MATCH);
-        return unpacked.recordCompare(record.remaining(), record);
+        try {
+            return unpacked.recordCompare(record.remaining(), record);
+        } finally {
+            unpacked.release();
+        }
     }
 
     /**
@@ -139,10 +145,12 @@ public class SqlJetMapIndexCursor extends SqlJetBtreeTable implements ISqlJetMap
                 lock();
                 try {
                     final SqlJetEncoding encoding = mapDb.getOptions().getEncoding();
-                    final ISqlJetMemoryPointer zKey = SqlJetBtreeRecord.getRecord(encoding,
-                            SqlJetUtility.addArrays(key, new Object[] { value })).getRawRecord();
+                    final ISqlJetBtreeRecord rec = SqlJetBtreeRecord.getRecord(encoding,
+                            SqlJetUtility.addArrays(key, new Object[] { value }));
+                    final ISqlJetMemoryPointer zKey = rec.getRawRecord();
                     getCursor().insert(zKey, zKey.remaining(), SqlJetUtility.allocatePtr(0), 0, 0, true);
                     clearRecordCache();
+                    rec.release();
                 } finally {
                     unlock();
                 }

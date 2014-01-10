@@ -317,7 +317,7 @@ public class SqlJetBtreeTableTest extends AbstractDataCopyTest {
         final ISqlJetMemoryPointer v = f.valueText(SqlJetEncoding.UTF8);
         final String h = SqlJetUtility.toString(v);
         final SqlJetBtreeRecord r1 = new SqlJetBtreeRecord(f);
-        final SqlJetVdbeMem m = new SqlJetVdbeMem();
+        final SqlJetVdbeMem m = SqlJetVdbeMem.obtainInstance();
         m.setStr(SqlJetUtility.wrapPtr(SqlJetUtility.getBytes(h)), SqlJetEncoding.UTF8);
         final SqlJetBtreeRecord r2 = new SqlJetBtreeRecord(m);
         SqlJetKeyInfo keyInfo = new SqlJetKeyInfo();

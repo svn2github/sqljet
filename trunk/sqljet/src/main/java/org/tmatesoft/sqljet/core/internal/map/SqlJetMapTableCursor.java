@@ -108,6 +108,7 @@ public class SqlJetMapTableCursor extends SqlJetBtreeTable implements ISqlJetMap
             final ISqlJetMemoryPointer pData = record.getRawRecord();
             key = key > 0 ? key : newRowId();
             insert(null, key, pData, pData.remaining(), 0, true);
+            record.release();
             return key;
         } else {
             if (goToKey(key)) {

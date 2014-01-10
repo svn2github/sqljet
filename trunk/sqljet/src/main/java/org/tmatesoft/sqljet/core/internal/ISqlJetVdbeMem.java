@@ -30,7 +30,7 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public interface ISqlJetVdbeMem {
+public interface ISqlJetVdbeMem extends ISqlJetReleasable {
 
     /**
      * Release any memory held by the Mem. This may leave the Mem in an
@@ -38,7 +38,7 @@ public interface ISqlJetVdbeMem {
      * (Mem.type==SQLITE_TEXT).
      * 
      */
-    void release();
+    void reset();
 
     /**
      * If pMem is an object with a valid string representation, this routine

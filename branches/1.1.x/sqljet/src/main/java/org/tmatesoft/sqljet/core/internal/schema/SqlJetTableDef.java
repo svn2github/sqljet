@@ -39,8 +39,6 @@ import org.tmatesoft.sqljet.core.schema.ISqlJetTableUnique;
  */
 public class SqlJetTableDef implements ISqlJetTableDef {
 
-    private static String AUTOINDEX = "sqlite_autoindex_%s_%d";
-
     private final String name;
     private final String quotedName;
     private final String databaseName;

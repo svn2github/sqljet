@@ -74,11 +74,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         fieldsCount = values.size();
     }
 
-    public SqlJetBtreeRecord(ISqlJetVdbeMem[] values, int file_format) {
-        this.file_format = file_format;
-        initFields(values);
-    }
-
     public SqlJetBtreeRecord(ISqlJetVdbeMem... values) {
         initFields(values);
     }
@@ -92,7 +87,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         final List<ISqlJetVdbeMem> fields = new ArrayList<ISqlJetVdbeMem>(values.length);
         for (int i = 0; i < values.length; i++) {
             final Object value = values[i];
-            final ISqlJetVdbeMem mem = new SqlJetVdbeMem();
+            final ISqlJetVdbeMem mem = SqlJetVdbeMem.obtainInstance();
             if (null == value) {
                 mem.setNull();
             } else if (value instanceof String) {
@@ -170,7 +165,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
             int i; /* Loop counter */
             ISqlJetMemoryPointer zData; /* Part of the record being decoded */
             /* For storing the record being decoded */
-            SqlJetVdbeMem sMem = new SqlJetVdbeMem();
+            SqlJetVdbeMem sMem = SqlJetVdbeMem.obtainInstance();
 
             ISqlJetMemoryPointer zIdx; /* Index into header */
             ISqlJetMemoryPointer zEndHdr; /*
@@ -230,7 +225,6 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
 
             }
             sMem.release();
-            sMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
             /*
              * If we have read more header data than was contained in the
@@ -283,8 +277,8 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         int len; /* The length of the serialized data for the column */
         ISqlJetMemoryPointer zData; /* Part of the record being decoded */
         /* For storing the record being decoded */
-        SqlJetVdbeMem sMem = new SqlJetVdbeMem();
-        SqlJetVdbeMem pDest = new SqlJetVdbeMem();
+        SqlJetVdbeMem sMem = SqlJetVdbeMem.obtainInstance();
+        SqlJetVdbeMem pDest = SqlJetVdbeMem.obtainInstance();
         pDest.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
 
         cursor.enterCursor();
@@ -301,6 +295,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
 
             /* If payloadSize is 0, then just store a NULL */
             if (payloadSize == 0) {
+                sMem.release();
                 return pDest;
             }
 
@@ -343,6 +338,7 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         }
 
         pDest.makeWriteable();
+        sMem.release();
 
         return pDest;
 
@@ -479,5 +475,11 @@ public class SqlJetBtreeRecord implements ISqlJetBtreeRecord {
         assert (i == nByte);
 
         return zNewRecord;
+    }
+
+    public void release() {
+        for (ISqlJetVdbeMem field : fields) {
+            field.release();
+        }
     }
 }

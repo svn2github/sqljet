@@ -36,7 +36,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
  * @author Sergey Scherbina (sergey.scherbina@gmail.com)
  * 
  */
-public interface ISqlJetUnpackedRecord {
+public interface ISqlJetUnpackedRecord extends ISqlJetReleasable {
 
     /**
      * This function compares the two table rows or index records specified by
@@ -67,5 +67,4 @@ public interface ISqlJetUnpackedRecord {
      * @throws SqlJetException 
      */
     int recordCompare(int i, ISqlJetMemoryPointer cellKey) throws SqlJetException;
-
 }

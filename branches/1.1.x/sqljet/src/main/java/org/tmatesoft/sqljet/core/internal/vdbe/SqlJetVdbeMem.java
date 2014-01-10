@@ -63,6 +63,8 @@ import org.tmatesoft.sqljet.core.schema.SqlJetTypeAffinity;
  *
  */
 public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
+    
+    public static long instanceCounter = 0;
 
     // union {
 
@@ -107,12 +109,14 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
     /** Dynamic buffer allocated by sqlite3_malloc() */
     ISqlJetMemoryPointer zMalloc;
 
-    public SqlJetVdbeMem() {
-        this.db = null;
+    public static final SqlJetVdbeMemPool pool = new SqlJetVdbeMemPool();
+    
+    public static SqlJetVdbeMem obtainInstance() {
+        return pool.obtain();
     }
 
-    public SqlJetVdbeMem(ISqlJetDbHandle db) {
-        this.db = db;
+    SqlJetVdbeMem(SqlJetVdbeMemPool pool) {
+        this.db = null;
     }
 
     /*
@@ -120,12 +124,29 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      *
      * @see org.tmatesoft.sqljet.core.internal.vdbe.ISqlJetVdbeMem#release()
      */
-    public void release() {
+    public void reset() {
         // releaseExternal();
         // sqlite3DbFree(p->db, p->zMalloc);
         z = null;
         zMalloc = null;
         xDel = null;
+    }
+    
+    public void release() {
+        i = 0;
+        nZero = 0;
+        pDef = null;
+        pRowSet = null;
+        r = 0;
+        db = null;
+        z = null;
+        n = 0;
+        flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Null);
+        type = SqlJetValueType.NULL;
+        enc = null;
+        xDel = null;
+        zMalloc = null;
+        pool.release(this);
     }
 
     /**
@@ -237,8 +258,8 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
                     n1 = v1 == null ? 0 : c1.n;
                     v2 = c2.valueText(pColl.getEnc());
                     n2 = v2 == null ? 0 : c2.n;
-                    c1.release();
-                    c2.release();
+                    c1.reset();
+                    c2.reset();
                     return pColl.cmp(pColl.getUserData(), n1, v1, n2, v2);
 
                 }
@@ -564,7 +585,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
 
         assert ((pMem.n + (desiredEnc == SqlJetEncoding.UTF8 ? 1 : 2)) <= len);
 
-        pMem.release();
+        pMem.reset();
         pMem.flags.removeAll(SqlJetUtility.of(SqlJetVdbeMemFlags.Static, SqlJetVdbeMemFlags.Dyn,
                 SqlJetVdbeMemFlags.Ephem));
         pMem.enc = desiredEnc;
@@ -628,7 +649,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         assert (zData != null);
 
         if (offset + amt <= available[0]) {
-            pMem.release();
+            pMem.reset();
             pMem.z = pointer(zData, offset);
             pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Blob, SqlJetVdbeMemFlags.Ephem);
         } else {
@@ -643,7 +664,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
                     pCur.data(offset, amt, pMem.z);
                 }
             } catch (SqlJetException e) {
-                pMem.release();
+                pMem.reset();
                 throw e;
             } finally {
                 if (pMem.z != null) {
@@ -763,7 +784,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      * @see org.tmatesoft.sqljet.core.ISqlJetVdbeMem#setInt64(long)
      */
     public void setInt64(long val) {
-        release();
+        reset();
         i = val;
         flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Int);
         type = SqlJetValueType.INTEGER;
@@ -891,7 +912,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
      */
     public void setZeroBlob(int n) {
         final SqlJetVdbeMem pMem = this;
-        pMem.release();
+        pMem.reset();
         pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Blob, SqlJetVdbeMemFlags.Zero);
         pMem.type = SqlJetValueType.BLOB;
         pMem.n = 0;
@@ -911,7 +932,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         if (Double.isNaN(val)) {
             pMem.setNull();
         } else {
-            pMem.release();
+            pMem.reset();
             pMem.r = val;
             pMem.flags = SqlJetUtility.of(SqlJetVdbeMemFlags.Real);
             pMem.type = SqlJetValueType.FLOAT;
@@ -930,7 +951,7 @@ public class SqlJetVdbeMem extends SqlJetCloneable implements ISqlJetVdbeMem {
         if (pMem.flags.contains(SqlJetVdbeMemFlags.RowSet)) {
             pMem.pRowSet.clear();
         } else {
-            pMem.release();
+            pMem.reset();
             pMem.pRowSet = new SqlJetRowSet(db);
             pMem.flags.add(SqlJetVdbeMemFlags.RowSet);
         }

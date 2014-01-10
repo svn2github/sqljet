@@ -55,7 +55,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
                 for (int i = 0; i < p.nField; i++) {
                     final SqlJetVdbeMem pMem = p.aMem[i];
                     if (pMem.zMalloc != null) {
-                        pMem.release();
+                        pMem.reset();
                     }
                 }
             }
@@ -86,7 +86,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
         int nField;
         int rc = 0;
         SqlJetKeyInfo pKeyInfo;
-        SqlJetVdbeMem mem1 = new SqlJetVdbeMem();
+        SqlJetVdbeMem mem1 = SqlJetVdbeMem.obtainInstance();
 
         pKeyInfo = pPKey2.pKeyInfo;
         mem1.enc = pKeyInfo.enc;
@@ -122,8 +122,7 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
             }
             i++;
         }
-        if (mem1.zMalloc != null)
-            mem1.release();
+        mem1.release();
 
         if (rc == 0) {
             /*
@@ -161,6 +160,16 @@ public class SqlJetUnpackedRecord implements ISqlJetUnpackedRecord {
      */
     public void setFlags(Set<SqlJetUnpackedRecordFlags> flags) {
         this.flags = flags;
+    }
+    
+    public void release() {
+        if (aMem != null) {
+            for (int i = 0; i < aMem.length; i++) {
+                if (aMem[i] != null) {
+                    aMem[i].release();
+                }
+            }
+        }
     }
     
 }

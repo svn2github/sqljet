@@ -350,6 +350,9 @@ public class SqlJetBtreeCursor extends SqlJetCloneable implements ISqlJetBtreeCu
             if (pKey != null) {
                 SqlJetUnpackedRecord.delete(pIdxKey);
             }
+            if (pIdxKey != null) {
+                pIdxKey.release();
+            }
         }
     }
 

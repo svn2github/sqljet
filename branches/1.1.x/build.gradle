@@ -88,7 +88,7 @@ project(':sqljet-browser') {
     configurations { jnlp }
     dependencies {
         compile project(':sqljet')
-        compile 'org.netbeans.api:org-netbeans-swing-outline:RELEASE68'
+        compile 'uk.gov.nationalarchives.thirdparty.netbeans:org-netbeans-swing-outline:7.2'
     }
 }
 project(':sqljet-vfs') {
